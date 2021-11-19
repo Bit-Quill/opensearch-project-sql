@@ -65,81 +65,81 @@
         </function>
 
         <function group='operator' name='==' return-type='bool'>
-            <formula>(TIMESTAMP(%1) = TIMESTAMP(%2))</formula>
+            <formula>(CAST(%1 as TIMESTAMP) = CAST(%2 as TIMESTAMP))</formula>
             <argument type='date' />
             <argument type='datetime' />
         </function>
         <function group='operator' name='==' return-type='bool'>
-            <formula>(TIMESTAMP(%1) = TIMESTAMP(%2))</formula>
+            <formula>(CAST(%1 as TIMESTAMP) = CAST(%2 as TIMESTAMP))</formula>
             <argument type='datetime' />
             <argument type='date' />
         </function>
         <function group='operator' name='!=' return-type='bool'>
-            <formula>(TIMESTAMP(%1) &lt;&gt; TIMESTAMP(%2))</formula>
+            <formula>(CAST(%1 as TIMESTAMP) &lt;&gt; CAST(%2 as TIMESTAMP))</formula>
             <argument type='date' />
             <argument type='datetime' />
         </function>
         <function group='operator' name='!=' return-type='bool'>
-            <formula>(TIMESTAMP(%1) &lt;&gt; TIMESTAMP(%2))</formula>
+            <formula>(CAST(%1 as TIMESTAMP) &lt;&gt; CAST(%2 as TIMESTAMP))</formula>
             <argument type='datetime' />
             <argument type='date' />
         </function>
         <function group='operator' name='&gt;=' return-type='bool'>
-            <formula>(TIMESTAMP(%1) &gt;= TIMESTAMP(%2))</formula>
+            <formula>(CAST(%1 as TIMESTAMP) &gt;= CAST(%2 as TIMESTAMP))</formula>
             <argument type='date' />
             <argument type='datetime' />
         </function>
         <function group='operator' name='&gt;=' return-type='bool'>
-            <formula>(TIMESTAMP(%1) &gt;= TIMESTAMP(%2))</formula>
+            <formula>(CAST(%1 as TIMESTAMP) &gt;= CAST(%2 as TIMESTAMP))</formula>
             <argument type='datetime' />
             <argument type='date' />
         </function>
         <function group='operator' name='&lt;=' return-type='bool'>
-            <formula>(TIMESTAMP(%1) &lt;= TIMESTAMP(%2))</formula>
+            <formula>(CAST(%1 as TIMESTAMP) &lt;= CAST(%2 as TIMESTAMP))</formula>
             <argument type='date' />
             <argument type='datetime' />
         </function>
         <function group='operator' name='&lt;=' return-type='bool'>
-            <formula>(TIMESTAMP(%1) &lt;= TIMESTAMP(%2))</formula>
+            <formula>(CAST(%1 as TIMESTAMP) &lt;= CAST(%2 as TIMESTAMP))</formula>
             <argument type='datetime' />
             <argument type='date' />
         </function>
         <function group='operator' name='&gt;' return-type='bool'>
-            <formula>(TIMESTAMP(%1) &gt; TIMESTAMP(%2))</formula>
+            <formula>(CAST(%1 as TIMESTAMP) &gt; CAST(%2 as TIMESTAMP))</formula>
             <argument type='date' />
             <argument type='datetime' />
         </function>
         <function group='operator' name='&gt;' return-type='bool'>
-            <formula>(TIMESTAMP(%1) &gt; TIMESTAMP(%2))</formula>
+            <formula>(CAST(%1 as TIMESTAMP) &gt; CAST(%2 as TIMESTAMP))</formula>
             <argument type='datetime' />
             <argument type='date' />
         </function>
         <function group='operator' name='&lt;' return-type='bool'>
-            <formula>(TIMESTAMP(%1) &lt; TIMESTAMP(%2))</formula>
+            <formula>(CAST(%1 as TIMESTAMP) &lt; CAST(%2 as TIMESTAMP))</formula>
             <argument type='date' />
             <argument type='datetime' />
         </function>
         <function group='operator' name='&lt;' return-type='bool'>
-            <formula>(TIMESTAMP(%1) &lt; TIMESTAMP(%2))</formula>
+            <formula>(CAST(%1 as TIMESTAMP) &lt; CAST(%2 as TIMESTAMP))</formula>
             <argument type='datetime' />
             <argument type='date' />
         </function>
 
         <function group='operator' name='-' return-type='real'>
             <!-- 86400 as it represents seconds in a day -->
-            <formula>((TO_DAYS(TIMESTAMP(%1)) - TO_DAYS(TIMESTAMP(%2))) + ((TIME_TO_SEC(TIMESTAMP(%1)) - TIME_TO_SEC(TIMESTAMP(%2))) / 86400.0))</formula>
+            <formula>((TO_DAYS(CAST(%1 as TIMESTAMP)) - TO_DAYS(CAST(%2 as TIMESTAMP))) + ((TIME_TO_SEC(CAST(%1 as TIMESTAMP)) - TIME_TO_SEC(CAST(%2 as TIMESTAMP))) / 86400.0))</formula>
             <argument type='date' />
             <argument type='datetime' />
         </function>
         <function group='operator' name='-' return-type='real'>
             <!-- 86400 as it represents seconds in a day -->
-            <formula>((TO_DAYS(TIMESTAMP(%1)) - TO_DAYS(TIMESTAMP(%2))) + ((TIME_TO_SEC(TIMESTAMP(%1)) - TIME_TO_SEC(TIMESTAMP(%2))) / 86400.0))</formula>
+            <formula>((TO_DAYS(CAST(%1 as TIMESTAMP)) - TO_DAYS(CAST(%2 as TIMESTAMP))) + ((TIME_TO_SEC(CAST(%1 as TIMESTAMP)) - TIME_TO_SEC(CAST(%2 as TIMESTAMP))) / 86400.0))</formula>
             <argument type='datetime' />
             <argument type='date' />
         </function>
         <function group='operator' name='-' return-type='real'>
             <!-- 86400 as it represents seconds in a day -->
-            <formula>((TO_DAYS(TIMESTAMP(%1)) - TO_DAYS(TIMESTAMP(%2))) + ((TIME_TO_SEC(TIMESTAMP(%1)) - TIME_TO_SEC(TIMESTAMP(%2))) / 86400.0))</formula>
+            <formula>((TO_DAYS(CAST(%1 as TIMESTAMP)) - TO_DAYS(CAST(%2 as TIMESTAMP))) + ((TIME_TO_SEC(CAST(%1 as TIMESTAMP)) - TIME_TO_SEC(CAST(%2 as TIMESTAMP))) / 86400.0))</formula>
             <argument type='datetime' />
             <argument type='datetime' />
         </function>
