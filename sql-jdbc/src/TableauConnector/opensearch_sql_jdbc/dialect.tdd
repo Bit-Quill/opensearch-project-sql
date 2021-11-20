@@ -65,27 +65,27 @@
         </function>
 
         <function group='operator' name='==' return-type='bool'>
-            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) AS TIMESTAMP) = CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
+            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) AS TIMESTAMP)) = CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
             <argument type='date' />
             <argument type='datetime' />
         </function>
         <function group='operator' name='==' return-type='bool'>
-            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) AS TIMESTAMP) = CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
+            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) AS TIMESTAMP)) = CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
             <argument type='datetime' />
             <argument type='date' />
         </function>
         <function group='operator' name='!=' return-type='bool'>
-            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) AS TIMESTAMP) &lt;&gt; CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
+            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) AS TIMESTAMP)) &lt;&gt; CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
             <argument type='date' />
             <argument type='datetime' />
         </function>
         <function group='operator' name='!=' return-type='bool'>
-            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) AS TIMESTAMP) &lt;&gt; CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
+            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) AS TIMESTAMP)) &lt;&gt; CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
             <argument type='datetime' />
             <argument type='date' />
         </function>
         <function group='operator' name='&gt;=' return-type='bool'>
-            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) AS TIMESTAMP) &gt;= CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
+            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) AS TIMESTAMP)) &gt;= CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
             <argument type='date' />
             <argument type='datetime' />
         </function>
@@ -95,32 +95,32 @@
             <argument type='date' />
         </function>
         <function group='operator' name='&lt;=' return-type='bool'>
-            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP) &lt;= CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
+            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP)) &lt;= CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
             <argument type='date' />
             <argument type='datetime' />
         </function>
         <function group='operator' name='&lt;=' return-type='bool'>
-            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP) &lt;= CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
+            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP)) &lt;= CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
             <argument type='datetime' />
             <argument type='date' />
         </function>
         <function group='operator' name='&gt;' return-type='bool'>
-            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP) &gt; CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
+            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP)) &gt; CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
             <argument type='date' />
             <argument type='datetime' />
         </function>
         <function group='operator' name='&gt;' return-type='bool'>
-            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP) &gt; CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
+            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP)) &gt; CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
             <argument type='datetime' />
             <argument type='date' />
         </function>
         <function group='operator' name='&lt;' return-type='bool'>
-            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP) &lt; CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
+            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP)) &lt; CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
             <argument type='date' />
             <argument type='datetime' />
         </function>
         <function group='operator' name='&lt;' return-type='bool'>
-            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP) &lt; CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
+            <formula>(CAST(DATE_FORMAT(%1, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP)) &lt; CAST(DATE_FORMAT(%2, &apos;%Y-%m-%d %H:%i:%s&apos;) as TIMESTAMP))</formula>
             <argument type='datetime' />
             <argument type='date' />
         </function>
