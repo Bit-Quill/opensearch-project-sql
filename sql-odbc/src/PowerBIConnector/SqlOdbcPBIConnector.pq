@@ -99,6 +99,7 @@ SqlOdbcPBIConnectorImpl = (Server as text) as table =>
             SupportsTop = false,
             LimitClauseKind = LimitClauseKind.LimitOffset,
             Sql92Conformance = ODBC[SQL_SC][SQL_SC_SQL92_FULL],
+            GroupByCapabilities = ODBC[SQL_GB][SQL_GB_GROUP_BY_CONTAINS_SELECT],
             SupportsNumericLiterals = true,
             SupportsStringLiterals = true,
             SupportsOdbcDateLiterals = true,
