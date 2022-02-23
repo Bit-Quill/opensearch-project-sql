@@ -8,13 +8,14 @@ $VCPKG_DIR = $args[5]
 Write-Host $args
 
 # Clone the AWS SDK CPP repo
-$SDK_VER = "1.8.186"
+$SDK_VER = "1.9.199"
 
 git clone `
     --branch `
     $SDK_VER `
     --single-branch `
     "https://github.com/aws/aws-sdk-cpp.git" `
+	--recurse-submodules `
     $SRC_DIR
 
 # Make and move to build directory
