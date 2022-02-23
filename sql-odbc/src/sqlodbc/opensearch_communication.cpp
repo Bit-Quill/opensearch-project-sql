@@ -243,6 +243,7 @@ OpenSearchCommunication::OpenSearchCommunication()
 }
 
 OpenSearchCommunication::~OpenSearchCommunication() {
+    m_http_client.~shared_ptr();
     --AWS_SDK_HELPER;
 }
 
