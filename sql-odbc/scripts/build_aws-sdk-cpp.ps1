@@ -15,7 +15,7 @@ git clone `
     $SDK_VER `
     --single-branch `
     "https://github.com/aws/aws-sdk-cpp.git" `
-	--recurse-submodules `
+    --recurse-submodules `
     $SRC_DIR
 
 # Make and move to build directory
@@ -34,7 +34,7 @@ cmake $SRC_DIR `
     -D ENABLE_RTTI="OFF" `
     -D ENABLE_TESTING="OFF" `
     -D FORCE_CURL="ON" `
-    -D ENALBE_CURL_CLIENT="ON" `
+    -D ENABLE_CURL_CLIENT="ON" `
     -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" `
     -D CURL_LIBRARY="${VCPKG_DIR}/packages/curl_x86-windows/lib" `
     -D CURL_INCLUDE_DIR="${VCPKG_DIR}/packages/curl_x86-windows/include/"
