@@ -15,6 +15,12 @@ $BUILD_DIR = "${WORKING_DIR}\build"
 # $BUILD_DIR = "${WORKING_DIR}\build\${CONFIGURATION}${BITNESS}"
 New-Item -Path $BUILD_DIR -ItemType Directory -Force | Out-Null
 
+$VCPKG_DIR = "${WORKING_DIR}/src/vcpkg"
+
+.\scripts\build_libcurl-vcpkg.ps1 $VCPKG_DIR
+
+Set-Location $CURRENT_DIR
+
 # Build AWS SDK CPP
 $SDK_SOURCE_DIR = "${WORKING_DIR}\src\aws-sdk-cpp"
 $SDK_BUILD_DIR = "${BUILD_DIR}\aws-sdk\build"
@@ -22,7 +28,8 @@ $SDK_INSTALL_DIR = "${BUILD_DIR}\aws-sdk\install"
 
 .\scripts\build_aws-sdk-cpp.ps1 `
     $CONFIGURATION $WIN_ARCH `
-    $SDK_SOURCE_DIR $SDK_BUILD_DIR $SDK_INSTALL_DIR 
+    $SDK_SOURCE_DIR $SDK_BUILD_DIR $SDK_INSTALL_DIR $VCPKG_DIR
+
 Set-Location $CURRENT_DIR
 
 # Build driver
