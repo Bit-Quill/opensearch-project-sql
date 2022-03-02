@@ -4,6 +4,7 @@ $SRC_DIR = $args[2]
 $BUILD_DIR = $args[3]
 $INSTALL_DIR = $args[4]
 $VCPKG_DIR = $args[5]
+$LIBCURL_BITNESS = $args[6]
 
 Write-Host $args
 
@@ -36,8 +37,8 @@ cmake $SRC_DIR `
     -D FORCE_CURL="ON" `
     -D ENABLE_CURL_CLIENT="ON" `
     -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" `
-    -D CURL_LIBRARY="${VCPKG_DIR}/packages/curl_x86-windows/lib" `
-    -D CURL_INCLUDE_DIR="${VCPKG_DIR}/packages/curl_x86-windows/include/"
+    -D CURL_LIBRARY="${VCPKG_DIR}/packages/curl_${LIBCURL_WIN_ARCH}-windows/lib" `
+    -D CURL_INCLUDE_DIR="${VCPKG_DIR}/packages/curl_${LIBCURL_WIN_ARCH}-windows/include/"
 
 # Build AWS SDK and install to $INSTALL_DIR 
 msbuild ALL_BUILD.vcxproj /m /p:Configuration=$CONFIGURATION
