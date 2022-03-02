@@ -93,15 +93,9 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/Resources/opensearch_sql_odbc.tdc" DE
 # Install AWS dependencies
 if(WIN32)
     set(AWS_SDK_BIN_DIR "${PROJECT_ROOT}/build/aws-sdk/install/bin")
-#    install(FILES "${AWS_SDK_BIN_DIR}/aws-c-common.dll" DESTINATION bin COMPONENT "Driver")
-#    install(FILES "${AWS_SDK_BIN_DIR}/aws-c-event-stream.dll" DESTINATION bin COMPONENT "Driver")
-#    install(FILES "${AWS_SDK_BIN_DIR}/aws-checksums.dll" DESTINATION bin COMPONENT "Driver")
-#    install(FILES "${AWS_SDK_BIN_DIR}/aws-cpp-sdk-core.dll" DESTINATION bin COMPONENT "Driver")
     install(DIRECTORY ${AWS_SDK_BIN_DIR} DESTINATION . COMPONENT "Driver")
 endif()
 
-# TODO test on mac and linux!!!
-# install(FILES "${AWS_SDK_BIN_DIR}/aws-cpp-sdk-core.dll" DESTINATION bin COMPONENT "Driver")
 if(WIN32)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         # We actually never build the installer for Debug
