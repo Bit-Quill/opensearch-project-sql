@@ -5,7 +5,8 @@
 
 package org.opensearch.sql.expression.function;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
 
 import org.junit.jupiter.api.Test;
