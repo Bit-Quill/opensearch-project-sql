@@ -5,8 +5,7 @@
 
 package org.opensearch.sql.expression.function;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
 
 import org.junit.jupiter.api.Test;
@@ -106,6 +105,13 @@ public class OpenSearchFunctionsTest extends ExpressionTestBase {
         fuzzyTranspositions, fuzzyRewrite, lenient, operator, minimumShouldMatch, zeroTermsQuery,
         boost);
     assertEquals(BOOLEAN, expr.type());
+  }
+
+  @Test
+  void match_phrase()  {
+    FunctionExpression expr = dsl.match_phrase(field, query);
+    assertEquals(BOOLEAN, expr.type());
+    assertEquals("match_phrase", expr.getFunctionName().getFunctionName());
   }
 
   @Test
