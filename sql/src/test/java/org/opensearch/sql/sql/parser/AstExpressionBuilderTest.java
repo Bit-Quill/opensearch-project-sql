@@ -445,6 +445,14 @@ class AstExpressionBuilderTest {
   }
 
   @Test
+  public void relevanceMatchPhrase() {
+    assertEquals(AstDSL.function("match_phrase",
+                    unresolvedArg("field", stringLiteral("message")),
+                    unresolvedArg("query", stringLiteral("search query"))),
+            buildExprAst("match_phrase(message, 'search query')")
+    );
+  }
+  @Test
   public void canBuildInClause() {
     assertEquals(
         AstDSL.in(qualifiedName("age"), AstDSL.intLiteral(20), AstDSL.intLiteral(30)),

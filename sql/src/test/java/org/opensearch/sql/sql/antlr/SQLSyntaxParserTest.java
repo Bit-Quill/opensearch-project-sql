@@ -144,4 +144,8 @@ class SQLSyntaxParserTest {
     assertThrows(SyntaxCheckException.class, () -> parser.parse("SHOW TABLES"));
   }
 
+  @Test
+  public void canParseSelectWithMatchPhrase() {
+    assertNotNull(parser.parse("SELECT name, age FROM test WHERE match_phrase(name, \"Max\")"));
+  }
 }
