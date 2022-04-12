@@ -641,7 +641,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
   }
 
   @Test
-  public void canBuildRelevanceFunctionWithArguments() {
+  public void canBuildMatchRelevanceFunctionWithArguments() {
     assertEqual(
         "source=test | where match(message, 'test query', analyzer='keyword')",
         filter(
@@ -655,4 +655,19 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
         )
     );
   }
+    @Test
+    public void canBuildMatchPhraseRelevanceFunctionWithArguments() {
+        assertEqual(
+                "source=test | where match_phrase(message, 'test query', analyzer='keyword')",
+                filter(
+                        relation("test"),
+                        function(
+                                "match_phrase",
+                                unresolvedArg("field", stringLiteral("message")),
+                                unresolvedArg("query", stringLiteral("test query")),
+                                unresolvedArg("analyzer", stringLiteral("keyword"))
+                        )
+                )
+        );
+    }
 }
