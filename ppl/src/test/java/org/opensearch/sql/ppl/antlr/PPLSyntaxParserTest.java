@@ -79,4 +79,10 @@ public class PPLSyntaxParserTest {
     ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | top a by b");
     assertNotEquals(null, tree);
   }
+
+  @Test
+  public void testWhereMatchShouldPass() {
+    ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t | where match_phrase(firstname, 'Hat')");
+    assertNotEquals(null, tree);
+  }
 }
