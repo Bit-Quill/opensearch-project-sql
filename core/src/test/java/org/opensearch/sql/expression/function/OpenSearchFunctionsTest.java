@@ -112,7 +112,12 @@ public class OpenSearchFunctionsTest extends ExpressionTestBase {
   void match_phrase()  {
     FunctionExpression expr = dsl.match_phrase(field, query);
     assertEquals(BOOLEAN, expr.type());
-    assertEquals("match_phrase", expr.getFunctionName().getFunctionName());
+
+    expr = dsl.match_phrase(field, query, analyzer);
+    assertEquals(BOOLEAN, expr.type());
+
+    expr = dsl.match_phrase(field, query, analyzer, zeroTermsQuery);
+    assertEquals(BOOLEAN, expr.type());
   }
 
   @Test
