@@ -116,8 +116,8 @@ public class WhereCommandIT extends PPLIntegTestCase {
     JSONObject result =
             executeQuery(
                     String.format(
-                            "source=%s | where match_phrase(firstname, 'Hat') | fields firstname",
+                            "source=%s | where match_phrase(address, 'Quentin Street') | fields address",
                             TEST_INDEX_BANK));
-    verifyDataRows(result, rows("Hattie"));
+    verifyDataRows(result, rows("702 Quentin Street"));
   }
 }

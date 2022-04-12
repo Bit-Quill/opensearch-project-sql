@@ -315,6 +315,23 @@ class FilterQueryBuilderTest {
                 dsl.namedArgument("query", literal("search query")))));
   }
 
+  @Test  void should_build_match_phrase_query_with_default_parameters() {
+    assertJsonEquals(
+            "{\n"
+                    + "  \"match_phrase\" : {\n"
+                    + "    \"message\" : {\n"
+                    + "      \"query\" : \"search query\",\n"
+                    + "      \"slop\" : 0,\n"
+                    + "      \"zero_terms_query\" : \"NONE\",\n"
+                    + "      \"boost\" : 1.0\n"
+                    + "    }\n"
+                    + "  }\n"
+                    + "}",
+            buildQuery(
+                    dsl.match_phrase(
+                            dsl.namedArgument("field", literal("message")),
+                            dsl.namedArgument("query", literal("search query")))));
+  }
   @Test
   void should_build_match_query_with_custom_parameters() {
     assertJsonEquals(
