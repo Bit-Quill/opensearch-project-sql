@@ -110,4 +110,14 @@ public class WhereCommandIT extends PPLIntegTestCase {
                 TEST_INDEX_BANK));
     verifyDataRows(result, rows("Hattie"));
   }
+
+  @Test
+  public void testMatchPhraseRelevanceFunction() throws IOException {
+    JSONObject result =
+            executeQuery(
+                    String.format(
+                            "source=%s | where match_phrase(firstname, 'Hat') | fields firstname",
+                            TEST_INDEX_BANK));
+    verifyDataRows(result, rows("Hattie"));
+  }
 }
