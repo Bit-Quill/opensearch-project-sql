@@ -654,4 +654,9 @@ public class DSL {
     return (FunctionExpression) repository
         .compile(BuiltinFunctionName.MATCH.getName(), Arrays.asList(args.clone()));
   }
+
+  public FunctionExpression match_phrase(Expression... args) {
+    return (FunctionExpression) repository
+         .compile(BuiltinFunctionName.MATCH_PHRASE.getName(), Arrays.asList(args.clone()));
+  }
 }
