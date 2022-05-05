@@ -30,7 +30,8 @@ public class OpenSearchFunctions {
 
   public void register(BuiltinFunctionRepository repository) {
     repository.register(match());
-    repository.register(match_phrase());
+    repository.register(match_phrase(BuiltinFunctionName.MATCH_PHRASE));
+    repository.register(match_phrase(BuiltinFunctionName.MATCHPHRASE));
   }
 
   private static FunctionResolver match() {
@@ -38,8 +39,12 @@ public class OpenSearchFunctions {
     return getRelevanceFunctionResolver(funcName, MATCH_MAX_NUM_PARAMETERS);
   }
 
-  private static FunctionResolver match_phrase() {
-    FunctionName funcName = BuiltinFunctionName.MATCH_PHRASE.getName();
+  private static FunctionResolver matchphrase() {
+    FunctionName funcName = BuiltinFunctionName.MATCHPHRASE.getName();
+    return getRelevanceFunctionResolver(funcName, MATCH_PHRASE_MAX_NUM_PARAMETERS);
+  }
+  private static FunctionResolver match_phrase(BuiltinFunctionName matchPhrase) {
+    FunctionName funcName = matchPhrase.getName();
     return getRelevanceFunctionResolver(funcName, MATCH_PHRASE_MAX_NUM_PARAMETERS);
   }
 
