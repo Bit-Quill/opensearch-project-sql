@@ -130,4 +130,22 @@ public class WhereCommandIT extends PPLIntegTestCase {
                             "source=%s | where match_phrase(firstname, 'Hattie', slop = 2) | fields firstname", TEST_INDEX_BANK));
     verifyDataRows(result, rows("Hattie"));
   }
+
+  @Test
+  public void testMatchPhraseNoUnderscoreFunction() throws IOException {
+    JSONObject result =
+            executeQuery(
+                    String.format(
+                            "source=%s | where matchphrase(firstname, 'Hattie') | fields firstname", TEST_INDEX_BANK));
+    verifyDataRows(result, rows("Hattie"));
+  }
+
+  @Test
+  public void testMathPhraseNoUnderscoreWithSlop() throws IOException {
+    JSONObject result =
+            executeQuery(
+                    String.format(
+                            "source=%s | where matchphrase(firstname, 'Hattie', slop = 2) | fields firstname", TEST_INDEX_BANK));
+    verifyDataRows(result, rows("Hattie"));
+  }
 }
