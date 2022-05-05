@@ -25,8 +25,10 @@ import org.opensearch.sql.expression.env.Environment;
 public class OpenSearchFunctions {
   public void register(BuiltinFunctionRepository repository) {
     repository.register(match());
-    repository.register(match_phrase());
+    repository.register(match_phrase(BuiltinFunctionName.MATCH_PHRASE));
+    repository.register(match_phrase(BuiltinFunctionName.MATCHPHRASE));
   }
+
 
   private static FunctionResolver match() {
     FunctionName funcName = BuiltinFunctionName.MATCH.getName();
@@ -35,8 +37,8 @@ public class OpenSearchFunctions {
     return getFunctionResolver(funcName, 2, 14);
   }
 
-  private static FunctionResolver match_phrase() {
-    FunctionName funcName = BuiltinFunctionName.MATCH_PHRASE.getName();
+  private static FunctionResolver match_phrase(BuiltinFunctionName matchPhrase) {
+    FunctionName funcName = matchPhrase.getName();
     // At least field and query parameters
     // At most field, query, and all optional parameters
     return getFunctionResolver(funcName, 2, 5);
