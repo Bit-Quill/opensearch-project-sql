@@ -133,7 +133,8 @@ public class WhereCommandIT extends PPLIntegTestCase {
   }
 
   @Test
-  public void testMatchPhraseNoUnderscoreFunction() throws IOException {
+  @Disabled("`MATCHPHRASE` (without '_') is not supported [yet] in PPL.")
+  public void notestMatchPhraseNoUnderscoreFunction() throws IOException {
     JSONObject result =
             executeQuery(
                     String.format(
@@ -142,7 +143,8 @@ public class WhereCommandIT extends PPLIntegTestCase {
   }
 
   @Test
-  public void testMathPhraseNoUnderscoreWithSlop() throws IOException {
+  @Disabled("`MATCHPHRASE` (without '_') is not supported [yet] in PPL.")
+  public void notestMathPhraseNoUnderscoreWithSlop() throws IOException {
     JSONObject result =
             executeQuery(
                     String.format(
