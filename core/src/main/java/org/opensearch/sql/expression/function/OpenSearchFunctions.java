@@ -30,6 +30,8 @@ public class OpenSearchFunctions {
 
   public void register(BuiltinFunctionRepository repository) {
     repository.register(match());
+    // Register MATCHPHRASE as MATCH_PHRASE as well for backwards
+    // compatibility.
     repository.register(match_phrase(BuiltinFunctionName.MATCH_PHRASE));
     repository.register(match_phrase(BuiltinFunctionName.MATCHPHRASE));
   }
