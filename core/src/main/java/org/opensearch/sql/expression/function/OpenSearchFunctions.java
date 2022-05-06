@@ -23,12 +23,14 @@ import org.opensearch.sql.expression.env.Environment;
 
 @UtilityClass
 public class OpenSearchFunctions {
+  /**
+   * We should register `MATCHPHRASE` as `MATCH_PHRASE` too for backward compatibility.
+   */
   public void register(BuiltinFunctionRepository repository) {
     repository.register(match());
     repository.register(match_phrase(BuiltinFunctionName.MATCH_PHRASE));
     repository.register(match_phrase(BuiltinFunctionName.MATCHPHRASE));
   }
-
 
   private static FunctionResolver match() {
     FunctionName funcName = BuiltinFunctionName.MATCH.getName();
