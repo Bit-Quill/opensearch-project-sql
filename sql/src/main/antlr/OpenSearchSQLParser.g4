@@ -319,7 +319,7 @@ specificFunction
 
 relevanceFunction
     : relevanceFunctionName LR_BRACKET
-        field=relevanceArgValue COMMA query=relevanceArgValue
+        field=relevanceField COMMA query=relevanceQuery
         (COMMA relevanceArg)* RR_BRACKET
     ;
 
@@ -383,7 +383,7 @@ flowControlFunctionName
     ;
 
 relevanceFunctionName
-    : MATCH
+    : MATCH | SIMPLE_QUERY_STRING
     ;
 
 legacyRelevanceFunctionName
@@ -407,6 +407,15 @@ relevanceArgName
     | FUZZY_TRANSPOSITIONS | FUZZY_REWRITE | LENIENT | OPERATOR | MINIMUM_SHOULD_MATCH | ZERO_TERMS_QUERY
     | BOOST
     ;
+
+relevanceField
+    : relevanceArgValue
+// simple_query_string function accepts list of field as well in format '["field1", "field2", ... ]'
+    | (LT_SQR_PRTHS relevanceArgValue (COMMA relevanceArgValue)* RT_SQR_PRTHS)
+    ;
+
+relevanceQuery
+    : relevanceArgValue;
 
 relevanceArgValue
     : qualifiedName
