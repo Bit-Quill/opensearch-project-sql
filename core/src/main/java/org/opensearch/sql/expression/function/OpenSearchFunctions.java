@@ -44,11 +44,6 @@ public class OpenSearchFunctions {
     return getRelevanceFunctionResolver(funcName, MATCH_MAX_NUM_PARAMETERS);
   }
 
-  private static FunctionResolver matchphrase() {
-    FunctionName funcName = BuiltinFunctionName.MATCHPHRASE.getName();
-    return getRelevanceFunctionResolver(funcName, MATCH_PHRASE_MAX_NUM_PARAMETERS);
-  }
-
   private static FunctionResolver match_phrase(BuiltinFunctionName matchPhrase) {
     FunctionName funcName = matchPhrase.getName();
     return getRelevanceFunctionResolver(funcName, MATCH_PHRASE_MAX_NUM_PARAMETERS);
