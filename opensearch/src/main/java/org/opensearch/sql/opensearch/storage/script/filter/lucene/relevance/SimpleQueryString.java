@@ -5,7 +5,11 @@
 
 package org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONString;
 import org.opensearch.index.query.Operator;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.QueryBuilders;
@@ -18,9 +22,12 @@ import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.NamedArgumentExpression;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.LuceneQuery;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 public class SimpleQueryString extends LuceneQuery {
   private final BiFunction<SimpleQueryStringBuilder, ExprValue, SimpleQueryStringBuilder> analyzeWildcard =
@@ -86,12 +93,31 @@ public class SimpleQueryString extends LuceneQuery {
   }
 
   private Map<String, Float> parseFields(String fields) {
-    //var res = new Map<String, Float>();
-    if (!fields.startsWith("[") || !fields.endsWith("]"))
+    try {
+      var arr = new JSONArray(fields.replace('\'', '"'));
+      if (!arr.toList().stream().allMatch(s -> s instanceof String))
+        throw new Exception("All listed elements should be strings.");
+
+      var lst = arr.toList().stream().map(String::valueOf).collect(Collectors.toList());
+      var res = new HashMap<String, Float>();
+      //var builder = ImmutableMap.builder();
+      for (var elem : lst) {
+        if (!elem.contains("^")) {
+          res.put(elem, 1F);
+          continue;
+        }
+
+        var parts = elem.split("\\^");
+        var weight = Float.parseFloat(parts[parts.length - 1]);
+        var field = Arrays.stream(parts).limit(parts.length - 1).collect(Collectors.joining("^"));
+        res.put(field, weight);
+      }
+      return res;
+    }
+    catch (Exception e) {
       throw new SemanticCheckException(String.format(
-              "Incorrect value specified for 'fields' argument of 'simple_query_string' function."
-              + "The format is: '[\"field1, field2, ...]\"."));
-    fields = fields.substring(1, fields.length() - 2); // Skipping []
-    return ImmutableMap.of("", 0F);
+              "%s: Incorrect value '%s' specified for 'fields' argument of 'simple_query_string' function."
+              + "The format is: '[\"field1, field2, ...]\".", e.getMessage(), fields));
+    }
   }
 }
