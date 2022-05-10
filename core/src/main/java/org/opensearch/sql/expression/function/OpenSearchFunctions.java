@@ -28,6 +28,9 @@ public class OpenSearchFunctions {
   public static final int MATCH_PHRASE_MAX_NUM_PARAMETERS = 3;
   public static final int MIN_NUM_PARAMETERS = 2;
 
+  /**
+   * Add functions specific to OpenSearch to repository.
+   */
   public void register(BuiltinFunctionRepository repository) {
     repository.register(match());
     // Register MATCHPHRASE as MATCH_PHRASE as well for backwards
@@ -45,6 +48,7 @@ public class OpenSearchFunctions {
     FunctionName funcName = BuiltinFunctionName.MATCHPHRASE.getName();
     return getRelevanceFunctionResolver(funcName, MATCH_PHRASE_MAX_NUM_PARAMETERS);
   }
+
   private static FunctionResolver match_phrase(BuiltinFunctionName matchPhrase) {
     FunctionName funcName = matchPhrase.getName();
     return getRelevanceFunctionResolver(funcName, MATCH_PHRASE_MAX_NUM_PARAMETERS);
