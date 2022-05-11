@@ -131,24 +131,4 @@ public class WhereCommandIT extends PPLIntegTestCase {
                             "source=%s | where match_phrase(phrase, 'brown fox', slop = 2) | fields phrase", TEST_INDEX_PHRASE));
     verifyDataRows(result, rows("brown fox"), rows("fox brown"));
   }
-
-  @Test
-  @Disabled("`MATCHPHRASE` (without '_') is not supported [yet] in PPL.")
-  public void notestMatchPhraseNoUnderscoreFunction() throws IOException {
-    JSONObject result =
-            executeQuery(
-                    String.format(
-                            "source=%s | where matchphrase(firstname, 'Hattie') | fields firstname", TEST_INDEX_BANK));
-    verifyDataRows(result, rows("Hattie"));
-  }
-
-  @Test
-  @Disabled("`MATCHPHRASE` (without '_') is not supported [yet] in PPL.")
-  public void notestMathPhraseNoUnderscoreWithSlop() throws IOException {
-    JSONObject result =
-            executeQuery(
-                    String.format(
-                            "source=%s | where matchphrase(firstname, 'Hattie', slop = 2) | fields firstname", TEST_INDEX_BANK));
-    verifyDataRows(result, rows("Hattie"));
-  }
 }
