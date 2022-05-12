@@ -51,6 +51,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RuleContext;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -362,8 +364,11 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitRelevanceFunction(RelevanceFunctionContext ctx) {
+    ParserRuleContext func = ctx.relevanceFunctionNameEx();
+    if (func == null)
+      func = ctx.relevanceFunctionName();
     return new Function(
-        ctx.relevanceFunctionName().getText().toLowerCase(),
+        func.getText().toLowerCase(),
         relevanceArguments(ctx));
   }
 
@@ -393,8 +398,11 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     // all the arguments are defaulted to string values
     // to skip environment resolving and function signature resolving
     ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
+    ParserRuleContext field = ctx.field;
+    if (field == null)
+      field = ctx.fields;
     builder.add(new UnresolvedArgument("field",
-        new Literal(StringUtils.unquoteText(ctx.field.getText()), DataType.STRING)));
+        new Literal(StringUtils.unquoteText(field.getText()), DataType.STRING)));
     builder.add(new UnresolvedArgument("query",
         new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));
     ctx.relevanceArg().forEach(v -> builder.add(new UnresolvedArgument(

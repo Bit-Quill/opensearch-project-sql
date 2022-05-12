@@ -218,6 +218,9 @@ relevanceExpression
     : relevanceFunctionName LT_PRTHS
         field=relevanceField COMMA query=relevanceQuery
         (COMMA relevanceArg)* RT_PRTHS
+    | relevanceFunctionNameEx LT_PRTHS
+        fields=relevanceFields COMMA query=relevanceQuery
+        (COMMA relevanceArg)* RT_PRTHS
     ;
 
 /** tables */
@@ -310,8 +313,11 @@ relevanceArgName
 
 relevanceField
     : relevanceArgValue
+    ;
+
+relevanceFields
 // simple_query_string function accepts list of field as well in format '["field1", "field2", ... ]'
-    | (LT_SQR_PRTHS relevanceArgValue (COMMA relevanceArgValue)* RT_SQR_PRTHS)
+    : (LT_SQR_PRTHS relevanceArgValue (COMMA relevanceArgValue)* RT_SQR_PRTHS)
     ;
 
 relevanceQuery
@@ -359,7 +365,11 @@ binaryOperator
     ;
 
 relevanceFunctionName
-    : MATCH | SIMPLE_QUERY_STRING
+    : MATCH
+    ;
+
+relevanceFunctionNameEx
+    : SIMPLE_QUERY_STRING
     ;
 
 /** literals and values*/
