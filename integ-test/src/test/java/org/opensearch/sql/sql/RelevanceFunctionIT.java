@@ -35,10 +35,4 @@ public class RelevanceFunctionIT extends SQLIntegTestCase {
     verifyDataRows(result, rows("Bates"));
   }
 
-  @Test
-  void match_phrase_in_where() throws IOException {
-    JSONObject result = executeQuery("SELECT firstname WHERE match_phrase(lastname, 'Bates')");
-    verifySchema(result, schema("firstname", "text"));
-    verifyDataRows(result, rows("Nanette"));
-  }
 }
