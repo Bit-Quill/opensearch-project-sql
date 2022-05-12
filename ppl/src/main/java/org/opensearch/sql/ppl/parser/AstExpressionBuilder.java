@@ -253,8 +253,9 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitRelevanceExpression(RelevanceExpressionContext ctx) {
     ParserRuleContext func = ctx.relevanceFunctionNameEx();
-    if (func == null)
+    if (func == null) {
       func = ctx.relevanceFunctionName();
+    }
     return new Function(
         func.getText().toLowerCase(),
         relevanceArguments(ctx));
@@ -336,8 +337,9 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
     // to skip environment resolving and function signature resolving
     ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
     ParserRuleContext field = ctx.field;
-    if (field == null)
+    if (field == null) {
       field = ctx.fields;
+    }
     builder.add(new UnresolvedArgument("field",
         new Literal(StringUtils.unquoteText(field.getText()), DataType.STRING)));
     builder.add(new UnresolvedArgument("query",
