@@ -76,7 +76,6 @@ public class SimpleQueryString extends LuceneQuery {
     NamedArgumentExpression fields = (NamedArgumentExpression) iterator.next();
     NamedArgumentExpression query = (NamedArgumentExpression) iterator.next();
     SimpleQueryStringBuilder queryBuilder = QueryBuilders.simpleQueryStringQuery(
-//        field.getValue().valueOf(null).stringValue(), TODO
         query.getValue().valueOf(null).stringValue());
     queryBuilder.fields(parseFields(fields.getValue().valueOf(null).stringValue()));
     while (iterator.hasNext()) {
@@ -94,7 +93,8 @@ public class SimpleQueryString extends LuceneQuery {
 
   private Map<String, Float> parseFields(String fields) {
     try {
-      var arr = new JSONArray(fields.replace('\'', '"'));
+      // TODO support elements wrapped by single quotes
+      var arr = new JSONArray(fields);
       if (!arr.toList().stream().allMatch(s -> s instanceof String))
         throw new Exception("All listed elements should be strings.");
 
@@ -117,7 +117,7 @@ public class SimpleQueryString extends LuceneQuery {
     catch (Exception e) {
       throw new SemanticCheckException(String.format(
               "%s: Incorrect value '%s' specified for 'fields' argument of 'simple_query_string' function."
-              + "The format is: '[\"field1, field2, ...]\".", e.getMessage(), fields));
+              + "The format is: '[\"field1\", \"field2\", ...]'.", e.getMessage(), fields));
     }
   }
 }
