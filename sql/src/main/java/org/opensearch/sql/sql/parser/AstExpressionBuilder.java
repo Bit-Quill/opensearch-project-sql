@@ -60,6 +60,7 @@ import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.AggregateFunction;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.And;
+import org.opensearch.sql.ast.expression.AttributeList;
 import org.opensearch.sql.ast.expression.Case;
 import org.opensearch.sql.ast.expression.Cast;
 import org.opensearch.sql.ast.expression.DataType;
@@ -364,6 +365,18 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitRelevanceFunction(RelevanceFunctionContext ctx) {
+    if (ctx.relevanceFunctionType1() != null) {
+      return new Function(
+          ctx.relevanceFunctionType1().relevanceFunctionType1Name().getText().toLowerCase(),
+          relevanceArgumentsType1(ctx.relevanceFunctionType1()));
+    }
+    else {
+      return new Function(
+          ctx.relevanceFunctionType2().relevanceFunctionType2Name().getText().toLowerCase(),
+          relevanceArgumentsType2(ctx.relevanceFunctionType2()));
+    }
+    /*
+    ctx.relevanceFunctionType1().relevanceFunctionType1Name()
     ParserRuleContext func = ctx.relevanceFunctionNameEx();
     if (func == null) {
       func = ctx.relevanceFunctionName();
@@ -371,6 +384,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     return new Function(
         func.getText().toLowerCase(),
         relevanceArguments(ctx));
+        */
   }
 
   private Function visitFunction(String functionName, FunctionArgsContext args) {
@@ -395,16 +409,12 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     );
   }
 
-  private List<UnresolvedExpression> relevanceArguments(RelevanceFunctionContext ctx) {
+  private List<UnresolvedExpression> relevanceArgumentsType1(OpenSearchSQLParser.RelevanceFunctionType1Context ctx) {
     // all the arguments are defaulted to string values
     // to skip environment resolving and function signature resolving
     ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
-    ParserRuleContext field = ctx.field;
-    if (field == null) {
-      field = ctx.fields;
-    }
     builder.add(new UnresolvedArgument("field",
-        new Literal(StringUtils.unquoteText(field.getText()), DataType.STRING)));
+        new Literal(StringUtils.unquoteText(ctx.field.getText()), DataType.STRING)));
     builder.add(new UnresolvedArgument("query",
         new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));
     ctx.relevanceArg().forEach(v -> builder.add(new UnresolvedArgument(
@@ -413,4 +423,24 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     return builder.build();
   }
 
+  private List<UnresolvedExpression> relevanceArgumentsType2(OpenSearchSQLParser.RelevanceFunctionType2Context ctx) {
+    // all the arguments are defaulted to string values
+    // to skip environment resolving and function signature resolving
+    ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
+    var fields =
+            ctx.getRuleContexts(OpenSearchSQLParser.RelevanceFieldContext.class);
+    ImmutableList.Builder<UnresolvedExpression> b2 = ImmutableList.builder();
+    for (var i = 0; i < fields.size(); i++) {
+      b2.add(new UnresolvedArgument(String.format("field_%d", i),
+        new Literal(StringUtils.unquoteText(fields.get(i).getText()), DataType.STRING)));
+    }
+    var lst2 = new AttributeList(b2.build());
+    builder.add(new UnresolvedArgument("fields", lst2));
+    builder.add(new UnresolvedArgument("query",
+        new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));
+    ctx.relevanceArg().forEach(v -> builder.add(new UnresolvedArgument(
+        v.relevanceArgName().getText().toLowerCase(), new Literal(StringUtils.unquoteText(
+            v.relevanceArgValue().getText()), DataType.STRING))));
+    return builder.build();
+  }
 }

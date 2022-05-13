@@ -318,12 +318,20 @@ specificFunction
     ;
 
 relevanceFunction
-    : relevanceFunctionName LR_BRACKET
+    : relevanceFunctionType1 | relevanceFunctionType2
+    ;
+
+// Field is a single column
+relevanceFunctionType1
+    : relevanceFunctionType1Name LR_BRACKET
         field=relevanceField COMMA query=relevanceQuery
-        (COMMA relevanceArg)* RR_BRACKET
-    | relevanceFunctionNameEx LR_BRACKET
-        fields=relevanceFields COMMA query=relevanceQuery
-        (COMMA relevanceArg)* RR_BRACKET
+        (COMMA relevanceArg)* RR_BRACKET;
+
+// Field is a list of columns
+relevanceFunctionType2
+    : relevanceFunctionType2Name LR_BRACKET
+        LT_SQR_PRTHS field=relevanceField (COMMA field=relevanceField)* RT_SQR_PRTHS
+        COMMA query=relevanceQuery (COMMA relevanceArg)* RR_BRACKET
     ;
 
 convertedDataType
@@ -385,11 +393,11 @@ flowControlFunctionName
     : IF | IFNULL | NULLIF | ISNULL
     ;
 
-relevanceFunctionName
+relevanceFunctionType1Name
     : MATCH
     ;
 
-relevanceFunctionNameEx
+relevanceFunctionType2Name
     : SIMPLE_QUERY_STRING
     ;
 
@@ -417,11 +425,6 @@ relevanceArgName
 
 relevanceField
     : relevanceArgValue;
-
-relevanceFields
-// simple_query_string function accepts list of field as well in format '["field1", "field2", ... ]'
-    : (LT_SQR_PRTHS relevanceArgValue (COMMA relevanceArgValue)* RT_SQR_PRTHS)
-    ;
 
 relevanceQuery
     : relevanceArgValue;
