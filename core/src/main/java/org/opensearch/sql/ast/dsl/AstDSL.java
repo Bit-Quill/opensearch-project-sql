@@ -21,6 +21,7 @@ import org.opensearch.sql.ast.expression.Compare;
 import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.EqualTo;
 import org.opensearch.sql.ast.expression.Field;
+import org.opensearch.sql.ast.expression.FieldList;
 import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.ast.expression.In;
 import org.opensearch.sql.ast.expression.Interval;
@@ -420,5 +421,13 @@ public class AstDSL {
   public static Parse parse(UnresolvedPlan input, UnresolvedExpression expression,
                             Literal pattern) {
     return new Parse(expression, pattern, input);
+  }
+
+  public static FieldList allFieldsList() {
+    return FieldList.AllFields;
+  }
+
+  public  static FieldList fieldsList(List<String> fields) {
+    return new FieldList(fields);
   }
 }

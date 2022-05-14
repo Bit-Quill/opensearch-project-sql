@@ -32,21 +32,13 @@ import static org.opensearch.sql.ast.tree.Sort.SortOrder.ASC;
 import static org.opensearch.sql.ast.tree.Sort.SortOrder.DESC;
 
 import com.google.common.collect.ImmutableList;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
-import org.opensearch.sql.ast.Node;
 import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
-import org.opensearch.sql.common.antlr.CaseInsensitiveCharStream;
-import org.opensearch.sql.common.antlr.SyntaxAnalysisErrorListener;
-import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLLexer;
-import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser;
 
-class AstExpressionBuilderTest {
-
-  private final AstExpressionBuilder astExprBuilder = new AstExpressionBuilder();
+class AstExpressionBuilderTest extends AstExpressionBuilderTestBase {
 
   @Test
   public void canBuildStringLiteral() {
@@ -459,13 +451,6 @@ class AstExpressionBuilderTest {
             AstDSL.function("abs", AstDSL.intLiteral(20)),
             AstDSL.function("abs", AstDSL.intLiteral(30))),
         buildExprAst("age in (abs(20), abs(30))"));
-  }
-
-  private Node buildExprAst(String expr) {
-    OpenSearchSQLLexer lexer = new OpenSearchSQLLexer(new CaseInsensitiveCharStream(expr));
-    OpenSearchSQLParser parser = new OpenSearchSQLParser(new CommonTokenStream(lexer));
-    parser.addErrorListener(new SyntaxAnalysisErrorListener());
-    return parser.expression().accept(astExprBuilder);
   }
 
 }
