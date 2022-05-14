@@ -12,7 +12,7 @@ public class SQLParserTestBase {
   private final SQLSyntaxParser parser = new SQLSyntaxParser();
 
   /**
-   * Use to check if query is accepted by the parser
+   * Use to check if query is accepted by the parser.
    * @param query SQL query to test
    */
   protected void assertAccepted(String query) {

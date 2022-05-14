@@ -176,6 +176,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     }
     throw new SemanticCheckException("Only all fields are supported");
   }
+
   @SuppressWarnings("unchecked")
   @Override
   public Expression visitWindowFunction(WindowFunction node, AnalysisContext context) {
