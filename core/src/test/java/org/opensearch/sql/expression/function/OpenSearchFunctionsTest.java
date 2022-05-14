@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.ExpressionTestBase;
@@ -120,5 +121,10 @@ public class OpenSearchFunctionsTest extends ExpressionTestBase {
   void match_to_string() {
     FunctionExpression expr = dsl.match(field, query);
     assertEquals("match(field=\"message\", query=\"search query\")", expr.toString());
+  }
+
+  @Test
+  void simple_query_string() {
+    throw new NotImplementedException();
   }
 }
