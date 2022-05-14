@@ -25,6 +25,7 @@ import org.opensearch.sql.ast.expression.Cast;
 import org.opensearch.sql.ast.expression.Compare;
 import org.opensearch.sql.ast.expression.EqualTo;
 import org.opensearch.sql.ast.expression.Field;
+import org.opensearch.sql.ast.expression.FieldList;
 import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.ast.expression.In;
 import org.opensearch.sql.ast.expression.Interval;
@@ -168,6 +169,13 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     return (Expression) repository.compile(functionName, arguments);
   }
 
+  @Override
+  public Expression visitFieldList(FieldList node, AnalysisContext context) {
+    if (node.equals(FieldList.AllFields)) {
+      return new NamedArgumentExpression("fields", DSL.literal("*"));
+    }
+    throw new SemanticCheckException("Only all fields are supported");
+  }
   @SuppressWarnings("unchecked")
   @Override
   public Expression visitWindowFunction(WindowFunction node, AnalysisContext context) {

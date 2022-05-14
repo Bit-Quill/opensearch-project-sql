@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.opensearch.sql.ast.AbstractNodeVisitor;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -24,6 +25,11 @@ public class FieldList extends UnresolvedExpression {
   @Override
   public List<UnresolvedExpression> getChild() {
     return List.of();
+  }
+
+  @Override
+  public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+    return nodeVisitor.visitFieldList(this, context);
   }
 
   // Equivalent to ['*']
