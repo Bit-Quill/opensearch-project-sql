@@ -323,6 +323,7 @@ OPERATOR:                           'OPERATOR';
 MINIMUM_SHOULD_MATCH:               'MINIMUM_SHOULD_MATCH';
 ZERO_TERMS_QUERY:                   'ZERO_TERMS_QUERY';
 BOOST:                              'BOOST';
+ALL_FIELDS_QUERY:                   '\'*\'' | '"*"';
 
 // Operators
 
@@ -405,7 +406,6 @@ fragment BQUOTA_STRING:             '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
 fragment HEX_DIGIT:                 [0-9A-F];
 fragment DEC_DIGIT:                 [0-9];
 fragment BIT_STRING_L:              'B' '\'' [01]+ '\'';
-
 // Last tokens must generate Errors
 
 ERROR_RECOGNITION:                  .    -> channel(ERRORCHANNEL);

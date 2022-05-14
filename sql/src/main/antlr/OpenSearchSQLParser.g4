@@ -329,11 +329,25 @@ relevanceFunctionType1
 
 // Field is a list of columns
 relevanceFunctionType2
-    : relevanceFunctionType2Name LR_BRACKET
-        LT_SQR_PRTHS field=relevanceField (COMMA field=relevanceField)* RT_SQR_PRTHS
+    :
+     relevanceFunctionType2Name LR_BRACKET
+        LT_SQR_PRTHS fieldList RT_SQR_PRTHS
         COMMA query=relevanceQuery (COMMA relevanceArg)* RR_BRACKET
     ;
 
+fieldList
+    :
+    ALL_FIELDS_QUERY
+    |  field=fieldSpecString (COMMA field=fieldSpecString)*
+    ;
+fieldSpecString
+    : SINGLE_QUOTE_SYMB fieldSpec SINGLE_QUOTE_SYMB
+    | DOUBLE_QUOTE_SYMB fieldSpec DOUBLE_QUOTE_SYMB
+    ;
+
+fieldSpec
+    : field = qualifiedName
+    ;
 convertedDataType
     : typeName=DATE
     | typeName=TIME

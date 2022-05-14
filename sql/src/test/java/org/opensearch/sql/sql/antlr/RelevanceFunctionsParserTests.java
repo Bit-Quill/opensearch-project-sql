@@ -40,4 +40,16 @@ public class RelevanceFunctionsParserTests extends SQLParserTestBase {
   void rejectNoArguments() {
     assertRejected("SELECT * FROM T WHERE simple_query_string();");
   }
+
+  @Test
+  @EnabledIfEnvironmentVariable(named = "WIP_TEST", matches = ".*")
+  void rejectIntegerFieldName() {
+    assertRejected("SELECT * FROM T WHERE simple_query_string([3], 'asdf');");
+  }
+
+  @Test
+  @EnabledIfEnvironmentVariable(named = "GITHUB_ISSUE", matches = "182")
+  void rejectIntegerMatchFieldName() {
+    assertRejected("SELECT * FROM T WHERE match(3, 'asdf')");
+  }
 }
