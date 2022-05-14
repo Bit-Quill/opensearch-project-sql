@@ -10,3 +10,8 @@
 {"phrase": "my test", "test field": 5}
 {"index":{}}
 {"phrase": "my test 2", "test field": 7}
+{"index":{}}
+{"phrase": "black tea", "review": "decent"}
+{"index":{}}
+{"phrase": "coffee and cream", "review": "tea riffic"}
+

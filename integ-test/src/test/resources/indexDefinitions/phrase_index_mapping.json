@@ -4,6 +4,10 @@
       "phrase": {
         "type": "text",
         "store": true
+      },
+      "review": {
+        "type": "text",
+        "store": true
       }
     }
   }
