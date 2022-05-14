@@ -39,8 +39,7 @@ public class OpenSearchFunctions {
     FunctionName funcName = BuiltinFunctionName.SIMPLE_QUERY_STRING.getName();
     // At most field, query, and all optional parameters
     // TODO 16 ? See org.opensearch.index.query.SimpleQueryStringBuilder.class
-    final int matchPhraseMaxNumParameters = 12;
-    return getRelevanceFunctionResolver(funcName, matchPhraseMaxNumParameters);
+    return getRelevanceFunctionResolver(funcName, 2);
   }
 
   private static FunctionResolver getRelevanceFunctionResolver(
