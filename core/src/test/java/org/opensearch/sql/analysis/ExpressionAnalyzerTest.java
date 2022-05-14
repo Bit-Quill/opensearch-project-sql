@@ -38,6 +38,7 @@ import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
+import org.opensearch.sql.expression.NamedArgumentExpression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.expression.window.aggregation.AggregateWindowFunction;
 import org.springframework.context.annotation.Configuration;
@@ -341,6 +342,18 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         DSL.span(DSL.ref("integer_value", INTEGER), DSL.literal(1), ""),
         AstDSL.span(qualifiedName("integer_value"), intLiteral(1), SpanUnit.NONE)
+    );
+  }
+
+  @Test
+  void visit_simple_query_string() {
+    assertAnalyzeEqual(
+        dsl.simple_query_string(
+            dsl.namedArgument("fields", DSL.literal("*")),
+            dsl.namedArgument("query", DSL.literal("asdf"))),
+        AstDSL.function("simple_query_string",
+            AstDSL.allFieldsList(),
+            AstDSL.unresolvedArg("query", AstDSL.stringLiteral("asdf")))
     );
   }
 
