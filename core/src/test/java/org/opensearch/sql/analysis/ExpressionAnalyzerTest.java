@@ -23,6 +23,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.expression.DSL.ref;
 
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensearch.sql.analysis.symbol.Namespace;
@@ -355,6 +356,16 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
             AstDSL.allFieldsList(),
             AstDSL.unresolvedArg("query", AstDSL.stringLiteral("asdf")))
     );
+  }
+
+  @Test
+  void reject_field_spec_simple_query_string() {
+    assertThrows(SemanticCheckException.class,
+        () -> expressionAnalyzer.analyze(
+            AstDSL.function("simple_query_string",
+                AstDSL.fieldsList(List.of("failed")),
+                AstDSL.unresolvedArg("query", AstDSL.stringLiteral("asdf"))),
+            analysisContext));
   }
 
   @Test
