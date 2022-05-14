@@ -125,6 +125,7 @@ public class OpenSearchFunctionsTest extends ExpressionTestBase {
 
   @Test
   void simple_query_string() {
-    throw new NotImplementedException();
+    assertEquals("simple_query_string(field=\"message\", query=\"search query\")",
+        dsl.simple_query_string(field, query).toString());
   }
 }
