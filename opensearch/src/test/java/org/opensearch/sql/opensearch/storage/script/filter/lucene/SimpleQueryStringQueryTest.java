@@ -47,9 +47,8 @@ class SimpleQueryStringQueryTest {
         + "  }\n"
         + "}",
         restCall);
-
-
   }
+
 
 
   private static void assertJsonEquals(String expected, String actual) {
