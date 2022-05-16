@@ -29,6 +29,7 @@ import org.opensearch.sql.opensearch.storage.script.filter.lucene.RangeQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.RangeQuery.Comparison;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.TermQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.WildcardQuery;
+import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.MatchPhraseQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.MatchQuery;
 import org.opensearch.sql.opensearch.storage.serialization.ExpressionSerializer;
 
