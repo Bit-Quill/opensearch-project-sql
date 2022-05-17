@@ -264,6 +264,7 @@ IF:                                 'IF';
 
 // RELEVANCE FUNCTIONS AND PARAMETERS
 MATCH:                              'MATCH';
+SIMPLE_QUERY_STRING:                'SIMPLE_QUERY_STRING';
 ANALYZER:                           'ANALYZER';
 FUZZINESS:                          'FUZZINESS';
 AUTO_GENERATE_SYNONYMS_PHRASE_QUERY:'AUTO_GENERATE_SYNONYMS_PHRASE_QUERY';

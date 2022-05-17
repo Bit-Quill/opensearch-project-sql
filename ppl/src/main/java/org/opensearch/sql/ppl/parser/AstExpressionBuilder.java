@@ -66,6 +66,7 @@ import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.IntervalUnit;
 import org.opensearch.sql.ast.expression.Let;
 import org.opensearch.sql.ast.expression.Literal;
+import org.opensearch.sql.ast.expression.LiteralList;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
@@ -75,6 +76,7 @@ import org.opensearch.sql.ast.expression.UnresolvedArgument;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.expression.Xor;
 import org.opensearch.sql.common.utils.StringUtils;
+import org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser;
 import org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParserBaseVisitor;
 import org.opensearch.sql.ppl.utils.ArgumentFactory;
 
@@ -252,9 +254,16 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitRelevanceExpression(RelevanceExpressionContext ctx) {
-    return new Function(
-        ctx.relevanceFunctionName().getText().toLowerCase(),
-        relevanceArguments(ctx));
+    if (ctx.relevanceFunctionType1() != null) {
+      return new Function(
+          ctx.relevanceFunctionType1().relevanceFunctionType1Name().getText().toLowerCase(),
+          relevanceArgumentsType1(ctx.relevanceFunctionType1()));
+    }
+    else {
+      return new Function(
+          ctx.relevanceFunctionType2().relevanceFunctionType2Name().getText().toLowerCase(),
+          relevanceArgumentsType2(ctx.relevanceFunctionType2()));
+    }
   }
 
   @Override
@@ -328,7 +337,7 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
     );
   }
 
-  private List<UnresolvedExpression> relevanceArguments(RelevanceExpressionContext ctx) {
+  private List<UnresolvedExpression> relevanceArgumentsType1(OpenSearchPPLParser.RelevanceFunctionType1Context ctx) {
     // all the arguments are defaulted to string values
     // to skip environment resolving and function signature resolving
     ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
@@ -342,4 +351,22 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
     return builder.build();
   }
 
+  private List<UnresolvedExpression> relevanceArgumentsType2(OpenSearchPPLParser.RelevanceFunctionType2Context ctx) {
+    // all the arguments are defaulted to string values
+    // to skip environment resolving and function signature resolving
+    ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
+    var fields =
+        new LiteralList(
+          ctx.getRuleContexts(OpenSearchPPLParser.RelevanceFieldContext.class)
+            .stream()
+            .map(f -> new Literal(StringUtils.unquoteText(f.getText()), DataType.STRING))
+            .collect(Collectors.toList()));
+    builder.add(new UnresolvedArgument("fields", fields));
+    builder.add(new UnresolvedArgument("query",
+        new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));
+    ctx.relevanceArg().forEach(v -> builder.add(new UnresolvedArgument(
+        v.relevanceArgName().getText().toLowerCase(), new Literal(StringUtils.unquoteText(
+        v.relevanceArgValue().getText()), DataType.STRING))));
+    return builder.build();
+  }
 }

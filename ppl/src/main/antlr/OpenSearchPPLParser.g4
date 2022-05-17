@@ -215,9 +215,20 @@ booleanExpression
     ;
 
 relevanceExpression
-    : relevanceFunctionName LT_PRTHS
-        field=relevanceArgValue COMMA query=relevanceArgValue
-        (COMMA relevanceArg)* RT_PRTHS
+    : relevanceFunctionType1 | relevanceFunctionType2
+    ;
+
+// Field is a single column
+relevanceFunctionType1
+    : relevanceFunctionType1Name LT_PRTHS
+        field=relevanceField COMMA query=relevanceQuery
+        (COMMA relevanceArg)* RT_PRTHS;
+
+// Field is a list of columns
+relevanceFunctionType2
+    : relevanceFunctionType2Name LT_PRTHS
+        LT_SQR_PRTHS field=relevanceField (COMMA field=relevanceField)* RT_SQR_PRTHS
+        COMMA query=relevanceQuery (COMMA relevanceArg)* RT_PRTHS
     ;
 
 /** tables */
@@ -308,6 +319,12 @@ relevanceArgName
     | BOOST
     ;
 
+relevanceField
+    : relevanceArgValue;
+
+relevanceQuery
+    : relevanceArgValue;
+
 relevanceArgValue
     : qualifiedName
     | literalValue
@@ -349,8 +366,13 @@ binaryOperator
     : PLUS | MINUS | STAR | DIVIDE | MODULE
     ;
 
-relevanceFunctionName
+
+relevanceFunctionType1Name
     : MATCH
+    ;
+
+relevanceFunctionType2Name
+    : SIMPLE_QUERY_STRING
     ;
 
 /** literals and values*/

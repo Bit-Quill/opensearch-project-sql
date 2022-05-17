@@ -318,9 +318,20 @@ specificFunction
     ;
 
 relevanceFunction
-    : relevanceFunctionName LR_BRACKET
-        field=relevanceArgValue COMMA query=relevanceArgValue
-        (COMMA relevanceArg)* RR_BRACKET
+    : relevanceFunctionType1 | relevanceFunctionType2
+    ;
+
+// Field is a single column
+relevanceFunctionType1
+    : relevanceFunctionType1Name LR_BRACKET
+        field=relevanceField COMMA query=relevanceQuery
+        (COMMA relevanceArg)* RR_BRACKET;
+
+// Field is a list of columns
+relevanceFunctionType2
+    : relevanceFunctionType2Name LR_BRACKET
+        LT_SQR_PRTHS field=relevanceField (COMMA field=relevanceField)* RT_SQR_PRTHS
+        COMMA query=relevanceQuery (COMMA relevanceArg)* RR_BRACKET
     ;
 
 convertedDataType
@@ -382,8 +393,12 @@ flowControlFunctionName
     : IF | IFNULL | NULLIF | ISNULL
     ;
 
-relevanceFunctionName
+relevanceFunctionType1Name
     : MATCH
+    ;
+
+relevanceFunctionType2Name
+    : SIMPLE_QUERY_STRING
     ;
 
 legacyRelevanceFunctionName
@@ -407,6 +422,12 @@ relevanceArgName
     | FUZZY_TRANSPOSITIONS | FUZZY_REWRITE | LENIENT | OPERATOR | MINIMUM_SHOULD_MATCH | ZERO_TERMS_QUERY
     | BOOST
     ;
+
+relevanceField
+    : relevanceArgValue;
+
+relevanceQuery
+    : relevanceArgValue;
 
 relevanceArgValue
     : qualifiedName

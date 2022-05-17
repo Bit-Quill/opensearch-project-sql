@@ -52,6 +52,10 @@ public abstract class ExpressionNodeVisitor<T, C> {
     return visitNode(node, context);
   }
 
+  public T visitLiteralList(LiteralListExpression node, C context) {
+    return visitNode(node, context);
+  }
+
   public T visitNamed(NamedExpression node, C context) {
     return node.getDelegated().accept(this, context);
   }
@@ -93,5 +97,4 @@ public abstract class ExpressionNodeVisitor<T, C> {
   public T visitNamedArgument(NamedArgumentExpression node, C context) {
     return visitNode(node, context);
   }
-
 }
