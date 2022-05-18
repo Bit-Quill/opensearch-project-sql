@@ -9,7 +9,6 @@ import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
 import com.google.common.collect.ImmutableMap;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
