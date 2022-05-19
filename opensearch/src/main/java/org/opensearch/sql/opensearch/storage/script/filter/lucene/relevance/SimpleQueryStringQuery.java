@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-public class SimpleQueryString extends LuceneQuery {
+public class SimpleQueryStringQuery extends LuceneQuery {
   private final BiFunction<SimpleQueryStringBuilder, ExprValue, SimpleQueryStringBuilder> analyzeWildcard =
       (b, v) -> b.analyzeWildcard(Boolean.parseBoolean(v.stringValue()));
   private final BiFunction<SimpleQueryStringBuilder, ExprValue, SimpleQueryStringBuilder> analyzer =
