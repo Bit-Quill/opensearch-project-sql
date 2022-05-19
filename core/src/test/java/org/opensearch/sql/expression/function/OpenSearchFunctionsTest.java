@@ -8,9 +8,12 @@ package org.opensearch.sql.expression.function;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
-import org.apache.commons.lang3.NotImplementedException;
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.opensearch.sql.data.model.ExprCollectionValue;
+import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
@@ -19,6 +22,10 @@ import org.opensearch.sql.expression.NamedArgumentExpression;
 public class OpenSearchFunctionsTest extends ExpressionTestBase {
   private final NamedArgumentExpression field = new NamedArgumentExpression(
       "field", DSL.literal("message"));
+  private final NamedArgumentExpression fields = new NamedArgumentExpression(
+      "fields", DSL.literal(new ExprCollectionValue(List.of(
+          ExprValueUtils.fromObjectValue("title", STRING),
+          ExprValueUtils.fromObjectValue("body", STRING)))));
   private final NamedArgumentExpression query = new NamedArgumentExpression(
       "query", DSL.literal("search query"));
   private final NamedArgumentExpression analyzer = new NamedArgumentExpression(
@@ -125,6 +132,8 @@ public class OpenSearchFunctionsTest extends ExpressionTestBase {
 
   @Test
   void simple_query_string() {
-    throw new NotImplementedException();
+    FunctionExpression expr = dsl.simple_query_string(fields, query);
+    assertEquals("simple_query_string(fields=[\"title\", \"body\"], query=\"search query\")",
+        expr.toString());
   }
 }
