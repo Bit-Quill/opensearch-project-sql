@@ -364,15 +364,15 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitRelevanceFunction(RelevanceFunctionContext ctx) {
-    if (ctx.relevanceFunctionType1() != null) {
+    if (ctx.singleFieldRelevanceFunction() != null) {
       return new Function(
-          ctx.relevanceFunctionType1().relevanceFunctionType1Name().getText().toLowerCase(),
-          relevanceArgumentsType1(ctx.relevanceFunctionType1()));
+          ctx.singleFieldRelevanceFunction().singleFieldRelevanceFunctionName().getText().toLowerCase(),
+          singleFieldRelevanceArguments(ctx.singleFieldRelevanceFunction()));
     }
     else {
       return new Function(
-          ctx.relevanceFunctionType2().relevanceFunctionType2Name().getText().toLowerCase(),
-          relevanceArgumentsType2(ctx.relevanceFunctionType2()));
+          ctx.mutliFieldRelevanceFunction().mutliFieldRelevanceFunctionName().getText().toLowerCase(),
+          mutliFieldRelevanceArguments(ctx.mutliFieldRelevanceFunction()));
     }
   }
 
@@ -398,7 +398,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     );
   }
 
-  private List<UnresolvedExpression> relevanceArgumentsType1(OpenSearchSQLParser.RelevanceFunctionType1Context ctx) {
+  private List<UnresolvedExpression> singleFieldRelevanceArguments(OpenSearchSQLParser.SingleFieldRelevanceFunctionContext ctx) {
     // all the arguments are defaulted to string values
     // to skip environment resolving and function signature resolving
     ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
@@ -412,7 +412,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     return builder.build();
   }
 
-  private List<UnresolvedExpression> relevanceArgumentsType2(OpenSearchSQLParser.RelevanceFunctionType2Context ctx) {
+  private List<UnresolvedExpression> mutliFieldRelevanceArguments(OpenSearchSQLParser.MutliFieldRelevanceFunctionContext ctx) {
     // all the arguments are defaulted to string values
     // to skip environment resolving and function signature resolving
     ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();

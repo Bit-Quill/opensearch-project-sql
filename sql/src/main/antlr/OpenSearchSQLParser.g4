@@ -318,18 +318,18 @@ specificFunction
     ;
 
 relevanceFunction
-    : relevanceFunctionType1 | relevanceFunctionType2
+    : singleFieldRelevanceFunction | mutliFieldRelevanceFunction
     ;
 
 // Field is a single column
-relevanceFunctionType1
-    : relevanceFunctionType1Name LR_BRACKET
+singleFieldRelevanceFunction
+    : singleFieldRelevanceFunctionName LR_BRACKET
         field=relevanceField COMMA query=relevanceQuery
         (COMMA relevanceArg)* RR_BRACKET;
 
 // Field is a list of columns
-relevanceFunctionType2
-    : relevanceFunctionType2Name LR_BRACKET
+mutliFieldRelevanceFunction
+    : mutliFieldRelevanceFunctionName LR_BRACKET
         LT_SQR_PRTHS field=relevanceField (COMMA field=relevanceField)* RT_SQR_PRTHS
         COMMA query=relevanceQuery (COMMA relevanceArg)* RR_BRACKET
     ;
@@ -393,11 +393,11 @@ flowControlFunctionName
     : IF | IFNULL | NULLIF | ISNULL
     ;
 
-relevanceFunctionType1Name
+singleFieldRelevanceFunctionName
     : MATCH
     ;
 
-relevanceFunctionType2Name
+mutliFieldRelevanceFunctionName
     : SIMPLE_QUERY_STRING
     ;
 
