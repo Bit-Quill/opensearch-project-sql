@@ -433,7 +433,7 @@ class AstExpressionBuilderTest {
     assertEquals(AstDSL.function("match",
         unresolvedArg("field", stringLiteral("message")),
         unresolvedArg("query", stringLiteral("search query"))),
-        buildExprAst("match(message, 'search query')")
+        buildExprAst("match('message', 'search query')")
     );
 
     assertEquals(AstDSL.function("match",
@@ -441,7 +441,7 @@ class AstExpressionBuilderTest {
         unresolvedArg("query", stringLiteral("search query")),
         unresolvedArg("analyzer", stringLiteral("keyword")),
         unresolvedArg("operator", stringLiteral("AND"))),
-        buildExprAst("match(message, 'search query', analyzer='keyword', operator='AND')"));
+        buildExprAst("match('message', 'search query', analyzer='keyword', operator='AND')"));
   }
 
   @Test

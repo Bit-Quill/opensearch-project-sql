@@ -643,7 +643,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
   @Test
   public void canBuildRelevanceFunctionWithArguments() {
     assertEqual(
-        "source=test | where match(message, 'test query', analyzer='keyword')",
+        "source=test | where match('message', 'test query', analyzer='keyword')",
         filter(
             relation("test"),
             function(
