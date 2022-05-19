@@ -14,7 +14,7 @@ import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.env.Environment;
 
 /**
- * Literal Expression.
+ * Literal List Expression.
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor
