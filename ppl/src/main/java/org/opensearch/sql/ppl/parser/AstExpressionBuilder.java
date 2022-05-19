@@ -261,8 +261,8 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
     }
     else {
       return new Function(
-          ctx.mutliFieldRelevanceFunction().mutliFieldRelevanceFunctionName().getText().toLowerCase(),
-          mutliFieldRelevanceArguments(ctx.mutliFieldRelevanceFunction()));
+          ctx.multiFieldRelevanceFunction().multiFieldRelevanceFunctionName().getText().toLowerCase(),
+          multiFieldRelevanceArguments(ctx.multiFieldRelevanceFunction()));
     }
   }
 
@@ -351,7 +351,7 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
     return builder.build();
   }
 
-  private List<UnresolvedExpression> mutliFieldRelevanceArguments(OpenSearchPPLParser.MutliFieldRelevanceFunctionContext ctx) {
+  private List<UnresolvedExpression> multiFieldRelevanceArguments(OpenSearchPPLParser.MultiFieldRelevanceFunctionContext ctx) {
     // all the arguments are defaulted to string values
     // to skip environment resolving and function signature resolving
     ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();

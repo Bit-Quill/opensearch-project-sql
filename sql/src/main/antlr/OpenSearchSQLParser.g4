@@ -318,7 +318,7 @@ specificFunction
     ;
 
 relevanceFunction
-    : singleFieldRelevanceFunction | mutliFieldRelevanceFunction
+    : singleFieldRelevanceFunction | multiFieldRelevanceFunction
     ;
 
 // Field is a single column
@@ -328,8 +328,8 @@ singleFieldRelevanceFunction
         (COMMA relevanceArg)* RR_BRACKET;
 
 // Field is a list of columns
-mutliFieldRelevanceFunction
-    : mutliFieldRelevanceFunctionName LR_BRACKET
+multiFieldRelevanceFunction
+    : multiFieldRelevanceFunctionName LR_BRACKET
         LT_SQR_PRTHS field=relevanceField (COMMA field=relevanceField)* RT_SQR_PRTHS
         COMMA query=relevanceQuery (COMMA relevanceArg)* RR_BRACKET
     ;
@@ -397,7 +397,7 @@ singleFieldRelevanceFunctionName
     : MATCH
     ;
 
-mutliFieldRelevanceFunctionName
+multiFieldRelevanceFunctionName
     : SIMPLE_QUERY_STRING
     ;
 

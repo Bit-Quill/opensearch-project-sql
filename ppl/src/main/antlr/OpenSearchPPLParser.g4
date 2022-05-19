@@ -215,7 +215,7 @@ booleanExpression
     ;
 
 relevanceExpression
-    : singleFieldRelevanceFunction | mutliFieldRelevanceFunction
+    : singleFieldRelevanceFunction | multiFieldRelevanceFunction
     ;
 
 // Field is a single column
@@ -226,8 +226,8 @@ singleFieldRelevanceFunction
     ;
 
 // Field is a list of columns
-mutliFieldRelevanceFunction
-    : mutliFieldRelevanceFunctionName LT_PRTHS
+multiFieldRelevanceFunction
+    : multiFieldRelevanceFunctionName LT_PRTHS
         LT_SQR_PRTHS field=relevanceField (COMMA field=relevanceField)* RT_SQR_PRTHS
         COMMA query=relevanceQuery (COMMA relevanceArg)* RT_PRTHS
     ;
@@ -374,7 +374,7 @@ singleFieldRelevanceFunctionName
     : MATCH
     ;
 
-mutliFieldRelevanceFunctionName
+multiFieldRelevanceFunctionName
     : SIMPLE_QUERY_STRING
     ;
 
