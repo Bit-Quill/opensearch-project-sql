@@ -424,10 +424,12 @@ relevanceArgName
     ;
 
 relevanceField
-    : relevanceArgValue;
+    : stringLiteral
+    ;
 
 relevanceQuery
-    : relevanceArgValue;
+    : relevanceArgValue
+    ;
 
 relevanceArgValue
     : qualifiedName

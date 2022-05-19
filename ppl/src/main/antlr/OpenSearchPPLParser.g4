@@ -222,7 +222,8 @@ relevanceExpression
 singleFieldRelevanceFunction
     : singleFieldRelevanceFunctionName LT_PRTHS
         field=relevanceField COMMA query=relevanceQuery
-        (COMMA relevanceArg)* RT_PRTHS;
+        (COMMA relevanceArg)* RT_PRTHS
+    ;
 
 // Field is a list of columns
 mutliFieldRelevanceFunction
@@ -320,10 +321,12 @@ relevanceArgName
     ;
 
 relevanceField
-    : relevanceArgValue;
+    : stringLiteral
+    ;
 
 relevanceQuery
-    : relevanceArgValue;
+    : relevanceArgValue
+    ;
 
 relevanceArgValue
     : qualifiedName
