@@ -418,9 +418,18 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
     var fields =
         new LiteralList(
-          ctx.getRuleContexts(OpenSearchSQLParser.RelevanceFieldContext.class)
+          ctx.getRuleContexts(OpenSearchSQLParser.RelevanceFieldAndWeightContext.class)
             .stream()
-            .map(f -> new Literal(StringUtils.unquoteText(f.getText()), DataType.STRING))
+            .map(f -> {
+              if (f.weight == null) {
+                  return new LiteralList(List.of(
+                      new Literal(StringUtils.unquoteText(f.field.getText()), DataType.STRING),
+                      new Literal(1F, DataType.FLOAT)));
+              }
+              return new LiteralList(List.of(
+                  new Literal(StringUtils.unquoteText(f.field.getText()), DataType.STRING),
+                  new Literal(Float.parseFloat(f.weight.getText()), DataType.FLOAT)));
+            })
             .collect(Collectors.toList()));
     builder.add(new UnresolvedArgument("fields", fields));
     builder.add(new UnresolvedArgument("query",

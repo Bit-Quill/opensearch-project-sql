@@ -166,11 +166,13 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     var lst = node
         .getLiteralList()
         .stream()
-        .map(n -> DSL
-            .literal(ExprValueUtils.fromObjectValue(
-                          n.getValue(),
-                          n.getType().getCoreType()))
-            .valueOf(null))
+        .map(n -> {
+            if (n instanceof LiteralList) {
+                return visitLiteralList(((LiteralList)n), context).valueOf(null);
+            }
+            // assuming n is a Literal
+            return visitLiteral(((Literal)n), context).valueOf(null);
+        })
         .collect(Collectors.toList());
     return new LiteralListExpression(new ExprCollectionValue(lst));
   }

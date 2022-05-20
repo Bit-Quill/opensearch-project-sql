@@ -23,10 +23,10 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 @AllArgsConstructor
 public class LiteralList extends UnresolvedExpression {
   @Getter
-  private List<Literal> literalList;
+  private List<UnresolvedExpression> literalList;
 
   @Override
-  public List<Literal> getChild() {
+  public List<UnresolvedExpression> getChild() {
     return ImmutableList.copyOf(literalList);
   }
 

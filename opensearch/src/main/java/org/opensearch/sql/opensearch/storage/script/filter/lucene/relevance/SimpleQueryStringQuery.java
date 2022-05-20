@@ -15,6 +15,7 @@ import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
+import org.opensearch.sql.expression.LiteralListExpression;
 import org.opensearch.sql.expression.NamedArgumentExpression;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.LuceneQuery;
 
@@ -72,9 +73,17 @@ public class SimpleQueryStringQuery extends LuceneQuery {
     Iterator<Expression> iterator = func.getArguments().iterator();
     var fields = (NamedArgumentExpression) iterator.next();
     var query = (NamedArgumentExpression) iterator.next();
+    // fields is a 2D array, each sub-array has 2 elements, `field` and its `weight`.
+    var fieldsAndWeights = fields.getValue().valueOf(null).collectionValue()
+            .stream()
+            //.map(LiteralListExpression.class::cast)
+            //.map(n -> ((LiteralListExpression)n).valueOf(null).collectionValue())
+            .map(ExprValue::collectionValue)
+            .collect(Collectors.toMap(n -> n.get(0).stringValue(), n -> n.get(1).floatValue()));
+
     SimpleQueryStringBuilder queryBuilder = QueryBuilders
       .simpleQueryStringQuery(query.getValue().valueOf(null).stringValue())
-      .fields(parseFields(fields.getValue().valueOf(null).collectionValue()));
+      .fields(fieldsAndWeights);
     while (iterator.hasNext()) {
       NamedArgumentExpression arg = (NamedArgumentExpression) iterator.next();
       if (!argAction.containsKey(arg.getArgName())) {
@@ -86,29 +95,5 @@ public class SimpleQueryStringQuery extends LuceneQuery {
           .apply(queryBuilder, arg.getValue().valueOf(null));
     }
     return queryBuilder;
-  }
-
-  private Map<String, Float> parseFields(List<ExprValue> input) {
-    try {
-      var res = new HashMap<String, Float>();
-      for (var literal : input) {
-        var elem = literal.stringValue();
-        if (!elem.contains("^")) {
-          res.put(elem, 1F);
-          continue;
-        }
-
-        var parts = elem.split("\\^");
-        var weight = Float.parseFloat(parts[parts.length - 1]);
-        var field = Arrays.stream(parts).limit(parts.length - 1).collect(Collectors.joining("^"));
-        res.put(field, weight);
-      }
-      return res;
-    }
-    catch (Exception e) {
-      throw new SemanticCheckException(String.format(
-              "%s: Incorrect value specified for 'fields' argument of 'simple_query_string' function. "
-              + "The format is: '[\"field1\", \"field2\", ...]'.", e.getMessage()));
-    }
   }
 }
