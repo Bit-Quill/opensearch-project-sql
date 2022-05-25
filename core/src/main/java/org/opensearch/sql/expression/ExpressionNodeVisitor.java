@@ -6,7 +6,6 @@
 
 package org.opensearch.sql.expression;
 
-import org.opensearch.sql.ast.expression.Span;
 import org.opensearch.sql.expression.aggregation.Aggregator;
 import org.opensearch.sql.expression.aggregation.NamedAggregator;
 import org.opensearch.sql.expression.conditional.cases.CaseClause;
@@ -49,10 +48,6 @@ public abstract class ExpressionNodeVisitor<T, C> {
   }
 
   public T visitLiteral(LiteralExpression node, C context) {
-    return visitNode(node, context);
-  }
-
-  public T visitLiteralList(LiteralListExpression node, C context) {
     return visitNode(node, context);
   }
 

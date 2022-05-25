@@ -228,7 +228,7 @@ singleFieldRelevanceFunction
 // Field is a list of columns
 multiFieldRelevanceFunction
     : multiFieldRelevanceFunctionName LT_PRTHS
-        LT_SQR_PRTHS field=relevanceField (COMMA field=relevanceField)* RT_SQR_PRTHS
+        LT_SQR_PRTHS field=relevanceFieldAndWeight (COMMA field=relevanceFieldAndWeight)* RT_SQR_PRTHS
         COMMA query=relevanceQuery (COMMA relevanceArg)* RT_PRTHS
     ;
 
@@ -320,8 +320,20 @@ relevanceArgName
     | BOOST
     ;
 
+relevanceFieldAndWeight
+    : field=relevanceField
+    | field=relevanceField weight=relevanceFieldWeight
+    | field=relevanceField BIT_XOR_OP weight=relevanceFieldWeight
+    ;
+
+relevanceFieldWeight
+    : integerLiteral
+    | decimalLiteral
+    ;
+
 relevanceField
-    : stringLiteral
+    : qualifiedName
+    | stringLiteral
     ;
 
 relevanceQuery

@@ -16,27 +16,27 @@ import lombok.ToString;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 
 /**
- * Expression node that includes a list of Expression nodes.
+ * Expression node that includes a list of RelevanceField nodes.
  */
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
-public class LiteralList extends UnresolvedExpression {
+public class RelevanceFieldList extends UnresolvedExpression {
   @Getter
-  private List<UnresolvedExpression> literalList;
+  private List<RelevanceField> fieldList;
 
   @Override
   public List<UnresolvedExpression> getChild() {
-    return ImmutableList.copyOf(literalList);
+    return ImmutableList.copyOf(fieldList);
   }
 
   @Override
   public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-    return nodeVisitor.visitLiteralList(this, context);
+    return nodeVisitor.visitRelevanceFieldList(this, context);
   }
 
   @Override
   public String toString() {
-    return literalList.stream().map(String::valueOf).collect(Collectors.joining(", "));
+    return fieldList.stream().map(String::valueOf).collect(Collectors.joining(", "));
   }
 }

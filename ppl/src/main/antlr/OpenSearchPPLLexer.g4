@@ -141,6 +141,13 @@ SINGLE_QUOTE:                       '\'';
 DOUBLE_QUOTE:                       '"';
 BACKTICK:                           '`';
 
+// Operators. Bit
+
+BIT_NOT_OP:                         '~';
+//BIT_OR_OP:                          '|';
+BIT_AND_OP:                         '&';
+BIT_XOR_OP:                         '^';
+
 // AGGREGATIONS
 AVG:                                'AVG';
 COUNT:                              'COUNT';

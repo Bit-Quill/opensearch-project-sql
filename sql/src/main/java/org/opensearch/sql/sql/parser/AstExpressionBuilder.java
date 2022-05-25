@@ -51,7 +51,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.antlr.v4.runtime.RuleContext;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -66,10 +65,11 @@ import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.IntervalUnit;
 import org.opensearch.sql.ast.expression.Literal;
-import org.opensearch.sql.ast.expression.LiteralList;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
+import org.opensearch.sql.ast.expression.RelevanceField;
+import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.UnresolvedArgument;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.expression.When;
@@ -366,12 +366,13 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   public UnresolvedExpression visitRelevanceFunction(RelevanceFunctionContext ctx) {
     if (ctx.singleFieldRelevanceFunction() != null) {
       return new Function(
-          ctx.singleFieldRelevanceFunction().singleFieldRelevanceFunctionName().getText().toLowerCase(),
+          ctx.singleFieldRelevanceFunction()
+              .singleFieldRelevanceFunctionName().getText().toLowerCase(),
           singleFieldRelevanceArguments(ctx.singleFieldRelevanceFunction()));
-    }
-    else {
+    } else {
       return new Function(
-          ctx.multiFieldRelevanceFunction().multiFieldRelevanceFunctionName().getText().toLowerCase(),
+          ctx.multiFieldRelevanceFunction()
+              .multiFieldRelevanceFunctionName().getText().toLowerCase(),
           multiFieldRelevanceArguments(ctx.multiFieldRelevanceFunction()));
     }
   }
@@ -398,7 +399,8 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     );
   }
 
-  private List<UnresolvedExpression> singleFieldRelevanceArguments(OpenSearchSQLParser.SingleFieldRelevanceFunctionContext ctx) {
+  private List<UnresolvedExpression> singleFieldRelevanceArguments(
+        OpenSearchSQLParser.SingleFieldRelevanceFunctionContext ctx) {
     // all the arguments are defaulted to string values
     // to skip environment resolving and function signature resolving
     ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
@@ -412,25 +414,23 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     return builder.build();
   }
 
-  private List<UnresolvedExpression> multiFieldRelevanceArguments(OpenSearchSQLParser.MultiFieldRelevanceFunctionContext ctx) {
+  private List<UnresolvedExpression> multiFieldRelevanceArguments(
+      OpenSearchSQLParser.MultiFieldRelevanceFunctionContext ctx) {
     // all the arguments are defaulted to string values
     // to skip environment resolving and function signature resolving
     ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
-    var fields =
-        new LiteralList(
-          ctx.getRuleContexts(OpenSearchSQLParser.RelevanceFieldAndWeightContext.class)
-            .stream()
-            .map(f -> {
-              if (f.weight == null) {
-                  return new LiteralList(List.of(
-                      new Literal(StringUtils.unquoteText(f.field.getText()), DataType.STRING),
-                      new Literal(1F, DataType.FLOAT)));
-              }
-              return new LiteralList(List.of(
-                  new Literal(StringUtils.unquoteText(f.field.getText()), DataType.STRING),
-                  new Literal(Float.parseFloat(f.weight.getText()), DataType.FLOAT)));
-            })
-            .collect(Collectors.toList()));
+    var fields = new RelevanceFieldList(ctx
+        .getRuleContexts(OpenSearchSQLParser.RelevanceFieldAndWeightContext.class)
+        .stream()
+        .map(f -> (f.weight == null)
+            ? new RelevanceField(
+                new Literal(StringUtils.unquoteText(f.field.getText()), DataType.STRING),
+                new Literal(1F, DataType.FLOAT))
+            : new RelevanceField(
+                new Literal(StringUtils.unquoteText(f.field.getText()), DataType.STRING),
+                new Literal(Float.parseFloat(f.weight.getText()), DataType.FLOAT))
+        )
+        .collect(Collectors.toList()));
     builder.add(new UnresolvedArgument("fields", fields));
     builder.add(new UnresolvedArgument("query",
         new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));

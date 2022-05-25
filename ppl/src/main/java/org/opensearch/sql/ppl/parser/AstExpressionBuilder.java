@@ -66,10 +66,11 @@ import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.IntervalUnit;
 import org.opensearch.sql.ast.expression.Let;
 import org.opensearch.sql.ast.expression.Literal;
-import org.opensearch.sql.ast.expression.LiteralList;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
+import org.opensearch.sql.ast.expression.RelevanceField;
+import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.Span;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.ast.expression.UnresolvedArgument;
@@ -256,12 +257,13 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
   public UnresolvedExpression visitRelevanceExpression(RelevanceExpressionContext ctx) {
     if (ctx.singleFieldRelevanceFunction() != null) {
       return new Function(
-          ctx.singleFieldRelevanceFunction().singleFieldRelevanceFunctionName().getText().toLowerCase(),
+          ctx.singleFieldRelevanceFunction()
+              .singleFieldRelevanceFunctionName().getText().toLowerCase(),
           singleFieldRelevanceArguments(ctx.singleFieldRelevanceFunction()));
-    }
-    else {
+    } else {
       return new Function(
-          ctx.multiFieldRelevanceFunction().multiFieldRelevanceFunctionName().getText().toLowerCase(),
+          ctx.multiFieldRelevanceFunction()
+              .multiFieldRelevanceFunctionName().getText().toLowerCase(),
           multiFieldRelevanceArguments(ctx.multiFieldRelevanceFunction()));
     }
   }
@@ -337,7 +339,8 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
     );
   }
 
-  private List<UnresolvedExpression> singleFieldRelevanceArguments(OpenSearchPPLParser.SingleFieldRelevanceFunctionContext ctx) {
+  private List<UnresolvedExpression> singleFieldRelevanceArguments(
+      OpenSearchPPLParser.SingleFieldRelevanceFunctionContext ctx) {
     // all the arguments are defaulted to string values
     // to skip environment resolving and function signature resolving
     ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
@@ -351,16 +354,23 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
     return builder.build();
   }
 
-  private List<UnresolvedExpression> multiFieldRelevanceArguments(OpenSearchPPLParser.MultiFieldRelevanceFunctionContext ctx) {
+  private List<UnresolvedExpression> multiFieldRelevanceArguments(
+      OpenSearchPPLParser.MultiFieldRelevanceFunctionContext ctx) {
     // all the arguments are defaulted to string values
     // to skip environment resolving and function signature resolving
     ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
-    var fields =
-        new LiteralList(
-          ctx.getRuleContexts(OpenSearchPPLParser.RelevanceFieldContext.class)
-            .stream()
-            .map(f -> new Literal(StringUtils.unquoteText(f.getText()), DataType.STRING))
-            .collect(Collectors.toList()));
+    var fields = new RelevanceFieldList(ctx
+        .getRuleContexts(OpenSearchPPLParser.RelevanceFieldAndWeightContext.class)
+        .stream()
+        .map(f -> (f.weight == null)
+            ? new RelevanceField(
+                new Literal(StringUtils.unquoteText(f.field.getText()), DataType.STRING),
+                new Literal(1F, DataType.FLOAT))
+            : new RelevanceField(
+                new Literal(StringUtils.unquoteText(f.field.getText()), DataType.STRING),
+                new Literal(Float.parseFloat(f.weight.getText()), DataType.FLOAT))
+        )
+        .collect(Collectors.toList()));
     builder.add(new UnresolvedArgument("fields", fields));
     builder.add(new UnresolvedArgument("query",
         new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -29,10 +30,11 @@ import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.ast.expression.In;
 import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.Literal;
-import org.opensearch.sql.ast.expression.LiteralList;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
+import org.opensearch.sql.ast.expression.RelevanceField;
+import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.Span;
 import org.opensearch.sql.ast.expression.UnresolvedArgument;
 import org.opensearch.sql.ast.expression.UnresolvedAttribute;
@@ -47,7 +49,7 @@ import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.LiteralListExpression;
+import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.NamedArgumentExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ParseExpression;
@@ -162,19 +164,23 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   }
 
   @Override
-  public Expression visitLiteralList(LiteralList node, AnalysisContext context) {
+  public Expression visitRelevanceField(RelevanceField node, AnalysisContext context) {
+    return new LiteralExpression(
+        ExprValueUtils.tupleValue(
+            Map.of(
+                node.getFieldName().toString(),
+                Float.parseFloat(node.getFieldWeight().toString())
+    )));
+  }
+
+  @Override
+  public Expression visitRelevanceFieldList(RelevanceFieldList node, AnalysisContext context) {
     var lst = node
-        .getLiteralList()
+        .getFieldList()
         .stream()
-        .map(n -> {
-            if (n instanceof LiteralList) {
-                return visitLiteralList(((LiteralList)n), context).valueOf(null);
-            }
-            // assuming n is a Literal
-            return visitLiteral(((Literal)n), context).valueOf(null);
-        })
+        .map(n -> visitRelevanceField(n, context).valueOf(null))
         .collect(Collectors.toList());
-    return new LiteralListExpression(new ExprCollectionValue(lst));
+    return new LiteralExpression(new ExprCollectionValue(lst));
   }
 
   @Override
