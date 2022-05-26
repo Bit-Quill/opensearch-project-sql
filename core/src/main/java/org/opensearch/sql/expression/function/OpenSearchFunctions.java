@@ -7,6 +7,7 @@ package org.opensearch.sql.expression.function;
 
 import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
+import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class OpenSearchFunctions {
     // At most field, query, and all optional parameters
     // TODO 16 ? See org.opensearch.index.query.SimpleQueryStringBuilder.class
     final int simpleQueryStringMaxNumParameters = 12;
-    return getRelevanceFunctionResolver(funcName, simpleQueryStringMaxNumParameters, ARRAY);
+    return getRelevanceFunctionResolver(funcName, simpleQueryStringMaxNumParameters, STRUCT);
   }
 
   private static FunctionResolver getRelevanceFunctionResolver(

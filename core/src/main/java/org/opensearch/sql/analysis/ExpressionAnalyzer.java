@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,7 +34,6 @@ import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
-import org.opensearch.sql.ast.expression.RelevanceField;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.Span;
 import org.opensearch.sql.ast.expression.UnresolvedArgument;
@@ -43,7 +43,7 @@ import org.opensearch.sql.ast.expression.When;
 import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.expression.Xor;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
-import org.opensearch.sql.data.model.ExprCollectionValue;
+import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.SemanticCheckException;
@@ -164,23 +164,18 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   }
 
   @Override
-  public Expression visitRelevanceField(RelevanceField node, AnalysisContext context) {
-    return new LiteralExpression(
-        ExprValueUtils.tupleValue(
-            Map.of(
-                node.getFieldName().toString(),
-                Float.parseFloat(node.getFieldWeight().toString())
-    )));
-  }
-
-  @Override
   public Expression visitRelevanceFieldList(RelevanceFieldList node, AnalysisContext context) {
     var lst = node
         .getFieldList()
+        .entrySet()
         .stream()
-        .map(n -> visitRelevanceField(n, context).valueOf(null))
-        .collect(Collectors.toList());
-    return new LiteralExpression(new ExprCollectionValue(lst));
+        .collect(Collectors.toMap(
+            n -> (String)((Literal)n.getKey()).getValue(),
+            n -> ExprValueUtils.floatValue((Float)((Literal)n.getValue()).getValue()),
+            (e1, e2) -> e1,
+            LinkedHashMap::new
+        ));
+    return new LiteralExpression(new ExprTupleValue(lst));
   }
 
   @Override

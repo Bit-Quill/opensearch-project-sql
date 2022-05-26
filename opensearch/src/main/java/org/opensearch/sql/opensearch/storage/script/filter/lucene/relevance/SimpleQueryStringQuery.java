@@ -75,15 +75,7 @@ public class SimpleQueryStringQuery extends LuceneQuery {
     var fieldsAndWeights = fields
         .getValue()
         .valueOf(null)
-        .collectionValue()
-        .stream()
-        .map(ExprTupleValue.class::cast)
-        .map(ExprTupleValue::tupleValue)
-        .reduce((firstMap, secondMap) -> {
-          firstMap.putAll(secondMap);
-          return firstMap;
-        })
-        .orElse(Map.of())
+        .tupleValue()
         .entrySet()
         .stream()
         .map(e -> Tuple.of(e.getKey(), e.getValue().floatValue()))

@@ -26,7 +26,6 @@ import org.opensearch.sql.ast.expression.Map;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
-import org.opensearch.sql.ast.expression.RelevanceField;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.Span;
 import org.opensearch.sql.ast.expression.UnresolvedArgument;
@@ -109,10 +108,6 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitLiteral(Literal node, C context) {
-    return visitChildren(node, context);
-  }
-
-  public T visitRelevanceField(RelevanceField node, C context) {
     return visitChildren(node, context);
   }
 

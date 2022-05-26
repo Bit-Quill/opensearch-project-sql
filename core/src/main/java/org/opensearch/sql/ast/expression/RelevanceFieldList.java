@@ -23,11 +23,11 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 @AllArgsConstructor
 public class RelevanceFieldList extends UnresolvedExpression {
   @Getter
-  private List<RelevanceField> fieldList;
+  private java.util.Map<UnresolvedExpression, UnresolvedExpression> fieldList;
 
   @Override
   public List<UnresolvedExpression> getChild() {
-    return ImmutableList.copyOf(fieldList);
+    return List.of();
   }
 
   @Override
@@ -37,6 +37,10 @@ public class RelevanceFieldList extends UnresolvedExpression {
 
   @Override
   public String toString() {
-    return fieldList.stream().map(String::valueOf).collect(Collectors.joining(", "));
+    return fieldList
+        .entrySet()
+        .stream()
+        .map(e -> String.format("\"%s\" ^ %s", e.getKey().toString(), e.getValue().toString()))
+        .collect(Collectors.joining(", "));
   }
 }

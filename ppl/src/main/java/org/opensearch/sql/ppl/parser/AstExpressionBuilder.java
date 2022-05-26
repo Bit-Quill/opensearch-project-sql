@@ -69,7 +69,6 @@ import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
-import org.opensearch.sql.ast.expression.RelevanceField;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.Span;
 import org.opensearch.sql.ast.expression.SpanUnit;
@@ -362,15 +361,11 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
     var fields = new RelevanceFieldList(ctx
         .getRuleContexts(OpenSearchPPLParser.RelevanceFieldAndWeightContext.class)
         .stream()
-        .map(f -> (f.weight == null)
-            ? new RelevanceField(
-                new Literal(StringUtils.unquoteText(f.field.getText()), DataType.STRING),
-                new Literal(1F, DataType.FLOAT))
-            : new RelevanceField(
-                new Literal(StringUtils.unquoteText(f.field.getText()), DataType.STRING),
-                new Literal(Float.parseFloat(f.weight.getText()), DataType.FLOAT))
-        )
-        .collect(Collectors.toList()));
+        .collect(Collectors.toMap(
+            f -> new Literal(StringUtils.unquoteText(f.field.getText()), DataType.STRING),
+            f -> (f.weight == null)
+                ? new Literal(1F, DataType.FLOAT)
+                : new Literal(Float.parseFloat(f.weight.getText()), DataType.FLOAT))));
     builder.add(new UnresolvedArgument("fields", fields));
     builder.add(new UnresolvedArgument("query",
         new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));
