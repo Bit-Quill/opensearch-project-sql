@@ -311,18 +311,37 @@ STRCMP:                             'STRCMP';
 ADDDATE:                            'ADDDATE';
 
 // RELEVANCE FUNCTIONS AND PARAMETERS
+ALLOW_LEADING_WILDCARD:             'ALLOW_LEADING_WILDCARD';
+ANALYZE_WILDCARD:                   'ANALYZE_WILDCARD';
 ANALYZER:                           'ANALYZER';
-FUZZINESS:                          'FUZZINESS';
 AUTO_GENERATE_SYNONYMS_PHRASE_QUERY:'AUTO_GENERATE_SYNONYMS_PHRASE_QUERY';
-MAX_EXPANSIONS:                     'MAX_EXPANSIONS';
-PREFIX_LENGTH:                      'PREFIX_LENGTH';
+BOOST:                              'BOOST';
+CUTOFF_FREQUENCY:                   'CUTOFF_FREQUENCY';
+DEFAULT_FIELD:                      'DEFAULT_FIELD';
+DEFAULT_OPERATOR:                   'DEFAULT_OPERATOR';
+ENABLE_POSITION_INCREMENTS:         'ENABLE_POSITION_INCREMENTS';
+FLAGS:                              'FLAGS';
+FUZZY_MAX_EXPANSIONS:               'FUZZY_MAX_EXPANSIONS';
+FUZZY_PREFIX_LENGTH:                'FUZZY_PREFIX_LENGTH';
 FUZZY_TRANSPOSITIONS:               'FUZZY_TRANSPOSITIONS';
 FUZZY_REWRITE:                      'FUZZY_REWRITE';
+FUZZINESS:                          'FUZZINESS';
 LENIENT:                            'LENIENT';
-OPERATOR:                           'OPERATOR';
+LOW_FREQ_OPERATOR:                  'LOW_FREQ_OPERATOR';
+MAX_DETERMINIZED_STATES:            'MAX_DETERMINIZED_STATES';
+MAX_EXPANSIONS:                     'MAX_EXPANSIONS';
 MINIMUM_SHOULD_MATCH:               'MINIMUM_SHOULD_MATCH';
+OPERATOR:                           'OPERATOR';
+PHRASE_SLOP:                        'PHRASE_SLOP';
+PREFIX_LENGTH:                      'PREFIX_LENGTH';
+QUOTE_ANALYZER:                     'QUOTE_ANALYZER';
+QUOTE_FIELD_SUFFIX:                 'QUOTE_FIELD_SUFFIX';
+REWRITE:                            'REWRITE';
+SLOP:                               'SLOP';
+TIE_BREAKER:                        'TIE_BREAKER';
+TIME_ZONE:                          'TIME_ZONE';
+TYPE:                               'TYPE';
 ZERO_TERMS_QUERY:                   'ZERO_TERMS_QUERY';
-BOOST:                              'BOOST';
 
 // Operators
 
