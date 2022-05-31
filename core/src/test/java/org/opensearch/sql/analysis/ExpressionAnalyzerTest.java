@@ -394,8 +394,8 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  // Test is disabled because DSL and AstDSL expressions always has fields in the different order
-  // regardless of how they are specified
+  // Test is disabled because DSL and AstDSL expressions sometimes has fields in the different order
+  // regardless of how they are specified. Test passes and fails in a flaky behavior.
   @Disabled
   void simple_query_string_expression_two_fields() {
     assertAnalyzeEqual(
@@ -406,8 +406,8 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
             dsl.namedArgument("query", DSL.literal("sample query"))),
         AstDSL.function("simple_query_string",
             AstDSL.unresolvedArg("fields", new RelevanceFieldList(Map.of(
-                stringLiteral("field2"), floatLiteral(.3F),
-                stringLiteral("field1"), floatLiteral(1.F)))),
+                stringLiteral("field1"), floatLiteral(1.F),
+                stringLiteral("field2"), floatLiteral(.3F)))),
             AstDSL.unresolvedArg("query", stringLiteral("sample query"))));
   }
 
