@@ -5,7 +5,6 @@
 
 package org.opensearch.sql.expression.function;
 
-import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 
@@ -41,7 +40,6 @@ public class OpenSearchFunctions {
   private static FunctionResolver simple_query_string() {
     FunctionName funcName = BuiltinFunctionName.SIMPLE_QUERY_STRING.getName();
     // At most field, query, and all optional parameters
-    // TODO 16 ? See org.opensearch.index.query.SimpleQueryStringBuilder.class
     final int simpleQueryStringMaxNumParameters = 12;
     return getRelevanceFunctionResolver(funcName, simpleQueryStringMaxNumParameters, STRUCT);
   }

@@ -16,7 +16,6 @@ import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.index.query.SimpleQueryStringBuilder;
 import org.opensearch.index.query.SimpleQueryStringFlag;
-import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.Expression;
@@ -68,18 +67,20 @@ public class SimpleQueryStringQuery extends LuceneQuery {
 
   @Override
   public QueryBuilder build(FunctionExpression func) {
+    if (func.getArguments().size() < 2) {
+      throw new SemanticCheckException("'simple_query_string' must have at least two arguments");
+    }
     Iterator<Expression> iterator = func.getArguments().iterator();
     var fields = (NamedArgumentExpression) iterator.next();
     var query = (NamedArgumentExpression) iterator.next();
-    // fields is a 2D array, each sub-array has 2 elements, `field` and its `weight`.
+    // Fields is a map already, but we need to convert types.
     var fieldsAndWeights = fields
         .getValue()
         .valueOf(null)
         .tupleValue()
         .entrySet()
         .stream()
-        .map(e -> Tuple.of(e.getKey(), e.getValue().floatValue()))
-        .collect(Collectors.toMap(n -> n._1, n -> n._2));
+        .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().floatValue()));
 
     SimpleQueryStringBuilder queryBuilder = QueryBuilders
         .simpleQueryStringQuery(query.getValue().valueOf(null).stringValue())
