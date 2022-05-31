@@ -25,6 +25,7 @@ import static org.opensearch.sql.ast.dsl.AstDSL.eval;
 import static org.opensearch.sql.ast.dsl.AstDSL.exprList;
 import static org.opensearch.sql.ast.dsl.AstDSL.field;
 import static org.opensearch.sql.ast.dsl.AstDSL.filter;
+import static org.opensearch.sql.ast.dsl.AstDSL.floatLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.function;
 import static org.opensearch.sql.ast.dsl.AstDSL.in;
 import static org.opensearch.sql.ast.dsl.AstDSL.intLiteral;
@@ -42,10 +43,12 @@ import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.unresolvedArg;
 import static org.opensearch.sql.ast.dsl.AstDSL.xor;
 
+import java.util.Map;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.DataType;
+import org.opensearch.sql.ast.expression.RelevanceFieldList;
 
 public class AstExpressionBuilderTest extends AstBuilderTest {
 
@@ -641,7 +644,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
   }
 
   @Test
-  public void canBuildRelevanceFunctionWithArguments() {
+  public void canBuildMatchRelevanceFunctionWithArguments() {
     assertEqual(
         "source=test | where match('message', 'test query', analyzer='keyword')",
         filter(
@@ -649,6 +652,25 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
             function(
                 "match",
                 unresolvedArg("field", stringLiteral("message")),
+                unresolvedArg("query", stringLiteral("test query")),
+                unresolvedArg("analyzer", stringLiteral("keyword"))
+            )
+        )
+    );
+  }
+
+  @Test
+  public void canBuildSimple_query_stringRelevanceFunctionWithArguments() {
+    assertEqual(
+        "source=test | where simple_query_string(['field1', 'field2' ^ 3.2],"
+            + "'test query', analyzer='keyword')",
+        filter(
+            relation("test"),
+            function(
+                "simple_query_string",
+                unresolvedArg("fields", new RelevanceFieldList(Map.of(
+                    stringLiteral("field2"), floatLiteral(3.2F),
+                    stringLiteral("field1"), floatLiteral(1.F)))),
                 unresolvedArg("query", stringLiteral("test query")),
                 unresolvedArg("analyzer", stringLiteral("keyword"))
             )
