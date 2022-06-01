@@ -25,6 +25,8 @@ import static org.opensearch.sql.legacy.antlr.semantic.types.base.OpenSearchInde
 
 import java.util.Map;
 import java.util.Optional;
+
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +61,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         Map<String, Type> typeByName = context.peek().resolveAll(Namespace.FIELD_NAME);
         assertThat(
             typeByName,
-            allOf(
+            Matchers.<Map<String, Type>>allOf(
                 aMapWithSize(21),
                 hasEntry("semantics", new OpenSearchIndex("semantics", INDEX)),
                 hasEntry("address", TEXT),
@@ -89,7 +91,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         typeByName = context.peek().resolveAll(Namespace.FIELD_NAME);
         assertThat(
             typeByName,
-            allOf(
+            Matchers.<Map<String, Type>>allOf(
                 aMapWithSize(41),
                 hasEntry("semantics", new OpenSearchIndex("semantics", INDEX)),
                 hasEntry("address", TEXT),
@@ -148,7 +150,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         Map<String, Type> typeByName = context.peek().resolveAll(Namespace.FIELD_NAME);
         assertThat(
             typeByName,
-            allOf(
+            Matchers.<Map<String, Type>>allOf(
                 aMapWithSize(41),
                 hasEntry("semantics", indexType),
                 // These are also valid because alias is optional in SQL
@@ -209,7 +211,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         Map<String, Type> typeByName = context.peek().resolveAll(Namespace.FIELD_NAME);
         assertThat(
             typeByName,
-            allOf(
+            Matchers.<Map<String, Type>>allOf(
                 aMapWithSize(41),
                 hasEntry("semantics", indexType),
                 // These are also valid because alias is optional in SQL
@@ -270,7 +272,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         Map<String, Type> typeByName = context.peek().resolveAll(Namespace.FIELD_NAME);
         assertThat(
             typeByName,
-            allOf(
+            Matchers.<Map<String, Type>>allOf(
                 aMapWithSize(46),
                 // These are also valid because alias is optional in SQL
                 hasEntry("semantics", indexType),
@@ -339,7 +341,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
 
         assertThat(
             typeByName,
-            allOf(
+            Matchers.<Map<String, Type>>allOf(
                 aMapWithSize(43),
                 hasEntry("semantics", indexType),
                 // These are also valid because alias is optional in SQL
@@ -405,7 +407,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         Map<String, Type> typeByName = context.peek().resolveAll(Namespace.FIELD_NAME);
         assertThat(
             typeByName,
-            allOf(
+            Matchers.<Map<String, Type>>allOf(
                 aMapWithSize(48),
                 hasEntry("semantics", indexType),
                 // These are also valid because alias is optional in SQL
@@ -477,7 +479,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         Map<String, Type> typeByName = context.peek().resolveAll(Namespace.FIELD_NAME);
         assertThat(
             typeByName,
-            allOf(
+            Matchers.<Map<String, Type>>allOf(
                 aMapWithSize(46),
                 // These are also valid because alias is optional in SQL
                 hasEntry("semantics", indexType),
@@ -537,7 +539,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         typeByName = context.peek().resolveAll(Namespace.FIELD_NAME);
         assertThat(
             typeByName,
-            allOf(
+            Matchers.<Map<String, Type>>allOf(
                 aMapWithSize(41),
                 hasEntry("semantics", indexType),
                 // These are also valid because alias is optional in SQL
