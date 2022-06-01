@@ -42,6 +42,7 @@ import org.opensearch.sql.ast.expression.When;
 import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.expression.Xor;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
+import org.opensearch.sql.data.model.ExprFloatValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.data.type.ExprType;
@@ -169,7 +170,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
         .entrySet()
         .stream()
         .collect(Collectors.toMap(
-            n -> (String) ((Literal) n.getKey()).getValue(),
+            n -> n.getKey().toString(),
             n -> ExprValueUtils.floatValue((Float) ((Literal) n.getValue()).getValue())
         )))));
   }
