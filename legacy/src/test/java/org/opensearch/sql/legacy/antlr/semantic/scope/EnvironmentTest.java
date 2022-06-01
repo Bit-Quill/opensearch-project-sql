@@ -18,9 +18,6 @@ import static org.opensearch.sql.legacy.antlr.semantic.types.base.OpenSearchData
 import static org.opensearch.sql.legacy.antlr.semantic.types.base.OpenSearchIndex.IndexType.NESTED_FIELD;
 
 import java.util.Map;
-
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opensearch.sql.legacy.antlr.semantic.types.Type;
@@ -119,9 +116,9 @@ public class EnvironmentTest {
         Map<String, Type> typeByName = environment().resolveAll(Namespace.FIELD_NAME);
         assertThat(
             typeByName,
-            Matchers.<Map<String, Type>>allOf(
+            allOf(
                 aMapWithSize(6),
-                hasEntry("s.projects", new OpenSearchIndex("s.projects", NESTED_FIELD)),
+                hasEntry("s.projects", (Type) new OpenSearchIndex("s.projects", NESTED_FIELD)),
                 hasEntry("s.projects.release", DATE),
                 hasEntry("s.projects.active", BOOLEAN),
                 hasEntry("s.address", TEXT),
