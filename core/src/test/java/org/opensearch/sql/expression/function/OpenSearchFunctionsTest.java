@@ -21,7 +21,6 @@ import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.NamedArgumentExpression;
 
 
-
 public class OpenSearchFunctionsTest extends ExpressionTestBase {
   private final NamedArgumentExpression field = new NamedArgumentExpression(
       "field", DSL.literal("message"));
@@ -52,9 +51,9 @@ public class OpenSearchFunctionsTest extends ExpressionTestBase {
   private final NamedArgumentExpression minimumShouldMatch = new NamedArgumentExpression(
       "minimum_should_match", DSL.literal("1"));
   private final NamedArgumentExpression zeroTermsQueryAll = new NamedArgumentExpression(
-          "zero_terms_query", DSL.literal("ALL"));
+      "zero_terms_query", DSL.literal("ALL"));
   private final NamedArgumentExpression zeroTermsQueryNone = new NamedArgumentExpression(
-          "zero_terms_query", DSL.literal("None"));
+      "zero_terms_query", DSL.literal("None"));
   private final NamedArgumentExpression boost = new NamedArgumentExpression(
       "boost", DSL.literal("2.0"));
   private final NamedArgumentExpression slop = new NamedArgumentExpression(
