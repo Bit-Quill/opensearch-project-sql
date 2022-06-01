@@ -651,8 +651,19 @@ public class DSL {
   }
 
   public FunctionExpression match(Expression... args) {
-    return (FunctionExpression) repository
-        .compile(BuiltinFunctionName.MATCH.getName(), Arrays.asList(args.clone()));
+    return compile(BuiltinFunctionName.MATCH, args);
+  }
+
+  public FunctionExpression match_phrase(Expression... args) {
+    return compile(BuiltinFunctionName.MATCH_PHRASE, args);
+  }
+
+  public FunctionExpression match_bool_prefix(Expression... args) {
+    return compile(BuiltinFunctionName.MATCH_BOOL_PREFIX, args);
+  }
+
+  private FunctionExpression compile(BuiltinFunctionName bfn, Expression... args) {
+    return (FunctionExpression) repository.compile(bfn.getName(), Arrays.asList(args.clone()));
   }
 
   public FunctionExpression simple_query_string(Expression... args) {

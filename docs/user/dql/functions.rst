@@ -2183,8 +2183,6 @@ Example with only ``field`` and ``query`` expressions, and all other parameters 
     | Bates      | 789 Madison Street |
     +------------+--------------------+
 
-
-
 Another example to show how to set custom values for the optional parameters::
 
     os> SELECT lastname FROM accounts WHERE match(firstname, 'Hattie', operator='AND', boost=2.0);
@@ -2237,8 +2235,6 @@ Example with only ``fields`` and ``query`` expressions, and all other parameters
     | Nanette     | Bates      | Nogal  | 789 Madison Street |
     +-------------+------------+--------+--------------------+
 
-
-
 Another example to show how to set custom values for the optional parameters::
 
     os> select firstname, lastname, city, address from accounts where simple_query_string(['firstname', city ^ 2], 'Amber Nogal', analyzer=keyword, default_operator='AND');
@@ -2247,3 +2243,63 @@ Another example to show how to set custom values for the optional parameters::
     | firstname   | lastname   | city   | address   |
     |-------------+------------+--------+-----------|
     +-------------+------------+--------+-----------+
+
+MATCH_PHRASE
+------------
+
+Description
+>>>>>>>>>>>
+
+``match_phrase(field_expression, query_expression[, option=<option_value>]*)``
+
+The match_phrase function maps to the match_phrase query used in search engine, to return the documents that match a provided text with a given field. Available parameters include:
+
+- analyzer
+- slop
+- zero_terms_query
+
+For backward compatibility, matchphrase is also supported and mapped to match_phrase query as well.
+
+Example with only ``field`` and ``query`` expressions, and all other parameters are set default values::
+
+    os> SELECT author, title FROM books WHERE match_phrase(author, 'Alexander Milne');
+    fetched rows / total rows = 2/2
+    +----------------------+--------------------------+
+    | author               | title                    |
+    |----------------------+--------------------------|
+    | Alan Alexander Milne | The House at Pooh Corner |
+    | Alan Alexander Milne | Winnie-the-Pooh          |
+    +----------------------+--------------------------+
+
+Another example to show how to set custom values for the optional parameters::
+
+    os> SELECT author, title FROM books WHERE match_phrase(author, 'Alan Milne', slop = 2);
+    fetched rows / total rows = 2/2
+    +----------------------+--------------------------+
+    | author               | title                    |
+    |----------------------+--------------------------|
+    | Alan Alexander Milne | The House at Pooh Corner |
+    | Alan Alexander Milne | Winnie-the-Pooh          |
+    +----------------------+--------------------------+
+
+
+MATCH_BOOL_PREFIX
+-----------------
+
+Description
+>>>>>>>>>>>
+
+``match_bool_prefix(field_expression, query_expression)``
+
+The match_bool_prefix function maps to the match_bool_prefix query in the search engine. match_bool_prefix creates a match query from all but the last term in the query string. The last term is used to create a prefix query.
+
+Example with only ``field`` and ``query`` expressions, and all other parameters are set default values::
+
+    os> SELECT firstname, address FROM accounts WHERE match_bool_prefix(address, 'Bristol Stre');
+    fetched rows / total rows = 2/2
+    +-------------+--------------------+
+    | firstname   | address            |
+    |-------------+--------------------|
+    | Hattie      | 671 Bristol Street |
+    | Nanette     | 789 Madison Street |
+    +-------------+--------------------+
