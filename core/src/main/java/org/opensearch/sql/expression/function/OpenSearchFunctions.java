@@ -31,7 +31,7 @@ public class OpenSearchFunctions {
   public static final int MATCH_MAX_NUM_PARAMETERS = 12;
   public static final int MATCH_PHRASE_MAX_NUM_PARAMETERS = 3;
   public static final int MIN_NUM_PARAMETERS = 2;
-  public static final int SIMPLE_QUERY_STRING_MAX_NUM_PARAMETERS = 12;
+  public static final int SIMPLE_QUERY_STRING_MAX_NUM_PARAMETERS = 10;
 
   /**
    * Add functions specific to OpenSearch to repository.
@@ -81,10 +81,10 @@ public class OpenSearchFunctions {
       FunctionName funcName, int numOptionalParameters, ExprCoreType firstArgType) {
     FunctionBuilder buildFunction = args -> new OpenSearchFunction(funcName, args);
     var signatureMapBuilder = ImmutableMap.<FunctionSignature, FunctionBuilder>builder();
-    for (int numParameters = MIN_NUM_PARAMETERS - 1;
+    for (int numParameters = MIN_NUM_PARAMETERS;
          numParameters <= MIN_NUM_PARAMETERS + numOptionalParameters;
          numParameters++) {
-      List<ExprType> args = new ArrayList<>(Collections.nCopies(numParameters, STRING));
+      List<ExprType> args = new ArrayList<>(Collections.nCopies(numParameters - 1, STRING));
       args.add(0, firstArgType);
       signatureMapBuilder.put(new FunctionSignature(funcName, args), buildFunction);
     }
