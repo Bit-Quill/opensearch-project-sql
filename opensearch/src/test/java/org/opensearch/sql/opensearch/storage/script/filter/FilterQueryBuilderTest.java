@@ -479,7 +479,6 @@ class FilterQueryBuilderTest {
           + "[STRING,STRING,STRING,STRING,STRING,STRING]", msg);
   }
 
-
   @Test
   void should_build_match_bool_prefix_query_with_default_parameters() {
     assertJsonEquals(
@@ -502,10 +501,12 @@ class FilterQueryBuilderTest {
   }
 
   @Test
+  // `buildQuery` calls OpenSearch's (not plugin's) `toString()` function which prints
+  // - fields' weights inside quotes
+  // - `flags` as an integer, but not as an enum
+  // - parameters not in alphabetical order
   @Disabled
   void should_build_simple_query_string_query_with_default_parameters() {
-    // `buildQuery` calls OpenSearch's (not plugin's) `toString()` function
-    // which prints fields' weights inside quotes
     assertJsonEquals(
         "{\n"
             + "  \"simple_query_string\" : {\n"
@@ -591,6 +592,45 @@ class FilterQueryBuilderTest {
     assertThrows(SemanticCheckException.class, () -> buildQuery(expr),
         "Parameter invalid_parameter is invalid for match function.");
   }
+
+  @Test
+  void simple_query_string_missing_fields() {
+    var msg = assertThrows(ExpressionEvaluationException.class, () ->
+        dsl.simple_query_string(
+            dsl.namedArgument("query", literal("search query")))).getMessage();
+    assertEquals("simple_query_string function expected {[STRUCT,STRING],[STRUCT,STRING,STRING],"
+          + "[STRUCT,STRING,STRING,STRING],[STRUCT,STRING,STRING,STRING,STRING],[STRUCT,STRING,"
+          + "STRING,STRING,STRING,STRING],[STRUCT,STRING,STRING,STRING,STRING,STRING,STRING],"
+          + "[STRUCT,STRING,STRING,STRING,STRING,STRING,STRING,STRING],[STRUCT,STRING,STRING,"
+          + "STRING,STRING,STRING,STRING,STRING,STRING],[STRUCT,STRING,STRING,STRING,STRING,"
+          + "STRING,STRING,STRING,STRING,STRING],[STRUCT,STRING,STRING,STRING,STRING,STRING,"
+          + "STRING,STRING,STRING,STRING,STRING],[STRUCT,STRING,STRING,STRING,STRING,STRING,"
+          + "STRING,STRING,STRING,STRING,STRING,STRING]}, but get [STRING]",
+          msg);
+  }
+
+  @Test
+  void simple_query_string_missing_query() {
+    var msg = assertThrows(ExpressionEvaluationException.class, () ->
+        dsl.simple_query_string(
+            dsl.namedArgument("fields", DSL.literal(new ExprTupleValue(new LinkedHashMap<>(Map.of(
+                "field1", ExprValueUtils.floatValue(1.F),
+                "field2", ExprValueUtils.floatValue(.3F)))))))).getMessage();
+    assertEquals("simple_query_string function expected {[STRUCT,STRING],[STRUCT,STRING,STRING],"
+          + "[STRUCT,STRING,STRING,STRING],[STRUCT,STRING,STRING,STRING,STRING],[STRUCT,STRING,"
+          + "STRING,STRING,STRING,STRING],[STRUCT,STRING,STRING,STRING,STRING,STRING,STRING],"
+          + "[STRUCT,STRING,STRING,STRING,STRING,STRING,STRING,STRING],[STRUCT,STRING,STRING,"
+          + "STRING,STRING,STRING,STRING,STRING,STRING],[STRUCT,STRING,STRING,STRING,STRING,"
+          + "STRING,STRING,STRING,STRING,STRING],[STRUCT,STRING,STRING,STRING,STRING,STRING,"
+          + "STRING,STRING,STRING,STRING,STRING],[STRUCT,STRING,STRING,STRING,STRING,STRING,"
+          + "STRING,STRING,STRING,STRING,STRING,STRING]}, but get [STRUCT]",
+          msg);
+  }
+
+  // TODO simple_query_string tests:
+  // - with one field
+  // - without weight(s)
+  // - with all fields ("*")
 
   @Test
   void cast_to_string_in_filter() {
