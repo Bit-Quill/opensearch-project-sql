@@ -33,7 +33,7 @@ import static org.opensearch.sql.ast.tree.Sort.SortOrder.ASC;
 import static org.opensearch.sql.ast.tree.Sort.SortOrder.DESC;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Map;
+import com.google.common.collect.ImmutableMap;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
@@ -450,7 +450,7 @@ class AstExpressionBuilderTest {
   @Test
   public void relevanceSimple_query_string() {
     assertEquals(AstDSL.function("simple_query_string",
-            unresolvedArg("fields", new RelevanceFieldList(Map.of(
+            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
                 stringLiteral("field2"), floatLiteral(3.2F),
                 stringLiteral("field1"), floatLiteral(1.F)))),
             unresolvedArg("query", stringLiteral("search query"))),
@@ -458,7 +458,7 @@ class AstExpressionBuilderTest {
     );
 
     assertEquals(AstDSL.function("simple_query_string",
-            unresolvedArg("fields", new RelevanceFieldList(Map.of(
+            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
                 stringLiteral("field2"), floatLiteral(3.2F),
                 stringLiteral("field1"), floatLiteral(1.F)))),
             unresolvedArg("query", stringLiteral("search query")),
@@ -491,5 +491,4 @@ class AstExpressionBuilderTest {
     parser.addErrorListener(new SyntaxAnalysisErrorListener());
     return parser.expression().accept(astExprBuilder);
   }
-
 }

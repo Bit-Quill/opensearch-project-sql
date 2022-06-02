@@ -529,7 +529,7 @@ class FilterQueryBuilderTest {
         buildQuery(
             dsl.simple_query_string(
                 dsl.namedArgument("fields", DSL.literal(new ExprTupleValue(
-                    new LinkedHashMap<>(Map.of(
+                    new LinkedHashMap<>(ImmutableMap.of(
                         "field1", ExprValueUtils.floatValue(1.F),
                         "field2", ExprValueUtils.floatValue(.3F)))))),
                 dsl.namedArgument("query", literal("search query")))));
@@ -566,7 +566,7 @@ class FilterQueryBuilderTest {
         buildQuery(
             dsl.simple_query_string(
                 dsl.namedArgument("fields", DSL.literal(
-                    ExprValueUtils.tupleValue(Map.of("field1", 1.F, "field2", .3F)))),
+                    ExprValueUtils.tupleValue(ImmutableMap.of("field1", 1.F, "field2", .3F)))),
                 dsl.namedArgument("query", literal("search query")),
                 dsl.namedArgument("analyze_wildcard", literal("true")),
                 dsl.namedArgument("analyzer", literal("keyword")),
@@ -584,9 +584,10 @@ class FilterQueryBuilderTest {
   @Test
   void simple_query_string_invalid_parameter() {
     FunctionExpression expr = dsl.simple_query_string(
-        dsl.namedArgument("fields", DSL.literal(new ExprTupleValue(new LinkedHashMap<>(Map.of(
-                    "field1", ExprValueUtils.floatValue(1.F),
-                    "field2", ExprValueUtils.floatValue(.3F)))))),
+        dsl.namedArgument("fields", DSL.literal(
+            new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                "field1", ExprValueUtils.floatValue(1.F),
+                "field2", ExprValueUtils.floatValue(.3F)))))),
         dsl.namedArgument("query", literal("search query")),
         dsl.namedArgument("invalid_parameter", literal("invalid_value")));
     assertThrows(SemanticCheckException.class, () -> buildQuery(expr),
@@ -613,9 +614,10 @@ class FilterQueryBuilderTest {
   void simple_query_string_missing_query() {
     var msg = assertThrows(ExpressionEvaluationException.class, () ->
         dsl.simple_query_string(
-            dsl.namedArgument("fields", DSL.literal(new ExprTupleValue(new LinkedHashMap<>(Map.of(
-                "field1", ExprValueUtils.floatValue(1.F),
-                "field2", ExprValueUtils.floatValue(.3F)))))))).getMessage();
+            dsl.namedArgument("fields", DSL.literal(
+                new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                    "field1", ExprValueUtils.floatValue(1.F),
+                    "field2", ExprValueUtils.floatValue(.3F)))))))).getMessage();
     assertEquals("simple_query_string function expected {[STRUCT,STRING],[STRUCT,STRING,STRING],"
           + "[STRUCT,STRING,STRING,STRING],[STRUCT,STRING,STRING,STRING,STRING],[STRUCT,STRING,"
           + "STRING,STRING,STRING,STRING],[STRUCT,STRING,STRING,STRING,STRING,STRING,STRING],"

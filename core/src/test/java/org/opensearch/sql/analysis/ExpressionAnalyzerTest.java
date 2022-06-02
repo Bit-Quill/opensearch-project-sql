@@ -23,10 +23,10 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.expression.DSL.ref;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensearch.sql.analysis.symbol.Namespace;
@@ -380,8 +380,9 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   void simple_query_string_expression() {
     assertAnalyzeEqual(
         dsl.simple_query_string(
-            dsl.namedArgument("fields", DSL.literal(new ExprTupleValue(new LinkedHashMap<>(Map.of(
-                "field", ExprValueUtils.floatValue(1.F)))))),
+            dsl.namedArgument("fields", DSL.literal(
+                new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                    "field", ExprValueUtils.floatValue(1.F)))))),
             dsl.namedArgument("query", DSL.literal("sample query"))),
         AstDSL.function("simple_query_string",
             AstDSL.unresolvedArg("fields", new RelevanceFieldList(Map.of(
@@ -393,8 +394,9 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   void simple_query_string_expression_with_params() {
     assertAnalyzeEqual(
         dsl.simple_query_string(
-            dsl.namedArgument("fields", DSL.literal(new ExprTupleValue(new LinkedHashMap<>(Map.of(
-                "field", ExprValueUtils.floatValue(1.F)))))),
+            dsl.namedArgument("fields", DSL.literal(
+                new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                    "field", ExprValueUtils.floatValue(1.F)))))),
             dsl.namedArgument("query", DSL.literal("sample query")),
             dsl.namedArgument("analyzer", DSL.literal("keyword"))),
         AstDSL.function("simple_query_string",
@@ -405,18 +407,16 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  // Test is disabled because DSL and AstDSL expressions sometimes has fields in the different order
-  // regardless of how they are specified. Test passes and fails in a flaky behavior.
-  @Disabled
   void simple_query_string_expression_two_fields() {
     assertAnalyzeEqual(
         dsl.simple_query_string(
-            dsl.namedArgument("fields", DSL.literal(new ExprTupleValue(new LinkedHashMap<>(Map.of(
-                "field1", ExprValueUtils.floatValue(1.F),
-                "field2", ExprValueUtils.floatValue(.3F)))))),
+            dsl.namedArgument("fields", DSL.literal(
+                new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                    "field1", ExprValueUtils.floatValue(1.F),
+                    "field2", ExprValueUtils.floatValue(.3F)))))),
             dsl.namedArgument("query", DSL.literal("sample query"))),
         AstDSL.function("simple_query_string",
-            AstDSL.unresolvedArg("fields", new RelevanceFieldList(Map.of(
+            AstDSL.unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
                 stringLiteral("field1"), floatLiteral(1.F),
                 stringLiteral("field2"), floatLiteral(.3F)))),
             AstDSL.unresolvedArg("query", stringLiteral("sample query"))));

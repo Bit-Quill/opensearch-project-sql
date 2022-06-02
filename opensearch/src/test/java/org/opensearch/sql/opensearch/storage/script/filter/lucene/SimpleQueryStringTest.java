@@ -8,9 +8,9 @@ package org.opensearch.sql.opensearch.storage.script.filter.lucene;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -40,7 +40,7 @@ class SimpleQueryStringTest {
   private final SimpleQueryStringQuery simpleQueryStringQuery = new SimpleQueryStringQuery();
   private final FunctionName simpleQueryString = FunctionName.of("simple_query_string");
   private static final LiteralExpression fields_value = DSL.literal(
-      new ExprTupleValue(new LinkedHashMap<>(Map.of(
+      new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
           "title", ExprValueUtils.floatValue(1.F),
           "body", ExprValueUtils.floatValue(.3F)))));
   private static final LiteralExpression query_value = DSL.literal("query_value");

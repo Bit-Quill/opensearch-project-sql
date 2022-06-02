@@ -43,7 +43,7 @@ import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.unresolvedArg;
 import static org.opensearch.sql.ast.dsl.AstDSL.xor;
 
-import java.util.Map;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.opensearch.sql.ast.expression.AllFields;
@@ -668,9 +668,9 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
             relation("test"),
             function(
                 "simple_query_string",
-                unresolvedArg("fields", new RelevanceFieldList(Map.of(
-                    stringLiteral("field2"), floatLiteral(3.2F),
-                    stringLiteral("field1"), floatLiteral(1.F)))),
+                unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+                    stringLiteral("field1"), floatLiteral(1.F),
+                    stringLiteral("field2"), floatLiteral(3.2F)))),
                 unresolvedArg("query", stringLiteral("test query")),
                 unresolvedArg("analyzer", stringLiteral("keyword"))
             )

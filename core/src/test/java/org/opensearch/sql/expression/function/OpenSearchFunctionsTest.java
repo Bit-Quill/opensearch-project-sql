@@ -9,9 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
@@ -25,7 +25,7 @@ public class OpenSearchFunctionsTest extends ExpressionTestBase {
   private final NamedArgumentExpression field = new NamedArgumentExpression(
       "field", DSL.literal("message"));
   private final NamedArgumentExpression fields = new NamedArgumentExpression(
-      "fields", DSL.literal(new ExprTupleValue(new LinkedHashMap<>(Map.of(
+      "fields", DSL.literal(new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
           "title", ExprValueUtils.floatValue(1.F),
           "body", ExprValueUtils.floatValue(.3F))))));
   private final NamedArgumentExpression query = new NamedArgumentExpression(
