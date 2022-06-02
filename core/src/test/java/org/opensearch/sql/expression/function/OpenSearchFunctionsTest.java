@@ -11,7 +11,6 @@ import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
@@ -121,23 +120,6 @@ public class OpenSearchFunctionsTest extends ExpressionTestBase {
         fuzzyTranspositions, fuzzyRewrite, lenient, operator, minimumShouldMatch, zeroTermsQueryAll,
         boost);
     assertEquals(BOOLEAN, expr.type());
-  }
-
-  @Test
-  void match_phrase() {
-    for (FunctionExpression expr : match_phrase_dsl_expressions()) {
-      assertEquals(BOOLEAN, expr.type());
-    }
-  }
-
-
-  List<FunctionExpression> match_phrase_dsl_expressions() {
-    return List.of(
-      dsl.match_phrase(field, query),
-      dsl.match_phrase(field, query, analyzer),
-      dsl.match_phrase(field, query, analyzer, zeroTermsQueryAll),
-      dsl.match_phrase(field, query, analyzer, zeroTermsQueryNone, slop)
-    );
   }
 
   @Test

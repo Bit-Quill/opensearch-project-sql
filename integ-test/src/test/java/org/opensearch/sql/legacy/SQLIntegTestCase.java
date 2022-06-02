@@ -226,10 +226,6 @@ public abstract class SQLIntegTestCase extends OpenSearchSQLRestTestCase {
     }
   }
 
-  protected JSONObject executeJdbcRequest(String query) {
-    return new JSONObject(executeQuery(query, "jdbc"));
-  }
-
   protected String executeFetchQuery(String query, int fetchSize, String requestType)
       throws IOException {
     String endpoint = "/_plugins/_sql?format=" + requestType;

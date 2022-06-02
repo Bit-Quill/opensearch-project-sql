@@ -8,7 +8,6 @@ package org.opensearch.sql.expression.function;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
@@ -29,7 +27,6 @@ import org.opensearch.sql.expression.env.Environment;
 public class OpenSearchFunctions {
 
   public static final int MATCH_MAX_NUM_PARAMETERS = 12;
-  public static final int MATCH_PHRASE_MAX_NUM_PARAMETERS = 3;
   public static final int MIN_NUM_PARAMETERS = 2;
   public static final int SIMPLE_QUERY_STRING_MAX_NUM_PARAMETERS = 10;
 
@@ -37,33 +34,13 @@ public class OpenSearchFunctions {
    * Add functions specific to OpenSearch to repository.
    */
   public void register(BuiltinFunctionRepository repository) {
-    repository.register(match_bool_prefix());
     repository.register(match());
     repository.register(simple_query_string());
-    // Register MATCHPHRASE as MATCH_PHRASE as well for backwards
-    // compatibility.
-    repository.register(match_phrase(BuiltinFunctionName.MATCH_PHRASE));
-    repository.register(match_phrase(BuiltinFunctionName.MATCHPHRASE));
-  }
-
-  private static FunctionResolver match_bool_prefix() {
-    FunctionName name = BuiltinFunctionName.MATCH_BOOL_PREFIX.getName();
-    // TODO: Create different resolver more suited for relevance functions.
-    return new FunctionResolver(name,
-        ImmutableMap.<FunctionSignature, FunctionBuilder>builder()
-            .put(new FunctionSignature(name, ImmutableList.of(STRING, STRING)),
-                args -> new OpenSearchFunction(name, args))
-            .build());
   }
 
   private static FunctionResolver match() {
     FunctionName funcName = BuiltinFunctionName.MATCH.getName();
     return getRelevanceFunctionResolver(funcName, MATCH_MAX_NUM_PARAMETERS, STRING);
-  }
-
-  private static FunctionResolver match_phrase(BuiltinFunctionName matchPhrase) {
-    FunctionName funcName = matchPhrase.getName();
-    return getRelevanceFunctionResolver(funcName, MATCH_PHRASE_MAX_NUM_PARAMETERS, STRING);
   }
 
   private static FunctionResolver simple_query_string() {

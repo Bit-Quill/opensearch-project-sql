@@ -262,4 +262,8 @@ public class DateFormatIT extends SQLIntegTestCase {
         .orElseThrow(() -> new RuntimeException(
             "Can't find key" + prefix + " in aggregation " + aggregation));
   }
+
+  private JSONObject executeJdbcRequest(String query) {
+    return new JSONObject(executeQuery(query, "jdbc"));
+  }
 }

@@ -10,7 +10,6 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.opensearch.sql.common.antlr.CaseInsensitiveCharStream;
-import org.opensearch.sql.common.antlr.Parser;
 import org.opensearch.sql.common.antlr.SyntaxAnalysisErrorListener;
 import org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLLexer;
 import org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser;
@@ -18,12 +17,11 @@ import org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser;
 /**
  * PPL Syntax Parser.
  */
-public class PPLSyntaxParser implements Parser {
+public class PPLSyntaxParser {
   /**
    * Analyze the query syntax.
    */
-  @Override
-  public ParseTree parse(String query) {
+  public ParseTree analyzeSyntax(String query) {
     OpenSearchPPLParser parser = createParser(createLexer(query));
     parser.addErrorListener(new SyntaxAnalysisErrorListener());
     return parser.root();
