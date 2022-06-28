@@ -39,7 +39,7 @@ public class QueryDataAnonymizer {
                     .replaceAll("[\\n][\\t]+", " ");
         } catch (Exception e) {
             LOG.warn("Caught an exception when anonymizing sensitive data");
-            resultQuery = query;
+            resultQuery = "";
         }
         return resultQuery;
     }

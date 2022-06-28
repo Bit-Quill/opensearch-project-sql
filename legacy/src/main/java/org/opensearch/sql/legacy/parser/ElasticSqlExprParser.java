@@ -146,11 +146,13 @@ public class ElasticSqlExprParser extends SQLExprParser {
             lexer.nextToken();
             String prefix = "";
             while (lexer.token() != Token.RBRACKET) {
+                /*
                 if (lexer.token() != Token.IDENTIFIER && lexer.token() != Token.INDEX
-                        && lexer.token() != Token.LITERAL_CHARS) {
+                        && lexer.token() != Token.LITERAL_CHARS && lexer.token() != Token.LITERAL_ALIAS) {
                     throw new ParserException("All items between Brackets should be identifiers , got:"
                             + lexer.token());
                 }
+                */
                 identifier.append(prefix);
                 identifier.append(lexer.stringVal());
                 prefix = " ";
@@ -496,7 +498,7 @@ public class ElasticSqlExprParser extends SQLExprParser {
                 expr = methodInvokeExpr;
 
                 return primaryRest(expr);
-            } else if ("MATCH".equalsIgnoreCase(ident)) {
+            }/* else if ("MATCH".equalsIgnoreCase(ident)) {
                 lexer.nextToken();
                 MySqlMatchAgainstExpr matchAgainstExpr = new MySqlMatchAgainstExpr();
 
@@ -545,7 +547,7 @@ public class ElasticSqlExprParser extends SQLExprParser {
                 expr = matchAgainstExpr;
 
                 return primaryRest(expr);
-            } else if ("CONVERT".equalsIgnoreCase(ident)) {
+            }*/ else if ("CONVERT".equalsIgnoreCase(ident)) {
                 lexer.nextToken();
                 SQLMethodInvokeExpr methodInvokeExpr = new SQLMethodInvokeExpr(ident);
 
