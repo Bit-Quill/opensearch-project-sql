@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dialect name='OpenSearchSqlJdbcDialect'
          class='opensearch_jdbc'
-         base='MySQL41UnicodeDriverDialect'
+         base='PostgreSQL90Dialect'
          version='18.1'>   
    <function-map>   
         <function group='aggregate' name='STDEV' return-type='real'>
