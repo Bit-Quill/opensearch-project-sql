@@ -49,7 +49,7 @@ jobs:
         with:
           timeout_minutes: 60
           max_attempts: 3
-          command: cd OpenSearch-Dashboards/plugins/workbench; yarn osd bootstrap
+          command: cd https://github.com/opensearch-project/OpenSearch-Dashboards/plugins/workbench; yarn osd bootstrap
 
       - name: Build
         run: |
