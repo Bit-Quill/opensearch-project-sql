@@ -15,7 +15,8 @@ Users can run this CLI from Unix like OS or Windows, and connect to any valid Op
 
 ![](./screenshots/usage.gif)
 
-
+[OpenSearch SQL Plugin](https://localhost:400)
+[OpenSearch SQL Plugin](http://localhost:400)
 
 ## Features
 
