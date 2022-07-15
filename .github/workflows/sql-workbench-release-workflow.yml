@@ -31,7 +31,7 @@ jobs:
       - name: Checkout OpenSearch Dashboards
         uses: actions/checkout@v1
         with:
-          repository: https://github.com/opensearch-project/Opensearch-Dashboards
+          repository: opensearch-project/Opensearch-Dashboards
           ref: ${{ env.OPENSEARCH_VERSION }}
           path: sql/OpenSearch-Dashboards
 
@@ -42,14 +42,14 @@ jobs:
 
       - name: Move Workbench to Plugins Dir
         run: |
-          mv workbench https://github.com/opensearch-project/OpenSearch-Dashboards/plugins
+          mv workbench OpenSearch-Dashboards/plugins
 
       - name: OpenSearch Dashboards Plugin Bootstrap
         uses: nick-invision/retry@v1
         with:
           timeout_minutes: 60
           max_attempts: 3
-          command: cd https://github.com/opensearch-project/OpenSearch-Dashboards/plugins/workbench; yarn osd bootstrap
+          command: cd OpenSearch-Dashboards/plugins/workbench; yarn osd bootstrap
 
       - name: Build
         run: |
