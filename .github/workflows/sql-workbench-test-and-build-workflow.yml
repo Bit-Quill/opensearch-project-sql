@@ -28,7 +28,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version-file: "/.nvmrc"
+          node-version-file: "https://github.com/opensearch-project/OpenSearch-Dashboards/blob/main/.nvmrc"
           registry-url: 'https://registry.npmjs.org'
 
       - name: Move Workbench to Plugins Dir
