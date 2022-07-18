@@ -12,7 +12,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    env:
+      working-directory: https://github.com/opensearch-project/sql
     steps:
       - name: Checkout Plugin
         uses: actions/checkout@v1
@@ -27,7 +28,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version-file: "./OpenSearch-Dashboards/.nvmrc"
+          node-version-file: "${{ env.working-directory }}/OpenSearch-Dashboards/.nvmrc"
           registry-url: 'https://registry.npmjs.org'
 
       - name: Move Workbench to Plugins Dir
