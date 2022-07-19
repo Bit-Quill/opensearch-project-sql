@@ -21,7 +21,7 @@ jobs:
       - name: Checkout OpenSearch Dashboards
         uses: actions/checkout@v3
         with:
-          repository: ${{ env.working-directory }}/Opensearch-Dashboards
+          repository: opensearch-project/Opensearch-Dashboards
           ref: ${{ env.OPENSEARCH_VERSION }}
           path: sql/OpenSearch-Dashboards
 
