@@ -13,7 +13,7 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      working-directory: https://github.com/opensearch-project/sql
+      working-directory: https://github.com/opensearch-project/
     steps:
       - name: Checkout Plugin
         uses: actions/checkout@v1
@@ -21,7 +21,7 @@ jobs:
       - name: Checkout OpenSearch Dashboards
         uses: actions/checkout@v1
         with:
-          repository: opensearch-project/Opensearch-Dashboards
+          repository: ${{ env.working-directory }}/Opensearch-Dashboards
           ref: ${{ env.OPENSEARCH_VERSION }}
           path: sql/OpenSearch-Dashboards
 
