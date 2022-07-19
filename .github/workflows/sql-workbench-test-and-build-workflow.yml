@@ -29,7 +29,8 @@ jobs:
         with:
           repository: opensearch-project/OpenSearch-Dashboards
           path: OpenSearch-Dashboards
-          node-version-file: "./OpenSearch-Dashboards/.nvmrc"
+          #node-version-file: "/OpenSearch-Dashboards/.nvmrc"
+          node-version: 14.19.1
           registry-url: 'https://registry.npmjs.org'
 
       - name: Move Workbench to Plugins Dir
