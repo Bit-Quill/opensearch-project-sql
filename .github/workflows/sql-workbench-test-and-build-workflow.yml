@@ -22,7 +22,7 @@ jobs:
         with:
           repository: opensearch-project/Opensearch-Dashboards
           ref: ${{ env.OPENSEARCH_VERSION }}
-          path: ${{ env.GITHUB_WORKSPACE }}/OpenSearch-Dashboards
+          path: ${{ env.GITHUB_WORKSPACE }}/opensearch-project/OpenSearch-Dashboards
 
       - name: Setup Node
         uses: actions/setup-node@v2
