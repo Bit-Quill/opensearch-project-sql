@@ -1,36 +1,3 @@
-  Skip to content
-    Search or jump to…
-    Pull requests
-    Issues
-    Marketplace
-    Explore
-    
-    @MitchellGale-BitQuill
-    opensearch-project
-    /
-    sql
-    Public
-    Code
-    Issues
-    202
-    Pull requests
-    12
-    Actions
-    Projects
-    2
-    Wiki
-    Security
-    Insights
-    sql/.github/workflows/sql-workbench-test-and-build-workflow.yml
-    @kavithacm
-    kavithacm version bump to 2.1.0 and gradle version bump
-    …
-    Latest commit edd75a9 27 days ago
-    History
-    12 contributors
-    @davidcui1225@joshuali925@chloe-zh@ps48@kavithacm@dai-chen@dependabot@zhongnansu@penghuo@eugenesk24@vamsi-amazon@Tengda-He
-    66 lines (52 sloc)  1.79 KB
-
   name: SQL Workbench Test and Build
 
   on: [pull_request, push]
