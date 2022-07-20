@@ -27,11 +27,12 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          repository: opensearch-project/OpenSearch-Dashboards
-          path: OpenSearch-Dashboards
+          #repository: opensearch-project/OpenSearch-Dashboards
+          #path: sql/OpenSearch-Dashboards
           #node-version-file: "/OpenSearch-Dashboards/.nvmrc"
-          node-version:
-            run: curl "https://raw.githubusercontent.com/opensearch-project/OpenSearch-Dashboards/main/.nvmrc"
+          node-version-file: "sql/OpenSearch-Dashboards/.nvmrc"
+          #node-version:
+          #  run: curl "https://raw.githubusercontent.com/opensearch-project/OpenSearch-Dashboards/main/.nvmrc" -o '.nvmrc'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Move Workbench to Plugins Dir
