@@ -32,16 +32,6 @@ public enum ExprCoreType implements ExprType {
   UNDEFINED,
 
   /**
-   * Numbers.
-   */
-  BYTE(UNDEFINED),
-  SHORT(BYTE),
-  INTEGER(SHORT),
-  LONG(INTEGER),
-  FLOAT(LONG),
-  DOUBLE(FLOAT),
-
-  /**
    * String.
    */
   STRING(UNDEFINED),
@@ -60,6 +50,16 @@ public enum ExprCoreType implements ExprType {
   TIME(STRING),
   DATETIME(STRING),
   INTERVAL(UNDEFINED),
+
+  /**
+   * Numbers.
+   */
+  BYTE(UNDEFINED),
+  SHORT(BYTE),
+  INTEGER(SHORT, DATE),
+  LONG(INTEGER),
+  FLOAT(LONG),
+  DOUBLE(FLOAT, DATETIME, TIME),
 
   /**
    * Struct.

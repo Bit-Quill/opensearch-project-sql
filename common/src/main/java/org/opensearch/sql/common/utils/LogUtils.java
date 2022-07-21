@@ -6,6 +6,8 @@
 
 package org.opensearch.sql.common.utils;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.logging.log4j.ThreadContext;
@@ -19,6 +21,11 @@ public class LogUtils {
    * The key of the request id in the context map.
    */
   private static final String REQUEST_ID_KEY = "request_id";
+
+  /**
+   * Timestamp when SQL plugin started to process current request
+   */
+  private static final String REQUEST_PROCESSING_STARTED = "request_processing_started";
 
   /**
    * Generates a random UUID and adds to the {@link ThreadContext} as the request id.
@@ -40,6 +47,14 @@ public class LogUtils {
   public static String getRequestId() {
     final String requestId = ThreadContext.get(REQUEST_ID_KEY);
     return requestId;
+  }
+
+  public static void recordProcessingStarted() {
+    ThreadContext.put(REQUEST_PROCESSING_STARTED, LocalDateTime.now().toString());
+  }
+
+  public static LocalDateTime getProcessingStartedTime() {
+    return LocalDateTime.parse(ThreadContext.get(REQUEST_PROCESSING_STARTED));
   }
 
   /**

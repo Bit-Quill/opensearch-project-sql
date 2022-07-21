@@ -78,6 +78,7 @@ public class TransportPPLQueryAction
     Metrics.getInstance().getNumericalMetric(MetricName.PPL_REQ_COUNT_TOTAL).increment();
 
     LogUtils.addRequestId();
+    LogUtils.recordProcessingStarted();
 
     PPLService pplService = createPPLService(client);
     TransportPPLQueryRequest transportRequest = TransportPPLQueryRequest.fromActionRequest(request);

@@ -21,6 +21,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.expression.function.FunctionDSL.impl;
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -105,7 +106,9 @@ public class TypeCastOperator {
         impl(nullMissingHandling(
             (v) -> new ExprIntegerValue(v.integerValue())), INTEGER, DOUBLE),
         impl(nullMissingHandling(
-            (v) -> new ExprIntegerValue(v.booleanValue() ? 1 : 0)), INTEGER, BOOLEAN)
+            (v) -> new ExprIntegerValue(v.booleanValue() ? 1 : 0)), INTEGER, BOOLEAN),
+        impl(nullMissingHandling(
+            (v) -> new ExprIntegerValue(Double.parseDouble(v.dateValue().format(DateTimeFormatter.ofPattern("uuuuMMdd"))))), INTEGER, DATE)
     );
   }
 
@@ -138,7 +141,11 @@ public class TypeCastOperator {
         impl(nullMissingHandling(
             (v) -> new ExprDoubleValue(v.doubleValue())), DOUBLE, DOUBLE),
         impl(nullMissingHandling(
-            (v) -> new ExprDoubleValue(v.booleanValue() ? 1D : 0D)), DOUBLE, BOOLEAN)
+            (v) -> new ExprDoubleValue(v.booleanValue() ? 1D : 0D)), DOUBLE, BOOLEAN),
+        impl(nullMissingHandling(
+            (v) -> new ExprDoubleValue(Double.parseDouble(v.datetimeValue().format(DateTimeFormatter.ofPattern("uuuuMMddHHmmss.nnnnnn"))))), DOUBLE, DATETIME),
+        impl(nullMissingHandling(
+            (v) -> new ExprDoubleValue(Double.parseDouble(v.timeValue().format(DateTimeFormatter.ofPattern("HHmmss.nnnnnn"))))), DOUBLE, TIME)
     );
   }
 

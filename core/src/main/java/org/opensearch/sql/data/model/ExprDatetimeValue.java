@@ -28,8 +28,10 @@ public class ExprDatetimeValue extends AbstractExprValue {
   private final LocalDateTime datetime;
 
   private static final DateTimeFormatter FORMATTER_VARIABLE_NANOS;
+  private static final DateTimeFormatter FORMATTER_ZERO_PAD_NANOS;
   private static final int MIN_FRACTION_SECONDS = 0;
   private static final int MAX_FRACTION_SECONDS = 9;
+  private static final int FRACTION_SECONDS_TO_PRINT = 6;
 
   static {
     FORMATTER_VARIABLE_NANOS = new DateTimeFormatterBuilder()
@@ -38,6 +40,15 @@ public class ExprDatetimeValue extends AbstractExprValue {
             ChronoField.NANO_OF_SECOND,
             MIN_FRACTION_SECONDS,
             MAX_FRACTION_SECONDS,
+            true)
+        .toFormatter();
+
+    FORMATTER_ZERO_PAD_NANOS = new DateTimeFormatterBuilder()
+        .appendPattern("yyyy-MM-dd HH:mm:ss")
+        .appendFraction(
+            ChronoField.NANO_OF_SECOND,
+            FRACTION_SECONDS_TO_PRINT,
+            FRACTION_SECONDS_TO_PRINT,
             true)
         .toFormatter();
   }
@@ -86,9 +97,12 @@ public class ExprDatetimeValue extends AbstractExprValue {
 
   @Override
   public String value() {
+    return datetime.format(FORMATTER_ZERO_PAD_NANOS);
+    /*
     return String.format("%s %s", DateTimeFormatter.ISO_DATE.format(datetime),
         DateTimeFormatter.ISO_TIME.format((datetime.getNano() == 0)
             ? datetime.truncatedTo(ChronoUnit.SECONDS) : datetime));
+     */
   }
 
   @Override

@@ -18,11 +18,19 @@ import static org.opensearch.sql.expression.function.FunctionDSL.define;
 import static org.opensearch.sql.expression.function.FunctionDSL.impl;
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.experimental.UtilityClass;
+import org.opensearch.sql.common.utils.LogUtils;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
@@ -78,6 +86,101 @@ public class DateTimeFunction {
     repository.register(to_days());
     repository.register(week());
     repository.register(year());
+
+    repository.register(now());
+    repository.register(current_timestamp());
+    repository.register(localtimestamp());
+    repository.register(localtime());
+    repository.register(sysdate());
+    repository.register(curtime());
+    repository.register(current_time());
+    repository.register(curdate());
+    repository.register(current_date());
+    repository.register(utc_timestamp());
+    repository.register(utc_time());
+    repository.register(utc_date());
+  }
+
+
+
+  private FunctionResolver now() {
+    return now(BuiltinFunctionName.NOW.getName());
+  }
+
+  private FunctionResolver current_timestamp() {
+    return now(BuiltinFunctionName.CURRENT_TIMESTAMP.getName());
+  }
+
+  private FunctionResolver localtimestamp() {
+    return now(BuiltinFunctionName.LOCALTIMESTAMP.getName());
+  }
+
+  private FunctionResolver localtime() {
+    return now(BuiltinFunctionName.LOCALTIME.getName());
+  }
+
+  private FunctionResolver now(FunctionName functionName) {
+    return define(functionName,
+        impl(() -> exprNow(Optional.empty()), DATETIME),
+        impl((v) -> exprNow(Optional.of(v.integerValue())), DATETIME, INTEGER)
+    );
+  }
+
+  private FunctionResolver sysdate() {
+    return define(BuiltinFunctionName.SYSDATE.getName(),
+        impl(() -> new ExprDatetimeValue(sysDate(Optional.empty())), DATETIME),
+        impl((v) -> new ExprDatetimeValue(sysDate(Optional.of(v.integerValue()))), DATETIME, INTEGER)
+    );
+  }
+
+  private FunctionResolver curtime() {
+    return curtime(BuiltinFunctionName.CURTIME.getName());
+  }
+
+  private FunctionResolver current_time() {
+    return curtime(BuiltinFunctionName.CURRENT_TIME.getName());
+  }
+
+  private FunctionResolver curtime(FunctionName functionName) {
+    return define(functionName,
+        impl(() -> new ExprTimeValue(sysDate(Optional.empty()).toLocalTime()), TIME),
+        impl((v) -> new ExprTimeValue(sysDate(Optional.of(v.integerValue())).toLocalTime()), TIME, INTEGER)
+    );
+  }
+
+  private FunctionResolver curdate() {
+    return curdate(BuiltinFunctionName.CURDATE.getName());
+  }
+
+  private FunctionResolver current_date() {
+    return curdate(BuiltinFunctionName.CURRENT_DATE.getName());
+  }
+
+  private FunctionResolver curdate(FunctionName functionName) {
+    return define(functionName,
+        impl(() -> new ExprDateValue(sysDate(Optional.empty()).toLocalDate()), DATE)
+    );
+  }
+
+  private FunctionResolver utc_timestamp() {
+    return define(BuiltinFunctionName.UTC_TIMESTAMP.getName(),
+        impl(() -> new ExprDatetimeValue(sysDate(Optional.empty()).atZone(ZoneId.of("UTC")).toLocalDateTime()), DATETIME),
+        impl((v) -> new ExprDatetimeValue(sysDate(Optional.of(v.integerValue())).atZone(ZoneId.of("UTC")).toLocalDateTime()), DATETIME, INTEGER)
+    );
+  }
+
+  private FunctionResolver utc_time() {
+    return define(BuiltinFunctionName.UTC_TIME.getName(),
+        impl(() -> new ExprTimeValue(sysDate(Optional.empty()).atZone(ZoneId.of("UTC")).toLocalTime()), TIME),
+        impl((v) -> new ExprTimeValue(sysDate(Optional.of(v.integerValue())).atZone(ZoneId.of("UTC")).toLocalTime()), TIME, INTEGER)
+    );
+  }
+
+  private FunctionResolver utc_date() {
+    return define(BuiltinFunctionName.UTC_DATE.getName(),
+        impl(() -> new ExprDateValue(sysDate(Optional.empty()).atZone(ZoneId.of("UTC")).toLocalDate()), DATE),
+        impl((v) -> new ExprDateValue(sysDate(Optional.of(v.integerValue())).atZone(ZoneId.of("UTC")).toLocalDate()), DATE, INTEGER)
+    );
   }
 
   /**
@@ -107,6 +210,9 @@ public class DateTimeFunction {
   private FunctionResolver adddate() {
     return add_date(BuiltinFunctionName.ADDDATE.getName());
   }
+  private FunctionResolver date_add() {
+    return add_date(BuiltinFunctionName.DATE_ADD.getName());
+  }
 
   /**
    * Extracts the date part of a date and time value.
@@ -119,10 +225,6 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, TIMESTAMP));
-  }
-
-  private FunctionResolver date_add() {
-    return add_date(BuiltinFunctionName.DATE_ADD.getName());
   }
 
   /**
@@ -679,4 +781,33 @@ public class DateTimeFunction {
     return new ExprIntegerValue(date.dateValue().getYear());
   }
 
+  /**
+   * NOW() returns a constant time that indicates the time at which the statement began to execute
+   * @return ExprValue that contains LocalDateTime object
+   */
+  private ExprValue exprNow(Optional<Integer> fsp) {
+    var res = LogUtils.getProcessingStartedTime();
+    if (fsp.isEmpty())
+      return new ExprDatetimeValue(res);
+    var default_precision = 9; // There are 10^9 nanoseconds in one second
+    if (fsp.get() < 0 || fsp.get() > 6)
+      throw new IllegalArgumentException(String.format("Invalid `fsp` value: %d, allowed 0 to 6", fsp.get()));
+    var nano = new BigDecimal(res.getNano()).setScale(fsp.get() - default_precision, RoundingMode.DOWN).intValue();
+    return new ExprDatetimeValue(res.withNano(nano));
+  }
+
+  /**
+   * SYSDATE() returns the time at which it executes
+   * @return LocalDateTime object
+   */
+  private LocalDateTime sysDate(Optional<Integer> fsp) {
+    var res = LocalDateTime.now();
+    if (fsp.isEmpty())
+      return res;
+    var default_precision = 9; // There are 10^9 nanoseconds in one second
+    if (fsp.get() < 0 || fsp.get() > 6)
+      throw new IllegalArgumentException(String.format("Invalid `fsp` value: %d, allowed 0 to 6", fsp.get()));
+    var nano = new BigDecimal(res.getNano()).setScale(fsp.get() - default_precision, RoundingMode.DOWN).intValue();
+    return res.withNano(nano);
+  }
 }

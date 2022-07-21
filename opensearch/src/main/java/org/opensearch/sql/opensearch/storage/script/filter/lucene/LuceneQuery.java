@@ -9,6 +9,8 @@ package org.opensearch.sql.opensearch.storage.script.filter.lucene;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.OPENSEARCH_TEXT_KEYWORD;
 
 import com.google.common.collect.ImmutableMap;
+
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.function.Function;
 import org.opensearch.index.query.QueryBuilder;
@@ -139,6 +141,8 @@ public abstract class LuceneQuery {
           return new ExprIntegerValue(expr.valueOf(null).integerValue());
         } else if (expr.type().equals(ExprCoreType.BOOLEAN)) {
           return new ExprIntegerValue(expr.valueOf(null).booleanValue() ? 1 : 0);
+        } else if (expr.type().equals(ExprCoreType.DATE)) {
+          return new ExprDoubleValue(Double.parseDouble(expr.valueOf(null).dateValue().format(DateTimeFormatter.ofPattern("uuuuMMdd"))));
         } else {
           return new ExprIntegerValue(Integer.valueOf(expr.valueOf(null).stringValue()));
         }
@@ -166,6 +170,10 @@ public abstract class LuceneQuery {
           return new ExprDoubleValue(expr.valueOf(null).doubleValue());
         } else if (expr.type().equals(ExprCoreType.BOOLEAN)) {
           return new ExprDoubleValue(expr.valueOf(null).booleanValue() ? 1 : 0);
+        } else if (expr.type().equals(ExprCoreType.DATETIME)) {
+          return new ExprDoubleValue(Double.parseDouble(expr.valueOf(null).datetimeValue().format(DateTimeFormatter.ofPattern("uuuuMMddHHmmss.nnnnnn"))));
+        } else if (expr.type().equals(ExprCoreType.TIME)) {
+          return new ExprDoubleValue(Double.parseDouble(expr.valueOf(null).timeValue().format(DateTimeFormatter.ofPattern("HHmmss.nnnnnn"))));
         } else {
           return new ExprDoubleValue(Double.valueOf(expr.valueOf(null).stringValue()));
         }
