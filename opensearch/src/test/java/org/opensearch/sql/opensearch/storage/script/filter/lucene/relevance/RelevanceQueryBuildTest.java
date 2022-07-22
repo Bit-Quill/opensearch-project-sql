@@ -59,12 +59,6 @@ class RelevanceQueryBuildTest {
   }
 
   @Test
-  void first_arg_field_second_arg_query_test() {
-    query.build(createCall(List.of(FIELD_ARG, QUERY_ARG)));
-    verify(query, times(1)).createQueryBuilder("field_A", "find me");
-  }
-
-  @Test
   void throws_SemanticCheckException_when_same_argument_twice() {
     FunctionExpression expr = createCall(List.of(FIELD_ARG, QUERY_ARG,
         namedArgument("boost", "2.3"),
