@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import lombok.RequiredArgsConstructor;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.model.ExprValue;
@@ -22,26 +23,21 @@ import org.opensearch.sql.opensearch.storage.script.filter.lucene.LuceneQuery;
 /**
  * Base class for query abstraction that builds a relevance query from function expression.
  */
+@RequiredArgsConstructor
 public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery {
-  protected Map<String, QueryBuilderStep<T>> queryBuildActions;
-
-  protected RelevanceQuery(Map<String, QueryBuilderStep<T>> actionMap) {
-    queryBuildActions = actionMap;
-  }
+  private final String queryName;
+  private final Map<String, QueryBuilderStep<T>> queryBuildActions;
 
   @Override
   public QueryBuilder build(FunctionExpression func) {
     List<Expression> arguments = func.getArguments();
     if (arguments.size() < 2) {
-      String queryName = createQueryBuilder("dummy_field", "").getWriteableName();
       throw new SyntaxCheckException(
           String.format("%s requires at least two parameters", queryName));
     }
     NamedArgumentExpression field = (NamedArgumentExpression) arguments.get(0);
     NamedArgumentExpression query = (NamedArgumentExpression) arguments.get(1);
-    T queryBuilder = createQueryBuilder(
-        field.getValue().valueOf(null).stringValue(),
-        query.getValue().valueOf(null).stringValue());
+    T queryBuilder = createQueryBuilder(field, query);
 
     Iterator<Expression> iterator = arguments.listIterator(2);
     while (iterator.hasNext()) {
@@ -59,8 +55,7 @@ public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery
     return queryBuilder;
   }
 
-  protected abstract T createQueryBuilder(String field, String query);
-
+  abstract protected T createQueryBuilder(NamedArgumentExpression field, NamedArgumentExpression query);
   /**
    * Convenience interface for a function that updates a QueryBuilder
    * based on ExprValue.

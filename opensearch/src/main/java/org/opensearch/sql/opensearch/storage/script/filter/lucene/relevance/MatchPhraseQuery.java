@@ -23,13 +23,13 @@ import org.opensearch.sql.opensearch.storage.script.filter.lucene.LuceneQuery;
 /**
  * Lucene query that builds a match_phrase query.
  */
-public class MatchPhraseQuery extends RelevanceQuery<MatchPhraseQueryBuilder> {
+public class MatchPhraseQuery extends SingleFieldQuery<MatchPhraseQueryBuilder> {
   /**
    *  Default constructor for MatchPhraseQuery configures how RelevanceQuery.build() handles
    * named arguments.
    */
   public MatchPhraseQuery() {
-    super(ImmutableMap.<String, QueryBuilderStep<MatchPhraseQueryBuilder>>builder()
+    super(MatchPhraseQueryBuilder.NAME, ImmutableMap.<String, QueryBuilderStep<MatchPhraseQueryBuilder>>builder()
         .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
         .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
         .put("slop", (b, v) -> b.slop(Integer.parseInt(v.stringValue())))
@@ -39,7 +39,7 @@ public class MatchPhraseQuery extends RelevanceQuery<MatchPhraseQueryBuilder> {
   }
 
   @Override
-  protected MatchPhraseQueryBuilder createQueryBuilder(String field, String query) {
+  protected MatchPhraseQueryBuilder createBuilder(String field, String query) {
     return QueryBuilders.matchPhraseQuery(field, query);
   }
 }

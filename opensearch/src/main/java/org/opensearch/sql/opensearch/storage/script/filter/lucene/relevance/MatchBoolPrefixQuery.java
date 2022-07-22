@@ -14,13 +14,14 @@ import org.opensearch.index.query.QueryBuilders;
  * Initializes MatchBoolPrefixQueryBuilder from a FunctionExpression.
  */
 public class MatchBoolPrefixQuery
-    extends RelevanceQuery<MatchBoolPrefixQueryBuilder> {
+    extends SingleFieldQuery<MatchBoolPrefixQueryBuilder> {
   /**
    * Constructor for MatchBoolPrefixQuery to configure RelevanceQuery
    * with support of optional parameters.
    */
   public MatchBoolPrefixQuery() {
-    super(ImmutableMap.<String, QueryBuilderStep<MatchBoolPrefixQueryBuilder>>builder()
+    super(MatchBoolPrefixQueryBuilder.NAME,
+        ImmutableMap.<String, QueryBuilderStep<MatchBoolPrefixQueryBuilder>>builder()
         .put("minimum_should_match", (b, v) -> b.minimumShouldMatch(v.stringValue()))
         .put("fuzziness", (b, v) -> b.fuzziness(v.stringValue()))
         .put("prefix_length", (b, v) -> b.prefixLength(Integer.parseInt(v.stringValue())))
@@ -41,7 +42,7 @@ public class MatchBoolPrefixQuery
    * @return  Object of executed query
    */
   @Override
-  protected MatchBoolPrefixQueryBuilder createQueryBuilder(String field, String query) {
+  protected MatchBoolPrefixQueryBuilder createBuilder(String field, String query) {
     return QueryBuilders.matchBoolPrefixQuery(field, query);
   }
 }
