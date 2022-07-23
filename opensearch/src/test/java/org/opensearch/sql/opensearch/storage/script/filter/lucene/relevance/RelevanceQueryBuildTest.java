@@ -49,7 +49,7 @@ class RelevanceQueryBuildTest {
 
   @BeforeEach
   public void setUp() {
-    query = mock(RelevanceQuery.class, withSettings().useConstructor(
+    query = mock(RelevanceQuery.class, withSettings().useConstructor("mock_query",
             ImmutableMap.<String, RelevanceQuery.QueryBuilderStep<QueryBuilder>>builder()
                 .put("boost", (k, v) -> k.boost(Float.parseFloat(v.stringValue()))).build())
         .defaultAnswer(Mockito.CALLS_REAL_METHODS));
