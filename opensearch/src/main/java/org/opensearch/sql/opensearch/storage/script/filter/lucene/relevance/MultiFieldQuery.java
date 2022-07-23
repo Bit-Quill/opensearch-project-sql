@@ -33,5 +33,5 @@ abstract class MultiFieldQuery<T extends QueryBuilder> extends RelevanceQuery<T>
     return createBuilder(fieldsAndWeights, query);
   }
 
-  abstract protected T createBuilder(ImmutableMap<String, Float> fields, String query);
+  protected abstract  T createBuilder(ImmutableMap<String, Float> fields, String query);
 }

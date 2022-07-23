@@ -6,8 +6,6 @@
 package org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Iterator;
-import java.util.Objects;
 import org.opensearch.index.query.MultiMatchQueryBuilder;
 import org.opensearch.index.query.Operator;
 import org.opensearch.index.query.QueryBuilders;
@@ -42,7 +40,7 @@ public class MultiMatchQuery extends MultiFieldQuery<MultiMatchQueryBuilder> {
   }
 
   @Override
-  protected MultiMatchQueryBuilder createBuilder(ImmutableMap fields, String query) {
+  protected MultiMatchQueryBuilder createBuilder(ImmutableMap<String, Float> fields, String query) {
     return QueryBuilders.multiMatchQuery(query).fields(fields);
   }
 }
