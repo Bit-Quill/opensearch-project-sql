@@ -18,6 +18,7 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
@@ -132,16 +133,16 @@ class MultiMatchTest {
   }
 
   @Test
-  public void test_SemanticCheckException_when_no_arguments() {
+  public void test_SyntaxCheckException_when_no_arguments() {
     List<Expression> arguments = List.of();
-    assertThrows(SemanticCheckException.class,
+    assertThrows(SyntaxCheckException.class,
         () -> multiMatchQuery.build(new MultiMatchExpression(arguments)));
   }
 
   @Test
-  public void test_SemanticCheckException_when_one_argument() {
+  public void test_SyntaxCheckException_when_one_argument() {
     List<Expression> arguments = List.of(namedArgument("fields", fields_value));
-    assertThrows(SemanticCheckException.class,
+    assertThrows(SyntaxCheckException.class,
         () -> multiMatchQuery.build(new MultiMatchExpression(arguments)));
   }
 
