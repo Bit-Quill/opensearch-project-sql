@@ -40,7 +40,7 @@ public class MultiMatchQuery extends MultiFieldQuery<MultiMatchQueryBuilder> {
   }
 
   @Override
-  protected MultiMatchQueryBuilder createBuilder(ImmutableMap fields, String query) {
+  protected MultiMatchQueryBuilder createBuilder(ImmutableMap<String, Float> fields, String query) {
     return QueryBuilders.multiMatchQuery(query).fields(fields);
   }
 }

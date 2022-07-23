@@ -65,14 +65,16 @@ public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery
     return queryBuilder;
   }
 
-  abstract protected T createQueryBuilder(NamedArgumentExpression field, NamedArgumentExpression query);
+  protected abstract T createQueryBuilder(NamedArgumentExpression field,
+                                          NamedArgumentExpression query);
+
   /**
    * Convenience interface for a function that updates a QueryBuilder
    * based on ExprValue.
+   *
    * @param <T> Concrete query builder
    */
-  public interface QueryBuilderStep<T extends QueryBuilder> extends
+  protected interface QueryBuilderStep<T extends QueryBuilder> extends
       BiFunction<T, ExprValue, T> {
-
   }
 }
