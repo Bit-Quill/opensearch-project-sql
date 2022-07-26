@@ -21,22 +21,24 @@ public class SimpleQueryStringQuery extends MultiFieldQuery<SimpleQueryStringBui
    */
   public SimpleQueryStringQuery() {
     super(ImmutableMap.<String, QueryBuilderStep<SimpleQueryStringBuilder>>builder()
-        .put("analyze_wildcard", (b, v) -> b.analyzeWildcard(Boolean.parseBoolean(v.stringValue())))
         .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
-        .put("auto_generate_synonyms_phrase_query", (b, v) ->
-            b.autoGenerateSynonymsPhraseQuery(Boolean.parseBoolean(v.stringValue())))
-        .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
-        .put("default_operator", (b, v) -> b.defaultOperator(Operator.fromString(v.stringValue())))
-        .put("flags", (b, v) -> b.flags(Arrays.stream(valueOfToUpper(v).split("\\|"))
-            .map(SimpleQueryStringFlag::valueOf)
-            .toArray(SimpleQueryStringFlag[]::new)))
-        .put("fuzzy_max_expansions", (b, v) ->
-            b.fuzzyMaxExpansions(Integer.parseInt(v.stringValue())))
-        .put("fuzzy_prefix_length", (b, v) ->
-            b.fuzzyPrefixLength(Integer.parseInt(v.stringValue())))
-        .put("fuzzy_transpositions", (b, v) ->
-            b.fuzzyTranspositions(Boolean.parseBoolean(v.stringValue())))
-        .put("lenient", (b, v) -> b.lenient(Boolean.parseBoolean(v.stringValue())))
+        .put("analyze_wildcard", (b, v) -> b.analyzeWildcard(
+            FunctionParameterRepository.convertBoolValue(v, "analyze_wildcard")))
+        .put("auto_generate_synonyms_phrase_query", (b, v) -> b.autoGenerateSynonymsPhraseQuery(
+            FunctionParameterRepository.convertBoolValue(v,"auto_generate_synonyms_phrase_query")))
+        .put("boost", (b, v) -> b.boost(
+            FunctionParameterRepository.convertFloatValue(v, "boost")))
+        .put("default_operator", (b, v) -> b.defaultOperator(
+            FunctionParameterRepository.convertOperator(v, "default_operator")))
+        .put("flags", (b, v) -> b.flags(FunctionParameterRepository.convertFlags(v)))
+        .put("fuzzy_max_expansions", (b, v) -> b.fuzzyMaxExpansions(
+            FunctionParameterRepository.convertIntValue(v, "fuzzy_max_expansions")))
+        .put("fuzzy_prefix_length", (b, v) -> b.fuzzyPrefixLength(
+            FunctionParameterRepository.convertIntValue(v, "fuzzy_prefix_length")))
+        .put("fuzzy_transpositions", (b, v) -> b.fuzzyTranspositions(
+            FunctionParameterRepository.convertBoolValue(v, "fuzzy_transpositions")))
+        .put("lenient", (b, v) -> b.lenient(
+            FunctionParameterRepository.convertBoolValue(v, "lenient")))
         .put("minimum_should_match", (b, v) -> b.minimumShouldMatch(v.stringValue()))
         .put("quote_field_suffix", (b, v) -> b.quoteFieldSuffix(v.stringValue()))
         .build());

@@ -39,7 +39,6 @@ import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.DefaultFunctionResolver;
 import org.opensearch.sql.expression.function.FunctionName;
-import org.opensearch.sql.expression.function.FunctionResolver;
 
 /**
  * The definition of date and time functions.
@@ -243,12 +242,12 @@ public class DateTimeFunction {
     );
   }
 
-  private FunctionResolver makedate() {
+  private DefaultFunctionResolver makedate() {
     return define(BuiltinFunctionName.MAKEDATE.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprMakeDate), DATE, DOUBLE, DOUBLE));
   }
 
-  private FunctionResolver maketime() {
+  private DefaultFunctionResolver maketime() {
     return define(BuiltinFunctionName.MAKETIME.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprMakeTime), TIME, DOUBLE, DOUBLE, DOUBLE));
   }

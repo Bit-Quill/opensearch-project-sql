@@ -21,20 +21,26 @@ public class MatchQuery extends SingleFieldQuery<MatchQueryBuilder> {
   public MatchQuery() {
     super(ImmutableMap.<String, QueryBuilderStep<MatchQueryBuilder>>builder()
         .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
-        .put("auto_generate_synonyms_phrase_query",
-            (b, v) -> b.autoGenerateSynonymsPhraseQuery(Boolean.parseBoolean(v.stringValue())))
-        .put("fuzziness", (b, v) -> b.fuzziness(valueOfToUpper(v)))
-        .put("max_expansions", (b, v) -> b.maxExpansions(Integer.parseInt(v.stringValue())))
-        .put("prefix_length", (b, v) -> b.prefixLength(Integer.parseInt(v.stringValue())))
-        .put("fuzzy_transpositions",
-            (b, v) -> b.fuzzyTranspositions(Boolean.parseBoolean(v.stringValue())))
-        .put("fuzzy_rewrite", (b, v) -> b.fuzzyRewrite(v.stringValue()))
-        .put("lenient", (b, v) -> b.lenient(Boolean.parseBoolean(v.stringValue())))
-        .put("operator", (b, v) -> b.operator(Operator.fromString(v.stringValue())))
+        .put("auto_generate_synonyms_phrase_query", (b, v) -> b.autoGenerateSynonymsPhraseQuery(
+            FunctionParameterRepository.convertBoolValue(v,"auto_generate_synonyms_phrase_query")))
+        .put("boost", (b, v) -> b.boost(
+            FunctionParameterRepository.convertFloatValue(v, "boost")))
+        .put("fuzziness", (b, v) -> b.fuzziness(FunctionParameterRepository.convertFuzziness(v)))
+        .put("fuzzy_rewrite", (b, v) -> b.fuzzyRewrite(
+            FunctionParameterRepository.checkRewrite(v, "fuzzy_rewrite")))
+        .put("fuzzy_transpositions", (b, v) -> b.fuzzyTranspositions(
+            FunctionParameterRepository.convertBoolValue(v, "fuzzy_transpositions")))
+        .put("lenient", (b, v) -> b.lenient(
+            FunctionParameterRepository.convertBoolValue(v, "lenient")))
         .put("minimum_should_match", (b, v) -> b.minimumShouldMatch(v.stringValue()))
+        .put("max_expansions", (b, v) -> b.maxExpansions(
+            FunctionParameterRepository.convertIntValue(v, "max_expansions")))
+        .put("operator", (b, v) -> b.operator(
+            FunctionParameterRepository.convertOperator(v, "operator")))
+        .put("prefix_length", (b, v) -> b.prefixLength(
+            FunctionParameterRepository.convertIntValue(v, "prefix_length")))
         .put("zero_terms_query", (b, v) -> b.zeroTermsQuery(
-            org.opensearch.index.search.MatchQuery.ZeroTermsQuery.valueOf(valueOfToUpper(v))))
-        .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
+            FunctionParameterRepository.convertZeroTermsQuery(v)))
         .build());
   }
 

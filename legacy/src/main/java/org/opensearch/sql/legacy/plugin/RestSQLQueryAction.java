@@ -14,6 +14,7 @@ import static org.opensearch.sql.protocol.response.format.JsonResponseFormatter.
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.client.node.NodeClient;
@@ -26,6 +27,7 @@ import org.opensearch.rest.RestStatus;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.common.setting.Settings;
+import org.opensearch.sql.common.utils.QueryContext;
 import org.opensearch.sql.executor.ExecutionEngine.ExplainResponse;
 import org.opensearch.sql.legacy.metrics.MetricName;
 import org.opensearch.sql.legacy.metrics.Metrics;
@@ -93,6 +95,9 @@ public class RestSQLQueryAction extends BaseRestHandler {
    */
   public RestChannelConsumer prepareRequest(SQLQueryRequest request, NodeClient nodeClient) {
     if (!request.isSupported()) {
+      QueryContext.setError(
+          "Query request is not supported. Either unsupported fields are present," +
+          " the request is not a cursor request, or the response format is not supported.");
       return NOT_SUPPORTED_YET;
     }
 
@@ -109,6 +114,12 @@ public class RestSQLQueryAction extends BaseRestHandler {
       if (request.isExplainRequest()) {
         LOG.info("Request is falling back to old SQL engine due to: " + e.getMessage());
       }
+
+      /*
+       * Setting error to aggregate error messages when both legacy and new SQL engines fail.
+       * This implementation can be removed when the legacy SQL engine is deprecated.
+       */
+      QueryContext.setError(e.getMessage());
       return NOT_SUPPORTED_YET;
     }
 

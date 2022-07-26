@@ -13,6 +13,9 @@ import static org.opensearch.sql.opensearch.executor.Scheduler.schedule;
 
 import com.alibaba.druid.sql.parser.ParserException;
 import com.google.common.collect.ImmutableList;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -53,6 +56,7 @@ import org.opensearch.sql.legacy.executor.Format;
 import org.opensearch.sql.legacy.executor.RestExecutor;
 import org.opensearch.sql.legacy.executor.cursor.CursorActionRequestRestExecutorFactory;
 import org.opensearch.sql.legacy.executor.cursor.CursorAsyncRestExecutor;
+import org.opensearch.sql.legacy.executor.format.ErrorMessage;
 import org.opensearch.sql.legacy.executor.format.ErrorMessageFactory;
 import org.opensearch.sql.legacy.metrics.MetricName;
 import org.opensearch.sql.legacy.metrics.Metrics;
@@ -119,6 +123,13 @@ public class RestSqlAction extends BaseRestHandler {
         return "sql_action";
     }
 
+    /**
+     * Prepare and execute rest SQL request. In the event the V2 SQL engine fails, the V1
+     * engine attempts the query.
+     * @param request : Rest request being made.
+     * @param client : Rest client for making the request.
+     * @return : Resulting values for request.
+     */
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
         Metrics.getInstance().getNumericalMetric(MetricName.REQ_TOTAL).increment();
@@ -170,6 +181,12 @@ public class RestSqlAction extends BaseRestHandler {
                 }
             });
         } catch (Exception e) {
+            if (null != QueryContext.getError()) {
+                LOG.error(QueryContext.getRequestId() + " V2 SQL error during query execution", e,
+                    "previously collected error(s):", QueryDataAnonymizer.anonymizeData(QueryContext.getError()));
+            } else {
+                LOG.error(QueryContext.getRequestId() + " V2 SQL error during query execution", e);
+            }
             logAndPublishMetrics(e);
             return channel -> reportError(channel, e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
         }
@@ -189,6 +206,10 @@ public class RestSqlAction extends BaseRestHandler {
         cursorRestExecutor.execute(client, request.params(), channel);
     }
 
+    /**
+     * Log error message for exception and increment failure statistics.
+     * @param e : Caught exception.
+     */
     private static void logAndPublishMetrics(final Exception e) {
         if (isClientError(e)) {
             LOG.error(QueryContext.getRequestId() + " Client side error during query execution", e);
@@ -197,6 +218,16 @@ public class RestSqlAction extends BaseRestHandler {
             LOG.error(QueryContext.getRequestId() + " Server side error during query execution", e);
             Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
         }
+
+        /**
+         * Use PrintWriter to copy the stack trace for logging. This is used to anonymize
+         * log messages, and can be reverted to the simpler implementation when
+         * the anonymizer is fixed.
+         */
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String stackTrace = sw.toString();
+        LOG.error(stackTrace);
     }
 
     private static QueryAction explainRequest(final NodeClient client, final SqlRequest sqlRequest, Format format)
@@ -243,7 +274,7 @@ public class RestSqlAction extends BaseRestHandler {
         return request.path().endsWith("/_explain");
     }
 
-    private static boolean isClientError(Exception e) {
+    public static boolean isClientError(Exception e) {
         return e instanceof NullPointerException // NPE is hard to differentiate but more likely caused by bad query
             || e instanceof SqlParseException
             || e instanceof ParserException
@@ -262,8 +293,20 @@ public class RestSqlAction extends BaseRestHandler {
         channel.sendResponse(new BytesRestResponse(status, message));
     }
 
+    /**
+     * Report Error message to user.
+     * @param channel : Rest channel to sent response through.
+     * @param e : Exception caught when attempting query.
+     * @param status : Status for rest request made.
+     */
     private void reportError(final RestChannel channel, final Exception e, final RestStatus status) {
-        sendResponse(channel, ErrorMessageFactory.createErrorMessage(e, status.getStatus()).toString(), status);
+        var message = ErrorMessageFactory.createErrorMessage(e, status.getStatus());
+        if (null != QueryContext.getError()) {
+            message.addDetails(
+                "\nQuery failed on both V1 and V2 SQL parser engines. V2 SQL parser error following: \n"
+                + QueryContext.getError());
+        }
+        sendResponse(channel, message.toString(), status);
     }
 
     private boolean isSQLFeatureEnabled() {

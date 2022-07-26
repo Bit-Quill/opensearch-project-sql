@@ -7,7 +7,6 @@
 package org.opensearch.sql.common.utils;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import org.apache.logging.log4j.ThreadContext;
 
@@ -20,6 +19,11 @@ public class QueryContext {
    * The key of the request id in the context map.
    */
   private static final String REQUEST_ID_KEY = "request_id";
+
+  /**
+   * The key of the error message in the context map.
+   */
+  private static final String ERROR_KEY = "error";
 
   /**
    * Generates a random UUID and adds to the {@link ThreadContext} as the request id.
@@ -47,6 +51,24 @@ public class QueryContext {
     }
     return id;
   }
+
+  /**
+   * Capture error message to aggregate diagnostics
+   * for both legacy and new SQL engines.
+   * Can be deleted once the
+   * legacy SQL engine is deprecated.
+   */
+  public static void setError(String error) {
+    ThreadContext.put(ERROR_KEY, error);
+  }
+
+  /**
+   * Get all captured error messages.
+   */
+  public static String getError() {
+    return ThreadContext.get(ERROR_KEY);
+  }
+
 
   /**
    * Wraps a given instance of {@link Runnable} into a new one which gets all the

@@ -62,7 +62,7 @@ class QueryStringTest {
         dsl.namedArgument("fuzzy_rewrite", DSL.literal("constant_score")),
         dsl.namedArgument("fuzzy_max_expansions", DSL.literal("42")),
         dsl.namedArgument("fuzzy_prefix_length", DSL.literal("42")),
-        dsl.namedArgument("fuzzy_transpositions", DSL.literal("42")),
+        dsl.namedArgument("fuzzy_transpositions", DSL.literal("true")),
         dsl.namedArgument("lenient", DSL.literal("true")),
         dsl.namedArgument("max_determinized_states", DSL.literal("10000")),
         dsl.namedArgument("minimum_should_match", DSL.literal("4")),

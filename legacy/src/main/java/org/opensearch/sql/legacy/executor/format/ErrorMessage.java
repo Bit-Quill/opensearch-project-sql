@@ -18,6 +18,14 @@ public class ErrorMessage<E extends Exception> {
     private String reason;
     private String details;
 
+    public String getDetails() {
+        return details;
+    }
+
+    public void addDetails(String moreDetails) {
+        details += moreDetails;
+    }
+
     public ErrorMessage(E exception, int status) {
         this.exception = exception;
         this.status = status;
