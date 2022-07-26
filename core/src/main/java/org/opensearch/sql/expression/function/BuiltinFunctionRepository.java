@@ -29,11 +29,11 @@ public class BuiltinFunctionRepository {
   private final Map<FunctionName, FunctionResolver> functionResolverMap;
 
   /**
-   * Register {@link FunctionResolver} to the Builtin Function Repository.
+   * Register {@link DefaultFunctionResolver} to the Builtin Function Repository.
    *
-   * @param resolver {@link FunctionResolver} to be registered
+   * @param resolver {@link DefaultFunctionResolver} to be registered
    */
-  public void register(FunctionResolver resolver) {
+  public void register(DefaultFunctionResolver resolver) {
     functionResolverMap.put(resolver.getFunctionName(), resolver);
   }
 

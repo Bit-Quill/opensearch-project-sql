@@ -8,7 +8,6 @@ package org.opensearch.sql.expression.function;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,44 +51,44 @@ public class OpenSearchFunctions {
     repository.register(match_phrase_prefix());
   }
 
-  private static FunctionResolver match_bool_prefix() {
+  private static DefaultFunctionResolver match_bool_prefix() {
     FunctionName name = BuiltinFunctionName.MATCH_BOOL_PREFIX.getName();
     return getRelevanceFunctionResolver(name, MATCH_BOOL_PREFIX_MAX_NUM_PARAMETERS, STRING);
   }
 
-  private static FunctionResolver match() {
+  private static DefaultFunctionResolver match() {
     FunctionName funcName = BuiltinFunctionName.MATCH.getName();
     return getRelevanceFunctionResolver(funcName, MATCH_MAX_NUM_PARAMETERS, STRING);
   }
 
-  private static FunctionResolver match_phrase_prefix() {
+  private static DefaultFunctionResolver match_phrase_prefix() {
     FunctionName funcName = BuiltinFunctionName.MATCH_PHRASE_PREFIX.getName();
     return getRelevanceFunctionResolver(funcName, MATCH_PHRASE_PREFIX_MAX_NUM_PARAMETERS, STRING);
   }
 
-  private static FunctionResolver match_phrase(BuiltinFunctionName matchPhrase) {
+  private static DefaultFunctionResolver match_phrase(BuiltinFunctionName matchPhrase) {
     FunctionName funcName = matchPhrase.getName();
     return getRelevanceFunctionResolver(funcName, MATCH_PHRASE_MAX_NUM_PARAMETERS, STRING);
   }
 
-  private static FunctionResolver multi_match() {
+  private static DefaultFunctionResolver multi_match() {
     FunctionName funcName = BuiltinFunctionName.MULTI_MATCH.getName();
     return getRelevanceFunctionResolver(funcName, MULTI_MATCH_MAX_NUM_PARAMETERS, STRUCT);
   }
 
-  private static FunctionResolver simple_query_string() {
+  private static DefaultFunctionResolver simple_query_string() {
     FunctionName funcName = BuiltinFunctionName.SIMPLE_QUERY_STRING.getName();
     return getRelevanceFunctionResolver(funcName, SIMPLE_QUERY_STRING_MAX_NUM_PARAMETERS, STRUCT);
   }
 
-  private static FunctionResolver query_string() {
+  private static DefaultFunctionResolver query_string() {
     FunctionName funcName = BuiltinFunctionName.QUERY_STRING.getName();
     return getRelevanceFunctionResolver(funcName, QUERY_STRING_MAX_NUM_PARAMETERS, STRUCT);
   }
 
-  private static FunctionResolver getRelevanceFunctionResolver(
+  private static DefaultFunctionResolver getRelevanceFunctionResolver(
       FunctionName funcName, int maxNumParameters, ExprCoreType firstArgType) {
-    return new FunctionResolver(funcName,
+    return new DefaultFunctionResolver(funcName,
       getRelevanceFunctionSignatureMap(funcName, maxNumParameters, firstArgType));
   }
 
