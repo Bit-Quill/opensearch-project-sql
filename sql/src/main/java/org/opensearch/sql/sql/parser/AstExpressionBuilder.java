@@ -380,11 +380,10 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   }
 
   private Function visitFunction(String functionName, FunctionArgsContext args) {
-    if (args == null) {
-      return new Function(functionName, Collections.emptyList());
-    }
     return new Function(
         functionName,
+        args == null ?
+        Collections.emptyList() :
         args.functionArg()
             .stream()
             .map(this::visitFunctionArg)

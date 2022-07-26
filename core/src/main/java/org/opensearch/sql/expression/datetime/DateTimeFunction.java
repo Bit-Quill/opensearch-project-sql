@@ -22,13 +22,14 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.TextStyle;
-import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import lombok.experimental.Delegate;
 import lombok.experimental.UtilityClass;
 import org.opensearch.sql.common.utils.LogUtils;
 import org.opensearch.sql.data.model.ExprDateValue;
@@ -43,6 +44,8 @@ import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.function.FunctionResolver;
+
+import javax.annotation.Nullable;
 
 /**
  * The definition of date and time functions.
@@ -96,9 +99,6 @@ public class DateTimeFunction {
     repository.register(current_time());
     repository.register(curdate());
     repository.register(current_date());
-    repository.register(utc_timestamp());
-    repository.register(utc_time());
-    repository.register(utc_date());
   }
 
 
@@ -121,15 +121,15 @@ public class DateTimeFunction {
 
   private FunctionResolver now(FunctionName functionName) {
     return define(functionName,
-        impl(() -> exprNow(Optional.empty()), DATETIME),
-        impl((v) -> exprNow(Optional.of(v.integerValue())), DATETIME, INTEGER)
+        impl(() -> new ExprDatetimeValue(now((Integer)null)), DATETIME),
+        impl((v) -> new ExprDatetimeValue(now(v.integerValue())), DATETIME, INTEGER)
     );
   }
 
   private FunctionResolver sysdate() {
     return define(BuiltinFunctionName.SYSDATE.getName(),
-        impl(() -> new ExprDatetimeValue(sysDate(Optional.empty())), DATETIME),
-        impl((v) -> new ExprDatetimeValue(sysDate(Optional.of(v.integerValue()))), DATETIME, INTEGER)
+        impl(() -> new ExprDatetimeValue(sysDate(null)), DATETIME),
+        impl((v) -> new ExprDatetimeValue(sysDate(v.integerValue())), DATETIME, INTEGER)
     );
   }
 
@@ -143,8 +143,8 @@ public class DateTimeFunction {
 
   private FunctionResolver curtime(FunctionName functionName) {
     return define(functionName,
-        impl(() -> new ExprTimeValue(sysDate(Optional.empty()).toLocalTime()), TIME),
-        impl((v) -> new ExprTimeValue(sysDate(Optional.of(v.integerValue())).toLocalTime()), TIME, INTEGER)
+        impl(() -> new ExprTimeValue(sysDate(null).toLocalTime()), TIME),
+        impl((v) -> new ExprTimeValue(sysDate(v.integerValue()).toLocalTime()), TIME, INTEGER)
     );
   }
 
@@ -158,28 +158,7 @@ public class DateTimeFunction {
 
   private FunctionResolver curdate(FunctionName functionName) {
     return define(functionName,
-        impl(() -> new ExprDateValue(sysDate(Optional.empty()).toLocalDate()), DATE)
-    );
-  }
-
-  private FunctionResolver utc_timestamp() {
-    return define(BuiltinFunctionName.UTC_TIMESTAMP.getName(),
-        impl(() -> new ExprDatetimeValue(sysDate(Optional.empty()).atZone(ZoneId.of("UTC")).toLocalDateTime()), DATETIME),
-        impl((v) -> new ExprDatetimeValue(sysDate(Optional.of(v.integerValue())).atZone(ZoneId.of("UTC")).toLocalDateTime()), DATETIME, INTEGER)
-    );
-  }
-
-  private FunctionResolver utc_time() {
-    return define(BuiltinFunctionName.UTC_TIME.getName(),
-        impl(() -> new ExprTimeValue(sysDate(Optional.empty()).atZone(ZoneId.of("UTC")).toLocalTime()), TIME),
-        impl((v) -> new ExprTimeValue(sysDate(Optional.of(v.integerValue())).atZone(ZoneId.of("UTC")).toLocalTime()), TIME, INTEGER)
-    );
-  }
-
-  private FunctionResolver utc_date() {
-    return define(BuiltinFunctionName.UTC_DATE.getName(),
-        impl(() -> new ExprDateValue(sysDate(Optional.empty()).atZone(ZoneId.of("UTC")).toLocalDate()), DATE),
-        impl((v) -> new ExprDateValue(sysDate(Optional.of(v.integerValue())).atZone(ZoneId.of("UTC")).toLocalDate()), DATE, INTEGER)
+        impl(() -> new ExprDateValue(sysDate(null).toLocalDate()), DATE)
     );
   }
 
@@ -783,31 +762,31 @@ public class DateTimeFunction {
 
   /**
    * NOW() returns a constant time that indicates the time at which the statement began to execute
-   * @return ExprValue that contains LocalDateTime object
    */
-  private ExprValue exprNow(Optional<Integer> fsp) {
-    var res = LogUtils.getProcessingStartedTime();
-    if (fsp.isEmpty())
-      return new ExprDatetimeValue(res);
-    var default_precision = 9; // There are 10^9 nanoseconds in one second
-    if (fsp.get() < 0 || fsp.get() > 6)
-      throw new IllegalArgumentException(String.format("Invalid `fsp` value: %d, allowed 0 to 6", fsp.get()));
-    var nano = new BigDecimal(res.getNano()).setScale(fsp.get() - default_precision, RoundingMode.DOWN).intValue();
-    return new ExprDatetimeValue(res.withNano(nano));
+  private LocalDateTime now(@Nullable Integer fsp) {
+    return formatLocalDateTime(LogUtils::getProcessingStartedTime, fsp);
   }
 
   /**
    * SYSDATE() returns the time at which it executes
+   */
+  private LocalDateTime sysDate(@Nullable Integer fsp) {
+    return formatLocalDateTime(LocalDateTime::now, fsp);
+  }
+
+  /**
+   * @param fsp argument is given to specify a fractional seconds precision from 0 to 6, the return value includes a fractional seconds part of that many digits.
    * @return LocalDateTime object
    */
-  private LocalDateTime sysDate(Optional<Integer> fsp) {
-    var res = LocalDateTime.now();
-    if (fsp.isEmpty())
+  private LocalDateTime formatLocalDateTime(Supplier<LocalDateTime> supplier, @Nullable Integer fsp)
+  {
+    var res = supplier.get();
+    if (fsp == null)
       return res;
     var default_precision = 9; // There are 10^9 nanoseconds in one second
-    if (fsp.get() < 0 || fsp.get() > 6)
-      throw new IllegalArgumentException(String.format("Invalid `fsp` value: %d, allowed 0 to 6", fsp.get()));
-    var nano = new BigDecimal(res.getNano()).setScale(fsp.get() - default_precision, RoundingMode.DOWN).intValue();
+    if (fsp < 0 || fsp > 6) // Check that the argument is in the allowed range [0, 6]
+      throw new IllegalArgumentException(String.format("Invalid `fsp` value: %d, allowed 0 to 6", fsp));
+    var nano = new BigDecimal(res.getNano()).setScale(fsp - default_precision, RoundingMode.DOWN).intValue();
     return res.withNano(nano);
   }
 }
