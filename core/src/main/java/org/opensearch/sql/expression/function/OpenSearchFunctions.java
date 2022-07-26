@@ -51,9 +51,9 @@ public class OpenSearchFunctions {
     repository.register(match_phrase_prefix());
   }
 
-  private static DefaultFunctionResolver match_bool_prefix() {
+  private static FunctionResolver match_bool_prefix() {
     FunctionName name = BuiltinFunctionName.MATCH_BOOL_PREFIX.getName();
-    return getRelevanceFunctionResolver(name, MATCH_BOOL_PREFIX_MAX_NUM_PARAMETERS, STRING);
+    return new RelevanceFunctionResolver(name);
   }
 
   private static DefaultFunctionResolver match() {
@@ -86,6 +86,7 @@ public class OpenSearchFunctions {
     return getRelevanceFunctionResolver(funcName, QUERY_STRING_MAX_NUM_PARAMETERS, STRUCT);
   }
 
+
   private static DefaultFunctionResolver getRelevanceFunctionResolver(
       FunctionName funcName, int maxNumParameters, ExprCoreType firstArgType) {
     return new DefaultFunctionResolver(funcName,
@@ -105,10 +106,15 @@ public class OpenSearchFunctions {
     return signatureMapBuilder.build();
   }
 
-  private static class OpenSearchFunction extends FunctionExpression {
+  public static class OpenSearchFunction extends FunctionExpression {
     private final FunctionName functionName;
     private final List<Expression> arguments;
 
+    /**
+     * Required argument constructor.
+     * @param functionName name of the function
+     * @param arguments a list of expressions
+     */
     public OpenSearchFunction(FunctionName functionName, List<Expression> arguments) {
       super(functionName, arguments);
       this.functionName = functionName;

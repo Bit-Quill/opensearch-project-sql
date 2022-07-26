@@ -8,4 +8,6 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public interface FunctionResolver {
   Pair<FunctionSignature, FunctionBuilder> resolve(FunctionSignature unresolvedSignature);
+
+  FunctionName getFunctionName();
 }

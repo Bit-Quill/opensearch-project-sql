@@ -33,7 +33,7 @@ public class BuiltinFunctionRepository {
    *
    * @param resolver {@link DefaultFunctionResolver} to be registered
    */
-  public void register(DefaultFunctionResolver resolver) {
+  public void register(FunctionResolver resolver) {
     functionResolverMap.put(resolver.getFunctionName(), resolver);
   }
 

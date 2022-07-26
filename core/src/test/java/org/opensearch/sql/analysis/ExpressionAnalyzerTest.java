@@ -355,6 +355,14 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  void match_bool_prefix_wrong_expression() {
+    assertThrows(SemanticCheckException.class,
+        () -> analyze(AstDSL.function("match_bool_prefix",
+            AstDSL.unresolvedArg("field", stringLiteral("fieldA")),
+            AstDSL.unresolvedArg("query", floatLiteral(1.2f)))));
+  }
+
+  @Test
   void visit_span() {
     assertAnalyzeEqual(
         DSL.span(DSL.ref("integer_value", INTEGER), DSL.literal(1), ""),
