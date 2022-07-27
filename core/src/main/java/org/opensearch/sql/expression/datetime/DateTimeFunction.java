@@ -24,14 +24,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.function.Supplier;
-
-import lombok.experimental.Delegate;
+import javax.annotation.Nullable;
 import lombok.experimental.UtilityClass;
-import org.opensearch.sql.common.utils.LogUtils;
+import org.opensearch.sql.common.utils.QueryContext;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
@@ -44,8 +41,6 @@ import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.function.FunctionResolver;
-
-import javax.annotation.Nullable;
 
 /**
  * The definition of date and time functions.
@@ -764,7 +759,7 @@ public class DateTimeFunction {
    * NOW() returns a constant time that indicates the time at which the statement began to execute
    */
   private LocalDateTime now(@Nullable Integer fsp) {
-    return formatLocalDateTime(LogUtils::getProcessingStartedTime, fsp);
+    return formatLocalDateTime(QueryContext::getProcessingStartedTime, fsp);
   }
 
   /**

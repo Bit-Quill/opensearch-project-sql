@@ -7,15 +7,14 @@
 package org.opensearch.sql.common.utils;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.logging.log4j.ThreadContext;
 
 /**
- * Utility class for generating/accessing the request id from logging context.
+ * Utility class for recording and accessing context for the query being executed.
  */
-public class LogUtils {
+public class QueryContext {
 
   /**
    * The key of the request id in the context map.
@@ -72,7 +71,7 @@ public class LogUtils {
     };
   }
 
-  private LogUtils() {
+  private QueryContext() {
     throw new AssertionError(
         getClass().getCanonicalName() + " is a utility class and must not be initialized");
   }
