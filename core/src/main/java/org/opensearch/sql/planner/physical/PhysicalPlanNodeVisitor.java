@@ -80,7 +80,7 @@ public abstract class PhysicalPlanNodeVisitor<R, C> {
     return visitNode(node, context);
   }
 
-  public R visitHighlight(HighlightOperator highlightOperator, C context) {
-    return visitNode(highlightOperator, context);
+  public R visitHighlight(PhysicalPlan node, C context) {
+    return visitNode(node, context);
   }
 }
