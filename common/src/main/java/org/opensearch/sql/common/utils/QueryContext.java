@@ -53,7 +53,10 @@ public class QueryContext {
   }
 
   public static LocalDateTime getProcessingStartedTime() {
-    return LocalDateTime.parse(ThreadContext.get(REQUEST_PROCESSING_STARTED));
+    if (ThreadContext.containsKey(REQUEST_PROCESSING_STARTED))
+      return LocalDateTime.parse(ThreadContext.get(REQUEST_PROCESSING_STARTED));
+    // This shouldn't happen outside of unit tests
+    return LocalDateTime.now();
   }
 
   /**
