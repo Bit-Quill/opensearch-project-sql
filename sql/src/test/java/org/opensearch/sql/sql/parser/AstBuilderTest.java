@@ -616,12 +616,14 @@ class AstBuilderTest {
 
   @Test
   public void can_build_alias_by_keywords() {
+    var expected = project(
+        relation("test"),
+        alias("avg_age", qualifiedName("avg_age"), "avg")
+    );
+    var comp = buildAST("SELECT avg_age AS avg FROM test");
     assertEquals(
-        project(
-            relation("test"),
-            alias("avg_age", qualifiedName("avg_age"), "avg")
-        ),
-        buildAST("SELECT avg_age AS avg FROM test")
+        expected,
+        comp
     );
   }
 
