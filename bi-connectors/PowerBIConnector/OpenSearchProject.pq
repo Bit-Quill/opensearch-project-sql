@@ -28,7 +28,7 @@ OpenSearchProjectType = type function (
             Documentation.FieldDescription = "Use SSL",
             Documentation.AllowedValues = { true, false }
         ]),
-        HostnameVerification as (type logical meta [
+        optional HostnameVerification as (type logical meta [
             Documentation.FieldCaption = "Certificate validation",
             Documentation.FieldDescription = "Certificate validation",
             Documentation.AllowedValues = { true, false }
@@ -82,7 +82,11 @@ OpenSearchProjectImpl = (Server as text, Port as number, UseSSL as logical, Host
         ConnectionString = [
             Driver = "OpenSearch SQL ODBC Driver",
             Host = FinalServerString,
-            HostnameVerification = if HostnameVerification then 1 else 0
+            HostnameVerification =
+                if HostnameVerification = null or HostnameVerification then
+                    1
+                else
+                    0
         ],
 
         SQLGetInfo = Diagnostics.LogValue("SQLGetInfo_Options", [
