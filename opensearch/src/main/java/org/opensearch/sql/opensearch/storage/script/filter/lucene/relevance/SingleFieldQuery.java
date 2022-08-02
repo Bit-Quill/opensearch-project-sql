@@ -10,7 +10,9 @@ import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.sql.expression.NamedArgumentExpression;
 
 /**
- * Base class to represent relevance queries that search a single field only.
+ * Base class to represent builder class for relevance queries like match_query, match_bool_prefix,
+ * and match_phrase that search in a single field only.
+ *
  * @param <T> The builder class for the OpenSearch query class.
  */
 abstract class SingleFieldQuery<T extends QueryBuilder> extends RelevanceQuery<T> {
