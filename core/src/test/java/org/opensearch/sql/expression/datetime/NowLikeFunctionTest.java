@@ -10,10 +10,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
-import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
-import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Period;
+import java.time.temporal.Temporal;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,16 +30,7 @@ import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.Temporal;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+
 
 public class NowLikeFunctionTest extends ExpressionTestBase {
   private static Stream<Arguments> functionNames() {
@@ -58,24 +56,14 @@ public class NowLikeFunctionTest extends ExpressionTestBase {
             "current_date", DATE, false, (Supplier<Temporal>)LocalDate::now));
   }
 
-  private ExprCoreType getCastRule(ExprCoreType from) {
-    switch (from) {
-      case DATETIME:
-      case TIME: return DOUBLE;
-      case DATE: return INTEGER;
-    }
-    // unreachable code
-    throw new IllegalArgumentException(String.format("%s", from));
-  }
-
   private Temporal extractValue(FunctionExpression func) {
     switch ((ExprCoreType)func.type()) {
       case DATE: return func.valueOf(null).dateValue();
       case DATETIME: return func.valueOf(null).datetimeValue();
       case TIME: return func.valueOf(null).timeValue();
+      // unreachable code
+      default: throw new IllegalArgumentException(String.format("%s", func.type()));
     }
-    // unreachable code
-    throw new IllegalArgumentException(String.format("%s", func.type()));
   }
 
   private long getDiff(Temporal sample, Temporal reference) {
@@ -85,9 +73,17 @@ public class NowLikeFunctionTest extends ExpressionTestBase {
     return Duration.between(sample, reference).toSeconds();
   }
 
+  /**
+   * Check how NOW-like functions are processed.
+   * @param function Function
+   * @param name Function name
+   * @param resType Return type
+   * @param hasFsp Whether function has fsp argument
+   * @param referenceGetter A callback to get reference value
+   */
   @ParameterizedTest(name = "{1}")
   @MethodSource("functionNames")
-  public void the_test(Function<Expression[], FunctionExpression> function,
+  public void test_now_like_functions(Function<Expression[], FunctionExpression> function,
                        @SuppressWarnings("unused")  // Used in the test name above
                        String name,
                        ExprCoreType resType,

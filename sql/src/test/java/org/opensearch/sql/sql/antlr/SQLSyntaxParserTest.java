@@ -176,12 +176,14 @@ class SQLSyntaxParserTest {
   @MethodSource("nowLikeFunctionsData")
   public void can_parse_now_like_functions(String name, Boolean hasFsp, Boolean hasShortcut) {
     var calls = new ArrayList<String>() {{
-      add(name + "()");
-    }};
-    if (hasShortcut)
+        add(name + "()");
+      }};
+    if (hasShortcut) {
       calls.add(name);
-    if (hasFsp)
+    }
+    if (hasFsp) {
       calls.add(name + "(0)");
+    }
 
     assertNotNull(parser.parse("SELECT " + String.join(", ", calls)));
     assertNotNull(parser.parse("SELECT " + String.join(", ", calls) + " FROM test"));

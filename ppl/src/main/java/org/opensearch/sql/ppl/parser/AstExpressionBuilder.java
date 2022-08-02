@@ -251,9 +251,9 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
   private Function visitFunction(String functionName, FunctionArgsContext args) {
     return new Function(
         functionName,
-        args == null ?
-        Collections.emptyList() :
-        args.functionArg()
+        args == null
+        ? Collections.emptyList()
+        : args.functionArg()
             .stream()
             .map(this::visitFunctionArg)
             .collect(Collectors.toList())

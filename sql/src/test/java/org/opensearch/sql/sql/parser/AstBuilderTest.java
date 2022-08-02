@@ -31,6 +31,8 @@ import static org.opensearch.sql.utils.SystemIndexUtils.TABLE_INFO;
 import static org.opensearch.sql.utils.SystemIndexUtils.mappingTable;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
+import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -40,9 +42,6 @@ import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.sql.antlr.SQLSyntaxParser;
-
-import java.util.List;
-import java.util.stream.Stream;
 
 class AstBuilderTest {
 

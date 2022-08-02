@@ -8,23 +8,33 @@ package org.opensearch.sql.ppl.antlr;
 
 import static org.junit.Assert.assertNotEquals;
 
+import java.util.List;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.junit.Test;
-import java.util.List;
 
 @RunWith(Parameterized.class)
 public class NowLikeFunctionParserTest {
 
   private final PPLSyntaxParser parser = new PPLSyntaxParser();
 
+  /**
+   * Set parameterized values used in test.
+   * @param name Function name
+   * @param hasFsp Whether function has fsp argument
+   * @param hasShortcut Whether function has shortcut (call without `()`)
+   */
   public NowLikeFunctionParserTest(String name, Boolean hasFsp, Boolean hasShortcut) {
     this.name = name;
     this.hasFsp = hasFsp;
     this.hasShortcut = hasShortcut;
   }
 
+  /**
+   * Returns function data to test.
+   * @return An iterable.
+   */
   @Parameterized.Parameters(name = "{0}")
   public static Iterable<Object> functionNames() {
     return List.of(new Object[][]{
