@@ -39,23 +39,23 @@ public class NowLikeFunctionTest extends ExpressionTestBase {
     var dsl = new DSL(new ExpressionConfig().functionRepository());
     return Stream.of(
         Arguments.of((Function<Expression[], FunctionExpression>)dsl::now,
-            "now", DATETIME, true, (Supplier<Temporal>)LocalDateTime::now, "uuuuMMddHHmmss.nnnnnn"),
+            "now", DATETIME, true, (Supplier<Temporal>)LocalDateTime::now),
         Arguments.of((Function<Expression[], FunctionExpression>)dsl::current_timestamp,
-            "current_timestamp", DATETIME, true, (Supplier<Temporal>)LocalDateTime::now, "uuuuMMddHHmmss.nnnnnn"),
+            "current_timestamp", DATETIME, true, (Supplier<Temporal>)LocalDateTime::now),
         Arguments.of((Function<Expression[], FunctionExpression>)dsl::localtimestamp,
-            "localtimestamp", DATETIME, true, (Supplier<Temporal>)LocalDateTime::now, "uuuuMMddHHmmss.nnnnnn"),
+            "localtimestamp", DATETIME, true, (Supplier<Temporal>)LocalDateTime::now),
         Arguments.of((Function<Expression[], FunctionExpression>)dsl::localtime,
-            "localtime", DATETIME, true, (Supplier<Temporal>)LocalDateTime::now, "uuuuMMddHHmmss.nnnnnn"),
+            "localtime", DATETIME, true, (Supplier<Temporal>)LocalDateTime::now),
         Arguments.of((Function<Expression[], FunctionExpression>)dsl::sysdate,
-            "sysdate", DATETIME, true, (Supplier<Temporal>)LocalDateTime::now, "uuuuMMddHHmmss.nnnnnn"),
+            "sysdate", DATETIME, true, (Supplier<Temporal>)LocalDateTime::now),
         Arguments.of((Function<Expression[], FunctionExpression>)dsl::curtime,
-            "curtime", TIME, true, (Supplier<Temporal>)LocalTime::now, "HHmmss.nnnnnn"),
+            "curtime", TIME, true, (Supplier<Temporal>)LocalTime::now),
         Arguments.of((Function<Expression[], FunctionExpression>)dsl::current_time,
-            "current_time", TIME, true, (Supplier<Temporal>)LocalTime::now, "HHmmss.nnnnnn"),
+            "current_time", TIME, true, (Supplier<Temporal>)LocalTime::now),
         Arguments.of((Function<Expression[], FunctionExpression>)dsl::curdate,
-            "curdate", DATE, false, (Supplier<Temporal>)LocalDate::now, "uuuuMMdd"),
+            "curdate", DATE, false, (Supplier<Temporal>)LocalDate::now),
         Arguments.of((Function<Expression[], FunctionExpression>)dsl::current_date,
-            "current_date", DATE, false, (Supplier<Temporal>)LocalDate::now, "uuuuMMdd"));
+            "current_date", DATE, false, (Supplier<Temporal>)LocalDate::now));
   }
 
   private ExprCoreType getCastRule(ExprCoreType from) {
@@ -92,8 +92,7 @@ public class NowLikeFunctionTest extends ExpressionTestBase {
                        String name,
                        ExprCoreType resType,
                        Boolean hasFsp,
-                       Supplier<Temporal> referenceGetter,
-                       String formatterPattern) {
+                       Supplier<Temporal> referenceGetter) {
     // Check return types:
     // `func()`
     FunctionExpression expr = function.apply(new Expression[]{});
@@ -106,15 +105,9 @@ public class NowLikeFunctionTest extends ExpressionTestBase {
       expr = function.apply(new Expression[]{DSL.literal(6)});
       assertEquals(resType, expr.type());
     }
-    // Check return type of automatic cast:
-    // `func() + x`
-    expr = dsl.add(function.apply(new Expression[]{}), DSL.literal(0));
-    assertEquals(getCastRule(resType), expr.type());
 
     // Check how calculations are precise:
     // `func()`
-    var a = extractValue(function.apply(new Expression[]{}));
-    var b = referenceGetter.get();
     assertTrue(Math.abs(getDiff(
             extractValue(function.apply(new Expression[]{})),
             referenceGetter.get()
@@ -126,13 +119,5 @@ public class NowLikeFunctionTest extends ExpressionTestBase {
               referenceGetter.get()
       )) <= 1);
     }
-    // `func() + x`
-    assertTrue(Math.abs(
-            dsl.add(
-                    function.apply(new Expression[]{}),
-                    DSL.literal(0)
-                ).valueOf(null).doubleValue() -
-            Double.parseDouble(DateTimeFormatter.ofPattern(formatterPattern).format(referenceGetter.get()))
-        ) <= 1);
   }
 }

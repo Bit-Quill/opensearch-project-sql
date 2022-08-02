@@ -480,7 +480,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDateTime::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDateTime::parse)
               .put("serializationPattern", "uuuu-MM-dd HH:mm:ss")
-              .put("castPattern", "uuuuMMddHHmmss")
               .build(),
       ImmutableMap.builder()
               .put("name", "current_timestamp")
@@ -490,7 +489,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDateTime::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDateTime::parse)
               .put("serializationPattern", "uuuu-MM-dd HH:mm:ss")
-              .put("castPattern", "uuuuMMddHHmmss")
               .build(),
       ImmutableMap.builder()
               .put("name", "localtimestamp")
@@ -500,7 +498,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDateTime::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDateTime::parse)
               .put("serializationPattern", "uuuu-MM-dd HH:mm:ss")
-              .put("castPattern", "uuuuMMddHHmmss")
               .build(),
       ImmutableMap.builder()
               .put("name", "localtime")
@@ -510,7 +507,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDateTime::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDateTime::parse)
               .put("serializationPattern", "uuuu-MM-dd HH:mm:ss")
-              .put("castPattern", "uuuuMMddHHmmss")
               .build(),
       ImmutableMap.builder()
               .put("name", "sysdate")
@@ -520,7 +516,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDateTime::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDateTime::parse)
               .put("serializationPattern", "uuuu-MM-dd HH:mm:ss")
-              .put("castPattern", "uuuuMMddHHmmss")
               .build(),
       ImmutableMap.builder()
               .put("name", "curtime")
@@ -530,7 +525,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalTime::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalTime::parse)
               .put("serializationPattern", "HH:mm:ss")
-              .put("castPattern", "HHmmss")
               .build(),
       ImmutableMap.builder()
               .put("name", "current_time")
@@ -540,7 +534,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalTime::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalTime::parse)
               .put("serializationPattern", "HH:mm:ss")
-              .put("castPattern", "HHmmss")
               .build(),
       ImmutableMap.builder()
               .put("name", "curdate")
@@ -550,7 +543,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDate::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDate::parse)
               .put("serializationPattern", "uuuu-MM-dd")
-              .put("castPattern", "uuuuMMdd")
               .build(),
       ImmutableMap.builder()
               .put("name", "current_date")
@@ -560,7 +552,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDate::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDate::parse)
               .put("serializationPattern", "uuuu-MM-dd")
-              .put("castPattern", "uuuuMMdd")
               .build()
     );
   }
@@ -589,18 +580,13 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
       BiFunction<CharSequence, DateTimeFormatter, Temporal> parser =
               (BiFunction<CharSequence, DateTimeFormatter, Temporal>) funcData.get("parser");
       String serializationPatternStr = (String) funcData.get("serializationPattern");
-      String castPatternStr = (String) funcData.get("castPattern");
 
       var serializationPattern = new DateTimeFormatterBuilder()
               .appendPattern(serializationPatternStr)
               .optionalStart()
               .appendFraction(ChronoField.NANO_OF_SECOND, 0, 6, true)
               .toFormatter();
-      var castPattern = new DateTimeFormatterBuilder()
-              .appendPattern(castPatternStr)
-              .optionalStart()
-              .appendFraction(ChronoField.NANO_OF_SECOND, 0, 6, true)
-              .toFormatter();
+
       Temporal reference = referenceGetter.get();
       double delta = 2d; // acceptable time diff, secs
       if (reference instanceof LocalDate)
@@ -609,15 +595,14 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
 
       var calls = new ArrayList<String>() {{
         add(name + "()");
-        add(name + "() + 0");
       }};
       if (hasShortcut)
         calls.add(name);
       if (hasFsp)
         calls.add(name + "(0)");
 
-      // Column order is: func(), func() + 0, func, func(0)
-      //                               shortcut ^    fsp ^
+      // Column order is: func(), func, func(0)
+      //                   shortcut ^    fsp ^
       JSONObject result = executeQuery("select " + String.join(", ", calls) + " from " + TEST_INDEX_PEOPLE2);
 
       var rows = result.getJSONArray("datarows");
@@ -630,9 +615,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         int column = 0;
         assertEquals(0,
             getDiff(reference, parser.apply(row.getString(column++), serializationPattern)), delta);
-
-        assertEquals(0,
-            Double.parseDouble(castPattern.format(reference)) - row.getDouble(column++), delta);
 
         if (hasShortcut) {
           assertEquals(0,

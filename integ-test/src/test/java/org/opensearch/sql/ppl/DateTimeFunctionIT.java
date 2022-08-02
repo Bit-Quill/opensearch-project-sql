@@ -493,7 +493,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDateTime::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDateTime::parse)
               .put("serializationPattern", "uuuu-MM-dd HH:mm:ss")
-              .put("castPattern", "uuuuMMddHHmmss")
               .build(),
       ImmutableMap.builder()
               .put("name", "current_timestamp")
@@ -503,7 +502,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDateTime::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDateTime::parse)
               .put("serializationPattern", "uuuu-MM-dd HH:mm:ss")
-              .put("castPattern", "uuuuMMddHHmmss")
               .build(),
       ImmutableMap.builder()
               .put("name", "localtimestamp")
@@ -513,7 +511,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDateTime::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDateTime::parse)
               .put("serializationPattern", "uuuu-MM-dd HH:mm:ss")
-              .put("castPattern", "uuuuMMddHHmmss")
               .build(),
       ImmutableMap.builder()
               .put("name", "localtime")
@@ -523,7 +520,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDateTime::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDateTime::parse)
               .put("serializationPattern", "uuuu-MM-dd HH:mm:ss")
-              .put("castPattern", "uuuuMMddHHmmss")
               .build(),
       ImmutableMap.builder()
               .put("name", "sysdate")
@@ -533,7 +529,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDateTime::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDateTime::parse)
               .put("serializationPattern", "uuuu-MM-dd HH:mm:ss")
-              .put("castPattern", "uuuuMMddHHmmss")
               .build(),
       ImmutableMap.builder()
               .put("name", "curtime")
@@ -543,7 +538,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalTime::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalTime::parse)
               .put("serializationPattern", "HH:mm:ss")
-              .put("castPattern", "HHmmss")
               .build(),
       ImmutableMap.builder()
               .put("name", "current_time")
@@ -553,7 +547,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalTime::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalTime::parse)
               .put("serializationPattern", "HH:mm:ss")
-              .put("castPattern", "HHmmss")
               .build(),
       ImmutableMap.builder()
               .put("name", "curdate")
@@ -563,7 +556,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDate::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDate::parse)
               .put("serializationPattern", "uuuu-MM-dd")
-              .put("castPattern", "uuuuMMdd")
               .build(),
       ImmutableMap.builder()
               .put("name", "current_date")
@@ -573,7 +565,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDate::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDate::parse)
               .put("serializationPattern", "uuuu-MM-dd")
-              .put("castPattern", "uuuuMMdd")
               .build()
     );
   }
@@ -602,18 +593,13 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
       BiFunction<CharSequence, DateTimeFormatter, Temporal> parser =
               (BiFunction<CharSequence, DateTimeFormatter, Temporal>) funcData.get("parser");
       String serializationPatternStr = (String) funcData.get("serializationPattern");
-      String castPatternStr = (String) funcData.get("castPattern");
 
       var serializationPattern = new DateTimeFormatterBuilder()
               .appendPattern(serializationPatternStr)
               .optionalStart()
               .appendFraction(ChronoField.NANO_OF_SECOND, 0, 6, true)
               .toFormatter();
-      var castPattern = new DateTimeFormatterBuilder()
-              .appendPattern(castPatternStr)
-              .optionalStart()
-              .appendFraction(ChronoField.NANO_OF_SECOND, 0, 6, true)
-              .toFormatter();
+
       Temporal reference = referenceGetter.get();
       double delta = 2d; // acceptable time diff, secs
       if (reference instanceof LocalDate)
@@ -622,17 +608,16 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
 
       var calls = new ArrayList<String>() {{
         add(name + "()");
-        add(name + "() + 0");
       }};
       if (hasShortcut)
         calls.add(name);
       if (hasFsp)
         calls.add(name + "(0)");
 
-      // Column order is: func(), func() + 0, func, func(0)
-      //                               shortcut ^    fsp ^
+      // Column order is: func(), func, func(0)
+      //                   shortcut ^    fsp ^
       // Query looks like:
-      //    source=people2 | eval `now()`=now(), `now() + 0`=now() + 0 | fields `now()`, `now() + 0`;
+      //    source=people2 | eval `now()`=now() | fields `now()`;
       JSONObject result = executeQuery("source=" + TEST_INDEX_PEOPLE2
           + " | eval " + calls.stream().map(c -> String.format("`%s`=%s", c, c)).collect(Collectors.joining(","))
           + " | fields " + calls.stream().map(c -> String.format("`%s`", c)).collect(Collectors.joining(",")));
@@ -647,9 +632,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
         int column = 0;
         assertEquals(0,
             getDiff(reference, parser.apply(row.getString(column++), serializationPattern)), delta);
-
-        assertEquals(0,
-            Double.parseDouble(castPattern.format(reference)) - row.getDouble(column++), delta);
 
         if (hasShortcut) {
           assertEquals(0,

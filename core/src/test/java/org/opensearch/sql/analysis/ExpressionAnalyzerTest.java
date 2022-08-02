@@ -582,11 +582,6 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
           function.apply(new Expression[]{DSL.literal(3)}),
           AstDSL.function(name, intLiteral(3)));
     }
-
-    assertAnalyzeEqual(
-          dsl.add(function.apply(new Expression[]{}), DSL.literal(0)),
-          AstDSL.function("+", AstDSL.function(name), intLiteral(0))
-    );
   }
 
   protected Expression analyze(UnresolvedExpression unresolvedExpression) {

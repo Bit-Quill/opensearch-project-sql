@@ -177,7 +177,6 @@ class SQLSyntaxParserTest {
   public void can_parse_now_like_functions(String name, Boolean hasFsp, Boolean hasShortcut) {
     var calls = new ArrayList<String>() {{
       add(name + "()");
-      add(name + "() + 0");
     }};
     if (hasShortcut)
       calls.add(name);
