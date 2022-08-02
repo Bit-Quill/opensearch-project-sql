@@ -14,6 +14,7 @@ import org.apache.logging.log4j.ThreadContext;
 
 /**
  * Utility class for recording and accessing context for the query being executed.
+ * Implementation Details: context variables is being persisted statically in the thread context (see: @ThreadContext)
  */
 public class QueryContext {
 
