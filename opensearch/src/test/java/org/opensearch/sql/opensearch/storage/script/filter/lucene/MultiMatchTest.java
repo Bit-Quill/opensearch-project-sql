@@ -151,13 +151,9 @@ class MultiMatchTest {
     List<Expression> arguments = List.of(
         namedArgument("fields", fields_value),
         namedArgument("query", query_value),
-        namedArgument("unsupported", "unsupported_value"));
+        dsl.namedArgument("unsupported", "unsupported_value"));
     Assertions.assertThrows(SemanticCheckException.class,
         () -> multiMatchQuery.build(new MultiMatchExpression(arguments)));
-  }
-
-  private NamedArgumentExpression namedArgument(String name, String value) {
-    return dsl.namedArgument(name, DSL.literal(value));
   }
 
   private NamedArgumentExpression namedArgument(String name, LiteralExpression value) {
