@@ -71,4 +71,8 @@ public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery
       BiFunction<T, ExprValue, T> {
 
   }
+
+  public static String valueOfToUpper(ExprValue v) {
+    return v.stringValue().toUpperCase();
+  }
 }
