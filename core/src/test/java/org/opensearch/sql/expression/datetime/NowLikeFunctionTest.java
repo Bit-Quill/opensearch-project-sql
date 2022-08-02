@@ -7,6 +7,7 @@
 package org.opensearch.sql.expression.datetime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.temporal.Temporal;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -100,6 +102,13 @@ public class NowLikeFunctionTest extends ExpressionTestBase {
       // `func(fsp = 6)`
       expr = function.apply(new Expression[]{DSL.literal(6)});
       assertEquals(resType, expr.type());
+
+      for (var wrongFspValue: List.of(-1, 10)) {
+        var exception = assertThrows(IllegalArgumentException.class,
+            () -> function.apply(new Expression[]{DSL.literal(wrongFspValue)}).valueOf(null));
+        assertEquals(String.format("Invalid `fsp` value: %d, allowed 0 to 6", wrongFspValue),
+            exception.getMessage());
+      }
     }
 
     // Check how calculations are precise:
