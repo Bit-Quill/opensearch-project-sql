@@ -15,28 +15,38 @@ public class RelevanceFunctionResolver
   @Getter
   private final FunctionName functionName;
 
+  @Getter
+  private final ExprType declaredFirstParamType;
+
   @Override
   public Pair<FunctionSignature, FunctionBuilder> resolve(FunctionSignature unresolvedSignature) {
-    FunctionBuilder buildFunction
-        = args -> new OpenSearchFunctions.OpenSearchFunction(functionName, args);
-
-
     if (!unresolvedSignature.getFunctionName().equals(functionName)) {
       throw new SemanticCheckException(String.format("Expected '%s' but got '%s'",
           functionName.getFunctionName(), unresolvedSignature.getFunctionName().getFunctionName()));
     }
     List<ExprType> paramTypes = unresolvedSignature.getParamTypeList();
-    ExprType firstParamType = paramTypes.get(0);
+    ExprType providedFirstParamType = paramTypes.get(0);
+
+    if (!declaredFirstParamType.equals(providedFirstParamType)) {
+      throw new SemanticCheckException(
+          getWrongParameterErrorMessage(0, providedFirstParamType, declaredFirstParamType));
+    }
 
     for (int i = 1; i < paramTypes.size(); i++) {
       ExprType paramType = paramTypes.get(i);
       if (!ExprCoreType.STRING.equals(paramType)) {
         throw new SemanticCheckException(
-            String.format("Expect type STRING instead of %s for parameter #%d",
-                paramType.typeName(), i));
+            getWrongParameterErrorMessage(i, paramType, ExprCoreType.STRING));
       }
     }
 
+    FunctionBuilder buildFunction =
+        args -> new OpenSearchFunctions.OpenSearchFunction(functionName, args);
     return Pair.of(unresolvedSignature, buildFunction);
+  }
+
+  private String getWrongParameterErrorMessage(int i, ExprType paramType, ExprType expectedType) {
+    return String.format("Expected type %s instead of %s for parameter #%d",
+        expectedType.typeName(), paramType.typeName(), i + 1);
   }
 }

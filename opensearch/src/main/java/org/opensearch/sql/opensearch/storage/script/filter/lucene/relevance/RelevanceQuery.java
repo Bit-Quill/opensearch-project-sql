@@ -5,10 +5,12 @@
 
 package org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiFunction;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
@@ -44,8 +46,16 @@ public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery
         query.getValue().valueOf(null).stringValue());
 
     Iterator<Expression> iterator = arguments.listIterator(2);
+    Set<String> visitedParms = new HashSet();
     while (iterator.hasNext()) {
       NamedArgumentExpression arg = (NamedArgumentExpression) iterator.next();
+      if (visitedParms.contains(arg.getArgName())) {
+        throw new SemanticCheckException(String.format("Parameter '%s' can only be specified once.",
+            arg.getArgName()));
+      } else {
+        visitedParms.add(arg.getArgName());
+      }
+
       if (!queryBuildActions.containsKey(arg.getArgName())) {
         throw new SemanticCheckException(
             String.format("Parameter %s is invalid for %s function.",

@@ -53,7 +53,7 @@ public class OpenSearchFunctions {
 
   private static FunctionResolver match_bool_prefix() {
     FunctionName name = BuiltinFunctionName.MATCH_BOOL_PREFIX.getName();
-    return new RelevanceFunctionResolver(name);
+    return new RelevanceFunctionResolver(name, STRING);
   }
 
   private static DefaultFunctionResolver match() {

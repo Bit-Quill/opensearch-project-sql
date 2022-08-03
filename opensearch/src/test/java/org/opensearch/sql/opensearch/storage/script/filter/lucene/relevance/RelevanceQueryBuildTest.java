@@ -30,7 +30,6 @@ import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
-import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
@@ -63,6 +62,16 @@ class RelevanceQueryBuildTest {
   void first_arg_field_second_arg_query_test() {
     query.build(createCall(List.of(FIELD_ARG, QUERY_ARG)));
     verify(query, times(1)).createQueryBuilder("field_A", "find me");
+  }
+
+  @Test
+  void throws_SemanticCheckException_when_same_argument_twice() {
+    FunctionExpression expr = createCall(List.of(FIELD_ARG, QUERY_ARG,
+        namedArgument("boost", "2.3"),
+        namedArgument("boost", "2.4")));
+    SemanticCheckException exception =
+        assertThrows(SemanticCheckException.class, () -> query.build(expr));
+    assertEquals("Parameter 'boost' can only be specified once.", exception.getMessage());
   }
 
   @Test
