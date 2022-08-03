@@ -30,7 +30,7 @@ public class QueryStringQuery extends RelevanceQuery<QueryStringQueryBuilder> {
    */
   public QueryStringQuery() {
     super(ImmutableMap.<String, QueryBuilderStep<QueryStringQueryBuilder>>builder()
-        .put("analyzer", (b, v) -> b.analyzer(valueOfToUpper(v)))
+        .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
         .put("allow_leading_wildcard", (b, v) ->
             b.allowLeadingWildcard(Boolean.parseBoolean(v.stringValue())))
         .put("analyze_wildcard", (b, v) ->
