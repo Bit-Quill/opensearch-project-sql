@@ -685,8 +685,4 @@ public class DSL {
   private FunctionExpression compile(BuiltinFunctionName bfn, Expression... args) {
     return (FunctionExpression) repository.compile(bfn.getName(), Arrays.asList(args.clone()));
   }
-
-  public NamedArgumentExpression namedArgument(String name, String value) {
-    return namedArgument(name, literal(value));
-  }
 }
