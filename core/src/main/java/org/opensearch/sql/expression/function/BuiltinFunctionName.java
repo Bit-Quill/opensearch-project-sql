@@ -92,9 +92,6 @@ public enum BuiltinFunctionName {
   CURRENT_TIMESTAMP(FunctionName.of("current_timestamp")),
   LOCALTIMESTAMP(FunctionName.of("localtimestamp")),
   SYSDATE(FunctionName.of("sysdate")),
-  UTC_DATE(FunctionName.of("UTC_DATE")),
-  UTC_TIME(FunctionName.of("UTC_TIME")),
-  UTC_TIMESTAMP(FunctionName.of("UTC_TIMESTAMP")),
   /**
    * Text Functions.
    */
