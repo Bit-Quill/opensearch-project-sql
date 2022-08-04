@@ -119,7 +119,7 @@ class MultiMatchTest {
         List.of(
             dsl.namedArgument("fields", fields_value),
             dsl.namedArgument("query", query_value),
-            dsl.namedArgument("type", DSL.literal("cross_fields"))
+            dsl.namedArgument("type", DSL.literal("CRoss_fields"))
         ),
         List.of(
             dsl.namedArgument("fields", fields_value),

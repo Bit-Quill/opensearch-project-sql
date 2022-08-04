@@ -24,7 +24,7 @@ public class MultiMatchQuery extends RelevanceQuery<MultiMatchQueryBuilder> {
    */
   public MultiMatchQuery() {
     super(ImmutableMap.<String, QueryBuilderStep<MultiMatchQueryBuilder>>builder()
-        .put("analyzer", (b, v) -> b.analyzer(valueOfToLower(v)))
+        .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
         .put("auto_generate_synonyms_phrase_query", (b, v) ->
             b.autoGenerateSynonymsPhraseQuery(Boolean.parseBoolean(v.stringValue())))
         .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
@@ -35,7 +35,7 @@ public class MultiMatchQuery extends RelevanceQuery<MultiMatchQueryBuilder> {
         .put("lenient", (b, v) -> b.lenient(Boolean.parseBoolean(v.stringValue())))
         .put("max_expansions", (b, v) -> b.maxExpansions(Integer.parseInt(v.stringValue())))
         .put("minimum_should_match", (b, v) -> b.minimumShouldMatch(v.stringValue()))
-        .put("operator", (b, v) -> b.operator(Operator.fromString(valueOfToUpper(v))))
+        .put("operator", (b, v) -> b.operator(Operator.fromString(v.stringValue())))
         .put("prefix_length", (b, v) -> b.prefixLength(Integer.parseInt(v.stringValue())))
         .put("tie_breaker", (b, v) -> b.tieBreaker(Float.parseFloat(v.stringValue())))
         .put("type", (b, v) -> b.type(v.stringValue()))

@@ -33,7 +33,7 @@ public class SimpleQueryStringQuery extends RelevanceQuery<SimpleQueryStringBuil
             b.autoGenerateSynonymsPhraseQuery(Boolean.parseBoolean(v.stringValue())))
         .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
         .put("default_operator", (b, v) ->
-            b.defaultOperator(Operator.fromString(valueOfToUpper(v))))
+            b.defaultOperator(Operator.fromString(v.stringValue())))
         .put("flags", (b, v) ->
             b.flags(Arrays.stream(valueOfToUpper(v).split("\\|"))
             .map(SimpleQueryStringFlag::valueOf)
