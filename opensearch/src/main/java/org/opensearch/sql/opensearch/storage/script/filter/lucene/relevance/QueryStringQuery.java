@@ -30,7 +30,7 @@ public class QueryStringQuery extends RelevanceQuery<QueryStringQueryBuilder> {
    */
   public QueryStringQuery() {
     super(ImmutableMap.<String, QueryBuilderStep<QueryStringQueryBuilder>>builder()
-        .put("analyzer", (b, v) -> b.analyzer(valueOfToLower(v)))
+        .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
         .put("allow_leading_wildcard", (b, v) ->
             b.allowLeadingWildcard(Boolean.parseBoolean(v.stringValue())))
         .put("analyze_wildcard", (b, v) ->
@@ -39,7 +39,7 @@ public class QueryStringQuery extends RelevanceQuery<QueryStringQueryBuilder> {
             b.autoGenerateSynonymsPhraseQuery(Boolean.parseBoolean(v.stringValue())))
         .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
         .put("default_operator", (b, v) ->
-            b.defaultOperator(Operator.fromString(valueOfToUpper(v))))
+            b.defaultOperator(Operator.fromString(v.stringValue())))
         .put("enable_position_increments", (b, v) ->
             b.enablePositionIncrements(Boolean.parseBoolean(v.stringValue())))
         .put("fuzziness", (b, v) -> b.fuzziness(Fuzziness.build(v.stringValue())))
@@ -59,7 +59,7 @@ public class QueryStringQuery extends RelevanceQuery<QueryStringQueryBuilder> {
         .put("phrase_slop", (b, v) -> b.phraseSlop(Integer.parseInt(v.stringValue())))
         .put("quote_field_suffix", (b, v) -> b.quoteFieldSuffix(v.stringValue()))
         .put("rewrite", (b, v) -> b.rewrite(v.stringValue()))
-        .put("type", (b, v) -> b.type(MultiMatchQueryBuilder.Type.parse(v.stringValue(),
+        .put("type", (b, v) -> b.type(MultiMatchQueryBuilder.Type.parse(valueOfToLower(v),
             LoggingDeprecationHandler.INSTANCE)))
         .put("tie_breaker", (b, v) -> b.tieBreaker(Float.parseFloat(v.stringValue())))
         .put("time_zone", (b, v) -> b.timeZone(v.stringValue()))

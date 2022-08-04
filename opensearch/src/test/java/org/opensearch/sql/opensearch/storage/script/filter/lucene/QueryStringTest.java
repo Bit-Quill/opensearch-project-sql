@@ -48,15 +48,18 @@ class QueryStringTest {
     Expression field = dsl.namedArgument("field", fields_value);
     Expression query = dsl.namedArgument("query", query_value);
     return List.of(
+        dsl.namedArgument("analyzer", DSL.literal("Standard")),
         dsl.namedArgument("analyzer", DSL.literal("standard")),
         dsl.namedArgument("analyze_wildcard", DSL.literal("true")),
         dsl.namedArgument("allow_leading_wildcard", DSL.literal("true")),
         dsl.namedArgument("auto_generate_synonyms_phrase_query", DSL.literal("true")),
         dsl.namedArgument("boost", DSL.literal("1")),
         dsl.namedArgument("default_operator", DSL.literal("AND")),
+        dsl.namedArgument("default_operator", DSL.literal("and")),
         dsl.namedArgument("enable_position_increments", DSL.literal("true")),
         dsl.namedArgument("escape", DSL.literal("false")),
         dsl.namedArgument("fuzziness", DSL.literal("1")),
+        dsl.namedArgument("fuzzy_rewrite", DSL.literal("Constant_SCore")),
         dsl.namedArgument("fuzzy_rewrite", DSL.literal("constant_score")),
         dsl.namedArgument("fuzzy_max_expansions", DSL.literal("42")),
         dsl.namedArgument("fuzzy_prefix_length", DSL.literal("42")),
@@ -64,10 +67,13 @@ class QueryStringTest {
         dsl.namedArgument("lenient", DSL.literal("true")),
         dsl.namedArgument("max_determinized_states", DSL.literal("10000")),
         dsl.namedArgument("minimum_should_match", DSL.literal("4")),
+        dsl.namedArgument("quote_analyzer", DSL.literal("Standard")),
         dsl.namedArgument("quote_analyzer", DSL.literal("standard")),
         dsl.namedArgument("phrase_slop", DSL.literal("0")),
         dsl.namedArgument("quote_field_suffix", DSL.literal(".exact")),
+        dsl.namedArgument("rewrite", DSL.literal("COnstant_score")),
         dsl.namedArgument("rewrite", DSL.literal("constant_score")),
+        dsl.namedArgument("type", DSL.literal("Best_fields")),
         dsl.namedArgument("type", DSL.literal("best_fields")),
         dsl.namedArgument("tie_breaker", DSL.literal("0.3")),
         dsl.namedArgument("time_zone", DSL.literal("Canada/Pacific"))
