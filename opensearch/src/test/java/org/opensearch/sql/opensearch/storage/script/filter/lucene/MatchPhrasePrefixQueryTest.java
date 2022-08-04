@@ -77,6 +77,16 @@ public class MatchPhrasePrefixQueryTest {
   }
 
   @Test
+  public void test_analyzer_parameter_upper_case_analyzer_value() {
+    List<Expression> arguments = List.of(
+        dsl.namedArgument("field", "t1"),
+        dsl.namedArgument("query", "t2"),
+        dsl.namedArgument("analyzer", "Standard")
+    );
+    Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments)));
+  }
+
+  @Test
   public void build_succeeds_with_two_arguments() {
     List<Expression> arguments = List.of(
         dsl.namedArgument("field", "test"),
