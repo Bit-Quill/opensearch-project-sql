@@ -26,14 +26,16 @@ public class SimpleQueryStringQuery extends RelevanceQuery<SimpleQueryStringBuil
    */
   public SimpleQueryStringQuery() {
     super(ImmutableMap.<String, QueryBuilderStep<SimpleQueryStringBuilder>>builder()
-        .put("analyze_wildcard", (b, v) -> b.analyzeWildcard(Boolean.parseBoolean(v.stringValue())))
+        .put("analyze_wildcard", (b, v) ->
+            b.analyzeWildcard(Boolean.parseBoolean(v.stringValue())))
         .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
         .put("auto_generate_synonyms_phrase_query", (b, v) ->
             b.autoGenerateSynonymsPhraseQuery(Boolean.parseBoolean(v.stringValue())))
         .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
-        .put("default_operator", (b, v) -> b.defaultOperator(Operator.fromString(valueOfToUpper(v))))
+        .put("default_operator", (b, v) ->
+            b.defaultOperator(Operator.fromString(valueOfToUpper(v))))
         .put("flags", (b, v) ->
-            b.flags(Arrays.stream((v.stringValue().toUpperCase()).split("\\|"))
+            b.flags(Arrays.stream(valueOfToUpper(v).split("\\|"))
             .map(SimpleQueryStringFlag::valueOf)
             .toArray(SimpleQueryStringFlag[]::new)))
         .put("fuzzy_max_expansions", (b, v) ->

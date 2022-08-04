@@ -24,7 +24,7 @@ public class MultiMatchQuery extends RelevanceQuery<MultiMatchQueryBuilder> {
    */
   public MultiMatchQuery() {
     super(ImmutableMap.<String, QueryBuilderStep<MultiMatchQueryBuilder>>builder()
-        .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
+        .put("analyzer", (b, v) -> b.analyzer(valueOfToLower(v)))
         .put("auto_generate_synonyms_phrase_query", (b, v) ->
             b.autoGenerateSynonymsPhraseQuery(Boolean.parseBoolean(v.stringValue())))
         .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))

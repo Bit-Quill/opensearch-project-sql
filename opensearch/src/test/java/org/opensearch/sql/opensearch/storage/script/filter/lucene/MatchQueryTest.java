@@ -49,6 +49,11 @@ public class MatchQueryTest {
         List.of(
             dsl.namedArgument("field", DSL.literal("field_value")),
             dsl.namedArgument("query", DSL.literal("query_value")),
+            dsl.namedArgument("analyzer", DSL.literal("Standard"))
+        ),
+        List.of(
+            dsl.namedArgument("field", DSL.literal("field_value")),
+            dsl.namedArgument("query", DSL.literal("query_value")),
             dsl.namedArgument("AnalyZer", DSL.literal("standard"))
         ),
         List.of(

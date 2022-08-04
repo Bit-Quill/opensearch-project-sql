@@ -21,7 +21,7 @@ public class MatchQuery extends RelevanceQuery<MatchQueryBuilder> {
    */
   public MatchQuery() {
     super(ImmutableMap.<String, QueryBuilderStep<MatchQueryBuilder>>builder()
-        .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
+        .put("analyzer", (b, v) -> b.analyzer(valueOfToLower(v)))
         .put("auto_generate_synonyms_phrase_query",
             (b, v) -> b.autoGenerateSynonymsPhraseQuery(Boolean.parseBoolean(v.stringValue())))
         .put("fuzziness", (b, v) -> b.fuzziness(valueOfToUpper(v)))
