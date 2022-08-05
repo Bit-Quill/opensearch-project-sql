@@ -104,6 +104,11 @@ class MultiMatchTest {
         List.of(
             dsl.namedArgument("fields", fields_value),
             dsl.namedArgument("query", query_value),
+            dsl.namedArgument("operator", DSL.literal("And"))
+        ),
+        List.of(
+            dsl.namedArgument("fields", fields_value),
+            dsl.namedArgument("query", query_value),
             dsl.namedArgument("prefix_length", DSL.literal("7"))
         ),
         List.of(

@@ -124,6 +124,11 @@ class SimpleQueryStringTest {
         List.of(
             dsl.namedArgument("fields", fields_value),
             dsl.namedArgument("query", query_value),
+            dsl.namedArgument("default_operator", DSL.literal("and"))
+        ),
+        List.of(
+            dsl.namedArgument("fields", fields_value),
+            dsl.namedArgument("query", query_value),
             dsl.namedArgument("minimum_should_match", DSL.literal("4"))
         ),
         List.of(
@@ -135,6 +140,11 @@ class SimpleQueryStringTest {
             dsl.namedArgument("fields", fields_value),
             dsl.namedArgument("query", query_value),
             dsl.namedArgument("boost", DSL.literal("1"))
+        ),
+        List.of(
+            dsl.namedArgument("fields", fields_value),
+            dsl.namedArgument("query", query_value),
+            dsl.namedArgument("quote_field_suffix", DSL.literal(".Exact"))
         )
       );
   }

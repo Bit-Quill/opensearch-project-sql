@@ -30,7 +30,7 @@ public class QueryStringQuery extends RelevanceQuery<QueryStringQueryBuilder> {
    */
   public QueryStringQuery() {
     super(ImmutableMap.<String, QueryBuilderStep<QueryStringQueryBuilder>>builder()
-        .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
+        .put("analyzer", (b, v) -> b.analyzer(valueOfToUpper(v)))
         .put("allow_leading_wildcard", (b, v) ->
             b.allowLeadingWildcard(Boolean.parseBoolean(v.stringValue())))
         .put("analyze_wildcard", (b, v) ->
@@ -39,7 +39,7 @@ public class QueryStringQuery extends RelevanceQuery<QueryStringQueryBuilder> {
             b.autoGenerateSynonymsPhraseQuery(Boolean.parseBoolean(v.stringValue())))
         .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
         .put("default_operator", (b, v) ->
-            b.defaultOperator(Operator.fromString(v.stringValue())))
+            b.defaultOperator(Operator.fromString(valueOfToUpper(v))))
         .put("enable_position_increments", (b, v) ->
             b.enablePositionIncrements(Boolean.parseBoolean(v.stringValue())))
         .put("fuzziness", (b, v) -> b.fuzziness(Fuzziness.build(v.stringValue())))

@@ -35,7 +35,7 @@ public class MultiMatchQuery extends RelevanceQuery<MultiMatchQueryBuilder> {
         .put("lenient", (b, v) -> b.lenient(Boolean.parseBoolean(v.stringValue())))
         .put("max_expansions", (b, v) -> b.maxExpansions(Integer.parseInt(v.stringValue())))
         .put("minimum_should_match", (b, v) -> b.minimumShouldMatch(v.stringValue()))
-        .put("operator", (b, v) -> b.operator(Operator.fromString(v.stringValue())))
+        .put("operator", (b, v) -> b.operator(Operator.fromString(valueOfToUpper(v))))
         .put("prefix_length", (b, v) -> b.prefixLength(Integer.parseInt(v.stringValue())))
         .put("tie_breaker", (b, v) -> b.tieBreaker(Float.parseFloat(v.stringValue())))
         .put("type", (b, v) -> b.type(v.stringValue()))

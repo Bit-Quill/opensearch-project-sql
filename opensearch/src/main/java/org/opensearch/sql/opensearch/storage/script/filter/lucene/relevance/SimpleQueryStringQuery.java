@@ -46,7 +46,7 @@ public class SimpleQueryStringQuery extends RelevanceQuery<SimpleQueryStringBuil
             b.fuzzyTranspositions(Boolean.parseBoolean(v.stringValue())))
         .put("lenient", (b, v) -> b.lenient(Boolean.parseBoolean(v.stringValue())))
         .put("minimum_should_match", (b, v) -> b.minimumShouldMatch(v.stringValue()))
-        .put("quote_field_suffix", (b, v) -> b.quoteFieldSuffix(v.stringValue()))
+        .put("quote_field_suffix", (b, v) -> b.quoteFieldSuffix(valueOfToUpper(v)))
         .build());
   }
 
