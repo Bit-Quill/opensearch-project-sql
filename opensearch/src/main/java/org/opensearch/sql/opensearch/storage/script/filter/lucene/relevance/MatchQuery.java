@@ -34,7 +34,7 @@ public class MatchQuery extends RelevanceQuery<MatchQueryBuilder> {
         .put("operator", (b, v) -> b.operator(Operator.fromString(v.stringValue())))
         .put("minimum_should_match", (b, v) -> b.minimumShouldMatch(v.stringValue()))
         .put("zero_terms_query", (b, v) -> b.zeroTermsQuery(
-            org.opensearch.index.search.MatchQuery.ZeroTermsQuery.valueOf(v.stringValue())))
+            org.opensearch.index.search.MatchQuery.ZeroTermsQuery.valueOf((v.stringValue()).toUpperCase())))
         .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
         .build());
   }

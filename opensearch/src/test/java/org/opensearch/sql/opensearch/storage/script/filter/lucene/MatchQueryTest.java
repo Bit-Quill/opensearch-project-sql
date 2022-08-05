@@ -49,6 +49,11 @@ public class MatchQueryTest {
         List.of(
             dsl.namedArgument("field", DSL.literal("field_value")),
             dsl.namedArgument("query", DSL.literal("query_value")),
+            dsl.namedArgument("AnalyZer", DSL.literal("standard"))
+        ),
+        List.of(
+            dsl.namedArgument("field", DSL.literal("field_value")),
+            dsl.namedArgument("query", DSL.literal("query_value")),
             dsl.namedArgument("auto_generate_synonyms_phrase_query", DSL.literal("true"))
         ),
         List.of(
@@ -95,6 +100,16 @@ public class MatchQueryTest {
             dsl.namedArgument("field", DSL.literal("field_value")),
             dsl.namedArgument("query", DSL.literal("query_value")),
             dsl.namedArgument("zero_terms_query", DSL.literal("NONE"))
+        ),
+        List.of(
+            dsl.namedArgument("field", DSL.literal("field_value")),
+            dsl.namedArgument("query", DSL.literal("query_value")),
+            dsl.namedArgument("zero_terms_query", DSL.literal("none"))
+        ),
+        List.of(
+            dsl.namedArgument("field", DSL.literal("field_value")),
+            dsl.namedArgument("query", DSL.literal("query_value")),
+            dsl.namedArgument("Zero_TErms_QUEry", DSL.literal("NONE"))
         ),
         List.of(
             dsl.namedArgument("field", DSL.literal("field_value")),
