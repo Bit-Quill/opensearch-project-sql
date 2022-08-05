@@ -24,14 +24,14 @@ public class MatchQuery extends RelevanceQuery<MatchQueryBuilder> {
         .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
         .put("auto_generate_synonyms_phrase_query",
             (b, v) -> b.autoGenerateSynonymsPhraseQuery(Boolean.parseBoolean(v.stringValue())))
-        .put("fuzziness", (b, v) -> b.fuzziness(v.stringValue()))
+        .put("fuzziness", (b, v) -> b.fuzziness(valueOfToUpper(v)))
         .put("max_expansions", (b, v) -> b.maxExpansions(Integer.parseInt(v.stringValue())))
         .put("prefix_length", (b, v) -> b.prefixLength(Integer.parseInt(v.stringValue())))
         .put("fuzzy_transpositions",
             (b, v) -> b.fuzzyTranspositions(Boolean.parseBoolean(v.stringValue())))
         .put("fuzzy_rewrite", (b, v) -> b.fuzzyRewrite(v.stringValue()))
         .put("lenient", (b, v) -> b.lenient(Boolean.parseBoolean(v.stringValue())))
-        .put("operator", (b, v) -> b.operator(Operator.fromString(v.stringValue())))
+        .put("operator", (b, v) -> b.operator(Operator.fromString(valueOfToUpper(v))))
         .put("minimum_should_match", (b, v) -> b.minimumShouldMatch(v.stringValue()))
         .put("zero_terms_query", (b, v) -> b.zeroTermsQuery(
             org.opensearch.index.search.MatchQuery.ZeroTermsQuery.valueOf(valueOfToUpper(v))))
