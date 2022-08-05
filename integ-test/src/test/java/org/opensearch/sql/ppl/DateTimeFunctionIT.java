@@ -597,7 +597,7 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
       var serializationPattern = new DateTimeFormatterBuilder()
               .appendPattern(serializationPatternStr)
               .optionalStart()
-              .appendFraction(ChronoField.NANO_OF_SECOND, 0, 6, true)
+              .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
               .toFormatter();
 
       Temporal reference = referenceGetter.get();
