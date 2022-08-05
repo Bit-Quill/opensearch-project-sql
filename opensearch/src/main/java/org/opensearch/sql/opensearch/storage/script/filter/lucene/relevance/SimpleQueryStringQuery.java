@@ -27,7 +27,7 @@ public class SimpleQueryStringQuery extends RelevanceQuery<SimpleQueryStringBuil
   public SimpleQueryStringQuery() {
     super(ImmutableMap.<String, QueryBuilderStep<SimpleQueryStringBuilder>>builder()
         .put("analyze_wildcard", (b, v) -> b.analyzeWildcard(Boolean.parseBoolean(v.stringValue())))
-        .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
+        .put("analyzer", (b, v) -> b.analyzer(valueOfToUpper(v)))
         .put("auto_generate_synonyms_phrase_query", (b, v) ->
             b.autoGenerateSynonymsPhraseQuery(Boolean.parseBoolean(v.stringValue())))
         .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
@@ -69,14 +69,15 @@ public class SimpleQueryStringQuery extends RelevanceQuery<SimpleQueryStringBuil
         .fields(fieldsAndWeights);
     while (iterator.hasNext()) {
       NamedArgumentExpression arg = (NamedArgumentExpression) iterator.next();
-      if (!queryBuildActions.containsKey(arg.getArgName())) {
+      String argNormalized = arg.getArgName().toLowerCase();
+      if (!queryBuildActions.containsKey(argNormalized)) {
         throw new SemanticCheckException(
             String.format("Parameter %s is invalid for %s function.",
-                arg.getArgName(), queryBuilder.getWriteableName()));
+                argNormalized, queryBuilder.getWriteableName()));
       }
       (Objects.requireNonNull(
           queryBuildActions
-              .get(arg.getArgName())))
+              .get(argNormalized)))
           .apply(queryBuilder, arg.getValue().valueOf(null));
     }
     return queryBuilder;

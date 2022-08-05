@@ -59,6 +59,11 @@ class SimpleQueryStringTest {
         List.of(
             dsl.namedArgument("fields", fields_value),
             dsl.namedArgument("query", query_value),
+            dsl.namedArgument("analyze_Wildcard", DSL.literal("true"))
+        ),
+        List.of(
+            dsl.namedArgument("fields", fields_value),
+            dsl.namedArgument("query", query_value),
             dsl.namedArgument("analyzer", DSL.literal("standard"))
         ),
         List.of(
