@@ -12,13 +12,14 @@ import org.opensearch.index.query.QueryBuilders;
 /**
     * Lucene query that builds a match_phrase_prefix query.
     */
-public class MatchPhrasePrefixQuery  extends RelevanceQuery<MatchPhrasePrefixQueryBuilder> {
+public class MatchPhrasePrefixQuery  extends SingleFieldQuery<MatchPhrasePrefixQueryBuilder> {
   /**
    *  Default constructor for MatchPhrasePrefixQuery configures how RelevanceQuery.build() handles
    * named arguments.
    */
   public MatchPhrasePrefixQuery() {
-    super(ImmutableMap.<String, QueryBuilderStep<MatchPhrasePrefixQueryBuilder>>builder()
+    super(MatchPhrasePrefixQueryBuilder.NAME,
+        ImmutableMap.<String, QueryBuilderStep<MatchPhrasePrefixQueryBuilder>>builder()
         .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
         .put("slop", (b, v) -> b.slop(Integer.parseInt(v.stringValue())))
         .put("max_expansions", (b, v) -> b.maxExpansions(Integer.parseInt(v.stringValue())))
@@ -29,7 +30,7 @@ public class MatchPhrasePrefixQuery  extends RelevanceQuery<MatchPhrasePrefixQue
   }
 
   @Override
-  protected MatchPhrasePrefixQueryBuilder createQueryBuilder(String field, String query) {
+  protected MatchPhrasePrefixQueryBuilder createBuilder(String field, String query) {
     return QueryBuilders.matchPhrasePrefixQuery(field, query);
   }
 }
