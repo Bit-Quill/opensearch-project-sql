@@ -849,10 +849,9 @@ class FilterQueryBuilderTest {
     FunctionExpression expr = dsl.match_phrase(
         dsl.namedArgument("field", literal("message")),
         dsl.namedArgument("query", literal("search query")),
-        dsl.namedArgument("zero_terms_query", literal("meow")));
+        dsl.namedArgument("zero_terms_query", literal("MEOW")));
     var msg = assertThrows(IllegalArgumentException.class, () -> buildQuery(expr)).getMessage();
-    assertEquals("No enum constant org.opensearch.index.search.MatchQuery.ZeroTermsQuery.meow" +
-            "",
+    assertEquals("No enum constant org.opensearch.index.search.MatchQuery.ZeroTermsQuery.MEOW",
           msg);
   }
 
