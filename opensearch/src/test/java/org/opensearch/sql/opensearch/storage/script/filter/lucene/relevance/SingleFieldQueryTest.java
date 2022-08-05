@@ -36,7 +36,7 @@ class SingleFieldQueryTest {
     query.createQueryBuilder(dsl.namedArgument("field",
             new LiteralExpression(ExprValueUtils.stringValue(sampleField))),
         dsl.namedArgument("query",
-            new LiteralExpression(ExprValueUtils.stringValue(sampleQuery)) ));
+            new LiteralExpression(ExprValueUtils.stringValue(sampleQuery))));
 
     verify(query).createBuilder(eq(sampleField),
         eq(sampleQuery));
