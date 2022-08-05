@@ -41,7 +41,7 @@ public class MultiMatchQuery extends RelevanceQuery<MultiMatchQueryBuilder> {
         .put("type", (b, v) -> b.type(v.stringValue()))
         .put("slop", (b, v) -> b.slop(Integer.parseInt(v.stringValue())))
         .put("zero_terms_query", (b, v) -> b.zeroTermsQuery(
-            org.opensearch.index.search.MatchQuery.ZeroTermsQuery.valueOf(v.stringValue())))
+            org.opensearch.index.search.MatchQuery.ZeroTermsQuery.valueOf((v.stringValue()).toUpperCase())))
         .build());
   }
 

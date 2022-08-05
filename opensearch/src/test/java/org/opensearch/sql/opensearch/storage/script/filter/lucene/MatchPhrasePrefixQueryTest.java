@@ -67,6 +67,16 @@ public class MatchPhrasePrefixQueryTest {
   }
 
   @Test
+  public void test_analyzer_parameter_enum_random_case() {
+    List<Expression> arguments = List.of(
+        dsl.namedArgument("field", "t1"),
+        dsl.namedArgument("query", "t2"),
+        dsl.namedArgument("AnalyZer", "standard")
+    );
+    Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments)));
+  }
+
+  @Test
   public void build_succeeds_with_two_arguments() {
     List<Expression> arguments = List.of(
         dsl.namedArgument("field", "test"),
@@ -79,7 +89,7 @@ public class MatchPhrasePrefixQueryTest {
     List<Expression> arguments = List.of(
         dsl.namedArgument("field", "t1"),
         dsl.namedArgument("query", "t2"),
-        dsl.namedArgument("slop", "2")
+        dsl.namedArgument("Slop", "2")
     );
     Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments)));
   }
@@ -89,7 +99,7 @@ public class MatchPhrasePrefixQueryTest {
     List<Expression> arguments = List.of(
         dsl.namedArgument("field", "t1"),
         dsl.namedArgument("query", "t2"),
-        dsl.namedArgument("zero_terms_query", "ALL")
+        dsl.namedArgument("Zero_terms_query", "All")
     );
     Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments)));
   }

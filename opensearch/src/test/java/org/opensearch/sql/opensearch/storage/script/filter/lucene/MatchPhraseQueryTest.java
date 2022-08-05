@@ -72,6 +72,16 @@ public class MatchPhraseQueryTest {
   }
 
   @Test
+  public void test_analyzer_parameter_capitalized() {
+    List<Expression> arguments = List.of(
+        namedArgument("field", "t1"),
+        namedArgument("query", "t2"),
+        namedArgument("AnalyZER", "standard")
+    );
+    Assertions.assertNotNull(matchPhraseQuery.build(new MatchPhraseExpression(arguments)));
+  }
+
+  @Test
   public void build_succeeds_with_two_arguments() {
     List<Expression> arguments = List.of(
         namedArgument("field", "test"),
@@ -95,6 +105,26 @@ public class MatchPhraseQueryTest {
         namedArgument("field", "t1"),
         namedArgument("query", "t2"),
         namedArgument("zero_terms_query", "ALL")
+    );
+    Assertions.assertNotNull(matchPhraseQuery.build(new MatchPhraseExpression(arguments)));
+  }
+
+  @Test
+  public void test_zero_terms_query_parameter_lowercase() {
+    List<Expression> arguments = List.of(
+        namedArgument("field", "t1"),
+        namedArgument("query", "t2"),
+        namedArgument("zero_terms_query", "all")
+    );
+    Assertions.assertNotNull(matchPhraseQuery.build(new MatchPhraseExpression(arguments)));
+  }
+
+  @Test
+  public void test_zero_terms_query_parameter_enum_random_case() {
+    List<Expression> arguments = List.of(
+        namedArgument("field", "t1"),
+        namedArgument("query", "t2"),
+        namedArgument("zEro_terMs_QUery", "ALL")
     );
     Assertions.assertNotNull(matchPhraseQuery.build(new MatchPhraseExpression(arguments)));
   }
