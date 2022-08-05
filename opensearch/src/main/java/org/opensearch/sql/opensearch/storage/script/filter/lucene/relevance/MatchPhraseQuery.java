@@ -29,7 +29,8 @@ public class MatchPhraseQuery extends SingleFieldQuery<MatchPhraseQueryBuilder> 
    * named arguments.
    */
   public MatchPhraseQuery() {
-    super(MatchPhraseQueryBuilder.NAME, ImmutableMap.<String, QueryBuilderStep<MatchPhraseQueryBuilder>>builder()
+    super(MatchPhraseQueryBuilder.NAME,
+        ImmutableMap.<String, QueryBuilderStep<MatchPhraseQueryBuilder>>builder()
         .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
         .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
         .put("slop", (b, v) -> b.slop(Integer.parseInt(v.stringValue())))
