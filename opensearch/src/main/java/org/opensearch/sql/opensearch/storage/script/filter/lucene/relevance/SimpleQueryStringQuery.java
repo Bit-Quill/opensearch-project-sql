@@ -32,7 +32,7 @@ public class SimpleQueryStringQuery extends RelevanceQuery<SimpleQueryStringBuil
             b.autoGenerateSynonymsPhraseQuery(Boolean.parseBoolean(v.stringValue())))
         .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
         .put("default_operator", (b, v) -> b.defaultOperator(Operator.fromString(v.stringValue())))
-        .put("flags", (b, v) -> b.flags(Arrays.stream(v.stringValue().split("\\|"))
+        .put("flags", (b, v) -> b.flags(Arrays.stream((v.stringValue().toUpperCase()).split("\\|"))
             .map(SimpleQueryStringFlag::valueOf)
             .toArray(SimpleQueryStringFlag[]::new)))
         .put("fuzzy_max_expansions", (b, v) ->

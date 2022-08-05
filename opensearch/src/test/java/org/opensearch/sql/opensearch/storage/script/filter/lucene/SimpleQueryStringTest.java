@@ -74,6 +74,16 @@ class SimpleQueryStringTest {
         List.of(
             dsl.namedArgument("fields", fields_value),
             dsl.namedArgument("query", query_value),
+            dsl.namedArgument("flags", DSL.literal("prefix"))
+        ),
+        List.of(
+            dsl.namedArgument("fields", fields_value),
+            dsl.namedArgument("query", query_value),
+            dsl.namedArgument("FlAgS", DSL.literal("PREFIX"))
+        ),
+        List.of(
+            dsl.namedArgument("fields", fields_value),
+            dsl.namedArgument("query", query_value),
             dsl.namedArgument("flags", DSL.literal("PREFIX|NOT|AND"))
         ),
         List.of(
