@@ -16,8 +16,8 @@ import org.opensearch.sql.expression.NamedArgumentExpression;
  * @param <T> The builder class for the OpenSearch query class.
  */
 abstract class SingleFieldQuery<T extends QueryBuilder> extends RelevanceQuery<T> {
-  public SingleFieldQuery(String queryName, Map<String, QueryBuilderStep<T>> queryBuildActions) {
-    super(queryName, queryBuildActions);
+  public SingleFieldQuery(Map<String, QueryBuilderStep<T>> queryBuildActions) {
+    super(queryBuildActions);
   }
 
   @Override

@@ -29,8 +29,7 @@ public class QueryStringQuery extends MultiFieldQuery<QueryStringQueryBuilder> {
    * named arguments.
    */
   public QueryStringQuery() {
-    super(QueryStringQueryBuilder.NAME,
-        ImmutableMap.<String, QueryBuilderStep<QueryStringQueryBuilder>>builder()
+    super(ImmutableMap.<String, QueryBuilderStep<QueryStringQueryBuilder>>builder()
         .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
         .put("allow_leading_wildcard", (b, v) ->
             b.allowLeadingWildcard(Boolean.parseBoolean(v.stringValue())))
@@ -79,5 +78,10 @@ public class QueryStringQuery extends MultiFieldQuery<QueryStringQueryBuilder> {
   protected QueryStringQueryBuilder createBuilder(ImmutableMap<String, Float> fields,
                                                   String query) {
     return QueryBuilders.queryStringQuery(query).fields(fields);
+  }
+
+  @Override
+  protected String getQueryName() {
+    return QueryStringQueryBuilder.NAME;
   }
 }

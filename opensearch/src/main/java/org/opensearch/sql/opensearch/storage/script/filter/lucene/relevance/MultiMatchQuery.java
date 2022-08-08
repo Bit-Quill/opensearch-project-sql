@@ -16,8 +16,7 @@ public class MultiMatchQuery extends MultiFieldQuery<MultiMatchQueryBuilder> {
    * named arguments.
    */
   public MultiMatchQuery() {
-    super(MultiMatchQueryBuilder.NAME,
-        ImmutableMap.<String, QueryBuilderStep<MultiMatchQueryBuilder>>builder()
+    super(ImmutableMap.<String, QueryBuilderStep<MultiMatchQueryBuilder>>builder()
         .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
         .put("auto_generate_synonyms_phrase_query", (b, v) ->
             b.autoGenerateSynonymsPhraseQuery(Boolean.parseBoolean(v.stringValue())))
@@ -42,5 +41,10 @@ public class MultiMatchQuery extends MultiFieldQuery<MultiMatchQueryBuilder> {
   @Override
   protected MultiMatchQueryBuilder createBuilder(ImmutableMap<String, Float> fields, String query) {
     return QueryBuilders.multiMatchQuery(query).fields(fields);
+  }
+
+  @Override
+  protected String getQueryName() {
+    return MultiMatchQueryBuilder.NAME;
   }
 }

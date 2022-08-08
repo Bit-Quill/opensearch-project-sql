@@ -20,8 +20,7 @@ public class MatchBoolPrefixQuery
    * with support of optional parameters.
    */
   public MatchBoolPrefixQuery() {
-    super(MatchBoolPrefixQueryBuilder.NAME,
-        ImmutableMap.<String, QueryBuilderStep<MatchBoolPrefixQueryBuilder>>builder()
+    super(ImmutableMap.<String, QueryBuilderStep<MatchBoolPrefixQueryBuilder>>builder()
         .put("minimum_should_match", (b, v) -> b.minimumShouldMatch(v.stringValue()))
         .put("fuzziness", (b, v) -> b.fuzziness(v.stringValue()))
         .put("prefix_length", (b, v) -> b.prefixLength(Integer.parseInt(v.stringValue())))
@@ -44,5 +43,10 @@ public class MatchBoolPrefixQuery
   @Override
   protected MatchBoolPrefixQueryBuilder createBuilder(String field, String query) {
     return QueryBuilders.matchBoolPrefixQuery(field, query);
+  }
+
+  @Override
+  protected String getQueryName() {
+    return MatchBoolPrefixQueryBuilder.NAME;
   }
 }

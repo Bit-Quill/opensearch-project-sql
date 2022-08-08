@@ -16,8 +16,8 @@ import org.opensearch.sql.expression.NamedArgumentExpression;
  */
 abstract class MultiFieldQuery<T extends QueryBuilder> extends RelevanceQuery<T> {
 
-  public MultiFieldQuery(String queryName, Map<String, QueryBuilderStep<T>> queryBuildActions) {
-    super(queryName, queryBuildActions);
+  public MultiFieldQuery(Map<String, QueryBuilderStep<T>> queryBuildActions) {
+    super(queryBuildActions);
   }
 
   @Override

@@ -18,8 +18,7 @@ public class MatchPhrasePrefixQuery  extends SingleFieldQuery<MatchPhrasePrefixQ
    * named arguments.
    */
   public MatchPhrasePrefixQuery() {
-    super(MatchPhrasePrefixQueryBuilder.NAME,
-        ImmutableMap.<String, QueryBuilderStep<MatchPhrasePrefixQueryBuilder>>builder()
+    super(ImmutableMap.<String, QueryBuilderStep<MatchPhrasePrefixQueryBuilder>>builder()
         .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
         .put("slop", (b, v) -> b.slop(Integer.parseInt(v.stringValue())))
         .put("max_expansions", (b, v) -> b.maxExpansions(Integer.parseInt(v.stringValue())))
@@ -32,5 +31,10 @@ public class MatchPhrasePrefixQuery  extends SingleFieldQuery<MatchPhrasePrefixQ
   @Override
   protected MatchPhrasePrefixQueryBuilder createBuilder(String field, String query) {
     return QueryBuilders.matchPhrasePrefixQuery(field, query);
+  }
+
+  @Override
+  protected String getQueryName() {
+    return MatchPhrasePrefixQueryBuilder.NAME;
   }
 }

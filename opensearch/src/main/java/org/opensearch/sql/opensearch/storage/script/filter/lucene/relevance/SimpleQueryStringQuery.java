@@ -20,8 +20,7 @@ public class SimpleQueryStringQuery extends MultiFieldQuery<SimpleQueryStringBui
    * named arguments.
    */
   public SimpleQueryStringQuery() {
-    super(SimpleQueryStringBuilder.NAME,
-        ImmutableMap.<String, QueryBuilderStep<SimpleQueryStringBuilder>>builder()
+    super(ImmutableMap.<String, QueryBuilderStep<SimpleQueryStringBuilder>>builder()
         .put("analyze_wildcard", (b, v) -> b.analyzeWildcard(Boolean.parseBoolean(v.stringValue())))
         .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
         .put("auto_generate_synonyms_phrase_query", (b, v) ->
@@ -47,5 +46,10 @@ public class SimpleQueryStringQuery extends MultiFieldQuery<SimpleQueryStringBui
   protected SimpleQueryStringBuilder createBuilder(ImmutableMap<String, Float> fields,
                                                    String query) {
     return QueryBuilders.simpleQueryStringQuery(query).fields(fields);
+  }
+
+  @Override
+  protected String getQueryName() {
+    return SimpleQueryStringBuilder.NAME;
   }
 }
