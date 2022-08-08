@@ -25,7 +25,6 @@ import org.opensearch.sql.opensearch.storage.script.filter.lucene.LuceneQuery;
  */
 @RequiredArgsConstructor
 public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery {
-  private final String queryName;
   private final Map<String, QueryBuilderStep<T>> queryBuildActions;
 
   @Override
@@ -33,7 +32,7 @@ public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery
     List<Expression> arguments = func.getArguments();
     if (arguments.size() < 2) {
       throw new SyntaxCheckException(
-          String.format("%s requires at least two parameters", queryName));
+          String.format("%s requires at least two parameters", getQueryName()));
     }
     NamedArgumentExpression field = (NamedArgumentExpression) arguments.get(0);
     NamedArgumentExpression query = (NamedArgumentExpression) arguments.get(1);
@@ -57,6 +56,8 @@ public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery
 
   protected abstract T createQueryBuilder(NamedArgumentExpression field,
                                           NamedArgumentExpression query);
+
+  protected abstract String getQueryName();
 
   /**
    * Convenience interface for a function that updates a QueryBuilder

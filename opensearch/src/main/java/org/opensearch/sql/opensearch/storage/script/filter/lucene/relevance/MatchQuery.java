@@ -19,8 +19,7 @@ public class MatchQuery extends SingleFieldQuery<MatchQueryBuilder> {
    * named arguments.
    */
   public MatchQuery() {
-    super(MatchQueryBuilder.NAME,
-        ImmutableMap.<String, QueryBuilderStep<MatchQueryBuilder>>builder()
+    super(ImmutableMap.<String, QueryBuilderStep<MatchQueryBuilder>>builder()
         .put("analyzer", (b, v) -> b.analyzer(v.stringValue()))
         .put("auto_generate_synonyms_phrase_query",
             (b, v) -> b.autoGenerateSynonymsPhraseQuery(Boolean.parseBoolean(v.stringValue())))
@@ -42,5 +41,10 @@ public class MatchQuery extends SingleFieldQuery<MatchQueryBuilder> {
   @Override
   protected MatchQueryBuilder createBuilder(String field, String query) {
     return QueryBuilders.matchQuery(field, query);
+  }
+
+  @Override
+  protected String getQueryName() {
+    return MatchQueryBuilder.NAME;
   }
 }
