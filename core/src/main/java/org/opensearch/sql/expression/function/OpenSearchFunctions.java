@@ -58,7 +58,8 @@ public class OpenSearchFunctions {
     FunctionName functionName = BuiltinFunctionName.HIGHLIGHT.getName();
     FunctionSignature functionSignature = new FunctionSignature(functionName, List.of(STRING));
     FunctionBuilder functionBuilder = arguments -> new HighlightExpression(arguments.get(0));
-    return new FunctionResolver(functionName, ImmutableMap.of(functionSignature, functionBuilder));
+    return new DefaultFunctionResolver(functionName,
+        ImmutableMap.of(functionSignature, functionBuilder));
   }
 
   private static FunctionResolver match_bool_prefix() {
