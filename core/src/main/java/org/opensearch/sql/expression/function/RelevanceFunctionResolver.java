@@ -1,3 +1,8 @@
+/*
+ * Copyright OpenSearch Contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package org.opensearch.sql.expression.function;
 
 import java.util.List;
@@ -27,11 +32,13 @@ public class RelevanceFunctionResolver
     List<ExprType> paramTypes = unresolvedSignature.getParamTypeList();
     ExprType providedFirstParamType = paramTypes.get(0);
 
+    // Check if the first parameter is of the specified type.
     if (!declaredFirstParamType.equals(providedFirstParamType)) {
       throw new SemanticCheckException(
           getWrongParameterErrorMessage(0, providedFirstParamType, declaredFirstParamType));
     }
 
+    // Check if all but the first parameter are of type STRING.
     for (int i = 1; i < paramTypes.size(); i++) {
       ExprType paramType = paramTypes.get(i);
       if (!ExprCoreType.STRING.equals(paramType)) {
@@ -45,6 +52,14 @@ public class RelevanceFunctionResolver
     return Pair.of(unresolvedSignature, buildFunction);
   }
 
+  /** Returns a helpful error message when expected parameter type does not match the
+   * specified parameter type.
+   *
+   * @param i 0-based index of the parameter in a function signature.
+   * @param paramType the type of the ith parameter at run-time.
+   * @param expectedType the expected type of the ith parameter
+   * @return A user-friendly error message that informs of the type difference.
+   */
   private String getWrongParameterErrorMessage(int i, ExprType paramType, ExprType expectedType) {
     return String.format("Expected type %s instead of %s for parameter #%d",
         expectedType.typeName(), paramType.typeName(), i + 1);
