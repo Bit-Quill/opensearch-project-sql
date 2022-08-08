@@ -539,12 +539,14 @@ public class DateTimeFunction {
     if (0 == year) {
       year = 2000;
     }
-    // We should go to the next year until remaining @dayOfYear is bigger than 365/366
     return new ExprDateValue(LocalDate.ofYearDay((int)year, 1).plusDays(dayOfYear - 1));
   }
 
   private ExprValue exprMakeTime(ExprValue hour, ExprValue minute, ExprValue second) {
-    return new ExprTimeValue(LocalTime.parse(String.format("%d:%d:%f",
+    if (0 > hour.doubleValue() || 0 > minute.doubleValue() || 0 > second.doubleValue()) {
+      return ExprNullValue.of();
+    }
+    return new ExprTimeValue(LocalTime.parse(String.format("%02d:%02d:%012.9f",
         Math.round(hour.doubleValue()), Math.round(minute.integerValue()), second.doubleValue()),
         DateTimeFormatter.ISO_TIME));
   }
