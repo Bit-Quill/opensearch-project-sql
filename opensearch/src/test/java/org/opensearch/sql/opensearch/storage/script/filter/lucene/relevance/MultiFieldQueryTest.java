@@ -47,7 +47,7 @@ class MultiFieldQueryTest {
     query.createQueryBuilder(dsl.namedArgument("fields",
         new LiteralExpression(ExprTupleValue.fromExprValueMap(fieldSpec))),
         dsl.namedArgument("query",
-            new LiteralExpression(ExprValueUtils.stringValue(sampleQuery)) ));
+            new LiteralExpression(ExprValueUtils.stringValue(sampleQuery))));
 
     verify(query).createBuilder(argThat(
             (ArgumentMatcher<ImmutableMap<String, Float>>) map -> map.size() == 1
