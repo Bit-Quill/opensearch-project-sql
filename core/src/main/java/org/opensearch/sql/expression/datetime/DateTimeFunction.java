@@ -547,7 +547,7 @@ public class DateTimeFunction {
       return ExprNullValue.of();
     }
     return new ExprTimeValue(LocalTime.parse(String.format("%02d:%02d:%012.9f",
-        Math.round(hour.doubleValue()), Math.round(minute.integerValue()), second.doubleValue()),
+        Math.round(hour.doubleValue()), Math.round(minute.doubleValue()), second.doubleValue()),
         DateTimeFormatter.ISO_TIME));
   }
 
