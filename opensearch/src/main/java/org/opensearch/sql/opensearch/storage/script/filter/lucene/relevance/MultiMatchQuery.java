@@ -7,6 +7,7 @@ package org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 import org.opensearch.index.query.MultiMatchQueryBuilder;
 import org.opensearch.index.query.Operator;
@@ -60,7 +61,7 @@ public class MultiMatchQuery extends RelevanceQuery<MultiMatchQueryBuilder> {
         .tupleValue()
         .entrySet()
         .stream()
-        .collect(ImmutableMap.toImmutableMap(e -> e.getKey(), e -> e.getValue().floatValue()));
+        .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, e -> e.getValue().floatValue()));
 
     MultiMatchQueryBuilder queryBuilder = createQueryBuilder(null,
             query.getValue().valueOf(null).stringValue())

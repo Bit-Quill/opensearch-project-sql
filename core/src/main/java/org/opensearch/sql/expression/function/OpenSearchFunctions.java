@@ -58,47 +58,49 @@ public class OpenSearchFunctions {
     FunctionName functionName = BuiltinFunctionName.HIGHLIGHT.getName();
     FunctionSignature functionSignature = new FunctionSignature(functionName, List.of(STRING));
     FunctionBuilder functionBuilder = arguments -> new HighlightExpression(arguments.get(0));
-    return new FunctionResolver(functionName, ImmutableMap.of(functionSignature, functionBuilder));
+    return new DefaultFunctionResolver(functionName,
+        ImmutableMap.of(functionSignature, functionBuilder));
   }
 
   private static FunctionResolver match_bool_prefix() {
     FunctionName name = BuiltinFunctionName.MATCH_BOOL_PREFIX.getName();
-    return getRelevanceFunctionResolver(name, MATCH_BOOL_PREFIX_MAX_NUM_PARAMETERS, STRING);
+    return new RelevanceFunctionResolver(name, STRING);
   }
 
-  private static FunctionResolver match() {
+  private static DefaultFunctionResolver match() {
     FunctionName funcName = BuiltinFunctionName.MATCH.getName();
     return getRelevanceFunctionResolver(funcName, MATCH_MAX_NUM_PARAMETERS, STRING);
   }
 
-  private static FunctionResolver match_phrase_prefix() {
+  private static DefaultFunctionResolver match_phrase_prefix() {
     FunctionName funcName = BuiltinFunctionName.MATCH_PHRASE_PREFIX.getName();
     return getRelevanceFunctionResolver(funcName, MATCH_PHRASE_PREFIX_MAX_NUM_PARAMETERS, STRING);
   }
 
-  private static FunctionResolver match_phrase(BuiltinFunctionName matchPhrase) {
+  private static DefaultFunctionResolver match_phrase(BuiltinFunctionName matchPhrase) {
     FunctionName funcName = matchPhrase.getName();
     return getRelevanceFunctionResolver(funcName, MATCH_PHRASE_MAX_NUM_PARAMETERS, STRING);
   }
 
-  private static FunctionResolver multi_match() {
+  private static DefaultFunctionResolver multi_match() {
     FunctionName funcName = BuiltinFunctionName.MULTI_MATCH.getName();
     return getRelevanceFunctionResolver(funcName, MULTI_MATCH_MAX_NUM_PARAMETERS, STRUCT);
   }
 
-  private static FunctionResolver simple_query_string() {
+  private static DefaultFunctionResolver simple_query_string() {
     FunctionName funcName = BuiltinFunctionName.SIMPLE_QUERY_STRING.getName();
     return getRelevanceFunctionResolver(funcName, SIMPLE_QUERY_STRING_MAX_NUM_PARAMETERS, STRUCT);
   }
 
-  private static FunctionResolver query_string() {
+  private static DefaultFunctionResolver query_string() {
     FunctionName funcName = BuiltinFunctionName.QUERY_STRING.getName();
     return getRelevanceFunctionResolver(funcName, QUERY_STRING_MAX_NUM_PARAMETERS, STRUCT);
   }
 
-  private static FunctionResolver getRelevanceFunctionResolver(
+
+  private static DefaultFunctionResolver getRelevanceFunctionResolver(
       FunctionName funcName, int maxNumParameters, ExprCoreType firstArgType) {
-    return new FunctionResolver(funcName,
+    return new DefaultFunctionResolver(funcName,
       getRelevanceFunctionSignatureMap(funcName, maxNumParameters, firstArgType));
   }
 
@@ -115,10 +117,15 @@ public class OpenSearchFunctions {
     return signatureMapBuilder.build();
   }
 
-  private static class OpenSearchFunction extends FunctionExpression {
+  public static class OpenSearchFunction extends FunctionExpression {
     private final FunctionName functionName;
     private final List<Expression> arguments;
 
+    /**
+     * Required argument constructor.
+     * @param functionName name of the function
+     * @param arguments a list of expressions
+     */
     public OpenSearchFunction(FunctionName functionName, List<Expression> arguments) {
       super(functionName, arguments);
       this.functionName = functionName;
