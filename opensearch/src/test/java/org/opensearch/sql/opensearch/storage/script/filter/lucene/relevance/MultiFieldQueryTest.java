@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
@@ -31,8 +32,9 @@ class MultiFieldQueryTest {
   @BeforeEach
   public void setUp() {
     query = mock(MultiFieldQuery.class,
-        Mockito.withSettings().useConstructor(testQueryName, actionMap)
+        Mockito.withSettings().useConstructor(actionMap)
             .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+    when(query.getQueryName()).thenReturn(testQueryName);
   }
 
   @Test
