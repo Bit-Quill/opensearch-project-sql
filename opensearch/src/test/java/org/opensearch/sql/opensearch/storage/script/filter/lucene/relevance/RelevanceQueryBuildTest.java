@@ -30,7 +30,6 @@ import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
-import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
@@ -49,14 +48,16 @@ class RelevanceQueryBuildTest {
 
   @BeforeEach
   public void setUp() {
-    query = mock(RelevanceQuery.class, withSettings().useConstructor("mock_query",
+    query = mock(RelevanceQuery.class, withSettings().useConstructor(
             ImmutableMap.<String, RelevanceQuery.QueryBuilderStep<QueryBuilder>>builder()
                 .put("boost", (k, v) -> k.boost(Float.parseFloat(v.stringValue()))).build())
         .defaultAnswer(Mockito.CALLS_REAL_METHODS));
     queryBuilder = mock(QueryBuilder.class);
     when(query.createQueryBuilder(any(), any())).thenReturn(queryBuilder);
-    when(queryBuilder.queryName()).thenReturn("mocked_query");
-    when(queryBuilder.getWriteableName()).thenReturn("mock_query");
+    String queryName = "mock_query";
+    when(queryBuilder.queryName()).thenReturn(queryName);
+    when(queryBuilder.getWriteableName()).thenReturn(queryName);
+    when(query.getQueryName()).thenReturn(queryName);
   }
 
   @Test
@@ -66,7 +67,8 @@ class RelevanceQueryBuildTest {
 
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class, () -> query.build(expr));
-    assertEquals("Parameter wrongArg is invalid for mock_query function.", exception.getMessage());
+    assertEquals("Parameter wrongArg is invalid for mock_query function.",
+        exception.getMessage());
   }
 
   @Test
