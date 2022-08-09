@@ -388,15 +388,60 @@ Example::
     +--------------------------+
 
 
+MAKEDATE
+--------
+
+Description
+>>>>>>>>>>>
+
+Returns a date, given `year` and `day-of-year` values. `dayofyear` must be greater than 0 or the result is `NULL`. The result is also `NULL` if either argument is `NULL`.
+Arguments are rounded to an integer.
+
+Specifications:
+
+1. MAKEDATE(DOUBLE, DOUBLE) -> DATE
+
+Argument type: DOUBLE
+
+Return type: DATE
+
+Example::
+
+    os> source=people | eval f1 = MAKEDATE(1945, 5.9), f2 = MAKEDATE(1984, 1984) | fields f1, f2
+    fetched rows / total rows = 1/1
+    +------------+------------+
+    | f1         | f2         |
+    |------------+------------|
+    | 1945-01-06 | 1989-06-06 |
+    +------------+------------+
+
+
 MAKETIME
 --------
 
 Description
 >>>>>>>>>>>
 
+Returns a time value calculated from the hour, minute, and second arguments. Returns `NULL` if any of its arguments are `NULL`.
+The second argument can have a fractional part, rest arguments are rounded to an integer.
+
 Specifications:
 
-1. MAKETIME(INTEGER, INTEGER, INTEGER) -> DATE
+1. MAKETIME(DOUBLE, DOUBLE, DOUBLE) -> TIME
+
+Argument type: DOUBLE
+
+Return type: TIME
+
+Example::
+
+    os> source=people | eval f1 = MAKETIME(20, 30, 40), f2 = MAKETIME(20.2, 49.5, 42.100502) | fields f1, f2
+    fetched rows / total rows = 1/1
+    +----------+-----------------+
+    | f1       | f2              |
+    |----------+-----------------|
+    | 20:30:40 | 20:50:42.100502 |
+    +----------+-----------------+
 
 
 MICROSECOND
