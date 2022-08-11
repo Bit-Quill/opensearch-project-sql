@@ -397,6 +397,12 @@ Description
 Returns a date, given `year` and `day-of-year` values. `dayofyear` must be greater than 0 or the result is `NULL`. The result is also `NULL` if either argument is `NULL`.
 Arguments are rounded to an integer.
 
+Limitations:
+- Zero `year` interpreted as 2000;
+- Negative `year` is not accepted;
+- `day-of-year` should be greater than zero;
+- `day-of-year` could be greater than 365/366, calculation switches to the next year(s) (see example).
+
 Specifications:
 
 1. MAKEDATE(DOUBLE, DOUBLE) -> DATE
@@ -407,13 +413,13 @@ Return type: DATE
 
 Example::
 
-    os> source=people | eval f1 = MAKEDATE(1945, 5.9), f2 = MAKEDATE(1984, 1984) | fields f1, f2
+    os> source=people | eval `MAKEDATE(1945, 5.9)` = MAKEDATE(1945, 5.9), `MAKEDATE(1984, 1984)` = MAKEDATE(1984, 1984) | fields `MAKEDATE(1945, 5.9)`, `MAKEDATE(1984, 1984)`
     fetched rows / total rows = 1/1
-    +------------+------------+
-    | f1         | f2         |
-    |------------+------------|
-    | 1945-01-06 | 1989-06-06 |
-    +------------+------------+
+    +-----------------------+------------------------+
+    | MAKEDATE(1945, 5.9)   | MAKEDATE(1984, 1984)   |
+    |-----------------------+------------------------|
+    | 1945-01-06            | 1989-06-06             |
+    +-----------------------+------------------------+
 
 
 MAKETIME
@@ -425,6 +431,10 @@ Description
 Returns a time value calculated from the hour, minute, and second arguments. Returns `NULL` if any of its arguments are `NULL`.
 The second argument can have a fractional part, rest arguments are rounded to an integer.
 
+Limitations:
+- 24-hour clock is used, available time range is [00:00:00.0 - 23:59:59.(9)];
+- Up to 9 digits of second fraction part is taken (nanosecond precision).
+
 Specifications:
 
 1. MAKETIME(DOUBLE, DOUBLE, DOUBLE) -> TIME
@@ -435,13 +445,13 @@ Return type: TIME
 
 Example::
 
-    os> source=people | eval f1 = MAKETIME(20, 30, 40), f2 = MAKETIME(20.2, 49.5, 42.100502) | fields f1, f2
+    os> source=people | eval `MAKETIME(20, 30, 40)` = MAKETIME(20, 30, 40), `MAKETIME(20.2, 49.5, 42.100502)` = MAKETIME(20.2, 49.5, 42.100502) | fields `MAKETIME(20, 30, 40)`, `MAKETIME(20.2, 49.5, 42.100502)`
     fetched rows / total rows = 1/1
-    +----------+-----------------+
-    | f1       | f2              |
-    |----------+-----------------|
-    | 20:30:40 | 20:50:42.100502 |
-    +----------+-----------------+
+    +------------------------+-----------------------------------+
+    | MAKETIME(20, 30, 40)   | MAKETIME(20.2, 49.5, 42.100502)   |
+    |------------------------+-----------------------------------|
+    | 20:30:40               | 20:50:42.100502                   |
+    +------------------------+-----------------------------------+
 
 
 MICROSECOND
