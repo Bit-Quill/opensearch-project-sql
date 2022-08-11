@@ -15,10 +15,12 @@ import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 import java.time.LocalDate;
 import java.time.Year;
 import java.util.List;
-import java.util.Random;
-import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprValue;
@@ -99,20 +101,49 @@ public class MakeDateTest extends ExpressionTestBase {
     assertEquals(missingValue(), eval(makedate(missingRef, missingRef)));
   }
 
-  @Test
-  public void checkRandomValues() {
-    var r = new Random();
-    for (var ignored : IntStream.range(0, 125).toArray()) {
-      // Avoid zero values
-      var year = r.nextDouble() * 5000 + 1;
-      var dayOfYear = r.nextDouble() * 1000 + 1;
+  private static Stream<Arguments> getTestData() {
+    return Stream.of(
+        Arguments.of(3755.421154, 9.300720),
+        Arguments.of(3416.922084, 850.832172),
+        Arguments.of(498.717527, 590.831215),
+        Arguments.of(1255.402786, 846.041171),
+        Arguments.of(2491.200868, 832.929840),
+        Arguments.of(1140.775582, 345.592629),
+        Arguments.of(2087.208382, 110.392189),
+        Arguments.of(4582.515870, 763.629197),
+        Arguments.of(1654.431245, 476.360251),
+        Arguments.of(1342.494306, 70.108352),
+        Arguments.of(171.841206, 794.470738),
+        Arguments.of(5000.103926, 441.461842),
+        Arguments.of(2957.828371, 273.909052),
+        Arguments.of(2232.699033, 171.537097),
+        Arguments.of(4650.163672, 226.857148),
+        Arguments.of(495.943520, 735.062451),
+        Arguments.of(4568.187019, 552.394124),
+        Arguments.of(688.085482, 283.574200),
+        Arguments.of(4627.662672, 791.729059),
+        Arguments.of(2812.837393, 397.688304),
+        Arguments.of(3050.030341, 596.714966),
+        Arguments.of(3617.452566, 619.795467),
+        Arguments.of(2210.322073, 106.914268),
+        Arguments.of(675.757974, 147.702828),
+        Arguments.of(1101.801820, 40.055318)
+    );
+  }
 
-      LocalDate actual = makedate(year, dayOfYear);
-      LocalDate expected = getReferenceValue(year, dayOfYear);
+  /**
+   * Test function with given pseudo-random values.
+   * @param year year
+   * @param dayOfYear day of year
+   */
+  @ParameterizedTest(name = "year = {0}, dayOfYear = {1}")
+  @MethodSource("getTestData")
+  public void checkRandomValues(double year, double dayOfYear) {
+    LocalDate actual = makedate(year, dayOfYear);
+    LocalDate expected = getReferenceValue(year, dayOfYear);
 
-      assertEquals(expected, actual,
-          String.format("year = %f, dayOfYear = %f", year, dayOfYear));
-    }
+    assertEquals(expected, actual,
+        String.format("year = %f, dayOfYear = %f", year, dayOfYear));
   }
 
   /**
