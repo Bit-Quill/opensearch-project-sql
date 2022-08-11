@@ -121,9 +121,9 @@ public class MakeTimeTest extends ExpressionTestBase {
     assertEquals(maketime(20., 30., 40.), LocalTime.of(20, 30, 40));
 
     for (var ignored : IntStream.range(0, 125).toArray()) {
-      var hour = r.nextDouble() * 23;
-      var minute = r.nextDouble() * 59;
-      var second = r.nextDouble() * 59;
+      var hour = r.nextDouble() * 23.49;
+      var minute = r.nextDouble() * 59.49;
+      var second = r.nextDouble() * 59.49;
       // results could have 1 nanosec diff because of rounding FP
       var expected = LocalTime.of((int)Math.round(hour), (int)Math.round(minute),
           // pick fraction second part as nanos
