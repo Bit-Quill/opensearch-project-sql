@@ -528,6 +528,18 @@ public class DateTimeFunction {
     return new ExprIntegerValue(time.timeValue().getHour());
   }
 
+  /**
+   * Following MySQL, function receives arguments of type double and rounds them before use.
+   * Furthermore:
+   *  - zero year interpreted as 2000
+   *  - negative year is not accepted
+   *  - @dayOfYear should be greater than 1
+   *  - if @dayOfYear is greater than 365/366, calculation goes to the next year(s)
+   *
+   * @param yearExpr year
+   * @param dayOfYearExp day of the @year, starting from 1
+   * @return Date - ExprDateValue object with LocalDate
+   */
   private ExprValue exprMakeDate(ExprValue yearExpr, ExprValue dayOfYearExp) {
     var year = Math.round(yearExpr.doubleValue());
     var dayOfYear = Math.round(dayOfYearExp.doubleValue());
@@ -541,13 +553,23 @@ public class DateTimeFunction {
     return new ExprDateValue(LocalDate.ofYearDay((int)year, 1).plusDays(dayOfYear - 1));
   }
 
-  private ExprValue exprMakeTime(ExprValue hour, ExprValue minute, ExprValue second) {
-    if (0 > hour.doubleValue() || 0 > minute.doubleValue() || 0 > second.doubleValue()) {
+  /**
+   * Following MySQL, function receives arguments of type double. @hour and @minute are rounded,
+   * while @second used as is, including fraction part.
+   * @param hourExpr hour
+   * @param minuteExpr minute
+   * @param secondExpr second
+   * @return Time - ExprTimeValue object with LocalTime
+   */
+  private ExprValue exprMakeTime(ExprValue hourExpr, ExprValue minuteExpr, ExprValue secondExpr) {
+    var hour = Math.round(hourExpr.doubleValue());
+    var minute = Math.round(minuteExpr.doubleValue());
+    var second = secondExpr.doubleValue();
+    if (0 > hour || 0 > minute || 0 > second) {
       return ExprNullValue.of();
     }
     return new ExprTimeValue(LocalTime.parse(String.format("%02d:%02d:%012.9f",
-        Math.round(hour.doubleValue()), Math.round(minute.doubleValue()), second.doubleValue()),
-        DateTimeFormatter.ISO_TIME));
+        hour, minute, second), DateTimeFormatter.ISO_TIME));
   }
 
   /**
