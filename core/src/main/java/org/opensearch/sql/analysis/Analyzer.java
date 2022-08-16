@@ -10,6 +10,7 @@ import static org.opensearch.sql.ast.tree.Sort.NullOrder.NULL_FIRST;
 import static org.opensearch.sql.ast.tree.Sort.NullOrder.NULL_LAST;
 import static org.opensearch.sql.ast.tree.Sort.SortOrder.ASC;
 import static org.opensearch.sql.ast.tree.Sort.SortOrder.DESC;
+import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.utils.MLCommonsConstants.RCF_ANOMALOUS;
 import static org.opensearch.sql.utils.MLCommonsConstants.RCF_ANOMALY_GRADE;
@@ -43,6 +44,7 @@ import org.opensearch.sql.ast.tree.Dedupe;
 import org.opensearch.sql.ast.tree.Eval;
 import org.opensearch.sql.ast.tree.Filter;
 import org.opensearch.sql.ast.tree.Head;
+import org.opensearch.sql.ast.tree.Highlight;
 import org.opensearch.sql.ast.tree.Kmeans;
 import org.opensearch.sql.ast.tree.Limit;
 import org.opensearch.sql.ast.tree.Parse;
@@ -60,6 +62,7 @@ import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
+import org.opensearch.sql.expression.HighlightExpression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ParseExpression;
@@ -71,6 +74,7 @@ import org.opensearch.sql.planner.logical.LogicalAggregation;
 import org.opensearch.sql.planner.logical.LogicalDedupe;
 import org.opensearch.sql.planner.logical.LogicalEval;
 import org.opensearch.sql.planner.logical.LogicalFilter;
+import org.opensearch.sql.planner.logical.LogicalHighlight;
 import org.opensearch.sql.planner.logical.LogicalLimit;
 import org.opensearch.sql.planner.logical.LogicalMLCommons;
 import org.opensearch.sql.planner.logical.LogicalPlan;
@@ -328,6 +332,26 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     }
     return new LogicalEval(child, expressionsBuilder.build());
   }
+
+  /**
+   * Build {@link LogicalHighlight}.
+   */
+  @Override
+  public LogicalPlan visitHighlightBlah(Highlight node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+      String highlightField = "highlight";// + node.getExpression().
+      Expression expression = expressionAnalyzer.analyze(node.getExpression(), context);
+      ReferenceExpression ref = DSL.ref(highlightField, expression.type());
+      TypeEnvironment typeEnvironment = context.peek();
+      // define the new reference in type env.
+//      typeEnvironment.define(ref);
+//    var blah = "highlight(Body)";
+//    typeEnvironment.define(new Symbol(Namespace.FIELD_NAME, blah), expression.type());
+      var tmp = ((HighlightExpression) expression).getHighlightField();
+//    typeEnvironment.define(new Symbol(Namespace.FIELD_NAME, "highlight(email)"), expression.type());
+    return new LogicalHighlight(child, tmp);
+  }
+
 
   /**
    * Build {@link ParseExpression} to context and skip to child nodes.
