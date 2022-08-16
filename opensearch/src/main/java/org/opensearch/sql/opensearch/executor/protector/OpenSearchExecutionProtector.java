@@ -14,6 +14,7 @@ import org.opensearch.sql.planner.physical.AggregationOperator;
 import org.opensearch.sql.planner.physical.DedupeOperator;
 import org.opensearch.sql.planner.physical.EvalOperator;
 import org.opensearch.sql.planner.physical.FilterOperator;
+import org.opensearch.sql.planner.physical.HighlightOperator;
 import org.opensearch.sql.planner.physical.LimitOperator;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 import org.opensearch.sql.planner.physical.ProjectOperator;
@@ -147,6 +148,14 @@ public class OpenSearchExecutionProtector extends ExecutionProtector {
                     adOperator.getArguments(),
                     adOperator.getNodeClient()
                     )
+    );
+  }
+
+  @Override
+  public PhysicalPlan visitHighlight(PhysicalPlan node, Object context) {
+    HighlightOperator hlOperator = (HighlightOperator) node;
+    return doProtect(
+        new HighlightOperator(visitInput(hlOperator.getInput(), context), ((HighlightOperator) node).getHighlight())
     );
   }
 

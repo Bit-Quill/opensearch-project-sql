@@ -37,6 +37,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.opensearch.sql.ast.expression.Alias;
+import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Let;
 import org.opensearch.sql.ast.expression.Literal;
@@ -45,6 +46,7 @@ import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.tree.AD;
 import org.opensearch.sql.ast.tree.Aggregation;
 import org.opensearch.sql.ast.tree.Dedupe;
+import org.opensearch.sql.ast.tree.Highlight;
 import org.opensearch.sql.ast.tree.Eval;
 import org.opensearch.sql.ast.tree.Filter;
 import org.opensearch.sql.ast.tree.Head;
@@ -125,6 +127,21 @@ public class AstBuilder extends OpenSearchPPLParserBaseVisitor<UnresolvedPlan> {
   @Override
   public UnresolvedPlan visitWhereCommand(WhereCommandContext ctx) {
     return new Filter(internalVisitExpression(ctx.logicalExpression()));
+  }
+
+  /**
+   * Highlight command.
+   */
+  @Override
+  public UnresolvedPlan visitHighlightCommand(OpenSearchPPLParser.HighlightCommandContext ctx) {
+    ImmutableList.Builder<UnresolvedExpression> builder =
+        new ImmutableList.Builder<>();
+    var exp = internalVisitExpression(ctx.highlightFunction().getRuleContext());
+    String name = StringUtils.unquoteIdentifier(getTextInQuery(ctx));
+    builder.add(new Alias(name, exp));
+    return new Project(builder.build());
+
+//    return new Highlight(exp);
   }
 
   /**

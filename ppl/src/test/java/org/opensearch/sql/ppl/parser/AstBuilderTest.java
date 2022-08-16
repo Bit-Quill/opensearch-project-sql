@@ -8,6 +8,7 @@ package org.opensearch.sql.ppl.parser;
 
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.opensearch.sql.ast.dsl.AstDSL.agg;
 import static org.opensearch.sql.ast.dsl.AstDSL.aggregate;
 import static org.opensearch.sql.ast.dsl.AstDSL.alias;
@@ -25,6 +26,7 @@ import static org.opensearch.sql.ast.dsl.AstDSL.field;
 import static org.opensearch.sql.ast.dsl.AstDSL.filter;
 import static org.opensearch.sql.ast.dsl.AstDSL.function;
 import static org.opensearch.sql.ast.dsl.AstDSL.head;
+import static org.opensearch.sql.ast.dsl.AstDSL.highlight;
 import static org.opensearch.sql.ast.dsl.AstDSL.intLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.let;
 import static org.opensearch.sql.ast.dsl.AstDSL.map;
@@ -52,6 +54,7 @@ import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.ast.tree.AD;
+import org.opensearch.sql.ast.tree.Highlight;
 import org.opensearch.sql.ast.tree.Kmeans;
 import org.opensearch.sql.ast.tree.RareTopN.CommandType;
 import org.opensearch.sql.ppl.antlr.PPLSyntaxParser;
@@ -605,6 +608,22 @@ public class AstBuilderTest {
             field("raw"),
             stringLiteral("pattern")
         ));
+  }
+
+  @Test
+  public void testStringLiteralHighlightCommand() {
+    assertEqual("source=t | highlight('FieldA')",
+      highlight(
+        relation("t"),
+        stringLiteral("FieldA")));
+  }
+
+  @Test
+  public void testQualifiedNameHighlightCommand() {
+    assertEqual("source=t | highlight(FieldA)",
+        highlight(
+            relation("t"),
+            qualifiedName("FieldA")));
   }
 
   @Test

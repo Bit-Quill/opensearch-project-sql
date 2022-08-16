@@ -25,7 +25,7 @@ pplCommands
 
 commands
     : whereCommand | fieldsCommand | renameCommand | statsCommand | dedupCommand | sortCommand | evalCommand | headCommand
-    | topCommand | rareCommand | parseCommand | kmeansCommand | adCommand;
+    | topCommand | rareCommand | parseCommand | kmeansCommand | adCommand | highlightCommand ;
 
 searchCommand
     : (SEARCH)? fromClause                                          #searchFrom
@@ -35,6 +35,14 @@ searchCommand
 
 describeCommand
     : DESCRIBE tableSourceClause
+    ;
+
+highlightCommand
+    : highlightFunction
+    ;
+
+highlightFunction
+    : HIGHLIGHT LT_PRTHS field=relevanceField  RT_PRTHS            #highlightFunctionCall
     ;
 
 whereCommand

@@ -44,6 +44,7 @@ import org.opensearch.sql.ast.tree.Dedupe;
 import org.opensearch.sql.ast.tree.Eval;
 import org.opensearch.sql.ast.tree.Filter;
 import org.opensearch.sql.ast.tree.Head;
+import org.opensearch.sql.ast.tree.Highlight;
 import org.opensearch.sql.ast.tree.Limit;
 import org.opensearch.sql.ast.tree.Parse;
 import org.opensearch.sql.ast.tree.Project;
@@ -81,6 +82,10 @@ public class AstDSL {
 
   public static Eval eval(UnresolvedPlan input, Let... projectList) {
     return new Eval(Arrays.asList(projectList)).attach(input);
+  }
+
+  public static Highlight highlight(UnresolvedPlan input, UnresolvedExpression projectList) {
+    return new Highlight(projectList).attach(input);
   }
 
   public static UnresolvedPlan projectWithArg(
