@@ -22,6 +22,7 @@ import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHand
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -60,6 +61,7 @@ public class DateTimeFunction {
     repository.register(adddate());
     repository.register(convert_tz());
     repository.register(date());
+    repository.register(datetime());
     repository.register(date_add());
     repository.register(date_sub());
     repository.register(day());
@@ -131,6 +133,19 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, TIMESTAMP));
+  }
+
+  /**
+   * Specify a datetime with time zone field and a time zone to convert to.
+   * Returns a local date time.
+   * (STRING, STRING) -> DATETIME
+
+   */
+  private FunctionResolver datetime() {
+    return define(BuiltinFunctionName.DATETIME.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprDateTime),
+            DATETIME, STRING, STRING)
+    );
   }
 
   private FunctionResolver date_add() {
@@ -451,6 +466,7 @@ public class DateTimeFunction {
 
   /**
    * CONVERT_TZ function implementation for ExprValue.
+   * Returns null for time zones outside of +13:00 and -12:00.
    *
    * @param startingDateTime ExprValue of DateTime that is being converted from
    * @param fromTz ExprValue of time zone offset(string), representing the time to convert from.
@@ -505,6 +521,24 @@ public class DateTimeFunction {
       return new ExprDateValue(exprValue.dateValue());
     }
   }
+
+  /**
+   * DateTime implementation for ExprValue.
+   * @param dateTime ExprValue of String type.
+   * @return ExprValue of date type.
+   */
+  private ExprValue exprDateTime(ExprValue dateTime, ExprValue timeZone) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssz");
+
+    ZoneId zTz = ZoneId.of(timeZone.stringValue());
+
+    ZonedDateTime zdtWithZoneOffset = ZonedDateTime
+        .parse(dateTime.stringValue(), formatter);
+
+    return new ExprDatetimeValue(
+        zdtWithZoneOffset.withZoneSameInstant(zTz).toLocalDateTime());
+  }
+
 
   /**
    * Name of the Weekday implementation for ExprValue.
