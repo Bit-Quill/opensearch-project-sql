@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.expression.datetime;
 
+import static org.opensearch.sql.data.model.ExprValueUtils.nullValue;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
@@ -19,9 +20,9 @@ import static org.opensearch.sql.expression.function.FunctionDSL.impl;
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
-import java.time.ZoneId;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import lombok.experimental.UtilityClass;
@@ -29,6 +30,7 @@ import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
 import org.opensearch.sql.data.model.ExprLongValue;
+import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
@@ -113,7 +115,8 @@ public class DateTimeFunction {
 
   private FunctionResolver convert_tz() {
     return define(BuiltinFunctionName.CONVERT_TZ.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprConvert_TZ), DATETIME, DATETIME, STRING, STRING)
+        impl(nullMissingHandling(DateTimeFunction::exprConvertTZ),
+            DATETIME, DATETIME, STRING, STRING)
     );
   }
 
@@ -449,15 +452,44 @@ public class DateTimeFunction {
   /**
    * CONVERT_TZ function implementation for ExprValue.
    *
-   * @param dT ExprValue of DateTime that is being converted from
-   * @param from_tz ExprValue of time zone offset(string), representing the desired time to convert from.
-   * @param to_tz ExprValue of time zone offset(string), representing the desired time to convert to.
+   * @param startingDateTime ExprValue of DateTime that is being converted from
+   * @param fromTz ExprValue of time zone offset(string), representing the time to convert from.
+   * @param toTz ExprValue of time zone offset(string), representing the time to convert to.
    * @return DateTime that has been converted to the to_tz timezone.
    */
-  public ExprValue exprConvert_TZ(ExprValue dT, ExprValue from_tz, ExprValue to_tz) {
-    ZonedDateTime zDT = (dT.datetimeValue().atZone(ZoneId.of(from_tz.stringValue())));
+  private ExprValue exprConvertTZ(ExprValue startingDateTime, ExprValue fromTz, ExprValue toTz) {
+    ZoneId convertedFromTz = ZoneId.of(fromTz.stringValue());
+    ZoneId convertedToTz = ZoneId.of(toTz.stringValue());
+
+    ZoneId maxTz = ZoneId.of("+13:00");
+    ZoneId minTz = ZoneId.of("-12:00");
+    ZoneId defaultTz = ZoneId.of("+00:00");
+
+    ZonedDateTime maxTzValidator =
+        startingDateTime.datetimeValue()
+            .atZone(defaultTz).withZoneSameInstant(maxTz).withZoneSameLocal(defaultTz);
+    ZonedDateTime minTzValidator =
+        startingDateTime.datetimeValue()
+            .atZone(defaultTz).withZoneSameInstant(minTz).withZoneSameLocal(defaultTz);
+
+    ZonedDateTime toTzValidator =
+        startingDateTime.datetimeValue()
+            .atZone(defaultTz).withZoneSameInstant(convertedToTz).withZoneSameLocal(defaultTz);
+    ZonedDateTime fromTzValidator =
+        startingDateTime.datetimeValue()
+            .atZone(defaultTz).withZoneSameInstant(convertedFromTz).withZoneSameLocal(defaultTz);
+
+    if (toTzValidator.isAfter(maxTzValidator)
+        || fromTzValidator.isAfter(maxTzValidator)
+        || toTzValidator.isBefore(minTzValidator)
+        || fromTzValidator.isBefore(minTzValidator)) {
+      return new ExprStringValue("null");
+    }
+
+    ZonedDateTime zonedDateTime =
+        startingDateTime.datetimeValue().atZone(convertedFromTz);
     return new ExprDatetimeValue(
-        zDT.withZoneSameInstant(ZoneId.of(to_tz.stringValue())).toLocalDateTime());
+        zonedDateTime.withZoneSameInstant(convertedToTz).toLocalDateTime());
   }
 
   /**
