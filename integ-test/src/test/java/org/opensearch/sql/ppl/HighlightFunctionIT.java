@@ -23,12 +23,30 @@ public class HighlightFunctionIT extends PPLIntegTestCase {
   }
 
   @Test
-  public void test_match_phrase_function() throws IOException {
+  public void test_single_highlight() throws IOException {
     JSONObject result =
         executeQuery(
             String.format(
-                "source=%s | where match(Title, 'Cicerone') | highlight(Title)", TestsConstants.TEST_INDEX_BEER));
+                "SOURCE=%s | WHERE match(Title, 'Cicerone') | highlight(Title)", TestsConstants.TEST_INDEX_BEER));
     assertEquals(1, result.getInt("total"));
-    verifyDataRows(result, rows("What exactly is a Cicerone? What do they do?"));
+  }
+
+  @Test
+  public void test_quoted_highlight() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+              "SOURCE=%s | WHERE match(Title, 'Cicerone') | highlight('Title')", TestsConstants.TEST_INDEX_BEER));
+    assertEquals(1, result.getInt("total"));
+  }
+
+  @Test
+  public void test_multiple_highlights() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "SOURCE=%s | WHERE multi_match([Title, Body], 'hops') | highlight('Title') | highlight(Body)",
+                TestsConstants.TEST_INDEX_BEER));
+    assertEquals(2, result.getInt("total"));
   }
 }

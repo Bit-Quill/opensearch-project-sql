@@ -40,6 +40,6 @@ public class Highlight extends UnresolvedPlan {
 
   @Override
   public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-    return nodeVisitor.visitHighlightBlah(this, context);
+    return nodeVisitor.visitHighlight(this, context);
   }
 }
