@@ -346,9 +346,10 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
       return null;
     }
 
+    // Replace all single quotes with double quotes for parsing mapping in HighlightOperator
     TypeEnvironment env = context.peek();
     env.define(new Symbol(Namespace.FIELD_NAME,
-        StringUtils.unquoteText(((Alias) node.getExpression()).getName())), STRING);
+        (((Alias) node.getExpression()).getName()).replaceAll("\'", "\"")), STRING);
 
     HighlightFunction unresolved = (HighlightFunction) ((Alias)node.getExpression()).getDelegated();
     Expression field = expressionAnalyzer.analyze(unresolved.getHighlightField(), context);

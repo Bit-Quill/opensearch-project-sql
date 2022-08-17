@@ -84,7 +84,7 @@ public class HighlightOperator extends PhysicalPlan {
     String osHighlightKey = "_highlight." + StringUtils.unquoteText(highlight.toString());
     ReferenceExpression osOutputVar = DSL.ref(osHighlightKey, STRING);
 
-    String sqlHighlightKey = "highlight(" + StringUtils.unquoteText(highlight.toString()) + ")";
+    String sqlHighlightKey = "highlight(" + highlight.toString() + ")";
     ReferenceExpression sqlOutputVar = DSL.ref(sqlHighlightKey, STRING);
 
     // Add mapping for sql output and opensearch returned highlight fields
