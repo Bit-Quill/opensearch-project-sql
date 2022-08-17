@@ -162,7 +162,6 @@ public class OpenSearchIndex implements Table {
       if (node.hasProjects()) {
         context.getRequestBuilder().pushDownProjects(node.getProjectList());
       }
-      
       return indexScan;
     }
 
