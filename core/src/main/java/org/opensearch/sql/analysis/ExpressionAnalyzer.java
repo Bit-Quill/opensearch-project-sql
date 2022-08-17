@@ -198,12 +198,6 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   }
 
   @Override
-  public Expression visitHighlight(Highlight node, AnalysisContext context) {
-    Expression expr = node.getExpression().accept(this, context);
-    return new HighlightExpression(expr);
-  }
-
-  @Override
   public Expression visitIn(In node, AnalysisContext context) {
     return visitIn(node.getField(), node.getValueList(), context);
   }
