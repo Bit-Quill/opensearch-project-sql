@@ -42,6 +42,7 @@ import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.expression.When;
 import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.expression.Xor;
+import org.opensearch.sql.ast.tree.Highlight;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.data.type.ExprType;
@@ -193,6 +194,12 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Override
   public Expression visitHighlight(HighlightFunction node, AnalysisContext context) {
     Expression expr = node.getHighlightField().accept(this, context);
+    return new HighlightExpression(expr);
+  }
+
+  @Override
+  public Expression visitHighlightBlah(Highlight node, AnalysisContext context) {
+    Expression expr = node.getExpression().accept(this, context);
     return new HighlightExpression(expr);
   }
 

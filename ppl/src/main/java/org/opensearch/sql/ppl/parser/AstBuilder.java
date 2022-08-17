@@ -37,7 +37,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.opensearch.sql.ast.expression.Alias;
-import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Let;
 import org.opensearch.sql.ast.expression.Literal;
@@ -134,14 +133,8 @@ public class AstBuilder extends OpenSearchPPLParserBaseVisitor<UnresolvedPlan> {
    */
   @Override
   public UnresolvedPlan visitHighlightCommand(OpenSearchPPLParser.HighlightCommandContext ctx) {
-    ImmutableList.Builder<UnresolvedExpression> builder =
-        new ImmutableList.Builder<>();
-    var exp = internalVisitExpression(ctx.highlightFunction().getRuleContext());
-    String name = StringUtils.unquoteIdentifier(getTextInQuery(ctx));
-    builder.add(new Alias(name, exp));
-    return new Project(builder.build());
-
-//    return new Highlight(exp);
+    return new Highlight(new Alias(StringUtils.unquoteIdentifier(getTextInQuery(ctx)),
+        internalVisitExpression(ctx.highlightFunction().getRuleContext())));
   }
 
   /**

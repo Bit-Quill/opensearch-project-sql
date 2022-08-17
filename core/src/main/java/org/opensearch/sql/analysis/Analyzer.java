@@ -32,8 +32,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.analysis.symbol.Namespace;
 import org.opensearch.sql.analysis.symbol.Symbol;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
+import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.Argument;
 import org.opensearch.sql.ast.expression.Field;
+import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.Let;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.Map;
@@ -57,12 +59,12 @@ import org.opensearch.sql.ast.tree.Sort;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.ast.tree.Values;
+import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprMissingValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.HighlightExpression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ParseExpression;
@@ -339,17 +341,18 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   @Override
   public LogicalPlan visitHighlightBlah(Highlight node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
-      String highlightField = "highlight";// + node.getExpression().
-      Expression expression = expressionAnalyzer.analyze(node.getExpression(), context);
-      ReferenceExpression ref = DSL.ref(highlightField, expression.type());
-      TypeEnvironment typeEnvironment = context.peek();
-      // define the new reference in type env.
-//      typeEnvironment.define(ref);
-//    var blah = "highlight(Body)";
-//    typeEnvironment.define(new Symbol(Namespace.FIELD_NAME, blah), expression.type());
-      var tmp = ((HighlightExpression) expression).getHighlightField();
-//    typeEnvironment.define(new Symbol(Namespace.FIELD_NAME, "highlight(email)"), expression.type());
-    return new LogicalHighlight(child, tmp);
+
+    if (!(((Alias)node.getExpression()).getDelegated() instanceof HighlightFunction)) {
+      return null;
+    }
+
+    TypeEnvironment env = context.peek();
+    env.define(new Symbol(Namespace.FIELD_NAME,
+        StringUtils.unquoteText(((Alias) node.getExpression()).getName())), STRING);
+
+    HighlightFunction unresolved = (HighlightFunction) ((Alias)node.getExpression()).getDelegated();
+    Expression field = expressionAnalyzer.analyze(unresolved.getHighlightField(), context);
+    return new LogicalHighlight(child, field);
   }
 
 
