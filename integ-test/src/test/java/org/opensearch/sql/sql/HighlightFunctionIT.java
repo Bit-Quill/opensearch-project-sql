@@ -48,15 +48,6 @@ public class HighlightFunctionIT extends SQLIntegTestCase {
     assertEquals(1, response.getInt("total"));
   }
 
-  @Test
-  public void multiple_test() {
-    String query = "SELECT highlight(Title) FROM %s WHERE MATCH(Title, 'Cicerone')";
-    JSONObject response = executeJdbcRequest(String.format(query, TestsConstants.TEST_INDEX_BEER));
-    verifySchema(response, schema("highlight(Title)", null, "keyword"),
-        schema("highlight(Body)", null, "keyword"));
-    assertEquals(1, response.getInt("total"));
-  }
-
   // Enable me when * is supported
   @DoNotCall
   public void wildcard_highlight_test() {

@@ -38,8 +38,7 @@ public class HighlightExpression extends FunctionExpression {
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
     String refName = "_highlight" + "." + StringUtils.unquoteText(getHighlightField().toString());
-    var tmp = valueEnv.resolve(DSL.ref(refName, ExprCoreType.STRING));
-    return tmp;
+    return valueEnv.resolve(DSL.ref(refName, ExprCoreType.STRING));
   }
 
   /**
