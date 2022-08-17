@@ -41,10 +41,6 @@ highlightCommand
     : highlightFunction
     ;
 
-highlightFunction
-    : HIGHLIGHT LT_PRTHS field=relevanceField  RT_PRTHS            #highlightFunctionCall
-    ;
-
 whereCommand
     : WHERE logicalExpression
     ;
@@ -291,6 +287,10 @@ wcFieldExpression
 /** functions */
 evalFunctionCall
     : evalFunctionName LT_PRTHS functionArgs RT_PRTHS
+    ;
+
+highlightFunction
+    : HIGHLIGHT LT_PRTHS field=relevanceField  RT_PRTHS            #highlightFunctionCall
     ;
 
 /** cast function */
