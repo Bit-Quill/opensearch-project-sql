@@ -339,7 +339,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
    * Build {@link LogicalHighlight}.
    */
   @Override
-  public LogicalPlan visitHighlightBlah(Highlight node, AnalysisContext context) {
+  public LogicalPlan visitHighlight(Highlight node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
 
     if (!(((Alias)node.getExpression()).getDelegated() instanceof HighlightFunction)) {
