@@ -8,7 +8,6 @@ package org.opensearch.sql.ppl.parser;
 
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.opensearch.sql.ast.dsl.AstDSL.agg;
 import static org.opensearch.sql.ast.dsl.AstDSL.aggregate;
 import static org.opensearch.sql.ast.dsl.AstDSL.alias;
@@ -615,7 +614,7 @@ public class AstBuilderTest {
     assertEqual("source=t | highlight('FieldA')",
       highlight(
         relation("t"),
-        stringLiteral("FieldA")));
+          alias("highlight('FieldA')", highlight(stringLiteral("FieldA")))));
   }
 
   @Test
@@ -623,7 +622,7 @@ public class AstBuilderTest {
     assertEqual("source=t | highlight(FieldA)",
         highlight(
             relation("t"),
-            qualifiedName("FieldA")));
+            alias("highlight(FieldA)", highlight(qualifiedName("FieldA")))));
   }
 
   @Test
