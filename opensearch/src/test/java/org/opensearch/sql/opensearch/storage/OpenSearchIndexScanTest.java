@@ -239,22 +239,6 @@ class OpenSearchIndexScanTest {
       return this;
     }
 
-    PushDownAssertion pushDownHighlight(String query) {
-      indexScan.pushDownHighlight(query);
-      return this;
-    }
-
-    PushDownAssertion shouldQueryHighlight(QueryBuilder query, HighlightBuilder highlight) {
-      OpenSearchRequest request = new OpenSearchQueryRequest("test", 200, factory);
-      request.getSourceBuilder()
-          .query(query)
-          .highlighter(highlight)
-          .sort(DOC_FIELD_NAME, ASC);
-      when(client.search(request)).thenReturn(response);
-      indexScan.open();
-      return this;
-    }
-
     PushDownAssertion shouldQuery(QueryBuilder expected) {
       OpenSearchRequest request = new OpenSearchQueryRequest("test", 200, factory);
       request.getSourceBuilder()

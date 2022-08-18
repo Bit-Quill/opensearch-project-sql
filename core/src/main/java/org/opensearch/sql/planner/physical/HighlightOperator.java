@@ -5,6 +5,10 @@
 
 package org.opensearch.sql.planner.physical;
 
+import static org.opensearch.sql.data.type.ExprCoreType.STRING;
+import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
+import static org.opensearch.sql.expression.env.Environment.extendEnv;
+
 import com.google.common.collect.ImmutableMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,14 +24,9 @@ import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.env.Environment;
 
-import static org.opensearch.sql.data.type.ExprCoreType.STRING;
-import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
-import static org.opensearch.sql.expression.env.Environment.extendEnv;
-
 /**
- * Common method actions for ml-commons related operators.
+ * HighlightOperator class.
  */
-
 @Getter
 @EqualsAndHashCode
 public class HighlightOperator extends PhysicalPlan {

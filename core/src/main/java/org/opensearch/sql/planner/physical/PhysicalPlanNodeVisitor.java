@@ -79,6 +79,7 @@ public abstract class PhysicalPlanNodeVisitor<R, C> {
   public R visitAD(PhysicalPlan node, C context) {
     return visitNode(node, context);
   }
+
   public R visitHighlight(PhysicalPlan node, C context) {
     return visitNode(node, context);
   }

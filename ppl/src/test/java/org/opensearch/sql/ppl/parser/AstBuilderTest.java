@@ -612,17 +612,21 @@ public class AstBuilderTest {
   @Test
   public void testStringLiteralHighlightCommand() {
     assertEqual("source=t | highlight('FieldA')",
-      highlight(
-        relation("t"),
-          alias("highlight('FieldA')", highlight(stringLiteral("FieldA")))));
+        new Highlight(
+            alias("highlight('FieldA')",
+                highlight(stringLiteral("FieldA"))))
+            .attach(relation("t"))
+    );
   }
 
   @Test
   public void testQualifiedNameHighlightCommand() {
     assertEqual("source=t | highlight(FieldA)",
-        highlight(
-            relation("t"),
-            alias("highlight(FieldA)", highlight(qualifiedName("FieldA")))));
+        new Highlight(
+            alias("highlight(FieldA)",
+            highlight(qualifiedName("FieldA"))))
+                .attach(relation("t"))
+    );
   }
 
   @Test

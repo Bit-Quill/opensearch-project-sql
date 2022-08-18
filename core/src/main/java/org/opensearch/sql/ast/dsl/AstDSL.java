@@ -84,10 +84,6 @@ public class AstDSL {
     return new Eval(Arrays.asList(projectList)).attach(input);
   }
 
-  public static Highlight highlight(UnresolvedPlan input, UnresolvedExpression projectList) {
-    return new Highlight(projectList).attach(input);
-  }
-
   public static UnresolvedPlan projectWithArg(
       UnresolvedPlan input, List<Argument> argList, UnresolvedExpression... projectList) {
     return new Project(Arrays.asList(projectList), argList).attach(input);

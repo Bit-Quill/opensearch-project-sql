@@ -155,7 +155,8 @@ public class OpenSearchExecutionProtector extends ExecutionProtector {
   public PhysicalPlan visitHighlight(PhysicalPlan node, Object context) {
     HighlightOperator hlOperator = (HighlightOperator) node;
     return doProtect(
-        new HighlightOperator(visitInput(hlOperator.getInput(), context), ((HighlightOperator) node).getHighlight())
+        new HighlightOperator(visitInput(hlOperator.getInput(), context),
+            ((HighlightOperator) node).getHighlight())
     );
   }
 
