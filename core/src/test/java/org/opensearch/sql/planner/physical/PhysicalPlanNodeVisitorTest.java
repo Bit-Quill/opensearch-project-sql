@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
+import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.expression.DSL.named;
 
 import com.google.common.base.Strings;
@@ -131,6 +132,10 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
 
     PhysicalPlan limit = PhysicalPlanDSL.limit(plan, 1, 1);
     assertNull(limit.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
+    PhysicalPlan highlight = new HighlightOperator(plan, DSL.ref("reference", STRING));
+    assertNull(highlight.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
   }
 

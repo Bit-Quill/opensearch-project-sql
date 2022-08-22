@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.iterableWithSize;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.opensearch.sql.data.model.ExprValueUtils.tupleValue;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
@@ -23,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.expression.DSL;
+import org.opensearch.sql.expression.ReferenceExpression;
 
 @ExtendWith(MockitoExtension.class)
 class HighlightOperatorTest extends PhysicalPlanTestBase {
@@ -33,8 +35,12 @@ class HighlightOperatorTest extends PhysicalPlanTestBase {
   public void do_nothing_with_none_tuple_value() {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next()).thenReturn(ExprValueUtils.integerValue(1));
-    PhysicalPlan plan = new HighlightOperator(inputPlan, DSL.ref("reference", STRING));
+    ReferenceExpression highlightReferenceExp = DSL.ref("reference", STRING);
+    PhysicalPlan plan = new HighlightOperator(inputPlan, highlightReferenceExp);
     List<ExprValue> result = execute(plan);
+
+    assertTrue(((HighlightOperator)plan).getInput().equals(inputPlan));
+    assertTrue(((HighlightOperator)plan).getHighlight().equals(highlightReferenceExp));
     assertThat(result, allOf(iterableWithSize(1), hasItems(ExprValueUtils.integerValue(1))));
   }
 

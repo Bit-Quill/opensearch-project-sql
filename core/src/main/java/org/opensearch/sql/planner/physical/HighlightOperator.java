@@ -10,10 +10,8 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.expression.env.Environment.extendEnv;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -29,8 +27,6 @@ import org.opensearch.sql.expression.env.Environment;
 /**
  * HighlightOperator class.
  */
-@Getter
-@EqualsAndHashCode
 public class HighlightOperator extends PhysicalPlan {
   @Getter
   private final PhysicalPlan input;
