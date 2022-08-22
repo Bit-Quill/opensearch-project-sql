@@ -6,19 +6,9 @@
 package org.opensearch.sql.ppl;
 
 import java.io.IOException;
-
-import com.google.errorprone.annotations.DoNotCall;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.legacy.TestsConstants;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.opensearch.sql.util.MatcherUtils.columnName;
-import static org.opensearch.sql.util.MatcherUtils.rows;
-import static org.opensearch.sql.util.MatcherUtils.schema;
-import static org.opensearch.sql.util.MatcherUtils.verifyColumn;
-import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
-import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
 public class HighlightFunctionIT extends PPLIntegTestCase {
 
@@ -27,31 +17,33 @@ public class HighlightFunctionIT extends PPLIntegTestCase {
     loadIndex(Index.BEER);
   }
 
-  @DoNotCall
   @Test
   public void test_single_highlight() throws IOException {
     JSONObject result =
         executeQuery(
             String.format(
-                "SOURCE=%s | WHERE match(Body, 'Cicerone') | highlight(Body)", TestsConstants.TEST_INDEX_BEER));
+                "SOURCE=%s | WHERE match(Title, 'Cicerone') | highlight(Title)", TestsConstants.TEST_INDEX_BEER));
 
     assertEquals(1, result.getInt("total"));
-    assertEquals(
+
+    assertTrue(
         result.getJSONArray("datarows")
             .getJSONArray(0)
-            .getString(18),
-        equalTo("serving cicerone restaurants"));
+            .getJSONArray(19)
+            .getString(0)
+            .equals("What exactly is a <em>Cicerone</em>? What do they do?"));
 
-    assertEquals(
+    assertTrue(
         result.getJSONArray("schema")
             .getJSONObject(19)
-            .getString("name"),
-        equalTo("highlight(Title)"));
-    assertEquals(
+            .getString("name")
+            .equals("highlight(Title)"));
+
+    assertTrue(
         result.getJSONArray("schema")
             .getJSONObject(19)
-            .getString("type"),
-        equalTo("string"));
+            .getString("type")
+            .equals("string"));
   }
 
   @Test

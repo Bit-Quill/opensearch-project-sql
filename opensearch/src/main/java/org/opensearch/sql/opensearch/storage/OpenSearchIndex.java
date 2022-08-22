@@ -37,6 +37,7 @@ import org.opensearch.sql.planner.logical.LogicalHighlight;
 import org.opensearch.sql.planner.logical.LogicalMLCommons;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.logical.LogicalRelation;
+import org.opensearch.sql.planner.physical.HighlightOperator;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 import org.opensearch.sql.storage.Table;
 
@@ -208,7 +209,7 @@ public class OpenSearchIndex implements Table {
     @Override
     public PhysicalPlan visitHighlight(LogicalHighlight node, OpenSearchIndexScan context) {
       context.getRequestBuilder().pushDownHighlight(node.getHighlightField().toString());
-      return visitChild(node, context);
+      return new HighlightOperator(visitChild(node, context), node.getHighlightField());
     }
   }
 }
