@@ -342,10 +342,6 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   public LogicalPlan visitHighlight(Highlight node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
 
-    if (!(((Alias)node.getExpression()).getDelegated() instanceof HighlightFunction)) {
-      return null;
-    }
-
     // Replace all single quotes with double quotes for parsing mapping in HighlightOperator
     TypeEnvironment env = context.peek();
     env.define(new Symbol(Namespace.FIELD_NAME,
