@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
@@ -53,20 +55,15 @@ public class HighlightOperator extends PhysicalPlan {
   @Override
   public ExprValue next() {
     ExprValue inputValue = input.next();
-    Map<String, ExprValue> evalMap = mapHighlight(inputValue.bindingTuples());
+    Pair<String, ExprValue> evalMap = mapHighlight(inputValue.bindingTuples());
 
     if (STRUCT == inputValue.type()) {
       ImmutableMap.Builder<String, ExprValue> resultBuilder = new ImmutableMap.Builder<>();
       Map<String, ExprValue> tupleValue = ExprValueUtils.getTupleValue(inputValue);
       for (Map.Entry<String, ExprValue> valueEntry : tupleValue.entrySet()) {
-        if (evalMap.containsKey(valueEntry.getKey())) {
-          resultBuilder.put(valueEntry.getKey(), evalMap.get(valueEntry.getKey()));
-          evalMap.remove(valueEntry.getKey());
-        } else {
-          resultBuilder.put(valueEntry);
-        }
+        resultBuilder.put(valueEntry);
       }
-      resultBuilder.putAll(evalMap);
+      resultBuilder.put(evalMap);
       return ExprTupleValue.fromExprValueMap(resultBuilder.build());
     } else {
       return inputValue;
@@ -78,8 +75,7 @@ public class HighlightOperator extends PhysicalPlan {
    * @param env {@link Environment}
    * @return The mapping of reference and {@link ExprValue} for expression.
    */
-  private Map<String, ExprValue> mapHighlight(Environment<Expression, ExprValue> env) {
-    Map<String, ExprValue> highlightResultMap = new LinkedHashMap<>();
+  private Pair<String, ExprValue> mapHighlight(Environment<Expression, ExprValue> env) {
     String osHighlightKey = "_highlight." + StringUtils.unquoteText(highlight.toString());
     ReferenceExpression osOutputVar = DSL.ref(osHighlightKey, STRING);
 
@@ -89,9 +85,8 @@ public class HighlightOperator extends PhysicalPlan {
     // Add mapping for sql output and opensearch returned highlight fields
     ExprValue value = osOutputVar.valueOf(env);
     extendEnv(env, sqlOutputVar, value);
-    highlightResultMap.put(sqlOutputVar.toString(), value);
 
-    return highlightResultMap;
+    return new ImmutablePair<>(sqlOutputVar.toString(), value);
   }
 
   @Override
