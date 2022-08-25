@@ -74,7 +74,10 @@ public class HighlightOperator extends PhysicalPlan {
    * @return The mapping of reference and {@link ExprValue} for expression.
    */
   private Pair<String, ExprValue> mapHighlight(Environment<Expression, ExprValue> env) {
-    String osHighlightKey = "_highlight." + StringUtils.unquoteText(highlight.toString());
+    String osHighlightKey = "_highlight";
+    if (!highlight.toString().contains("*")) {
+      osHighlightKey += "." + StringUtils.unquoteText(highlight.toString());
+    }
     ReferenceExpression osOutputVar = DSL.ref(osHighlightKey, STRING);
 
     String sqlHighlightKey = "highlight(" + highlight.toString() + ")";
