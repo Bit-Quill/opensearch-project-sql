@@ -290,7 +290,7 @@ evalFunctionCall
     ;
 
 highlightFunction
-    : HIGHLIGHT LT_PRTHS field=relevanceField  RT_PRTHS            #highlightFunctionCall
+    : HIGHLIGHT LT_PRTHS field=relevanceField  RT_PRTHS (DOT qualifiedName)* #highlightFunctionCall
     ;
 
 /** cast function */

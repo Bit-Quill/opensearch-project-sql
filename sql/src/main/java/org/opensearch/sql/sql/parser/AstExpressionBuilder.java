@@ -134,7 +134,8 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitHighlightFunctionCall(
       OpenSearchSQLParser.HighlightFunctionCallContext ctx) {
-    return new HighlightFunction(visit(ctx.highlightFunction().relevanceField()));
+    return new HighlightFunction(visit(ctx.highlightFunction().relevanceField()),
+        visitChildren(ctx.highlightFunction().getRuleContext()));
   }
 
   @Override

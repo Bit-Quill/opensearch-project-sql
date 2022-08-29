@@ -208,7 +208,8 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitHighlightFunctionCall(
       OpenSearchPPLParser.HighlightFunctionCallContext ctx) {
-    return new HighlightFunction(visit(ctx.relevanceField()));
+      return new HighlightFunction(visit(ctx.relevanceField()),
+          visitChildren(ctx.getRuleContext()));
   }
 
   @Override

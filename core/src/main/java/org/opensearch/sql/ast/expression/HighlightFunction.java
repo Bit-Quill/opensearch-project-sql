@@ -21,6 +21,7 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 @ToString
 public class HighlightFunction extends UnresolvedExpression {
   private final UnresolvedExpression highlightField;
+  private final UnresolvedExpression nestedFields;
 
   @Override
   public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
