@@ -59,6 +59,7 @@ import org.opensearch.sql.expression.aggregation.AggregationState;
 import org.opensearch.sql.expression.aggregation.Aggregator;
 import org.opensearch.sql.expression.conditional.cases.CaseClause;
 import org.opensearch.sql.expression.conditional.cases.WhenClause;
+import org.opensearch.sql.expression.datetime.DateTimeFunction;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.FunctionName;
@@ -176,8 +177,14 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     if (context.getFunctionLikeConstantValues().containsKey(valueName)) {
         return context.getFunctionLikeConstantValues().get(valueName);
     }
-
-    var value = visitFunction(new Function(node.getFuncName(), node.getFuncArgs()), context);
+/*
+    if (node.getFuncName() == "now") {
+        DateTimeFunction.sysdate();
+        storeResult();
+        return applyFormatting();
+    }
+*/
+    var value = visitFunction(node, context);
     value = DSL.literal(value.valueOf(null));
     context.getFunctionLikeConstantValues().put(valueName, value);
     return value;

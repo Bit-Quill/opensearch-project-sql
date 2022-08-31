@@ -20,26 +20,14 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
  * [1] Constant at execution time.
  */
 @EqualsAndHashCode(callSuper = false)
-@AllArgsConstructor
-public class FunctionLikeConstant extends UnresolvedExpression {
-  @Getter
-  private String funcName;
-  @Getter
-  private List<UnresolvedExpression> funcArgs;
+public class FunctionLikeConstant extends Function {
 
-  @Override
-  public List<UnresolvedExpression> getChild() {
-    return List.of();
+  public FunctionLikeConstant(String funcName, List<UnresolvedExpression> funcArgs) {
+      super(funcName, funcArgs);
   }
 
   @Override
   public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
     return nodeVisitor.visitFunctionLikeConstant(this, context);
-  }
-
-  @Override
-  public String toString() {
-    return String.format("%s(%s)", funcName,
-        funcArgs.stream().map(UnresolvedExpression::toString).collect(Collectors.joining(", ")));
   }
 }
