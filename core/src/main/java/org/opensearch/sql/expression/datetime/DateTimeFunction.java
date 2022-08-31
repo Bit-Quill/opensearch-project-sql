@@ -111,8 +111,8 @@ public class DateTimeFunction {
 
   private FunctionResolver now(FunctionName functionName) {
     return define(functionName,
-        impl(() -> new ExprDatetimeValue(now((Integer)null)), DATETIME),
-        impl((v) -> new ExprDatetimeValue(now(v.integerValue())), DATETIME, INTEGER)
+        impl(() -> new ExprDatetimeValue(sysDate(null)), DATETIME),
+        impl((v) -> new ExprDatetimeValue(sysDate(v.integerValue())), DATETIME, INTEGER)
     );
   }
 

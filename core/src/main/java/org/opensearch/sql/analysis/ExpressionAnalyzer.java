@@ -27,6 +27,7 @@ import org.opensearch.sql.ast.expression.Compare;
 import org.opensearch.sql.ast.expression.EqualTo;
 import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Function;
+import org.opensearch.sql.ast.expression.FunctionLikeConstant;
 import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.In;
 import org.opensearch.sql.ast.expression.Interval;
@@ -167,6 +168,19 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   public Expression visitRelevanceFieldList(RelevanceFieldList node, AnalysisContext context) {
     return new LiteralExpression(ExprValueUtils.tupleValue(
         ImmutableMap.copyOf(node.getFieldList())));
+  }
+
+  @Override
+  public Expression visitFunctionLikeConstant(FunctionLikeConstant node, AnalysisContext context) {
+    var valueName = node.toString();
+    if (context.getFunctionLikeConstantValues().containsKey(valueName)) {
+        return context.getFunctionLikeConstantValues().get(valueName);
+    }
+
+    var value = visitFunction(new Function(node.getFuncName(), node.getFuncArgs()), context);
+    value = DSL.literal(value.valueOf(null));
+    context.getFunctionLikeConstantValues().put(valueName, value);
+    return value;
   }
 
   @Override

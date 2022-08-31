@@ -307,6 +307,11 @@ functionCall
     | aggregateFunction (orderByClause)? filterClause               #filteredAggregationFunctionCall
     | relevanceFunction                                             #relevanceFunctionCall
     | highlightFunction                                             #highlightFunctionCall
+    | functionLikeConstant                                          #functionLikeConstantCall
+    ;
+
+functionLikeConstant
+    : functionLikeConstantName LR_BRACKET functionArgs? RR_BRACKET
     ;
 
 highlightFunction
@@ -391,9 +396,13 @@ trigonometricFunctionName
 dateTimeFunctionName
     : ADDDATE | DATE | DATE_ADD | DATE_SUB | DAY | DAYNAME | DAYOFMONTH | DAYOFWEEK | DAYOFYEAR | FROM_DAYS
     | HOUR | MICROSECOND | MINUTE | MONTH | MONTHNAME | QUARTER | SECOND | SUBDATE | TIME | TIME_TO_SEC
-    | TIMESTAMP | TO_DAYS | YEAR | WEEK | DATE_FORMAT | NOW | CURDATE | CURRENT_DATE | CURTIME | CURRENT_TIME
+    | TIMESTAMP | TO_DAYS | YEAR | WEEK | DATE_FORMAT | CURDATE | CURRENT_DATE | CURTIME | CURRENT_TIME
     | LOCALTIME | CURRENT_TIMESTAMP | LOCALTIMESTAMP | SYSDATE | UTC_TIMESTAMP | UTC_DATE | UTC_TIME
     | MAKETIME | MAKEDATE
+    ;
+
+functionLikeConstantName
+    : NOW
     ;
 
 textFunctionName
