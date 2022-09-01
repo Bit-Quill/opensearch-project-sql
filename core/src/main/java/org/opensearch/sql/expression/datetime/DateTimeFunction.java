@@ -6,7 +6,6 @@
 
 package org.opensearch.sql.expression.datetime;
 
-import static org.opensearch.sql.data.model.ExprValueUtils.nullValue;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
@@ -28,7 +27,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
 import java.util.Locale;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import lombok.experimental.UtilityClass;
@@ -41,6 +39,7 @@ import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.LiteralExpression;
@@ -131,7 +130,9 @@ public class DateTimeFunction {
   private FunctionResolver convert_tz() {
     return define(BuiltinFunctionName.CONVERT_TZ.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprConvertTZ),
-            DATETIME, DATETIME, STRING, STRING)
+            DATETIME, DATETIME, STRING, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprConvertTZ),
+            DATETIME, STRING, STRING, STRING)
     );
   }
 
@@ -159,7 +160,7 @@ public class DateTimeFunction {
             DATETIME, STRING, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprDateTimeNoTimezone),
             DATETIME, STRING)
-        );
+    );
   }
 
   private FunctionResolver date_add() {
@@ -483,11 +484,18 @@ public class DateTimeFunction {
    * Returns null for time zones outside of +13:00 and -12:00.
    *
    * @param startingDateTime ExprValue of DateTime that is being converted from
-   * @param fromTz ExprValue of time zone offset(string), representing the time to convert from.
-   * @param toTz ExprValue of time zone offset(string), representing the time to convert to.
+   * @param fromTz           ExprValue of time zone, representing the time to convert from.
+   * @param toTz             ExprValue of time zone, representing the time to convert to.
    * @return DateTime that has been converted to the to_tz timezone.
    */
   private ExprValue exprConvertTZ(ExprValue startingDateTime, ExprValue fromTz, ExprValue toTz) {
+    if (startingDateTime.type() == ExprCoreType.STRING) {
+      try {
+        startingDateTime = exprDateTimeNoTimezone(startingDateTime);
+      } catch (Exception e) {
+        return ExprNullValue.of();
+      }
+    }
     try {
       ZoneId convertedFromTz = ZoneId.of(fromTz.stringValue());
       ZoneId convertedToTz = ZoneId.of(toTz.stringValue());
@@ -523,6 +531,7 @@ public class DateTimeFunction {
 
   /**
    * DateTime implementation for ExprValue.
+   *
    * @param dateTime ExprValue of String type.
    * @return ExprValue of date type.
    */
@@ -764,6 +773,7 @@ public class DateTimeFunction {
 
   /**
    * Week for date implementation for ExprValue.
+   *
    * @param date ExprValue of Date/Datetime/Timestamp/String type.
    * @param mode ExprValue of Integer type.
    */
@@ -775,6 +785,7 @@ public class DateTimeFunction {
   /**
    * Week for date implementation for ExprValue.
    * When mode is not specified default value mode 0 is used for default_week_format.
+   *
    * @param date ExprValue of Date/Datetime/Timestamp/String type.
    * @return ExprValue.
    */
