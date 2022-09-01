@@ -16,6 +16,7 @@ import static org.opensearch.sql.data.model.ExprValueUtils.nullValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.stringValue;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
+import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.INTERVAL;
 import static org.opensearch.sql.data.type.ExprCoreType.LONG;
@@ -24,7 +25,15 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import com.google.common.collect.ImmutableList;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Year;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.IntStream;
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +43,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprLongValue;
-import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprValue;
@@ -44,7 +52,10 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
+import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.expression.env.Environment;
+import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.expression.function.FunctionSignature;
 
 @ExtendWith(MockitoExtension.class)
 class DateTimeFunctionTest extends ExpressionTestBase {
@@ -226,63 +237,6 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void convert_tz() {
-    when(nullRef.type()).thenReturn(DATETIME);
-    when(missingRef.type()).thenReturn(DATETIME);
-    assertEquals(nullValue(), eval(dsl.date(nullRef)));
-    assertEquals(missingValue(), eval(dsl.date(missingRef)));
-
-    FunctionExpression expr = dsl.convert_tz(dsl.datetime(
-        DSL.literal("2008-05-15 22:00:00")),
-        DSL.literal("+00:00"),
-        DSL.literal("+10:00"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(new ExprDatetimeValue("2008-05-16 08:00:00"), expr.valueOf(env));
-
-    expr = dsl.convert_tz(dsl.datetime(
-        DSL.literal("2008-05-15 22:00:00")),
-        DSL.literal("+00:00"),
-        DSL.literal("+16:00"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(nullValue(), expr.valueOf(env));
-
-    expr = dsl.convert_tz(dsl.datetime(
-            DSL.literal("2008-05-15 22:00:00")),
-        DSL.literal("+00:00"),
-        DSL.literal("-16:00"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(nullValue(), expr.valueOf(env));
-
-    expr = dsl.convert_tz(dsl.datetime(
-            DSL.literal("2008-05-15 22:00:00")),
-        DSL.literal("+15:00"),
-        DSL.literal("+01:00"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(nullValue(), expr.valueOf(env));
-
-    expr = dsl.convert_tz(dsl.datetime(
-            DSL.literal("2008-05-15 22:00:00")),
-        DSL.literal("-15:00"),
-        DSL.literal("+01:00"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(nullValue(), expr.valueOf(env));
-
-    expr = dsl.convert_tz(dsl.datetime(
-            DSL.literal("2008-05-15 22:00:00")),
-        DSL.literal("-12:00"),
-        DSL.literal("+15:00"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(nullValue(), expr.valueOf(env));
-
-    expr = dsl.convert_tz(dsl.datetime(
-            DSL.literal("2008-05-15 22:00:00")),
-        DSL.literal("+00:00"),
-        DSL.literal("+14:00"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(new ExprDatetimeValue("2008-05-16 12:00:00"), expr.valueOf(env));
-  }
-
-  @Test
   public void date() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
@@ -328,12 +282,6 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(DATETIME, expr.type());
     assertEquals(new ExprDatetimeValue("2020-08-26 01:00:00"), expr.valueOf(env));
     assertEquals("date_add(\"2020-08-26\", interval(1, \"hour\"))", expr.toString());
-
-    expr = dsl
-        .date_add(DSL.literal("2020-08-26"), dsl.interval(DSL.literal(0), DSL.literal("hour")));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(new ExprDatetimeValue("2020-08-26 00:00:00"), expr.valueOf(env));
-    assertEquals("date_add(\"2020-08-26\", interval(0, \"hour\"))", expr.toString());
 
     when(nullRef.type()).thenReturn(DATE);
     assertEquals(nullValue(), eval(dsl.date_add(nullRef, DSL.literal(1L))));
@@ -423,52 +371,6 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(INTERVAL);
     assertEquals(missingValue(), eval(dsl.date_sub(nullRef, missingRef)));
-  }
-
-  @Test
-  public void date_time() {
-    when(nullRef.type()).thenReturn(DATETIME);
-    when(missingRef.type()).thenReturn(DATETIME);
-    assertEquals(nullValue(), eval(dsl.date(nullRef)));
-    assertEquals(missingValue(), eval(dsl.date(missingRef)));
-
-    FunctionExpression expr = dsl.datetime(DSL.literal("2008-05-15 22:00:00"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(new ExprDatetimeValue("2008-05-15 22:00:00"), expr.valueOf(env));
-
-    expr = dsl.datetime(DSL.literal("2008-05-15 22:00:00+01:00"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(new ExprDatetimeValue("2008-05-15 22:00:00"), expr.valueOf(env));
-
-    expr = dsl.datetime(DSL.literal("2008-05-15 22:00:00+01:00"),
-        DSL.literal("America/Los_Angeles"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(new ExprDatetimeValue("2008-05-15 14:00:00"), expr.valueOf(env));
-
-    expr = dsl.datetime(DSL.literal("2008-05-15 22:00:00"),
-        DSL.literal("America/Los_Angeles"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(new ExprDatetimeValue("2008-05-15 15:00:00"), expr.valueOf(env));
-
-    expr = dsl.datetime(DSL.literal("2008-05-15 22:00:00-11:00"),
-        DSL.literal("America/Los_Angeles"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(new ExprDatetimeValue("2008-05-16 02:00:00"), expr.valueOf(env));
-
-    expr = dsl.datetime(DSL.literal("2008-05-15 22:00:00-12:00"),
-        DSL.literal("+15:00"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(nullValue(), expr.valueOf(env));
-
-    expr = dsl.datetime(DSL.literal("2008-05-15 22:00:00-13:00"),
-        DSL.literal("+10:00"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(nullValue(), expr.valueOf(env));
-
-    expr = dsl.datetime(DSL.literal("2008-05-15 22:00:00-11:00"),
-        DSL.literal(nullValue()));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(nullValue(), expr.valueOf(env));
   }
 
   @Test
