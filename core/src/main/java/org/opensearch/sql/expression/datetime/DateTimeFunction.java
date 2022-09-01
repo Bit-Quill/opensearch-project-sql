@@ -492,7 +492,7 @@ public class DateTimeFunction {
     if (startingDateTime.type() == ExprCoreType.STRING) {
       try {
         startingDateTime = exprDateTimeNoTimezone(startingDateTime);
-      } catch (Exception e) {
+      } catch (DateTimeParseException e) {
         return ExprNullValue.of();
       }
     }
