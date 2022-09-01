@@ -177,13 +177,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     if (context.getFunctionLikeConstantValues().containsKey(valueName)) {
         return context.getFunctionLikeConstantValues().get(valueName);
     }
-/*
-    if (node.getFuncName() == "now") {
-        DateTimeFunction.sysdate();
-        storeResult();
-        return applyFormatting();
-    }
-*/
+
     var value = visitFunction(node, context);
     value = DSL.literal(value.valueOf(null));
     context.getFunctionLikeConstantValues().put(valueName, value);

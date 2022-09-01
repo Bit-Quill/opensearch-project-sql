@@ -28,10 +28,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import lombok.experimental.UtilityClass;
-import org.opensearch.sql.common.utils.QueryContext;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
@@ -104,15 +102,13 @@ public class DateTimeFunction {
 
   /**
    * NOW() returns a constant time that indicates the time at which the statement began to execute.
+   * `fsp` argument support is removed until refactoring to avoid bug where `now()`, `now(x)` and
+   * `now(y) return different values.
    */
-  private LocalDateTime now(@Nullable Integer fsp) {
-    return formatLocalDateTime(QueryContext::getProcessingStartedTime, fsp);
-  }
-
   private FunctionResolver now(FunctionName functionName) {
     return define(functionName,
-        impl(() -> new ExprDatetimeValue(sysDate(null)), DATETIME),
-        impl((v) -> new ExprDatetimeValue(sysDate(v.integerValue())), DATETIME, INTEGER)
+        impl(() -> new ExprDatetimeValue(formatNow(null)), DATETIME)
+        //impl((v) -> new ExprDatetimeValue(formatNow(v.integerValue())), DATETIME, INTEGER)
     );
   }
 
@@ -135,21 +131,17 @@ public class DateTimeFunction {
   /**
    * SYSDATE() returns the time at which it executes.
    */
-  private LocalDateTime sysDate(@Nullable Integer fsp) {
-    return formatLocalDateTime(LocalDateTime::now, fsp);
-  }
-
   private FunctionResolver sysdate() {
     return define(BuiltinFunctionName.SYSDATE.getName(),
-        impl(() -> new ExprDatetimeValue(sysDate(null)), DATETIME),
-        impl((v) -> new ExprDatetimeValue(sysDate(v.integerValue())), DATETIME, INTEGER)
+        impl(() -> new ExprDatetimeValue(formatNow(null)), DATETIME),
+        impl((v) -> new ExprDatetimeValue(formatNow(v.integerValue())), DATETIME, INTEGER)
     );
   }
 
   private FunctionResolver curtime(FunctionName functionName) {
     return define(functionName,
-        impl(() -> new ExprTimeValue(sysDate(null).toLocalTime()), TIME),
-        impl((v) -> new ExprTimeValue(sysDate(v.integerValue()).toLocalTime()), TIME, INTEGER)
+        impl(() -> new ExprTimeValue(formatNow(null).toLocalTime()), TIME),
+        impl((v) -> new ExprTimeValue(formatNow(v.integerValue()).toLocalTime()), TIME, INTEGER)
     );
   }
 
@@ -163,7 +155,7 @@ public class DateTimeFunction {
 
   private FunctionResolver curdate(FunctionName functionName) {
     return define(functionName,
-        impl(() -> new ExprDateValue(sysDate(null).toLocalDate()), DATE)
+        impl(() -> new ExprDateValue(formatNow(null).toLocalDate()), DATE)
     );
   }
 
@@ -829,15 +821,13 @@ public class DateTimeFunction {
   }
 
   /**
-   * Prepare LocalDateTime value.
-   * @param supplier A function which returns LocalDateTime to format.
+   * Prepare LocalDateTime value. Truncate fractional second part according to the argument.
    * @param fsp argument is given to specify a fractional seconds precision from 0 to 6,
    *            the return value includes a fractional seconds part of that many digits.
    * @return LocalDateTime object.
    */
-  private LocalDateTime formatLocalDateTime(Supplier<LocalDateTime> supplier,
-                                            @Nullable Integer fsp) {
-    var res = supplier.get();
+  private LocalDateTime formatNow(@Nullable Integer fsp) {
+    var res = LocalDateTime.now();
     if (fsp == null) {
       return res;
     }

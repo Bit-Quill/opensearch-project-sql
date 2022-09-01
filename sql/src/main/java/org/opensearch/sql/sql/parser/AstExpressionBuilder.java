@@ -414,14 +414,6 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
             .stream()
             .map(this::visitFunctionArg)
             .collect(Collectors.toList()));
-/*
-    return AstDSL.function(ctx.functionLikeConstantName().getText(), ctx.functionArgs() == null
-        ? new UnresolvedExpression[0]
-        : ctx.functionArgs().functionArg()
-            .stream()
-            .map(this::visitFunctionArg)
-            .toArray(UnresolvedExpression[]::new));
- */
   }
 
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {
