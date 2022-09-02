@@ -402,15 +402,19 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitDatetimeConstantLiteral(DatetimeConstantLiteralContext ctx) {
-    return visitFunction(ctx.getText(), null);
+    return visitFunctionLikeConstant(ctx.getText(), null);
   }
 
   @Override
   public UnresolvedExpression visitFunctionLikeConstant(FunctionLikeConstantContext ctx) {
-    return new FunctionLikeConstant(ctx.functionLikeConstantName().getText(),
-        ctx.functionArgs() == null
+      return visitFunctionLikeConstant(ctx.functionLikeConstantName().getText(), ctx.functionArgs());
+  }
+
+  private UnresolvedExpression visitFunctionLikeConstant(String functionName, FunctionArgsContext args) {
+    return new FunctionLikeConstant(functionName,
+        args == null
         ? Collections.emptyList()
-        : ctx.functionArgs().functionArg()
+        : args.functionArg()
             .stream()
             .map(this::visitFunctionArg)
             .collect(Collectors.toList()));

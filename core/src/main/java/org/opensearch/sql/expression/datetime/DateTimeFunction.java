@@ -138,10 +138,13 @@ public class DateTimeFunction {
     );
   }
 
+  /**
+   * Synonym for @see `now`
+   */
   private FunctionResolver curtime(FunctionName functionName) {
     return define(functionName,
-        impl(() -> new ExprTimeValue(formatNow(null).toLocalTime()), TIME),
-        impl((v) -> new ExprTimeValue(formatNow(v.integerValue()).toLocalTime()), TIME, INTEGER)
+        impl(() -> new ExprTimeValue(formatNow(null).toLocalTime()), TIME)
+        //impl((v) -> new ExprTimeValue(formatNow(v.integerValue()).toLocalTime()), TIME, INTEGER)
     );
   }
 

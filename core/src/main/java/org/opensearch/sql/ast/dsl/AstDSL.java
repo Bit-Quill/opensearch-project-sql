@@ -22,6 +22,7 @@ import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.EqualTo;
 import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Function;
+import org.opensearch.sql.ast.expression.FunctionLikeConstant;
 import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.In;
 import org.opensearch.sql.ast.expression.Interval;
@@ -227,6 +228,10 @@ public class AstDSL {
 
   public static Function function(String funcName, UnresolvedExpression... funcArgs) {
     return new Function(funcName, Arrays.asList(funcArgs));
+  }
+
+  public static Function functionLikeConstant(String funcName, UnresolvedExpression... funcArgs) {
+    return new FunctionLikeConstant(funcName, Arrays.asList(funcArgs));
   }
 
   /**

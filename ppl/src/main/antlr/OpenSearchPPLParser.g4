@@ -221,6 +221,7 @@ primaryExpression
     | dataTypeFunctionCall
     | fieldExpression
     | literalValue
+    | functionLikeConstant
     ;
 
 booleanExpression
@@ -283,6 +284,10 @@ wcFieldExpression
 /** functions */
 evalFunctionCall
     : evalFunctionName LT_PRTHS functionArgs RT_PRTHS
+    ;
+
+functionLikeConstant
+    : functionLikeConstantName LT_PRTHS functionArgs? RT_PRTHS
     ;
 
 /** cast function */
@@ -375,9 +380,12 @@ trigonometricFunctionName
 dateAndTimeFunctionBase
     : ADDDATE | DATE | DATE_ADD | DATE_SUB | DAY | DAYNAME | DAYOFMONTH | DAYOFWEEK | DAYOFYEAR | FROM_DAYS
     | HOUR | MICROSECOND | MINUTE | MONTH | MONTHNAME | QUARTER | SECOND | SUBDATE | TIME | TIME_TO_SEC
-    | TIMESTAMP | TO_DAYS | YEAR | WEEK | DATE_FORMAT | NOW | CURDATE | CURRENT_DATE | CURTIME | CURRENT_TIME
-    | LOCALTIME | CURRENT_TIMESTAMP | LOCALTIMESTAMP | SYSDATE | UTC_TIMESTAMP | UTC_DATE | UTC_TIME
-    | MAKETIME | MAKEDATE
+    | TIMESTAMP | TO_DAYS | YEAR | WEEK | DATE_FORMAT | SYSDATE | MAKETIME | MAKEDATE
+    ;
+
+functionLikeConstantName
+    : datetimeConstantLiteral
+    | NOW | CURDATE | CURTIME
     ;
 
 /** condition function return boolean value */

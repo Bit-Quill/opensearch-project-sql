@@ -18,6 +18,7 @@ import static org.opensearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.field;
 import static org.opensearch.sql.ast.dsl.AstDSL.filter;
 import static org.opensearch.sql.ast.dsl.AstDSL.function;
+import static org.opensearch.sql.ast.dsl.AstDSL.functionLikeConstant;
 import static org.opensearch.sql.ast.dsl.AstDSL.highlight;
 import static org.opensearch.sql.ast.dsl.AstDSL.intLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.limit;
@@ -676,26 +677,27 @@ class AstBuilderTest {
 
   private static Stream<Arguments> nowLikeFunctionsData() {
     return Stream.of(
-        Arguments.of("now", true, false),
-        Arguments.of("current_timestamp", true, true),
-        Arguments.of("localtimestamp", true, true),
-        Arguments.of("localtime", true, true),
-        Arguments.of("sysdate", true, false),
-        Arguments.of("curtime", true, false),
-        Arguments.of("current_time", true, true),
-        Arguments.of("curdate", false, false),
-        Arguments.of("current_date", false, true)
+        Arguments.of("now", false, false, true),
+        Arguments.of("current_timestamp", false, true, true),
+        Arguments.of("localtimestamp", false, true, true),
+        Arguments.of("localtime", false, true, true),
+        Arguments.of("sysdate", true, false, false),
+        Arguments.of("curtime", false, false, true),
+        Arguments.of("current_time", false, true, true),
+        Arguments.of("curdate", false, false, true),
+        Arguments.of("current_date", false, true, true)
     );
   }
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("nowLikeFunctionsData")
-  public void test_now_like_functions(String name, Boolean hasFsp, Boolean hasShortcut) {
+  public void test_now_like_functions(String name, Boolean hasFsp, Boolean hasShortcut,
+                                      Boolean isFunctionLikeConst) {
     for (var call : hasShortcut ? List.of(name, name + "()") : List.of(name + "()")) {
       assertEquals(
           project(
               values(emptyList()),
-              alias(call, function(name))
+              alias(call, (isFunctionLikeConst ? functionLikeConstant(name) : function(name)))
           ),
           buildAST("SELECT " + call)
       );
@@ -707,7 +709,7 @@ class AstBuilderTest {
                   function(
                       "=",
                       qualifiedName("data"),
-                      function(name))
+                      (isFunctionLikeConst ? functionLikeConstant(name) : function(name)))
               ),
               AllFields.of()
           ),
@@ -715,6 +717,7 @@ class AstBuilderTest {
       );
     }
 
+    // Unfortunately, only real functions (not functionLikeConstants) might have `fsp` now.
     if (hasFsp) {
       assertEquals(
           project(
