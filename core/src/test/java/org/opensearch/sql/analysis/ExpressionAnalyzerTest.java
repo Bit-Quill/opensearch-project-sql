@@ -8,7 +8,9 @@ package org.opensearch.sql.analysis;
 
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.sql.ast.dsl.AstDSL.field;
 import static org.opensearch.sql.ast.dsl.AstDSL.function;
 import static org.opensearch.sql.ast.dsl.AstDSL.intLiteral;
@@ -26,6 +28,7 @@ import static org.opensearch.sql.expression.DSL.ref;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -47,11 +50,13 @@ import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.HighlightExpression;
+import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.expression.window.aggregation.AggregateWindowFunction;
 import org.springframework.context.annotation.Configuration;
@@ -543,47 +548,45 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
     );
   }
 
-  private static Stream<Arguments> functionNames() {
-    var dsl = new DSL(new ExpressionConfig().functionRepository());
-    return Stream.of(
-        Arguments.of((Function<Expression[], FunctionExpression>)dsl::now,
-            "now", false),
-        Arguments.of((Function<Expression[], FunctionExpression>)dsl::current_timestamp,
-            "current_timestamp", false),
-        Arguments.of((Function<Expression[], FunctionExpression>)dsl::localtimestamp,
-            "localtimestamp", false),
-        Arguments.of((Function<Expression[], FunctionExpression>)dsl::localtime,
-            "localtime", false),
-        Arguments.of((Function<Expression[], FunctionExpression>)dsl::sysdate,
-            "sysdate", true),
-        Arguments.of((Function<Expression[], FunctionExpression>)dsl::curtime,
-            "curtime", false),
-        Arguments.of((Function<Expression[], FunctionExpression>)dsl::current_time,
-            "current_time", false),
-        Arguments.of((Function<Expression[], FunctionExpression>)dsl::curdate,
-            "curdate", false),
-        Arguments.of((Function<Expression[], FunctionExpression>)dsl::current_date,
-            "current_date", false));
+  @Test
+  public void functionLikeConstant_calculated_on_analyze() {
+    // Actually, we can call any function as functionLikeConstant to be calculated on analyze stage
+    assertTrue(analyze(AstDSL.functionLikeConstant("now")) instanceof LiteralExpression);
+    assertTrue(analyze(AstDSL.functionLikeConstant("localtime")) instanceof LiteralExpression);
   }
 
-  @ParameterizedTest(name = "{1}")
-  @MethodSource("functionNames")
-  public void now_like_functions(Function<Expression[], FunctionExpression> function,
-                                 String name,
-                                 Boolean hasFsp) {
-    assertAnalyzeEqual(
-        function.apply(new Expression[]{}),
-        AstDSL.function(name));
+  @Test
+  public void function_isnt_calculated_on_analyze() {
+    assertTrue(analyze(function("now")) instanceof FunctionExpression);
+    assertTrue(analyze(AstDSL.function("localtime")) instanceof FunctionExpression);
+  }
 
-    if (hasFsp) {
-      assertAnalyzeEqual(
-          function.apply(new Expression[]{DSL.ref("integer_value", INTEGER)}),
-          AstDSL.function(name, field("integer_value")));
+  @Test
+  public void functionLikeConstant_returns_constant_cached_value() {
+    var values = List.of(analyze(AstDSL.functionLikeConstant("now")),
+        analyze(AstDSL.functionLikeConstant("now")), analyze(AstDSL.functionLikeConstant("now")));
+    assertTrue(values.stream().allMatch(v ->
+        v.valueOf(null) == analyze(AstDSL.functionLikeConstant("now")).valueOf(null)));
+  }
 
-      assertAnalyzeEqual(
-          function.apply(new Expression[]{DSL.literal(3)}),
-          AstDSL.function(name, intLiteral(3)));
-    }
+  @Test
+  public void function_returns_non_constant_value() {
+    // Even a function returns the same values - they are calculated on each call
+    // `sysdate()` which returns `LocalDateTime.now()` shouldn't be cached and should return always
+    // different values
+    var values = List.of(analyze(function("sysdate")), analyze(function("sysdate")),
+        analyze(function("sysdate")), analyze(function("sysdate")));
+    var referenceValue = analyze(function("sysdate")).valueOf(null);
+    assertTrue(values.stream().noneMatch(v -> v.valueOf(null) == referenceValue));
+  }
+
+  @Test
+  public void now_as_a_function_not_cached() {
+    // // We can call `now()` as a function, in that case nothing should be cached
+    var values = List.of(analyze(function("now")), analyze(function("now")),
+        analyze(function("now")), analyze(function("now")));
+    var referenceValue = analyze(function("now")).valueOf(null);
+    assertTrue(values.stream().noneMatch(v -> v.valueOf(null) == referenceValue));
   }
 
   @Test

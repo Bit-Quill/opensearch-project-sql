@@ -7,13 +7,8 @@
 package org.opensearch.sql.ast.expression;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
-
 
 /**
  * Expression node that holds a function which should be replaced by its constant[1] value.
@@ -23,7 +18,7 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 public class FunctionLikeConstant extends Function {
 
   public FunctionLikeConstant(String funcName, List<UnresolvedExpression> funcArgs) {
-      super(funcName, funcArgs);
+    super(funcName, funcArgs);
   }
 
   @Override

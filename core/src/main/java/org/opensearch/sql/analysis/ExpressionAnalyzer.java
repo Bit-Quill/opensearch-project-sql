@@ -175,7 +175,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   public Expression visitFunctionLikeConstant(FunctionLikeConstant node, AnalysisContext context) {
     var valueName = node.toString();
     if (context.getFunctionLikeConstantValues().containsKey(valueName)) {
-        return context.getFunctionLikeConstantValues().get(valueName);
+      return context.getFunctionLikeConstantValues().get(valueName);
     }
 
     var value = visitFunction(node, context);

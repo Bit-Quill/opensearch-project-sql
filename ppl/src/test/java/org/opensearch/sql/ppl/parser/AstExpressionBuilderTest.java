@@ -179,15 +179,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
             )
         ));
   }
-/*
-  @Test
-  public void canBuildFunctionWithoutArguments() {
-    assertEquals(
-        function("PI"),
-        buildExprAst("PI()")
-    );
-  }
-*/
+
   @Test
   public void testEvalBinaryOperationExpr() {
     assertEqual("source=t | eval f=a+b",

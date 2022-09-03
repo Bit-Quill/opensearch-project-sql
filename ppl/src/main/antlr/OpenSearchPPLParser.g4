@@ -224,6 +224,10 @@ primaryExpression
     | functionLikeConstant
     ;
 
+functionLikeConstant
+    : functionLikeConstantName LT_PRTHS functionArgs? RT_PRTHS
+    ;
+
 booleanExpression
     : booleanFunctionCall
     ;
@@ -284,10 +288,6 @@ wcFieldExpression
 /** functions */
 evalFunctionCall
     : evalFunctionName LT_PRTHS functionArgs RT_PRTHS
-    ;
-
-functionLikeConstant
-    : functionLikeConstantName LT_PRTHS functionArgs? RT_PRTHS
     ;
 
 /** cast function */

@@ -40,6 +40,10 @@ public class AnalysisContext {
     this(new TypeEnvironment(null));
   }
 
+  /**
+   * Class CTOR.
+   * @param environment Env to set to a new instance.
+   */
   public AnalysisContext(TypeEnvironment environment) {
     this.environment = environment;
     this.namedParseExpressions = new ArrayList<>();

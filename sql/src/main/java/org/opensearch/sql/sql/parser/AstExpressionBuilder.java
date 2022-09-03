@@ -391,9 +391,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   private Function visitFunction(String functionName, FunctionArgsContext args) {
     return new Function(
         functionName,
-        args == null
-        ? Collections.emptyList()
-        : args.functionArg()
+        args.functionArg()
             .stream()
             .map(this::visitFunctionArg)
             .collect(Collectors.toList())
@@ -407,10 +405,11 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitFunctionLikeConstant(FunctionLikeConstantContext ctx) {
-      return visitFunctionLikeConstant(ctx.functionLikeConstantName().getText(), ctx.functionArgs());
+    return visitFunctionLikeConstant(ctx.functionLikeConstantName().getText(), ctx.functionArgs());
   }
 
-  private UnresolvedExpression visitFunctionLikeConstant(String functionName, FunctionArgsContext args) {
+  private UnresolvedExpression visitFunctionLikeConstant(String functionName,
+                                                         FunctionArgsContext args) {
     return new FunctionLikeConstant(functionName,
         args == null
         ? Collections.emptyList()

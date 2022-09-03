@@ -252,10 +252,11 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitFunctionLikeConstant(FunctionLikeConstantContext ctx) {
-      return visitFunctionLikeConstant(ctx.functionLikeConstantName().getText(), ctx.functionArgs());
+    return visitFunctionLikeConstant(ctx.functionLikeConstantName().getText(), ctx.functionArgs());
   }
 
-  private UnresolvedExpression visitFunctionLikeConstant(String functionName, FunctionArgsContext args) {
+  private UnresolvedExpression visitFunctionLikeConstant(String functionName,
+                                                         FunctionArgsContext args) {
     return new FunctionLikeConstant(functionName,
         args == null
         ? Collections.emptyList()

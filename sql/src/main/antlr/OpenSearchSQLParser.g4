@@ -430,7 +430,7 @@ legacyRelevanceFunctionName
     ;
 
 functionArgs
-    : functionArg (COMMA functionArg)*
+    : (functionArg (COMMA functionArg)*)?
     ;
 
 functionArg

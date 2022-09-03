@@ -108,7 +108,7 @@ public class DateTimeFunction {
   private FunctionResolver now(FunctionName functionName) {
     return define(functionName,
         impl(() -> new ExprDatetimeValue(formatNow(null)), DATETIME)
-        //impl((v) -> new ExprDatetimeValue(formatNow(v.integerValue())), DATETIME, INTEGER)
+    //impl((v) -> new ExprDatetimeValue(formatNow(v.integerValue())), DATETIME, INTEGER)
     );
   }
 
@@ -139,12 +139,12 @@ public class DateTimeFunction {
   }
 
   /**
-   * Synonym for @see `now`
+   * Synonym for @see `now`.
    */
   private FunctionResolver curtime(FunctionName functionName) {
     return define(functionName,
         impl(() -> new ExprTimeValue(formatNow(null).toLocalTime()), TIME)
-        //impl((v) -> new ExprTimeValue(formatNow(v.integerValue()).toLocalTime()), TIME, INTEGER)
+    //impl((v) -> new ExprTimeValue(formatNow(v.integerValue()).toLocalTime()), TIME, INTEGER)
     );
   }
 
