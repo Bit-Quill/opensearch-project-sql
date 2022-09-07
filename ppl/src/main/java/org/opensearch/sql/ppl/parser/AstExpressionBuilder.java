@@ -62,6 +62,7 @@ import org.opensearch.sql.ast.expression.Compare;
 import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Function;
+import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.In;
 import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.IntervalUnit;
@@ -202,6 +203,12 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitDistinctCountFunctionCall(DistinctCountFunctionCallContext ctx) {
     return new AggregateFunction("count", visit(ctx.valueExpression()), true);
+  }
+
+  @Override
+  public UnresolvedExpression visitHighlightFunctionCall(
+      OpenSearchPPLParser.HighlightFunctionCallContext ctx) {
+    return new HighlightFunction(AstDSL.stringLiteral(ctx.relevanceField().getText()));
   }
 
   @Override
