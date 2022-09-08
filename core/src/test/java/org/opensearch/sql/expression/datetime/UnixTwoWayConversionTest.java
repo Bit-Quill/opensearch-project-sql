@@ -6,14 +6,14 @@
 
 package org.opensearch.sql.expression.datetime;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -31,8 +31,6 @@ import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.expression.env.Environment;
 import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.function.FunctionSignature;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UnixTwoWayConversionTest {
 
@@ -93,7 +91,8 @@ public class UnixTwoWayConversionTest {
   @Test
   public void checkConvertNow() {
     assertEquals(LocalDateTime.now(ZoneId.of("UTC")).withNano(0), fromUnixTime(unixTimeStamp()));
-    assertEquals(LocalDateTime.now(ZoneId.of("UTC")).withNano(0), eval(fromUnixTime(unixTimeStampExpr())).datetimeValue());
+    assertEquals(LocalDateTime.now(ZoneId.of("UTC")).withNano(0),
+        eval(fromUnixTime(unixTimeStampExpr())).datetimeValue());
   }
 
   private static Stream<Arguments> getDoubleSamples() {
@@ -106,14 +105,21 @@ public class UnixTwoWayConversionTest {
     );
   }
 
+  /**
+   * Test converting valid Double values EpochTime -> DateTime -> EpochTime.
+   * @param value a value
+   */
   @ParameterizedTest
   @MethodSource("getDoubleSamples")
   public void convertEpoch2DateTime2Epoch(Double value) {
     assertEquals(value, unixTimeStampOf(fromUnixTime(value)));
-    assertEquals(value, eval(unixTimeStampOf(fromUnixTime(DSL.literal(new ExprDoubleValue(value))))).doubleValue());
+    assertEquals(value,
+        eval(unixTimeStampOf(fromUnixTime(DSL.literal(new ExprDoubleValue(value))))).doubleValue());
 
     assertEquals(Math.round(value) + 0d, unixTimeStampOf(fromUnixTime(Math.round(value))));
-    assertEquals(Math.round(value) + 0d, eval(unixTimeStampOf(fromUnixTime(DSL.literal(new ExprLongValue(Math.round(value)))))).doubleValue());
+    assertEquals(Math.round(value) + 0d,
+        eval(unixTimeStampOf(fromUnixTime(DSL.literal(new ExprLongValue(Math.round(value))))))
+            .doubleValue());
   }
 
   private static Stream<Arguments> getDateTimeSamples() {
@@ -127,10 +133,16 @@ public class UnixTwoWayConversionTest {
     );
   }
 
+  /**
+   * Test converting valid values DateTime -> EpochTime -> DateTime.
+   * @param value a value
+   */
   @ParameterizedTest
   @MethodSource("getDateTimeSamples")
   public void convertDateTime2Epoch2DateTime(LocalDateTime value) {
     assertEquals(value, fromUnixTime(unixTimeStampOf(value)));
-    assertEquals(value, eval(fromUnixTime(unixTimeStampOf(DSL.literal(new ExprDatetimeValue(value))))).datetimeValue());
+    assertEquals(value,
+        eval(fromUnixTime(unixTimeStampOf(DSL.literal(new ExprDatetimeValue(value)))))
+            .datetimeValue());
   }
 }

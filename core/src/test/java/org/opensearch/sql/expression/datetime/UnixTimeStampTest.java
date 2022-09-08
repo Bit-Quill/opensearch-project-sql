@@ -8,14 +8,12 @@ package org.opensearch.sql.expression.datetime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.time.format.DateTimeFormatter;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoField;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoField;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -95,11 +93,16 @@ public class UnixTimeStampTest extends ExpressionTestBase {
     );
   }
 
+  /**
+   * Check processing valid values of type LocalDate.
+   * @param value a value
+   */
   @ParameterizedTest
   @MethodSource("getDateSamples")
-  public void checkOfDate(LocalDate date) {
-    assertEquals(date.getLong(ChronoField.EPOCH_DAY) * 24 * 3600, unixTimeStampOf(date));
-    assertEquals(date.getLong(ChronoField.EPOCH_DAY) * 24 * 3600, eval(unixTimeStampOf(DSL.literal(new ExprDateValue(date)))).longValue());
+  public void checkOfDate(LocalDate value) {
+    assertEquals(value.getLong(ChronoField.EPOCH_DAY) * 24 * 3600, unixTimeStampOf(value));
+    assertEquals(value.getLong(ChronoField.EPOCH_DAY) * 24 * 3600,
+        eval(unixTimeStampOf(DSL.literal(new ExprDateValue(value)))).longValue());
   }
 
   private static Stream<Arguments> getDateTimeSamples() {
@@ -113,56 +116,63 @@ public class UnixTimeStampTest extends ExpressionTestBase {
     );
   }
 
+  /**
+   * Check processing valid values of type LocalDateTime.
+   * @param value a value
+   */
   @ParameterizedTest
   @MethodSource("getDateTimeSamples")
-  public void checkOfDateTime(LocalDateTime dateTime) {
-    assertEquals(dateTime.toEpochSecond(ZoneOffset.UTC), unixTimeStampOf(dateTime));
-    assertEquals(dateTime.toEpochSecond(ZoneOffset.UTC), eval(unixTimeStampOf(DSL.literal(new ExprDatetimeValue(dateTime)))).longValue());
+  public void checkOfDateTime(LocalDateTime value) {
+    assertEquals(value.toEpochSecond(ZoneOffset.UTC), unixTimeStampOf(value));
+    assertEquals(value.toEpochSecond(ZoneOffset.UTC),
+        eval(unixTimeStampOf(DSL.literal(new ExprDatetimeValue(value)))).longValue());
   }
 
   private static Stream<Arguments> getInstantSamples() {
-    return getDateTimeSamples().map(v -> Arguments.of(((LocalDateTime)v.get()[0]).toInstant(ZoneOffset.UTC)));
+    return getDateTimeSamples()
+        .map(v -> Arguments.of(((LocalDateTime)v.get()[0]).toInstant(ZoneOffset.UTC)));
   }
 
+  /**
+   * Check processing valid values of type Instant.
+   * @param value a value
+   */
   @ParameterizedTest
   @MethodSource("getInstantSamples")
-  public void checkOfDateTime(Instant instant) {
-    assertEquals(instant.getEpochSecond(), unixTimeStampOf(instant));
-    assertEquals(instant.getEpochSecond(), eval(unixTimeStampOf(DSL.literal(new ExprTimestampValue(instant)))).longValue());
+  public void checkOfInstant(Instant value) {
+    assertEquals(value.getEpochSecond(), unixTimeStampOf(value));
+    assertEquals(value.getEpochSecond(),
+        eval(unixTimeStampOf(DSL.literal(new ExprTimestampValue(value)))).longValue());
   }
 
   // formats: YYMMDD, YYMMDDhhmmss[.uuuuuu], YYYYMMDD, or YYYYMMDDhhmmss[.uuuuuu]
   // use BigDecimal, because double can't fit such big values
   private static Stream<Arguments> getDoubleSamples() {
     return Stream.of(
-        Arguments.of(new BigDecimal("840101.")),
-        Arguments.of(new BigDecimal("840101112233.")),
-        Arguments.of(new BigDecimal("840101112233.123456")),
-        Arguments.of(new BigDecimal("19840101.")),
-        Arguments.of(new BigDecimal("19840101000000.")),
-        Arguments.of(new BigDecimal("19840101112233.")),
-        Arguments.of(new BigDecimal("19840101112233.123456"))
+        Arguments.of(840101d, LocalDateTime.of(1984, 1, 1, 0, 0, 0)),
+        Arguments.of(840101112233d, LocalDateTime.of(1984, 1, 1, 11,22,33)),
+        Arguments.of(840101112233.123456, LocalDateTime.of(1984, 1, 1, 11, 22, 33, 123456000)),
+        Arguments.of(19840101d, LocalDateTime.of(1984, 1, 1, 0, 0, 0)),
+        Arguments.of(19840101000000d, LocalDateTime.of(1984, 1, 1, 0, 0, 0)),
+        Arguments.of(19840101112233d, LocalDateTime.of(1984, 1, 1, 11,22,33)),
+        Arguments.of(19840101112233.123456, LocalDateTime.of(1984, 1, 1, 11, 22, 33, 123456000))
     );
   }
 
+  /**
+   * Check processing valid Double values.
+   * @param valueAsDouble a value
+   * @param valueAsLDT the value as LocalDateTime
+   */
   @ParameterizedTest
   @MethodSource("getDoubleSamples")
-  public void checkOfDoubleFormats(BigDecimal value) {
-    LocalDateTime valueDt = LocalDateTime.MIN;
-    var format = new DecimalFormat("0.#");
-    format.setMinimumFractionDigits(0);
-    format.setMaximumFractionDigits(6);
-    var valueStr = format.format(value);
-    switch (valueStr.length()) {
-      case 6: valueStr = "19" + valueStr;
-      case 8: valueStr += "000000";
-      case 14: valueDt = LocalDateTime.parse(valueStr, DateTimeFormatter.ofPattern("yyyyMMddHHmmss")); break;
-      case 12:
-      case 19: valueStr = "19" + valueStr;
-      case 21: valueDt = LocalDateTime.parse(valueStr, DateTimeFormatter.ofPattern("yyyyMMddHHmmss[.SSSSSS]")); break;
-    }
-    assertEquals(valueDt.toEpochSecond(ZoneOffset.UTC), unixTimeStampOf(value.doubleValue()), 1d, format.format(value));
-    assertEquals(valueDt.toEpochSecond(ZoneOffset.UTC), eval(unixTimeStampOf(DSL.literal(new ExprDoubleValue(value.doubleValue())))).longValue(), 1d, format.format(value));
+  public void checkOfDoubleFormats(Double valueAsDouble, LocalDateTime valueAsLDT) {
+    var valueAsStr = new DecimalFormat("0.#").format(valueAsDouble);
+    assertEquals(valueAsLDT.toEpochSecond(ZoneOffset.UTC),
+        unixTimeStampOf(valueAsDouble), 1d, valueAsStr);
+    assertEquals(valueAsLDT.toEpochSecond(ZoneOffset.UTC),
+        eval(unixTimeStampOf(DSL.literal(new ExprDoubleValue(valueAsDouble)))).longValue(),
+        1d, valueAsStr);
   }
 
   @Test
@@ -257,9 +267,15 @@ public class UnixTimeStampTest extends ExpressionTestBase {
     );
   }
 
+  /**
+   * Check processing invalid Double values.
+   * @param value a value
+   */
   @ParameterizedTest
   @MethodSource("getInvalidDoubleSamples")
   public void checkInvalidDoubleCausesNull(Double value) {
-    assertEquals(ExprNullValue.of(), unixTimeStampOf(DSL.literal(new ExprDoubleValue(value))).valueOf(null), new DecimalFormat("0.#").format(value));
+    assertEquals(ExprNullValue.of(),
+        unixTimeStampOf(DSL.literal(new ExprDoubleValue(value))).valueOf(null),
+        new DecimalFormat("0.#").format(value));
   }
 }

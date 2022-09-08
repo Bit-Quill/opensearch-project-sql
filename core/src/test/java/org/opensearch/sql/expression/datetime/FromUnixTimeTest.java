@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -80,11 +79,17 @@ public class FromUnixTimeTest {
     );
   }
 
+  /**
+   * Test processing different Long values.
+   * @param value a value
+   */
   @ParameterizedTest
   @MethodSource("getLongSamples")
   public void checkOfLong(Long value) {
-    assertEquals(LocalDateTime.of(1970, 1, 1, 0, 0, 0).atZone(ZoneId.of("UTC")).plus(value, ChronoUnit.SECONDS).toLocalDateTime(), fromUnixTime(value));
-    assertEquals(LocalDateTime.of(1970, 1, 1, 0, 0, 0).plus(value, ChronoUnit.SECONDS), eval(fromUnixTime(DSL.literal(new ExprLongValue(value)))).datetimeValue());
+    assertEquals(LocalDateTime.of(1970, 1, 1, 0, 0, 0).plus(value, ChronoUnit.SECONDS),
+        fromUnixTime(value));
+    assertEquals(LocalDateTime.of(1970, 1, 1, 0, 0, 0).plus(value, ChronoUnit.SECONDS),
+        eval(fromUnixTime(DSL.literal(new ExprLongValue(value)))).datetimeValue());
   }
 
   private static Stream<Arguments> getDoubleSamples() {
@@ -97,15 +102,28 @@ public class FromUnixTimeTest {
     );
   }
 
+  /**
+   * Test processing different Double values.
+   * @param value a value
+   */
   @ParameterizedTest
   @MethodSource("getDoubleSamples")
   public void checkOfDouble(Double value) {
     var intPart = Math.round(Math.floor(value));
     var fracPart = value - intPart;
+    var valueAsString = new DecimalFormat("0.#").format(value);
 
-    assertEquals(LocalDateTime.ofEpochSecond(intPart, (int)Math.round(fracPart * 1E9), ZoneOffset.UTC), fromUnixTime(value), new DecimalFormat("0.#").format(value));
-    assertEquals(LocalDateTime.ofEpochSecond(intPart, (int)Math.round(fracPart * 1E9), ZoneOffset.UTC), eval(fromUnixTime(DSL.literal(new ExprDoubleValue(value)))).datetimeValue(), new DecimalFormat("0.#").format(value));
+    assertEquals(
+        LocalDateTime.ofEpochSecond(intPart, (int)Math.round(fracPart * 1E9), ZoneOffset.UTC),
+        fromUnixTime(value),
+        valueAsString);
+    assertEquals(
+        LocalDateTime.ofEpochSecond(intPart, (int)Math.round(fracPart * 1E9), ZoneOffset.UTC),
+        eval(fromUnixTime(DSL.literal(new ExprDoubleValue(value)))).datetimeValue(),
+        valueAsString);
   }
+
+  // We are testing all different formats and combinations, because they are already tested
 
   private static Stream<Arguments> getLongSamplesWithFormat() {
     return Stream.of(
@@ -117,11 +135,18 @@ public class FromUnixTimeTest {
     );
   }
 
+  /**
+   * Test processing different Long values with format.
+   * @param value a value
+   * @param format a format
+   * @param expected expected result
+   */
   @ParameterizedTest
   @MethodSource("getLongSamplesWithFormat")
-  public void checkOfLong(Long value, String format, String expected) {
+  public void checkOfLongWithFormat(Long value, String format, String expected) {
     assertEquals(expected, fromUnixTime(value, format));
-    assertEquals(expected, eval(fromUnixTime(DSL.literal(new ExprLongValue(value)), DSL.literal(new ExprStringValue(format)))).stringValue());
+    assertEquals(expected, eval(fromUnixTime(DSL.literal(new ExprLongValue(value)),
+        DSL.literal(new ExprStringValue(format)))).stringValue());
   }
 
   private static Stream<Arguments> getDoubleSamplesWithFormat() {
@@ -134,32 +159,51 @@ public class FromUnixTimeTest {
     );
   }
 
+  /**
+   * Test processing different Double values with format.
+   * @param value a value
+   * @param format a format
+   * @param expected expected result
+   */
   @ParameterizedTest
   @MethodSource("getDoubleSamplesWithFormat")
-  public void checkOfLong(Double value, String format, String expected) {
+  public void checkOfDoubleWithFormat(Double value, String format, String expected) {
     assertEquals(expected, fromUnixTime(value, format));
-    assertEquals(expected, eval(fromUnixTime(DSL.literal(new ExprDoubleValue(value)), DSL.literal(new ExprStringValue(format)))).stringValue());
+    assertEquals(expected, eval(fromUnixTime(DSL.literal(new ExprDoubleValue(value)),
+        DSL.literal(new ExprStringValue(format)))).stringValue());
   }
 
   @Test
   public void checkInvalidValues() {
-    assertEquals(new ExprStringValue("q"), fromUnixTime(DSL.literal(0L), DSL.literal("%q")).valueOf(null));
-    assertEquals(new ExprStringValue(""), fromUnixTime(DSL.literal(0L), DSL.literal("")).valueOf(null));
+    assertEquals(new ExprStringValue("q"),
+        fromUnixTime(DSL.literal(0L), DSL.literal("%q")).valueOf(null));
+    assertEquals(new ExprStringValue(""),
+        fromUnixTime(DSL.literal(0L), DSL.literal("")).valueOf(null));
     assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(-1L)).valueOf(null));
     assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(-1.5d)).valueOf(null));
     assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771200L)).valueOf(null));
     assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771200d)).valueOf(null));
     assertNotEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771199L)).valueOf(null));
     assertNotEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771199d)).valueOf(null));
-    assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771200L), DSL.literal("%d")).valueOf(null));
-    assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771200d), DSL.literal("%d")).valueOf(null));
-    assertNotEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771199L), DSL.literal("%d")).valueOf(null));
-    assertNotEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771199d), DSL.literal("%d")).valueOf(null));
+    assertEquals(ExprNullValue.of(),
+        fromUnixTime(DSL.literal(32536771200L), DSL.literal("%d")).valueOf(null));
+    assertEquals(ExprNullValue.of(),
+        fromUnixTime(DSL.literal(32536771200d), DSL.literal("%d")).valueOf(null));
+    assertNotEquals(ExprNullValue.of(),
+        fromUnixTime(DSL.literal(32536771199L), DSL.literal("%d")).valueOf(null));
+    assertNotEquals(ExprNullValue.of(),
+        fromUnixTime(DSL.literal(32536771199d), DSL.literal("%d")).valueOf(null));
     assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(ExprNullValue.of())).valueOf(null));
-    assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(-1L), DSL.literal("%d")).valueOf(null));
-    assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(-1.5d), DSL.literal("%d")).valueOf(null));
-    assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(42L), DSL.literal(ExprNullValue.of())).valueOf(null));
-    assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(ExprNullValue.of()), DSL.literal("%d")).valueOf(null));
-    assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(ExprNullValue.of()), DSL.literal(ExprNullValue.of())).valueOf(null));
+    assertEquals(ExprNullValue.of(),
+        fromUnixTime(DSL.literal(-1L), DSL.literal("%d")).valueOf(null));
+    assertEquals(ExprNullValue.of(),
+        fromUnixTime(DSL.literal(-1.5d), DSL.literal("%d")).valueOf(null));
+    assertEquals(ExprNullValue.of(),
+        fromUnixTime(DSL.literal(42L), DSL.literal(ExprNullValue.of())).valueOf(null));
+    assertEquals(ExprNullValue.of(),
+        fromUnixTime(DSL.literal(ExprNullValue.of()), DSL.literal("%d")).valueOf(null));
+    assertEquals(ExprNullValue.of(),
+        fromUnixTime(DSL.literal(ExprNullValue.of()), DSL.literal(ExprNullValue.of()))
+            .valueOf(null));
   }
 }

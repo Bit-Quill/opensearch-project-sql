@@ -259,7 +259,8 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprFromUnixTime), DATETIME, LONG),
         impl(nullMissingHandling(DateTimeFunction::exprFromUnixTime), DATETIME, DOUBLE),
         impl(nullMissingHandling(DateTimeFunction::exprFromUnixTimeFormat), STRING, LONG, STRING),
-        impl(nullMissingHandling(DateTimeFunction::exprFromUnixTimeFormat), STRING, DOUBLE, STRING));
+        impl(nullMissingHandling(DateTimeFunction::exprFromUnixTimeFormat),
+            STRING, DOUBLE, STRING));
   }
 
   /**
@@ -561,14 +562,16 @@ public class DateTimeFunction {
   }
 
   private ExprValue exprFromUnixTime(ExprValue time) {
-    if (0 > time.doubleValue())
+    if (0 > time.doubleValue()) {
       return ExprNullValue.of();
+    }
     // According to MySQL documentation:
     //     effective maximum is 32536771199.999999, which returns '3001-01-18 23:59:59.999999' UTC.
     //     Regardless of platform or version, a greater value for first argument than the effective
     //     maximum returns 0.
-    if (32536771200d <= time.doubleValue())
+    if (32536771200d <= time.doubleValue()) {
       return ExprNullValue.of();
+    }
     return new ExprDatetimeValue(exprFromUnixTimeImpl(time));
   }
 
@@ -585,8 +588,9 @@ public class DateTimeFunction {
 
   private ExprValue exprFromUnixTimeFormat(ExprValue time, ExprValue format) {
     var value = exprFromUnixTime(time);
-    if (value.equals(ExprNullValue.of()))
+    if (value.equals(ExprNullValue.of())) {
       return ExprNullValue.of();
+    }
     return DateTimeFormatterUtil.getFormattedDate(value, format);
   }
 
@@ -797,14 +801,17 @@ public class DateTimeFunction {
 
   private ExprValue unixTimeStampOf(ExprValue value) {
     var res = unixTimeStampOfImpl(value);
-    if (res == null)
+    if (res == null) {
       return ExprNullValue.of();
-    if (res < 0)
+    }
+    if (res < 0) {
       // According to MySQL returns 0 if year < 1970, don't return negative values as java does.
       return new ExprDoubleValue(0);
-    if (res >= 32536771200d)
+    }
+    if (res >= 32536771200d) {
       // Return 0 also for dates > '3001-01-19 03:14:07.999999' UTC (32536771199.999999 sec)
       return new ExprDoubleValue(0);
+    }
     return new ExprDoubleValue(res);
   }
 
@@ -813,8 +820,10 @@ public class DateTimeFunction {
     //    The date argument may be a DATE, DATETIME, or TIMESTAMP ...
     switch ((ExprCoreType)value.type()) {
       case DATE: return value.dateValue().toEpochSecond(LocalTime.MIN, ZoneOffset.UTC) + 0d;
-      case DATETIME: return value.datetimeValue().toEpochSecond(ZoneOffset.UTC) + value.datetimeValue().getNano() / 1E9;
-      case TIMESTAMP: return value.timestampValue().getEpochSecond() + value.timestampValue().getNano() / 1E9;
+      case DATETIME: return value.datetimeValue().toEpochSecond(ZoneOffset.UTC)
+          + value.datetimeValue().getNano() / 1E9;
+      case TIMESTAMP: return value.timestampValue().getEpochSecond()
+          + value.timestampValue().getNano() / 1E9;
       default:
         //     ... or a number in YYMMDD, YYMMDDhhmmss, YYYYMMDD, or YYYYMMDDhhmmss format.
         //     If the argument includes a time part, it may optionally include a fractional
@@ -850,32 +859,36 @@ public class DateTimeFunction {
         String input = format.format(value.doubleValue());
         double fraction = 0;
         if (input.contains(".")) {
-          try {
-            // Keeping fraction second part and adding it to the result, don't parse it as part of datetime
-            // Because `toEpochSecond` returns only `long`
-            // input = 12345.6789 becomes input = 12345 and fraction = 0.6789
-            fraction = Double.parseDouble(input.substring(input.indexOf('.')));
-          } catch (NumberFormatException ignored) {}
+          // Keeping fraction second part and adding it to the result, don't parse it
+          // Because `toEpochSecond` returns only `long`
+          // input = 12345.6789 becomes input = 12345 and fraction = 0.6789
+          fraction = value.doubleValue() - Math.round(Math.ceil(value.doubleValue()));
           input = input.substring(0, input.indexOf('.'));
         }
         try {
           var res = LocalDateTime.parse(input, dateTimeFormatShortYear);
           return res.toEpochSecond(ZoneOffset.UTC) + fraction;
-        } catch (DateTimeParseException ignored) {}
+        } catch (DateTimeParseException ignored) {
+          // nothing to do, try another format
+        }
         try {
           var res = LocalDateTime.parse(input, dateTimeFormatLongYear);
           return res.toEpochSecond(ZoneOffset.UTC) + fraction;
-        } catch (DateTimeParseException ignored) {}
+        } catch (DateTimeParseException ignored) {
+          // nothing to do, try another format
+        }
         try {
           var res = LocalDate.parse(input, dateFormatShortYear);
           return res.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC) + 0d;
-        } catch (DateTimeParseException ignored) {}
+        } catch (DateTimeParseException ignored) {
+          // nothing to do, try another format
+        }
         try {
           var res = LocalDate.parse(input, dateFormatLongYear);
           return res.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC) + 0d;
-        } catch (DateTimeParseException ignored) {}
-
-        return null;
+        } catch (DateTimeParseException ignored) {
+          return null;
+        }
     }
   }
 
