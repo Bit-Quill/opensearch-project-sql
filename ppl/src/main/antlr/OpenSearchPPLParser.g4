@@ -25,7 +25,7 @@ pplCommands
 
 commands
     : whereCommand | fieldsCommand | renameCommand | statsCommand | dedupCommand | sortCommand | evalCommand | headCommand
-    | topCommand | rareCommand | parseCommand | kmeansCommand | adCommand;
+    | topCommand | rareCommand | parseCommand | kmeansCommand | adCommand | highlightCommand ;
 
 searchCommand
     : (SEARCH)? fromClause                                          #searchFrom
@@ -35,6 +35,10 @@ searchCommand
 
 describeCommand
     : DESCRIBE tableSourceClause
+    ;
+
+highlightCommand
+    : highlightFunction
     ;
 
 whereCommand
@@ -283,6 +287,10 @@ wcFieldExpression
 /** functions */
 evalFunctionCall
     : evalFunctionName LT_PRTHS functionArgs RT_PRTHS
+    ;
+
+highlightFunction
+    : HIGHLIGHT LT_PRTHS field=relevanceField  RT_PRTHS            #highlightFunctionCall
     ;
 
 /** cast function */

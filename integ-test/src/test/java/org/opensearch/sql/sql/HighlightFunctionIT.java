@@ -8,7 +8,6 @@ package org.opensearch.sql.sql;
 import static org.opensearch.sql.util.MatcherUtils.schema;
 import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
-import com.google.errorprone.annotations.DoNotCall;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.opensearch.sql.legacy.SQLIntegTestCase;
@@ -48,33 +47,30 @@ public class HighlightFunctionIT extends SQLIntegTestCase {
     assertEquals(1, response.getInt("total"));
   }
 
-  // Enable me when * is supported
-  @DoNotCall
+  @Test
   public void wildcard_highlight_test() {
     String query = "SELECT highlight('*itle') FROM %s WHERE MULTI_MATCH([Title, Body], 'hops') LIMIT 1";
     JSONObject response = executeJdbcRequest(String.format(query, TestsConstants.TEST_INDEX_BEER));
-    verifySchema(response, schema("highlight('*itle')", null, "nested"));
+    verifySchema(response, schema("highlight('*itle')", null, "object"));
     assertEquals(1, response.getInt("total"));
   }
 
-  // Enable me when * is supported
-  @DoNotCall
+  @Test
   public void wildcard_multi_field_highlight_test() {
     String query = "SELECT highlight('T*') FROM %s WHERE MULTI_MATCH([Title, Tags], 'hops') LIMIT 1";
     JSONObject response = executeJdbcRequest(String.format(query, TestsConstants.TEST_INDEX_BEER));
-    verifySchema(response, schema("highlight('T*')", null, "nested"));
+    verifySchema(response, schema("highlight('T*')", null, "object"));
     var resultMap = response.getJSONArray("datarows").getJSONArray(0).getJSONObject(0);
     assertEquals(1, response.getInt("total"));
-    assertTrue(resultMap.has("highlight(\"T*\").Title"));
-    assertTrue(resultMap.has("highlight(\"T*\").Tags"));
+    assertTrue(resultMap.has("Title"));
+    assertTrue(resultMap.has("Tags"));
   }
 
-  // Enable me when * is supported
-  @DoNotCall
+  @Test
   public void highlight_all_test() {
     String query = "SELECT highlight('*') FROM %s WHERE MULTI_MATCH([Title, Body], 'hops') LIMIT 1";
     JSONObject response = executeJdbcRequest(String.format(query, TestsConstants.TEST_INDEX_BEER));
-    verifySchema(response, schema("highlight('*')", null, "nested"));
+    verifySchema(response, schema("highlight('*')", null, "object"));
     assertEquals(1, response.getInt("total"));
   }
 

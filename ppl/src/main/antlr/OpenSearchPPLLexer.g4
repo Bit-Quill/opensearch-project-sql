@@ -311,6 +311,7 @@ SLOP:                               'SLOP';
 TIE_BREAKER:                        'TIE_BREAKER';
 TYPE:                               'TYPE';
 ZERO_TERMS_QUERY:                   'ZERO_TERMS_QUERY';
+HIGHLIGHT:                          'HIGHLIGHT';
 
 // SPAN KEYWORDS
 SPAN:                               'SPAN';

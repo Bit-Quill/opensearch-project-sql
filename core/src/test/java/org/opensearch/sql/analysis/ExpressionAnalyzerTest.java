@@ -34,7 +34,6 @@ import org.opensearch.sql.analysis.symbol.Symbol;
 import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.DataType;
-import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
@@ -45,7 +44,6 @@ import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.HighlightExpression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.expression.window.aggregation.AggregateWindowFunction;
 import org.springframework.context.annotation.Configuration;
@@ -535,12 +533,6 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
           unresolvedArg("zero_terms_query", stringLiteral("NONE"))
           )
     );
-  }
-
-  @Test
-  void highlight() {
-    assertAnalyzeEqual(new HighlightExpression(DSL.literal("fieldA")),
-        new HighlightFunction(stringLiteral("fieldA")));
   }
 
   protected Expression analyze(UnresolvedExpression unresolvedExpression) {

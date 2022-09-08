@@ -40,6 +40,7 @@ import org.opensearch.sql.ast.tree.Dedupe;
 import org.opensearch.sql.ast.tree.Eval;
 import org.opensearch.sql.ast.tree.Filter;
 import org.opensearch.sql.ast.tree.Head;
+import org.opensearch.sql.ast.tree.Highlight;
 import org.opensearch.sql.ast.tree.Kmeans;
 import org.opensearch.sql.ast.tree.Limit;
 import org.opensearch.sql.ast.tree.Parse;
@@ -256,7 +257,11 @@ public abstract class AbstractNodeVisitor<T, C> {
     return visitChildren(node, context);
   }
 
-  public T visitHighlight(HighlightFunction node, C context) {
+  public T visitHighlightFunction(HighlightFunction node, C context) {
+    return visitChildren(node, context);
+  }
+
+  public T visitHighlight(Highlight node, C context) {
     return visitChildren(node, context);
   }
 }

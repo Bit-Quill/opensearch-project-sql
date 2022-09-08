@@ -22,16 +22,17 @@ import static org.opensearch.sql.ast.dsl.AstDSL.intLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static org.opensearch.sql.ast.dsl.AstDSL.relation;
 import static org.opensearch.sql.ast.dsl.AstDSL.span;
-import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.opensearch.sql.ast.tree.Sort.NullOrder;
 import static org.opensearch.sql.ast.tree.Sort.SortOption;
 import static org.opensearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 import static org.opensearch.sql.ast.tree.Sort.SortOrder;
 import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
+import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
+import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -54,7 +55,6 @@ import org.opensearch.sql.ast.tree.Kmeans;
 import org.opensearch.sql.ast.tree.RareTopN.CommandType;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
-import org.opensearch.sql.expression.HighlightExpression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.expression.window.WindowDefinition;
 import org.opensearch.sql.planner.logical.LogicalAD;
@@ -196,6 +196,38 @@ class AnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void project_highlight() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.highlight(LogicalPlanDSL.relation("schema"),
+                DSL.literal("fieldA")),
+            DSL.named("highlight(fieldA)", DSL.ref("highlight(fieldA)", ARRAY))
+        ),
+        AstDSL.projectWithArg(
+            AstDSL.relation("schema"),
+            AstDSL.defaultFieldsArgs(),
+            AstDSL.alias("highlight(fieldA)", new HighlightFunction(AstDSL.stringLiteral("fieldA")))
+        )
+    );
+  }
+
+  @Test
+  public void project_highlight_wildcard() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.highlight(LogicalPlanDSL.relation("schema"),
+                DSL.literal("*")),
+            DSL.named("highlight(*)", DSL.ref("highlight(*)", STRUCT))
+        ),
+        AstDSL.projectWithArg(
+            AstDSL.relation("schema"),
+            AstDSL.defaultFieldsArgs(),
+            AstDSL.alias("highlight(*)", new HighlightFunction(AstDSL.stringLiteral("*")))
+        )
+    );
+  }
+
+  @Test
   public void rename_to_invalid_expression() {
     SemanticCheckException exception =
         assertThrows(
@@ -232,22 +264,6 @@ class AnalyzerTest extends AnalyzerTestBase {
             AstDSL.defaultFieldsArgs(),
             AstDSL.field("integer_value"), // Field not wrapped by Alias
             AstDSL.alias("double_value", AstDSL.field("double_value"))));
-  }
-
-  @Test
-  public void project_highlight() {
-    assertAnalyzeEqual(
-        LogicalPlanDSL.project(
-            LogicalPlanDSL.highlight(LogicalPlanDSL.relation("schema"),
-                DSL.literal("fieldA")),
-            DSL.named("highlight(fieldA)", new HighlightExpression(DSL.literal("fieldA")))
-        ),
-        AstDSL.projectWithArg(
-            AstDSL.relation("schema"),
-            AstDSL.defaultFieldsArgs(),
-            AstDSL.alias("highlight(fieldA)", new HighlightFunction(AstDSL.stringLiteral("fieldA")))
-        )
-    );
   }
 
   @Test
