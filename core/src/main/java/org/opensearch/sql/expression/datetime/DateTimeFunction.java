@@ -6,11 +6,6 @@
 
 package org.opensearch.sql.expression.datetime;
 
-import static java.time.temporal.ChronoField.DAY_OF_MONTH;
-import static java.time.temporal.ChronoField.HOUR_OF_DAY;
-import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
-import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
-import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 import static java.time.temporal.ChronoField.YEAR;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
@@ -25,10 +20,7 @@ import static org.opensearch.sql.expression.function.FunctionDSL.define;
 import static org.opensearch.sql.expression.function.FunctionDSL.impl;
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,11 +31,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
-import java.time.format.SignStyle;
 import java.time.format.TextStyle;
-import java.time.temporal.ChronoField;
 import java.util.Locale;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import lombok.experimental.UtilityClass;
 import org.opensearch.sql.data.model.ExprDateValue;
@@ -574,10 +563,6 @@ public class DateTimeFunction {
   }
 
   private LocalDateTime exprFromUnixTimeImpl(ExprValue time) {
-    if (LONG == time.type()) {
-      return LocalDateTime.ofInstant(Instant.ofEpochSecond(time.longValue()),
-          ZoneId.of("UTC"));
-    }
     return LocalDateTime.ofInstant(
             Instant.ofEpochSecond((long)Math.floor(time.doubleValue())),
             ZoneId.of("UTC"))
