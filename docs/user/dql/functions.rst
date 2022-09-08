@@ -1196,6 +1196,34 @@ Example::
     +---------------------+
 
 
+FROM_UNIXTIME
+-------------
+
+Description
+>>>>>>>>>>>
+
+Usage: Returns a representation of the argument given as a datetime or character string value. Perform reverse conversion for `UNIX_TIMESTAMP`_ function.
+If second argument is provided, it is used to format the result in the same way as the format string used for the `DATE_FORMAT`_ function.
+
+Argument type: DOUBLE, STRING
+
+Return type map:
+
+DOUBLE -> DATETIME
+
+DOUBLE, STRING -> STRING
+
+Example::
+
+    os> select FROM_UNIXTIME(1220249547), FROM_UNIXTIME(1220249547, '%T')
+    fetched rows / total rows = 1/1
+    +-----------------------------+-----------------------------------+
+    | FROM_UNIXTIME(1220249547)   | FROM_UNIXTIME(1220249547, '%T')   |
+    |-----------------------------+-----------------------------------|
+    | 2008-09-01 06:12:27         | 06:12:27                          |
+    +-----------------------------+-----------------------------------+
+
+
 HOUR
 ----
 
@@ -1555,6 +1583,31 @@ Example::
     |------------------------------|
     | 733687                       |
     +------------------------------+
+
+
+UNIX_TIMESTAMP
+--------------
+
+Description
+>>>>>>>>>>>
+
+Usage: Converts given argument to Unix time (seconds since Epoch - very beginning of year 1970). If no argument given, it current Unix time.
+The date argument may be a DATE, DATETIME, or TIMESTAMP string, or a number in YYMMDD, YYMMDDhhmmss, YYYYMMDD, or YYYYMMDDhhmmss format. If the argument includes a time part, it may optionally include a fractional seconds part.
+You can use `FROM_UNIXTIME`_ to do reverse conversion.
+
+Argument type: <NONE>/DOUBLE/DATE/DATETIME/TIMESTAMP
+
+Return type: DOUBLE
+
+Example::
+
+    os> select UNIX_TIMESTAMP(20771122143845), UNIX_TIMESTAMP(TIMESTAMP('1996-11-15 17:05:42'))
+    fetched rows / total rows = 1/1
+    +----------------------------------+----------------------------------------------------+
+    | UNIX_TIMESTAMP(20771122143845)   | UNIX_TIMESTAMP(TIMESTAMP('1996-11-15 17:05:42'))   |
+    |----------------------------------+----------------------------------------------------|
+    | 3404817525.0                     | 848077542.0                                        |
+    +----------------------------------+----------------------------------------------------+
 
 
 WEEK
