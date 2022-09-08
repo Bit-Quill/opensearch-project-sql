@@ -256,9 +256,7 @@ public class DateTimeFunction {
 
   private FunctionResolver from_unixtime() {
     return define(BuiltinFunctionName.FROM_UNIXTIME.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprFromUnixTime), DATETIME, LONG),
         impl(nullMissingHandling(DateTimeFunction::exprFromUnixTime), DATETIME, DOUBLE),
-        impl(nullMissingHandling(DateTimeFunction::exprFromUnixTimeFormat), STRING, LONG, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprFromUnixTimeFormat),
             STRING, DOUBLE, STRING));
   }
