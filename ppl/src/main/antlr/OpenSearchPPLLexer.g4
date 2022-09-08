@@ -231,6 +231,7 @@ DAYOFWEEK:                          'DAYOFWEEK';
 DAYOFYEAR:                          'DAYOFYEAR';
 DAYNAME:                            'DAYNAME';
 FROM_DAYS:                          'FROM_DAYS';
+FROM_UNIXTIME:                      'FROM_UNIXTIME';
 MAKEDATE:                           'MAKEDATE';
 MAKETIME:                           'MAKETIME';
 MONTHNAME:                          'MONTHNAME';
@@ -240,6 +241,7 @@ TIME_TO_SEC:                        'TIME_TO_SEC';
 TIMESTAMP:                          'TIMESTAMP';
 DATE_FORMAT:                        'DATE_FORMAT';
 TO_DAYS:                            'TO_DAYS';
+UNIX_TIMESTAMP:                     'UNIX_TIMESTAMP';
 
 // TEXT FUNCTIONS
 SUBSTR:                             'SUBSTR';

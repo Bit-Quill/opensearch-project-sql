@@ -205,6 +205,7 @@ EXP:                                'EXP';
 EXPM1:                              'EXPM1';
 FLOOR:                              'FLOOR';
 FROM_DAYS:                          'FROM_DAYS';
+FROM_UNIXTIME:                      'FROM_UNIXTIME';
 IF:                                 'IF';
 IFNULL:                             'IFNULL';
 ISNULL:                             'ISNULL';
@@ -245,6 +246,7 @@ TIME_TO_SEC:                        'TIME_TO_SEC';
 TIMESTAMP:                          'TIMESTAMP';
 TRUNCATE:                           'TRUNCATE';
 TO_DAYS:                            'TO_DAYS';
+UNIX_TIMESTAMP:                     'UNIX_TIMESTAMP';
 UPPER:                              'UPPER';
 
 D:                                  'D';
