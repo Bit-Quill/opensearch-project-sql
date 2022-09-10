@@ -43,18 +43,27 @@ public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery
           }
         });
 
-    // No validation that 'field' and 'fields' are present both, just pick a first occurrence
     // Extract 'field'/'fields' and 'query'
     var field = arguments.stream()
-        .filter(a -> a.getArgName().equalsIgnoreCase("field")
-            || a.getArgName().equalsIgnoreCase("fields"))
+        .filter(a -> a.getArgName().equalsIgnoreCase("field"))
         .findFirst()
-        .orElseThrow(() -> new SyntaxCheckException("'field'/'fields' parameter is missing"));
+        .orElse(null);
+    var fields = arguments.stream()
+        .filter(a -> a.getArgName().equalsIgnoreCase("fields"))
+        .findFirst()
+        .orElse(null);
+    if (fields == null && field == null) {
+      throw new SemanticCheckException("Both 'field' and 'fields' parameters are missing.");
+    }
+    if (fields != null && field != null) {
+      throw new SemanticCheckException("Both 'field' and 'fields' parameters are given.");
+    }
+
     var query = arguments.stream()
         .filter(a -> a.getArgName().equalsIgnoreCase("query"))
         .findFirst()
-        .orElseThrow(() -> new SyntaxCheckException("'query' parameter is missing"));
-    T queryBuilder = createQueryBuilder(field, query);
+        .orElseThrow(() -> new SemanticCheckException("'query' parameter is missing"));
+    T queryBuilder = createQueryBuilder((field != null ? field : fields), query);
 
     arguments.removeIf(a -> a.getArgName().equalsIgnoreCase("field")
         || a.getArgName().equalsIgnoreCase("fields")

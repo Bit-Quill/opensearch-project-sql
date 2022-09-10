@@ -403,6 +403,15 @@ class FilterQueryBuilderTest {
   }
 
   @Test
+  void match_missing_field() {
+    FunctionExpression expr = dsl.match(
+        dsl.namedArgument("query", literal("search query")),
+        dsl.namedArgument("analyzer", literal("keyword")));
+    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+    assertEquals("Both 'field' and 'fields' parameters are missing.", msg);
+  }
+
+  @Test
   void should_build_match_phrase_query_with_default_parameters() {
     assertJsonEquals(
             "{\n"
@@ -958,6 +967,30 @@ class FilterQueryBuilderTest {
         dsl.multi_match(
             dsl.namedArgument("query", literal("search query")))).getMessage();
     assertEquals("Expected type STRUCT instead of STRING for parameter #1", msg);
+  }
+
+  @Test
+  void multi_match_missing_fields_even_with_struct() {
+    FunctionExpression expr = dsl.multi_match(
+        dsl.namedArgument("something-but-not-fields", DSL.literal(
+            new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                "pewpew", ExprValueUtils.integerValue(42)))))),
+        dsl.namedArgument("query", literal("search query")),
+        dsl.namedArgument("analyzer", literal("keyword")));
+    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+    assertEquals("Both 'field' and 'fields' parameters are missing.", msg);
+  }
+
+  @Test
+  void multi_match_both_field_and_fields() {
+    FunctionExpression expr = dsl.multi_match(
+        dsl.namedArgument("fields", DSL.literal(
+            new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                "field1", ExprValueUtils.floatValue(1f)))))),
+        dsl.namedArgument("query", literal("search query")),
+        dsl.namedArgument("field", literal("field2")));
+    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+    assertEquals("Both 'field' and 'fields' parameters are given.", msg);
   }
 
   @Test
