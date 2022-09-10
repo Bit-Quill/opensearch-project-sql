@@ -62,6 +62,10 @@ public class DateTimeFunction {
   // The number of days from year zero to year 1970.
   private static final Long DAYS_0000_TO_1970 = (146097 * 5L) - (30L * 365L + 7L);
 
+  // MySQL doesn't process any datetime/timestamp values which are greater than
+  // 32536771199.999999, or equivalent '3001-01-18 23:59:59.999999' UTC
+  private static final Double MYSQL_MAX_TIMESTAMP = 32536771200d;
+
   /**
    * Register Date and Time Functions.
    *
@@ -556,7 +560,7 @@ public class DateTimeFunction {
     //     effective maximum is 32536771199.999999, which returns '3001-01-18 23:59:59.999999' UTC.
     //     Regardless of platform or version, a greater value for first argument than the effective
     //     maximum returns 0.
-    if (32536771200d <= time.doubleValue()) {
+    if (MYSQL_MAX_TIMESTAMP <= time.doubleValue()) {
       return ExprNullValue.of();
     }
     return new ExprDatetimeValue(exprFromUnixTimeImpl(time));
@@ -791,7 +795,7 @@ public class DateTimeFunction {
       // According to MySQL returns 0 if year < 1970, don't return negative values as java does.
       return new ExprDoubleValue(0);
     }
-    if (res >= 32536771200d) {
+    if (res >= MYSQL_MAX_TIMESTAMP) {
       // Return 0 also for dates > '3001-01-19 03:14:07.999999' UTC (32536771199.999999 sec)
       return new ExprDoubleValue(0);
     }
