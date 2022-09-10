@@ -7,7 +7,9 @@
 package org.opensearch.sql.analysis;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 import org.opensearch.sql.expression.NamedExpression;
@@ -22,6 +24,8 @@ public class AnalysisContext {
   private TypeEnvironment environment;
   @Getter
   private final List<NamedExpression> namedParseExpressions;
+  @Getter
+  private final Map<String, String> aliases;
 
   public AnalysisContext() {
     this(new TypeEnvironment(null));
@@ -30,6 +34,7 @@ public class AnalysisContext {
   public AnalysisContext(TypeEnvironment environment) {
     this.environment = environment;
     this.namedParseExpressions = new ArrayList<>();
+    this.aliases = new HashMap<>();
   }
 
   /**

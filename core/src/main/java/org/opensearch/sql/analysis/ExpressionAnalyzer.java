@@ -301,6 +301,8 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
       }
     }
 
+    ident = context.getAliases().getOrDefault(ident, ident);
+
     TypeEnvironment typeEnv = context.peek();
     ReferenceExpression ref = DSL.ref(ident,
         typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident)));

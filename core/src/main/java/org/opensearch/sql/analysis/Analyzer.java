@@ -10,6 +10,7 @@ import static org.opensearch.sql.ast.tree.Sort.NullOrder.NULL_FIRST;
 import static org.opensearch.sql.ast.tree.Sort.NullOrder.NULL_LAST;
 import static org.opensearch.sql.ast.tree.Sort.SortOrder.ASC;
 import static org.opensearch.sql.ast.tree.Sort.SortOrder.DESC;
+import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.utils.MLCommonsConstants.RCF_ANOMALOUS;
 import static org.opensearch.sql.utils.MLCommonsConstants.RCF_ANOMALY_GRADE;
@@ -31,6 +32,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.analysis.symbol.Namespace;
 import org.opensearch.sql.analysis.symbol.Symbol;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
+import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.Argument;
 import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Let;
@@ -268,6 +270,14 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
    */
   @Override
   public LogicalPlan visitProject(Project node, AnalysisContext context) {
+    node.getProjectList().forEach(proj -> {
+        if (proj instanceof Alias) {
+            context.getAliases().put(((Alias) proj).getAlias(), ((Alias) proj).getName());
+          //context.peek().define(new Symbol(Namespace.FIELD_NAME, ((Alias)proj).getAlias()), STRING);
+                  //new ReferenceExpression()
+                  //
+        }
+    });
     LogicalPlan child = node.getChild().get(0).accept(this, context);
 
     if (node.hasArgument()) {
