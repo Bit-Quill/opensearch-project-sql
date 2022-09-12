@@ -221,11 +221,11 @@ primaryExpression
     | dataTypeFunctionCall
     | fieldExpression
     | literalValue
-    | functionLikeConstant
+    | functionWithCachedValue
     ;
 
-functionLikeConstant
-    : functionLikeConstantName LT_PRTHS functionArgs? RT_PRTHS
+functionWithCachedValue
+    : functionWithCachedValueName LT_PRTHS functionArgs? RT_PRTHS
     ;
 
 booleanExpression
@@ -383,7 +383,7 @@ dateAndTimeFunctionBase
     | QUARTER | SECOND | SUBDATE | SYSDATE | TIME | TIME_TO_SEC| TIMESTAMP | TO_DAYS | WEEK | YEAR
     ;
 
-functionLikeConstantName
+functionWithCachedValueName
     : datetimeConstantLiteral
     | CURDATE | CURTIME | NOW
     ;

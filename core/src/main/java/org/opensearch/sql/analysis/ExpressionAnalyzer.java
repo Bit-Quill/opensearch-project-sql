@@ -27,7 +27,7 @@ import org.opensearch.sql.ast.expression.Compare;
 import org.opensearch.sql.ast.expression.EqualTo;
 import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Function;
-import org.opensearch.sql.ast.expression.FunctionLikeConstant;
+import org.opensearch.sql.ast.expression.FunctionWithCachedValue;
 import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.In;
 import org.opensearch.sql.ast.expression.Interval;
@@ -59,7 +59,6 @@ import org.opensearch.sql.expression.aggregation.AggregationState;
 import org.opensearch.sql.expression.aggregation.Aggregator;
 import org.opensearch.sql.expression.conditional.cases.CaseClause;
 import org.opensearch.sql.expression.conditional.cases.WhenClause;
-import org.opensearch.sql.expression.datetime.DateTimeFunction;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.FunctionName;
@@ -172,15 +171,16 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   }
 
   @Override
-  public Expression visitFunctionLikeConstant(FunctionLikeConstant node, AnalysisContext context) {
+  public Expression visitFunctionWithCachedValue(FunctionWithCachedValue node,
+                                                 AnalysisContext context) {
     var valueName = node.toString();
-    if (context.getFunctionLikeConstantValues().containsKey(valueName)) {
-      return context.getFunctionLikeConstantValues().get(valueName);
+    if (context.getCachedFunctionValues().containsKey(valueName)) {
+      return context.getCachedFunctionValues().get(valueName);
     }
 
     var value = visitFunction(node, context);
     value = DSL.literal(value.valueOf(null));
-    context.getFunctionLikeConstantValues().put(valueName, value);
+    context.getCachedFunctionValues().put(valueName, value);
     return value;
   }
 

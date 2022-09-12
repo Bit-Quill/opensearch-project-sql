@@ -24,7 +24,7 @@ import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.DataTypeFu
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.DateLiteralContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.DatetimeConstantLiteralContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.DistinctCountFunctionCallContext;
-import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.FunctionLikeConstantContext;
+import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.FunctionWithCachedValueContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.IsNullPredicateContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.LikePredicateContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.MathExpressionAtomContext;
@@ -65,7 +65,7 @@ import org.opensearch.sql.ast.expression.Case;
 import org.opensearch.sql.ast.expression.Cast;
 import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.Function;
-import org.opensearch.sql.ast.expression.FunctionLikeConstant;
+import org.opensearch.sql.ast.expression.FunctionWithCachedValue;
 import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.IntervalUnit;
@@ -400,17 +400,18 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitDatetimeConstantLiteral(DatetimeConstantLiteralContext ctx) {
-    return visitFunctionLikeConstant(ctx.getText(), null);
+    return visitFunctionWithCachedValue(ctx.getText(), null);
   }
 
   @Override
-  public UnresolvedExpression visitFunctionLikeConstant(FunctionLikeConstantContext ctx) {
-    return visitFunctionLikeConstant(ctx.functionLikeConstantName().getText(), ctx.functionArgs());
+  public UnresolvedExpression visitFunctionWithCachedValue(FunctionWithCachedValueContext ctx) {
+    return visitFunctionWithCachedValue(ctx.functionWithCachedValueName().getText(),
+        ctx.functionArgs());
   }
 
-  private UnresolvedExpression visitFunctionLikeConstant(String functionName,
-                                                         FunctionArgsContext args) {
-    return new FunctionLikeConstant(functionName,
+  private UnresolvedExpression visitFunctionWithCachedValue(String functionName,
+                                                            FunctionArgsContext args) {
+    return new FunctionWithCachedValue(functionName,
         args == null
         ? Collections.emptyList()
         : args.functionArg()

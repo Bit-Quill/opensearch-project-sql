@@ -15,14 +15,14 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
  * [1] Constant at execution time.
  */
 @EqualsAndHashCode(callSuper = false)
-public class FunctionLikeConstant extends Function {
+public class FunctionWithCachedValue extends Function {
 
-  public FunctionLikeConstant(String funcName, List<UnresolvedExpression> funcArgs) {
+  public FunctionWithCachedValue(String funcName, List<UnresolvedExpression> funcArgs) {
     super(funcName, funcArgs);
   }
 
   @Override
   public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-    return nodeVisitor.visitFunctionLikeConstant(this, context);
+    return nodeVisitor.visitFunctionWithCachedValue(this, context);
   }
 }

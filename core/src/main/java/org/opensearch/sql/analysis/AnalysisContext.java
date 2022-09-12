@@ -34,7 +34,7 @@ public class AnalysisContext {
    */
   @Getter
   @Setter
-  private Map<String, Expression> functionLikeConstantValues;
+  private Map<String, Expression> cachedFunctionValues;
 
   public AnalysisContext() {
     this(new TypeEnvironment(null));
@@ -47,7 +47,7 @@ public class AnalysisContext {
   public AnalysisContext(TypeEnvironment environment) {
     this.environment = environment;
     this.namedParseExpressions = new ArrayList<>();
-    this.functionLikeConstantValues = new HashMap<>();
+    this.cachedFunctionValues = new HashMap<>();
   }
 
   /**
