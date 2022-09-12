@@ -489,7 +489,7 @@ public class DateTimeFunction {
 
   /**
    * CONVERT_TZ function implementation for ExprValue.
-   * Returns null for time zones outside of +13:00 and -12:00.
+   * Returns null for time zones outside of -13:59 and +14:00. Matches MySQL range.
    *
    * @param startingDateTime ExprValue of DateTime that is being converted from
    * @param fromTz           ExprValue of time zone, representing the time to convert from.
@@ -509,22 +509,15 @@ public class DateTimeFunction {
           || !isTimeZoneValid(convertedToTz)) {
         return ExprNullValue.of();
       }
+      ZonedDateTime zonedDateTime =
+          startingDateTime.datetimeValue().atZone(convertedFromTz);
+      return new ExprDatetimeValue(
+          zonedDateTime.withZoneSameInstant(convertedToTz).toLocalDateTime());
 
-      try {
-        ZonedDateTime zonedDateTime =
-            startingDateTime.datetimeValue().atZone(convertedFromTz);
-        return new ExprDatetimeValue(
-            zonedDateTime.withZoneSameInstant(convertedToTz).toLocalDateTime());
-
-        // Used to catch invalid datetime fields.
-        // Datetime fields need to be in the format of
-      } catch (ExpressionEvaluationException e) {
-        return ExprNullValue.of();
-      }
 
       // Catches exception for invalid timezones.
       // ex. "+0:00" is an invalid timezone and would result in this exception being thrown.
-    } catch (DateTimeException e) {
+    } catch (ExpressionEvaluationException | DateTimeException e) {
       return ExprNullValue.of();
     }
   }
