@@ -297,7 +297,7 @@ public class RestSqlAction extends BaseRestHandler {
 
     /**
      * Report Error message to user.
-     * @param channel : Rest channel to sent response through.
+     * @param channel : Rest channel to send response through.
      * @param e : Exception caught when attempting query.
      * @param status : Status for rest request made.
      */
