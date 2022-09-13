@@ -156,7 +156,9 @@ public class OpenSearchExecutionProtector extends ExecutionProtector {
     HighlightOperator hlOperator = (HighlightOperator) node;
     return doProtect(
         new HighlightOperator(visitInput(hlOperator.getInput(), context),
-            ((HighlightOperator) node).getHighlight())
+            ((HighlightOperator) node).getHighlight(),
+            ((HighlightOperator) node).getArguments(),
+            ((HighlightOperator) node).getName())
     );
   }
 

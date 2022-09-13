@@ -197,32 +197,41 @@ class AnalyzerTest extends AnalyzerTestBase {
 
   @Test
   public void project_highlight() {
+    Map<String, Literal> args = new HashMap<>();
+    args.put("pre_tags", new Literal("<mark>", DataType.STRING));
+    args.put("post_tags", new Literal("</mark>", DataType.STRING));
+
     assertAnalyzeEqual(
         LogicalPlanDSL.project(
             LogicalPlanDSL.highlight(LogicalPlanDSL.relation("schema"),
-                DSL.literal("fieldA")),
-            DSL.named("highlight(fieldA)", DSL.ref("highlight(fieldA)", ARRAY))
+                DSL.literal("fieldA"), args,
+                "highlight(fieldA, pre_tags='<mark>', post_tags='</mark>')"),
+            DSL.named("highlight(fieldA, pre_tags='<mark>', post_tags='</mark>')",
+                DSL.ref("highlight(fieldA, pre_tags='<mark>', post_tags='</mark>')", ARRAY))
         ),
         AstDSL.projectWithArg(
             AstDSL.relation("schema"),
             AstDSL.defaultFieldsArgs(),
-            AstDSL.alias("highlight(fieldA)", new HighlightFunction(AstDSL.stringLiteral("fieldA")))
+            AstDSL.alias("highlight(fieldA, pre_tags='<mark>', post_tags='</mark>')",
+                new HighlightFunction(AstDSL.stringLiteral("fieldA"), args))
         )
     );
   }
 
   @Test
   public void project_highlight_wildcard() {
+    Map<String, Literal> args = new HashMap<>();
     assertAnalyzeEqual(
         LogicalPlanDSL.project(
             LogicalPlanDSL.highlight(LogicalPlanDSL.relation("schema"),
-                DSL.literal("*")),
+                DSL.literal("*"), args, "highlight(*)"),
             DSL.named("highlight(*)", DSL.ref("highlight(*)", STRUCT))
         ),
         AstDSL.projectWithArg(
             AstDSL.relation("schema"),
             AstDSL.defaultFieldsArgs(),
-            AstDSL.alias("highlight(*)", new HighlightFunction(AstDSL.stringLiteral("*")))
+            AstDSL.alias("highlight(*)",
+                new HighlightFunction(AstDSL.stringLiteral("*"), args))
         )
     );
   }

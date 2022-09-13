@@ -348,7 +348,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
 
     HighlightFunction unresolved = (HighlightFunction) ((Alias)node.getExpression()).getDelegated();
     Expression field = expressionAnalyzer.analyze(unresolved.getHighlightField(), context);
-    return new LogicalHighlight(child, field);
+    return new LogicalHighlight(child, field, node.getArguments(), node.getName());
   }
 
 

@@ -82,7 +82,7 @@ public class PPLSyntaxParserTest {
 
   @Test
   public void testHighlightShouldPass() {
-    ParseTree tree = new PPLSyntaxParser().parse("source=shakespeare | highlight(text_entry)");
+    ParseTree tree = new PPLSyntaxParser().parse("source=shakespeare | highlight field");
     assertNotEquals(null, tree);
   }
 

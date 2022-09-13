@@ -304,7 +304,7 @@ functionCall
     ;
 
 highlightFunction
-    : HIGHLIGHT LR_BRACKET relevanceField RR_BRACKET
+    : HIGHLIGHT LR_BRACKET relevanceField (COMMA highlightArg)* RR_BRACKET
     ;
 
 scalarFunctionName
@@ -425,6 +425,10 @@ relevanceArg
     : relevanceArgName EQUAL_SYMBOL relevanceArgValue
     ;
 
+highlightArg
+    : highlightArgName EQUAL_SYMBOL highlightArgValue
+    ;
+
 relevanceArgName
     : ALLOW_LEADING_WILDCARD | ANALYZER | ANALYZE_WILDCARD | AUTO_GENERATE_SYNONYMS_PHRASE_QUERY
     | BOOST | CUTOFF_FREQUENCY | DEFAULT_FIELD | DEFAULT_OPERATOR | ENABLE_POSITION_INCREMENTS
@@ -433,6 +437,10 @@ relevanceArgName
     | MAX_EXPANSIONS | MINIMUM_SHOULD_MATCH | OPERATOR | PHRASE_SLOP | PREFIX_LENGTH
     | QUOTE_ANALYZER | QUOTE_FIELD_SUFFIX | REWRITE | SLOP | TIE_BREAKER | TIME_ZONE | TYPE
     | ZERO_TERMS_QUERY
+    ;
+
+highlightArgName
+    : HIGHLIGHT_POST_TAGS | HIGHLIGHT_PRE_TAGS
     ;
 
 relevanceFieldAndWeight
@@ -458,5 +466,9 @@ relevanceQuery
 relevanceArgValue
     : qualifiedName
     | constant
+    ;
+
+highlightArgValue
+    : stringLiteral
     ;
 

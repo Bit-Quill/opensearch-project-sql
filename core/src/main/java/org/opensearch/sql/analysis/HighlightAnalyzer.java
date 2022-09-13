@@ -30,12 +30,15 @@ public class HighlightAnalyzer extends AbstractNodeVisitor<LogicalPlan, Analysis
 
   @Override
   public LogicalPlan visitAlias(Alias node, AnalysisContext context) {
-    if (!(node.getDelegated() instanceof HighlightFunction)) {
+    UnresolvedExpression delegated = node.getDelegated();
+    if (!(delegated instanceof HighlightFunction)) {
       return null;
     }
 
-    HighlightFunction unresolved = (HighlightFunction) node.getDelegated();
+    // Must set name here else operator cannot resolve delegated reference
+    ((HighlightFunction) delegated).setName(node.getName());
+    HighlightFunction unresolved = (HighlightFunction) delegated;
     Expression field = expressionAnalyzer.analyze(unresolved.getHighlightField(), context);
-    return new LogicalHighlight(child, field);
+    return new LogicalHighlight(child, field, unresolved.getArguments(), unresolved.getName());
   }
 }

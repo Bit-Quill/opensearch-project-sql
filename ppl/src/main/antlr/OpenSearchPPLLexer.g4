@@ -312,6 +312,8 @@ TIE_BREAKER:                        'TIE_BREAKER';
 TYPE:                               'TYPE';
 ZERO_TERMS_QUERY:                   'ZERO_TERMS_QUERY';
 HIGHLIGHT:                          'HIGHLIGHT';
+HIGHLIGHT_PRE_TAGS:                 'PRE_TAGS';
+HIGHLIGHT_POST_TAGS:                'POST_TAGS';
 
 // SPAN KEYWORDS
 SPAN:                               'SPAN';

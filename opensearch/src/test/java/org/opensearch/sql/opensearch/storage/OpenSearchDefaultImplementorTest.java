@@ -13,12 +13,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.relation;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.sql.ast.expression.DataType;
+import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder;
 import org.opensearch.sql.planner.logical.LogicalAD;
@@ -83,6 +87,6 @@ public class OpenSearchDefaultImplementorTest {
         new OpenSearchIndex.OpenSearchDefaultImplementor(indexScan, client);
 
     implementor.visitHighlight(node, indexScan);
-    verify(requestBuilder).pushDownHighlight(any());
+    verify(requestBuilder).pushDownHighlight(any(), any());
   }
 }

@@ -369,10 +369,10 @@ Please refer to examples below:
 
 Example searching for field Tags::
 
-    os> source=books | where query_string(['title'], 'Pooh House') | highlight(title);
+    os> source=books | where query_string(['title'], 'Pooh House') | highlight title;
     fetched rows / total rows = 2/2
     +------+--------------------------+----------------------+----------------------------------------------+
-    | id   | title                    | author               | highlight(title)                             |
+    | id   | title                    | author               | highlight title                             |
     |------+--------------------------+----------------------+----------------------------------------------|
     | 1    | The House at Pooh Corner | Alan Alexander Milne | [The <em>House</em> at <em>Pooh</em> Corner] |
     | 2    | Winnie-the-Pooh          | Alan Alexander Milne | [Winnie-the-<em>Pooh</em>]                   |

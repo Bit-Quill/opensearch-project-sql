@@ -7,11 +7,14 @@ package org.opensearch.sql.ppl;
 
 import java.io.IOException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.opensearch.sql.legacy.TestsConstants;
 
 public class HighlightFunctionIT extends PPLIntegTestCase {
-
+  // allFields is returned since we can't use highlight in a fields command.
+  // Additional highlight fields begin at index 19
+  private int firstHighlightFieldIndex = 19;
+  private int secondHighlightFieldIndex = 20;
   @Override
   public void init() throws IOException {
     loadIndex(Index.BEER);
@@ -22,28 +25,64 @@ public class HighlightFunctionIT extends PPLIntegTestCase {
     JSONObject result =
         executeQuery(
             String.format(
-                "SOURCE=%s | WHERE match(Title, 'Cicerone') | highlight(Title)", TestsConstants.TEST_INDEX_BEER));
+                "SOURCE=%s | WHERE match(Title, 'Cicerone') | highlight Title", TestsConstants.TEST_INDEX_BEER));
 
     assertEquals(1, result.getInt("total"));
 
     assertTrue(
-        result.getJSONArray("datarows")
-            .getJSONArray(0)
-            .getJSONArray(19)
-            .getString(0)
-            .equals("What exactly is a <em>Cicerone</em>? What do they do?"));
+        verifyFirstIndexHighlight(result,
+            "What exactly is a <em>Cicerone</em>? What do they do?")
+    );
 
     assertTrue(
-        result.getJSONArray("schema")
-            .getJSONObject(19)
-            .getString("name")
-            .equals("highlight(Title)"));
+        verifyFirstIndexHighlight(result, "What exactly is a <em>Cicerone</em>? What do they do?")
+    );
 
     assertTrue(
-        result.getJSONArray("schema")
-            .getJSONObject(19)
-            .getString("type")
-            .equals("nested"));
+        verifyHighlightSchema(result, "highlight Title")
+    );
+  }
+
+  @Test
+  public void highlight_optional_arguments_test() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "SOURCE=%s | WHERE match(Title, 'Cicerone') | " +
+                    "highlight Title, pre_tags='<mark>', post_tags='</mark>'", TestsConstants.TEST_INDEX_BEER));
+
+    assertEquals(1, result.getInt("total"));
+
+    assertTrue(
+        verifyFirstIndexHighlight(result, "What exactly is a <mark>Cicerone</mark>? What do they do?")
+    );
+
+    assertTrue(
+        verifyHighlightSchema(result, "highlight Title, pre_tags='<mark>', post_tags='</mark>'")
+    );
+  }
+
+  @Test
+  public void highlight_multiple_optional_arguments_test() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "SOURCE=%s | WHERE multi_match([Title, Body], 'IPA') | highlight Title | highlight Body, " +
+                    "pre_tags='<mark style=\\\"background-color: green;\\\">', post_tags='</mark>'",
+                TestsConstants.TEST_INDEX_BEER));
+
+    assertEquals(3, result.getInt("total"));
+
+    assertTrue(
+        verifyFirstIndexHighlight(result, "What are the differences between an <em>IPA</em> and its variants?")
+    );
+
+    assertTrue(
+        verifySecondIndexHighlight(result,
+            "<p>I know what makes an <mark style=\"background-color: green;\">IPA</mark> an " +
+            "<mark style=\"background-color: green;\">IPA</mark>, but what are the unique characteristics " +
+            "of it's common variants?")
+    );
   }
 
   @Test
@@ -51,8 +90,15 @@ public class HighlightFunctionIT extends PPLIntegTestCase {
     JSONObject result =
         executeQuery(
             String.format(
-              "SOURCE=%s | WHERE match(Title, 'Cicerone') | highlight('Title')", TestsConstants.TEST_INDEX_BEER));
+              "SOURCE=%s | WHERE match(Title, 'Cicerone') | highlight 'Title'", TestsConstants.TEST_INDEX_BEER));
+
     assertEquals(1, result.getInt("total"));
+
+    assertTrue(
+        verifyFirstIndexHighlight(result,
+            "What exactly is a <em>Cicerone</em>? What do they do?")
+    );
+
   }
 
   @Test
@@ -60,9 +106,21 @@ public class HighlightFunctionIT extends PPLIntegTestCase {
     JSONObject result =
         executeQuery(
             String.format(
-                "SOURCE=%s | WHERE multi_match([Title, Body], 'hops') | highlight('Title') | highlight(Body)",
+                "SOURCE=%s | WHERE multi_match([Title, Body], 'IPA') | highlight 'Title' | highlight Body",
                 TestsConstants.TEST_INDEX_BEER));
-    assertEquals(2, result.getInt("total"));
+
+    assertEquals(3, result.getInt("total"));
+
+    assertTrue(
+        verifyFirstIndexHighlight(result,
+            "What are the differences between an <em>IPA</em> and its variants?")
+    );
+
+    assertTrue(
+        verifySecondIndexHighlight(result,
+            "<p>I know what makes an <em>IPA</em> an <em>IPA</em>, but what are the unique " +
+                "characteristics of it's common variants?")
+    );
   }
 
   @Test
@@ -70,24 +128,19 @@ public class HighlightFunctionIT extends PPLIntegTestCase {
     JSONObject result =
         executeQuery(
             String.format(
-                "SOURCE=%s | WHERE multi_match([Title, Body], 'Cicerone') | highlight('T*')",
+                "SOURCE=%s | WHERE multi_match([Title, Body], 'Cicerone') | highlight 'T*'",
                 TestsConstants.TEST_INDEX_BEER));
 
     assertEquals(1, result.getInt("total"));
 
     assertTrue(
-        result.getJSONArray("datarows")
-            .getJSONArray(0)
-            .getJSONObject(19)
-            .getJSONArray("Title")
-            .get(0)
-            .equals("What exactly is a <em>Cicerone</em>? What do they do?"));
+        verifyFirstIndexHighlightWildcard(result, "Title",
+            "What exactly is a <em>Cicerone</em>? What do they do?")
+    );
 
     assertTrue(
-        result.getJSONArray("schema")
-            .getJSONObject(19)
-            .getString("name")
-            .equals("highlight('T*')"));
+        verifyHighlightSchema(result, "highlight 'T*'")
+    );
   }
 
   @Test
@@ -95,37 +148,55 @@ public class HighlightFunctionIT extends PPLIntegTestCase {
     JSONObject result =
         executeQuery(
             String.format(
-                "SOURCE=%s | WHERE multi_match([Title, Body], 'Cicerone') | highlight('*')",
+                "SOURCE=%s | WHERE multi_match([Title, Body], 'Cicerone') | highlight '*'",
                 TestsConstants.TEST_INDEX_BEER));
 
     assertEquals(1, result.getInt("total"));
 
     assertTrue(
-        result.getJSONArray("datarows")
-            .getJSONArray(0)
-            .getJSONObject(19)
-            .getJSONArray("Title")
-            .get(0)
-            .equals("What exactly is a <em>Cicerone</em>? What do they do?"));
+        verifyFirstIndexHighlightWildcard(result, "Title",
+            "What exactly is a <em>Cicerone</em>? What do they do?")
+    );
 
     assertTrue(
-        result.getJSONArray("datarows")
-            .getJSONArray(0)
-            .getJSONObject(19)
-            .getJSONArray("Body")
-            .get(0)
-            .equals("<p>Recently I've started seeing references to the term '<em>Cicerone</em>' pop up around the internet; generally"));
-
+        verifyFirstIndexHighlightWildcard(result, "Body",
+            "<p>Recently I've started seeing references to the term '<em>Cicerone</em>' " +
+                "pop up around the internet; generally")
+    );
     assertTrue(
-        result.getJSONArray("schema")
-            .getJSONObject(19)
-            .getString("name")
-            .equals("highlight('*')"));
+        verifyHighlightSchema(result, "highlight '*'")
+    );
+  }
 
-    assertTrue(
-        result.getJSONArray("schema")
-            .getJSONObject(19)
-            .getString("type")
-            .equals("object"));
+  private boolean verifyFirstIndexHighlightWildcard(JSONObject result, String highlightField, String match) {
+    return result.getJSONArray("datarows")
+        .getJSONArray(0)
+        .getJSONObject(firstHighlightFieldIndex)
+        .getJSONArray(highlightField)
+        .get(0)
+        .equals(match);
+  }
+
+  private boolean verifySecondIndexHighlight(JSONObject result, String match) {
+    return result.getJSONArray("datarows")
+        .getJSONArray(0)
+        .getJSONArray(secondHighlightFieldIndex)
+        .getString(0)
+        .equals(match);
+  }
+
+  private boolean verifyFirstIndexHighlight(JSONObject result, String match) {
+    return result.getJSONArray("datarows")
+        .getJSONArray(0)
+        .getJSONArray(firstHighlightFieldIndex)
+        .getString(0)
+        .equals(match);
+  }
+
+  private boolean verifyHighlightSchema(JSONObject result, String name) {
+    return result.getJSONArray("schema")
+        .getJSONObject(firstHighlightFieldIndex)
+        .getString("name")
+        .equals(name);
   }
 }
