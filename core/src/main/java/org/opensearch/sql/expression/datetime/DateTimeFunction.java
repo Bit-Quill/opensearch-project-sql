@@ -830,7 +830,7 @@ public class DateTimeFunction {
   private LocalDateTime formatNow(@Nullable Integer fsp) {
     var res = LocalDateTime.now();
     if (fsp == null) {
-      return res;
+      fsp = 0;
     }
     var defaultPrecision = 9; // There are 10^9 nanoseconds in one second
     if (fsp < 0 || fsp > 6) { // Check that the argument is in the allowed range [0, 6]
