@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
-import lombok.Setter;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.NamedExpression;
 
@@ -33,8 +32,7 @@ public class AnalysisContext {
    * For example, `now` function should the same value during processing a query.
    */
   @Getter
-  @Setter
-  private Map<String, Expression> cachedFunctionValues;
+  private final Map<String, Expression> cachedFunctionValues;
 
   public AnalysisContext() {
     this(new TypeEnvironment(null));

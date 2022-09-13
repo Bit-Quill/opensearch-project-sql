@@ -173,7 +173,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Override
   public Expression visitFunctionWithCachedValue(FunctionWithCachedValue node,
                                                  AnalysisContext context) {
-    var valueName = node.toString();
+    var valueName = node.getFuncName();
     if (context.getCachedFunctionValues().containsKey(valueName)) {
       return context.getCachedFunctionValues().get(valueName);
     }
