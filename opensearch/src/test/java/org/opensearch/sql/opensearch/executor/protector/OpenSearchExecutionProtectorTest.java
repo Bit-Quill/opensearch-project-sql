@@ -296,10 +296,13 @@ class OpenSearchExecutionProtectorTest {
 
   @Test
   public void testVisitHighlight() {
+    Map<String, Literal> args = new HashMap<>();
     HighlightOperator hlOperator =
         new HighlightOperator(
             values(emptyList()),
-            DSL.ref("reference", STRING));
+            DSL.ref("reference", STRING),
+            args,
+            "highlight(reference)");
 
     assertEquals(executionProtector.doProtect(hlOperator),
         executionProtector.visitHighlight(hlOperator, null));

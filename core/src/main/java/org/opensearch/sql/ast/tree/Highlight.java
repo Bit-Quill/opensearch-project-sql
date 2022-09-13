@@ -7,12 +7,14 @@ package org.opensearch.sql.ast.tree;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
+import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 
 /**
@@ -25,6 +27,8 @@ import org.opensearch.sql.ast.expression.UnresolvedExpression;
 @RequiredArgsConstructor
 public class Highlight extends UnresolvedPlan {
   private final UnresolvedExpression expression;
+  private final Map<String, Literal> arguments;
+  private final String name;
   private UnresolvedPlan child;
 
   @Override

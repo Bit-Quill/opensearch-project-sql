@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RuleContext;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.AggregateFunction;
 import org.opensearch.sql.ast.expression.Alias;
@@ -208,7 +209,14 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitHighlightFunctionCall(
       OpenSearchPPLParser.HighlightFunctionCallContext ctx) {
-    return new HighlightFunction(AstDSL.stringLiteral(ctx.relevanceField().getText()));
+    ImmutableMap.Builder<String, Literal> builder = ImmutableMap.builder();
+    ctx.highlightArg().forEach(v -> builder.put(
+            v.highlightArgName().getText().toLowerCase(),
+            new Literal(StringUtils.unquoteText(v.highlightArgValue().getText()),
+                DataType.STRING))
+    );
+    return new HighlightFunction(AstDSL.stringLiteral(
+        StringUtils.unquoteText(ctx.relevanceField().getText())), builder.build());
   }
 
   @Override

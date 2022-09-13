@@ -290,7 +290,7 @@ evalFunctionCall
     ;
 
 highlightFunction
-    : HIGHLIGHT LT_PRTHS field=relevanceField  RT_PRTHS            #highlightFunctionCall
+    : HIGHLIGHT relevanceField (COMMA highlightArg)*        #highlightFunctionCall
     ;
 
 /** cast function */
@@ -335,6 +335,10 @@ relevanceArg
     : relevanceArgName EQUAL relevanceArgValue
     ;
 
+highlightArg
+    : highlightArgName EQUAL highlightArgValue
+    ;
+
 relevanceArgName
     : ALLOW_LEADING_WILDCARD | ANALYZER | ANALYZE_WILDCARD | AUTO_GENERATE_SYNONYMS_PHRASE_QUERY
     | BOOST | CUTOFF_FREQUENCY | DEFAULT_FIELD | DEFAULT_OPERATOR | ENABLE_POSITION_INCREMENTS
@@ -343,6 +347,11 @@ relevanceArgName
     | MAX_EXPANSIONS | MINIMUM_SHOULD_MATCH | OPERATOR | PHRASE_SLOP | PREFIX_LENGTH
     | QUOTE_ANALYZER | QUOTE_FIELD_SUFFIX | REWRITE | SLOP | TIE_BREAKER | TIME_ZONE | TYPE
     | ZERO_TERMS_QUERY
+    ;
+
+
+highlightArgName
+    : HIGHLIGHT_POST_TAGS| HIGHLIGHT_PRE_TAGS
     ;
 
 relevanceFieldAndWeight
@@ -368,6 +377,10 @@ relevanceQuery
 relevanceArgValue
     : qualifiedName
     | literalValue
+    ;
+
+highlightArgValue
+    : stringLiteral
     ;
 
 mathematicalFunctionBase

@@ -17,11 +17,14 @@ import static org.opensearch.sql.expression.DSL.named;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.tree.RareTopN.CommandType;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.expression.DSL;
@@ -134,7 +137,9 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     assertNull(limit.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    PhysicalPlan highlight = new HighlightOperator(plan, DSL.ref("reference", STRING));
+    Map<String, Literal> args = new HashMap<>();
+    PhysicalPlan highlight = new HighlightOperator(plan, DSL.ref("reference", STRING),
+        args, "highlight(reference)");
     assertNull(highlight.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
   }

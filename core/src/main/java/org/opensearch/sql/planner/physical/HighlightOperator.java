@@ -16,10 +16,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
@@ -37,16 +39,16 @@ import org.opensearch.sql.expression.env.Environment;
  *
  */
 @EqualsAndHashCode
+@AllArgsConstructor
 public class HighlightOperator extends PhysicalPlan {
   @Getter
   private final PhysicalPlan input;
   @Getter
   private final Expression highlight;
-
-  public HighlightOperator(PhysicalPlan input, Expression highlight) {
-    this.input = input;
-    this.highlight = highlight;
-  }
+  @Getter
+  private final Map<String, Literal> arguments;
+  @Getter
+  private final String name;
 
   @Override
   public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
@@ -83,9 +85,9 @@ public class HighlightOperator extends PhysicalPlan {
    */
   private Pair<String, ExprValue> mapHighlight(Environment<Expression, ExprValue> env) {
     String osHighlightKey = "_highlight";
-    String highlightStr = StringUtils.unquoteText(highlight.toString());
-    if (!highlightStr.contains("*")) {
-      osHighlightKey += "." + highlightStr;
+    String highlightFieldStr = StringUtils.unquoteText(highlight.toString());
+    if (!highlightFieldStr.contains("*")) {
+      osHighlightKey += "." + highlightFieldStr;
     }
 
     ReferenceExpression osOutputVar = DSL.ref(osHighlightKey, STRING);
@@ -94,19 +96,18 @@ public class HighlightOperator extends PhysicalPlan {
     // In the event of multiple returned highlights and wildcard being
     // used in conjunction with other highlight calls, we need to ensure
     // only wildcard regex matching is mapped to wildcard call.
-    if (highlightStr.contains("*") && value.type() == STRUCT) {
+    if (highlightFieldStr.contains("*") && value.type() == STRUCT) {
       value = new ExprTupleValue(
           new LinkedHashMap<String, ExprValue>(value.tupleValue()
               .entrySet()
               .stream()
-              .filter(s -> matchesHighlightRegex(s.getKey(), highlightStr))
+              .filter(s -> matchesHighlightRegex(s.getKey(), highlightFieldStr))
               .collect(Collectors.toMap(
                   e -> e.getKey(),
                   e -> e.getValue()))));
     }
 
-    String sqlHighlightKey = "highlight(" + highlightStr + ")";
-    ReferenceExpression sqlOutputVar = DSL.ref(sqlHighlightKey, STRING);
+    ReferenceExpression sqlOutputVar = DSL.ref(name, STRING);
 
     // Add mapping for sql output and opensearch returned highlight fields
     extendEnv(env, sqlOutputVar, value);

@@ -17,11 +17,14 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
@@ -35,10 +38,11 @@ class HighlightOperatorTest extends PhysicalPlanTestBase {
 
   @Test
   public void do_nothing_with_none_tuple_value() {
+    Map<String, Literal> args = new HashMap<>();
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next()).thenReturn(ExprValueUtils.integerValue(1));
     ReferenceExpression highlightReferenceExp = DSL.ref("reference", STRING);
-    PhysicalPlan plan = new HighlightOperator(inputPlan, highlightReferenceExp);
+    PhysicalPlan plan = new HighlightOperator(inputPlan, highlightReferenceExp, args, "reference");
     List<ExprValue> result = execute(plan);
 
     assertTrue(((HighlightOperator)plan).getInput().equals(inputPlan));
@@ -48,6 +52,7 @@ class HighlightOperatorTest extends PhysicalPlanTestBase {
 
   @Test
   public void highlight_one_field() {
+    Map<String, Literal> args = new HashMap<>();
     when(inputPlan.hasNext()).thenReturn(true, true, true, false);
     when(inputPlan.next())
         .thenReturn(
@@ -61,7 +66,8 @@ class HighlightOperatorTest extends PhysicalPlanTestBase {
                 "_highlight.region", "us-east-1", "action", "PUT", "response", 200)));
 
     assertThat(
-        execute(new HighlightOperator(inputPlan, DSL.ref("region", STRING))),
+        execute(new HighlightOperator(inputPlan, DSL.ref("region", STRING), args,
+            "highlight(region)")),
         contains(
             tupleValue(ImmutableMap.of(
                 "_highlight.region", "us-east-1", "action", "GET",
@@ -77,6 +83,7 @@ class HighlightOperatorTest extends PhysicalPlanTestBase {
 
   @Test
   public void highlight_wildcard() {
+    Map<String, Literal> args = new HashMap<>();
     when(inputPlan.hasNext()).thenReturn(true, true, false);
     when(inputPlan.next())
         .thenReturn(
@@ -90,7 +97,7 @@ class HighlightOperatorTest extends PhysicalPlanTestBase {
                 "action", "GET", "response", 200)));
 
     assertThat(
-        execute(new HighlightOperator(inputPlan, DSL.ref("r*", STRUCT))),
+        execute(new HighlightOperator(inputPlan, DSL.ref("r*", STRUCT), args, "highlight(r*)")),
         contains(
             tupleValue(ImmutableMap.of(
                 "_highlight", ExprNullValue.of(),

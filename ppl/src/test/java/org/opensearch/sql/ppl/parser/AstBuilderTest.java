@@ -43,12 +43,13 @@ import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.opensearch.sql.utils.SystemIndexUtils.mappingTable;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.opensearch.sql.ast.Node;
-import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.SpanUnit;
@@ -611,21 +612,39 @@ public class AstBuilderTest {
 
   @Test
   public void testQuotedHighlightCommand() {
-    assertEqual("source=t | highlight('FieldA')",
+    Map<String, Literal> args = new HashMap<>();
+    assertEqual("source=t | highlight 'FieldA'",
         new Highlight(
-            alias("highlight('FieldA')",
-                highlight(stringLiteral("'FieldA'"))))
+            alias("highlight 'FieldA'",
+                highlight(stringLiteral("FieldA"), args)),
+            args, "highlight 'FieldA'")
             .attach(relation("t"))
     );
   }
 
   @Test
   public void testUnquotedHighlightCommand() {
-    assertEqual("source=t | highlight(FieldA)",
+    Map<String, Literal> args = new HashMap<>();
+    assertEqual("source=t | highlight fieldA",
         new Highlight(
-            alias("highlight(FieldA)",
-            highlight(stringLiteral("FieldA"))))
+            alias("highlight fieldA",
+            highlight(stringLiteral("fieldA"), args)),
+            args, "highlight fieldA")
                 .attach(relation("t"))
+    );
+  }
+
+  @Test
+  public void testHighlightCommandWithArguments() {
+    Map<String, Literal> args = new HashMap<>();
+    args.put("pre_tags", new Literal("<mark>", DataType.STRING));
+    args.put("post_tags", new Literal("</mark>", DataType.STRING));
+    assertEqual("source=t | highlight fieldA, pre_tags='<mark>', post_tags='</mark>'",
+        new Highlight(
+            alias("highlight fieldA, pre_tags='<mark>', post_tags='</mark>'",
+                highlight(stringLiteral("fieldA"), args)),
+            args, "highlight fieldA, pre_tags='<mark>', post_tags='</mark>'")
+            .attach(relation("t"))
     );
   }
 

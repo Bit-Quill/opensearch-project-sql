@@ -193,10 +193,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitHighlightFunction(HighlightFunction node, AnalysisContext context) {
-    Expression expr = node.getHighlightField().accept(this, context);
-    String highlightStr = "highlight(" + StringUtils.unquoteText(expr.toString()) + ")";
-    return new ReferenceExpression(highlightStr, expr.toString().contains("*")
-        ? ExprCoreType.STRUCT : ExprCoreType.ARRAY);
+    return (node.getName() != null) ? new ReferenceExpression(node.getName(),
+        node.getName().contains("*") ? ExprCoreType.STRUCT : ExprCoreType.ARRAY)
+        : null;
   }
 
   @Override
