@@ -1,9 +1,13 @@
 name: Link Checker
+
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.rst'
 
 jobs:
   linkchecker:
