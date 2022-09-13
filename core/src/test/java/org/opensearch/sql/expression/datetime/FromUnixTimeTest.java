@@ -25,13 +25,14 @@ import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
+import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.expression.env.Environment;
 import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.function.FunctionSignature;
 
-public class FromUnixTimeTest {
+public class FromUnixTimeTest extends ExpressionTestBase {
 
   Environment<Expression, ExprValue> env;
 
@@ -174,25 +175,45 @@ public class FromUnixTimeTest {
   }
 
   @Test
-  public void checkInvalidValues() {
+  public void checkInvalidFormat() {
     assertEquals(new ExprStringValue("q"),
         fromUnixTime(DSL.literal(0L), DSL.literal("%q")).valueOf(null));
     assertEquals(new ExprStringValue(""),
         fromUnixTime(DSL.literal(0L), DSL.literal("")).valueOf(null));
+  }
+
+  @Test
+  public void checkValueOutsideOfTheRangeWithoutFormat() {
     assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(-1L)).valueOf(null));
     assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(-1.5d)).valueOf(null));
     assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771200L)).valueOf(null));
     assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771200d)).valueOf(null));
+  }
+
+  @Test
+  public void checkInsideTheRangeWithoutFormat() {
     assertNotEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771199L)).valueOf(null));
     assertNotEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771199d)).valueOf(null));
+  }
+
+  @Test
+  public void checkValueOutsideOfTheRangeWithFormat() {
     assertEquals(ExprNullValue.of(),
         fromUnixTime(DSL.literal(32536771200L), DSL.literal("%d")).valueOf(null));
     assertEquals(ExprNullValue.of(),
         fromUnixTime(DSL.literal(32536771200d), DSL.literal("%d")).valueOf(null));
+  }
+
+  @Test
+  public void checkInsideTheRangeWithFormat() {
     assertNotEquals(ExprNullValue.of(),
         fromUnixTime(DSL.literal(32536771199L), DSL.literal("%d")).valueOf(null));
     assertNotEquals(ExprNullValue.of(),
         fromUnixTime(DSL.literal(32536771199d), DSL.literal("%d")).valueOf(null));
+  }
+
+  @Test
+  public void checkNullOrNegativeValues() {
     assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(ExprNullValue.of())).valueOf(null));
     assertEquals(ExprNullValue.of(),
         fromUnixTime(DSL.literal(-1L), DSL.literal("%d")).valueOf(null));

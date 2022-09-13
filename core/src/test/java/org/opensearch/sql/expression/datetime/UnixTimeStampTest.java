@@ -263,7 +263,9 @@ public class UnixTimeStampTest extends ExpressionTestBase {
         //misc
         Arguments.of(0d),
         Arguments.of(-1d),
-        Arguments.of(42d)
+        Arguments.of(42d),
+        //too many digits
+        Arguments.of(199902201122330d)
     );
   }
 
