@@ -32,7 +32,7 @@ public class AnalysisContext {
    * For example, `now` function should the same value during processing a query.
    */
   @Getter
-  private final Map<String, Expression> cachedFunctionValues;
+  private final Map<String, Expression> constantFunctionValues;
 
   public AnalysisContext() {
     this(new TypeEnvironment(null));
@@ -45,7 +45,7 @@ public class AnalysisContext {
   public AnalysisContext(TypeEnvironment environment) {
     this.environment = environment;
     this.namedParseExpressions = new ArrayList<>();
-    this.cachedFunctionValues = new HashMap<>();
+    this.constantFunctionValues = new HashMap<>();
   }
 
   /**

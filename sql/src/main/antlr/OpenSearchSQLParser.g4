@@ -307,11 +307,11 @@ functionCall
     | aggregateFunction (orderByClause)? filterClause               #filteredAggregationFunctionCall
     | relevanceFunction                                             #relevanceFunctionCall
     | highlightFunction                                             #highlightFunctionCall
-    | functionWithCachedValue                                       #functionLikeConstantCall
+    | constantFunction                                              #constantFunctionCall
     ;
 
-functionWithCachedValue
-    : functionWithCachedValueName LR_BRACKET functionArgs? RR_BRACKET
+constantFunction
+    : constantFunctionName LR_BRACKET functionArgs? RR_BRACKET
     ;
 
 highlightFunction
@@ -400,7 +400,7 @@ dateTimeFunctionName
     ;
 
 // Functions which value could be cached in scope of a single query
-functionWithCachedValueName
+constantFunctionName
     : datetimeConstantLiteral
     | CURDATE | CURTIME | NOW
     ;

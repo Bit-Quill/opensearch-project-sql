@@ -14,11 +14,11 @@ import static org.opensearch.sql.ast.dsl.AstDSL.aggregate;
 import static org.opensearch.sql.ast.dsl.AstDSL.alias;
 import static org.opensearch.sql.ast.dsl.AstDSL.argument;
 import static org.opensearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static org.opensearch.sql.ast.dsl.AstDSL.constantFunction;
 import static org.opensearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.field;
 import static org.opensearch.sql.ast.dsl.AstDSL.filter;
 import static org.opensearch.sql.ast.dsl.AstDSL.function;
-import static org.opensearch.sql.ast.dsl.AstDSL.functionLikeConstant;
 import static org.opensearch.sql.ast.dsl.AstDSL.highlight;
 import static org.opensearch.sql.ast.dsl.AstDSL.intLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.limit;
@@ -692,12 +692,12 @@ class AstBuilderTest {
   @ParameterizedTest(name = "{0}")
   @MethodSource("nowLikeFunctionsData")
   public void test_now_like_functions(String name, Boolean hasFsp, Boolean hasShortcut,
-                                      Boolean isFunctionLikeConst) {
+                                      Boolean isConstantFunction) {
     for (var call : hasShortcut ? List.of(name, name + "()") : List.of(name + "()")) {
       assertEquals(
           project(
               values(emptyList()),
-              alias(call, (isFunctionLikeConst ? functionLikeConstant(name) : function(name)))
+              alias(call, (isConstantFunction ? constantFunction(name) : function(name)))
           ),
           buildAST("SELECT " + call)
       );
@@ -709,7 +709,7 @@ class AstBuilderTest {
                   function(
                       "=",
                       qualifiedName("data"),
-                      (isFunctionLikeConst ? functionLikeConstant(name) : function(name)))
+                      (isConstantFunction ? constantFunction(name) : function(name)))
               ),
               AllFields.of()
           ),
@@ -717,7 +717,7 @@ class AstBuilderTest {
       );
     }
 
-    // Unfortunately, only real functions (not functionLikeConstants) might have `fsp` now.
+    // Unfortunately, only real functions (not ConstantFunction) might have `fsp` now.
     if (hasFsp) {
       assertEquals(
           project(

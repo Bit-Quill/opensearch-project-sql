@@ -8,11 +8,11 @@ package org.opensearch.sql.ppl.parser;
 
 import static org.junit.Assert.assertEquals;
 import static org.opensearch.sql.ast.dsl.AstDSL.compare;
+import static org.opensearch.sql.ast.dsl.AstDSL.constantFunction;
 import static org.opensearch.sql.ast.dsl.AstDSL.eval;
 import static org.opensearch.sql.ast.dsl.AstDSL.field;
 import static org.opensearch.sql.ast.dsl.AstDSL.filter;
 import static org.opensearch.sql.ast.dsl.AstDSL.function;
-import static org.opensearch.sql.ast.dsl.AstDSL.functionLikeConstant;
 import static org.opensearch.sql.ast.dsl.AstDSL.intLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.let;
 import static org.opensearch.sql.ast.dsl.AstDSL.relation;
@@ -34,14 +34,14 @@ public class AstNowLikeFunctionTest {
    * @param name Function name
    * @param hasFsp Whether function has fsp argument
    * @param hasShortcut Whether function has shortcut (call without `()`)
-   * @param isFunctionLikeConst Whether function has constant value
+   * @param isConstantFunction Whether function has constant value
    */
   public AstNowLikeFunctionTest(String name, Boolean hasFsp, Boolean hasShortcut,
-                                Boolean isFunctionLikeConst) {
+                                Boolean isConstantFunction) {
     this.name = name;
     this.hasFsp = hasFsp;
     this.hasShortcut = hasShortcut;
-    this.isFunctionLikeConst = isFunctionLikeConst;
+    this.isConstantFunction = isConstantFunction;
   }
 
   /**
@@ -66,7 +66,7 @@ public class AstNowLikeFunctionTest {
   private final String name;
   private final Boolean hasFsp;
   private final Boolean hasShortcut;
-  private final Boolean isFunctionLikeConst;
+  private final Boolean isConstantFunction;
 
   @Test
   public void test_now_like_functions() {
@@ -76,7 +76,7 @@ public class AstNowLikeFunctionTest {
               relation("t"),
               let(
                   field("r"),
-                  (isFunctionLikeConst ? functionLikeConstant(name) : function(name))
+                  (isConstantFunction ? constantFunction(name) : function(name))
               )
           ));
 
@@ -84,11 +84,11 @@ public class AstNowLikeFunctionTest {
           filter(
               relation("t"),
               compare("=", field("a"),
-                  (isFunctionLikeConst ? functionLikeConstant(name) : function(name)))
+                  (isConstantFunction ? constantFunction(name) : function(name)))
           )
       );
     }
-    // Unfortunately, only real functions (not functionLikeConstants) might have `fsp` now.
+    // Unfortunately, only real functions (not ConstantFunction) might have `fsp` now.
     if (hasFsp) {
       assertEqual("search source=t | where a=" + name + "(0)",
           filter(

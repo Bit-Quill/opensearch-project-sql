@@ -30,13 +30,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.sql.analysis.symbol.Namespace;
 import org.opensearch.sql.analysis.symbol.Symbol;
 import org.opensearch.sql.ast.dsl.AstDSL;
@@ -50,7 +45,6 @@ import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
-import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
@@ -549,10 +543,10 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void functionLikeConstant_calculated_on_analyze() {
-    // Actually, we can call any function as functionLikeConstant to be calculated on analyze stage
-    assertTrue(analyze(AstDSL.functionLikeConstant("now")) instanceof LiteralExpression);
-    assertTrue(analyze(AstDSL.functionLikeConstant("localtime")) instanceof LiteralExpression);
+  public void constant_function_is_calculated_on_analyze() {
+    // Actually, we can call any function as ConstantFunction to be calculated on analyze stage
+    assertTrue(analyze(AstDSL.constantFunction("now")) instanceof LiteralExpression);
+    assertTrue(analyze(AstDSL.constantFunction("localtime")) instanceof LiteralExpression);
   }
 
   @Test
@@ -562,11 +556,11 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void functionLikeConstant_returns_constant_cached_value() {
-    var values = List.of(analyze(AstDSL.functionLikeConstant("now")),
-        analyze(AstDSL.functionLikeConstant("now")), analyze(AstDSL.functionLikeConstant("now")));
+  public void constant_function_returns_constant_cached_value() {
+    var values = List.of(analyze(AstDSL.constantFunction("now")),
+        analyze(AstDSL.constantFunction("now")), analyze(AstDSL.constantFunction("now")));
     assertTrue(values.stream().allMatch(v ->
-        v.valueOf(null) == analyze(AstDSL.functionLikeConstant("now")).valueOf(null)));
+        v.valueOf(null) == analyze(AstDSL.constantFunction("now")).valueOf(null)));
   }
 
   @Test

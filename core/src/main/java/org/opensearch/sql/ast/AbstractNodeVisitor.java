@@ -15,10 +15,10 @@ import org.opensearch.sql.ast.expression.AttributeList;
 import org.opensearch.sql.ast.expression.Case;
 import org.opensearch.sql.ast.expression.Cast;
 import org.opensearch.sql.ast.expression.Compare;
+import org.opensearch.sql.ast.expression.ConstantFunction;
 import org.opensearch.sql.ast.expression.EqualTo;
 import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Function;
-import org.opensearch.sql.ast.expression.FunctionWithCachedValue;
 import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.In;
 import org.opensearch.sql.ast.expression.Interval;
@@ -117,7 +117,7 @@ public abstract class AbstractNodeVisitor<T, C> {
     return visitChildren(node, context);
   }
 
-  public T visitFunctionWithCachedValue(FunctionWithCachedValue node, C context) {
+  public T visitConstantFunction(ConstantFunction node, C context) {
     return visitChildren(node, context);
   }
 

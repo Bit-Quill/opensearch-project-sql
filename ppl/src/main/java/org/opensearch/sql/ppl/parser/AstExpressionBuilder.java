@@ -14,6 +14,7 @@ import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.BooleanFun
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.BooleanLiteralContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.BySpanClauseContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.CompareExprContext;
+import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.ConstantFunctionContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.ConvertedDataTypeContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.CountAllFunctionCallContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.DataTypeFunctionCallContext;
@@ -24,7 +25,6 @@ import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.EvalClause
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.EvalFunctionCallContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.FieldExpressionContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.FunctionArgsContext;
-import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.FunctionWithCachedValueContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.IdentsAsQualifiedNameContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.IdentsAsWildcardQualifiedNameContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.InExprContext;
@@ -62,10 +62,10 @@ import org.opensearch.sql.ast.expression.And;
 import org.opensearch.sql.ast.expression.Argument;
 import org.opensearch.sql.ast.expression.Cast;
 import org.opensearch.sql.ast.expression.Compare;
+import org.opensearch.sql.ast.expression.ConstantFunction;
 import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Function;
-import org.opensearch.sql.ast.expression.FunctionWithCachedValue;
 import org.opensearch.sql.ast.expression.In;
 import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.IntervalUnit;
@@ -247,17 +247,17 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitDatetimeConstantLiteral(DatetimeConstantLiteralContext ctx) {
-    return visitFunctionWithCachedValue(ctx.getText(), null);
+    return visitConstantFunction(ctx.getText(), null);
   }
 
-  public UnresolvedExpression visitFunctionWithCachedValue(FunctionWithCachedValueContext ctx) {
-    return visitFunctionWithCachedValue(ctx.functionWithCachedValueName().getText(),
+  public UnresolvedExpression visitConstantFunction(ConstantFunctionContext ctx) {
+    return visitConstantFunction(ctx.constantFunctionName().getText(),
         ctx.functionArgs());
   }
 
-  private UnresolvedExpression visitFunctionWithCachedValue(String functionName,
-                                                            FunctionArgsContext args) {
-    return new FunctionWithCachedValue(functionName,
+  private UnresolvedExpression visitConstantFunction(String functionName,
+                                                     FunctionArgsContext args) {
+    return new ConstantFunction(functionName,
         args == null
         ? Collections.emptyList()
         : args.functionArg()

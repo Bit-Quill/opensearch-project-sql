@@ -24,10 +24,10 @@ import org.opensearch.sql.ast.expression.And;
 import org.opensearch.sql.ast.expression.Case;
 import org.opensearch.sql.ast.expression.Cast;
 import org.opensearch.sql.ast.expression.Compare;
+import org.opensearch.sql.ast.expression.ConstantFunction;
 import org.opensearch.sql.ast.expression.EqualTo;
 import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Function;
-import org.opensearch.sql.ast.expression.FunctionWithCachedValue;
 import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.In;
 import org.opensearch.sql.ast.expression.Interval;
@@ -171,16 +171,15 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   }
 
   @Override
-  public Expression visitFunctionWithCachedValue(FunctionWithCachedValue node,
-                                                 AnalysisContext context) {
+  public Expression visitConstantFunction(ConstantFunction node, AnalysisContext context) {
     var valueName = node.getFuncName();
-    if (context.getCachedFunctionValues().containsKey(valueName)) {
-      return context.getCachedFunctionValues().get(valueName);
+    if (context.getConstantFunctionValues().containsKey(valueName)) {
+      return context.getConstantFunctionValues().get(valueName);
     }
 
     var value = visitFunction(node, context);
     value = DSL.literal(value.valueOf(null));
-    context.getCachedFunctionValues().put(valueName, value);
+    context.getConstantFunctionValues().put(valueName, value);
     return value;
   }
 
