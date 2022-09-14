@@ -12,7 +12,6 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,53 +21,9 @@ import org.opensearch.sql.data.model.ExprDoubleValue;
 import org.opensearch.sql.data.model.ExprLongValue;
 import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprStringValue;
-import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.expression.DSL;
-import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.ExpressionTestBase;
-import org.opensearch.sql.expression.FunctionExpression;
-import org.opensearch.sql.expression.config.ExpressionConfig;
-import org.opensearch.sql.expression.env.Environment;
-import org.opensearch.sql.expression.function.FunctionName;
-import org.opensearch.sql.expression.function.FunctionSignature;
 
-public class FromUnixTimeTest extends ExpressionTestBase {
-
-  Environment<Expression, ExprValue> env;
-
-  private FunctionExpression fromUnixTime(Expression value) {
-    var repo = new ExpressionConfig().functionRepository();
-    var func = repo.resolve(new FunctionSignature(new FunctionName("from_unixtime"),
-        List.of(value.type())));
-    return (FunctionExpression)func.apply(List.of(value));
-  }
-
-  private FunctionExpression fromUnixTime(Expression value, Expression format) {
-    var repo = new ExpressionConfig().functionRepository();
-    var func = repo.resolve(new FunctionSignature(new FunctionName("from_unixtime"),
-        List.of(value.type(), format.type())));
-    return (FunctionExpression)func.apply(List.of(value, format));
-  }
-
-  private LocalDateTime fromUnixTime(Long value) {
-    return fromUnixTime(DSL.literal(value)).valueOf(null).datetimeValue();
-  }
-
-  private LocalDateTime fromUnixTime(Double value) {
-    return fromUnixTime(DSL.literal(value)).valueOf(null).datetimeValue();
-  }
-
-  private String fromUnixTime(Long value, String format) {
-    return fromUnixTime(DSL.literal(value), DSL.literal(format)).valueOf(null).stringValue();
-  }
-
-  private String fromUnixTime(Double value, String format) {
-    return fromUnixTime(DSL.literal(value), DSL.literal(format)).valueOf(null).stringValue();
-  }
-
-  private ExprValue eval(Expression expression) {
-    return expression.valueOf(env);
-  }
+public class FromUnixTimeTest extends DateTimeTestBase {
 
   private static Stream<Arguments> getLongSamples() {
     return Stream.of(

@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
-import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,56 +24,9 @@ import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprDoubleValue;
 import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
-import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.expression.DSL;
-import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.ExpressionTestBase;
-import org.opensearch.sql.expression.FunctionExpression;
-import org.opensearch.sql.expression.config.ExpressionConfig;
-import org.opensearch.sql.expression.env.Environment;
-import org.opensearch.sql.expression.function.FunctionName;
-import org.opensearch.sql.expression.function.FunctionSignature;
 
-public class UnixTimeStampTest extends ExpressionTestBase {
-
-  Environment<Expression, ExprValue> env;
-
-  private FunctionExpression unixTimeStampExpr() {
-    var repo = new ExpressionConfig().functionRepository();
-    var func = repo.resolve(new FunctionSignature(new FunctionName("unix_timestamp"), List.of()));
-    return (FunctionExpression)func.apply(List.of());
-  }
-
-  private Long unixTimeStamp() {
-    return unixTimeStampExpr().valueOf(null).longValue();
-  }
-
-  private FunctionExpression unixTimeStampOf(Expression value) {
-    var repo = new ExpressionConfig().functionRepository();
-    var func = repo.resolve(new FunctionSignature(new FunctionName("unix_timestamp"),
-        List.of(value.type())));
-    return (FunctionExpression)func.apply(List.of(value));
-  }
-
-  private Double unixTimeStampOf(Double value) {
-    return unixTimeStampOf(DSL.literal(value)).valueOf(null).doubleValue();
-  }
-
-  private Double unixTimeStampOf(LocalDate value) {
-    return unixTimeStampOf(DSL.literal(new ExprDateValue(value))).valueOf(null).doubleValue();
-  }
-
-  private Double unixTimeStampOf(LocalDateTime value) {
-    return unixTimeStampOf(DSL.literal(new ExprDatetimeValue(value))).valueOf(null).doubleValue();
-  }
-
-  private Double unixTimeStampOf(Instant value) {
-    return unixTimeStampOf(DSL.literal(new ExprTimestampValue(value))).valueOf(null).doubleValue();
-  }
-
-  private ExprValue eval(Expression expression) {
-    return expression.valueOf(env);
-  }
+public class UnixTimeStampTest extends DateTimeTestBase {
 
   @Test
   public void checkNoArgs() {
