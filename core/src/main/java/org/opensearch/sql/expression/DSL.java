@@ -682,6 +682,22 @@ public class DSL {
     return compile(BuiltinFunctionName.MATCH_BOOL_PREFIX, args);
   }
 
+  public FunctionExpression unixTimeStampExpr() {
+    return compile(BuiltinFunctionName.UNIX_TIMESTAMP);
+  }
+
+  public FunctionExpression unixTimeStampOf(Expression value) {
+    return compile(BuiltinFunctionName.UNIX_TIMESTAMP, value);
+  }
+
+  public FunctionExpression fromUnixTime(Expression value) {
+    return compile(BuiltinFunctionName.FROM_UNIXTIME, value);
+  }
+
+  public FunctionExpression fromUnixTime(Expression value, Expression format) {
+    return compile(BuiltinFunctionName.FROM_UNIXTIME, value, format);
+  }
+
   private FunctionExpression compile(BuiltinFunctionName bfn, Expression... args) {
     return (FunctionExpression) repository.compile(bfn.getName(), Arrays.asList(args.clone()));
   }

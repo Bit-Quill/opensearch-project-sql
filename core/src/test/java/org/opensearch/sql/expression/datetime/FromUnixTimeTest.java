@@ -32,42 +32,14 @@ import org.opensearch.sql.expression.env.Environment;
 import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.function.FunctionSignature;
 
-public class FromUnixTimeTest extends ExpressionTestBase {
-
-  Environment<Expression, ExprValue> env;
-
-  private FunctionExpression fromUnixTime(Expression value) {
-    var repo = new ExpressionConfig().functionRepository();
-    var func = repo.resolve(new FunctionSignature(new FunctionName("from_unixtime"),
-        List.of(value.type())));
-    return (FunctionExpression)func.apply(List.of(value));
-  }
-
-  private FunctionExpression fromUnixTime(Expression value, Expression format) {
-    var repo = new ExpressionConfig().functionRepository();
-    var func = repo.resolve(new FunctionSignature(new FunctionName("from_unixtime"),
-        List.of(value.type(), format.type())));
-    return (FunctionExpression)func.apply(List.of(value, format));
-  }
-
-  private LocalDateTime fromUnixTime(Long value) {
-    return fromUnixTime(DSL.literal(value)).valueOf(null).datetimeValue();
-  }
-
-  private LocalDateTime fromUnixTime(Double value) {
-    return fromUnixTime(DSL.literal(value)).valueOf(null).datetimeValue();
-  }
+public class FromUnixTimeTest extends DateTimeExpressionTestBase {
 
   private String fromUnixTime(Long value, String format) {
-    return fromUnixTime(DSL.literal(value), DSL.literal(format)).valueOf(null).stringValue();
+    return dsl.fromUnixTime(DSL.literal(value), DSL.literal(format)).valueOf(null).stringValue();
   }
 
   private String fromUnixTime(Double value, String format) {
-    return fromUnixTime(DSL.literal(value), DSL.literal(format)).valueOf(null).stringValue();
-  }
-
-  private ExprValue eval(Expression expression) {
-    return expression.valueOf(env);
+    return dsl.fromUnixTime(DSL.literal(value), DSL.literal(format)).valueOf(null).stringValue();
   }
 
   private static Stream<Arguments> getLongSamples() {
@@ -90,7 +62,7 @@ public class FromUnixTimeTest extends ExpressionTestBase {
     assertEquals(LocalDateTime.of(1970, 1, 1, 0, 0, 0).plus(value, ChronoUnit.SECONDS),
         fromUnixTime(value));
     assertEquals(LocalDateTime.of(1970, 1, 1, 0, 0, 0).plus(value, ChronoUnit.SECONDS),
-        eval(fromUnixTime(DSL.literal(new ExprLongValue(value)))).datetimeValue());
+        eval(dsl.fromUnixTime(DSL.literal(new ExprLongValue(value)))).datetimeValue());
   }
 
   private static Stream<Arguments> getDoubleSamples() {
@@ -120,7 +92,7 @@ public class FromUnixTimeTest extends ExpressionTestBase {
         valueAsString);
     assertEquals(
         LocalDateTime.ofEpochSecond(intPart, (int)Math.round(fracPart * 1E9), ZoneOffset.UTC),
-        eval(fromUnixTime(DSL.literal(new ExprDoubleValue(value)))).datetimeValue(),
+        eval(dsl.fromUnixTime(DSL.literal(new ExprDoubleValue(value)))).datetimeValue(),
         valueAsString);
   }
 
@@ -146,7 +118,7 @@ public class FromUnixTimeTest extends ExpressionTestBase {
   @MethodSource("getLongSamplesWithFormat")
   public void checkOfLongWithFormat(Long value, String format, String expected) {
     assertEquals(expected, fromUnixTime(value, format));
-    assertEquals(expected, eval(fromUnixTime(DSL.literal(new ExprLongValue(value)),
+    assertEquals(expected, eval(dsl.fromUnixTime(DSL.literal(new ExprLongValue(value)),
         DSL.literal(new ExprStringValue(format)))).stringValue());
   }
 
@@ -170,61 +142,64 @@ public class FromUnixTimeTest extends ExpressionTestBase {
   @MethodSource("getDoubleSamplesWithFormat")
   public void checkOfDoubleWithFormat(Double value, String format, String expected) {
     assertEquals(expected, fromUnixTime(value, format));
-    assertEquals(expected, eval(fromUnixTime(DSL.literal(new ExprDoubleValue(value)),
+    assertEquals(expected, eval(dsl.fromUnixTime(DSL.literal(new ExprDoubleValue(value)),
         DSL.literal(new ExprStringValue(format)))).stringValue());
   }
 
   @Test
   public void checkInvalidFormat() {
     assertEquals(new ExprStringValue("q"),
-        fromUnixTime(DSL.literal(0L), DSL.literal("%q")).valueOf(null));
+        dsl.fromUnixTime(DSL.literal(0L), DSL.literal("%q")).valueOf(null));
     assertEquals(new ExprStringValue(""),
-        fromUnixTime(DSL.literal(0L), DSL.literal("")).valueOf(null));
+        dsl.fromUnixTime(DSL.literal(0L), DSL.literal("")).valueOf(null));
   }
 
   @Test
   public void checkValueOutsideOfTheRangeWithoutFormat() {
-    assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(-1L)).valueOf(null));
-    assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(-1.5d)).valueOf(null));
-    assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771200L)).valueOf(null));
-    assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771200d)).valueOf(null));
+    assertEquals(ExprNullValue.of(),
+        dsl.fromUnixTime(DSL.literal(-1L)).valueOf(null));
+    assertEquals(ExprNullValue.of(), dsl.fromUnixTime(DSL.literal(-1.5d)).valueOf(null));
+    assertEquals(ExprNullValue.of(), dsl.fromUnixTime(DSL.literal(32536771200L)).valueOf(null));
+    assertEquals(ExprNullValue.of(), dsl.fromUnixTime(DSL.literal(32536771200d)).valueOf(null));
   }
 
   @Test
   public void checkInsideTheRangeWithoutFormat() {
-    assertNotEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771199L)).valueOf(null));
-    assertNotEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(32536771199d)).valueOf(null));
+    assertNotEquals(ExprNullValue.of(),
+        dsl.fromUnixTime(DSL.literal(32536771199L)).valueOf(null));
+    assertNotEquals(ExprNullValue.of(),
+        dsl.fromUnixTime(DSL.literal(32536771199d)).valueOf(null));
   }
 
   @Test
   public void checkValueOutsideOfTheRangeWithFormat() {
     assertEquals(ExprNullValue.of(),
-        fromUnixTime(DSL.literal(32536771200L), DSL.literal("%d")).valueOf(null));
+        dsl.fromUnixTime(DSL.literal(32536771200L), DSL.literal("%d")).valueOf(null));
     assertEquals(ExprNullValue.of(),
-        fromUnixTime(DSL.literal(32536771200d), DSL.literal("%d")).valueOf(null));
+        dsl.fromUnixTime(DSL.literal(32536771200d), DSL.literal("%d")).valueOf(null));
   }
 
   @Test
   public void checkInsideTheRangeWithFormat() {
     assertNotEquals(ExprNullValue.of(),
-        fromUnixTime(DSL.literal(32536771199L), DSL.literal("%d")).valueOf(null));
+        dsl.fromUnixTime(DSL.literal(32536771199L), DSL.literal("%d")).valueOf(null));
     assertNotEquals(ExprNullValue.of(),
-        fromUnixTime(DSL.literal(32536771199d), DSL.literal("%d")).valueOf(null));
+        dsl.fromUnixTime(DSL.literal(32536771199d), DSL.literal("%d")).valueOf(null));
   }
 
   @Test
   public void checkNullOrNegativeValues() {
-    assertEquals(ExprNullValue.of(), fromUnixTime(DSL.literal(ExprNullValue.of())).valueOf(null));
+    assertEquals(ExprNullValue.of(), dsl.fromUnixTime(DSL.literal(ExprNullValue.of())).valueOf(null));
     assertEquals(ExprNullValue.of(),
-        fromUnixTime(DSL.literal(-1L), DSL.literal("%d")).valueOf(null));
+        dsl.fromUnixTime(DSL.literal(-1L), DSL.literal("%d")).valueOf(null));
     assertEquals(ExprNullValue.of(),
-        fromUnixTime(DSL.literal(-1.5d), DSL.literal("%d")).valueOf(null));
+        dsl.fromUnixTime(DSL.literal(-1.5d), DSL.literal("%d")).valueOf(null));
     assertEquals(ExprNullValue.of(),
-        fromUnixTime(DSL.literal(42L), DSL.literal(ExprNullValue.of())).valueOf(null));
+        dsl.fromUnixTime(DSL.literal(42L), DSL.literal(ExprNullValue.of())).valueOf(null));
     assertEquals(ExprNullValue.of(),
-        fromUnixTime(DSL.literal(ExprNullValue.of()), DSL.literal("%d")).valueOf(null));
+        dsl.fromUnixTime(DSL.literal(ExprNullValue.of()), DSL.literal("%d")).valueOf(null));
     assertEquals(ExprNullValue.of(),
-        fromUnixTime(DSL.literal(ExprNullValue.of()), DSL.literal(ExprNullValue.of()))
+        dsl.fromUnixTime(DSL.literal(ExprNullValue.of()), DSL.literal(ExprNullValue.of()))
             .valueOf(null));
   }
 }

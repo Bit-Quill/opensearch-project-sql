@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
-import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,58 +27,28 @@ import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.ExpressionTestBase;
-import org.opensearch.sql.expression.FunctionExpression;
-import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.expression.env.Environment;
-import org.opensearch.sql.expression.function.FunctionName;
-import org.opensearch.sql.expression.function.FunctionSignature;
 
-public class UnixTimeStampTest extends ExpressionTestBase {
+public class UnixTimeStampTest extends DateTimeExpressionTestBase {
 
   Environment<Expression, ExprValue> env;
 
-  private FunctionExpression unixTimeStampExpr() {
-    var repo = new ExpressionConfig().functionRepository();
-    var func = repo.resolve(new FunctionSignature(new FunctionName("unix_timestamp"), List.of()));
-    return (FunctionExpression)func.apply(List.of());
-  }
-
-  private Long unixTimeStamp() {
-    return unixTimeStampExpr().valueOf(null).longValue();
-  }
-
-  private FunctionExpression unixTimeStampOf(Expression value) {
-    var repo = new ExpressionConfig().functionRepository();
-    var func = repo.resolve(new FunctionSignature(new FunctionName("unix_timestamp"),
-        List.of(value.type())));
-    return (FunctionExpression)func.apply(List.of(value));
-  }
-
   private Double unixTimeStampOf(Double value) {
-    return unixTimeStampOf(DSL.literal(value)).valueOf(null).doubleValue();
+    return dsl.unixTimeStampOf(DSL.literal(value)).valueOf(null).doubleValue();
   }
 
   private Double unixTimeStampOf(LocalDate value) {
-    return unixTimeStampOf(DSL.literal(new ExprDateValue(value))).valueOf(null).doubleValue();
-  }
-
-  private Double unixTimeStampOf(LocalDateTime value) {
-    return unixTimeStampOf(DSL.literal(new ExprDatetimeValue(value))).valueOf(null).doubleValue();
+    return dsl.unixTimeStampOf(DSL.literal(new ExprDateValue(value))).valueOf(null).doubleValue();
   }
 
   private Double unixTimeStampOf(Instant value) {
-    return unixTimeStampOf(DSL.literal(new ExprTimestampValue(value))).valueOf(null).doubleValue();
-  }
-
-  private ExprValue eval(Expression expression) {
-    return expression.valueOf(env);
+    return dsl.unixTimeStampOf(DSL.literal(new ExprTimestampValue(value))).valueOf(null).doubleValue();
   }
 
   @Test
   public void checkNoArgs() {
     assertEquals(System.currentTimeMillis() / 1000L, unixTimeStamp());
-    assertEquals(System.currentTimeMillis() / 1000L, eval(unixTimeStampExpr()).longValue());
+    assertEquals(System.currentTimeMillis() / 1000L, dsl.unixTimeStampExpr().valueOf(null).longValue());
   }
 
   private static Stream<Arguments> getDateSamples() {
@@ -102,7 +71,7 @@ public class UnixTimeStampTest extends ExpressionTestBase {
   public void checkOfDate(LocalDate value) {
     assertEquals(value.getLong(ChronoField.EPOCH_DAY) * 24 * 3600, unixTimeStampOf(value));
     assertEquals(value.getLong(ChronoField.EPOCH_DAY) * 24 * 3600,
-        eval(unixTimeStampOf(DSL.literal(new ExprDateValue(value)))).longValue());
+        eval(dsl.unixTimeStampOf(DSL.literal(new ExprDateValue(value)))).longValue());
   }
 
   private static Stream<Arguments> getDateTimeSamples() {
@@ -125,7 +94,7 @@ public class UnixTimeStampTest extends ExpressionTestBase {
   public void checkOfDateTime(LocalDateTime value) {
     assertEquals(value.toEpochSecond(ZoneOffset.UTC), unixTimeStampOf(value));
     assertEquals(value.toEpochSecond(ZoneOffset.UTC),
-        eval(unixTimeStampOf(DSL.literal(new ExprDatetimeValue(value)))).longValue());
+        eval(dsl.unixTimeStampOf(DSL.literal(new ExprDatetimeValue(value)))).longValue());
   }
 
   private static Stream<Arguments> getInstantSamples() {
