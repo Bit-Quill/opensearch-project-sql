@@ -33,7 +33,7 @@ on:
 env: 
   PLUGIN_NAME: query-workbench-dashboards
   OPENSEARCH_VERSION: 'main'
-  OPENSEARCH_PLUGIN_VERSION: 2.3.0.0
+  OPENSEARCH_PLUGIN_VERSION: 2.4.0.0
 
 jobs:
 
@@ -51,7 +51,7 @@ jobs:
           repository: opensearch-project/Opensearch-Dashboards
           ref: ${{ env.OPENSEARCH_VERSION }}
           path: OpenSearch-Dashboards
-          
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
