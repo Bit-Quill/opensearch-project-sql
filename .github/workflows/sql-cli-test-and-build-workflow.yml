@@ -34,7 +34,7 @@ jobs:
           pip install -r requirements-dev.txt
           pip install setuptools wheel
       
-        # tests are designed to run agains http://localhost:9200, so we have to disable/remove security plugin
+        # tests are designed to run against http://localhost:9200, so we have to disable/remove security plugin
       - name: Download and run OpenSearch
         run: |
           wget -q https://artifacts.opensearch.org/releases/bundle/opensearch/2.2.1/opensearch-2.2.1-linux-x64.tar.gz
