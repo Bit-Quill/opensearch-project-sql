@@ -1,6 +1,8 @@
 name: SQL CLI Test and Build
 
 on:
+  pull_request:
+    types: [opened, reopened]
   push:
     branches-ignore:
       - 'dependabot/**'

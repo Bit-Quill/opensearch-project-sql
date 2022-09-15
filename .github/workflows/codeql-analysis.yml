@@ -6,6 +6,7 @@ on:
       - 'main'
       - '[1-9]+.[0-9x]+'
       - '[1-9]+.[0-9x]+.[0-9x]+'
+    types: [opened, reopened]
   push:
     branches-ignore:
       - 'dependabot/**'
