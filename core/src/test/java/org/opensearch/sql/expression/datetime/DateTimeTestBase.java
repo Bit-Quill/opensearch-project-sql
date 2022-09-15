@@ -39,10 +39,11 @@ public class DateTimeTestBase extends ExpressionTestBase {
 
   @Mock
   protected Expression missingRef;
-
+  @Autowired
+  protected final BuiltinFunctionRepository functionRepository;
+  
   protected FunctionExpression maketime(Expression hour, Expression minute, Expression second) {
-    var repo = new ExpressionConfig().functionRepository();
-    var func = repo.resolve(new FunctionSignature(new FunctionName("maketime"),
+    var func = functionRepository.resolve(new FunctionSignature(new FunctionName("maketime"),
         List.of(DOUBLE, DOUBLE, DOUBLE)));
     return (FunctionExpression)func.apply(List.of(hour, minute, second));
   }
