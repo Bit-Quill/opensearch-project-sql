@@ -23,10 +23,11 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
-import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.expression.env.Environment;
+import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.function.FunctionSignature;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @ExtendWith(MockitoExtension.class)
 public class DateTimeTestBase extends ExpressionTestBase {
@@ -39,8 +40,9 @@ public class DateTimeTestBase extends ExpressionTestBase {
 
   @Mock
   protected Expression missingRef;
+
   @Autowired
-  protected final BuiltinFunctionRepository functionRepository;
+  protected BuiltinFunctionRepository functionRepository;
   
   protected FunctionExpression maketime(Expression hour, Expression minute, Expression second) {
     var func = functionRepository.resolve(new FunctionSignature(new FunctionName("maketime"),
@@ -54,8 +56,7 @@ public class DateTimeTestBase extends ExpressionTestBase {
   }
 
   protected FunctionExpression makedate(Expression year, Expression dayOfYear) {
-    var repo = new ExpressionConfig().functionRepository();
-    var func = repo.resolve(new FunctionSignature(new FunctionName("makedate"),
+    var func = functionRepository.resolve(new FunctionSignature(new FunctionName("makedate"),
         List.of(DOUBLE, DOUBLE)));
     return (FunctionExpression)func.apply(List.of(year, dayOfYear));
   }
@@ -65,8 +66,8 @@ public class DateTimeTestBase extends ExpressionTestBase {
   }
 
   protected FunctionExpression unixTimeStampExpr() {
-    var repo = new ExpressionConfig().functionRepository();
-    var func = repo.resolve(new FunctionSignature(new FunctionName("unix_timestamp"), List.of()));
+    var func = functionRepository.resolve(
+        new FunctionSignature(new FunctionName("unix_timestamp"), List.of()));
     return (FunctionExpression)func.apply(List.of());
   }
 
@@ -75,8 +76,7 @@ public class DateTimeTestBase extends ExpressionTestBase {
   }
 
   protected FunctionExpression unixTimeStampOf(Expression value) {
-    var repo = new ExpressionConfig().functionRepository();
-    var func = repo.resolve(new FunctionSignature(new FunctionName("unix_timestamp"),
+    var func = functionRepository.resolve(new FunctionSignature(new FunctionName("unix_timestamp"),
         List.of(value.type())));
     return (FunctionExpression)func.apply(List.of(value));
   }
@@ -98,15 +98,13 @@ public class DateTimeTestBase extends ExpressionTestBase {
   }
 
   protected FunctionExpression fromUnixTime(Expression value) {
-    var repo = new ExpressionConfig().functionRepository();
-    var func = repo.resolve(new FunctionSignature(new FunctionName("from_unixtime"),
+    var func = functionRepository.resolve(new FunctionSignature(new FunctionName("from_unixtime"),
         List.of(value.type())));
     return (FunctionExpression)func.apply(List.of(value));
   }
 
   protected FunctionExpression fromUnixTime(Expression value, Expression format) {
-    var repo = new ExpressionConfig().functionRepository();
-    var func = repo.resolve(new FunctionSignature(new FunctionName("from_unixtime"),
+    var func = functionRepository.resolve(new FunctionSignature(new FunctionName("from_unixtime"),
         List.of(value.type(), format.type())));
     return (FunctionExpression)func.apply(List.of(value, format));
   }
