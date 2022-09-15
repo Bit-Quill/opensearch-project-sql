@@ -18,6 +18,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
+        opensearch-version: [ 2.2.1 ]
 
     steps:
       - name: Checkout SQL CLI
@@ -37,10 +38,10 @@ jobs:
         # tests are designed to run against http://localhost:9200, so we have to disable/remove security plugin
       - name: Download and run OpenSearch
         run: |
-          wget -q https://artifacts.opensearch.org/releases/bundle/opensearch/2.2.1/opensearch-2.2.1-linux-x64.tar.gz
-          tar xf opensearch-2.2.1-linux-x64.tar.gz
-          opensearch-2.2.1/bin/opensearch-plugin remove opensearch-security
-          opensearch-2.2.1/bin/opensearch -d          
+          wget -q https://artifacts.opensearch.org/releases/bundle/opensearch/${{ matrix.opensearch-version }}/opensearch-${{ matrix.opensearch-version }}-linux-x64.tar.gz
+          tar xf opensearch-${{ matrix.opensearch-version }}-linux-x64.tar.gz
+          opensearch-${{ matrix.opensearch-version }}/bin/opensearch-plugin remove opensearch-security
+          opensearch-${{ matrix.opensearch-version }}/bin/opensearch -d
 
       - name: Run Tox Testing
         run: tox
