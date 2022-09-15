@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
-        opensearch-version: [ 2.2.1 ]
+        opensearch-version: [ 2.2.1, latest ]
 
     steps:
       - name: Checkout SQL CLI
@@ -40,10 +40,14 @@ jobs:
         # tests are designed to run against http://localhost:9200, so we have to disable/remove security plugin
       - name: Download and run OpenSearch
         run: |
-          wget -q https://artifacts.opensearch.org/releases/bundle/opensearch/${{ matrix.opensearch-version }}/opensearch-${{ matrix.opensearch-version }}-linux-x64.tar.gz
-          tar xf opensearch-${{ matrix.opensearch-version }}-linux-x64.tar.gz
-          opensearch-${{ matrix.opensearch-version }}/bin/opensearch-plugin remove opensearch-security
-          opensearch-${{ matrix.opensearch-version }}/bin/opensearch -d
+          docker run -p 9200:9200 -e "discovery.type=single-node" -e "DISABLE_SECURITY_PLUGIN=true" --name test -d opensearchproject/opensearch:${{ matrix.opensearch-version }}
+
+      - name: Wait for cluster to start
+        uses: nick-fields/retry@v2
+        with:
+          timeout_seconds: 1
+          max_attempts: 30
+          command: curl -q localhost:9200
 
       - name: Run Tox Testing
         run: tox
@@ -61,3 +65,9 @@ jobs:
         with:
           name: opensearchsql
           path: sql-cli/opensearchsql-builds
+
+      - name: Clean up container
+        if: always()
+        run: |
+          docker container stop test
+          docker container rm test
