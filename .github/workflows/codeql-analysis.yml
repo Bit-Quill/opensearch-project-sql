@@ -3,7 +3,9 @@ name: "CodeQL"
 on:
   pull_request:
     branches:
-      - main
+      - 'main'
+      - '[1-9]+.[0-9x]+'
+      - '[1-9]+.[0-9x]+.[0-9x]+'
   push:
     branches-ignore:
       - 'dependabot/**'

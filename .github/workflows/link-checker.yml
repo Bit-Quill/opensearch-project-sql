@@ -2,7 +2,10 @@ name: Link Checker
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - 'main'
+      - '[1-9]+.[0-9x]+'
+      - '[1-9]+.[0-9x]+.[0-9x]+'
     paths:
       - '**/*.pdf'
       - '**/*.pnj'
