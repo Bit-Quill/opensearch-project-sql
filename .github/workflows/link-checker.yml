@@ -4,7 +4,10 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'docs/**'
+      - '**/*.pdf'
+      - '**/*.pnj'
+      - '**/*.jpg'
+      - '**/*.json'
       - '**/*.md'
       - '**/*.txt'
       - '**/*.rst'
@@ -12,7 +15,7 @@ on:
 jobs:
   linkchecker:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v2
