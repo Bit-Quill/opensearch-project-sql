@@ -67,6 +67,7 @@ public class RestSqlStatsAction extends BaseRestHandler {
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
 
+        QueryContext.clearError();
         QueryContext.addRequestId();
 
         try {
