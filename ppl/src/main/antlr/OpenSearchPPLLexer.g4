@@ -101,9 +101,6 @@ DAY_MICROSECOND:                    'DAY_MICROSECOND';
 DAY_SECOND:                         'DAY_SECOND';
 DAY_MINUTE:                         'DAY_MINUTE';
 DAY_HOUR:                           'DAY_HOUR';
-UTC_DATE:                           'UTC_DATE';
-UTC_TIME:                           'UTC_TIME';
-UTC_TIMESTAMP:                      'UTC_TIMESTAMP';
 YEAR_MONTH:                         'YEAR_MONTH';
 
 // DATASET TYPES

@@ -469,7 +469,7 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver utc_date() {
     return define(BuiltinFunctionName.UTC_DATE.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprUtcDate), DATE));
+        impl(DateTimeFunction::exprUtcDate, DATE));
   }
 
   /**
@@ -477,7 +477,7 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver utc_time() {
     return define(BuiltinFunctionName.UTC_TIME.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprUtcTime), TIME));
+        impl(DateTimeFunction::exprUtcTime, TIME));
   }
 
   /**
@@ -485,7 +485,7 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver utc_timestamp() {
     return define(BuiltinFunctionName.UTC_TIMESTAMP.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprUtcTimeStamp), TIMESTAMP));
+        impl(DateTimeFunction::exprUtcTimeStamp, TIMESTAMP));
   }
 
   /**
@@ -815,7 +815,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprUtcDate() {
-    return new ExprDateValue();
+    return new ExprDateValue(String.valueOf(LocalDateTime.now()));
   }
 
   /**
@@ -824,7 +824,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprUtcTime() {
-    return new ExprTimeValue();
+    return new ExprTimeValue(String.valueOf(LocalDateTime.now()));
   }
 
   /**
@@ -833,7 +833,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprUtcTimeStamp() {
-    return new ExprTimestampValue();
+    return new ExprTimestampValue(String.valueOf(LocalDateTime.now()));
   }
 
   /**
