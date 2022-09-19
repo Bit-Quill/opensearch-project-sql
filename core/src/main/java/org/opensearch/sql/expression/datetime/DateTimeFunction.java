@@ -950,7 +950,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprUtcDate() {
-    return new ExprDateValue(String.valueOf(LocalDateTime.now()));
+    return exprDateTime(new ExprDatetimeValue(LocalDateTime.now()), new ExprStringValue("+00:00"));
   }
 
   /**
