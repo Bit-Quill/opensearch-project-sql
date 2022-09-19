@@ -21,12 +21,18 @@ import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHand
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.time.format.TextStyle;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import lombok.experimental.UtilityClass;
@@ -39,6 +45,8 @@ import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.type.ExprCoreType;
+import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.DefaultFunctionResolver;
@@ -52,6 +60,9 @@ import org.opensearch.sql.expression.function.FunctionResolver;
  */
 @UtilityClass
 public class DateTimeFunction {
+  String timeZoneMax = "+14:00";
+  String timeZoneMin = "-13:59";
+  String timeZoneZero = "+00:00";
 
   // The number of days from year zero to year 1970.
   private static final Long DAYS_0000_TO_1970 = (146097 * 5L) - (30L * 365L + 7L);
@@ -63,7 +74,9 @@ public class DateTimeFunction {
    */
   public void register(BuiltinFunctionRepository repository) {
     repository.register(adddate());
+    repository.register(convert_tz());
     repository.register(date());
+    repository.register(datetime());
     repository.register(date_add());
     repository.register(date_sub());
     repository.register(day());
@@ -201,6 +214,21 @@ public class DateTimeFunction {
   }
 
   /**
+   * Converts date/time from a specified timezone to another specified timezone.
+   * The supported signatures:
+   * (DATETIME, STRING, STRING) -> DATETIME
+   * (STRING, STRING, STRING) -> DATETIME
+   */
+  private FunctionResolver convert_tz() {
+    return define(BuiltinFunctionName.CONVERT_TZ.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprConvertTZ),
+            DATETIME, DATETIME, STRING, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprConvertTZ),
+            DATETIME, STRING, STRING, STRING)
+    );
+  }
+
+  /**
    * Extracts the date part of a date and time value.
    * Also to construct a date type. The supported signatures:
    * STRING/DATE/DATETIME/TIMESTAMP -> DATE
@@ -211,6 +239,21 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, TIMESTAMP));
+  }
+
+  /**
+   * Specify a datetime with time zone field and a time zone to convert to.
+   * Returns a local date time.
+   * (STRING, STRING) -> DATETIME
+   * (STRING) -> DATETIME
+   */
+  private FunctionResolver datetime() {
+    return define(BuiltinFunctionName.DATETIME.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprDateTime),
+            DATETIME, STRING, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprDateTimeNoTimezone),
+            DATETIME, STRING)
+    );
   }
 
   private DefaultFunctionResolver date_add() {
@@ -564,6 +607,43 @@ public class DateTimeFunction {
   }
 
   /**
+   * CONVERT_TZ function implementation for ExprValue.
+   * Returns null for time zones outside of -13:59 and +14:00. Matches MySQL range.
+   *
+   * @param startingDateTime ExprValue of DateTime that is being converted from
+   * @param fromTz           ExprValue of time zone, representing the time to convert from.
+   * @param toTz             ExprValue of time zone, representing the time to convert to.
+   * @return DateTime that has been converted to the to_tz timezone.
+   */
+  private ExprValue exprConvertTZ(ExprValue startingDateTime, ExprValue fromTz, ExprValue toTz) {
+    if (startingDateTime.type() == ExprCoreType.STRING) {
+      startingDateTime = exprDateTimeNoTimezone(startingDateTime);
+    }
+    try {
+      ZoneId convertedFromTz = ZoneId.of(fromTz.stringValue());
+      ZoneId convertedToTz = ZoneId.of(toTz.stringValue());
+
+      // isValidMySqlTimeZoneId checks if the timezone is within the range accepted by
+      // MySQL standard.
+      if (!isValidMySqlTimeZoneId(convertedFromTz)
+          || !isValidMySqlTimeZoneId(convertedToTz)) {
+        return ExprNullValue.of();
+      }
+      ZonedDateTime zonedDateTime =
+          startingDateTime.datetimeValue().atZone(convertedFromTz);
+      return new ExprDatetimeValue(
+          zonedDateTime.withZoneSameInstant(convertedToTz).toLocalDateTime());
+
+
+      // Catches exception for invalid timezones.
+      // ex. "+0:00" is an invalid timezone and would result in this exception being thrown.
+    } catch (ExpressionEvaluationException | DateTimeException e) {
+      return ExprNullValue.of();
+    }
+  }
+
+
+  /**
    * Date implementation for ExprValue.
    *
    * @param exprValue ExprValue of Date type or String type.
@@ -575,6 +655,61 @@ public class DateTimeFunction {
     } else {
       return new ExprDateValue(exprValue.dateValue());
     }
+  }
+
+  /**
+   * DateTime implementation for ExprValue.
+   *
+   * @param dateTime ExprValue of String type.
+   * @param timeZone ExprValue of String type (or null).
+   * @return ExprValue of date type.
+   */
+  private ExprValue exprDateTime(ExprValue dateTime, ExprValue timeZone) {
+    String defaultTimeZone = TimeZone.getDefault().getID();
+    DateTimeFormatter formatDT = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss[xxx]")
+        .withResolverStyle(ResolverStyle.STRICT);
+
+    try {
+      LocalDateTime ldtFormatted = LocalDateTime.parse(dateTime.stringValue(), formatDT);
+      if (timeZone.isNull()) {
+        return new ExprDatetimeValue(ldtFormatted);
+      }
+
+      // Used if datetime field is invalid format.
+    } catch (DateTimeParseException e) {
+      return ExprNullValue.of();
+    }
+
+    ExprValue convertTZResult;
+    ExprDatetimeValue ldt;
+    String toTz;
+
+    try {
+      ZonedDateTime zdtWithZoneOffset = ZonedDateTime.parse(dateTime.stringValue(), formatDT);
+      ZoneId fromTZ = zdtWithZoneOffset.getZone();
+
+      ldt = new ExprDatetimeValue(zdtWithZoneOffset.toLocalDateTime());
+      toTz = String.valueOf(fromTZ);
+    } catch (DateTimeParseException e) {
+      ldt = new ExprDatetimeValue(dateTime.stringValue());
+      toTz = defaultTimeZone;
+    }
+    convertTZResult = exprConvertTZ(
+        ldt,
+        new ExprStringValue(toTz),
+        timeZone);
+
+    return convertTZResult;
+  }
+
+  /**
+   * DateTime implementation for ExprValue without a timezone to convert to.
+   *
+   * @param dateTime ExprValue of String type.
+   * @return ExprValue of date type.
+   */
+  private ExprValue exprDateTimeNoTimezone(ExprValue dateTime) {
+    return exprDateTime(dateTime, ExprNullValue.of());
   }
 
   /**
@@ -897,5 +1032,31 @@ public class DateTimeFunction {
     var nano = new BigDecimal(res.getNano())
         .setScale(fsp - defaultPrecision, RoundingMode.DOWN).intValue();
     return res.withNano(nano);
+  }
+
+  /**
+   * isValidMySqlTimeZoneId for timezones which match timezone the range set by MySQL.
+   *
+   * @param zone ZoneId of ZoneId type.
+   * @return Boolean.
+   */
+  private Boolean isValidMySqlTimeZoneId(ZoneId zone) {
+    ZoneId maxTz = ZoneId.of(timeZoneMax);
+    ZoneId minTz = ZoneId.of(timeZoneMin);
+    ZoneId defaultTz = ZoneId.of(timeZoneZero);
+
+    ZonedDateTime defaultDateTime = LocalDateTime.of(2000, 1, 2, 12, 0).atZone(defaultTz);
+
+    ZonedDateTime maxTzValidator =
+        defaultDateTime.withZoneSameInstant(maxTz).withZoneSameLocal(defaultTz);
+    ZonedDateTime minTzValidator =
+        defaultDateTime.withZoneSameInstant(minTz).withZoneSameLocal(defaultTz);
+    ZonedDateTime passedTzValidator =
+        defaultDateTime.withZoneSameInstant(zone).withZoneSameLocal(defaultTz);
+
+    return (passedTzValidator.isBefore(maxTzValidator)
+        || passedTzValidator.isEqual(maxTzValidator))
+        && (passedTzValidator.isAfter(minTzValidator)
+        || passedTzValidator.isEqual(minTzValidator));
   }
 }
