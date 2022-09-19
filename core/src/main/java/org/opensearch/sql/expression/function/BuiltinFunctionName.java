@@ -87,7 +87,16 @@ public enum BuiltinFunctionName {
   UTC_TIMESTAMP(FunctionName.of("utc_timestamp")),
   WEEK(FunctionName.of("week")),
   YEAR(FunctionName.of("year")),
-
+  // `now`-like functions
+  NOW(FunctionName.of("now")),
+  CURDATE(FunctionName.of("curdate")),
+  CURRENT_DATE(FunctionName.of("current_date")),
+  CURTIME(FunctionName.of("curtime")),
+  CURRENT_TIME(FunctionName.of("current_time")),
+  LOCALTIME(FunctionName.of("localtime")),
+  CURRENT_TIMESTAMP(FunctionName.of("current_timestamp")),
+  LOCALTIMESTAMP(FunctionName.of("localtimestamp")),
+  SYSDATE(FunctionName.of("sysdate")),
   /**
    * Text Functions.
    */

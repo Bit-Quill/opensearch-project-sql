@@ -225,6 +225,7 @@ datetimeLiteral
     : dateLiteral
     | timeLiteral
     | timestampLiteral
+    | datetimeConstantLiteral
     ;
 
 dateLiteral
@@ -237,6 +238,11 @@ timeLiteral
 
 timestampLiteral
     : TIMESTAMP timestamp=stringLiteral
+    ;
+
+// Actually, these constants are shortcuts to the corresponding functions
+datetimeConstantLiteral
+    : CURRENT_DATE | CURRENT_TIME | CURRENT_TIMESTAMP | LOCALTIME | LOCALTIMESTAMP | UTC_TIMESTAMP | UTC_DATE | UTC_TIME
     ;
 
 intervalLiteral
@@ -301,6 +307,11 @@ functionCall
     | aggregateFunction (orderByClause)? filterClause               #filteredAggregationFunctionCall
     | relevanceFunction                                             #relevanceFunctionCall
     | highlightFunction                                             #highlightFunctionCall
+    | constantFunction                                              #constantFunctionCall
+    ;
+
+constantFunction
+    : constantFunctionName LR_BRACKET functionArgs? RR_BRACKET
     ;
 
 highlightFunction
@@ -383,10 +394,16 @@ trigonometricFunctionName
     ;
 
 dateTimeFunctionName
-    : ADDDATE | DATE | DATE_ADD | DATE_SUB | DAY | DAYNAME | DAYOFMONTH | DAYOFWEEK | DAYOFYEAR | FROM_DAYS
-    | HOUR | MICROSECOND | MINUTE | MONTH | MONTHNAME | QUARTER | SECOND | SUBDATE | TIME | TIME_TO_SEC
-    | TIMESTAMP | TO_DAYS | YEAR | WEEK | DATE_FORMAT | MAKETIME | MAKEDATE | UTC_DATE | UTC_TIME
-    | UTC_DATETIME
+    : ADDDATE | DATE | DATE_ADD | DATE_FORMAT | DATE_SUB | DAY | DAYNAME | DAYOFMONTH | DAYOFWEEK
+    | DAYOFYEAR | FROM_DAYS | HOUR | MAKEDATE | MAKETIME | MICROSECOND | MINUTE | MONTH | MONTHNAME
+    | QUARTER | SECOND | SUBDATE | SYSDATE | TIME | TIME_TO_SEC| TIMESTAMP | TO_DAYS | UTC_DATE | UTC_TIME
+    | UTC_DATETIME | WEEK | YEAR
+    ;
+
+// Functions which value could be cached in scope of a single query
+constantFunctionName
+    : datetimeConstantLiteral
+    | CURDATE | CURTIME | NOW
     ;
 
 textFunctionName
