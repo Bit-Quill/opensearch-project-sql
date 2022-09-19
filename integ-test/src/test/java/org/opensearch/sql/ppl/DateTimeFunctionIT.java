@@ -237,7 +237,7 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
 
     result =
         executeQuery(String.format(
-            "source=%s | eval f = DATETIME('2008-01-01 02:00:00+10:00', '-13:00') | fields f",
+            "source=%s | eval f = DATETIME('2008-01-01 02:00:00+10:00', '-14:00') | fields f",
             TEST_INDEX_DATE));
     verifySchema(result,
         schema("f", null, "datetime"));
@@ -245,7 +245,7 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
 
     result =
         executeQuery(String.format(
-            "source=%s | eval f = DATETIME('2008-01-01 02:00:00', '-13:00') | fields f",
+            "source=%s | eval f = DATETIME('2008-01-01 02:00:00', '-14:00') | fields f",
             TEST_INDEX_DATE));
     verifySchema(result,
         schema("f", null, "datetime"));
