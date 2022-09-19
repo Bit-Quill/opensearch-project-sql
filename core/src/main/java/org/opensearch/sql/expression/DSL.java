@@ -359,6 +359,18 @@ public class DSL {
     return function(BuiltinFunctionName.TO_DAYS, expressions);
   }
 
+  public FunctionExpression utc_date(Expression... expressions) {
+    return function(BuiltinFunctionName.UTC_DATE, expressions);
+  }
+
+  public FunctionExpression utc_time(Expression... expressions) {
+    return function(BuiltinFunctionName.UTC_TIME, expressions);
+  }
+
+  public FunctionExpression utc_timestamp(Expression... expressions) {
+    return function(BuiltinFunctionName.UTC_TIMESTAMP, expressions);
+  }
+
   public FunctionExpression week(Expression... expressions) {
     return function(BuiltinFunctionName.WEEK, expressions);
   }

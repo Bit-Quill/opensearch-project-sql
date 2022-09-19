@@ -82,6 +82,9 @@ public enum BuiltinFunctionName {
   TIMESTAMP(FunctionName.of("timestamp")),
   DATE_FORMAT(FunctionName.of("date_format")),
   TO_DAYS(FunctionName.of("to_days")),
+  UTC_DATE(FunctionName.of("utc_date")),
+  UTC_TIME(FunctionName.of("utc_time")),
+  UTC_TIMESTAMP(FunctionName.of("utc_timestamp")),
   WEEK(FunctionName.of("week")),
   YEAR(FunctionName.of("year")),
 

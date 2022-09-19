@@ -81,6 +81,9 @@ public class DateTimeFunction {
     repository.register(time());
     repository.register(time_to_sec());
     repository.register(timestamp());
+    repository.register(utc_date());
+    repository.register(utc_time());
+    repository.register(utc_timestamp());
     repository.register(date_format());
     repository.register(to_days());
     repository.register(week());
@@ -377,6 +380,30 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprToDays), LONG, TIMESTAMP),
         impl(nullMissingHandling(DateTimeFunction::exprToDays), LONG, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprToDays), LONG, DATETIME));
+  }
+
+  /**
+   * UTC_DATE(). return the current UTC Date
+   */
+  private DefaultFunctionResolver utc_date() {
+    return define(BuiltinFunctionName.UTC_DATE.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprUtcDate), DATE));
+  }
+
+  /**
+   * UTC_TIME(). return the current UTC Time
+   */
+  private DefaultFunctionResolver utc_time() {
+    return define(BuiltinFunctionName.UTC_TIME.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprUtcTime), TIME));
+  }
+
+  /**
+   * UTC_TIMESTAMP(). return the current UTC TimeStamp
+   */
+  private DefaultFunctionResolver utc_timestamp() {
+    return define(BuiltinFunctionName.UTC_TIMESTAMP.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprUtcTimeStamp), TIMESTAMP));
   }
 
   /**
@@ -698,6 +725,33 @@ public class DateTimeFunction {
    */
   private ExprValue exprTimeToSec(ExprValue time) {
     return new ExprLongValue(time.timeValue().toSecondOfDay());
+  }
+
+  /**
+   * To_days implementation for ExprValue.
+   *
+   * @return ExprValue.
+   */
+  private ExprValue exprUtcDate() {
+    return new ExprDateValue();
+  }
+
+  /**
+   * To_days implementation for ExprValue.
+   *
+   * @return ExprValue.
+   */
+  private ExprValue exprUtcTime() {
+    return new ExprTimeValue();
+  }
+
+  /**
+   * To_days implementation for ExprValue.
+   *
+   * @return ExprValue.
+   */
+  private ExprValue exprUtcTimeStamp() {
+    return new ExprTimestampValue();
   }
 
   /**

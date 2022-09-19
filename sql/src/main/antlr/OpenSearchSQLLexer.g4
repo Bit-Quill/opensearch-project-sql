@@ -246,6 +246,9 @@ TIMESTAMP:                          'TIMESTAMP';
 TRUNCATE:                           'TRUNCATE';
 TO_DAYS:                            'TO_DAYS';
 UPPER:                              'UPPER';
+UTC_DATE:                           'UTC_DATE';
+UTC_TIME:                           'UTC_TIME';
+UTC_TIMESTAMP:                      'UTC_TIMESTAMP';
 
 D:                                  'D';
 T:                                  'T';
