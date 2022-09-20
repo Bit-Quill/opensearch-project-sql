@@ -20,7 +20,7 @@ env:
 # Keeping them for the brighten future when we can re-activate them
 jobs:    
   build-mac:
-    runs-on: macos-10.15
+    runs-on: macos-12
     defaults:
       run:
         working-directory: sql-odbc
