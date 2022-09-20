@@ -10,7 +10,9 @@ import static org.opensearch.sql.legacy.SQLIntegTestCase.Index.DATA_TYPE_NONNUME
 import static org.opensearch.sql.legacy.SQLIntegTestCase.Index.DATA_TYPE_NUMERIC;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DATATYPE_NONNUMERIC;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DATATYPE_NUMERIC;
+import static org.opensearch.sql.util.MatcherUtils.rows;
 import static org.opensearch.sql.util.MatcherUtils.schema;
+import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
 import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
 import java.io.IOException;
@@ -72,4 +74,23 @@ public class DataTypeIT extends PPLIntegTestCase {
         schema("long2", "long"));
   }
 
+  @Test
+  public void typeof() throws IOException {
+    JSONObject response = executeQuery(String.format("source=%s | eval "
+        + "`str` = typeof('pewpew'), `null` = typeof(1/0), `double` = typeof(1.0),"
+        + "`int` = typeof(12345), `long` = typeof(1234567891011)"
+        + " | fields `str`, `null`, `double`, `int`, `long`",
+            TEST_INDEX_DATATYPE_NUMERIC));
+    verifyDataRows(response,
+        rows("STRING", "UNDEFINED", "DOUBLE", "INTEGER", "LONG"));
+
+    response = executeQuery(String.format("source=%s | eval "
+        + "`datetime` = typeof(CAST('1961-04-12 09:07:00' AS DATETIME)),"
+        + "`timestamp` = typeof(CAST('1961-04-12 09:07:00' AS TIMESTAMP)),"
+        + "`time` = typeof(CAST('09:07:00' AS TIME)), `date` = typeof(CAST('1961-04-12' AS DATE))"
+        + " | fields `datetime`, `timestamp`, `time`, `date`",
+            TEST_INDEX_DATATYPE_NUMERIC));
+    verifyDataRows(response,
+        rows("DATETIME", "TIMESTAMP", "TIME", "DATE"));
+  }
 }

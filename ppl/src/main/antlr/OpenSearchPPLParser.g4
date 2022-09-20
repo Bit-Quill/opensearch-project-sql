@@ -302,6 +302,7 @@ booleanFunctionCall
 
 convertedDataType
     : typeName=DATE
+    | typeName=DATETIME
     | typeName=TIME
     | typeName=TIMESTAMP
     | typeName=INT
@@ -394,6 +395,7 @@ constantFunctionName
 conditionFunctionBase
     : LIKE
     | IF | ISNULL | ISNOTNULL | IFNULL | NULLIF
+    | TYPEOF
     ;
 
 textFunctionBase
