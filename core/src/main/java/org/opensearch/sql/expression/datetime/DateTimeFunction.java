@@ -21,6 +21,7 @@ import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHand
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Date;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -950,7 +951,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprUtcDate() {
-    return exprDateTime(new ExprDatetimeValue(LocalDateTime.now()), new ExprStringValue("+00:00"));
+    return new ExprDateValue(LocalDateTime.now().toLocalDate());
   }
 
   /**
@@ -959,7 +960,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprUtcTime() {
-    return new ExprTimeValue(String.valueOf(LocalDateTime.now()));
+    return new ExprTimeValue(LocalDateTime.now().toLocalTime());
   }
 
   /**
