@@ -22,6 +22,7 @@ import org.opensearch.sql.expression.env.Environment;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.opensearch.sql.data.model.ExprValueUtils.nullValue;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
+import static org.opensearch.sql.expression.function.BuiltinFunctionName.DATE;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -31,12 +32,9 @@ class UTCDateTimeFunctionsTest extends ExpressionTestBase {
   Environment<Expression, ExprValue> env;
 
   @Test
-  public void invalidDate() {
-    FunctionExpression expr = dsl.convert_tz(dsl.datetime(
-            DSL.literal("2021-04-31 10:00:00")),
-        DSL.literal("+00:00"),
-        DSL.literal("+00:00"));
-    assertEquals(DATETIME, expr.type());
+  public void dateTest() {
+    FunctionExpression expr = dsl.utc_date();
+    assertEquals(DATE, expr.type());
     assertEquals(nullValue(), expr.valueOf(env));
   }
 
