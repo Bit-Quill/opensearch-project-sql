@@ -25,6 +25,7 @@ import static org.opensearch.sql.ast.dsl.AstDSL.field;
 import static org.opensearch.sql.ast.dsl.AstDSL.filter;
 import static org.opensearch.sql.ast.dsl.AstDSL.function;
 import static org.opensearch.sql.ast.dsl.AstDSL.head;
+import static org.opensearch.sql.ast.dsl.AstDSL.highlight;
 import static org.opensearch.sql.ast.dsl.AstDSL.intLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.let;
 import static org.opensearch.sql.ast.dsl.AstDSL.map;
@@ -41,6 +42,8 @@ import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.opensearch.sql.utils.SystemIndexUtils.mappingTable;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -667,6 +670,46 @@ public class AstBuilderTest {
             field("raw"),
             stringLiteral(""),
             ImmutableMap.of()));
+  }
+
+  @Test
+  public void testQuotedHighlightFunction() {
+    Map<String, Literal> args = new HashMap<>();
+    assertEqual("source=t | fields highlight('FieldA')",
+        projectWithArg(
+            relation("t"),
+            defaultFieldsArgs(),
+            alias("highlight('FieldA')",
+              highlight(stringLiteral("FieldA"), args))
+        )
+    );
+  }
+
+  @Test
+  public void testUnquotedHighlightFunction() {
+    Map<String, Literal> args = new HashMap<>();
+    assertEqual("source=t | fields highlight(FieldA)",
+        projectWithArg(
+            relation("t"),
+            defaultFieldsArgs(),
+            alias("highlight(FieldA)",
+                highlight(stringLiteral("FieldA"), args)))
+    );
+  }
+
+  @Test
+  public void testHighlightCommandWithArguments() {
+    Map<String, Literal> args = new HashMap<>();
+    args.put("pre_tags", new Literal("<mark>", DataType.STRING));
+    args.put("post_tags", new Literal("</mark>", DataType.STRING));
+
+    assertEqual("source=t | fields highlight(FieldA, pre_tags='<mark>', post_tags='</mark>')",
+        projectWithArg(
+            relation("t"),
+            defaultFieldsArgs(),
+            alias("highlight(FieldA, pre_tags='<mark>', post_tags='</mark>')",
+                highlight(stringLiteral("FieldA"), args)))
+    );
   }
 
   @Test

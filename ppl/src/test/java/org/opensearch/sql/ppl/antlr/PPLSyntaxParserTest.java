@@ -81,6 +81,18 @@ public class PPLSyntaxParserTest {
   }
 
   @Test
+  public void testHighlightShouldPass() {
+    ParseTree tree = new PPLSyntaxParser().parse("source=shakespeare | fields highlight(field)");
+    assertNotEquals(null, tree);
+  }
+
+  @Test
+  public void testQuotedHighlightShouldPass() {
+    ParseTree tree = new PPLSyntaxParser().parse("source=shakespeare | fields highlight('field')");
+    assertNotEquals(null, tree);
+  }
+
+  @Test
   public void can_parse_multi_match_relevance_function() {
     assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match(['address'], 'query')"));
