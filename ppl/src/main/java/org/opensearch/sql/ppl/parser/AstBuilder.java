@@ -132,12 +132,10 @@ public class AstBuilder extends OpenSearchPPLParserBaseVisitor<UnresolvedPlan> {
    */
   @Override
   public UnresolvedPlan visitFieldsCommand(FieldsCommandContext ctx) {
+    ImmutableList.Builder<UnresolvedExpression> builder = new ImmutableList.Builder<>();
+    ctx.fieldList().fieldExpression().forEach(field -> builder.add(visitFieldsItem(field)));
     return new Project(
-        ctx.fieldList()
-            .fieldExpression()
-            .stream()
-            .map(this::internalVisitExpression)
-            .collect(Collectors.toList()),
+        builder.build(),
         ArgumentFactory.getArgumentList(ctx)
     );
   }
@@ -354,6 +352,22 @@ public class AstBuilder extends OpenSearchPPLParserBaseVisitor<UnresolvedPlan> {
         });
 
     return new AD(builder.build());
+  }
+
+  /**
+   * Returns expression for both fields and highlight functions in fields command.
+   * @param ctx : field or highlight function context
+   * @return : Return Alias of highlight expression or Field for field expression
+   */
+  private UnresolvedExpression visitFieldsItem(OpenSearchPPLParser.FieldExpressionContext ctx) {
+    if (ctx.qualifiedName() != null) {
+      return internalVisitExpression(ctx);
+    }
+    // If not field expression then is a highlight expression
+    String name = StringUtils.unquoteIdentifier(getTextInQuery(ctx.highlightFunction()));
+    UnresolvedExpression expr = internalVisitExpression(ctx.highlightFunction());
+
+    return new Alias(name, expr);
   }
 
   /**

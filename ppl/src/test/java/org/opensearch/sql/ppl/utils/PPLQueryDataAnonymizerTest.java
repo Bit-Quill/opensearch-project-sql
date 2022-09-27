@@ -168,6 +168,20 @@ public class PPLQueryDataAnonymizerTest {
   }
 
   @Test
+  public void testHighlightFunction() {
+    assertEquals("source=t | fields + highlight(field)",
+        anonymize("source=t | fields highlight(field)")
+    );
+  }
+
+  @Test
+  public void testHighlightFunctionWithArguments() {
+    assertEquals("source=t | fields + highlight(field, pre_tags='<mark>', post_tags='</mark>')",
+        anonymize("source=t | fields highlight(field, pre_tags='<mark>', post_tags='</mark>')")
+    );
+  }
+
+  @Test
   public void anonymizeFieldsNoArg() {
     assertEquals("source=t | fields + f",
         anonymize(projectWithArg(relation("t"), Collections.emptyList(), field("f")))
