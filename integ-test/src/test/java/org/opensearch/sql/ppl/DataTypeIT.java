@@ -78,19 +78,20 @@ public class DataTypeIT extends PPLIntegTestCase {
   public void typeof() throws IOException {
     JSONObject response = executeQuery(String.format("source=%s | eval "
         + "`str` = typeof('pewpew'), `null` = typeof(1/0), `double` = typeof(1.0),"
-        + "`int` = typeof(12345), `long` = typeof(1234567891011)"
-        + " | fields `str`, `null`, `double`, `int`, `long`",
+        + "`int` = typeof(12345), `long` = typeof(1234567891011), `interval` = typeof(INTERVAL 2 DAY)"
+        + " | fields `str`, `null`, `double`, `int`, `long`, `interval`",
             TEST_INDEX_DATATYPE_NUMERIC));
     verifyDataRows(response,
-        rows("STRING", "UNDEFINED", "DOUBLE", "INTEGER", "LONG"));
+        rows("STRING", "UNDEFINED", "DOUBLE", "INTEGER", "LONG", "INTERVAL"));
 
+    // Can't test with DATETIME due to #848/#853
     response = executeQuery(String.format("source=%s | eval "
-        + "`datetime` = typeof(CAST('1961-04-12 09:07:00' AS DATETIME)),"
         + "`timestamp` = typeof(CAST('1961-04-12 09:07:00' AS TIMESTAMP)),"
-        + "`time` = typeof(CAST('09:07:00' AS TIME)), `date` = typeof(CAST('1961-04-12' AS DATE))"
-        + " | fields `datetime`, `timestamp`, `time`, `date`",
+        + "`time` = typeof(CAST('09:07:00' AS TIME)),"
+        + "`date` = typeof(CAST('1961-04-12' AS DATE))"
+        + " | fields `timestamp`, `time`, `date`",
             TEST_INDEX_DATATYPE_NUMERIC));
     verifyDataRows(response,
-        rows("DATETIME", "TIMESTAMP", "TIME", "DATE"));
+        rows("TIMESTAMP", "TIME", "DATE"));
   }
 }

@@ -302,7 +302,6 @@ booleanFunctionCall
 
 convertedDataType
     : typeName=DATE
-    | typeName=DATETIME
     | typeName=TIME
     | typeName=TIMESTAMP
     | typeName=INT

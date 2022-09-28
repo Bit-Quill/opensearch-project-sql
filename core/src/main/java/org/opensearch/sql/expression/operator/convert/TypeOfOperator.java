@@ -44,23 +44,23 @@ public class TypeOfOperator {
   // Auxiliary function useful for debugging
   private static DefaultFunctionResolver typeof() {
     return FunctionDSL.define(BuiltinFunctionName.TYPEOF.getName(),
-        impl(TypeOfOperator::exprTypeOf, STRING, UNKNOWN),
-        impl(TypeOfOperator::exprTypeOf, STRING, UNDEFINED),
-        impl(TypeOfOperator::exprTypeOf, STRING, BYTE),
-        impl(TypeOfOperator::exprTypeOf, STRING, SHORT),
-        impl(TypeOfOperator::exprTypeOf, STRING, INTEGER),
-        impl(TypeOfOperator::exprTypeOf, STRING, LONG),
-        impl(TypeOfOperator::exprTypeOf, STRING, FLOAT),
-        impl(TypeOfOperator::exprTypeOf, STRING, DOUBLE),
-        impl(TypeOfOperator::exprTypeOf, STRING, STRING),
+        impl(TypeOfOperator::exprTypeOf, STRING, ARRAY),
         impl(TypeOfOperator::exprTypeOf, STRING, BOOLEAN),
-        impl(TypeOfOperator::exprTypeOf, STRING, TIMESTAMP),
+        impl(TypeOfOperator::exprTypeOf, STRING, BYTE),
         impl(TypeOfOperator::exprTypeOf, STRING, DATE),
-        impl(TypeOfOperator::exprTypeOf, STRING, TIME),
         impl(TypeOfOperator::exprTypeOf, STRING, DATETIME),
+        impl(TypeOfOperator::exprTypeOf, STRING, DOUBLE),
+        impl(TypeOfOperator::exprTypeOf, STRING, FLOAT),
+        impl(TypeOfOperator::exprTypeOf, STRING, INTEGER),
         impl(TypeOfOperator::exprTypeOf, STRING, INTERVAL),
+        impl(TypeOfOperator::exprTypeOf, STRING, LONG),
+        impl(TypeOfOperator::exprTypeOf, STRING, SHORT),
+        impl(TypeOfOperator::exprTypeOf, STRING, STRING),
         impl(TypeOfOperator::exprTypeOf, STRING, STRUCT),
-        impl(TypeOfOperator::exprTypeOf, STRING, ARRAY)
+        impl(TypeOfOperator::exprTypeOf, STRING, TIME),
+        impl(TypeOfOperator::exprTypeOf, STRING, TIMESTAMP),
+        impl(TypeOfOperator::exprTypeOf, STRING, UNDEFINED),
+        impl(TypeOfOperator::exprTypeOf, STRING, UNKNOWN)
       );
   }
 

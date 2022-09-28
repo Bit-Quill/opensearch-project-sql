@@ -21,33 +21,22 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.sql.data.model.ExprBooleanValue;
 import org.opensearch.sql.data.model.ExprByteValue;
-import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprDoubleValue;
 import org.opensearch.sql.data.model.ExprFloatValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
-import org.opensearch.sql.data.model.ExprIntervalValue;
 import org.opensearch.sql.data.model.ExprLongValue;
-import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprShortValue;
 import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
-import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.FunctionExpression;
@@ -372,27 +361,4 @@ class TypeCastOperatorTest {
     assertEquals(new ExprDatetimeValue("2012-08-07 00:00:00"), expression.valueOf(null));
   }
 
-  @Test
-  void typeof() {
-    assertEquals("UNDEFINED", typeofGetValue(ExprNullValue.of()));
-    assertEquals("BYTE", typeofGetValue(new ExprByteValue(0)));
-    assertEquals("SHORT", typeofGetValue(new ExprShortValue(0)));
-    assertEquals("INTEGER", typeofGetValue(new ExprIntegerValue(0)));
-    assertEquals("LONG", typeofGetValue(new ExprLongValue(0)));
-    assertEquals("FLOAT", typeofGetValue(new ExprFloatValue(0)));
-    assertEquals("DOUBLE", typeofGetValue(new ExprDoubleValue(0)));
-    assertEquals("STRING", typeofGetValue(new ExprStringValue("")));
-    assertEquals("BOOLEAN", typeofGetValue(ExprBooleanValue.of(false)));
-    assertEquals("TIMESTAMP", typeofGetValue(new ExprTimestampValue(Instant.now())));
-    assertEquals("DATE", typeofGetValue(new ExprDateValue(LocalDate.now())));
-    assertEquals("TIME", typeofGetValue(new ExprTimeValue(LocalTime.now())));
-    assertEquals("DATETIME", typeofGetValue(new ExprDatetimeValue(LocalDateTime.now())));
-    assertEquals("INTERVAL", typeofGetValue(new ExprIntervalValue(Duration.ofDays(0))));
-    assertEquals("STRUCT", typeofGetValue(new ExprTupleValue(new LinkedHashMap<>())));
-    assertEquals("ARRAY", typeofGetValue(new ExprCollectionValue(List.of())));
-  }
-
-  private String typeofGetValue(ExprValue input) {
-    return dsl.typeof(DSL.literal(input)).valueOf(null).stringValue();
-  }
 }

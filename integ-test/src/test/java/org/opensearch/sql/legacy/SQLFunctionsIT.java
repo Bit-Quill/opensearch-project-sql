@@ -489,13 +489,15 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
   @Test
   public void typeof() {
     JSONObject response = executeJdbcRequest("SELECT typeof('pewpew'), typeof(NULL), typeof(1.0),"
-        + "typeof(12345), typeof(1234567891011);");
+        + "typeof(12345), typeof(1234567891011), typeof(INTERVAL 2 DAY);");
     verifyDataRows(response,
-        rows("STRING", "UNDEFINED", "DOUBLE", "INTEGER", "LONG"));
+        rows("STRING", "UNDEFINED", "DOUBLE", "INTEGER", "LONG", "INTERVAL"));
 
+    // Can't test with DATETIME due to #848/#853
     response = executeJdbcRequest("SELECT"
         + " typeof(CAST('1961-04-12 09:07:00' AS TIMESTAMP)),"
-        + " typeof(CAST('09:07:00' AS TIME)), typeof(CAST('1961-04-12' AS DATE))");
+        + " typeof(CAST('09:07:00' AS TIME)),"
+        + " typeof(CAST('1961-04-12' AS DATE))");
     verifyDataRows(response,
         rows("TIMESTAMP", "TIME", "DATE"));
   }
