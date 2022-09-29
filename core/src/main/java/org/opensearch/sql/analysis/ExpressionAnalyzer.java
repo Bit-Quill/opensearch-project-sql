@@ -19,6 +19,7 @@ import org.opensearch.sql.analysis.symbol.Namespace;
 import org.opensearch.sql.analysis.symbol.Symbol;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.AggregateFunction;
+import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.And;
 import org.opensearch.sql.ast.expression.Case;
@@ -44,7 +45,9 @@ import org.opensearch.sql.ast.expression.When;
 import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.expression.Xor;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
+import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
@@ -89,6 +92,14 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   public Expression analyze(UnresolvedExpression unresolved, AnalysisContext context) {
     return unresolved.accept(this, context);
+  }
+
+  @Override
+  public Expression visitAlias(Alias node, AnalysisContext context) {
+    // Only purpose for this override currently is to avoid null pointer exception when using
+    // '-' flag with a highlight call in a fields command.
+    throw new SemanticCheckException(String.format("can't resolve Symbol %s in type env",
+        node.getName()));
   }
 
   @Override
@@ -205,7 +216,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   }
 
   @Override
-  public Expression visitHighlight(HighlightFunction node, AnalysisContext context) {
+  public Expression visitHighlightFunction(HighlightFunction node, AnalysisContext context) {
     Expression expr = node.getHighlightField().accept(this, context);
     return new HighlightExpression(expr);
   }

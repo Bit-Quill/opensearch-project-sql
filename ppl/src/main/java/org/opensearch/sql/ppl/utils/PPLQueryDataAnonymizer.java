@@ -21,6 +21,7 @@ import org.opensearch.sql.ast.expression.Argument;
 import org.opensearch.sql.ast.expression.Compare;
 import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Function;
+import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.Let;
 import org.opensearch.sql.ast.expression.Literal;
@@ -299,6 +300,17 @@ public class PPLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
     public String visitAlias(Alias node, String context) {
       String expr = node.getDelegated().accept(this, context);
       return StringUtils.format("%s", expr);
+    }
+
+    @Override
+    public String visitHighlightFunction(HighlightFunction node, String context) {
+      String args = node.getArguments().containsKey("pre_tags")
+          ? ", pre_tags='" + node.getArguments().get("pre_tags") + "'"
+          : "";
+      args += node.getArguments().containsKey("post_tags")
+          ? ", post_tags='" + node.getArguments().get("post_tags") + "'"
+          : "";
+      return StringUtils.format("highlight(%s%s)", node.getHighlightField(), args);
     }
   }
 }

@@ -8,7 +8,6 @@ package org.opensearch.sql.analysis;
 
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.sql.ast.dsl.AstDSL.field;
@@ -28,6 +27,7 @@ import static org.opensearch.sql.expression.DSL.ref;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +36,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensearch.sql.analysis.symbol.Namespace;
 import org.opensearch.sql.analysis.symbol.Symbol;
 import org.opensearch.sql.ast.dsl.AstDSL;
+import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.HighlightFunction;
+import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
@@ -50,7 +52,6 @@ import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
-import org.opensearch.sql.expression.HighlightExpression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.expression.window.aggregation.AggregateWindowFunction;
@@ -161,6 +162,17 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
 
     assertThrows(IllegalStateException.class, () -> analyze(AstDSL.cast(AstDSL.unresolvedAttr(
         "boolean_value"), AstDSL.stringLiteral("INTERVAL"))));
+  }
+
+  @Test
+  public void highlight_throws_semantic_check_exception() {
+    Map<String, Literal> args = new HashMap<>();
+    HighlightFunction highlightFunction = new HighlightFunction(
+        AstDSL.stringLiteral("invalid_field"), args);
+    Alias alias = AstDSL.alias("highlight(invalid_field)",
+        highlightFunction);
+
+    assertThrows(SemanticCheckException.class, () -> analyze(alias));
   }
 
   @Test
@@ -590,12 +602,6 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         analyze(function("now")), analyze(function("now")));
     var referenceValue = analyze(function("now")).valueOf(null);
     assertTrue(values.stream().noneMatch(v -> v.valueOf(null) == referenceValue));
-  }
-
-  @Test
-  void highlight() {
-    assertAnalyzeEqual(new HighlightExpression(DSL.literal("fieldA")),
-        new HighlightFunction(stringLiteral("fieldA")));
   }
 
   protected Expression analyze(UnresolvedExpression unresolvedExpression) {
