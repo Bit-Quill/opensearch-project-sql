@@ -537,7 +537,7 @@ public class DateTimeFunction {
   }
 
   /**
-   * UTC_DATE(). return the current UTC Date
+   * UTC_DATE(). return the current UTC Date in format yyyy-MM-dd
    */
   private DefaultFunctionResolver utc_date() {
     return define(BuiltinFunctionName.UTC_DATE.getName(),
@@ -545,7 +545,7 @@ public class DateTimeFunction {
   }
 
   /**
-   * UTC_TIME(). return the current UTC Time
+   * UTC_TIME(). return the current UTC Time in format HH:mm:ss
    */
   private DefaultFunctionResolver utc_time() {
     return define(BuiltinFunctionName.UTC_TIME.getName(),
@@ -553,7 +553,7 @@ public class DateTimeFunction {
   }
 
   /**
-   * UTC_TIMESTAMP(). return the current UTC TimeStamp
+   * UTC_TIMESTAMP(). return the current UTC TimeStamp in format yyyy-MM-dd HH:mm:ss
    */
   private DefaultFunctionResolver utc_timestamp() {
     return define(BuiltinFunctionName.UTC_TIMESTAMP.getName(),
@@ -1003,7 +1003,8 @@ public class DateTimeFunction {
   }
 
   /**
-   * To_days implementation for ExprValue.
+   * UTC_DATE implementation for ExprValue.
+   * Returns in format `yyyy-MM-dd`.
    *
    * @return ExprValue.
    */
@@ -1013,7 +1014,8 @@ public class DateTimeFunction {
   }
 
   /**
-   * To_days implementation for ExprValue.
+   * UTC_TIME implementation for ExprValue.
+   * Returns in format `HH:mm:ss`.
    *
    * @return ExprValue.
    */
@@ -1022,7 +1024,8 @@ public class DateTimeFunction {
   }
 
   /**
-   * To_days implementation for ExprValue.
+   * UTC_TIMESTAMP implementation for ExprValue.
+   * Returns in format `yyyy-MM-dd HH:mm:ss`.
    *
    * @return ExprValue.
    */
