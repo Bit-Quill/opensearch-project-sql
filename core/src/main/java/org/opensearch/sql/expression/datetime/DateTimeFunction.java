@@ -21,6 +21,7 @@ import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHand
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_LONG_YEAR;
+import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_NON_STRUCT;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_STRICT_WITH_TZ;
 
@@ -108,6 +109,9 @@ public class DateTimeFunction {
     repository.register(time());
     repository.register(time_to_sec());
     repository.register(timestamp());
+    repository.register(utc_date());
+    repository.register(utc_time());
+    repository.register(utc_timestamp());
     repository.register(date_format());
     repository.register(to_days());
     repository.register(unix_timestamp());
@@ -530,6 +534,30 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::unixTimeStampOf), DOUBLE, TIMESTAMP),
         impl(nullMissingHandling(DateTimeFunction::unixTimeStampOf), DOUBLE, DOUBLE)
     );
+  }
+
+  /**
+   * UTC_DATE(). return the current UTC Date
+   */
+  private DefaultFunctionResolver utc_date() {
+    return define(BuiltinFunctionName.UTC_DATE.getName(),
+        impl(DateTimeFunction::exprUtcDate, DATE));
+  }
+
+  /**
+   * UTC_TIME(). return the current UTC Time
+   */
+  private DefaultFunctionResolver utc_time() {
+    return define(BuiltinFunctionName.UTC_TIME.getName(),
+        impl(DateTimeFunction::exprUtcTime, TIME));
+  }
+
+  /**
+   * UTC_TIMESTAMP(). return the current UTC TimeStamp
+   */
+  private DefaultFunctionResolver utc_timestamp() {
+    return define(BuiltinFunctionName.UTC_TIMESTAMP.getName(),
+        impl(DateTimeFunction::exprUtcTimeStamp, TIMESTAMP));
   }
 
   /**
@@ -972,6 +1000,38 @@ public class DateTimeFunction {
    */
   private ExprValue exprTimeToSec(ExprValue time) {
     return new ExprLongValue(time.timeValue().toSecondOfDay());
+  }
+
+  /**
+   * To_days implementation for ExprValue.
+   *
+   * @return ExprValue.
+   */
+  private ExprValue exprUtcDate() {
+    return new ExprDateValue(exprUtcTimeStamp().dateValue());
+
+  }
+
+  /**
+   * To_days implementation for ExprValue.
+   *
+   * @return ExprValue.
+   */
+  private ExprValue exprUtcTime() {
+    return new ExprTimeValue(exprUtcTimeStamp().timeValue());
+  }
+
+  /**
+   * To_days implementation for ExprValue.
+   *
+   * @return ExprValue.
+   */
+  private ExprValue exprUtcTimeStamp() {
+    String formattedLDT = LocalDateTime.now().format(DATE_TIME_FORMATTER_NON_STRUCT);
+    ExprStringValue localDateValue = new ExprStringValue(formattedLDT);
+    ExprStringValue toTZ = new ExprStringValue("+00:00");
+
+    return exprDateTime(localDateValue, toTZ);
   }
 
   /**
