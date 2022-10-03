@@ -168,4 +168,10 @@ public class DateTimeFormatters {
           .appendPattern("uuuu-MM-dd HH:mm:ss[xxx]")
           .toFormatter()
           .withResolverStyle(ResolverStyle.STRICT);
+
+  // yyyy-MM-dd HH:mm:ss
+  public static final DateTimeFormatter DATE_TIME_FORMATTER_NON_STRUCT =
+      new DateTimeFormatterBuilder()
+          .appendPattern("yyyy-MM-dd HH:mm:ss")
+          .toFormatter();
 }
