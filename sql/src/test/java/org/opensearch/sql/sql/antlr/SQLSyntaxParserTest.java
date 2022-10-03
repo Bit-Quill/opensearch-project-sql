@@ -298,9 +298,9 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse(
         "SELECT id FROM test WHERE query_string([address], 'query')"));
     assertNotNull(parser.parse(
-        "SELECT id FROM test WHERE query_string([addr*], 'query')"));
+        "SELECT id FROM test WHERE query_string(['addr*'], 'query')"));
     assertNotNull(parser.parse(
-        "SELECT id FROM test WHERE query_string([*ss], 'query')"));
+        "SELECT id FROM test WHERE query_string(['*ss'], 'query')"));
     assertNotNull(parser.parse(
         "SELECT id FROM test WHERE query_string([address, notes], 'query')"));
 

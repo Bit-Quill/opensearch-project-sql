@@ -36,7 +36,7 @@ options { tokenVocab=OpenSearchSQLLexer; }
 //    Identifiers
 
 tableName
-    : qualifiedName
+    : indexName
     ;
 
 columnName
@@ -47,12 +47,22 @@ alias
     : ident
     ;
 
+indexName
+    : index (DOT index)*
+    ;
+
 qualifiedName
     : ident (DOT ident)*
     ;
 
 ident
     : DOT? ID
+    | BACKTICK_QUOTE_ID
+    | keywordsCanBeId
+    ;
+
+ index
+    : DOT? IND
     | BACKTICK_QUOTE_ID
     | keywordsCanBeId
     ;

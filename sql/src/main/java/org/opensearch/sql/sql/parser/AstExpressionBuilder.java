@@ -98,7 +98,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitTableName(TableNameContext ctx) {
-    return visit(ctx.qualifiedName());
+    return visit(ctx.indexName());
   }
 
   @Override

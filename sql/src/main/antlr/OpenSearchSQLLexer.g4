@@ -432,13 +432,15 @@ BIT_STRING:                         BIT_STRING_L;
 // Identifiers
 
 ID:                                 ID_LITERAL;
+IND:                                INDEX;
 DOUBLE_QUOTE_ID:                    DQUOTA_STRING;
 BACKTICK_QUOTE_ID:                  BQUOTA_STRING;
 
 
 // Fragments for Literal primitives
 fragment EXPONENT_NUM_PART:         'E' [-+]? DEC_DIGIT+;
-fragment ID_LITERAL:                [@*A-Z]+?[*A-Z_\-0-9]*;
+fragment ID_LITERAL:                [A-Z]+?[A-Z_\-0-9]*;
+fragment INDEX:                     [@*A-Z]+?[*A-Z_\-0-9]*;
 fragment DQUOTA_STRING:             '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
 fragment SQUOTA_STRING:             '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 fragment BQUOTA_STRING:             '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
