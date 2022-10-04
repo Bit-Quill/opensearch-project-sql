@@ -170,7 +170,7 @@ public class DateTimeFormatters {
           .withResolverStyle(ResolverStyle.STRICT);
 
   // yyyy-MM-dd HH:mm:ss
-  public static final DateTimeFormatter DATE_TIME_FORMATTER_NON_STRUCT =
+  public static final DateTimeFormatter DATE_TIME_FORMATTER_NON_STRICT =
       new DateTimeFormatterBuilder()
           .appendPattern("yyyy-MM-dd HH:mm:ss")
           .toFormatter();

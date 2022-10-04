@@ -21,7 +21,7 @@ import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHand
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_LONG_YEAR;
-import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_NON_STRUCT;
+import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_NON_STRICT;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_STRICT_WITH_TZ;
 
@@ -1004,7 +1004,6 @@ public class DateTimeFunction {
 
   /**
    * UTC_DATE implementation for ExprValue.
-   * Returns in format `yyyy-MM-dd`.
    *
    * @return ExprValue.
    */
@@ -1015,7 +1014,6 @@ public class DateTimeFunction {
 
   /**
    * UTC_TIME implementation for ExprValue.
-   * Returns in format `HH:mm:ss`.
    *
    * @return ExprValue.
    */
@@ -1025,12 +1023,11 @@ public class DateTimeFunction {
 
   /**
    * UTC_TIMESTAMP implementation for ExprValue.
-   * Returns in format `yyyy-MM-dd HH:mm:ss`.
    *
    * @return ExprValue.
    */
   private ExprValue exprUtcTimeStamp() {
-    String formattedLDT = LocalDateTime.now().format(DATE_TIME_FORMATTER_NON_STRUCT);
+    String formattedLDT = LocalDateTime.now().format(DATE_TIME_FORMATTER_NON_STRICT);
     ExprStringValue localDateValue = new ExprStringValue(formattedLDT);
     ExprStringValue toTZ = new ExprStringValue("+00:00");
 

@@ -1718,7 +1718,7 @@ UTC_DATE
 Description
 >>>>>>>>>>>
 
-Returns the current UTC date as a value in 'yyyy-MM-dd'.
+Returns the current UTC date as a value in 'YYYY-MM-DD'.
 
 Return type: DATE
 
@@ -1742,7 +1742,7 @@ UTC_TIME
 Description
 >>>>>>>>>>>
 
-Returns the current UTC time as a value in 'HH:mm:ss'.
+Returns the current UTC time as a value in 'hh:mm:ss'.
 
 Return type: TIME
 
@@ -1767,7 +1767,7 @@ UTC_TIMESTAMP
 Description
 >>>>>>>>>>>
 
-Returns the current UTC timestamp as a value in 'yyyy-MM-dd HH:mm:ss'.
+Returns the current UTC timestamp as a value in 'YYYY-MM-DD hh:mm:ss'.
 
 Return type: DATETIME
 
