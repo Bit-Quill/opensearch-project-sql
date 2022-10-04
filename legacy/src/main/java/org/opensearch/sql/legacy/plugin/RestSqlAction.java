@@ -305,7 +305,8 @@ public class RestSqlAction extends BaseRestHandler {
     private void reportError(final RestChannel channel, final Exception e, final RestStatus status) {
         var message = ErrorMessageFactory.createErrorMessage(e, status.getStatus());
         if (null != QueryContext.getError()) {
-            message.setDetails(QueryContext.getError() +
+            message.setDetails(QueryContext.getError());
+            LOG.error(QueryContext.getError() +
                 "\nQuery failed on both V1 and V2 SQL engines. V1 SQL engine error following: \n"
                 + message.getDetails());
         }
