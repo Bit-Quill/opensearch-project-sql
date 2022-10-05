@@ -756,7 +756,34 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
               .put("referenceGetter", (Supplier<Temporal>) LocalDate::now)
               .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDate::parse)
               .put("serializationPattern", "uuuu-MM-dd")
-              .build()
+              .build(),
+        ImmutableMap.builder()
+            .put("name", "utc_date")
+            .put("hasFsp", false)
+            .put("hasShortcut", true)
+            .put("constValue", false)
+            .put("referenceGetter", (Supplier<Temporal>) LocalDate::now)
+            .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDate::parse)
+            .put("serializationPattern", "uuuu-MM-dd")
+            .build(),
+        ImmutableMap.builder()
+            .put("name", "utc_time")
+            .put("hasFsp", false)
+            .put("hasShortcut", true)
+            .put("constValue", false)
+            .put("referenceGetter", (Supplier<Temporal>) LocalTime::now)
+            .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalTime::parse)
+            .put("serializationPattern", "HH:mm:ss")
+            .build(),
+        ImmutableMap.builder()
+            .put("name", "utc_timestamp")
+            .put("hasFsp", false)
+            .put("hasShortcut", true)
+            .put("constValue", false)
+            .put("referenceGetter", (Supplier<Temporal>) LocalDateTime::now)
+            .put("parser", (BiFunction<CharSequence, DateTimeFormatter, Temporal>) LocalDateTime::parse)
+            .put("serializationPattern", "uuuu-MM-dd HH:mm:ss")
+            .build()
     );
   }
 
