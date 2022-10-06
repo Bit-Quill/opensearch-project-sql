@@ -63,7 +63,7 @@ public class NowLikeFunctionTest extends ExpressionTestBase {
         Arguments.of((Function<Expression[], FunctionExpression>)dsl::utc_time,
             "utc_time", TIME, false, (Supplier<Temporal>)NowLikeFunctionTest::getUtcTimeRefValue),
         Arguments.of((Function<Expression[], FunctionExpression>)dsl::utc_timestamp,
-            "utc_timestamp", TIMESTAMP, false,
+              "utc_timestamp", DATETIME, false,
             (Supplier<Temporal>)NowLikeFunctionTest::getUtcTimestampRefValue));
   }
 
