@@ -73,7 +73,7 @@ public class ExprCollectionValue extends AbstractExprValue {
    */
   @Override
   public int compare(ExprValue other) {
-    return Integer.compare(valueList.size(), other.collectionValue().size());
+    return equal(other) ? 0 : 1;
   }
 
   @Override

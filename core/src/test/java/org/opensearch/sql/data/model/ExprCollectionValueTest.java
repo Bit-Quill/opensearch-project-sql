@@ -47,9 +47,11 @@ public class ExprCollectionValueTest {
 
   @Test
   public void comparabilityTest() {
-    ExprValue collectionValue = ExprValueUtils.collectionValue(Arrays.asList(0, 1));
-    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-        () -> compare(collectionValue, collectionValue));
-    assertEquals("ExprCollectionValue instances are not comparable", exception.getMessage());
+    ExprValue value1 = ExprValueUtils.collectionValue(Arrays.asList(0, 1));
+    ExprValue value2 = ExprValueUtils.collectionValue(ImmutableList.of(1, 2));
+    assertEquals(0, compare(value1, value1));
+    assertEquals(0, compare(value2, value2));
+    assertEquals(1, compare(value1, value2));
+    assertEquals(1, compare(value2, value1));
   }
 }

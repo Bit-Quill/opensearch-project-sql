@@ -6,6 +6,10 @@
 
 package org.opensearch.sql.data.model;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -14,6 +18,8 @@ import java.util.Map;
 import lombok.experimental.UtilityClass;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
+
+// TODO merge file from #122
 
 /**
  * The definition of {@link ExprValue} factory.
@@ -61,6 +67,22 @@ public class ExprValueUtils {
     return new ExprIntervalValue(value);
   }
 
+  public static ExprValue dateValue(LocalDate value) {
+    return new ExprDateValue(value);
+  }
+
+  public static ExprValue datetimeValue(LocalDateTime value) {
+    return new ExprDatetimeValue(value);
+  }
+
+  public static ExprValue timeValue(LocalTime value) {
+    return new ExprTimeValue(value);
+  }
+
+  public static ExprValue timestampValue(Instant value) {
+    return new ExprTimestampValue(value);
+  }
+
   /**
    * {@link ExprTupleValue} constructor.
    */
@@ -76,7 +98,7 @@ public class ExprValueUtils {
    */
   public static ExprValue collectionValue(List<Object> list) {
     List<ExprValue> valueList = new ArrayList<>();
-    list.forEach(o -> valueList.add(fromObjectValue(o)));
+    list.forEach(o -> valueList.add(o instanceof ExprValue ? (ExprValue) o : fromObjectValue(o)));
     return new ExprCollectionValue(valueList);
   }
 
@@ -115,6 +137,16 @@ public class ExprValueUtils {
       return stringValue((String) o);
     } else if (o instanceof Float) {
       return floatValue((Float) o);
+    } else if (o instanceof LocalDate) {
+      return dateValue((LocalDate) o);
+    } else if (o instanceof LocalDateTime) {
+      return datetimeValue((LocalDateTime) o);
+    } else if (o instanceof LocalTime) {
+      return timeValue((LocalTime) o);
+    } else if (o instanceof Instant) {
+      return timestampValue((Instant) o);
+    } else if (o instanceof TemporalAmount) {
+      return intervalValue((TemporalAmount) o);
     } else {
       throw new ExpressionEvaluationException("unsupported object " + o.getClass());
     }

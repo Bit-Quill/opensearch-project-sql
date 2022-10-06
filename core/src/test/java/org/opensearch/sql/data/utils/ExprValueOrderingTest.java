@@ -165,11 +165,11 @@ class ExprValueOrderingTest {
         ordering.compare(
             collectionValue(ImmutableList.of(1, 2)), collectionValue(ImmutableList.of(3))));
     assertEquals(
-        0,
+        1,
         ordering.compare(
             collectionValue(ImmutableList.of(1, 2)), collectionValue(ImmutableList.of(3, 4))));
     assertEquals(
-        -1,
+        1,
         ordering.compare(
             collectionValue(ImmutableList.of(3)), collectionValue(ImmutableList.of(1, 2))));
   }
@@ -182,12 +182,12 @@ class ExprValueOrderingTest {
         ordering.compare(
             tupleValue(ImmutableMap.of("v1", 1, "v2", 2)), tupleValue(ImmutableMap.of("v1", 3))));
     assertEquals(
-        0,
+        1,
         ordering.compare(
             tupleValue(ImmutableMap.of("v1", 1, "v2", 2)),
             tupleValue(ImmutableMap.of("v1", 3, "v2", 4))));
     assertEquals(
-        -1,
+        1,
         ordering.compare(
             tupleValue(ImmutableMap.of("v1", 3)), tupleValue(ImmutableMap.of("v1", 1, "v2", 2))));
   }

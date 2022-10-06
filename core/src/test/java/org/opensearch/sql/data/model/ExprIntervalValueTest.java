@@ -17,10 +17,12 @@ import org.junit.jupiter.api.Test;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 
 public class ExprIntervalValueTest {
+
   @Test
   public void equals_to_self() {
     ExprValue interval = ExprValueUtils.intervalValue(Duration.ofNanos(1000));
     assertEquals(interval.intervalValue(), Duration.ofNanos(1000));
+    assertTrue(interval.equals(interval));
   }
 
   @Test
@@ -28,13 +30,17 @@ public class ExprIntervalValueTest {
     ExprValue v1 = new ExprIntervalValue(Duration.ofMinutes(1));
     ExprValue v2 = ExprValueUtils.intervalValue(Duration.ofSeconds(60));
     assertTrue(v1.equals(v2));
+    assertTrue(v2.equals(v1));
+    assertEquals(0, ((ExprIntervalValue)v1).compare((ExprIntervalValue)v2));
+    assertEquals(0, ((ExprIntervalValue)v2).compare((ExprIntervalValue)v1));
   }
 
   @Test
   public void compare() {
     ExprIntervalValue v1 = new ExprIntervalValue(Period.ofDays(1));
     ExprIntervalValue v2 = new ExprIntervalValue(Period.ofDays(2));
-    assertEquals(v1.compare(v2), -1);
+    assertEquals(-1, v1.compare(v2));
+    assertEquals(1, v2.compare(v1));
   }
 
   @Test

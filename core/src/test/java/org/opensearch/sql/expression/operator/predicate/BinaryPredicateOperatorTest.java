@@ -34,6 +34,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Period;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -44,15 +50,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.opensearch.sql.ast.expression.In;
 import org.opensearch.sql.data.model.ExprBooleanValue;
 import org.opensearch.sql.data.model.ExprByteValue;
 import org.opensearch.sql.data.model.ExprCollectionValue;
+import org.opensearch.sql.data.model.ExprDateValue;
+import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprDoubleValue;
 import org.opensearch.sql.data.model.ExprFloatValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
 import org.opensearch.sql.data.model.ExprLongValue;
+import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprShortValue;
 import org.opensearch.sql.data.model.ExprStringValue;
+import org.opensearch.sql.data.model.ExprTimeValue;
+import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
@@ -87,54 +99,82 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
         .map(list -> Arguments.of(list.get(0), list.get(1)));
   }
 
+  private static List<List<Object>> getValuesForComparisonTests() {
+     return List.of(
+        List.of(1, 2),
+        List.of((byte) 1, (byte) 2),
+        List.of((short) 1, (short) 2),
+        List.of(1L, 2L),
+        List.of(1F, 2F),
+        List.of(1D, 2D),
+        List.of("str", "str0"),
+        List.of(true, false),
+        List.of(ImmutableList.of(1), ImmutableList.of(new ExprIntegerValue(2))),
+        List.of(ImmutableList.of(1, 2), ImmutableList.of(2)),
+        List.of(ImmutableMap.of("str", 1), ImmutableMap.of("str", 2)),
+        List.of(ImmutableMap.of("str", 1), ImmutableMap.of("str1", 1)),
+        List.of(ImmutableMap.of("str", 1), ImmutableMap.of("str", new ExprDoubleValue(2D))),
+        List.of(ImmutableMap.of("str", 1), ImmutableMap.of("str", 2, "str1", 1)),
+        List.of(Period.ofDays(3), Period.ofDays(1)),
+        List.of(LocalTime.of(9, 7, 0), LocalTime.of(7, 40, 0)),
+        List.of(LocalDate.of(1961, 4, 12), LocalDate.of(1984, 10, 25)),
+        List.of(Instant.ofEpochSecond(42), Instant.ofEpochSecond(100500)),
+        List.of(LocalDateTime.of(1961, 4, 12, 9, 7, 0), LocalDateTime.of(1984, 10, 25, 7, 40)),
+        List.of(LocalDate.of(1961, 4, 12), LocalTime.now().minusHours(1)),
+        List.of(LocalDate.of(1961, 4, 12), LocalDateTime.of(1984, 10, 25, 7, 40)),
+        List.of(Instant.ofEpochSecond(100500), LocalDate.of(1961, 4, 12)),
+        List.of(Instant.ofEpochSecond(100500), LocalTime.of(7, 40, 0)),
+        List.of(LocalTime.of(7, 40, 0), LocalDateTime.of(1984, 10, 25, 7, 40)),
+        List.of(Instant.ofEpochSecond(42), LocalDateTime.of(1984, 10, 25, 7, 40))
+    );
+  }
+
   private static Stream<Arguments> testEqualArguments() {
     Stream.Builder<Arguments> builder = Stream.builder();
-    builder.add(Arguments.of(new ExprByteValue(1), new ExprByteValue(1)));
-    builder.add(Arguments.of(new ExprShortValue(1), new ExprShortValue(1)));
-    builder.add(Arguments.of(new ExprIntegerValue(1), new ExprIntegerValue(1)));
-    builder.add(Arguments.of(new ExprLongValue(1L), new ExprLongValue(1L)));
-    builder.add(Arguments.of(new ExprFloatValue(1F), new ExprFloatValue(1F)));
-    builder.add(Arguments.of(new ExprDoubleValue(1D), new ExprDoubleValue(1D)));
-    builder.add(Arguments.of(new ExprStringValue("str"), new ExprStringValue("str")));
-    builder.add(Arguments.of(ExprBooleanValue.of(true), ExprBooleanValue.of(true)));
-    builder.add(Arguments.of(new ExprCollectionValue(ImmutableList.of(new ExprIntegerValue(1))),
-        new ExprCollectionValue(ImmutableList.of(new ExprIntegerValue(1)))));
-    builder.add(Arguments.of(ExprTupleValue.fromExprValueMap(ImmutableMap.of("str",
-        new ExprIntegerValue(1))),
-        ExprTupleValue.fromExprValueMap(ImmutableMap.of("str", new ExprIntegerValue(1)))));
+    for (List<Object> argPair : getValuesForComparisonTests()) {
+      builder.add(Arguments.of(fromObjectValue(argPair.get(0)), fromObjectValue(argPair.get(0))));
+      builder.add(Arguments.of(fromObjectValue(argPair.get(1)), fromObjectValue(argPair.get(1))));
+    }
+    // Skipping test between DATETIME/TIME and DATE/INSTANT, because it could fail due to the clock run
+    builder.add(Arguments.of(fromObjectValue(LocalTime.of(7, 40, 0)),
+        fromObjectValue(LocalTime.of(7, 40, 0).atDate(LocalDate.now()))));
+    builder.add(Arguments.of(fromObjectValue(LocalDateTime.of(1970, 1, 1, 0, 0, 42)),
+        fromObjectValue(Instant.ofEpochSecond(42))));
+    builder.add(Arguments.of(fromObjectValue(LocalDate.of(1970, 1, 1)),
+        fromObjectValue(Instant.ofEpochSecond(0))));
+    builder.add(Arguments.of(fromObjectValue(LocalDate.of(1984, 10, 25)),
+        fromObjectValue(LocalDateTime.of(1984, 10, 25, 0, 0))));
     return builder.build();
   }
 
   private static Stream<Arguments> testNotEqualArguments() {
-    List<List<Object>> arguments = Arrays.asList(
-        Arrays.asList((byte) 1, (byte) 2), Arrays.asList(1, 2), Arrays.asList(1L, 2L),
-        Arrays.asList(1F, 2F), Arrays.asList(1D, 2D),
-        Arrays.asList("str0", "str1"), Arrays.asList(true, false),
-        Arrays.asList(ImmutableList.of(1), ImmutableList.of(2)),
-        Arrays.asList(ImmutableMap.of("str", 1), ImmutableMap.of("str", 2))
-    );
     Stream.Builder<Arguments> builder = Stream.builder();
-    for (List<Object> argPair : arguments) {
+    for (List<Object> argPair : getValuesForComparisonTests()) {
       builder.add(Arguments.of(fromObjectValue(argPair.get(0)), fromObjectValue(argPair.get(1))));
+      builder.add(Arguments.of(fromObjectValue(argPair.get(1)), fromObjectValue(argPair.get(0))));
     }
+    builder.add(Arguments.of(fromObjectValue(LocalTime.of(7, 40, 0)),
+        fromObjectValue(LocalDateTime.of(1984, 10, 25, 7, 40, 0))));
+    builder.add(Arguments.of(fromObjectValue(LocalDateTime.of(1984, 10, 25, 7, 40, 0)),
+        fromObjectValue(Instant.ofEpochSecond(42))));
+    builder.add(Arguments.of(fromObjectValue(LocalDate.of(1984, 10, 25)),
+        fromObjectValue(Instant.ofEpochSecond(42))));
+    builder.add(Arguments.of(fromObjectValue(LocalTime.of(7, 40, 0)),
+        fromObjectValue(Instant.ofEpochSecond(42))));
+    builder.add(Arguments.of(fromObjectValue(LocalDate.of(1984, 10, 25)),
+        fromObjectValue(LocalDateTime.of(1984, 10, 25, 7, 40))));
+    builder.add(Arguments.of(fromObjectValue(LocalDate.of(1984, 10, 25)),
+        fromObjectValue(LocalTime.of(7, 40, 0))));
     return builder.build();
   }
 
   private static Stream<Arguments> testCompareValueArguments() {
-    List<List<Object>> arguments = Arrays.asList(
-        Arrays.asList(1, 1), Arrays.asList(1, 2), Arrays.asList(2, 1),
-        Arrays.asList(1L, 1L), Arrays.asList(1L, 2L), Arrays.asList(2L, 1L),
-        Arrays.asList(1F, 1F), Arrays.asList(1F, 2F), Arrays.asList(2F, 1F),
-        Arrays.asList(1D, 1D), Arrays.asList(1D, 2D), Arrays.asList(2D, 1D),
-        Arrays.asList("str", "str"), Arrays.asList("str", "str0"), Arrays.asList("str0", "str")
-    );
     Stream.Builder<Arguments> builder = Stream.builder();
-    for (List<Object> argPair : arguments) {
+    for (List<Object> argPair : getValuesForComparisonTests()) {
+      builder.add(Arguments.of(fromObjectValue(argPair.get(0)), fromObjectValue(argPair.get(0))));
       builder.add(Arguments.of(fromObjectValue(argPair.get(0)), fromObjectValue(argPair.get(1))));
+      builder.add(Arguments.of(fromObjectValue(argPair.get(1)), fromObjectValue(argPair.get(0))));
     }
-    builder.add(Arguments.of(new ExprShortValue(1), new ExprShortValue(1)));
-    builder.add(Arguments.of(new ExprShortValue(1), new ExprShortValue(2)));
-    builder.add(Arguments.of(new ExprShortValue(2), new ExprShortValue(1)));
     return builder.build();
   }
 
@@ -379,8 +419,10 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   public void test_equal(ExprValue v1, ExprValue v2) {
     FunctionExpression equal = DSL.equal(DSL.literal(v1), DSL.literal(v2));
     assertEquals(BOOLEAN, equal.type());
-    assertEquals(v1.value().equals(v2.value()),
-        ExprValueUtils.getBooleanValue(equal.valueOf(valueEnv())));
+    var referenceValue = v1.type() == v2.type()
+        ? v1.value().equals(v2.value())
+        : 0 == compare(v1, v2);
+    assertEquals(referenceValue, ExprValueUtils.getBooleanValue(equal.valueOf(valueEnv())));
     assertEquals(String.format("=(%s, %s)", v1.toString(), v2.toString()), equal.toString());
   }
 
@@ -428,8 +470,10 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   public void test_notequal(ExprValue v1, ExprValue v2) {
     FunctionExpression notequal = DSL.notequal(DSL.literal(v1), DSL.literal(v2));
     assertEquals(BOOLEAN, notequal.type());
-    assertEquals(!v1.value().equals(v2.value()),
-        ExprValueUtils.getBooleanValue(notequal.valueOf(valueEnv())));
+    var referenceValue = v1.type() == v2.type()
+        ? !v1.value().equals(v2.value())
+        : 0 != compare(v1, v2);
+    assertEquals(referenceValue, ExprValueUtils.getBooleanValue(notequal.valueOf(valueEnv())));
     assertEquals(String.format("!=(%s, %s)", v1.toString(), v2.toString()), notequal.toString());
   }
 

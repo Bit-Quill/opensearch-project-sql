@@ -51,9 +51,12 @@ class ExprTupleValueTest {
 
   @Test
   public void comparabilityTest() {
-    ExprValue tupleValue = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2));
-    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-        () -> compare(tupleValue, tupleValue));
-    assertEquals("ExprTupleValue instances are not comparable", exception.getMessage());
+    ExprValue value1 = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2));
+    ExprValue value2 =
+        ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2, "float_value", 1f));
+    assertEquals(0, compare(value1, value1));
+    assertEquals(0, compare(value2, value2));
+    assertEquals(1, compare(value1, value2));
+    assertEquals(1, compare(value2, value1));
   }
 }

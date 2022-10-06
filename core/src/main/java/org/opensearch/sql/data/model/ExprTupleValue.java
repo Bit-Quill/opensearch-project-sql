@@ -96,7 +96,7 @@ public class ExprTupleValue extends AbstractExprValue {
    */
   @Override
   public int compare(ExprValue other) {
-    return Integer.compare(valueMap.size(), other.tupleValue().size());
+    return equal(other) ? 0 : 1;
   }
 
   @Override
