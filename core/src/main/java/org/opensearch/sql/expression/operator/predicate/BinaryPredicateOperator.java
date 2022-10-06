@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
@@ -34,7 +35,12 @@ import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.DefaultFunctionResolver;
+import org.opensearch.sql.expression.function.FunctionBuilder;
 import org.opensearch.sql.expression.function.FunctionDSL;
+import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.expression.function.FunctionSignature;
+import org.opensearch.sql.expression.function.SerializableBiFunction;
+import org.opensearch.sql.expression.function.SerializableFunction;
 import org.opensearch.sql.utils.OperatorUtils;
 
 /**
@@ -169,98 +175,49 @@ public class BinaryPredicateOperator {
   }
 
   private static DefaultFunctionResolver equal() {
-    return FunctionDSL.define(BuiltinFunctionName.EQUAL.getName(),
-            Stream.concat(
-                ExprCoreType.coreTypes().stream()
-                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                        (v1, v2) -> ExprBooleanValue.of(v1.equals(v2))),
-                        BOOLEAN, type, type)),
-                permuteTemporalTypesByPairs().stream()
-                    .map(pair -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                        (v1, v2) -> ExprBooleanValue.of(convertTemporalToDateTime(v1)
-                            .equals(convertTemporalToDateTime(v2)))),
-                        BOOLEAN, pair.getLeft(), pair.getRight())))
-            .collect(Collectors.toList()));
+    return exprCallCompare(BuiltinFunctionName.EQUAL.getName(),
+        (Comparable v1, Comparable v2) -> v1.equals(v2));
   }
 
   private static DefaultFunctionResolver notEqual() {
-    return FunctionDSL
-        .define(BuiltinFunctionName.NOTEQUAL.getName(),
-            Stream.concat(
-                ExprCoreType.coreTypes().stream()
-                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                        (v1, v2) -> ExprBooleanValue.of(!v1.equals(v2))),
-                        BOOLEAN, type, type)),
-                permuteTemporalTypesByPairs().stream()
-                    .map(pair -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                        (v1, v2) -> ExprBooleanValue.of(!convertTemporalToDateTime(v1)
-                            .equals(convertTemporalToDateTime(v2)))),
-                        BOOLEAN, pair.getLeft(), pair.getRight())))
-            .collect(Collectors.toList()));
+    return exprCallCompare(BuiltinFunctionName.NOTEQUAL.getName(),
+        (Comparable v1, Comparable v2) -> !v1.equals(v2));
   }
 
   private static DefaultFunctionResolver less() {
-    return FunctionDSL
-        .define(BuiltinFunctionName.LESS.getName(),
-            Stream.concat(
-                ExprCoreType.coreTypes().stream()
-                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                        (v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) < 0)),
-                        BOOLEAN, type, type)),
-                permuteTemporalTypesByPairs().stream()
-                    .map(pair -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                        (v1, v2) -> ExprBooleanValue.of(convertTemporalToDateTime(v1)
-                            .compareTo(convertTemporalToDateTime(v2)) < 0)),
-                        BOOLEAN, pair.getLeft(), pair.getRight())))
-            .collect(Collectors.toList()));
+    return exprCallCompare(BuiltinFunctionName.LESS.getName(),
+        (Comparable v1, Comparable v2) -> v1.compareTo(v2) < 0);
   }
 
   private static DefaultFunctionResolver lte() {
-    return FunctionDSL
-        .define(BuiltinFunctionName.LTE.getName(),
-            Stream.concat(
-                ExprCoreType.coreTypes().stream()
-                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                        (v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) <= 0)),
-                        BOOLEAN, type, type)),
-                permuteTemporalTypesByPairs().stream()
-                    .map(pair -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                        (v1, v2) -> ExprBooleanValue.of(convertTemporalToDateTime(v1)
-                            .compareTo(convertTemporalToDateTime(v2)) <= 0)),
-                        BOOLEAN, pair.getLeft(), pair.getRight())))
-            .collect(Collectors.toList()));
+    return exprCallCompare(BuiltinFunctionName.LTE.getName(),
+        (Comparable v1, Comparable v2) -> v1.compareTo(v2) <= 0);
   }
 
   private static DefaultFunctionResolver greater() {
-    return FunctionDSL
-        .define(BuiltinFunctionName.GREATER.getName(),
-            Stream.concat(
-                ExprCoreType.coreTypes().stream()
-                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                        (v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) > 0)),
-                      BOOLEAN, type, type)),
-                permuteTemporalTypesByPairs().stream()
-                    .map(pair -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                        (v1, v2) -> ExprBooleanValue.of(convertTemporalToDateTime(v1)
-                            .compareTo(convertTemporalToDateTime(v2)) > 0)),
-                        BOOLEAN, pair.getLeft(), pair.getRight())))
-            .collect(Collectors.toList()));
+    return exprCallCompare(BuiltinFunctionName.GREATER.getName(),
+        (Comparable v1, Comparable v2) -> v1.compareTo(v2) > 0);
   }
 
   private static DefaultFunctionResolver gte() {
-    return FunctionDSL
-        .define(BuiltinFunctionName.GTE.getName(),
-            Stream.concat(
-                ExprCoreType.coreTypes().stream()
-                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                        (v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) >= 0)),
-                      BOOLEAN, type, type)),
-                permuteTemporalTypesByPairs().stream()
-                    .map(pair -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                        (v1, v2) -> ExprBooleanValue.of(convertTemporalToDateTime(v1)
-                            .compareTo(convertTemporalToDateTime(v2)) >= 0)),
+    return exprCallCompare(BuiltinFunctionName.GTE.getName(),
+        (Comparable v1, Comparable v2) -> v1.compareTo(v2) >= 0);
+  }
+
+  private static DefaultFunctionResolver exprCallCompare(
+      FunctionName function, SerializableBiFunction<Comparable, Comparable, Boolean> comparator) {
+    return FunctionDSL.define(function,
+        Stream.concat(
+            ExprCoreType.coreTypes().stream()
+                .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                    (v1, v2) -> ExprBooleanValue.of(comparator.apply(v1, v2))),
+                        BOOLEAN, type, type)),
+            permuteTemporalTypesByPairs().stream()
+                .map(pair -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                    (v1, v2) -> ExprBooleanValue.of(comparator.apply(
+                            convertTemporalToDateTime(v1), convertTemporalToDateTime(v2)))),
                         BOOLEAN, pair.getLeft(), pair.getRight())))
-            .collect(Collectors.toList()));
+        .collect(Collectors.toList()));
   }
 
   private static DefaultFunctionResolver like() {
