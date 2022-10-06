@@ -557,7 +557,7 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver utc_timestamp() {
     return define(BuiltinFunctionName.UTC_TIMESTAMP.getName(),
-        impl(DateTimeFunction::exprUtcTimeStamp, TIMESTAMP));
+        impl(DateTimeFunction::exprUtcTimeStamp, DATETIME));
   }
 
   /**
