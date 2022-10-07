@@ -1153,7 +1153,7 @@ Example::
 
 
 UTC_DATE
--------
+--------
 
 Description
 >>>>>>>>>>>
@@ -1166,7 +1166,7 @@ Specification: UTC_DATE() -> DATE
 
 Example::
 
-    >od source=people | eval `UTC_DATE()` = UTC_DATE() | fields `UTC_DATE()`
+    > source=people | eval `UTC_DATE()` = UTC_DATE() | fields `UTC_DATE()`
     fetched rows / total rows = 1/1
     +--------------+
     | UTC_DATE()   |
@@ -1175,9 +1175,8 @@ Example::
     +--------------+
 
 
-
 UTC_TIME
--------
+--------
 
 Description
 >>>>>>>>>>>
@@ -1190,7 +1189,7 @@ Specification: UTC_TIME() -> TIME
 
 Example::
 
-    >od source=people | eval `UTC_TIME()` = UTC_TIME() | fields `UTC_TIME()`
+    > source=people | eval `UTC_TIME()` = UTC_TIME() | fields `UTC_TIME()`
     fetched rows / total rows = 1/1
     +--------------+
     | UTC_TIME()   |
@@ -1199,10 +1198,8 @@ Example::
     +--------------+
 
 
-
-
 UTC_TIMESTAMP
--------
+-------------
 
 Description
 >>>>>>>>>>>
@@ -1215,7 +1212,7 @@ Specification: UTC_TIMESTAMP() -> DATETIME
 
 Example::
 
-    >od source=people | eval `UTC_TIMESTAMP()` = UTC_TIMESTAMP() | fields `UTC_TIMESTAMP()`
+    > source=people | eval `UTC_TIMESTAMP()` = UTC_TIMESTAMP() | fields `UTC_TIMESTAMP()`
     fetched rows / total rows = 1/1
     +---------------------+
     | UTC_TIMESTAMP()     |

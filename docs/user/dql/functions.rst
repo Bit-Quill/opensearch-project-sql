@@ -1711,9 +1711,8 @@ Example::
     +----------------------------+----------------------------+
 
 
-
 UTC_DATE
--------
+--------
 
 Description
 >>>>>>>>>>>
@@ -1726,7 +1725,7 @@ Specification: UTC_DATE() -> DATE
 
 Example::
 
-    >od SELECT UTC_DATE();
+    > SELECT UTC_DATE();
     fetched rows / total rows = 1/1
     +--------------+
     | utc_date()   |
@@ -1735,9 +1734,8 @@ Example::
     +--------------+
 
 
-
 UTC_TIME
--------
+--------
 
 Description
 >>>>>>>>>>>
@@ -1750,7 +1748,7 @@ Specification: UTC_TIME() -> TIME
 
 Example::
 
-    >od SELECT UTC_TIME();
+    > SELECT UTC_TIME();
     fetched rows / total rows = 1/1
     +--------------+
     | utc_time()   |
@@ -1759,10 +1757,8 @@ Example::
     +--------------+
 
 
-
-
 UTC_TIMESTAMP
--------
+-------------
 
 Description
 >>>>>>>>>>>
@@ -1775,15 +1771,13 @@ Specification: UTC_TIMESTAMP() -> DATETIME
 
 Example::
 
-    >od SELECT UTC_TIMESTAMP();
+    > SELECT UTC_TIMESTAMP();
     fetched rows / total rows = 1/1
     +---------------------+
     | utc_timestamp()     |
     |---------------------|
     | 2022-10-03 17:54:28 |
     +---------------------+
-
-
 
 
 CURTIME
