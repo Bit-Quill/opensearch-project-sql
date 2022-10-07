@@ -6,10 +6,12 @@
 
 package org.opensearch.sql.ppl;
 
+import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DATE;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_PEOPLE2;
 import static org.opensearch.sql.util.MatcherUtils.rows;
 import static org.opensearch.sql.util.MatcherUtils.schema;
+import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
 import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 import static org.opensearch.sql.util.MatcherUtils.verifySome;
 
@@ -20,6 +22,7 @@ import java.time.LocalTime;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
@@ -42,6 +45,7 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
   public void init() throws IOException {
     loadIndex(Index.DATE);
     loadIndex(Index.PEOPLE2);
+    loadIndex(Index.BANK);
   }
 
   @Test
@@ -59,16 +63,60 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
     verifySome(result.getJSONArray("datarows"), rows("2020-09-17"));
 
     result = executeQuery(String.format(
-        "source=%s | eval f = adddate('2020-09-16', 1) | fields f", TEST_INDEX_DATE));
+        "source=%s | eval f = adddate(timestamp('2020-09-16 17:30:00'), 1) | fields f", TEST_INDEX_DATE));
     verifySchema(result, schema("f", null, "datetime"));
-    verifySome(result.getJSONArray("datarows"), rows("2020-09-17"));
+    verifySome(result.getJSONArray("datarows"), rows("2020-09-17 17:30:00"));
+
+    result = executeQuery(String.format(
+        "source=%s | eval f = adddate(DATETIME('2020-09-16 07:40:00'), 1) | fields f", TEST_INDEX_DATE));
+    verifySchema(result, schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"), rows("2020-09-17 07:40:00"));
 
     result =
         executeQuery(String.format(
-            "source=%s | eval f = adddate('2020-09-16 17:30:00', interval 1 day) | fields f", TEST_INDEX_DATE));
+            "source=%s | eval f = adddate(DATETIME('2020-09-16 17:30:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
     verifySchema(result,
         schema("f", null, "datetime"));
     verifySome(result.getJSONArray("datarows"), rows("2020-09-17 17:30:00"));
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = adddate('2020-09-16', interval 1 day) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"), rows("2020-09-17 00:00:00"));
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = adddate('2020-09-16', interval 1 hour) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"), rows("2020-09-16 01:00:00"));
+
+    var testTz = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = adddate(TIME('07:40:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"),
+        rows(LocalDate.now().plusDays(1).atTime(LocalTime.of(7, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = adddate(TIME('07:40:00'), interval 1 hour) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"),
+        rows(LocalDate.now().atTime(LocalTime.of(8, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    TimeZone.setDefault(testTz);
   }
 
   @Test
@@ -155,22 +203,65 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
         schema("f", null, "datetime"));
     verifySome(result.getJSONArray("datarows"), rows("2020-09-17 17:30:00"));
 
-    result = executeQuery(String.format(
-        "source=%s | eval f = date_add(date('2020-09-16'), 1) | fields f", TEST_INDEX_DATE));
-    verifySchema(result, schema("f", null, "date"));
-    verifySome(result.getJSONArray("datarows"), rows("2020-09-17"));
-
-    result = executeQuery(String.format(
-        "source=%s | eval f = date_add('2020-09-16', 1) | fields f", TEST_INDEX_DATE));
-    verifySchema(result, schema("f", null, "datetime"));
-    verifySome(result.getJSONArray("datarows"), rows("2020-09-17"));
-
     result =
         executeQuery(String.format(
-            "source=%s | eval f = date_add('2020-09-16 17:30:00', interval 1 day) | fields f", TEST_INDEX_DATE));
+            "source=%s | eval f = date_add(DATETIME('2020-09-16 17:30:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
     verifySchema(result,
         schema("f", null, "datetime"));
     verifySome(result.getJSONArray("datarows"), rows("2020-09-17 17:30:00"));
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = date_add('2020-09-16', interval 1 day) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"), rows("2020-09-17 00:00:00"));
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = date_add('2020-09-16', interval 1 hour) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"), rows("2020-09-16 01:00:00"));
+
+    var testTz = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = date_add(TIME('07:40:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"),
+        rows(LocalDate.now().plusDays(1).atTime(LocalTime.of(7, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = date_add(TIME('07:40:00'), interval 1 hour) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"),
+        rows(LocalDate.now().atTime(LocalTime.of(8, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    TimeZone.setDefault(testTz);
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = DATE_ADD(birthdate, INTERVAL 1 YEAR) | fields f", TEST_INDEX_BANK));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifyDataRows(result,
+            rows("2018-10-23 00:00:00"),
+            rows("2018-11-20 00:00:00"),
+            rows("2019-06-23 00:00:00"),
+            rows("2019-11-13 23:33:20"),
+            rows("2019-06-27 00:00:00"),
+            rows("2019-08-19 00:00:00"),
+            rows("2019-08-11 00:00:00"));
   }
 
   @Test
@@ -276,27 +367,49 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
   public void testDateSub() throws IOException {
     JSONObject result =
         executeQuery(String.format(
-            "source=%s | eval f =  date_sub(timestamp('2020-09-16 17:30:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
+            "source=%s | eval f = date_sub(timestamp('2020-09-16 17:30:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
     verifySchema(result,
         schema("f", null, "datetime"));
     verifySome(result.getJSONArray("datarows"), rows("2020-09-15 17:30:00"));
-
-    result = executeQuery(String.format(
-            "source=%s | eval f =  date_sub(date('2020-09-16'), 1) | fields f", TEST_INDEX_DATE));
-    verifySchema(result, schema("f", null, "date"));
-    verifySome(result.getJSONArray("datarows"), rows("2020-09-15"));
-
-    result = executeQuery(String.format(
-            "source=%s | eval f =  date_sub('2020-09-16', 1) | fields f", TEST_INDEX_DATE));
-    verifySchema(result, schema("f", null, "datetime"));
-    verifySome(result.getJSONArray("datarows"), rows("2020-09-15"));
 
     result =
         executeQuery(String.format(
-            "source=%s | eval f =  date_sub('2020-09-16 17:30:00', interval 1 day) | fields f", TEST_INDEX_DATE));
+            "source=%s | eval f = date_sub(DATETIME('2020-09-16 17:30:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
     verifySchema(result,
         schema("f", null, "datetime"));
     verifySome(result.getJSONArray("datarows"), rows("2020-09-15 17:30:00"));
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = date_sub('2020-09-16', interval 1 day) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"), rows("2020-09-15 00:00:00"));
+
+    var testTz = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = date_sub(TIME('07:40:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"),
+        rows(LocalDate.now().plusDays(-1).atTime(LocalTime.of(7, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = date_sub(TIME('07:40:00'), interval 1 hour) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"),
+        rows(LocalDate.now().atTime(LocalTime.of(6, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    TimeZone.setDefault(testTz);
   }
 
   @Test
@@ -541,17 +654,47 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
     verifySchema(result, schema("f", null, "date"));
     verifySome(result.getJSONArray("datarows"), rows("2020-09-15"));
 
+    result = executeQuery(String.format(
+            "source=%s | eval f =  subdate(timestamp('2020-09-16 17:30:00'), 1) | fields f", TEST_INDEX_DATE));
+    verifySchema(result, schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"), rows("2020-09-15 17:30:00"));
+
     result =
         executeQuery(String.format(
-            "source=%s | eval f =  subdate('2020-09-16 17:30:00', interval 1 day) | fields f", TEST_INDEX_DATE));
+            "source=%s | eval f =  subdate(DATETIME('2020-09-16 17:30:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
     verifySchema(result,
         schema("f", null, "datetime"));
     verifySome(result.getJSONArray("datarows"), rows("2020-09-15 17:30:00"));
 
     result = executeQuery(String.format(
         "source=%s | eval f =  subdate('2020-09-16', 1) | fields f", TEST_INDEX_DATE));
-    verifySchema(result, schema("f", null, "datetime"));
+    verifySchema(result, schema("f", null, "date"));
     verifySome(result.getJSONArray("datarows"), rows("2020-09-15"));
+
+    var testTz = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = subdate(TIME('07:40:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"),
+        rows(LocalDate.now().plusDays(-1).atTime(LocalTime.of(7, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = subdate(TIME('07:40:00'), interval 1 hour) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"),
+        rows(LocalDate.now().atTime(LocalTime.of(6, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    TimeZone.setDefault(testTz);
   }
 
   @Test

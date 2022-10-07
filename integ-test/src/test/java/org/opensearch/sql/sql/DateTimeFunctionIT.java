@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Period;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
@@ -91,19 +92,49 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifySchema(result, schema("adddate(date('2020-09-16'), 1)", null, "date"));
     verifyDataRows(result, rows("2020-09-17"));
 
-    result = executeQuery("select adddate('2020-09-16', 1)");
-    verifySchema(result, schema("adddate('2020-09-16', 1)", null, "datetime"));
-    verifyDataRows(result, rows("2020-09-17"));
+    result = executeQuery("select adddate(timestamp('2020-09-16 17:30:00'), 1)");
+    verifySchema(result, schema("adddate(timestamp('2020-09-16 17:30:00'), 1)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-17 17:30:00"));
 
-    result = executeQuery("select adddate('2020-09-16 17:30:00', interval 1 day)");
+    result = executeQuery("select adddate(DATETIME('2020-09-16 07:40:00'), 1)");
+    verifySchema(result, schema("adddate(DATETIME('2020-09-16 07:40:00'), 1)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-17 07:40:00"));
+
+    result = executeQuery("select adddate(DATETIME('2020-09-16 17:30:00'), interval 1 day)");
     verifySchema(result,
-        schema("adddate('2020-09-16 17:30:00', interval 1 day)", null, "datetime"));
+        schema("adddate(DATETIME('2020-09-16 17:30:00'), interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-17 17:30:00"));
 
     result = executeQuery("select adddate('2020-09-16', interval 1 day)");
     verifySchema(result,
         schema("adddate('2020-09-16', interval 1 day)", null, "datetime"));
-    verifyDataRows(result, rows("2020-09-17"));
+    verifyDataRows(result, rows("2020-09-17 00:00:00"));
+
+    result = executeQuery("select adddate('2020-09-16', interval 1 hour)");
+    verifySchema(result,
+        schema("adddate('2020-09-16', interval 1 hour)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-16 01:00:00"));
+
+    var testTz = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
+
+    result = executeQuery("select adddate(TIME('07:40:00'), interval 1 day)");
+    verifySchema(result,
+        schema("adddate(TIME('07:40:00'), interval 1 day)", null, "datetime"));
+    verifyDataRows(result,
+        rows(LocalDate.now().plusDays(1).atTime(LocalTime.of(7, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    result = executeQuery("select adddate(TIME('07:40:00'), interval 1 hour)");
+    verifySchema(result,
+        schema("adddate(TIME('07:40:00'), interval 1 hour)", null, "datetime"));
+    verifyDataRows(result,
+        rows(LocalDate.now().atTime(LocalTime.of(8, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    TimeZone.setDefault(testTz);
   }
 
   @Test
@@ -114,26 +145,45 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         schema("date_add(timestamp('2020-09-16 17:30:00'), interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-17 17:30:00"));
 
-    result = executeQuery("select date_add(date('2020-09-16'), 1)");
-    verifySchema(result, schema("date_add(date('2020-09-16'), 1)", null, "date"));
-    verifyDataRows(result, rows("2020-09-17"));
-
-    result = executeQuery("select date_add('2020-09-16', 1)");
-    verifySchema(result, schema("date_add('2020-09-16', 1)", null, "datetime"));
-    verifyDataRows(result, rows("2020-09-17"));
-
-    result = executeQuery("select date_add('2020-09-16 17:30:00', interval 1 day)");
+    result = executeQuery("select date_add(DATETIME('2020-09-16 17:30:00'), interval 1 day)");
     verifySchema(result,
-        schema("date_add('2020-09-16 17:30:00', interval 1 day)", null, "datetime"));
+        schema("date_add(DATETIME('2020-09-16 17:30:00'), interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-17 17:30:00"));
 
     result = executeQuery("select date_add('2020-09-16', interval 1 day)");
     verifySchema(result,
         schema("date_add('2020-09-16', interval 1 day)", null, "datetime"));
-    verifyDataRows(result, rows("2020-09-17"));
+    verifyDataRows(result, rows("2020-09-17 00:00:00"));
 
-    result =
-        executeQuery(String.format("SELECT DATE_ADD(birthdate, INTERVAL 1 YEAR) FROM %s GROUP BY 1",TEST_INDEX_BANK) );
+    result = executeQuery("select date_add('2020-09-16', interval 1 hour)");
+    verifySchema(result,
+        schema("date_add('2020-09-16', interval 1 hour)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-16 01:00:00"));
+
+    var testTz = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
+
+    result = executeQuery("select date_add(TIME('07:40:00'), interval 1 day)");
+    verifySchema(result,
+        schema("date_add(TIME('07:40:00'), interval 1 day)", null, "datetime"));
+    verifyDataRows(result,
+        rows(LocalDate.now().plusDays(1).atTime(LocalTime.of(7, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    result = executeQuery("select date_add(TIME('07:40:00'), interval 1 hour)");
+    verifySchema(result,
+        schema("date_add(TIME('07:40:00'), interval 1 hour)", null, "datetime"));
+    verifyDataRows(result,
+        rows(LocalDate.now().atTime(LocalTime.of(8, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    TimeZone.setDefault(testTz);
+
+    result = executeQuery(String.format("SELECT DATE_ADD(birthdate, INTERVAL 1 YEAR) FROM %s",
+        TEST_INDEX_BANK));
+
     verifySchema(result,
         schema("DATE_ADD(birthdate, INTERVAL 1 YEAR)", null, "datetime"));
     verifyDataRows(result,
@@ -154,23 +204,36 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         schema("date_sub(timestamp('2020-09-16 17:30:00'), interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-15 17:30:00"));
 
-    result = executeQuery("select date_sub(date('2020-09-16'), 1)");
-    verifySchema(result, schema("date_sub(date('2020-09-16'), 1)", null, "date"));
-    verifyDataRows(result, rows("2020-09-15"));
-
-    result = executeQuery("select date_sub('2020-09-16', 1)");
-    verifySchema(result, schema("date_sub('2020-09-16', 1)", null, "datetime"));
-    verifyDataRows(result, rows("2020-09-15"));
-
-    result = executeQuery("select date_sub('2020-09-16 17:30:00', interval 1 day)");
+    result = executeQuery("select date_sub(DATETIME('2020-09-16 17:30:00'), interval 1 day)");
     verifySchema(result,
-        schema("date_sub('2020-09-16 17:30:00', interval 1 day)", null, "datetime"));
+        schema("date_sub(DATETIME('2020-09-16 17:30:00'), interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-15 17:30:00"));
 
     result = executeQuery("select date_sub('2020-09-16', interval 1 day)");
     verifySchema(result,
         schema("date_sub('2020-09-16', interval 1 day)", null, "datetime"));
-    verifyDataRows(result, rows("2020-09-15"));
+    verifyDataRows(result, rows("2020-09-15 00:00:00"));
+
+    var testTz = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
+
+    result = executeQuery("select date_sub(TIME('07:40:00'), interval 1 day)");
+    verifySchema(result,
+        schema("date_sub(TIME('07:40:00'), interval 1 day)", null, "datetime"));
+    verifyDataRows(result,
+        rows(LocalDate.now().plusDays(-1).atTime(LocalTime.of(7, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    result = executeQuery("select date_sub(TIME('07:40:00'), interval 1 hour)");
+    verifySchema(result,
+        schema("date_sub(TIME('07:40:00'), interval 1 hour)", null, "datetime"));
+    verifyDataRows(result,
+        rows(LocalDate.now().atTime(LocalTime.of(6, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    TimeZone.setDefault(testTz);
   }
 
   @Test
@@ -475,23 +538,48 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         schema("subdate(timestamp('2020-09-16 17:30:00'), interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-15 17:30:00"));
 
-    result = executeQuery("select subdate(date('2020-09-16'), 1)");
-    verifySchema(result, schema("subdate(date('2020-09-16'), 1)", null, "date"));
+    result =
+        executeQuery("select subdate(date('2020-09-16'), 1)");
+    verifySchema(result,
+        schema("subdate(date('2020-09-16'), 1)", null, "date"));
     verifyDataRows(result, rows("2020-09-15"));
 
-    result = executeQuery("select subdate('2020-09-16 17:30:00', interval 1 day)");
+    result =
+        executeQuery("select subdate(timestamp('2020-09-16 17:30:00'), 1)");
     verifySchema(result,
-        schema("subdate('2020-09-16 17:30:00', interval 1 day)", null, "datetime"));
+        schema("subdate(timestamp('2020-09-16 17:30:00'), 1)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-15 17:30:00"));
 
-    result = executeQuery("select subdate('2020-09-16', 1)");
-    verifySchema(result, schema("subdate('2020-09-16', 1)", null, "datetime"));
-    verifyDataRows(result, rows("2020-09-15"));
+    result = executeQuery("select subdate(DATETIME('2020-09-16 17:30:00'), interval 1 day)");
+    verifySchema(result,
+        schema("subdate(DATETIME('2020-09-16 17:30:00'), interval 1 day)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-15 17:30:00"));
 
     result = executeQuery("select subdate('2020-09-16', interval 1 day)");
     verifySchema(result,
         schema("subdate('2020-09-16', interval 1 day)", null, "datetime"));
-    verifyDataRows(result, rows("2020-09-15"));
+    verifyDataRows(result, rows("2020-09-15 00:00:00"));
+
+    var testTz = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
+
+    result = executeQuery("select subdate(TIME('07:40:00'), interval 1 day)");
+    verifySchema(result,
+        schema("subdate(TIME('07:40:00'), interval 1 day)", null, "datetime"));
+    verifyDataRows(result,
+        rows(LocalDate.now().plusDays(-1).atTime(LocalTime.of(7, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    result = executeQuery("select subdate(TIME('07:40:00'), interval 1 hour)");
+    verifySchema(result,
+        schema("subdate(TIME('07:40:00'), interval 1 hour)", null, "datetime"));
+    verifyDataRows(result,
+        rows(LocalDate.now().atTime(LocalTime.of(6, 40))
+            .atZone(ZoneId.of(System.getProperty("user.timezone")))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+    TimeZone.setDefault(testTz);
   }
 
   @Test

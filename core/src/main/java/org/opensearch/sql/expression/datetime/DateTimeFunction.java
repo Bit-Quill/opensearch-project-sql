@@ -41,10 +41,14 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
+import java.time.temporal.TemporalAmount;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprDoubleValue;
@@ -62,8 +66,11 @@ import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.DefaultFunctionResolver;
 import org.opensearch.sql.expression.function.FunctionDSL;
+import org.opensearch.sql.expression.function.FunctionBuilder;
 import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.function.FunctionResolver;
+import org.opensearch.sql.expression.function.FunctionSignature;
+import org.opensearch.sql.expression.function.SerializableFunction;
 import org.opensearch.sql.utils.DateTimeUtils;
 
 /**
@@ -209,28 +216,46 @@ public class DateTimeFunction {
   /**
    * Specify a start date and add a temporal amount to the date.
    * The return type depends on the date type and the interval unit. Detailed supported signatures:
-   * (STRING/DATE/DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
-   * (DATE, LONG) -> DATE
-   * (STRING/DATETIME/TIMESTAMP, LONG) -> DATETIME
+   * (DATE/DATETIME/TIMESTAMP/TIME, INTERVAL) -> DATETIME
+   * TODO: MySQL has these signatures too
+   * (STRING, INTERVAL) -> STRING
+   * (DATE, INTERVAL) -> DATE                                     // when interval has no time part
+   * (TIME, INTERVAL) -> TIME                                     // when interval has no date part
+   * (STRING, INTERVAL) -> STRING         // when argument has date or datetime string,
+   *                                      // result has date or datetime depending on interval type
    */
-  private DefaultFunctionResolver add_date(FunctionName functionName) {
-    return define(functionName,
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
-            DATETIME, STRING, INTERVAL),
+  private SerializableFunction<?, ?>[] get_date_add_signatures() {
+    return new SerializableFunction[]{
         impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval), DATETIME, DATE, INTERVAL),
         impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
-            DATETIME, DATETIME, INTERVAL),
+                DATETIME, DATETIME, INTERVAL),
         impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
-            DATETIME, TIMESTAMP, INTERVAL),
+                DATETIME, TIMESTAMP, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
+                DATETIME, TIME, INTERVAL),
+    };
+  }
+
+  /**
+   * Adds an integer number of days to the first argument.
+   * (DATE, LONG) -> DATE
+   * (TIME/DATETIME/TIMESTAMP, LONG) -> DATETIME
+   */
+  private SerializableFunction<?, ?>[] get_adddate_signatures() {
+    return new SerializableFunction[]{
         impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATE, DATE, LONG),
         impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, DATETIME, LONG),
         impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, TIMESTAMP, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, STRING, LONG)
-    );
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, TIME, LONG)
+    };
   }
 
   private DefaultFunctionResolver adddate() {
-    return add_date(BuiltinFunctionName.ADDDATE.getName());
+    return define(BuiltinFunctionName.ADDDATE.getName(),
+        (SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>[])
+            (Stream.concat(Arrays.stream(get_date_add_signatures()),
+                Arrays.stream(get_adddate_signatures()))
+                    .toArray(SerializableFunction<?, ?>[]::new)));
   }
 
   /**
@@ -277,34 +302,51 @@ public class DateTimeFunction {
   }
 
   private DefaultFunctionResolver date_add() {
-    return add_date(BuiltinFunctionName.DATE_ADD.getName());
+    return define(BuiltinFunctionName.DATE_ADD.getName(),
+        (SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>[])
+              get_date_add_signatures());
   }
 
   /**
    * Specify a start date and subtract a temporal amount to the date.
    * The return type depends on the date type and the interval unit. Detailed supported signatures:
-   * (STRING/DATE/DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
-   * (DATE, LONG) -> DATE
-   * (STRING/DATETIME/TIMESTAMP, LONG) -> DATETIME
+   * (DATE/DATETIME/TIMESTAMP/TIME, INTERVAL) -> DATETIME
+   * TODO: MySQL has these signatures too
+   * (DATE, INTERVAL) -> DATE                                     // when interval has no time part
+   * (TIME, INTERVAL) -> TIME                                     // when interval has no date part
+   * (STRING, INTERVAL) -> STRING         // when argument has date or datetime string,
+   *                                      // result has date or datetime depending on interval type
    */
-  private DefaultFunctionResolver sub_date(FunctionName functionName) {
-    return define(functionName,
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
-            DATETIME, STRING, INTERVAL),
+  private SerializableFunction<?, ?>[] get_date_sub_signatures() {
+    return new SerializableFunction[]{
         impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval), DATETIME, DATE, INTERVAL),
         impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
-            DATETIME, DATETIME, INTERVAL),
+                DATETIME, DATETIME, INTERVAL),
         impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
-            DATETIME, TIMESTAMP, INTERVAL),
+                DATETIME, TIMESTAMP, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
+                DATETIME, TIME, INTERVAL)
+    };
+  }
+
+  /**
+   * Subtracts an integer number of days to the first argument.
+   * (DATE, LONG) -> DATE
+   * (TIME/DATETIME/TIMESTAMP, LONG) -> DATETIME
+   */
+  private SerializableFunction<?, ?>[] get_subdate_signatures() {
+    return new SerializableFunction[]{
         impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATE, DATE, LONG),
         impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, DATETIME, LONG),
         impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, TIMESTAMP, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, STRING, LONG)
-    );
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, TIME, LONG)
+    };
   }
 
   private DefaultFunctionResolver date_sub() {
-    return sub_date(BuiltinFunctionName.DATE_SUB.getName());
+    return define(BuiltinFunctionName.DATE_SUB.getName(),
+        (SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>[])
+              get_date_sub_signatures());
   }
 
   /**
@@ -502,7 +544,11 @@ public class DateTimeFunction {
   }
 
   private DefaultFunctionResolver subdate() {
-    return sub_date(BuiltinFunctionName.SUBDATE.getName());
+    return define(BuiltinFunctionName.SUBDATE.getName(),
+        (SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>[])
+            (Stream.concat(Arrays.stream(get_date_sub_signatures()),
+                Arrays.stream(get_subdate_signatures()))
+                    .toArray(SerializableFunction<?, ?>[]::new)));
   }
 
   /**
@@ -616,16 +662,33 @@ public class DateTimeFunction {
   }
 
   /**
-   * ADDDATE function implementation for ExprValue.
+   * DATE_ADD function implementation for ExprValue.
    *
-   * @param date ExprValue of String/Date/Datetime/Timestamp type.
-   * @param expr ExprValue of Interval type, the temporal amount to add.
+   * @param date ExprValue of Date/Time/Datetime/Timestamp type.
+   * @param interval ExprValue of Interval type, the temporal amount to add.
    * @return Datetime resulted from expr added to date.
    */
-  private ExprValue exprAddDateInterval(ExprValue date, ExprValue expr) {
-    ExprValue exprValue = new ExprDatetimeValue(date.datetimeValue().plus(expr.intervalValue()));
-    return (exprValue.timeValue().toSecondOfDay() == 0 ? new ExprDateValue(exprValue.dateValue())
-        : exprValue);
+  private ExprValue exprAddDateInterval(ExprValue date, ExprValue interval) {
+    return exprDateApplyInterval(date, interval.intervalValue(), true);
+  }
+
+  /**
+   * Adds or subtracts `interval` to/from `date`.
+   *
+   * @param date A Date/Time/Datetime/Timestamp value to change.
+   * @param interval An Interval to add or subtract.
+   * @param add A flag: true to add, false to subtract.
+   * @return Datetime calculated.
+   */
+  private ExprValue exprDateApplyInterval(ExprValue date, TemporalAmount interval, Boolean add) {
+    var dt = LocalDateTime.MIN;
+    if (date.type() == TIME) {
+      dt = LocalDateTime.of(LocalDate.now(), date.timeValue());
+    } else {
+      dt = date.datetimeValue();
+    }
+    dt = add ? dt.plus(interval) : dt.minus(interval);
+    return new ExprDatetimeValue(dt);
   }
 
   /**
@@ -636,9 +699,29 @@ public class DateTimeFunction {
    * @return Date/Datetime resulted from days added to date.
    */
   private ExprValue exprAddDateDays(ExprValue date, ExprValue days) {
-    ExprValue exprValue = new ExprDatetimeValue(date.datetimeValue().plusDays(days.longValue()));
-    return (exprValue.timeValue().toSecondOfDay() == 0 ? new ExprDateValue(exprValue.dateValue())
-        : exprValue);
+    return exprDateApplyDays(date, days.longValue(), true);
+  }
+
+  /**
+   * Adds or subtracts `days` to/from `date`.
+   *
+   * @param date A Date/Time/Datetime/Timestamp value to change.
+   * @param days A days amount to add or subtract.
+   * @param add A flag: true to add, false to subtract.
+   * @return Datetime calculated.
+   */
+  private ExprValue exprDateApplyDays(ExprValue date, Long days, Boolean add) {
+    if (date.type() == DATE) {
+      return new ExprDateValue(add ? date.dateValue().plusDays(days)
+          : date.dateValue().minusDays(days));
+    }
+    var dt = LocalDateTime.MIN;
+    if (date.type() == TIME) {
+      dt = LocalDateTime.of(LocalDate.now(), date.timeValue());
+    } else {
+      dt = date.datetimeValue();
+    }
+    return new ExprDatetimeValue(add ? dt.plusDays(days) : dt.minusDays(days));
   }
 
   /**
@@ -1007,22 +1090,18 @@ public class DateTimeFunction {
    * @return Date/Datetime resulted from days subtracted to date.
    */
   private ExprValue exprSubDateDays(ExprValue date, ExprValue days) {
-    ExprValue exprValue = new ExprDatetimeValue(date.datetimeValue().minusDays(days.longValue()));
-    return (exprValue.timeValue().toSecondOfDay() == 0 ? new ExprDateValue(exprValue.dateValue())
-        : exprValue);
+    return exprDateApplyDays(date, days.longValue(), false);
   }
 
   /**
-   * SUBDATE function implementation for ExprValue.
+   * DATE_SUB function implementation for ExprValue.
    *
    * @param date ExprValue of String/Date/Datetime/Timestamp type.
    * @param expr ExprValue of Interval type, the temporal amount to subtract.
    * @return Datetime resulted from expr subtracted to date.
    */
   private ExprValue exprSubDateInterval(ExprValue date, ExprValue expr) {
-    ExprValue exprValue = new ExprDatetimeValue(date.datetimeValue().minus(expr.intervalValue()));
-    return (exprValue.timeValue().toSecondOfDay() == 0 ? new ExprDateValue(exprValue.dateValue())
-        : exprValue);
+    return exprDateApplyInterval(date, expr.intervalValue(), false);
   }
 
   /**
