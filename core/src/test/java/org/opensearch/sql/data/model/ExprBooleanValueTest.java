@@ -9,11 +9,10 @@ package org.opensearch.sql.data.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.opensearch.sql.data.type.ExprCoreType.INTERVAL;
+import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
 
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
-import java.time.Period;
 
 public class ExprBooleanValueTest {
 
@@ -57,7 +56,7 @@ public class ExprBooleanValueTest {
 
   @Test
   public void type() {
-    ExprValue interval = new ExprIntervalValue(Period.ofYears(1));
-    assertEquals(interval.type(), INTERVAL);
+    ExprValue value = ExprBooleanValue.of(false);
+    assertEquals(BOOLEAN, value.type());
   }
 }

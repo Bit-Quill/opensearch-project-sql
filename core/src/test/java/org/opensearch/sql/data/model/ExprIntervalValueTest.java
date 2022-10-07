@@ -61,12 +61,12 @@ public class ExprIntervalValueTest {
   @Test
   public void value() {
     ExprValue value = new ExprIntervalValue(Period.ofWeeks(1));
-    assertEquals(value.value(), Period.ofWeeks(1));
+    assertEquals(Period.ofWeeks(1), value.value());
   }
 
   @Test
   public void type() {
     ExprValue interval = new ExprIntervalValue(Period.ofYears(1));
-    assertEquals(interval.type(), INTERVAL);
+    assertEquals(INTERVAL, interval.type());
   }
 }
