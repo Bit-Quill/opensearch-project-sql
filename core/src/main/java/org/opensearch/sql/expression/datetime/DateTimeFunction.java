@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.expression.datetime;
 
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
@@ -31,6 +32,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.Clock;
 import java.time.DateTimeException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -95,6 +97,7 @@ public class DateTimeFunction {
     repository.register(current_time());
     repository.register(current_timestamp());
     repository.register(date());
+    repository.register(datediff());
     repository.register(datetime());
     repository.register(date_add());
     repository.register(date_sub());
@@ -125,6 +128,7 @@ public class DateTimeFunction {
     repository.register(sysdate());
     repository.register(time());
     repository.register(time_to_sec());
+    repository.register(timediff());
     repository.register(timestamp());
     repository.register(date_format());
     repository.register(to_days());
@@ -259,6 +263,30 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, TIMESTAMP));
+  }
+
+  /*
+   * Calculates the difference of date part of given values.
+   * (DATE/DATETIME/TIMESTAMP/TIME, DATE/DATETIME/TIMESTAMP/TIME) -> LONG
+   */
+  private DefaultFunctionResolver datediff() {
+    return define(BuiltinFunctionName.DATEDIFF.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATE, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATETIME, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATE, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATETIME, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATE, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIME, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIME, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIMESTAMP, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATE, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIMESTAMP, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIMESTAMP, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIME, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIMESTAMP, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATETIME, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIME, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATETIME, TIME));
   }
 
   /**
@@ -520,6 +548,22 @@ public class DateTimeFunction {
   }
 
   /**
+   * Returns different between two times as a time.
+   * (TIME, TIME) -> TIME
+   * TODO MySQL has these signatures too
+   * (DATE, DATE) -> TIME                      // result is > 24 hours
+   * (DATETIME, DATETIME) -> TIME              // result is > 24 hours
+   * (TIMESTAMP, TIMESTAMP) -> TIME            // result is > 24 hours
+   * (x, x) -> NULL                            // when args have different types
+   * (STRING, STRING) -> TIME                  // argument strings contain same types only
+   * (STRING, STRING) -> NULL                  // argument strings are different types
+   */
+  private DefaultFunctionResolver timediff() {
+    return define(BuiltinFunctionName.TIMEDIFF.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprTimeDiff), TIME, TIME, TIME));
+  }
+
+  /**
    * TIME_TO_SEC(STRING/TIME/DATETIME/TIMESTAMP). return the time argument, converted to seconds.
    */
   private DefaultFunctionResolver time_to_sec() {
@@ -689,6 +733,21 @@ public class DateTimeFunction {
     } else {
       return new ExprDateValue(exprValue.dateValue());
     }
+  }
+
+  /**
+   * Calculate the value in days from one date to the other.
+   * Only the date parts of the values are used in the calculation.
+   *
+   * @param first The first value.
+   * @param second The second value.
+   * @return The diff.
+   */
+  private ExprValue exprDateDiff(ExprValue first, ExprValue second) {
+    var date1 = first.type() == TIME ? LocalDate.now() : first.datetimeValue().toLocalDate();
+    var date2 = second.type() == TIME ? LocalDate.now() : second.datetimeValue().toLocalDate();
+    // java inverses the value, so we have to swap 1 and 2
+    return new ExprLongValue(DAYS.between(date2, date1));
   }
 
   /**
@@ -1037,6 +1096,19 @@ public class DateTimeFunction {
     } else {
       return new ExprTimeValue(exprValue.timeValue());
     }
+  }
+
+  /**
+   * Calculate the time difference between two times.
+   *
+   * @param first The first value.
+   * @param second The second value.
+   * @return The diff.
+   */
+  private ExprValue exprTimeDiff(ExprValue first, ExprValue second) {
+    // java inverses the value, so we have to swap 1 and 2
+    return new ExprTimeValue(LocalTime.MIN.plus(
+        Duration.between(second.timeValue(), first.timeValue())));
   }
 
   /**
