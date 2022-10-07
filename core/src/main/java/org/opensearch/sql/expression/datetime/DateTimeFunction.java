@@ -31,6 +31,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.Clock;
 import java.time.DateTimeException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -88,6 +89,7 @@ public class DateTimeFunction {
    */
   public void register(BuiltinFunctionRepository repository) {
     repository.register(adddate());
+    repository.register(addtime());
     repository.register(convert_tz());
     repository.register(curtime());
     repository.register(curdate());
@@ -122,6 +124,7 @@ public class DateTimeFunction {
     repository.register(quarter());
     repository.register(second());
     repository.register(subdate());
+    repository.register(subtime());
     repository.register(sysdate());
     repository.register(time());
     repository.register(time_to_sec());
@@ -231,6 +234,36 @@ public class DateTimeFunction {
 
   private DefaultFunctionResolver adddate() {
     return add_date(BuiltinFunctionName.ADDDATE.getName());
+  }
+
+  /**
+   * Adds expr2 to expr1 and returns the result.
+   * (TIME, TIME/DATE/DATETIME/TIMESTAMP) -> TIME
+   * (DATE/DATETIME/TIMESTAMP, TIME/DATE/DATETIME/TIMESTAMP) -> DATETIME
+   * TODO: MySQL has these signatures too
+   * (STRING, STRING/TIME) -> STRING               // second arg - string with time only
+   * (x, STRING) -> NULL                           // second arg - string with timestamp
+   * (x, STRING/DATE) -> x                         // second arg - string with date only
+   */
+  private DefaultFunctionResolver addtime() {
+    return define(BuiltinFunctionName.ADDTIME.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), TIME, TIME, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), TIME, TIME, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), TIME, TIME, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), TIME, TIME, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATETIME, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATETIME, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATETIME, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATETIME, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATE, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATE, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATE, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATE, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, TIMESTAMP, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, TIMESTAMP, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, TIMESTAMP, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, TIMESTAMP, TIMESTAMP)
+    );
   }
 
   /**
@@ -506,6 +539,36 @@ public class DateTimeFunction {
   }
 
   /**
+   * Subtracts expr2 from expr1 and returns the result.
+   * (TIME, TIME/DATE/DATETIME/TIMESTAMP) -> TIME
+   * (DATE/DATETIME/TIMESTAMP, TIME/DATE/DATETIME/TIMESTAMP) -> DATETIME
+   * TODO: MySQL has these signatures too
+   * (STRING, STRING/TIME) -> STRING               // second arg - string with time only
+   * (x, STRING) -> NULL                           // second arg - string with timestamp
+   * (x, STRING/DATE) -> x                         // second arg - string with date only
+   */
+  private DefaultFunctionResolver subtime() {
+    return define(BuiltinFunctionName.SUBTIME.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), TIME, TIME, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), TIME, TIME, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), TIME, TIME, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), TIME, TIME, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATETIME, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATETIME, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATETIME, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATETIME, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATE, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATE, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATE, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATE, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, TIMESTAMP, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, TIMESTAMP, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, TIMESTAMP, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, TIMESTAMP, TIMESTAMP)
+    );
+  }
+
+  /**
    * Extracts the time part of a date and time value.
    * Also to construct a time type. The supported signatures:
    * STRING/DATE/DATETIME/TIME/TIMESTAMP -> TIME
@@ -639,6 +702,39 @@ public class DateTimeFunction {
     ExprValue exprValue = new ExprDatetimeValue(date.datetimeValue().plusDays(days.longValue()));
     return (exprValue.timeValue().toSecondOfDay() == 0 ? new ExprDateValue(exprValue.dateValue())
         : exprValue);
+  }
+
+  /**
+   * Adds or subtracts time to/from date and returns the result.
+   *
+   * @param date A Date/Time/Datetime/Timestamp value to change.
+   * @param time A Date/Time/Datetime/Timestamp object to add/subtract time from.
+   * @param add A flag: true to add, false to subtract.
+   * @return A value calculated.
+   */
+  private ExprValue exprApplyTime(ExprValue date, ExprValue time, Boolean add) {
+    var timeToAdd = time.type() == TIME
+        ? time.timeValue()
+        : time.datetimeValue().toLocalTime();
+    var dt = date.type() == TIME
+        ? LocalDate.now().atTime(date.timeValue())
+        : date.datetimeValue();
+    var interval = Duration.between(LocalTime.MIN, timeToAdd);
+    dt = add ? dt.plus(interval) : dt.minus(interval);
+    return date.type() == TIME
+        ? new ExprTimeValue(dt.toLocalTime())
+        : new ExprDatetimeValue(dt);
+  }
+
+  /**
+   * Adds time to date and returns the result.
+   *
+   * @param date A Date/Time/Datetime/Timestamp value to change.
+   * @param time A Date/Time/Datetime/Timestamp object to add time from.
+   * @return A value calculated.
+   */
+  private ExprValue exprAddTime(ExprValue date, ExprValue time) {
+    return exprApplyTime(date, time, true);
   }
 
   /**
@@ -1023,6 +1119,17 @@ public class DateTimeFunction {
     ExprValue exprValue = new ExprDatetimeValue(date.datetimeValue().minus(expr.intervalValue()));
     return (exprValue.timeValue().toSecondOfDay() == 0 ? new ExprDateValue(exprValue.dateValue())
         : exprValue);
+  }
+
+  /**
+   * Subtracts expr2 from expr1 and returns the result.
+   *
+   * @param date A Date/Time/Datetime/Timestamp value to change.
+   * @param time A Date/Time/Datetime/Timestamp to subtract time from.
+   * @return A value calculated.
+   */
+  private ExprValue exprSubTime(ExprValue date, ExprValue time) {
+    return exprApplyTime(date, time, false);
   }
 
   /**

@@ -873,6 +873,35 @@ Example::
     +------------------------------------------------+----------------------------------+------------------------------------------------+
 
 
+ADDTIME
+-------
+
+Description
+>>>>>>>>>>>
+
+Usage: addtime(expr1, expr2) adds expr2 to expr1 and returns the result. If argument is TIME, today's date is used; if argument is DATE, time at midnight is used.
+
+Argument type: DATE/DATETIME/TIMESTAMP/TIME, DATE/DATETIME/TIMESTAMP/TIME
+
+Return type map:
+
+(DATE/DATETIME/TIMESTAMP, DATE/DATETIME/TIMESTAMP/TIME) -> DATETIME
+
+(TIME, DATE/DATETIME/TIMESTAMP/TIME) -> TIME
+
+Antonyms: `SUBTIME`_
+
+Example::
+
+    os> SELECT ADDTIME(DATE('2008-12-12'), DATE('2008-11-15')) AS `'2008-12-12' + 0`, ADDTIME(TIME('23:59:59'), DATE('2004-01-01')) AS `'23:59:59' + 0`, ADDTIME(DATE('2004-01-01'), TIME('23:59:59')) AS `'2004-01-01' + '23:59:59'`, ADDTIME(TIME('10:20:30'), TIME('00:05:42')) AS `'10:20:30' + '00:05:42'`
+    fetched rows / total rows = 1/1
+    +---------------------+------------------+-----------------------------+---------------------------+
+    | '2008-12-12' + 0    | '23:59:59' + 0   | '2004-01-01' + '23:59:59'   | '10:20:30' + '00:05:42'   |
+    |---------------------+------------------+-----------------------------+---------------------------|
+    | 2008-12-12 00:00:00 | 23:59:59         | 2004-01-01 23:59:59         | 10:26:12                  |
+    +---------------------+------------------+-----------------------------+---------------------------+
+
+
 CONVERT_TZ
 ----------
 
@@ -1964,6 +1993,33 @@ Example::
     |------------------------------------------------+----------------------------------+------------------------------------------------|
     | 2007-12-02                                     | 2020-08-25                       | 2020-08-25 01:01:01                            |
     +------------------------------------------------+----------------------------------+------------------------------------------------+
+
+
+SUBTIME
+-------
+
+Description
+>>>>>>>>>>>
+
+Usage: subtime(expr1, expr2) subtracts expr2 from expr1 and returns the result. If argument is TIME, today's date is used; if argument is DATE, time at midnight is used.
+
+Argument type: DATE/DATETIME/TIMESTAMP/TIME, DATE/DATETIME/TIMESTAMP/TIME
+
+Return type map:
+
+DATE/DATETIME/TIMESTAMP, DATE/DATETIME/TIMESTAMP/TIME -> DATETIME
+
+TIME, DATE/DATETIME/TIMESTAMP/TIME -> TIME
+
+Example::
+
+    os> SELECT SUBTIME(DATE('2008-12-12'), DATE('2008-11-15')) AS `'2008-12-12' - 0`, SUBTIME(TIME('23:59:59'), DATE('2004-01-01')) AS `'23:59:59' - 0`, SUBTIME(DATE('2004-01-01'), TIME('23:59:59')) AS `'2004-01-01' - '23:59:59'`, SUBTIME(TIME('10:20:30'), TIME('00:05:42')) AS `'10:20:30' - '00:05:42'`
+    fetched rows / total rows = 1/1
+    +---------------------+------------------+-----------------------------+---------------------------+
+    | '2008-12-12' - 0    | '23:59:59' - 0   | '2004-01-01' - '23:59:59'   | '10:20:30' - '00:05:42'   |
+    |---------------------+------------------+-----------------------------+---------------------------|
+    | 2008-12-12 00:00:00 | 23:59:59         | 2003-12-31 00:00:01         | 10:14:48                  |
+    +---------------------+------------------+-----------------------------+---------------------------+
 
 
 SYSDATE
