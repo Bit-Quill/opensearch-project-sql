@@ -826,25 +826,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void testPeriodAdd() throws IOException {
-    var result = executeQuery(
-        "select PERIOD_ADD(200801, 2) as f1, PERIOD_ADD(200801, -12) as f2");
-    verifySchema(result,
-        schema("PERIOD_ADD(200801, 2)", "f1", "integer"),
-        schema("PERIOD_ADD(200801, -12)", "f2", "integer"));
-    verifyDataRows(result, rows(200803, 200701));
-  }
-
-  @Test
-  public void testPeriodDiff() throws IOException {
-    var result = executeQuery(
-        "select PERIOD_DIFF(200802, 200703) as f1, PERIOD_DIFF(200802, 201003) as f2");
-    verifySchema(result,
-        schema("PERIOD_DIFF(200802, 200703)", "f1", "integer"),
-        schema("PERIOD_DIFF(200802, 201003)", "f2", "integer"));
-    verifyDataRows(result, rows(11, -25));
-  }
-
   public void testAddTime() throws IOException {
     var result = executeQuery("SELECT"
         + " ADDTIME(DATE('2008-12-12'), DATE('2008-11-15')) AS `'2008-12-12' + 0`,"
