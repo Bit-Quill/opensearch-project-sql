@@ -664,64 +664,55 @@ public class DateTimeFunction {
   /**
    * DATE_ADD function implementation for ExprValue.
    *
-   * @param date ExprValue of Date/Time/Datetime/Timestamp type.
+   * @param datetime ExprValue of Date/Time/Datetime/Timestamp type.
    * @param interval ExprValue of Interval type, the temporal amount to add.
-   * @return Datetime resulted from expr added to date.
+   * @return Datetime resulted from `interval` added to `datetime`.
    */
-  private ExprValue exprAddDateInterval(ExprValue date, ExprValue interval) {
-    return exprDateApplyInterval(date, interval.intervalValue(), true);
+  private ExprValue exprAddDateInterval(ExprValue datetime, ExprValue interval) {
+    return exprDateApplyInterval(datetime, interval.intervalValue(), true);
   }
 
   /**
-   * Adds or subtracts `interval` to/from `date`.
+   * Adds or subtracts `interval` to/from `datetime`.
    *
-   * @param date A Date/Time/Datetime/Timestamp value to change.
-   * @param interval An Interval to add or subtract.
-   * @param add A flag: true to add, false to subtract.
+   * @param datetime A Date/Time/Datetime/Timestamp value to change.
+   * @param interval An Interval to isAdd or subtract.
+   * @param isAdd A flag: true to isAdd, false to subtract.
    * @return Datetime calculated.
    */
-  private ExprValue exprDateApplyInterval(ExprValue date, TemporalAmount interval, Boolean add) {
-    var dt = LocalDateTime.MIN;
-    if (date.type() == TIME) {
-      dt = LocalDateTime.of(LocalDate.now(), date.timeValue());
-    } else {
-      dt = date.datetimeValue();
-    }
-    dt = add ? dt.plus(interval) : dt.minus(interval);
-    return new ExprDatetimeValue(dt);
+  private ExprValue exprDateApplyInterval(ExprValue datetime,
+                                          TemporalAmount interval,
+                                          Boolean isAdd) {
+    var dt = datetime.datetimeValue();
+    return new ExprDatetimeValue(isAdd ? dt.plus(interval) : dt.minus(interval));
   }
 
   /**
    * ADDDATE function implementation for ExprValue.
    *
-   * @param date ExprValue of String/Date/Datetime/Timestamp type.
+   * @param datetime ExprValue of Time/Date/Datetime/Timestamp type.
    * @param days ExprValue of Long type, representing the number of days to add.
-   * @return Date/Datetime resulted from days added to date.
+   * @return Date/Datetime resulted from days added to `datetime`.
    */
-  private ExprValue exprAddDateDays(ExprValue date, ExprValue days) {
-    return exprDateApplyDays(date, days.longValue(), true);
+  private ExprValue exprAddDateDays(ExprValue datetime, ExprValue days) {
+    return exprDateApplyDays(datetime, days.longValue(), true);
   }
 
   /**
-   * Adds or subtracts `days` to/from `date`.
+   * Adds or subtracts `days` to/from `datetime`.
    *
-   * @param date A Date/Time/Datetime/Timestamp value to change.
+   * @param datetime A Date/Time/Datetime/Timestamp value to change.
    * @param days A days amount to add or subtract.
-   * @param add A flag: true to add, false to subtract.
+   * @param isAdd A flag: true to add, false to subtract.
    * @return Datetime calculated.
    */
-  private ExprValue exprDateApplyDays(ExprValue date, Long days, Boolean add) {
-    if (date.type() == DATE) {
-      return new ExprDateValue(add ? date.dateValue().plusDays(days)
-          : date.dateValue().minusDays(days));
+  private ExprValue exprDateApplyDays(ExprValue datetime, Long days, Boolean isAdd) {
+    if (datetime.type() == DATE) {
+      return new ExprDateValue(isAdd ? datetime.dateValue().plusDays(days)
+          : datetime.dateValue().minusDays(days));
     }
-    var dt = LocalDateTime.MIN;
-    if (date.type() == TIME) {
-      dt = LocalDateTime.of(LocalDate.now(), date.timeValue());
-    } else {
-      dt = date.datetimeValue();
-    }
-    return new ExprDatetimeValue(add ? dt.plusDays(days) : dt.minusDays(days));
+    var dt = datetime.datetimeValue();
+    return new ExprDatetimeValue(isAdd ? dt.plusDays(days) : dt.minusDays(days));
   }
 
   /**
@@ -1085,7 +1076,7 @@ public class DateTimeFunction {
   /**
    * SUBDATE function implementation for ExprValue.
    *
-   * @param date ExprValue of String/Date/Datetime/Timestamp type.
+   * @param date ExprValue of Time/Date/Datetime/Timestamp type.
    * @param days ExprValue of Long type, representing the number of days to subtract.
    * @return Date/Datetime resulted from days subtracted to date.
    */
@@ -1096,12 +1087,12 @@ public class DateTimeFunction {
   /**
    * DATE_SUB function implementation for ExprValue.
    *
-   * @param date ExprValue of String/Date/Datetime/Timestamp type.
+   * @param datetime ExprValue of Time/Date/Datetime/Timestamp type.
    * @param expr ExprValue of Interval type, the temporal amount to subtract.
-   * @return Datetime resulted from expr subtracted to date.
+   * @return Datetime resulted from expr subtracted to `datetime`.
    */
-  private ExprValue exprSubDateInterval(ExprValue date, ExprValue expr) {
-    return exprDateApplyInterval(date, expr.intervalValue(), false);
+  private ExprValue exprSubDateInterval(ExprValue datetime, ExprValue expr) {
+    return exprDateApplyInterval(datetime, expr.intervalValue(), false);
   }
 
   /**
