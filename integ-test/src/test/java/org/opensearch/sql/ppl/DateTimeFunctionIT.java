@@ -677,9 +677,7 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
   }
 
   private static LocalDateTime utcDateTimeNow() {
-    ZonedDateTime zonedDateTime =
-        LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId());
-    return zonedDateTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+    return LocalDateTime.now(ZoneId.of("UTC"));
   }
 
   private List<ImmutableMap<Object, Object>> nowLikeFunctionsData() {
