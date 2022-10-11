@@ -68,10 +68,7 @@ public class NowLikeFunctionTest extends ExpressionTestBase {
   }
 
   private static LocalDateTime getUtcTimestampRefValue() {
-    return LocalDateTime.now()
-        .atZone(ZoneId.systemDefault())
-        .withZoneSameInstant(ZoneId.of("UTC"))
-        .toLocalDateTime();
+    return LocalDateTime.now(ZoneId.of("UTC"));
   }
 
   private static LocalDate getUtcDateRefValue() {
