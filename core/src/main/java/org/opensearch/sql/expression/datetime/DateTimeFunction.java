@@ -1027,11 +1027,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprUtcTimeStamp() {
-    String formattedLDT = LocalDateTime.now().format(DATE_TIME_FORMATTER_NON_STRICT);
-    ExprStringValue localDateValue = new ExprStringValue(formattedLDT);
-    ExprStringValue toTZ = new ExprStringValue("+00:00");
-
-    return exprDateTime(localDateValue, toTZ);
+      return new ExprDatetimeValue(LocalDateTime.now(ZoneId.of("UTC")).withNano(0));
   }
 
   /**
