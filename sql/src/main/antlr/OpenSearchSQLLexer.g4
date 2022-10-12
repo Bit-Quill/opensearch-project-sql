@@ -69,7 +69,7 @@ EXISTS:                             'EXISTS';
 FALSE:                              'FALSE';
 FLOAT:                              'FLOAT';
 FIRST:                              'FIRST';
-FROM:                               'FROM';
+FROM:                               'FROM' -> pushMode (FROM_CLAUSE);
 GROUP:                              'GROUP';
 HAVING:                             'HAVING';
 IN:                                 'IN';
@@ -432,15 +432,13 @@ BIT_STRING:                         BIT_STRING_L;
 // Identifiers
 
 ID:                                 ID_LITERAL;
-IND:                                INDEX;
 DOUBLE_QUOTE_ID:                    DQUOTA_STRING;
 BACKTICK_QUOTE_ID:                  BQUOTA_STRING;
 
 
 // Fragments for Literal primitives
 fragment EXPONENT_NUM_PART:         'E' [-+]? DEC_DIGIT+;
-fragment ID_LITERAL:                [A-Z]+?[A-Z_\-0-9]*;
-fragment INDEX:                     [@*A-Z]+?[*A-Z_\-0-9]*;
+fragment ID_LITERAL:                [A-Z]+?[*A-Z_\-0-9]*;
 fragment DQUOTA_STRING:             '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
 fragment SQUOTA_STRING:             '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 fragment BQUOTA_STRING:             '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
@@ -451,3 +449,19 @@ fragment BIT_STRING_L:              'B' '\'' [01]+ '\'';
 // Last tokens must generate Errors
 
 ERROR_RECOGNITION:                  .    -> channel(ERRORCHANNEL);
+
+mode FROM_CLAUSE;
+FROM_CLAUSE_SPACE:                  [ \t\r\n]+    -> channel(HIDDEN);
+FROM_CLAUSE_SPEC_SQL_COMMENT:       '/*!' .+? '*/' -> channel(SQLCOMMENT);
+FROM_CLAUSE_COMMENT_INPUT:          '/*' .*? '*/' -> channel(HIDDEN);
+FROM_CLAUSE_LINE_COMMENT:           (
+                                      ('-- ' | '#') ~[\r\n]* ('\r'? '\n' | EOF)
+                                      | '--' ('\r'? '\n' | EOF)
+                                    ) -> channel(HIDDEN);
+
+IND:                                INDEX -> popMode;
+
+INDEX:                              INDEX_FRAGMENT | BACKTICK_QUOTE_IND;
+
+fragment INDEX_FRAGMENT:                     [*@A-Z]+?[*A-Z_\-0-9]*;
+fragment BACKTICK_QUOTE_IND:             '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
