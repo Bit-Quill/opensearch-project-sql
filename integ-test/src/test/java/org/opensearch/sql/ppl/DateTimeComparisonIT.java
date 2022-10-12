@@ -760,8 +760,6 @@ public class DateTimeComparisonIT extends PPLIntegTestCase {
         rows(true, true, false, false, true, true, false, false, true, true, false, false));
   }
   
-  
-  
   @Test
   public void testGteCompareTimestampWithOtherTypes() throws IOException {
     var today = LocalDate.now().toString();
