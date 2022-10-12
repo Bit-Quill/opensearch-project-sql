@@ -211,7 +211,7 @@ public class BinaryPredicateOperator {
             permuteTemporalTypesByPairs().stream()
                 .map(pair -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
                     (v1, v2) -> ExprBooleanValue.of(comparator.apply(
-                            convertTemporalToDateTime(v1), convertTemporalToDateTime(v2)))),
+                            v1.datetimeValue(), v2.datetimeValue()))),
                         BOOLEAN, pair.getLeft(), pair.getRight())))
         .collect(Collectors.toList()));
   }
@@ -257,19 +257,5 @@ public class BinaryPredicateOperator {
       });
     });
     return res;
-  }
-
-  /**
-   * Convert a temporal ExprValue to LocalDateTime to use in comparison.
-   * A time converted to today's time, a date converted to date's midnight.
-   *
-   * @param value ExprTimeValue/ExprDatetimeValue/ExprDateValue/ExprTimestampValue
-   * @return The input converted/casted to LocalDateTime
-   */
-  private static LocalDateTime convertTemporalToDateTime(ExprValue value) {
-    if (TIME == value.type()) {
-      return value.timeValue().atDate(LocalDate.now());
-    }
-    return value.datetimeValue();
   }
 }
