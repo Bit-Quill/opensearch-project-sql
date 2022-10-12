@@ -37,6 +37,8 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.opensearch.client.Request;
 import org.opensearch.client.RequestOptions;
@@ -53,6 +55,22 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     loadIndex(Index.CALCS);
     loadIndex(Index.PEOPLE2);
     loadIndex(Index.CALCS);
+  }
+
+  // Integration test framework sets for OpenSearch instance a random timezone.
+  // If server's TZ doesn't match localhost's TZ, time measurements for some tests would differ.
+  // We should set localhost's TZ now and recover the value back in the end of the test.
+  private final TimeZone testTz = TimeZone.getDefault();
+  private final TimeZone systemTz = TimeZone.getTimeZone(System.getProperty("user.timezone"));
+
+  @Before
+  public void setTimeZone() {
+    TimeZone.setDefault(systemTz);
+  }
+
+  @After
+  public void resetTimeZone() {
+    TimeZone.setDefault(testTz);
   }
 
   @Test
@@ -115,9 +133,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         schema("adddate('2020-09-16', interval 1 hour)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-16 01:00:00"));
 
-    var testTz = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
-
     result = executeQuery("select adddate(TIME('07:40:00'), interval 1 day)");
     verifySchema(result,
         schema("adddate(TIME('07:40:00'), interval 1 day)", null, "datetime"));
@@ -133,8 +148,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         rows(LocalDate.now().atTime(LocalTime.of(8, 40))
             .atZone(ZoneId.of(System.getProperty("user.timezone")))
             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-
-    TimeZone.setDefault(testTz);
   }
 
   @Test
@@ -160,9 +173,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         schema("date_add('2020-09-16', interval 1 hour)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-16 01:00:00"));
 
-    var testTz = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
-
     result = executeQuery("select date_add(TIME('07:40:00'), interval 1 day)");
     verifySchema(result,
         schema("date_add(TIME('07:40:00'), interval 1 day)", null, "datetime"));
@@ -178,8 +188,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         rows(LocalDate.now().atTime(LocalTime.of(8, 40))
             .atZone(ZoneId.of(System.getProperty("user.timezone")))
             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-
-    TimeZone.setDefault(testTz);
 
     result = executeQuery(String.format("SELECT DATE_ADD(birthdate, INTERVAL 1 YEAR) FROM %s",
         TEST_INDEX_BANK));
@@ -214,9 +222,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         schema("date_sub('2020-09-16', interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-15 00:00:00"));
 
-    var testTz = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
-
     result = executeQuery("select date_sub(TIME('07:40:00'), interval 1 day)");
     verifySchema(result,
         schema("date_sub(TIME('07:40:00'), interval 1 day)", null, "datetime"));
@@ -232,8 +237,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         rows(LocalDate.now().atTime(LocalTime.of(6, 40))
             .atZone(ZoneId.of(System.getProperty("user.timezone")))
             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-
-    TimeZone.setDefault(testTz);
   }
 
   @Test
@@ -560,9 +563,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         schema("subdate('2020-09-16', interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-15 00:00:00"));
 
-    var testTz = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
-
     result = executeQuery("select subdate(TIME('07:40:00'), interval 1 day)");
     verifySchema(result,
         schema("subdate(TIME('07:40:00'), interval 1 day)", null, "datetime"));
@@ -578,8 +578,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         rows(LocalDate.now().atTime(LocalTime.of(6, 40))
             .atZone(ZoneId.of(System.getProperty("user.timezone")))
             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-
-    TimeZone.setDefault(testTz);
   }
 
   @Test
@@ -823,12 +821,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
 
   @Test
   public void testNowLikeFunctions() throws IOException {
-    // Integration test framework sets for OpenSearch instance a random timezone.
-    // If server's TZ doesn't match localhost's TZ, time measurements for `now` would differ.
-    // We should set localhost's TZ now and recover the value back in the end of the test.
-    var testTz = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
-
     for (var funcData : nowLikeFunctionsData()) {
       String name = (String) funcData.get("name");
       Boolean hasFsp = (Boolean) funcData.get("hasFsp");
@@ -884,7 +876,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         }
       }
     }
-    TimeZone.setDefault(testTz);
   }
 
   @Test

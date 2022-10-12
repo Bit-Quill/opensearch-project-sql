@@ -35,6 +35,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.common.utils.StringUtils;
 
@@ -46,6 +48,22 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
     loadIndex(Index.DATE);
     loadIndex(Index.PEOPLE2);
     loadIndex(Index.BANK);
+  }
+
+  // Integration test framework sets for OpenSearch instance a random timezone.
+  // If server's TZ doesn't match localhost's TZ, time measurements for some tests would differ.
+  // We should set localhost's TZ now and recover the value back in the end of the test.
+  private final TimeZone testTz = TimeZone.getDefault();
+  private final TimeZone systemTz = TimeZone.getTimeZone(System.getProperty("user.timezone"));
+
+  @Before
+  public void setTimeZone() {
+    TimeZone.setDefault(systemTz);
+  }
+
+  @After
+  public void resetTimeZone() {
+    TimeZone.setDefault(testTz);
   }
 
   @Test
@@ -93,9 +111,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
         schema("f", null, "datetime"));
     verifySome(result.getJSONArray("datarows"), rows("2020-09-16 01:00:00"));
 
-    var testTz = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
-
     result =
         executeQuery(String.format(
             "source=%s | eval f = adddate(TIME('07:40:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
@@ -115,8 +130,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
         rows(LocalDate.now().atTime(LocalTime.of(8, 40))
             .atZone(ZoneId.of(System.getProperty("user.timezone")))
             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-
-    TimeZone.setDefault(testTz);
   }
 
   @Test
@@ -224,9 +237,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
         schema("f", null, "datetime"));
     verifySome(result.getJSONArray("datarows"), rows("2020-09-16 01:00:00"));
 
-    var testTz = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
-
     result =
         executeQuery(String.format(
             "source=%s | eval f = date_add(TIME('07:40:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
@@ -246,8 +256,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
         rows(LocalDate.now().atTime(LocalTime.of(8, 40))
             .atZone(ZoneId.of(System.getProperty("user.timezone")))
             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-
-    TimeZone.setDefault(testTz);
 
     result =
         executeQuery(String.format(
@@ -386,9 +394,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
         schema("f", null, "datetime"));
     verifySome(result.getJSONArray("datarows"), rows("2020-09-15 00:00:00"));
 
-    var testTz = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
-
     result =
         executeQuery(String.format(
             "source=%s | eval f = date_sub(TIME('07:40:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
@@ -408,8 +413,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
         rows(LocalDate.now().atTime(LocalTime.of(6, 40))
             .atZone(ZoneId.of(System.getProperty("user.timezone")))
             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-
-    TimeZone.setDefault(testTz);
   }
 
   @Test
@@ -671,9 +674,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
     verifySchema(result, schema("f", null, "date"));
     verifySome(result.getJSONArray("datarows"), rows("2020-09-15"));
 
-    var testTz = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
-
     result =
         executeQuery(String.format(
             "source=%s | eval f = subdate(TIME('07:40:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
@@ -693,8 +693,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
         rows(LocalDate.now().atTime(LocalTime.of(6, 40))
             .atZone(ZoneId.of(System.getProperty("user.timezone")))
             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-
-    TimeZone.setDefault(testTz);
   }
 
   @Test
@@ -910,12 +908,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
 
   @Test
   public void testNowLikeFunctions() throws IOException {
-    // Integration test framework sets for OpenSearch instance a random timezone.
-    // If server's TZ doesn't match localhost's TZ, time measurements for `now` would differ.
-    // We should set localhost's TZ now and recover the value back in the end of the test.
-    var testTz = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone(System.getProperty("user.timezone")));
-
     for (var funcData : nowLikeFunctionsData()) {
       String name = (String) funcData.get("name");
       Boolean hasFsp = (Boolean) funcData.get("hasFsp");
@@ -975,7 +967,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
         }
       }
     }
-    TimeZone.setDefault(testTz);
   }
 
   @Test
