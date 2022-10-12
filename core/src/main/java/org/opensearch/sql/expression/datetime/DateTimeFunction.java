@@ -1027,7 +1027,8 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprUtcTimeStamp() {
-      return new ExprDatetimeValue(LocalDateTime.now(ZoneId.of("UTC")).withNano(0));
+    return new ExprDatetimeValue(LocalDateTime.now(ZoneId.of("UTC"))
+      .withNano(0));
   }
 
   /**
