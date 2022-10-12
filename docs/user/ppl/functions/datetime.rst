@@ -14,7 +14,7 @@ ADDDATE
 Description
 >>>>>>>>>>>
 
-Usage: adddate(date, INTERVAL expr unit)/ adddate(date, expr) adds the time interval of second argument to date; adddate(date, days) adds the second argument as integer number of days to date.
+Usage: adddate(date, INTERVAL expr unit) / adddate(date, days) adds the interval of second argument to date; adddate(date, days) adds the second argument as integer number of days to date.
 If first argument is TIME, today's date is used; if first argument is DATE, time at midnight is used.
 
 Argument type: DATE/DATETIME/TIMESTAMP/TIME, INTERVAL/LONG
@@ -335,7 +335,7 @@ DATE_ADD
 Description
 >>>>>>>>>>>
 
-Usage: date_add(date, INTERVAL expr unit) adds the time interval expr to date. If first argument is TIME, today's date is used; if first argument is DATE, time at midnight is used.
+Usage: date_add(date, INTERVAL expr unit) adds the interval expr to date. If first argument is TIME, today's date is used; if first argument is DATE, time at midnight is used.
 
 Argument type: DATE/DATETIME/TIMESTAMP/TIME, INTERVAL
 
@@ -512,7 +512,7 @@ DATE_SUB
 Description
 >>>>>>>>>>>
 
-Usage: date_sub(date, INTERVAL expr unit) subtracts the time interval expr from date. If first argument is TIME, today's date is used; if first argument is DATE, time at midnight is used.
+Usage: date_sub(date, INTERVAL expr unit) subtracts the interval expr from date. If first argument is TIME, today's date is used; if first argument is DATE, time at midnight is used.
 
 Argument type: DATE/DATETIME/TIMESTAMP/TIME, INTERVAL
 
@@ -1053,7 +1053,7 @@ SUBDATE
 Description
 >>>>>>>>>>>
 
-Usage: subdate(date, INTERVAL expr unit)/ subdate(date, expr) subtracts the time interval expr from date; adddate(date, days) subtracts the second argument as integer number of days from date.
+Usage: subdate(date, INTERVAL expr unit) / subdate(date, days) subtracts the interval expr from date; subdate(date, days) subtracts the second argument as integer number of days from date.
 If first argument is TIME, today's date is used; if first argument is DATE, time at midnight is used.
 
 Argument type: DATE/DATETIME/TIMESTAMP/TIME, INTERVAL/LONG
