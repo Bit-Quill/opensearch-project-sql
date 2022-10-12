@@ -81,16 +81,11 @@ public class NowLikeFunctionTest extends ExpressionTestBase {
 
   private Temporal extractValue(FunctionExpression func) {
     switch ((ExprCoreType)func.type()) {
-      case DATE:
-        return func.valueOf(null).dateValue();
-      case TIMESTAMP:
-      case DATETIME:
-        return func.valueOf(null).datetimeValue();
-      case TIME:
-        return func.valueOf(null).timeValue();
+      case DATE: return func.valueOf(null).dateValue();
+      case DATETIME: return func.valueOf(null).datetimeValue();
+      case TIME: return func.valueOf(null).timeValue();
       // unreachable code
-      default:
-        throw new IllegalArgumentException(String.format("%s", func.type()));
+      default: throw new IllegalArgumentException(String.format("%s", func.type()));
     }
   }
 
@@ -139,7 +134,7 @@ public class NowLikeFunctionTest extends ExpressionTestBase {
 
     // Check how calculations are precise:
     // `func()`
-    // 17:59:59.99999
+    // 17:59:59.99999 can pass as being equal to 18:00:00
     var delta = resType == DATE ? 0 : 1;
     assertTrue(Math.abs(getDiff(
         extractValue(function.apply(new Expression[]{})),
