@@ -14,9 +14,9 @@ import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.junit.jupiter.api.Test;
 import java.time.Period;
 import java.util.LinkedHashMap;
+import org.junit.jupiter.api.Test;
 
 public class ExprValueCompareTest {
 

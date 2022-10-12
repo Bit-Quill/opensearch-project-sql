@@ -16,25 +16,15 @@ import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
-import org.opensearch.sql.data.model.ExprByteValue;
-import org.opensearch.sql.data.model.ExprDoubleValue;
-import org.opensearch.sql.data.model.ExprFloatValue;
-import org.opensearch.sql.data.model.ExprIntegerValue;
-import org.opensearch.sql.data.model.ExprLongValue;
-import org.opensearch.sql.data.model.ExprShortValue;
-import org.opensearch.sql.data.model.ExprStringValue;
-import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.type.ExprCoreType;
-import org.opensearch.sql.exception.ExpressionEvaluationException;
-
 import java.time.LocalDate;
-import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.type.ExprCoreType;
+import org.opensearch.sql.exception.ExpressionEvaluationException;
 
 public class ComparisonUtil {
   /**
@@ -46,9 +36,8 @@ public class ComparisonUtil {
       throw new ExpressionEvaluationException("invalid to call compare operation on missing value");
     } else if (v1.isNull() || v2.isNull()) {
       throw new ExpressionEvaluationException("invalid to call compare operation on null value");
-    } else if (v1.type() != v2.type() &&
-        List.of(DATE, TIME, DATETIME, TIMESTAMP)
-            .containsAll(List.of((ExprCoreType)v1.type(), (ExprCoreType)v2.type()))) {
+    } else if (v1.type() != v2.type() && List.of(DATE, TIME, DATETIME, TIMESTAMP)
+          .containsAll(List.of((ExprCoreType)v1.type(), (ExprCoreType)v2.type()))) {
       return compareEx(
           v1.type() == TIME ? v1.timeValue().atDate(LocalDate.now()) : v1.datetimeValue(),
           v2.type() == TIME ? v2.timeValue().atDate(LocalDate.now()) : v2.datetimeValue());
@@ -92,8 +81,8 @@ public class ComparisonUtil {
   }
 
   private static int compareIntervals(TemporalAmount v1, TemporalAmount v2) {
-    if (new HashSet<>(v1.getUnits()).retainAll(v2.getUnits()) ||
-        new HashSet<>(v2.getUnits()).retainAll(v1.getUnits())) {
+    if (new HashSet<>(v1.getUnits()).retainAll(v2.getUnits())
+        || new HashSet<>(v2.getUnits()).retainAll(v1.getUnits())) {
       return 1;
     }
     for (var unit : v1.getUnits()) {
@@ -120,8 +109,8 @@ public class ComparisonUtil {
   }
 
   private static int compareMaps(Map<String, ExprValue> v1, Map<String, ExprValue> v2) {
-    if (new HashSet<>(v1.keySet()).retainAll(v2.keySet()) ||
-        new HashSet<>(v2.keySet()).retainAll(v1.keySet())) {
+    if (new HashSet<>(v1.keySet()).retainAll(v2.keySet())
+        || new HashSet<>(v2.keySet()).retainAll(v1.keySet())) {
       return 1;
     }
     return compareLists(new ArrayList<>(v1.values()), new ArrayList<>(v2.values()));

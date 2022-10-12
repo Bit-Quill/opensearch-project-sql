@@ -100,7 +100,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   }
 
   private static List<List<Object>> getValuesForComparisonTests() {
-     return List.of(
+    return List.of(
         List.of(1, 2),
         List.of((byte) 1, (byte) 2),
         List.of((short) 1, (short) 2),
@@ -135,7 +135,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
       builder.add(Arguments.of(fromObjectValue(argPair.get(0)), fromObjectValue(argPair.get(0))));
       builder.add(Arguments.of(fromObjectValue(argPair.get(1)), fromObjectValue(argPair.get(1))));
     }
-    // Skipping test between DATETIME/TIME and DATE/INSTANT, because it could fail due to the clock run
+    // Skipping test between DATETIME/TIME and DATE/INSTANT - it could fail due to the clock run
     builder.add(Arguments.of(fromObjectValue(LocalTime.of(7, 40, 0)),
         fromObjectValue(LocalTime.of(7, 40, 0).atDate(LocalDate.now()))));
     builder.add(Arguments.of(fromObjectValue(LocalDateTime.of(1970, 1, 1, 0, 0, 42)),

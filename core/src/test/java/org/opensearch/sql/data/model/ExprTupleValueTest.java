@@ -9,19 +9,14 @@ package org.opensearch.sql.data.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.opensearch.sql.data.type.ExprCoreType.INTERVAL;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.utils.ComparisonUtil.compare;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.jupiter.api.Test;
-import org.opensearch.sql.exception.ExpressionEvaluationException;
-
-import java.time.Period;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 class ExprTupleValueTest {
   @Test
