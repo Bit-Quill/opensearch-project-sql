@@ -13,7 +13,9 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -68,6 +70,21 @@ public class ExprTimeValue extends AbstractExprValue {
   public Instant timestampValue(FunctionProperties functionProperties) {
     return ZonedDateTime.of(dateValue(functionProperties), timeValue(), ExprTimestampValue.ZONE)
         .toInstant();
+  }
+
+  @Override
+  public LocalDate dateValue() {
+    return LocalDate.now();
+  }
+
+  @Override
+  public LocalDateTime datetimeValue() {
+    return LocalDateTime.of(dateValue(), timeValue());
+  }
+
+  @Override
+  public Instant timestampValue() {
+    return ZonedDateTime.of(dateValue(), timeValue(), ZoneId.systemDefault()).toInstant();
   }
 
   @Override
