@@ -707,34 +707,30 @@ public class DateTimeFunction {
   /**
    * Adds or subtracts time to/from date and returns the result.
    *
-   * @param date A Date/Time/Datetime/Timestamp value to change.
-   * @param time A Date/Time/Datetime/Timestamp object to add/subtract time from.
-   * @param add A flag: true to add, false to subtract.
+   * @param temporal A Date/Time/Datetime/Timestamp value to change.
+   * @param temporalDelta A Date/Time/Datetime/Timestamp object to add/subtract time from.
+   * @param isAdd A flag: true to add, false to subtract.
    * @return A value calculated.
    */
-  private ExprValue exprApplyTime(ExprValue date, ExprValue time, Boolean add) {
-    var timeToAdd = time.type() == TIME
-        ? time.timeValue()
-        : time.datetimeValue().toLocalTime();
-    var dt = date.type() == TIME
-        ? LocalDate.now().atTime(date.timeValue())
-        : date.datetimeValue();
-    var interval = Duration.between(LocalTime.MIN, timeToAdd);
-    dt = add ? dt.plus(interval) : dt.minus(interval);
-    return date.type() == TIME
-        ? new ExprTimeValue(dt.toLocalTime())
-        : new ExprDatetimeValue(dt);
+  private ExprValue exprApplyTime(ExprValue temporal, ExprValue temporalDelta, Boolean isAdd) {
+    var interval = Duration.between(LocalTime.MIN, temporalDelta.timeValue());
+    var result = isAdd
+        ? temporal.datetimeValue().plus(interval)
+        : temporal.datetimeValue().minus(interval);
+    return temporal.type() == TIME
+        ? new ExprTimeValue(result.toLocalTime())
+        : new ExprDatetimeValue(result);
   }
 
   /**
    * Adds time to date and returns the result.
    *
-   * @param date A Date/Time/Datetime/Timestamp value to change.
-   * @param time A Date/Time/Datetime/Timestamp object to add time from.
+   * @param temporal A Date/Time/Datetime/Timestamp value to change.
+   * @param temporalDelta A Date/Time/Datetime/Timestamp object to add time from.
    * @return A value calculated.
    */
-  private ExprValue exprAddTime(ExprValue date, ExprValue time) {
-    return exprApplyTime(date, time, true);
+  private ExprValue exprAddTime(ExprValue temporal, ExprValue temporalDelta) {
+    return exprApplyTime(temporal, temporalDelta, true);
   }
 
   /**
@@ -1124,12 +1120,12 @@ public class DateTimeFunction {
   /**
    * Subtracts expr2 from expr1 and returns the result.
    *
-   * @param date A Date/Time/Datetime/Timestamp value to change.
-   * @param time A Date/Time/Datetime/Timestamp to subtract time from.
+   * @param temporal A Date/Time/Datetime/Timestamp value to change.
+   * @param temporalDelta A Date/Time/Datetime/Timestamp to subtract time from.
    * @return A value calculated.
    */
-  private ExprValue exprSubTime(ExprValue date, ExprValue time) {
-    return exprApplyTime(date, time, false);
+  private ExprValue exprSubTime(ExprValue temporal, ExprValue temporalDelta) {
+    return exprApplyTime(temporal, temporalDelta, false);
   }
 
   /**
