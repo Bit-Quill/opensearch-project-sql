@@ -744,10 +744,8 @@ public class DateTimeFunction {
    * @return The diff.
    */
   private ExprValue exprDateDiff(ExprValue first, ExprValue second) {
-    var date1 = first.type() == TIME ? LocalDate.now() : first.datetimeValue().toLocalDate();
-    var date2 = second.type() == TIME ? LocalDate.now() : second.datetimeValue().toLocalDate();
     // java inverses the value, so we have to swap 1 and 2
-    return new ExprLongValue(DAYS.between(date2, date1));
+    return new ExprLongValue(DAYS.between(second.dateValue(), first.dateValue()));
   }
 
   /**
