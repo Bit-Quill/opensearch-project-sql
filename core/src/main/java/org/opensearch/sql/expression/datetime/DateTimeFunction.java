@@ -598,15 +598,32 @@ public class DateTimeFunction {
 
   /**
    * Extracts the timestamp of a date and time value.
-   * Also to construct a date type. The supported signatures:
-   * STRING/DATE/DATETIME/TIMESTAMP -> DATE
+   *
+   * DATE/TIME/DATETIME/TIMESTAMP -> TIMESTAMP
+   * DATE/TIME/DATETIME/TIMESTAMP, DATE/TIME/DATETIME/TIMESTAMP -> TIMESTAMP
    */
   private DefaultFunctionResolver timestamp() {
     return define(BuiltinFunctionName.TIMESTAMP.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, TIMESTAMP));
+        impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATE, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATE, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATE, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATE, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIME, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIME, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIME, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIME, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATETIME, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATETIME, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATETIME, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATETIME, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIMESTAMP, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIMESTAMP, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIMESTAMP, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIMESTAMP, TIMESTAMP));
   }
 
   /**
@@ -1151,15 +1168,23 @@ public class DateTimeFunction {
   /**
    * Timestamp implementation for ExprValue.
    *
-   * @param exprValue ExprValue of Timestamp type or String type.
+   * @param exprValue ExprValue of Timestamp.
    * @return ExprValue.
    */
   private ExprValue exprTimestamp(ExprValue exprValue) {
-    if (exprValue instanceof ExprStringValue) {
-      return new ExprTimestampValue(exprValue.stringValue());
-    } else {
-      return new ExprTimestampValue(exprValue.timestampValue());
-    }
+    return new ExprTimestampValue(exprValue.timestampValue());
+  }
+
+  /**
+   * Timestamp implementation for two arguments. It adds the time expression exprValue2
+   * to the expression exprValue2 and returns the result as a timestamp value.
+   *
+   * @param exprValue1 ExprValue of Timestamp type or String type.
+   * @param exprValue2 ExprValue of Timestamp type or String type.
+   * @return ExprValue.
+   */
+  private ExprValue exprTimestampEx(ExprValue exprValue1, ExprValue exprValue2) {
+    return exprAddTime(exprTimestamp(exprValue1), exprTimestamp(exprValue2));
   }
 
   /**
