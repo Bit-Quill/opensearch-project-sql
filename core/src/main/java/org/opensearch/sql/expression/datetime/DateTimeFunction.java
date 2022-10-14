@@ -598,32 +598,47 @@ public class DateTimeFunction {
 
   /**
    * Extracts the timestamp of a date and time value.
+   * Input strings may contain a timestamp only in format 'yyyy-MM-dd HH:mm:ss[.SSSSSSSSS]'
    *
-   * DATE/TIME/DATETIME/TIMESTAMP -> TIMESTAMP
-   * DATE/TIME/DATETIME/TIMESTAMP, DATE/TIME/DATETIME/TIMESTAMP -> TIMESTAMP
+   * STRING/DATE/TIME/DATETIME/TIMESTAMP -> TIMESTAMP
+   * STRING/DATE/TIME/DATETIME/TIMESTAMP, STRING/DATE/TIME/DATETIME/TIMESTAMP -> TIMESTAMP
    */
   private DefaultFunctionResolver timestamp() {
     return define(BuiltinFunctionName.TIMESTAMP.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, STRING, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, STRING, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, STRING, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, STRING, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, STRING, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATE, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATE, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATE, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATE, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATE, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIME, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIME, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIME, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIME, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIME, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATETIME, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATETIME, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATETIME, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATETIME, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, DATETIME, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx),
+            TIMESTAMP, DATETIME, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx),
+            TIMESTAMP, DATETIME, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIMESTAMP, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIMESTAMP, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIMESTAMP, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIMESTAMP, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx), TIMESTAMP, TIMESTAMP, TIMESTAMP));
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx),
+            TIMESTAMP, TIMESTAMP, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampEx),
+            TIMESTAMP, TIMESTAMP, TIMESTAMP));
   }
 
   /**
@@ -1172,7 +1187,11 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprTimestamp(ExprValue exprValue) {
-    return new ExprTimestampValue(exprValue.timestampValue());
+    if (exprValue instanceof ExprStringValue) {
+      return new ExprTimestampValue(exprValue.stringValue());
+    } else {
+      return new ExprTimestampValue(exprValue.timestampValue());
+    }
   }
 
   /**
