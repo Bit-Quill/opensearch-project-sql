@@ -478,18 +478,3 @@ relevanceArgValue
     | constant
     ;
 
-
-//tableName
-//    : indexName
-//    ;
-//
-//indexName
-//    : index (DOT index)*
-//    ;
-//
-// index
-//    : DOT? IND
-//    | BACKTICK_QUOTE_ID
-//    | keywordsCanBeId
-//    | (AT_SIGN | STAR) NO_SPACE (STAR | ZERO_DECIMAL| ONE_DECIMAL | TWO_DECIMAL | DECIMAL_LITERAL | ANY)+
-//    ;
