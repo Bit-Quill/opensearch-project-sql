@@ -540,7 +540,7 @@ Example::
 DATEDIFF
 --------
 
-Usage: Calculates the difference of date part of given values. If first argument is time, today's date is used.
+Usage: Calculates the difference of date parts of given values. If the first argument is time, today's date is used.
 
 Argument type: DATE/DATETIME/TIMESTAMP/TIME, DATE/DATETIME/TIMESTAMP/TIME
 
