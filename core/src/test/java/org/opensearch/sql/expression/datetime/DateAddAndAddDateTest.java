@@ -96,14 +96,14 @@ public class DateAddAndAddDateTest extends DateTimeTestBase {
   }
 
   @Test
-  public void adddate_returns_datetime_when_first_arg_is_datetime_or_timestamp() {
+  public void adddate_returns_datetime_when_first_arg_is_datetime() {
     var res = adddate(LocalDateTime.of(1961, 4, 12, 9, 7), Duration.ofMinutes(108));
     assertEquals(DATETIME, res.type());
     assertEquals(LocalDateTime.of(1961, 4, 12, 10, 55), res.datetimeValue());
   }
 
   @Test
-  public void date_add_returns_datetime_when_first_arg_is_datetime_or_timestamp() {
+  public void date_add_returns_datetime_when_first_arg_is_timestamp() {
     var res = date_add(LocalDateTime.of(1961, 4, 12, 9, 7).toInstant(ZoneOffset.UTC),
         Duration.ofMinutes(108));
     assertEquals(DATETIME, res.type());

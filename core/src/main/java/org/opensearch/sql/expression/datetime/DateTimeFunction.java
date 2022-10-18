@@ -70,6 +70,7 @@ import org.opensearch.sql.expression.function.FunctionBuilder;
 import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.function.FunctionResolver;
 import org.opensearch.sql.expression.function.FunctionSignature;
+import org.opensearch.sql.expression.function.SerializableBiFunction;
 import org.opensearch.sql.expression.function.SerializableFunction;
 import org.opensearch.sql.utils.DateTimeUtils;
 
@@ -214,48 +215,50 @@ public class DateTimeFunction {
   }
 
   /**
-   * Specify a start date and add a temporal amount to the date.
+   * A common signature for `date_add` and `date_sub`.
+   * Specify a start date and add/subtract a temporal amount to/from the date.
    * The return type depends on the date type and the interval unit. Detailed supported signatures:
    * (DATE/DATETIME/TIMESTAMP/TIME, INTERVAL) -> DATETIME
-   * TODO: MySQL has these signatures too
+   * MySQL has these signatures too
    * (STRING, INTERVAL) -> STRING
    * (DATE, INTERVAL) -> DATE                                     // when interval has no time part
    * (TIME, INTERVAL) -> TIME                                     // when interval has no date part
    * (STRING, INTERVAL) -> STRING         // when argument has date or datetime string,
    *                                      // result has date or datetime depending on interval type
    */
-  private SerializableFunction<?, ?>[] get_date_add_signatures() {
+  private SerializableFunction<?, ?>[] get_date_add_date_sub_signatures(
+      SerializableBiFunction<ExprValue, ExprValue, ExprValue> function) {
     return new SerializableFunction[]{
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval), DATETIME, DATE, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
-                DATETIME, DATETIME, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
-                DATETIME, TIMESTAMP, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
-                DATETIME, TIME, INTERVAL),
+        impl(nullMissingHandling(function), DATETIME, DATE, INTERVAL),
+        impl(nullMissingHandling(function), DATETIME, DATETIME, INTERVAL),
+        impl(nullMissingHandling(function), DATETIME, TIMESTAMP, INTERVAL),
+        impl(nullMissingHandling(function), DATETIME, TIME, INTERVAL)
     };
   }
 
   /**
-   * Adds an integer number of days to the first argument.
+   * A common signature for `adddate` and `subdate`.
+   * Adds/subtracts an integer number of days to/from the first argument.
    * (DATE, LONG) -> DATE
    * (TIME/DATETIME/TIMESTAMP, LONG) -> DATETIME
    */
-  private SerializableFunction<?, ?>[] get_adddate_signatures() {
+  private SerializableFunction<?, ?>[] get_adddate_subdate_signatures(
+      SerializableBiFunction<ExprValue, ExprValue, ExprValue> function) {
     return new SerializableFunction[]{
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATE, DATE, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, DATETIME, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, TIMESTAMP, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, TIME, LONG)
+        impl(nullMissingHandling(function), DATE, DATE, LONG),
+        impl(nullMissingHandling(function), DATETIME, DATETIME, LONG),
+        impl(nullMissingHandling(function), DATETIME, TIMESTAMP, LONG),
+        impl(nullMissingHandling(function), DATETIME, TIME, LONG)
     };
   }
 
   private DefaultFunctionResolver adddate() {
     return define(BuiltinFunctionName.ADDDATE.getName(),
         (SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>[])
-            (Stream.concat(Arrays.stream(get_date_add_signatures()),
-                Arrays.stream(get_adddate_signatures()))
-                    .toArray(SerializableFunction<?, ?>[]::new)));
+            (Stream.concat(
+            Arrays.stream(get_date_add_date_sub_signatures(DateTimeFunction::exprAddDateInterval)),
+            Arrays.stream(get_adddate_subdate_signatures(DateTimeFunction::exprAddDateDays)))
+                .toArray(SerializableFunction<?, ?>[]::new)));
   }
 
   /**
@@ -304,49 +307,13 @@ public class DateTimeFunction {
   private DefaultFunctionResolver date_add() {
     return define(BuiltinFunctionName.DATE_ADD.getName(),
         (SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>[])
-              get_date_add_signatures());
-  }
-
-  /**
-   * Specify a start date and subtract a temporal amount to the date.
-   * The return type depends on the date type and the interval unit. Detailed supported signatures:
-   * (DATE/DATETIME/TIMESTAMP/TIME, INTERVAL) -> DATETIME
-   * TODO: MySQL has these signatures too
-   * (DATE, INTERVAL) -> DATE                                     // when interval has no time part
-   * (TIME, INTERVAL) -> TIME                                     // when interval has no date part
-   * (STRING, INTERVAL) -> STRING         // when argument has date or datetime string,
-   *                                      // result has date or datetime depending on interval type
-   */
-  private SerializableFunction<?, ?>[] get_date_sub_signatures() {
-    return new SerializableFunction[]{
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval), DATETIME, DATE, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
-                DATETIME, DATETIME, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
-                DATETIME, TIMESTAMP, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
-                DATETIME, TIME, INTERVAL)
-    };
-  }
-
-  /**
-   * Subtracts an integer number of days to the first argument.
-   * (DATE, LONG) -> DATE
-   * (TIME/DATETIME/TIMESTAMP, LONG) -> DATETIME
-   */
-  private SerializableFunction<?, ?>[] get_subdate_signatures() {
-    return new SerializableFunction[]{
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATE, DATE, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, DATETIME, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, TIMESTAMP, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, TIME, LONG)
-    };
+              get_date_add_date_sub_signatures(DateTimeFunction::exprAddDateInterval));
   }
 
   private DefaultFunctionResolver date_sub() {
     return define(BuiltinFunctionName.DATE_SUB.getName(),
         (SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>[])
-              get_date_sub_signatures());
+              get_date_add_date_sub_signatures(DateTimeFunction::exprSubDateInterval));
   }
 
   /**
@@ -546,9 +513,10 @@ public class DateTimeFunction {
   private DefaultFunctionResolver subdate() {
     return define(BuiltinFunctionName.SUBDATE.getName(),
         (SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>[])
-            (Stream.concat(Arrays.stream(get_date_sub_signatures()),
-                Arrays.stream(get_subdate_signatures()))
-                    .toArray(SerializableFunction<?, ?>[]::new)));
+            (Stream.concat(
+            Arrays.stream(get_date_add_date_sub_signatures(DateTimeFunction::exprSubDateInterval)),
+            Arrays.stream(get_adddate_subdate_signatures(DateTimeFunction::exprSubDateDays)))
+                .toArray(SerializableFunction<?, ?>[]::new)));
   }
 
   /**

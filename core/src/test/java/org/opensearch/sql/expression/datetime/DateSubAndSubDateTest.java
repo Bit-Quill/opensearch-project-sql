@@ -96,14 +96,14 @@ public class DateSubAndSubDateTest extends DateTimeTestBase {
   }
 
   @Test
-  public void subdate_returns_datetime_when_first_arg_is_datetime_or_timestamp() {
+  public void subdate_returns_datetime_when_first_arg_is_datetime() {
     var res = subdate(LocalDateTime.of(1961, 4, 12, 9, 7), Duration.ofMinutes(108));
     assertEquals(DATETIME, res.type());
     assertEquals(LocalDateTime.of(1961, 4, 12, 7, 19), res.datetimeValue());
   }
 
   @Test
-  public void date_sub_returns_datetime_when_first_arg_is_datetime_or_timestamp() {
+  public void date_sub_returns_datetime_when_first_arg_is_timestamp() {
     var res = date_sub(LocalDateTime.of(1961, 4, 12, 9, 7).toInstant(ZoneOffset.UTC),
         Duration.ofMinutes(108));
     assertEquals(DATETIME, res.type());
