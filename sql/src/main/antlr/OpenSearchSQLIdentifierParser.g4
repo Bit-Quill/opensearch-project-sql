@@ -62,7 +62,7 @@ ident
     ;
 
  index
-    : DOT? IND
+    : FROM_CLAUSE_DOT? IND
     | BACKTICK_QUOTE_ID
     | keywordsCanBeId
     ;

@@ -459,6 +459,24 @@ FROM_CLAUSE_LINE_COMMENT:           (
                                       | '--' ('\r'? '\n' | EOF)
                                     ) -> channel(HIDDEN);
 
+FROM_CLAUSE_DOT:                    '.';
+FROM_CLAUSE_LT_SQR_PRTHS:           '[';
+FROM_CLAUSE_RT_SQR_PRTHS:           ']';
+FROM_CLAUSE_SEMI:                   ';';
+FROM_CLAUSE_AT_SIGN:                '@';
+FROM_CLAUSE_ZERO_DECIMAL:           '0';
+FROM_CLAUSE_ONE_DECIMAL:            '1';
+FROM_CLAUSE_TWO_DECIMAL:            '2';
+FROM_CLAUSE_SINGLE_QUOTE_SYMB:      '\'';
+FROM_CLAUSE_DOUBLE_QUOTE_SYMB:      '"';
+FROM_CLAUSE_REVERSE_QUOTE_SYMB:     '`';
+FROM_CLAUSE_COLON_SYMB:             ':';
+
+//TODO: Implement the following
+//FROM_CLAUSE_LR_BRACKET:             '(';
+//FROM_CLAUSE_RR_BRACKET:             ')';
+//FROM_CLAUSE_COMMA:                  ',';
+
 FROM_CLAUSE_DECIMAL_LITERAL:        DECIMAL_LITERAL;
 
 IND:                                INDEX -> popMode;
