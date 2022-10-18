@@ -450,6 +450,12 @@ fragment BIT_STRING_L:              'B' '\'' [01]+ '\'';
 
 ERROR_RECOGNITION:                  .    -> channel(ERRORCHANNEL);
 
+
+// FROM_CLAUSE table names are identifiers that have extra characters beyond what MySQL accepts.
+// We use the FROM_CLAUSE mode to enter a separate rule set (defined below).
+// In this rule set, table names can be defined according to what is required by OpenSearch without affecting rules used for lexing the rest of a SQL query.
+// Once the table name is defined, we can exit from this FROM_CLAUSE and return to the default set of tokens
+// see: https://opensearch.org/docs/latest/search-plugins/sql/identifiers/
 mode FROM_CLAUSE;
 FROM_CLAUSE_SPACE:                  [ \t\r\n]+    -> channel(HIDDEN);
 FROM_CLAUSE_SPEC_SQL_COMMENT:       '/*!' .+? '*/' -> channel(SQLCOMMENT);
