@@ -459,6 +459,8 @@ FROM_CLAUSE_LINE_COMMENT:           (
                                       | '--' ('\r'? '\n' | EOF)
                                     ) -> channel(HIDDEN);
 
+FROM_CLAUSE_DECIMAL_LITERAL:        DECIMAL_LITERAL;
+
 IND:                                INDEX -> popMode;
 
 INDEX:                              INDEX_FRAGMENT | BACKTICK_QUOTE_IND;
