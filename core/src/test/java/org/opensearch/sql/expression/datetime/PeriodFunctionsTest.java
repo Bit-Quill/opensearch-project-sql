@@ -21,6 +21,7 @@ public class PeriodFunctionsTest extends DateTimeTestBase {
    * @return A data set.
    */
   public static Stream<Arguments> getTestDataForPeriodAdd() {
+    // arguments are: first arg for `PERIOD_ADD`, second arg and expected result value.
     return Stream.of(
         Arguments.of(1, 3, 200004), // Jan 2000 + 3
         Arguments.of(3, -1, 200002), // Mar 2000 - 1
@@ -41,6 +42,7 @@ public class PeriodFunctionsTest extends DateTimeTestBase {
    * @return A data set.
    */
   public static Stream<Arguments> getTestDataForPeriodDiff() {
+    // arguments are: first arg for `PERIOD_DIFF`, second arg and expected result value.
     return Stream.of(
         Arguments.of(1, 3, -2), // Jan - Mar 2000
         Arguments.of(3, 1, 2), // Mar - Jan 2000
@@ -80,7 +82,10 @@ public class PeriodFunctionsTest extends DateTimeTestBase {
       Arguments.of(123456),
       Arguments.of(1234567),
       Arguments.of(200213),
-      Arguments.of(200300)
+      Arguments.of(200300),
+      Arguments.of(-1),
+      Arguments.of(-1234),
+      Arguments.of(-123401)
     );
   }
 
