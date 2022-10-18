@@ -550,7 +550,7 @@ public class DateTimeFunction {
   /**
    * Returns different between two times as a time.
    * (TIME, TIME) -> TIME
-   * TODO MySQL has these signatures too
+   * MySQL has these signatures too
    * (DATE, DATE) -> TIME                      // result is > 24 hours
    * (DATETIME, DATETIME) -> TIME              // result is > 24 hours
    * (TIMESTAMP, TIMESTAMP) -> TIME            // result is > 24 hours
