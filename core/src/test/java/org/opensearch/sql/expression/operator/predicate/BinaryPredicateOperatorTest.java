@@ -412,10 +412,12 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     FunctionExpression equal = DSL.equal(DSL.literal(v1), DSL.literal(v2));
     assertEquals(BOOLEAN, equal.type());
     if (v1.type() == v2.type()) {
-      assertEquals(v1.value().equals(v2.value()), ExprValueUtils.getBooleanValue(equal.valueOf(valueEnv())));
+      assertEquals(v1.value().equals(v2.value()),
+          ExprValueUtils.getBooleanValue(equal.valueOf(valueEnv())));
     }
     if (v1.type() != STRUCT && v1.type() != ARRAY) {
-      assertEquals(0 == compare(v1, v2), ExprValueUtils.getBooleanValue(equal.valueOf(valueEnv())));
+      assertEquals(0 == compare(v1, v2),
+          ExprValueUtils.getBooleanValue(equal.valueOf(valueEnv())));
     }
     assertEquals(String.format("=(%s, %s)", v1.toString(), v2.toString()), equal.toString());
   }
@@ -465,10 +467,12 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     FunctionExpression notequal = DSL.notequal(DSL.literal(v1), DSL.literal(v2));
     assertEquals(BOOLEAN, notequal.type());
     if (v1.type() == v2.type()) {
-      assertEquals(!v1.value().equals(v2.value()), ExprValueUtils.getBooleanValue(notequal.valueOf(valueEnv())));
+      assertEquals(!v1.value().equals(v2.value()),
+          ExprValueUtils.getBooleanValue(notequal.valueOf(valueEnv())));
     }
     if (v1.type() != STRUCT && v1.type() != ARRAY) {
-      assertEquals(0 != compare(v1, v2), ExprValueUtils.getBooleanValue(notequal.valueOf(valueEnv())));
+      assertEquals(0 != compare(v1, v2),
+          ExprValueUtils.getBooleanValue(notequal.valueOf(valueEnv())));
     }
     assertEquals(String.format("!=(%s, %s)", v1.toString(), v2.toString()), notequal.toString());
   }

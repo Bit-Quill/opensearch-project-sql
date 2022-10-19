@@ -193,7 +193,7 @@ public class ExprValueCompareTest {
     assertEquals(0, right.compareTo(left));
   }
 
-    private static Stream<Arguments> getNotEqualNumericValuesOfDifferentTypes() {
+  private static Stream<Arguments> getNotEqualNumericValuesOfDifferentTypes() {
     return Stream.of(
         Arguments.of(new ExprIntegerValue(42), new ExprByteValue(1)),
         Arguments.of(new ExprIntegerValue(42), new ExprShortValue(146)),
