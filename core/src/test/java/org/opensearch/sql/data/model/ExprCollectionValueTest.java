@@ -8,14 +8,14 @@ package org.opensearch.sql.data.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
 import static org.opensearch.sql.utils.ComparisonUtil.compare;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
-import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.opensearch.sql.exception.ExpressionEvaluationException;
 
 public class ExprCollectionValueTest {
   @Test
@@ -47,23 +47,9 @@ public class ExprCollectionValueTest {
 
   @Test
   public void comparabilityTest() {
-    ExprValue value1 = ExprValueUtils.collectionValue(Arrays.asList(0, 1));
-    ExprValue value2 = ExprValueUtils.collectionValue(ImmutableList.of(1, 2));
-    assertEquals(0, compare(value1, value1));
-    assertEquals(0, compare(value2, value2));
-    assertEquals(1, compare(value1, value2));
-    assertEquals(1, compare(value2, value1));
-  }
-
-  @Test
-  public void value() {
-    ExprValue value = ExprValueUtils.collectionValue(List.of(42));
-    assertEquals(List.of(42), value.value());
-  }
-
-  @Test
-  public void type() {
-    ExprValue value = ExprValueUtils.collectionValue(List.of());
-    assertEquals(ARRAY, value.type());
+    ExprValue collectionValue = ExprValueUtils.collectionValue(Arrays.asList(0, 1));
+    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
+        () -> compare(collectionValue, collectionValue));
+    assertEquals("ExprCollectionValue instances are not comparable", exception.getMessage());
   }
 }

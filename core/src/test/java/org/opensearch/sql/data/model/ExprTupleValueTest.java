@@ -9,14 +9,13 @@ package org.opensearch.sql.data.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.utils.ComparisonUtil.compare;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.opensearch.sql.exception.ExpressionEvaluationException;
 
 class ExprTupleValueTest {
   @Test
@@ -52,26 +51,9 @@ class ExprTupleValueTest {
 
   @Test
   public void comparabilityTest() {
-    ExprValue value1 = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2));
-    ExprValue value2 =
-        ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2, "float_value", 1f));
-    assertEquals(0, compare(value1, value1));
-    assertEquals(0, compare(value2, value2));
-    assertEquals(1, compare(value1, value2));
-    assertEquals(1, compare(value2, value1));
-  }
-
-  @Test
-  public void value() {
-    ExprValue value =
-        ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2, "float_value", 1f));
-    assertEquals(new LinkedHashMap<>(ImmutableMap.of("integer_value", 2, "float_value", 1f)),
-        value.value());
-  }
-
-  @Test
-  public void type() {
-    ExprValue tuple = ExprValueUtils.tupleValue(Map.of());
-    assertEquals(STRUCT, tuple.type());
+    ExprValue tupleValue = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2));
+    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
+        () -> compare(tupleValue, tupleValue));
+    assertEquals("ExprTupleValue instances are not comparable", exception.getMessage());
   }
 }

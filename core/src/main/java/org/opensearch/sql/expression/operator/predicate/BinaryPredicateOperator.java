@@ -247,15 +247,11 @@ public class BinaryPredicateOperator {
   }
 
   private static List<Pair<ExprCoreType, ExprCoreType>> permuteTemporalTypesByPairs() {
-    var res = new ArrayList<Pair<ExprCoreType, ExprCoreType>>();
-    var datatypes = List.of(TIME, DATE, DATETIME, TIMESTAMP);
-    datatypes.forEach(left -> {
-      datatypes.forEach(right -> {
-        if (left != right) {
-          res.add(Pair.of(left, right));
-        }
-      });
-    });
-    return res;
+    return List.of(
+        Pair.of(DATE, TIME), Pair.of(DATE, DATETIME), Pair.of(DATE, TIMESTAMP),
+        Pair.of(TIME, DATE), Pair.of(TIME, DATETIME), Pair.of(TIME, TIMESTAMP),
+        Pair.of(DATETIME, TIME), Pair.of(DATETIME, DATE), Pair.of(DATETIME, TIMESTAMP),
+        Pair.of(TIMESTAMP, TIME), Pair.of(TIMESTAMP, DATE), Pair.of(TIMESTAMP, DATETIME)
+    );
   }
 }

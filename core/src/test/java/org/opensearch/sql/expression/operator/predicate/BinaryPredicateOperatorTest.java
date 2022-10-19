@@ -109,13 +109,6 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
         List.of(1D, 2D),
         List.of("str", "str0"),
         List.of(true, false),
-        List.of(ImmutableList.of(1), ImmutableList.of(new ExprIntegerValue(2))),
-        List.of(ImmutableList.of(1, 2), ImmutableList.of(2)),
-        List.of(ImmutableMap.of("str", 1), ImmutableMap.of("str", 2)),
-        List.of(ImmutableMap.of("str", 1), ImmutableMap.of("str1", 1)),
-        List.of(ImmutableMap.of("str", 1), ImmutableMap.of("str", new ExprDoubleValue(2D))),
-        List.of(ImmutableMap.of("str", 1), ImmutableMap.of("str", 2, "str1", 1)),
-        List.of(Period.ofDays(3), Period.ofDays(1)),
         List.of(LocalTime.of(9, 7, 0), LocalTime.of(7, 40, 0)),
         List.of(LocalDate.of(1961, 4, 12), LocalDate.of(1984, 10, 25)),
         List.of(Instant.ofEpochSecond(42), Instant.ofEpochSecond(100500)),
@@ -144,6 +137,10 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
         fromObjectValue(Instant.ofEpochSecond(0))));
     builder.add(Arguments.of(fromObjectValue(LocalDate.of(1984, 10, 25)),
         fromObjectValue(LocalDateTime.of(1984, 10, 25, 0, 0))));
+    builder.add(Arguments.of(fromObjectValue(ImmutableList.of(1)),
+        fromObjectValue(ImmutableList.of(1))));
+    builder.add(Arguments.of(fromObjectValue(ImmutableMap.of("str", 1)),
+        fromObjectValue(ImmutableMap.of("str", 1))));
     return builder.build();
   }
 
@@ -165,6 +162,12 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
         fromObjectValue(LocalDateTime.of(1984, 10, 25, 7, 40))));
     builder.add(Arguments.of(fromObjectValue(LocalDate.of(1984, 10, 25)),
         fromObjectValue(LocalTime.of(7, 40, 0))));
+    builder.add(Arguments.of(fromObjectValue(ImmutableList.of(1)),
+        fromObjectValue(ImmutableList.of(1, 2))));
+    builder.add(Arguments.of(fromObjectValue(ImmutableList.of(1)),
+        fromObjectValue(ImmutableList.of(2))));
+    builder.add(Arguments.of(fromObjectValue(ImmutableMap.of("str", 1)),
+        fromObjectValue(ImmutableMap.of("str2", 2))));
     return builder.build();
   }
 

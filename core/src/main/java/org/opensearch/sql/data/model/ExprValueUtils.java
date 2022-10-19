@@ -98,7 +98,7 @@ public class ExprValueUtils {
    */
   public static ExprValue collectionValue(List<Object> list) {
     List<ExprValue> valueList = new ArrayList<>();
-    list.forEach(o -> valueList.add(o instanceof ExprValue ? (ExprValue) o : fromObjectValue(o)));
+    list.forEach(o -> valueList.add(fromObjectValue(o)));
     return new ExprCollectionValue(valueList);
   }
 
@@ -145,8 +145,6 @@ public class ExprValueUtils {
       return timeValue((LocalTime) o);
     } else if (o instanceof Instant) {
       return timestampValue((Instant) o);
-    } else if (o instanceof TemporalAmount) {
-      return intervalValue((TemporalAmount) o);
     } else {
       throw new ExpressionEvaluationException("unsupported object " + o.getClass());
     }
