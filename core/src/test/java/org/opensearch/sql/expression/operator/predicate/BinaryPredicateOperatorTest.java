@@ -38,8 +38,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.Period;
-import java.util.ArrayList;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -50,22 +49,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.opensearch.sql.ast.expression.In;
-import org.opensearch.sql.data.model.ExprBooleanValue;
-import org.opensearch.sql.data.model.ExprByteValue;
-import org.opensearch.sql.data.model.ExprCollectionValue;
-import org.opensearch.sql.data.model.ExprDateValue;
-import org.opensearch.sql.data.model.ExprDatetimeValue;
-import org.opensearch.sql.data.model.ExprDoubleValue;
-import org.opensearch.sql.data.model.ExprFloatValue;
-import org.opensearch.sql.data.model.ExprIntegerValue;
-import org.opensearch.sql.data.model.ExprLongValue;
-import org.opensearch.sql.data.model.ExprNullValue;
-import org.opensearch.sql.data.model.ExprShortValue;
 import org.opensearch.sql.data.model.ExprStringValue;
-import org.opensearch.sql.data.model.ExprTimeValue;
-import org.opensearch.sql.data.model.ExprTimestampValue;
-import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.expression.DSL;
@@ -128,7 +112,6 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
       builder.add(Arguments.of(fromObjectValue(argPair.get(0)), fromObjectValue(argPair.get(0))));
       builder.add(Arguments.of(fromObjectValue(argPair.get(1)), fromObjectValue(argPair.get(1))));
     }
-    // Skipping test between DATETIME/TIME and DATE/INSTANT - it could fail due to the clock run
     builder.add(Arguments.of(fromObjectValue(LocalTime.of(7, 40, 0)),
         fromObjectValue(LocalTime.of(7, 40, 0).atDate(LocalDate.now()))));
     builder.add(Arguments.of(fromObjectValue(LocalDateTime.of(1970, 1, 1, 0, 0, 42)),
@@ -137,6 +120,10 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
         fromObjectValue(Instant.ofEpochSecond(0))));
     builder.add(Arguments.of(fromObjectValue(LocalDate.of(1984, 10, 25)),
         fromObjectValue(LocalDateTime.of(1984, 10, 25, 0, 0))));
+    builder.add(Arguments.of(fromObjectValue(LocalTime.of(0, 0, 0)),
+        fromObjectValue(LocalDate.now())));
+    builder.add(Arguments.of(fromObjectValue(LocalTime.of(0, 0, 0)),
+        fromObjectValue(LocalDate.now().atStartOfDay(ZoneId.of("UTC")).toInstant())));
     builder.add(Arguments.of(fromObjectValue(ImmutableList.of(1)),
         fromObjectValue(ImmutableList.of(1))));
     builder.add(Arguments.of(fromObjectValue(ImmutableMap.of("str", 1)),
