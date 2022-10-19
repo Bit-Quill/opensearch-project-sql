@@ -21,9 +21,11 @@ import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static org.opensearch.sql.data.model.ExprValueUtils.booleanValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.fromObjectValue;
+import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
 import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
+import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.utils.ComparisonUtil.compare;
 import static org.opensearch.sql.utils.OperatorUtils.matches;
 
@@ -409,10 +411,12 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   public void test_equal(ExprValue v1, ExprValue v2) {
     FunctionExpression equal = DSL.equal(DSL.literal(v1), DSL.literal(v2));
     assertEquals(BOOLEAN, equal.type());
-    var referenceValue = v1.type() == v2.type()
-        ? v1.value().equals(v2.value())
-        : 0 == compare(v1, v2);
-    assertEquals(referenceValue, ExprValueUtils.getBooleanValue(equal.valueOf(valueEnv())));
+    if (v1.type() == v2.type()) {
+      assertEquals(v1.value().equals(v2.value()), ExprValueUtils.getBooleanValue(equal.valueOf(valueEnv())));
+    }
+    if (v1.type() != STRUCT && v1.type() != ARRAY) {
+      assertEquals(0 == compare(v1, v2), ExprValueUtils.getBooleanValue(equal.valueOf(valueEnv())));
+    }
     assertEquals(String.format("=(%s, %s)", v1.toString(), v2.toString()), equal.toString());
   }
 
@@ -460,10 +464,12 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   public void test_notequal(ExprValue v1, ExprValue v2) {
     FunctionExpression notequal = DSL.notequal(DSL.literal(v1), DSL.literal(v2));
     assertEquals(BOOLEAN, notequal.type());
-    var referenceValue = v1.type() == v2.type()
-        ? !v1.value().equals(v2.value())
-        : 0 != compare(v1, v2);
-    assertEquals(referenceValue, ExprValueUtils.getBooleanValue(notequal.valueOf(valueEnv())));
+    if (v1.type() == v2.type()) {
+      assertEquals(!v1.value().equals(v2.value()), ExprValueUtils.getBooleanValue(notequal.valueOf(valueEnv())));
+    }
+    if (v1.type() != STRUCT && v1.type() != ARRAY) {
+      assertEquals(0 != compare(v1, v2), ExprValueUtils.getBooleanValue(notequal.valueOf(valueEnv())));
+    }
     assertEquals(String.format("!=(%s, %s)", v1.toString(), v2.toString()), notequal.toString());
   }
 
