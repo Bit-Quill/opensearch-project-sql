@@ -7,16 +7,23 @@
 package org.opensearch.sql.data.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
+import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
+import static org.opensearch.sql.data.model.ExprValueUtils.stringValue;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import java.time.LocalDate;
 import java.time.Period;
-import java.util.LinkedHashMap;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.opensearch.sql.data.utils.ExprValueOrdering;
+import org.opensearch.sql.exception.ExpressionEvaluationException;
 
 public class ExprValueCompareTest {
 
@@ -60,6 +67,101 @@ public class ExprValueCompareTest {
             .compareTo(new ExprTimestampValue("2012-08-07 19:00:00")));
   }
 
+  private static Stream<Arguments> getEqualDatetimeValuesOfDifferentTypes() {
+    return Stream.of(
+      Arguments.of(new ExprTimestampValue("1961-04-12 09:07:00"),
+          new ExprDatetimeValue("1961-04-12 09:07:00")),
+      Arguments.of(new ExprTimestampValue("1984-11-22 00:00:00"),
+          new ExprDateValue("1984-11-22")),
+      Arguments.of(new ExprTimestampValue(LocalDate.now() + " 00:00:00"),
+          new ExprDateValue(LocalDate.now())),
+      Arguments.of(new ExprDatetimeValue(LocalDate.now() + " 17:42:15"),
+          new ExprTimeValue("17:42:15")),
+      Arguments.of(new ExprDatetimeValue("2012-08-07 19:14:38"),
+          new ExprTimestampValue("2012-08-07 19:14:38")),
+      Arguments.of(new ExprDateValue("2012-08-07"),
+          new ExprDatetimeValue("2012-08-07 00:00:00")),
+      Arguments.of(new ExprDateValue("2007-01-27"),
+          new ExprDatetimeValue("2007-01-27 00:00:00")),
+      Arguments.of(new ExprDateValue(LocalDate.now()),
+          new ExprTimeValue("00:00:00")),
+      Arguments.of(new ExprTimestampValue("1984-11-22 00:00:00"),
+          new ExprDateValue("1984-11-22")),
+      Arguments.of(new ExprTimeValue("19:14:38"),
+          new ExprDatetimeValue(LocalDate.now() + " 19:14:38")),
+      Arguments.of(new ExprTimeValue("17:42:15"),
+          new ExprTimestampValue(LocalDate.now() + " 17:42:15"))
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("getEqualDatetimeValuesOfDifferentTypes")
+  public void compareEqDifferentDateTimeValueTypes(ExprValue left, ExprValue right) {
+    assertEquals(0, left.compareTo(right));
+    assertEquals(0, right.compareTo(left));
+  }
+
+  private static Stream<Arguments> getNotEqualDatetimeValuesOfDifferentTypes() {
+    return Stream.of(
+        Arguments.of(new ExprDatetimeValue("2012-08-07 19:14:38"),
+            new ExprTimestampValue("1961-04-12 09:07:00")),
+        Arguments.of(new ExprDatetimeValue("2012-08-07 19:14:38"),
+            new ExprTimeValue("09:07:00")),
+        Arguments.of(new ExprDatetimeValue(LocalDate.now() + " 19:14:38"),
+            new ExprTimeValue("09:07:00")),
+        Arguments.of(new ExprDatetimeValue("2012-08-07 00:00:00"),
+            new ExprDateValue("1961-04-12")),
+        Arguments.of(new ExprDatetimeValue("1961-04-12 19:14:38"),
+            new ExprDateValue("1961-04-12")),
+        Arguments.of(new ExprDateValue("1984-11-22"),
+            new ExprDatetimeValue("1961-04-12 19:14:38")),
+        Arguments.of(new ExprDateValue("1984-11-22"),
+            new ExprTimestampValue("2020-09-16 17:30:00")),
+        Arguments.of(new ExprDateValue("1984-11-22"),
+            new ExprTimeValue("19:14:38")),
+        Arguments.of(new ExprTimeValue("19:14:38"),
+            new ExprDateValue(LocalDate.now())),
+        Arguments.of(new ExprTimeValue("19:14:38"),
+            new ExprDatetimeValue("2012-08-07 09:07:00")),
+        Arguments.of(new ExprTimeValue("19:14:38"),
+            new ExprTimestampValue("1984-02-03 04:05:07")),
+        Arguments.of(new ExprTimestampValue("2012-08-07 19:14:38"),
+            new ExprDatetimeValue("1961-04-12 09:07:00")),
+        Arguments.of(new ExprTimestampValue("2012-08-07 19:14:38"),
+            new ExprTimeValue("09:07:00")),
+        Arguments.of(new ExprTimestampValue(LocalDate.now() + " 19:14:38"),
+            new ExprTimeValue("09:07:00")),
+        Arguments.of(new ExprTimestampValue("2012-08-07 00:00:00"),
+            new ExprDateValue("1961-04-12")),
+        Arguments.of(new ExprTimestampValue("1961-04-12 19:14:38"),
+            new ExprDateValue("1961-04-12"))
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("getNotEqualDatetimeValuesOfDifferentTypes")
+  public void compareNeqDifferentDateTimeValueTypes(ExprValue left, ExprValue right) {
+    assertNotEquals(0, left.compareTo(right));
+  }
+
+  @Test
+  public void compareDateTimeWithNotADateTime() {
+    var exception = assertThrows(ExpressionEvaluationException.class, () ->
+        new ExprDoubleValue(3.1415).compareTo(new ExprIntervalValue(Period.ofDays(1))));
+    assertEquals("compare expected value have same type, but with [DOUBLE, INTERVAL]",
+        exception.getMessage());
+
+    exception = assertThrows(ExpressionEvaluationException.class, () ->
+        new ExprDateValue("1961-04-12").compareTo(new ExprIntegerValue(1)));
+    assertEquals("compare expected value have same type, but with [DATE, INTEGER]",
+        exception.getMessage());
+
+    exception = assertThrows(ExpressionEvaluationException.class, () ->
+        new ExprStringValue("something").compareTo(new ExprTimeValue("10:20:30")));
+    assertEquals("compare expected value have same type, but with [STRING, TIME]",
+        exception.getMessage());
+  }
+
   @Test
   public void intValueCompare() {
     assertEquals(0, new ExprIntegerValue(1).compareTo(new ExprIntegerValue(1)));
@@ -72,6 +174,40 @@ public class ExprValueCompareTest {
     assertEquals(0, new ExprDoubleValue(1).compareTo(new ExprDoubleValue(1)));
     assertEquals(1, new ExprDoubleValue(2).compareTo(new ExprDoubleValue(1)));
     assertEquals(-1, new ExprDoubleValue(1).compareTo(new ExprDoubleValue(2)));
+  }
+
+  private static Stream<Arguments> getEqualNumericValuesOfDifferentTypes() {
+    return Stream.of(
+        Arguments.of(new ExprIntegerValue(42), new ExprByteValue(42)),
+        Arguments.of(new ExprIntegerValue(42), new ExprShortValue(42)),
+        Arguments.of(new ExprIntegerValue(42), new ExprLongValue(42)),
+        Arguments.of(new ExprIntegerValue(42), new ExprFloatValue(42)),
+        Arguments.of(new ExprIntegerValue(42), new ExprDoubleValue(42))
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("getEqualNumericValuesOfDifferentTypes")
+  public void compareEqDifferentNumericValueTypes(ExprValue left, ExprValue right) {
+    assertEquals(0, left.compareTo(right));
+    assertEquals(0, right.compareTo(left));
+  }
+
+    private static Stream<Arguments> getNotEqualNumericValuesOfDifferentTypes() {
+    return Stream.of(
+        Arguments.of(new ExprIntegerValue(42), new ExprByteValue(1)),
+        Arguments.of(new ExprIntegerValue(42), new ExprShortValue(146)),
+        Arguments.of(new ExprIntegerValue(42), new ExprLongValue(100500)),
+        Arguments.of(new ExprIntegerValue(42), new ExprFloatValue(-1.5)),
+        Arguments.of(new ExprIntegerValue(42), new ExprDoubleValue(1468.84138))
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("getNotEqualNumericValuesOfDifferentTypes")
+  public void compareNeqDifferentNumericValueTypes(ExprValue left, ExprValue right) {
+    assertNotEquals(0, left.compareTo(right));
+    assertNotEquals(0, right.compareTo(left));
   }
 
   @Test
