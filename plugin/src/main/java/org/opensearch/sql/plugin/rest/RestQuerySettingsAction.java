@@ -74,7 +74,6 @@ public class RestQuerySettingsAction extends BaseRestHandler {
   @Override
   protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client)
       throws IOException {
-    QueryContext.clearError();
     QueryContext.addRequestId();
     final ClusterUpdateSettingsRequest clusterUpdateSettingsRequest =
         Requests.clusterUpdateSettingsRequest();

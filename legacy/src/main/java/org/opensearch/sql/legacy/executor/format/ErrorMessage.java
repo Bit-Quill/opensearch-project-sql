@@ -6,8 +6,6 @@
 
 package org.opensearch.sql.legacy.executor.format;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.json.JSONObject;
 import org.opensearch.rest.RestStatus;
 
@@ -18,8 +16,6 @@ public class ErrorMessage<E extends Exception> {
     private int status;
     private String type;
     private String reason;
-    @Setter
-    @Getter
     private String details;
 
     public ErrorMessage(E exception, int status) {
