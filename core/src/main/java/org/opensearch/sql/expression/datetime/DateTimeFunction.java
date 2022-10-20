@@ -599,7 +599,6 @@ public class DateTimeFunction {
   /**
    * Extracts the timestamp of a date and time value.
    * Input strings may contain a timestamp only in format 'yyyy-MM-dd HH:mm:ss[.SSSSSSSSS]'
-   *
    * STRING/DATE/TIME/DATETIME/TIMESTAMP -> TIMESTAMP
    * STRING/DATE/TIME/DATETIME/TIMESTAMP, STRING/DATE/TIME/DATETIME/TIMESTAMP -> TIMESTAMP
    */

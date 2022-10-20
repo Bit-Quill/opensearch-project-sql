@@ -174,6 +174,12 @@ public class TimestampTest extends ExpressionTestBase {
     );
   }
 
+  /**
+   * Test `TIMESTAMP` function which takes 2 arguments with input of different types.
+   * @param arg1 First argument to be passed to `TIMESTAMP` function.
+   * @param arg2 Second argument to be passed to `TIMESTAMP` function.
+   * @param expected The expected result.
+   */
   @ParameterizedTest
   @MethodSource("getTestData")
   public void timestamp_with_two_args(Object arg1, Object arg2, ExprTimestampValue expected) {
