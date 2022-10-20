@@ -234,111 +234,6 @@ Example::
     +-------------------------------------------------------+
 
 
-CURDATE
--------
-
-Description
->>>>>>>>>>>
-
-Returns the current time as a value in 'YYYY-MM-DD'.
-CURDATE() returns the time at which it executes as `SYSDATE() <#sysdate>`_ does.
-
-Return type: DATE
-
-Specification: CURDATE() -> DATE
-
-Example::
-
-    > source=people | eval `CURDATE()` = CURDATE() | fields `CURDATE()`
-    fetched rows / total rows = 1/1
-    +-------------+
-    | CURDATE()   |
-    |-------------|
-    | 2022-08-02  |
-    +-------------+
-
-
-CURRENT_DATE
-------------
-
-Description
->>>>>>>>>>>
-
-`CURRENT_DATE()` are synonyms for `CURDATE() <#curdate>`_.
-
-Example::
-
-    > source=people | eval `CURRENT_DATE()` = CURRENT_DATE() | fields `CURRENT_DATE()`
-    fetched rows / total rows = 1/1
-    +------------------+
-    | CURRENT_DATE()   |
-    |------------------+
-    | 2022-08-02       |
-    +------------------+
-
-
-CURRENT_TIME
-------------
-
-Description
->>>>>>>>>>>
-
-`CURRENT_TIME()` are synonyms for `CURTIME() <#curtime>`_.
-
-Example::
-
-    > source=people | eval `CURRENT_TIME()` = CURRENT_TIME() | fields `CURRENT_TIME()`
-    fetched rows / total rows = 1/1
-    +------------------+
-    | CURRENT_TIME()   |
-    |------------------+
-    | 15:39:05         |
-    +------------------+
-
-
-CURRENT_TIMESTAMP
------------------
-
-Description
->>>>>>>>>>>
-
-`CURRENT_TIMESTAMP()` are synonyms for `NOW() <#now>`_.
-
-Example::
-
-    > source=people | eval `CURRENT_TIMESTAMP()` = CURRENT_TIMESTAMP() | fields `CURRENT_TIMESTAMP()`
-    fetched rows / total rows = 1/1
-    +-----------------------+
-    | CURRENT_TIMESTAMP()   |
-    |-----------------------+
-    | 2022-08-02 15:54:19   |
-    +-----------------------+
-
-
-CURTIME
--------
-
-Description
->>>>>>>>>>>
-
-Returns the current time as a value in 'hh:mm:ss'.
-CURTIME() returns the time at which the statement began to execute as `NOW() <#now>`_ does.
-
-Return type: TIME
-
-Specification: CURTIME() -> TIME
-
-Example::
-
-    > source=people | eval `value_1` = CURTIME(), `value_2` = CURTIME() | fields `value_1`, `value_2`
-    fetched rows / total rows = 1/1
-    +-----------+-----------+
-    | value_1   | value_2   |
-    |-----------+-----------|
-    | 15:39:05  | 15:39:05  |
-    +-----------+-----------+
-
-
 DATE
 ----
 
@@ -516,7 +411,6 @@ Example::
     +-----------------------------------------------+----------------------------------------------------------------+
 
 
-
 DATETIME
 --------
 
@@ -529,9 +423,9 @@ Argument type: DATETIME/STRING
 
 Return type map:
 
-DATETIME, STRING -> DATETIME
+(DATETIME, STRING) -> DATETIME
 
-DATETIME -> DATETIME
+(DATETIME) -> DATETIME
 
 
 Converting datetime with timezone to the second argument timezone.
@@ -1281,21 +1175,26 @@ TIMESTAMP
 Description
 >>>>>>>>>>>
 
-Usage: timestamp(expr) construct a timestamp type with the input string expr as an timestamp. If the argument is of date/datetime/timestamp type, cast expr to timestamp type with default timezone UTC.
+Usage: timestamp(expr) constructs a timestamp type with the input string `expr` as an timestamp. If the argument is not a string, it casts `expr` to timestamp type with default timezone UTC. If argument is a time, it applied to today's date before cast.
+With two arguments `timestamp(expr1, expr2)` adds the time expression `expr2` to the date or datetime expression `expr1` and returns the result as a timestamp value.
 
-Argument type: STRING/DATE/DATETIME/TIMESTAMP
+Argument type: STRING/DATE/TIME/DATETIME/TIMESTAMP
 
-Return type: TIMESTAMP
+Return type map:
+
+(STRING/DATE/TIME/DATETIME/TIMESTAMP) -> TIMESTAMP
+
+(STRING/DATE/TIME/DATETIME/TIMESTAMP, STRING/DATE/TIME/DATETIME/TIMESTAMP) -> TIMESTAMP
 
 Example::
 
-    >od source=people | eval `TIMESTAMP('2020-08-26 13:49:00')` = TIMESTAMP('2020-08-26 13:49:00') | fields `TIMESTAMP('2020-08-26 13:49:00')`
+    os> source=people | eval `TIMESTAMP('2020-08-26 13:49:00')` = TIMESTAMP('2020-08-26 13:49:00'), `TIMESTAMP('2020-08-26 13:49:00', TIME('12:15:42'))` = TIMESTAMP('2020-08-26 13:49:00', TIME('12:15:42')) | fields `TIMESTAMP('2020-08-26 13:49:00')`, `TIMESTAMP('2020-08-26 13:49:00', TIME('12:15:42'))`
     fetched rows / total rows = 1/1
-    +------------------------------------+
-    | TIMESTAMP('2020-08-26 13:49:00')   |
-    |------------------------------------|
-    | TIMESTAMP '2020-08-26 13:49:00     |
-    +------------------------------------+
+    +------------------------------------+------------------------------------------------------+
+    | TIMESTAMP('2020-08-26 13:49:00')   | TIMESTAMP('2020-08-26 13:49:00', TIME('12:15:42'))   |
+    |------------------------------------+------------------------------------------------------|
+    | 2020-08-26 13:49:00                | 2020-08-27 02:04:42                                  |
+    +------------------------------------+------------------------------------------------------+
 
 
 TO_DAYS
