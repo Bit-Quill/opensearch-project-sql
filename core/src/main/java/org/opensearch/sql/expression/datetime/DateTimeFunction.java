@@ -1199,8 +1199,8 @@ public class DateTimeFunction {
   }
 
   /**
-   * Timestamp implementation for two arguments. It adds the time expression exprValue2
-   * to the expression exprValue2 and returns the result as a timestamp value.
+   * Timestamp implementation for two arguments. It extracts time expression from exprValue2
+   * and adds it to the expression exprValue1 and returns the result as a timestamp value.
    *
    * @param exprValue1 ExprValue of Timestamp type or String type.
    * @param exprValue2 ExprValue of Timestamp type or String type.
