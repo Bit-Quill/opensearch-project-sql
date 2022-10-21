@@ -627,6 +627,83 @@ class FilterQueryBuilderTest {
   }
 
   @Test
+  void query_invalid_parameter() {
+    FunctionExpression expr = dsl.query(
+            dsl.namedArgument("invalid_parameter", literal("invalid_value")));
+    assertThrows(SemanticCheckException.class, () -> buildQuery(expr),
+            "Parameter invalid_parameter is invalid for query function.");
+  }
+
+  @Test
+  void should_build_query_query_with_default_parameters() {
+    var expected = "{\n"
+            + "  \"query\" : {\n"
+            + "    \"query\" : \"query_value\",\n"
+            + "    \"fields\" : [],\n"
+            + "    \"type\" : \"best_fields\",\n"
+            + "    \"default_operator\" : \"or\",\n"
+            + "    \"max_determinized_states\" : 10000,\n"
+            + "    \"enable_position_increments\" : true,\n"
+            + "    \"fuzziness\" : \"AUTO\",\n"
+            + "    \"fuzzy_prefix_length\" : 0,\n"
+            + "    \"fuzzy_max_expansions\" : 50,\n"
+            + "    \"phrase_slop\" : 0,\n"
+            + "    \"escape\" : false,\n"
+            + "    \"auto_generate_synonyms_phrase_query\" : true,\n"
+            + "    \"fuzzy_transpositions\" : true,\n"
+            + "    \"boost\" : 1.0\n"
+            + "  }\n"
+            + "}";
+
+    assertJsonEquals(expected, buildQuery(dsl.query(
+            dsl.namedArgument("query", literal("query_value")))));
+  }
+
+  @Test
+  void should_build_query_query_with_custom_parameters() {
+    var expected = "{\n"
+            + "  \"query\" : {\n"
+            + "    \"query\" : \"query_value\",\n"
+            + "    \"fields\" : [],\n"
+            + "    \"type\" : \"cross_fields\",\n"
+            + "    \"tie_breaker\" : 1.3,\n"
+            + "    \"default_operator\" : \"and\",\n"
+            + "    \"analyzer\" : \"keyword\",\n"
+            + "    \"max_determinized_states\" : 10000,\n"
+            + "    \"enable_position_increments\" : true,\n"
+            + "    \"fuzziness\" : \"AUTO\",\n"
+            + "    \"fuzzy_prefix_length\" : 2,\n"
+            + "    \"fuzzy_max_expansions\" : 10,\n"
+            + "    \"phrase_slop\" : 0,\n"
+            + "    \"analyze_wildcard\" : true,\n"
+            + "    \"minimum_should_match\" : \"3\",\n"
+            + "    \"lenient\" : false,\n"
+            + "    \"escape\" : false,\n"
+            + "    \"auto_generate_synonyms_phrase_query\" : false,\n"
+            + "    \"fuzzy_transpositions\" : false,\n"
+            + "    \"boost\" : 2.0,\n"
+            + "  }\n"
+            + "}";
+    var actual = buildQuery(
+            dsl.query(
+                    dsl.namedArgument("query", literal("query_value")),
+                    dsl.namedArgument("analyze_wildcard", literal("true")),
+                    dsl.namedArgument("analyzer", literal("keyword")),
+                    dsl.namedArgument("auto_generate_synonyms_phrase_query", literal("false")),
+                    dsl.namedArgument("default_operator", literal("AND")),
+                    dsl.namedArgument("fuzzy_max_expansions", literal("10")),
+                    dsl.namedArgument("fuzzy_prefix_length", literal("2")),
+                    dsl.namedArgument("fuzzy_transpositions", literal("false")),
+                    dsl.namedArgument("lenient", literal("false")),
+                    dsl.namedArgument("minimum_should_match", literal("3")),
+                    dsl.namedArgument("tie_breaker", literal("1.3")),
+                    dsl.namedArgument("type", literal("cross_fields")),
+                    dsl.namedArgument("boost", literal("2.0"))));
+
+    assertJsonEquals(expected, actual);
+  }
+
+  @Test
   void query_string_invalid_parameter() {
     FunctionExpression expr = dsl.query_string(
         dsl.namedArgument("fields", DSL.literal(
