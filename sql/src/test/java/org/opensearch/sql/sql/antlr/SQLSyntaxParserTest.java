@@ -337,7 +337,7 @@ class SQLSyntaxParserTest {
 //    assertNotNull(parser.parse(
 //            "SELECT id FROM test WHERE query('*ess':query')"));
     assertNotNull(parser.parse(
-            "SELECT id FROM test WHERE query('address:query OR notes:query')"));
+            "SELECT id FROM test WHERE query('address:query OR notes:query'"));
 //    assertNotNull(parser.parse(
 //            "SELECT id FROM test WHERE query(\"'*:query'\")"));
     assertNotNull(parser.parse(
@@ -351,21 +351,21 @@ class SQLSyntaxParserTest {
 //    assertNotNull(parser.parse(
 //            "SELECT id FROM test WHERE query(`*:query`"));
     assertNotNull(parser.parse(
-            "SELECT id FROM test WHERE query(`address:query`)"));
+            "SELECT id FROM test WHERE query(`address:query`"));
 //    assertNotNull(parser.parse(
 //            "SELECT id FROM test WHERE query(`ad*:query`)"));
 //    assertNotNull(parser.parse(
 //            "SELECT id FROM test WHERE query(`*ss:query`"));
     assertNotNull(parser.parse(
-            "SELECT id FROM test WHERE query(`address:query OR notes:query`)"));
-//    assertNotNull(parser.parse(
-//            "SELECT id FROM test WHERE query(address:query)"));
+            "SELECT id FROM test WHERE query(`address:query OR notes:query`"));
+    assertNotNull(parser.parse(
+            "SELECT id FROM test WHERE query(address:query"));
 //    assertNotNull(parser.parse(
 //            "SELECT id FROM test WHERE query(addr*:query)"));
 //    assertNotNull(parser.parse(
 //            "SELECT id FROM test WHERE query(*ss:query)"));
-//    assertNotNull(parser.parse(
-//            "SELECT id FROM test WHERE query(address:query OR notes:query)"));
+    assertNotNull(parser.parse(
+            "SELECT id FROM test WHERE query(address:query OR notes:query)"));
 
 //    assertNotNull(parser.parse(
 //            "SELECT id FROM test WHERE"
