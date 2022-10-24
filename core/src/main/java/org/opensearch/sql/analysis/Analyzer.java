@@ -153,6 +153,13 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     }
     table.getFieldTypes().forEach((k, v) -> curEnv.define(new Symbol(Namespace.FIELD_NAME, k), v));
 
+    // add OpenSearch metadata types
+    curEnv.define(new Symbol(Namespace.FIELD_NAME, "_index"), ExprCoreType.STRING);
+    curEnv.define(new Symbol(Namespace.FIELD_NAME, "_id"), ExprCoreType.STRING);
+    curEnv.define(new Symbol(Namespace.FIELD_NAME, "_score"), ExprCoreType.FLOAT);
+    curEnv.define(new Symbol(Namespace.FIELD_NAME, "_maxscore"), ExprCoreType.FLOAT);
+    curEnv.define(new Symbol(Namespace.FIELD_NAME, "_sort"), ExprCoreType.LONG);
+
     // Put index name or its alias in index namespace on type environment so qualifier
     // can be removed when analyzing qualified name. The value (expr type) here doesn't matter.
     curEnv.define(new Symbol(Namespace.INDEX_NAME,

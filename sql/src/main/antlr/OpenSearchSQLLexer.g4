@@ -135,6 +135,15 @@ SUBSTRING:                          'SUBSTRING';
 TRIM:                               'TRIM';
 
 
+// Metadata fields can be ID
+
+META_INDEX:                         '_ID';
+META_ID:                            '_ID';
+META_SCORE:                         '_SCORE';
+META_MAXSCORE:                      '_MAXSCORE';
+META_SORT:                          '_SORT';
+
+
 // Keywords, but can be ID
 // Common Keywords, but can be ID
 
@@ -441,13 +450,16 @@ BACKTICK_QUOTE_ID:                  BQUOTA_STRING;
 
 // Fragments for Literal primitives
 fragment EXPONENT_NUM_PART:         'E' [-+]? DEC_DIGIT+;
-fragment ID_LITERAL:                [@*A-Z]+?[*A-Z_\-0-9]*;
 fragment DQUOTA_STRING:             '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
 fragment SQUOTA_STRING:             '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 fragment BQUOTA_STRING:             '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
 fragment HEX_DIGIT:                 [0-9A-F];
 fragment DEC_DIGIT:                 [0-9];
 fragment BIT_STRING_L:              'B' '\'' [01]+ '\'';
+
+// Identifiers cannot start with a single '_' since this an OpebSearch reserved
+// metadata field.  Two underscores (or more) is acceptable, such as '__field'.
+fragment ID_LITERAL:                ([_][_]|[@*A-Z])+?[*A-Z_\-0-9]*;
 
 // Last tokens must generate Errors
 
