@@ -72,6 +72,10 @@ public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery
 
   protected abstract String getQueryName();
 
+  public Map<String, QueryBuilderStep<T>> getQueryBuildActions() {
+    return queryBuildActions;
+  }
+
   /**
    * Convenience interface for a function that updates a QueryBuilder
    * based on ExprValue.
@@ -81,4 +85,5 @@ public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery
   protected interface QueryBuilderStep<T extends QueryBuilder> extends
       BiFunction<T, ExprValue, T> {
   }
+
 }
