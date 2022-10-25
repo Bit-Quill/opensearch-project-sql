@@ -88,7 +88,7 @@ public class FieldMapping {
     }
 
     /**
-     * Is field meta field, such as _id, _index, _source etc.
+     * Is field meta field, such as _id, _index, _score etc.
      *
      * @return true for meta field
      */
