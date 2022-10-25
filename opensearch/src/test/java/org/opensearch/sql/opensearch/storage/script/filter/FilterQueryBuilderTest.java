@@ -637,8 +637,8 @@ class FilterQueryBuilderTest {
   @Test
   void should_build_query_query_with_default_parameters() {
     var expected = "{\n"
-            + "  \"query\" : {\n"
-            + "    \"query\" : \"query_value\",\n"
+            + "  \"query_string\" : {\n"
+            + "    \"query\" : \"field1:query_value\",\n"
             + "    \"fields\" : [],\n"
             + "    \"type\" : \"best_fields\",\n"
             + "    \"default_operator\" : \"or\",\n"
@@ -656,14 +656,14 @@ class FilterQueryBuilderTest {
             + "}";
 
     assertJsonEquals(expected, buildQuery(dsl.query(
-            dsl.namedArgument("query", literal("query_value")))));
+            dsl.namedArgument("query", literal("field1:query_value")))));
   }
 
   @Test
   void should_build_query_query_with_custom_parameters() {
     var expected = "{\n"
-            + "  \"query\" : {\n"
-            + "    \"query\" : \"query_value\",\n"
+            + "  \"query_string\" : {\n"
+            + "    \"query\" : \"field1:query_value\",\n"
             + "    \"fields\" : [],\n"
             + "    \"type\" : \"cross_fields\",\n"
             + "    \"tie_breaker\" : 1.3,\n"
@@ -686,7 +686,7 @@ class FilterQueryBuilderTest {
             + "}";
     var actual = buildQuery(
             dsl.query(
-                    dsl.namedArgument("query", literal("query_value")),
+                    dsl.namedArgument("query", literal("field1:query_value")),
                     dsl.namedArgument("analyze_wildcard", literal("true")),
                     dsl.namedArgument("analyzer", literal("keyword")),
                     dsl.namedArgument("auto_generate_synonyms_phrase_query", literal("false")),

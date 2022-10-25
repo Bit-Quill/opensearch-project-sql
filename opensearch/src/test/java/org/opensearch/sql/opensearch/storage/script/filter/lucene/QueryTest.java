@@ -88,11 +88,11 @@ class QueryTest {
     }
 
     @Test
-    public void test_SyntaxCheckException_when_two_arguments() {
+    public void test_SyntaxCheckException_when_field_argument() {
         List<Expression> arguments = List.of(
                 namedArgument("fields", "invalid argument"),
                 namedArgument("query", query_value));
-        assertThrows(SyntaxCheckException.class,
+        assertThrows(SemanticCheckException.class,
                 () -> queryQuery.build(new QueryExpression(arguments)));
     }
 

@@ -53,19 +53,26 @@ abstract class NoFieldQuery<T extends QueryBuilder> extends RelevanceQuery<T> {
 
         T queryBuilder = createQueryBuilder(arguments);
 
-        arguments.removeIf(a -> a.getArgName().equalsIgnoreCase("field")
-                || a.getArgName().equalsIgnoreCase("fields")
-                || a.getArgName().equalsIgnoreCase("query"));
+        arguments.removeIf(a -> a.getArgName().equalsIgnoreCase("query"));
 
         var iterator = arguments.listIterator();
         while (iterator.hasNext()) {
             NamedArgumentExpression arg = iterator.next();
             String argNormalized = arg.getArgName().toLowerCase();
+            String exceptionMessage;
+
+            // This is required for query function as there is a mismatch in SQL function name
+            // and query function name to OpenSearch
+            if (queryBuilder.getWriteableName().equals("query_string")) {
+                exceptionMessage = String.format("Parameter %s is invalid for query function.",
+                        argNormalized, queryBuilder.getWriteableName());
+            } else {
+                exceptionMessage = String.format("Parameter %s is invalid for %s function.",
+                        argNormalized, queryBuilder.getWriteableName());
+            }
 
             if (!getQueryBuildActions().containsKey(argNormalized)) {
-                throw new SemanticCheckException(
-                        String.format("Parameter %s is invalid for %s function.",
-                                argNormalized, queryBuilder.getWriteableName()));
+                throw new SemanticCheckException(exceptionMessage);
             }
             (Objects.requireNonNull(
                     getQueryBuildActions()
