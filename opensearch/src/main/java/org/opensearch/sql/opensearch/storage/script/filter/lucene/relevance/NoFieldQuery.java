@@ -5,7 +5,6 @@
 
 package org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
