@@ -99,6 +99,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     }
   }
 
+  // TODO: this should now work
   @Ignore("only work for legacy engine")
   public void nestedObjectsAndArraysAreQuoted() throws IOException {
     final String query = String.format(Locale.ROOT, "SELECT * FROM %s WHERE _id = 5",
@@ -114,6 +115,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     Assert.assertThat(result, containsString(expectedMessage));
   }
 
+  // TODO: this should now work
   @Ignore("only work for legacy engine")
   public void arraysAreQuotedInFlatMode() throws IOException {
     setFlatOption(true);
@@ -546,6 +548,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   }
 
+  // TODO: this should now work
   @Ignore("only work for legacy engine")
   public void includeIdAndNotTypeOrScore() throws Exception {
     String query = String.format(Locale.ROOT,

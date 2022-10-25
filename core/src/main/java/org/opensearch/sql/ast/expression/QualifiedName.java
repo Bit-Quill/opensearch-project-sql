@@ -25,14 +25,27 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 public class QualifiedName extends UnresolvedExpression {
   private final List<String> parts;
 
+  @Getter
+  private final Boolean isMetadataField;
+
   public QualifiedName(String name) {
+    this(name, Boolean.FALSE);
+  }
+
+  public QualifiedName(String name, Boolean isMetadataField) {
     this.parts = Collections.singletonList(name);
+    this.isMetadataField = isMetadataField;
+  }
+
+  public QualifiedName(Iterable<String> parts) {
+    this(parts, Boolean.FALSE);
   }
 
   /**
    * QualifiedName Constructor.
    */
-  public QualifiedName(Iterable<String> parts) {
+  public QualifiedName(Iterable<String> parts, Boolean isMetadataField) {
+    this.isMetadataField = isMetadataField;
     List<String> partsList = StreamSupport.stream(parts.spliterator(), false).collect(toList());
     if (partsList.isEmpty()) {
       throw new IllegalArgumentException("parts is empty");
@@ -110,4 +123,6 @@ public class QualifiedName extends UnresolvedExpression {
   public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
     return nodeVisitor.visitQualifiedName(this, context);
   }
+
+  public Boolean isMetadataField() { return Boolean.TRUE; }
 }
