@@ -11,7 +11,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -67,7 +66,7 @@ public class ExprDateValue extends AbstractExprValue {
 
   @Override
   public Instant timestampValue() {
-    return ZonedDateTime.of(date, timeValue(), ZoneId.systemDefault()).toInstant();
+    return ZonedDateTime.of(date, timeValue(), ExprTimestampValue.ZONE).toInstant();
   }
 
   @Override

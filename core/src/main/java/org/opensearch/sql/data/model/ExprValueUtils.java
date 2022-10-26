@@ -3,9 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.data.model;
 
+import static java.time.temporal.ChronoUnit.MILLIS;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -176,5 +180,51 @@ public class ExprValueUtils {
 
   public static Boolean getBooleanValue(ExprValue exprValue) {
     return exprValue.booleanValue();
+  }
+
+  /**
+   * Convert a datetime value to milliseconds since Epoch.
+   * @param value A value.
+   * @return Milliseconds since Epoch.
+   */
+  public static long extractEpochMilliFromAnyDateTimeType(ExprValue value) {
+    switch ((ExprCoreType)value.type()) {
+      case TIME:
+        // workaround for session context issue
+        // TODO remove once fixed
+        return MILLIS.between(LocalTime.MIN, value.timeValue());
+      case DATE:
+      case DATETIME:
+      case TIMESTAMP:
+        return value.timestampValue().toEpochMilli();
+      default:
+        throw new IllegalArgumentException(
+            String.format("Not a datetime type: %s", value.type()));
+    }
+  }
+
+  /**
+   * Convert milliseconds since Epoch to a datetime value of the given type.
+   * @param value Milliseconds since Epoch.
+   * @param type A type of the resulting value requested.
+   * @return A datetime value.
+   */
+  public static ExprValue convertEpochMilliToDateTimeType(long value, ExprCoreType type) {
+    // Construct value the same way it is extracted
+    var ts = new ExprTimestampValue(Instant.ofEpochMilli(value));
+    switch (type) {
+      case DATE:
+        return new ExprDateValue(ts.dateValue());
+      case DATETIME:
+        return new ExprDatetimeValue(ts.datetimeValue());
+      case TIMESTAMP:
+        return ts;
+      case TIME:
+        // TODO update once session context issue fixed
+        return new ExprTimeValue(LocalTime.MIN.plus(value, MILLIS));
+      default:
+        throw new IllegalArgumentException(
+            String.format("Not a datetime type: %s", type));
+    }
   }
 }

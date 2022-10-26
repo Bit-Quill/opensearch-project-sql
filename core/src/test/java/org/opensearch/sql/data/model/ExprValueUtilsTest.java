@@ -10,6 +10,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.opensearch.sql.data.model.ExprValueUtils.convertEpochMilliToDateTimeType;
+import static org.opensearch.sql.data.model.ExprValueUtils.extractEpochMilliFromAnyDateTimeType;
 import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
 import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
 import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
@@ -256,5 +258,102 @@ public class ExprValueUtilsTest {
         new ExprDatetimeValue("2012-08-07 18:00:00").hashCode());
     assertEquals(new ExprTimestampValue("2012-08-07 18:00:00").hashCode(),
         new ExprTimestampValue("2012-08-07 18:00:00").hashCode());
+  }
+
+  private static Stream<Arguments> getMillisForConversionTest() {
+    return Stream.of(
+      Arguments.of(42L),
+      Arguments.of(-12345442000L),
+      Arguments.of(100500L),
+      Arguments.of(123456789L)
+    );
+  }
+
+  /**
+   * Check that `DATETIME` and `TIMESTAMP` could be converted to and from milliseconds since Epoch.
+   * @param sample A test value (milliseconds since Epoch).
+   */
+  @ParameterizedTest
+  @MethodSource("getMillisForConversionTest")
+  public void checkDateTimeConversionToMillisAndBack(long sample) {
+    for (var type : List.of(DATETIME, TIMESTAMP)) {
+      var value = convertEpochMilliToDateTimeType(sample, type);
+      assertEquals(type, value.type());
+      var extracted = extractEpochMilliFromAnyDateTimeType(value);
+      assertEquals(sample, extracted, type.toString());
+    }
+  }
+
+  private final long millisInDay = 24 * 60 * 60 * 1000;
+
+  /**
+   * Check that `TIME` could be converted to and from milliseconds since Epoch.
+   * @param sample A test value (milliseconds since Epoch).
+   */
+  @ParameterizedTest
+  @MethodSource("getMillisForConversionTest")
+  public void checkTimeConversionToMillisAndBack(long sample) {
+    var value = convertEpochMilliToDateTimeType(sample, TIME);
+    assertEquals(TIME, value.type());
+    var extracted = extractEpochMilliFromAnyDateTimeType(value);
+    // time value goes around 24h, for negative (pre-epoch) values we need to shift down one day.
+    if (sample < 0) {
+      assertEquals((sample % millisInDay) + millisInDay, extracted, TIME.toString());
+    } else {
+      assertEquals(sample % millisInDay, extracted, TIME.toString());
+    }
+  }
+
+  /**
+   * Check that `DATE` could be converted to and from milliseconds since Epoch.
+   * @param sample A test value (milliseconds since Epoch).
+   */
+  @ParameterizedTest
+  @MethodSource("getMillisForConversionTest")
+  public void checkDateConversionToMillisAndBack(long sample) {
+    var value = convertEpochMilliToDateTimeType(sample, DATE);
+    assertEquals(DATE, value.type());
+    var extracted = extractEpochMilliFromAnyDateTimeType(value);
+    // date value floored by 24h, for negative (pre-epoch) values we need to shift down one day.
+    if (sample < 0) {
+      assertEquals((sample - millisInDay) / millisInDay * millisInDay, extracted, DATE.toString());
+    } else {
+      assertEquals((sample / millisInDay) * millisInDay, extracted, DATE.toString());
+    }
+  }
+
+  /**
+   * Check that conversion function reject all non-datetime types.
+   * @param sample A test value (milliseconds since Epoch).
+   */
+  @ParameterizedTest
+  @MethodSource("getMillisForConversionTest")
+  public void checkExceptionThrownOnUnsupportedTypeConversion(long sample) {
+    var types = ExprCoreType.coreTypes();
+    types.removeAll(List.of(DATE, DATETIME, TIMESTAMP, TIME));
+    for (var type : types) {
+      var exception = assertThrows(IllegalArgumentException.class,
+          () -> convertEpochMilliToDateTimeType(sample, type));
+      assertEquals(String.format("Not a datetime type: %s", type), exception.getMessage());
+    }
+  }
+
+  private static Stream<Arguments> getNonDateTimeValues() {
+    var types = List.of(DATE, DATETIME, TIMESTAMP, TIME);
+    return getValueTestArgumentStream()
+        .filter(args -> !types.contains(((ExprValue)args.get()[0]).type()))
+        .map(args -> Arguments.of(args.get()[0]));
+  }
+
+  /**
+   * Check that conversion function reject all non-datetime types.
+   * @param value A test value.
+   */
+  @ParameterizedTest(name = "the value of ExprValue:{0} is: {2} ")
+  @MethodSource("getNonDateTimeValues")
+  public void checkExceptionThrownOnUnsupportedTypeExtraction(ExprValue value) {
+    var exception = assertThrows(IllegalArgumentException.class,
+        () -> extractEpochMilliFromAnyDateTimeType(value));
+    assertEquals(String.format("Not a datetime type: %s", value.type()), exception.getMessage());
   }
 }

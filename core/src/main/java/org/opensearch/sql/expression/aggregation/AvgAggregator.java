@@ -10,6 +10,7 @@ import static org.opensearch.sql.utils.ExpressionUtils.format;
 
 import java.util.List;
 import java.util.Locale;
+import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
@@ -23,20 +24,36 @@ import org.opensearch.sql.expression.function.BuiltinFunctionName;
  */
 public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
 
+  /**
+   * To process by different ways different data types, we need to store the type.
+   * Input data has the same type as the result.
+   */
+  private final ExprCoreType dataType;
+
   public AvgAggregator(List<Expression> arguments, ExprCoreType returnType) {
     super(BuiltinFunctionName.AVG.getName(), arguments, returnType);
+    dataType = returnType;
   }
 
   @Override
   public AvgState create() {
-    return new AvgState();
+    switch (dataType) {
+      case DATE:
+      case DATETIME:
+      case TIMESTAMP:
+      case TIME:
+        return new DateTimeAvgState(dataType);
+      case DOUBLE:
+        return new DoubleAvgState();
+      default: //unreachable code - we don't expose signatures for unsupported types
+        throw new IllegalArgumentException(
+            String.format("avg aggregation over %s type is not supported", dataType));
+    }
   }
 
   @Override
   protected AvgState iterate(ExprValue value, AvgState state) {
-    state.count++;
-    state.total += ExprValueUtils.getDoubleValue(value);
-    return state;
+    return state.iterate(value);
   }
 
   @Override
@@ -47,9 +64,9 @@ public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
   /**
    * Average State.
    */
-  protected static class AvgState implements AggregationState {
-    private int count;
-    private double total;
+  protected abstract static class AvgState implements AggregationState {
+    protected int count;
+    protected double total;
 
     AvgState() {
       this.count = 0;
@@ -57,8 +74,46 @@ public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
     }
 
     @Override
+    public abstract ExprValue result();
+
+    protected AvgState iterate(ExprValue value) {
+      count++;
+      return this;
+    }
+  }
+
+  protected static class DoubleAvgState extends AvgState {
+    @Override
     public ExprValue result() {
-      return count == 0 ? ExprNullValue.of() : ExprValueUtils.doubleValue(total / count);
+      if (count == 0) {
+        return ExprNullValue.of();
+      }
+      return ExprValueUtils.doubleValue(total / count);
+    }
+
+    @Override
+    protected AvgState iterate(ExprValue value) {
+      total += ExprValueUtils.getDoubleValue(value);
+      return super.iterate(value);
+    }
+  }
+
+  @RequiredArgsConstructor
+  protected static class DateTimeAvgState extends AvgState {
+    private final ExprCoreType dataType;
+
+    @Override
+    public ExprValue result() {
+      if (count == 0) {
+        return ExprNullValue.of();
+      }
+      return ExprValueUtils.convertEpochMilliToDateTimeType(Math.round(total / count), dataType);
+    }
+
+    @Override
+    protected AvgState iterate(ExprValue value) {
+      total += ExprValueUtils.extractEpochMilliFromAnyDateTimeType(value);
+      return super.iterate(value);
     }
   }
 }

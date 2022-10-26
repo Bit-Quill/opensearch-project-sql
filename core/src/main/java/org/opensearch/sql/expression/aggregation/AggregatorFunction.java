@@ -69,6 +69,14 @@ public class AggregatorFunction {
         new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
             .put(new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
                 arguments -> new AvgAggregator(arguments, DOUBLE))
+            .put(new FunctionSignature(functionName, Collections.singletonList(DATE)),
+                arguments -> new AvgAggregator(arguments, DATE))
+            .put(new FunctionSignature(functionName, Collections.singletonList(DATETIME)),
+                arguments -> new AvgAggregator(arguments, DATETIME))
+            .put(new FunctionSignature(functionName, Collections.singletonList(TIME)),
+                arguments -> new AvgAggregator(arguments, TIME))
+            .put(new FunctionSignature(functionName, Collections.singletonList(TIMESTAMP)),
+                arguments -> new AvgAggregator(arguments, TIMESTAMP))
             .build()
     );
   }
