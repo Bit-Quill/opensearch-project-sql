@@ -3023,10 +3023,10 @@ QUERY
 Description
 >>>>>>>>>>>
 
-``query("[field_expression : query_expression]*" ,*[, option=<option_value>]*)``
+``query("[query_expression]+" ,[, option=<option_value>]*)``
 
 The query function maps to the query_string query used in search engine, to return the documents that match a provided text, number, date or boolean value with a given field or fields.
-Please refer to examples below:
+``query_expression`` must be a string provided in Lucene query string syntax. Please refer to examples below:
 
 | ``query('Tags:taste OR Body:taste', ...)``
 | ``query("Tags:taste AND Body:taste", ...)``
@@ -3057,7 +3057,7 @@ Available parameters include:
 - rewrite
 - time_zone
 
-Example with only ``fields`` and ``query`` expressions, and all other parameters are set default values::
+Example with only ``query_expressions``, and all other parameters are set default values::
 
     os> select * from books where query('title:Pooh House');
     fetched rows / total rows = 2/2
