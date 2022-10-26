@@ -34,7 +34,7 @@ class QueryTest {
   private static final DSL dsl = new ExpressionConfig()
       .dsl(new ExpressionConfig().functionRepository());
   private final QueryQuery queryQuery = new QueryQuery();
-  private final FunctionName queryFunc = FunctionName.of("query_string");
+  private final FunctionName queryFunc = FunctionName.of("query");
   private static final LiteralExpression query_value = DSL.literal("title:query_value");
 
   static Stream<List<Expression>> generateValidData() {
@@ -102,6 +102,16 @@ class QueryTest {
         namedArgument("unsupported", "unsupported_value"));
     Assertions.assertThrows(SemanticCheckException.class,
         () -> queryQuery.build(new QueryExpression(arguments)));
+  }
+
+  @Test
+  public void test_SemanticCheckException_when_sending_parameter_multiple_times() {
+    List<Expression> arguments = List.of(
+            namedArgument("query", query_value),
+            namedArgument("allow_leading_wildcard", DSL.literal("true")),
+            namedArgument("allow_leading_wildcard", DSL.literal("true")));
+    Assertions.assertThrows(SemanticCheckException.class,
+            () -> queryQuery.build(new QueryExpression(arguments)));
   }
 
   private NamedArgumentExpression namedArgument(String name, String value) {

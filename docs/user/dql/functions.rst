@@ -3025,7 +3025,7 @@ Description
 
 ``query("[query_expression]+" ,[, option=<option_value>]*)``
 
-The query function maps to the query_string query used in search engine, to return the documents that match a provided text, number, date or boolean value with a given field or fields.
+This is an alternative syntax to the query_string function. The query function maps to the query_string query used in search engine, to return the documents that match a provided text, number, date or boolean value with a given field or fields.
 ``query_expression`` must be a string provided in Lucene query string syntax. Please refer to examples below:
 
 | ``query('Tags:taste OR Body:taste', ...)``
