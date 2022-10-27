@@ -48,7 +48,6 @@ import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
-import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
@@ -632,6 +631,16 @@ class FilterQueryBuilderTest {
             dsl.namedArgument("invalid_parameter", literal("invalid_value")));
     assertThrows(SemanticCheckException.class, () -> buildQuery(expr),
             "Parameter invalid_parameter is invalid for query function.");
+  }
+
+  @Test
+  void query_invalid_fields_parameter_exception_message() {
+    FunctionExpression expr = dsl.query(
+        dsl.namedArgument("fields", literal("field1")),
+        dsl.namedArgument("query_string", literal("search query")));
+
+    var exception = assertThrows(SemanticCheckException.class, () -> buildQuery(expr));
+    assertEquals("Parameter fields is invalid for query function.", exception.getMessage());
   }
 
   @Test
