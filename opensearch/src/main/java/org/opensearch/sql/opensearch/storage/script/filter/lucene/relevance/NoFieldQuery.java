@@ -38,7 +38,7 @@ abstract class NoFieldQuery<T extends QueryBuilder> extends RelevanceQuery<T> {
         a -> (NamedArgumentExpression) a).collect(Collectors.toList());
     if (arguments.size() < 1) {
       throw new SyntaxCheckException(String.format(
-          "%s requires at least two parameters", getQueryName()));
+          "%s requires at least one parameters", getQueryName()));
     }
 
     // Aggregate parameters by name, so getting a Map<Name:String, List>

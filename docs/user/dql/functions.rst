@@ -2963,7 +2963,7 @@ Description
 
 ``query_string([field_expression+], query_expression[, option=<option_value>]*)``
 
-The query_string function maps to the query_string query used in search engine, to return the documents that match a provided text, number, date or boolean value with a given field or fields.
+The query_string function maps to the query_string query used in search engine (also used by `query`_), to return the documents that match a provided text, number, date or boolean value with a given field or fields.
 The **^** lets you *boost* certain fields. Boosts are multipliers that weigh matches in one field more heavily than matches in other fields. The syntax allows to specify the fields in double quotes, single quotes, backticks or without any wrap. All fields search using star ``"*"`` is also available (star symbol should be wrapped). The weight is optional and should be specified after the field name, it could be delimeted by the `caret` character or by whitespace. Please refer to examples below:
 
 | ``query_string(["Tags" ^ 2, 'Title' 3.4, `Body`, Comments ^ 0.3], ...)``
@@ -3018,14 +3018,14 @@ Another example to show how to set custom values for the optional parameters::
 
 
 QUERY
-------------
+-----
 
 Description
 >>>>>>>>>>>
 
 ``query("query_expression" [, option=<option_value>]*)``
 
-This is an alternative syntax to the query_string function. The query function maps to the query_string query used in search engine, to return the documents that match a provided text, number, date or boolean value with a given field or fields.
+This is an alternative syntax to the `query_string`_ function. The query function maps to the query_string query used in search engine, to return the documents that match a provided text, number, date or boolean value with a given field or fields.
 ``query_expression`` must be a string provided in Lucene query string syntax. Please refer to examples below:
 
 | ``query('Tags:taste OR Body:taste', ...)``
