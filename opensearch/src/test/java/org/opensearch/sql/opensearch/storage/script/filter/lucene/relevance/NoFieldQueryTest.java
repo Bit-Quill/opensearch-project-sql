@@ -5,7 +5,14 @@
 
 package org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.common.collect.ImmutableMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -13,14 +20,6 @@ import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class NoFieldQueryTest {
   NoFieldQuery query;
@@ -33,7 +32,7 @@ class NoFieldQueryTest {
   void setUp() {
     query = mock(NoFieldQuery.class,
         Mockito.withSettings().useConstructor(actionMap)
-        .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+            .defaultAnswer(Mockito.CALLS_REAL_METHODS));
     when(query.getQueryName()).thenReturn(testQueryName);
   }
 
