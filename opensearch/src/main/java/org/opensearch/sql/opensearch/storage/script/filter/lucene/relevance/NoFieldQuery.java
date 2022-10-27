@@ -58,21 +58,11 @@ abstract class NoFieldQuery<T extends QueryBuilder> extends RelevanceQuery<T> {
     while (iterator.hasNext()) {
       NamedArgumentExpression arg = iterator.next();
       String argNormalized = arg.getArgName().toLowerCase();
-      String exceptionMessage;
-
-      // This is required for query function as there is a mismatch in SQL function name
-      // and query function name to OpenSearch
-      if (queryBuilder.getWriteableName().equals("query_string")) {
-        exceptionMessage = String.format(
-            "Parameter %s is invalid for query function.", argNormalized,
-            queryBuilder.getWriteableName());
-      } else {
-        exceptionMessage = String.format("Parameter %s is invalid for %s function.", argNormalized,
-            queryBuilder.getWriteableName());
-      }
 
       if (!getQueryBuildActions().containsKey(argNormalized)) {
-        throw new SemanticCheckException(exceptionMessage);
+        // query name should be updated functions other than query extend NoFieldQuery
+        throw new SemanticCheckException(String.format(
+            "Parameter %s is invalid for query function.", argNormalized));
       }
       (Objects.requireNonNull(getQueryBuildActions().get(argNormalized))).apply(queryBuilder,
           arg.getValue().valueOf(null));

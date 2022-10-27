@@ -637,7 +637,7 @@ class FilterQueryBuilderTest {
   void query_invalid_fields_parameter_exception_message() {
     FunctionExpression expr = dsl.query(
         dsl.namedArgument("fields", literal("field1")),
-        dsl.namedArgument("query_string", literal("search query")));
+        dsl.namedArgument("query", literal("search query")));
 
     var exception = assertThrows(SemanticCheckException.class, () -> buildQuery(expr));
     assertEquals("Parameter fields is invalid for query function.", exception.getMessage());
