@@ -363,7 +363,7 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse(
             "SELECT id FROM test WHERE query(\"address:query notes:query\")"));
     assertNotNull(parser.parse(
-            "SELECT id FROM test WHERE query(`address:query notes:query`)"));
+            "SELECT id FROM test WHERE query(\"Body:\"taste beer\" Tags:\"taste beer\"  Title:\"taste beer\"\")"));
   }
 
 

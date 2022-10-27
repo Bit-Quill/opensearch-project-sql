@@ -524,7 +524,6 @@ class AstExpressionBuilderTest {
   }
 
 
-  //TODO: Make version of this for query()
   @Test
   public void relevanceQuery_string() {
     assertEquals(AstDSL.function("query_string",
