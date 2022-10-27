@@ -60,7 +60,8 @@ abstract class NoFieldQuery<T extends QueryBuilder> extends RelevanceQuery<T> {
       String argNormalized = arg.getArgName().toLowerCase();
 
       if (!getQueryBuildActions().containsKey(argNormalized)) {
-        // query name should be updated functions other than query extend NoFieldQuery
+        // query name should be updated in the exception message
+        // once functions other than query extend NoFieldQuery
         throw new SemanticCheckException(String.format(
             "Parameter %s is invalid for query function.", argNormalized));
       }
