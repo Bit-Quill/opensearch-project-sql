@@ -544,12 +544,6 @@ class AstExpressionBuilderTest {
             + "analyzer='keyword', time_zone='Canada/Pacific', tie_breaker='1.3')"));
   }
 
-  public void relevanceQuery() {
-    assertEquals(AstDSL.function("query",
-                    unresolvedArg("query", stringLiteral("field1:query OR field2:query"))),
-            buildExprAst("query('field1:query OR field2:query')")
-    );
-
     //TODO: Add test in correct format for the following
 //    assertEquals(AstDSL.function("query_string",
 //                    unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
@@ -560,7 +554,6 @@ class AstExpressionBuilderTest {
 //                    unresolvedArg("tie_breaker", stringLiteral("1.3"))),
 //            buildExprAst("query_string(['field1', 'field2' ^ 3.2], 'search query',"
 //                    + "analyzer='keyword', time_zone='Canada/Pacific', tie_breaker='1.3')"));
-  }
 
   @Test
   public void relevanceQuery() {
