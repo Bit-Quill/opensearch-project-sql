@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
@@ -24,7 +25,51 @@ import org.opensearch.sql.opensearch.storage.script.filter.lucene.LuceneQuery;
  */
 @RequiredArgsConstructor
 public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery {
+  @Getter
   private final Map<String, QueryBuilderStep<T>> queryBuildActions;
+
+  protected void IgnoreArguments(List<NamedArgumentExpression> arguments){
+    arguments.removeIf(a -> a.getArgName().equalsIgnoreCase("field")
+            || a.getArgName().equalsIgnoreCase("fields")
+            || a.getArgName().equalsIgnoreCase("query"));
+  }
+
+  protected void CheckValidArguments(String argNormalized, T queryBuilder){
+    if (!queryBuildActions.containsKey(argNormalized)) {
+      throw new SemanticCheckException(
+              String.format("Parameter %s is invalid for %s function.",
+                      argNormalized, queryBuilder.getWriteableName()));
+    }
+  }
+  protected T LoadArguments(List<NamedArgumentExpression> arguments) throws SemanticCheckException{
+    // Aggregate parameters by name, so getting a Map<Name:String, List>
+    arguments.stream().collect(Collectors.groupingBy(a -> a.getArgName().toLowerCase()))
+            .forEach((k, v) -> {
+              if (v.size() > 1) {
+                throw new SemanticCheckException(
+                        String.format("Parameter '%s' can only be specified once.", k));
+              }
+            });
+
+    T queryBuilder = createQueryBuilder(arguments);
+
+    IgnoreArguments(arguments);
+
+    var iterator = arguments.listIterator();
+    while (iterator.hasNext()) {
+      NamedArgumentExpression arg = iterator.next();
+      String argNormalized = arg.getArgName().toLowerCase();
+
+      CheckValidArguments(argNormalized, queryBuilder);
+
+      (Objects.requireNonNull(
+              queryBuildActions
+                      .get(argNormalized)))
+              .apply(queryBuilder, arg.getValue().valueOf(null));
+    }
+
+    return queryBuilder;
+  }
 
   @Override
   public QueryBuilder build(FunctionExpression func) {
@@ -35,37 +80,8 @@ public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery
           String.format("%s requires at least two parameters", getQueryName()));
     }
 
-    // Aggregate parameters by name, so getting a Map<Name:String, List>
-    arguments.stream().collect(Collectors.groupingBy(a -> a.getArgName().toLowerCase()))
-        .forEach((k, v) -> {
-          if (v.size() > 1) {
-            throw new SemanticCheckException(
-                String.format("Parameter '%s' can only be specified once.", k));
-          }
-        });
+    return LoadArguments(arguments);
 
-    T queryBuilder = createQueryBuilder(arguments);
-
-    arguments.removeIf(a -> a.getArgName().equalsIgnoreCase("field")
-        || a.getArgName().equalsIgnoreCase("fields")
-        || a.getArgName().equalsIgnoreCase("query"));
-
-    var iterator = arguments.listIterator();
-    while (iterator.hasNext()) {
-      NamedArgumentExpression arg = iterator.next();
-      String argNormalized = arg.getArgName().toLowerCase();
-
-      if (!queryBuildActions.containsKey(argNormalized)) {
-        throw new SemanticCheckException(
-            String.format("Parameter %s is invalid for %s function.",
-                argNormalized, queryBuilder.getWriteableName()));
-      }
-      (Objects.requireNonNull(
-          queryBuildActions
-              .get(argNormalized)))
-          .apply(queryBuilder, arg.getValue().valueOf(null));
-    }
-    return queryBuilder;
   }
 
   protected abstract T createQueryBuilder(List<NamedArgumentExpression> arguments);

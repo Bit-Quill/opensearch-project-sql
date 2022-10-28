@@ -25,6 +25,19 @@ abstract class NoFieldQuery<T extends QueryBuilder> extends RelevanceQuery<T> {
     super(queryBuildActions);
   }
 
+  @Override
+  protected void IgnoreArguments(List<NamedArgumentExpression> arguments) {
+    arguments.removeIf(a -> a.getArgName().equalsIgnoreCase("query"));
+  }
+
+  @Override
+  protected void CheckValidArguments(String argNormalized, T queryBuilder){
+    if (!getQueryBuildActions().containsKey(argNormalized)) {
+      throw new SemanticCheckException(
+              String.format("Parameter %s is invalid for query function.",
+                      argNormalized));
+    }
+  }
   /**
    * Override build function because RelevanceQuery requires 2 fields,
    * but NoFieldQuery must have no fields.
@@ -38,37 +51,10 @@ abstract class NoFieldQuery<T extends QueryBuilder> extends RelevanceQuery<T> {
         a -> (NamedArgumentExpression) a).collect(Collectors.toList());
     if (arguments.size() < 1) {
       throw new SyntaxCheckException(String.format(
-          "%s requires at least one parameters", getQueryName()));
+          "query requires at least one parameter"));
     }
 
-    // Aggregate parameters by name, so getting a Map<Name:String, List>
-    arguments.stream().collect(Collectors.groupingBy(a ->
-        a.getArgName().toLowerCase())).forEach((k, v) -> {
-          if (v.size() > 1) {
-            throw new SemanticCheckException(String.format(
-                "Parameter '%s' can only be specified once.", k));
-          }
-        });
-
-    T queryBuilder = createQueryBuilder(arguments);
-
-    arguments.removeIf(a -> a.getArgName().equalsIgnoreCase("query"));
-
-    var iterator = arguments.listIterator();
-    while (iterator.hasNext()) {
-      NamedArgumentExpression arg = iterator.next();
-      String argNormalized = arg.getArgName().toLowerCase();
-
-      if (!getQueryBuildActions().containsKey(argNormalized)) {
-        // query name should be updated in the exception message
-        // once functions other than query extend NoFieldQuery
-        throw new SemanticCheckException(String.format(
-            "Parameter %s is invalid for query function.", argNormalized));
-      }
-      (Objects.requireNonNull(getQueryBuildActions().get(argNormalized))).apply(queryBuilder,
-          arg.getValue().valueOf(null));
-    }
-    return queryBuilder;
+    return LoadArguments(arguments);
   }
 
 
