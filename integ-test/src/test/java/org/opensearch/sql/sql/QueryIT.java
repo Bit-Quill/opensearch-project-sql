@@ -77,7 +77,7 @@ public class QueryIT extends SQLIntegTestCase {
                 + TEST_INDEX_BEER + " WHERE query('Tags:taste')";
         JSONObject result1 = executeJdbcRequest(query1);
         String query2 = "SELECT Id FROM "
-                + TEST_INDEX_BEER + " WHERE query_string(['Tags']:'taste')";
+                + TEST_INDEX_BEER + " WHERE query_string(['Tags'],'taste')";
         JSONObject result2 = executeJdbcRequest(query2);
         assertEquals(result2.getInt("total"), result1.getInt("total"));
     }
