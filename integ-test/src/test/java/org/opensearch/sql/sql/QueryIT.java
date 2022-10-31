@@ -70,4 +70,15 @@ public class QueryIT extends SQLIntegTestCase {
         JSONObject result4 = executeJdbcRequest(query3);
         assertEquals(8, result4.getInt("total"));
     }
+
+    @Test
+    public void query_string_and_query_return_the_same_results_test() throws IOException {
+        String query1 = "SELECT Id FROM "
+                + TEST_INDEX_BEER + " WHERE query('Tags:taste')";
+        JSONObject result1 = executeJdbcRequest(query1);
+        String query2 = "SELECT Id FROM "
+                + TEST_INDEX_BEER + " WHERE query_string(['Tags']:'taste')";
+        JSONObject result2 = executeJdbcRequest(query2);
+        assertEquals(result2.getInt("total"), result1.getInt("total"));
+    }
 }
