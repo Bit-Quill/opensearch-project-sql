@@ -12,6 +12,7 @@ channels { WHITESPACE, ERRORCHANNEL }
 // COMMAND KEYWORDS
 SEARCH:                             'SEARCH';
 DESCRIBE:                           'DESCRIBE';
+SHOW:                               'SHOW';
 FROM:                               'FROM';
 WHERE:                              'WHERE';
 FIELDS:                             'FIELDS';
@@ -24,6 +25,13 @@ HEAD:                               'HEAD';
 TOP:                                'TOP';
 RARE:                               'RARE';
 PARSE:                              'PARSE';
+METHOD:                             'METHOD';
+REGEX:                              'REGEX';
+PUNCT:                              'PUNCT';
+GROK:                               'GROK';
+PATTERN:                            'PATTERN';
+PATTERNS:                           'PATTERNS';
+NEW_FIELD:                          'NEW_FIELD';
 KMEANS:                             'KMEANS';
 AD:                                 'AD';
 
@@ -34,6 +42,7 @@ SOURCE:                             'SOURCE';
 INDEX:                              'INDEX';
 D:                                  'D';
 DESC:                               'DESC';
+CATALOGS:                           'CATALOGS';
 
 // CLAUSE KEYWORDS
 SORTBY:                             'SORTBY';
@@ -60,6 +69,7 @@ SAMPLE_SIZE:                        'SAMPLE_SIZE';
 OUTPUT_AFTER:                       'OUTPUT_AFTER';
 TIME_DECAY:                         'TIME_DECAY';
 ANOMALY_RATE:                       'ANOMALY_RATE';
+CATEGORY_FIELD:                     'CATEGORY_FIELD';
 TIME_FIELD:                         'TIME_FIELD';
 TIME_ZONE:                          'TIME_ZONE';
 TRAINING_DATA_SIZE:                 'TRAINING_DATA_SIZE';
@@ -170,6 +180,7 @@ VAR_POP:                            'VAR_POP';
 STDDEV_SAMP:                        'STDDEV_SAMP';
 STDDEV_POP:                         'STDDEV_POP';
 PERCENTILE:                         'PERCENTILE';
+TAKE:                               'TAKE';
 FIRST:                              'FIRST';
 LAST:                               'LAST';
 LIST:                               'LIST';
@@ -233,10 +244,10 @@ DATE:                               'DATE';
 DATE_ADD:                           'DATE_ADD';
 DATE_FORMAT:                        'DATE_FORMAT';
 DATE_SUB:                           'DATE_SUB';
+DAYNAME:                            'DAYNAME';
 DAYOFMONTH:                         'DAYOFMONTH';
 DAYOFWEEK:                          'DAYOFWEEK';
 DAYOFYEAR:                          'DAYOFYEAR';
-DAYNAME:                            'DAYNAME';
 FROM_DAYS:                          'FROM_DAYS';
 LOCALTIME:                          'LOCALTIME';
 LOCALTIMESTAMP:                     'LOCALTIMESTAMP';
@@ -245,6 +256,8 @@ MAKEDATE:                           'MAKEDATE';
 MAKETIME:                           'MAKETIME';
 MONTHNAME:                          'MONTHNAME';
 NOW:                                'NOW';
+PERIOD_ADD:                         'PERIOD_ADD';
+PERIOD_DIFF:                        'PERIOD_DIFF';
 SUBDATE:                            'SUBDATE';
 SYSDATE:                            'SYSDATE';
 TIME:                               'TIME';
@@ -285,6 +298,7 @@ ISNOTNULL:                          'ISNOTNULL';
 IFNULL:                             'IFNULL';
 NULLIF:                             'NULLIF';
 IF:                                 'IF';
+TYPEOF:                             'TYPEOF';
 
 // RELEVANCE FUNCTIONS AND PARAMETERS
 MATCH:                              'MATCH';

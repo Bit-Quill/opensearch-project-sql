@@ -8,7 +8,6 @@ package org.opensearch.sql.analysis;
 
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.sql.ast.dsl.AstDSL.field;
@@ -38,7 +37,6 @@ import org.opensearch.sql.analysis.symbol.Symbol;
 import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.DataType;
-import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
@@ -50,7 +48,6 @@ import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
-import org.opensearch.sql.expression.HighlightExpression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.expression.window.aggregation.AggregateWindowFunction;
@@ -319,6 +316,14 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void take_aggregation() {
+    assertAnalyzeEqual(
+        dsl.take(DSL.ref("string_value", STRING), DSL.literal(10)),
+        AstDSL.aggregate("take", qualifiedName("string_value"), intLiteral(10))
+    );
+  }
+
+  @Test
   public void named_argument() {
     assertAnalyzeEqual(
         dsl.namedArgument("arg_name", DSL.literal("query")),
@@ -332,10 +337,10 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
     analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "string_field"), STRING);
     analysisContext.getNamedParseExpressions()
         .add(DSL.named("group",
-            DSL.parsed(ref("string_field", STRING), DSL.literal("(?<group>\\d+)"),
+            DSL.regex(ref("string_field", STRING), DSL.literal("(?<group>\\d+)"),
             DSL.literal("group"))));
     assertAnalyzeEqual(
-        DSL.parsed(ref("string_field", STRING), DSL.literal("(?<group>\\d+)"),
+        DSL.regex(ref("string_field", STRING), DSL.literal("(?<group>\\d+)"),
             DSL.literal("group")),
         qualifiedName("group")
     );
@@ -590,12 +595,6 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         analyze(function("now")), analyze(function("now")));
     var referenceValue = analyze(function("now")).valueOf(null);
     assertTrue(values.stream().noneMatch(v -> v.valueOf(null) == referenceValue));
-  }
-
-  @Test
-  void highlight() {
-    assertAnalyzeEqual(new HighlightExpression(DSL.literal("fieldA")),
-        new HighlightFunction(stringLiteral("fieldA")));
   }
 
   protected Expression analyze(UnresolvedExpression unresolvedExpression) {

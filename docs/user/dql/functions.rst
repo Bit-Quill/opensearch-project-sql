@@ -963,9 +963,103 @@ CURDATE
 Description
 >>>>>>>>>>>
 
-Specifications:
+Returns the current time as a value in 'YYYY-MM-DD'.
+CURDATE() returns the time at which it executes as `SYSDATE() <#sysdate>`_ does.
 
-1. CURDATE() -> DATE
+Return type: DATE
+
+Specification: CURDATE() -> DATE
+
+Example::
+
+    > SELECT CURDATE();
+    fetched rows / total rows = 1/1
+    +-------------+
+    | CURDATE()   |
+    |-------------|
+    | 2022-08-02  |
+    +-------------+
+
+
+CURRENT_DATE
+------------
+
+Description
+>>>>>>>>>>>
+
+`CURRENT_DATE` and `CURRENT_DATE()` are synonyms for `CURDATE() <#curdate>`_.
+
+Example::
+
+    > SELECT CURRENT_DATE(), CURRENT_DATE;
+    fetched rows / total rows = 1/1
+    +------------------+----------------+
+    | CURRENT_DATE()   | CURRENT_DATE   |
+    |------------------+----------------|
+    | 2022-08-02       | 2022-08-02     |
+    +------------------+----------------+
+
+
+CURRENT_TIME
+------------
+
+Description
+>>>>>>>>>>>
+
+`CURRENT_TIME` and `CURRENT_TIME()` are synonyms for `CURTIME() <#curtime>`_.
+
+Example::
+
+    > SELECT CURRENT_TIME(), CURRENT_TIME;
+    fetched rows / total rows = 1/1
+    +-----------------+----------------+
+    | CURRENT_TIME()  | CURRENT_TIME   |
+    |-----------------+----------------|
+    | 15:39:05        | 15:39:05       |
+    +-----------------+----------------+
+
+
+CURRENT_TIMESTAMP
+-----------------
+
+Description
+>>>>>>>>>>>
+
+`CURRENT_TIMESTAMP` and `CURRENT_TIMESTAMP()` are synonyms for `NOW() <#now>`_.
+
+Example::
+
+    > SELECT CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP;
+    fetched rows / total rows = 1/1
+    +-----------------------+---------------------+
+    | CURRENT_TIMESTAMP()   | CURRENT_TIMESTAMP   |
+    |-----------------------+---------------------|
+    | 2022-08-02 15:54:19   | 2022-08-02 15:54:19 |
+    +-----------------------+---------------------+
+
+
+CURTIME
+-------
+
+Description
+>>>>>>>>>>>
+
+Returns the current time as a value in 'hh:mm:ss'.
+CURTIME() returns the time at which the statement began to execute as `NOW() <#now>`_ does.
+
+Return type: TIME
+
+Specification: CURTIME() -> TIME
+
+Example::
+
+    > SELECT CURTIME() as value_1, CURTIME()  as value_2;
+    fetched rows / total rows = 1/1
+    +-----------+-----------+
+    | value_1   | value_2   |
+    |-----------+-----------|
+    | 15:39:05  | 15:39:05  |
+    +-----------+-----------+
 
 
 DATE
@@ -1448,6 +1542,44 @@ Example::
     +---------------------------+
 
 
+LOCALTIMESTAMP
+--------------
+
+Description
+>>>>>>>>>>>
+
+`LOCALTIMESTAMP` and `LOCALTIMESTAMP()` are synonyms for `NOW() <#now>`_.
+
+Example::
+
+    > SELECT LOCALTIMESTAMP(), LOCALTIMESTAMP;
+    fetched rows / total rows = 1/1
+    +---------------------+---------------------+
+    | LOCALTIMESTAMP()    | LOCALTIMESTAMP      |
+    |---------------------+---------------------|
+    | 2022-08-02 15:54:19 | 2022-08-02 15:54:19 |
+    +---------------------+---------------------+
+
+
+LOCALTIME
+---------
+
+Description
+>>>>>>>>>>>
+
+`LOCALTIME` and `LOCALTIME()` are synonyms for `NOW() <#now>`_.
+
+Example::
+
+    > SELECT LOCALTIME(), LOCALTIME;
+    fetched rows / total rows = 1/1
+    +---------------------+---------------------+
+    | LOCALTIME()         | LOCALTIME           |
+    |---------------------+---------------------|
+    | 2022-08-02 15:54:19 | 2022-08-02 15:54:19 |
+    +---------------------+---------------------+
+
+
 MAKEDATE
 --------
 
@@ -1612,7 +1744,7 @@ NOW
 Description
 >>>>>>>>>>>
 
-Returns the current date and time as a value in 'YYYY-MM-DD hh:mm:ss.nnnnnn' format. The value is expressed in the cluster time zone.
+Returns the current date and time as a value in 'YYYY-MM-DD hh:mm:ss' format. The value is expressed in the cluster time zone.
 `NOW()` returns a constant time that indicates the time at which the statement began to execute. This differs from the behavior for `SYSDATE() <#sysdate>`_, which returns the exact time at which it executes.
 
 Return type: DATETIME
@@ -1623,178 +1755,57 @@ Example::
 
     > SELECT NOW() as value_1, NOW() as value_2;
     fetched rows / total rows = 1/1
-    +----------------------------+----------------------------+
-    | value_1                    | value_2                    |
-    |----------------------------+----------------------------|
-    | 2022-08-02 15:39:05.173069 | 2022-08-02 15:39:05.173069 |
-    +----------------------------+----------------------------+
+    +---------------------+---------------------+
+    | value_1             | value_2             |
+    |---------------------+---------------------|
+    | 2022-08-02 15:39:05 | 2022-08-02 15:39:05 |
+    +---------------------+---------------------+
 
 
-CURRENT_TIMESTAMP
------------------
-
-Description
->>>>>>>>>>>
-
-`CURRENT_TIMESTAMP` and `CURRENT_TIMESTAMP()` are synonyms for `NOW() <#now>`_.
-
-Example::
-
-    > SELECT CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP;
-    fetched rows / total rows = 1/1
-    +----------------------------+----------------------------+
-    | CURRENT_TIMESTAMP()        | CURRENT_TIMESTAMP          |
-    |----------------------------+----------------------------|
-    | 2022-08-02 15:54:19.209361 | 2022-08-02 15:54:19.209361 |
-    +----------------------------+----------------------------+
-
-
-LOCALTIMESTAMP
---------------
+PERIOD_ADD
+----------
 
 Description
 >>>>>>>>>>>
 
-`LOCALTIMESTAMP` and `LOCALTIMESTAMP()` are synonyms for `NOW() <#now>`_.
+Usage: period_add(P, N) add N months to period P (in the format YYMM or YYYYMM). Returns a value in the format YYYYMM.
+
+Argument type: INTEGER, INTEGER
+
+Return type: INTEGER
 
 Example::
 
-    > SELECT LOCALTIMESTAMP(), LOCALTIMESTAMP;
+    os> SELECT PERIOD_ADD(200801, 2), PERIOD_ADD(200801, -12)
     fetched rows / total rows = 1/1
-    +----------------------------+----------------------------+
-    | LOCALTIMESTAMP()           | LOCALTIMESTAMP             |
-    |----------------------------+----------------------------|
-    | 2022-08-02 15:54:19.209361 | 2022-08-02 15:54:19.209361 |
-    +----------------------------+----------------------------+
+    +-------------------------+---------------------------+
+    | PERIOD_ADD(200801, 2)   | PERIOD_ADD(200801, -12)   |
+    |-------------------------+---------------------------|
+    | 200803                  | 200701                    |
+    +-------------------------+---------------------------+
 
 
-LOCALTIME
----------
+PERIOD_DIFF
+-----------
 
 Description
 >>>>>>>>>>>
 
-`LOCALTIME` and `LOCALTIME()` are synonyms for `NOW() <#now>`_.
+Usage: period_diff(P1, P2) returns the number of months between periods P1 and P2 given in the format YYMM or YYYYMM.
+
+Argument type: INTEGER, INTEGER
+
+Return type: INTEGER
 
 Example::
 
-    > SELECT LOCALTIME(), LOCALTIME;
+    os> SELECT PERIOD_DIFF(200802, 200703), PERIOD_DIFF(200802, 201003)
     fetched rows / total rows = 1/1
-    +----------------------------+----------------------------+
-    | LOCALTIME()                | LOCALTIME                  |
-    |----------------------------+----------------------------|
-    | 2022-08-02 15:54:19.209361 | 2022-08-02 15:54:19.209361 |
-    +----------------------------+----------------------------+
-
-
-SYSDATE
--------
-
-Description
->>>>>>>>>>>
-
-Returns the current date and time as a value in 'YYYY-MM-DD hh:mm:ss.nnnnnn'.
-SYSDATE() returns the time at which it executes. This differs from the behavior for `NOW() <#now>`_, which returns a constant time that indicates the time at which the statement began to execute.
-
-Return type: DATETIME
-
-Specification: SYSDATE() -> DATETIME
-
-Example::
-
-    > SELECT SYSDATE() as value_1, SYSDATE() as value_2;
-    fetched rows / total rows = 1/1
-    +----------------------------+----------------------------+
-    | value_1                    | value_2                    |
-    |----------------------------+----------------------------|
-    | 2022-08-02 15:39:05.173069 | 2022-08-02 15:39:05.173142 |
-    +----------------------------+----------------------------+
-
-
-CURTIME
--------
-
-Description
->>>>>>>>>>>
-
-Returns the current time as a value in 'hh:mm:ss.nnnnnn'.
-CURTIME() returns the time at which the statement began to execute as `NOW() <#now>`_ does.
-
-Return type: TIME
-
-Specification: CURTIME() -> TIME
-
-Example::
-
-    > SELECT CURTIME() as value_1, CURTIME()  as value_2;
-    fetched rows / total rows = 1/1
-    +-----------------+-----------------+
-    | value_1         | value_2         |
-    |-----------------+-----------------|
-    | 15:39:05.173069 | 15:39:05.173069 |
-    +-----------------+-----------------+
-
-
-CURRENT_TIME
-------------
-
-Description
->>>>>>>>>>>
-
-`CURRENT_TIME` and `CURRENT_TIME()` are synonyms for `CURTIME() <#curtime>`_.
-
-Example::
-
-    > SELECT CURRENT_TIME(), CURRENT_TIME;
-    fetched rows / total rows = 1/1
-    +-----------------+-----------------+
-    | CURRENT_TIME()  | CURRENT_TIME    |
-    |-----------------+-----------------|
-    | 15:39:05.173069 | 15:39:05.173069 |
-    +-----------------+-----------------+
-
-
-CURDATE
--------
-
-Description
->>>>>>>>>>>
-
-Returns the current time as a value in 'YYYY-MM-DD'.
-CURDATE() returns the time at which it executes as `SYSDATE() <#sysdate>`_ does.
-
-Return type: DATE
-
-Specification: CURDATE() -> DATE
-
-Example::
-
-    > SELECT CURDATE();
-    fetched rows / total rows = 1/1
-    +-------------+
-    | CURDATE()   |
-    |-------------|
-    | 2022-08-02  |
-    +-------------+
-
-
-CURRENT_DATE
-------------
-
-Description
->>>>>>>>>>>
-
-`CURRENT_DATE` and `CURRENT_DATE()` are synonyms for `CURDATE() <#curdate>`_.
-
-Example::
-
-    > SELECT CURRENT_DATE(), CURRENT_DATE;
-    fetched rows / total rows = 1/1
-    +------------------+----------------+
-    | CURRENT_DATE()   | CURRENT_DATE   |
-    |------------------+----------------|
-    | 2022-08-02       | 2022-08-02     |
-    +------------------+----------------+
+    +-------------------------------+-------------------------------+
+    | PERIOD_DIFF(200802, 200703)   | PERIOD_DIFF(200802, 201003)   |
+    |-------------------------------+-------------------------------|
+    | 11                            | -25                           |
+    +-------------------------------+-------------------------------+
 
 
 QUARTER
@@ -1872,6 +1883,33 @@ Example::
     |------------------------------------------------+----------------------------------+------------------------------------------------|
     | 2007-12-02                                     | 2020-08-25                       | 2020-08-25 01:01:01                            |
     +------------------------------------------------+----------------------------------+------------------------------------------------+
+
+
+SYSDATE
+-------
+
+Description
+>>>>>>>>>>>
+
+Returns the current date and time as a value in 'YYYY-MM-DD hh:mm:ss[.nnnnnn]'.
+SYSDATE() returns the time at which it executes. This differs from the behavior for `NOW() <#now>`_, which returns a constant time that indicates the time at which the statement began to execute.
+If the argument is given, it specifies a fractional seconds precision from 0 to 6, the return value includes a fractional seconds part of that many digits.
+
+Optional argument type: INTEGER
+
+Return type: DATETIME
+
+Specification: SYSDATE([INTEGER]) -> DATETIME
+
+Example::
+
+    > SELECT SYSDATE() as value_1, SYSDATE(6) as value_2;
+    fetched rows / total rows = 1/1
+    +---------------------+----------------------------+
+    | value_1             | value_2                    |
+    |---------------------+----------------------------|
+    | 2022-08-02 15:39:05 | 2022-08-02 15:39:05.123456 |
+    +---------------------+----------------------------+
 
 
 TIME
@@ -3004,3 +3042,27 @@ Example searching for field Tags::
     | [Winnie-the-<em>Pooh</em>]                   |
     +----------------------------------------------+
 
+System Functions
+================
+
+TYPEOF
+------
+
+Description
+>>>>>>>>>>>
+
+Usage: typeof(expr) function returns name of the data type of the value that is passed to it. This can be helpful for troubleshooting or dynamically constructing SQL queries.
+
+Argument type: ANY
+
+Return type: STRING
+
+Example::
+
+    os> select typeof(DATE('2008-04-14')) as `typeof(date)`, typeof(1) as `typeof(int)`, typeof(now()) as `typeof(now())`, typeof(accounts) as `typeof(column)` from people
+    fetched rows / total rows = 1/1
+    +----------------+---------------+-----------------+------------------+
+    | typeof(date)   | typeof(int)   | typeof(now())   | typeof(column)   |
+    |----------------+---------------+-----------------+------------------|
+    | DATE           | INTEGER       | DATETIME        | STRUCT           |
+    +----------------+---------------+-----------------+------------------+

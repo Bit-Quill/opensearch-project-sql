@@ -13,13 +13,19 @@ import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.data.model.ExprShortValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.aggregation.Aggregator;
 import org.opensearch.sql.expression.aggregation.NamedAggregator;
 import org.opensearch.sql.expression.conditional.cases.CaseClause;
 import org.opensearch.sql.expression.conditional.cases.WhenClause;
+import org.opensearch.sql.expression.env.Environment;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
+import org.opensearch.sql.expression.parse.GrokExpression;
+import org.opensearch.sql.expression.parse.ParseExpression;
+import org.opensearch.sql.expression.parse.PatternsExpression;
+import org.opensearch.sql.expression.parse.RegexExpression;
 import org.opensearch.sql.expression.span.SpanExpression;
 import org.opensearch.sql.expression.window.ranking.RankingWindowFunction;
 
@@ -114,7 +120,7 @@ public class DSL {
     return new NamedAggregator(name, aggregator);
   }
 
-  public NamedArgumentExpression namedArgument(String argName, Expression value) {
+  public static NamedArgumentExpression namedArgument(String argName, Expression value) {
     return new NamedArgumentExpression(argName, value);
   }
 
@@ -122,9 +128,19 @@ public class DSL {
     return namedArgument(name, literal(value));
   }
 
-  public static ParseExpression parsed(Expression expression, Expression pattern,
-                                       Expression identifier) {
-    return new ParseExpression(expression, pattern, identifier);
+  public static GrokExpression grok(Expression sourceField, Expression pattern,
+                                    Expression identifier) {
+    return new GrokExpression(sourceField, pattern, identifier);
+  }
+
+  public static RegexExpression regex(Expression sourceField, Expression pattern,
+                                      Expression identifier) {
+    return new RegexExpression(sourceField, pattern, identifier);
+  }
+
+  public static PatternsExpression patterns(Expression sourceField, Expression pattern,
+                                            Expression identifier) {
+    return new PatternsExpression(sourceField, pattern, identifier);
   }
 
   public static SpanExpression span(Expression field, Expression value, String unit) {
@@ -531,6 +547,10 @@ public class DSL {
     return aggregate(BuiltinFunctionName.STDDEV_POP, expressions);
   }
 
+  public Aggregator take(Expression... expressions) {
+    return aggregate(BuiltinFunctionName.TAKE, expressions);
+  }
+
   public RankingWindowFunction rowNumber() {
     return (RankingWindowFunction) repository.compile(
         BuiltinFunctionName.ROW_NUMBER.getName(), Collections.emptyList());
@@ -660,6 +680,11 @@ public class DSL {
   public FunctionExpression castDatetime(Expression value) {
     return (FunctionExpression) repository
         .compile(BuiltinFunctionName.CAST_TO_DATETIME.getName(), Arrays.asList(value));
+  }
+
+  public FunctionExpression typeof(Expression value) {
+    return (FunctionExpression) repository
+        .compile(BuiltinFunctionName.TYPEOF.getName(), Arrays.asList(value));
   }
 
   public FunctionExpression match(Expression... args) {
