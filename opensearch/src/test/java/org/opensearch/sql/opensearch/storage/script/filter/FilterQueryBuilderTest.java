@@ -411,6 +411,15 @@ class FilterQueryBuilderTest {
   }
 
   @Test
+  void match_missing_query() {
+    FunctionExpression expr = dsl.match(
+            dsl.namedArgument("field", literal("field1")),
+            dsl.namedArgument("analyzer", literal("keyword")));
+    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+    assertEquals("'query' parameter is missing", msg);
+  }
+
+  @Test
   void should_build_match_phrase_query_with_default_parameters() {
     assertJsonEquals(
             "{\n"
@@ -1065,6 +1074,18 @@ class FilterQueryBuilderTest {
         dsl.namedArgument("analyzer", literal("keyword")));
     var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
     assertEquals("'fields' parameter is missing.", msg);
+  }
+
+  @Test
+  void multi_match_missing_query_even_with_struct() {
+    FunctionExpression expr = dsl.multi_match(
+            dsl.namedArgument("fields", DSL.literal(
+                    new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                            "field1", ExprValueUtils.floatValue(1.F),
+                            "field2", ExprValueUtils.floatValue(.3F)))))),
+            dsl.namedArgument("analyzer", literal("keyword")));
+    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+    assertEquals("'query' parameter is missing", msg);
   }
 
   @Test

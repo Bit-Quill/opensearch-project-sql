@@ -139,4 +139,12 @@ class QueryTest {
           + "type function need implementation only to support Expression interface");
     }
   }
+
+  @Test
+  public void test_can_get_query_name() {
+    List<Expression> arguments = List.of(namedArgument("query", query_value));
+    queryQuery.build(new QueryExpression(arguments));
+    Assertions.assertEquals("query",
+            queryQuery.getQueryName());
+  }
 }

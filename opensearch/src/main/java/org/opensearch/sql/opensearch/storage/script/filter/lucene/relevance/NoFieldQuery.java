@@ -26,12 +26,12 @@ abstract class NoFieldQuery<T extends QueryBuilder> extends RelevanceQuery<T> {
   }
 
   @Override
-  protected void IgnoreArguments(List<NamedArgumentExpression> arguments) {
+  protected void ignoreArguments(List<NamedArgumentExpression> arguments) {
     arguments.removeIf(a -> a.getArgName().equalsIgnoreCase("query"));
   }
 
   @Override
-  protected void CheckValidArguments(String argNormalized, T queryBuilder){
+  protected void checkValidArguments(String argNormalized, T queryBuilder) {
     if (!getQueryBuildActions().containsKey(argNormalized)) {
       throw new SemanticCheckException(
               String.format("Parameter %s is invalid for query function.",
@@ -45,16 +45,17 @@ abstract class NoFieldQuery<T extends QueryBuilder> extends RelevanceQuery<T> {
    * @param func : Contains function name and passed in arguments.
    * @return : QueryBuilder object
    */
+
   @Override
   public QueryBuilder build(FunctionExpression func) {
     var arguments = func.getArguments().stream().map(
         a -> (NamedArgumentExpression) a).collect(Collectors.toList());
     if (arguments.size() < 1) {
       throw new SyntaxCheckException(String.format(
-          "query requires at least one parameter"));
+          "%s requires at least one parameter", func.getFunctionName()));
     }
 
-    return LoadArguments(arguments);
+    return loadArguments(arguments);
   }
 
 

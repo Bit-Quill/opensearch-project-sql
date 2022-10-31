@@ -5,7 +5,6 @@
 
 package org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance;
 
-import com.google.common.collect.ImmutableMap;
 import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.index.query.QueryStringQueryBuilder;
 
@@ -13,6 +12,9 @@ import org.opensearch.index.query.QueryStringQueryBuilder;
  * Class for Lucene query that builds the query_string query.
  */
 public class QueryQuery extends NoFieldQuery<QueryStringQueryBuilder> {
+
+  final String QUERY_QUERY_NAME = "query";
+
   /**
    * Default constructor for QueryQuery configures how RelevanceQuery.build() handles
    * named arguments by calling the constructor of QueryStringQuery.
@@ -32,7 +34,7 @@ public class QueryQuery extends NoFieldQuery<QueryStringQueryBuilder> {
   }
 
   @Override
-  protected String getQueryName() {
-    return QueryStringQueryBuilder.NAME;
+  public String getQueryName() {
+    return QUERY_QUERY_NAME;
   }
 }
