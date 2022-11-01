@@ -22,7 +22,6 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.AggregateFunction;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.And;
-import org.opensearch.sql.ast.expression.Argument;
 import org.opensearch.sql.ast.expression.Case;
 import org.opensearch.sql.ast.expression.Cast;
 import org.opensearch.sql.ast.expression.Compare;
@@ -38,6 +37,7 @@ import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
+import org.opensearch.sql.ast.expression.RelevanceFunction;
 import org.opensearch.sql.ast.expression.Span;
 import org.opensearch.sql.ast.expression.UnresolvedArgument;
 import org.opensearch.sql.ast.expression.UnresolvedAttribute;
@@ -46,6 +46,7 @@ import org.opensearch.sql.ast.expression.When;
 import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.expression.Xor;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
+import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.SemanticCheckException;
@@ -146,6 +147,47 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Override
   public Expression visitNot(Not node, AnalysisContext context) {
     return dsl.not(node.getExpression().accept(this, context));
+  }
+
+  @Override
+  public Expression visitRelevanceFunction(RelevanceFunction node, AnalysisContext context) {
+    FunctionName functionName = FunctionName.of(node.getFuncName());
+    TypeEnvironment typeEnv = context.peek();
+
+    List<Expression> arguments =
+        node.getFuncArgs().stream()
+            .map(unresolvedExpression -> analyze(unresolvedExpression, context))
+            .collect(Collectors.toList());
+
+    // Ensure each field is valid
+    switch (node.getType()) {
+      case SINGLE_FIELD_FUNCTION:
+        arguments.stream().filter(arg ->
+            (((NamedArgumentExpression)arg).getArgName().equals("field"))
+            && !((NamedArgumentExpression)arg).getValue().toString().contains("*")
+        ).forEach(arg ->
+            typeEnv.resolve(new Symbol(Namespace.FIELD_NAME,
+                StringUtils.unquoteText(((NamedArgumentExpression)arg).getValue().toString()))
+            )
+        );
+        break;
+
+      case MULTI_FIELD_FUNCTION:
+        arguments.stream().filter(arg ->
+            ((NamedArgumentExpression)arg).getArgName().equals("fields")
+        ).forEach(fields ->
+            ((NamedArgumentExpression)fields).getValue().valueOf(null).tupleValue()
+                .entrySet().stream().filter(k -> !(k.getKey().contains("*"))
+                ).forEach(key -> typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, key.getKey())))
+        );
+        break;
+
+      default:
+        throw new IllegalArgumentException("Unsupported Relevance Function Type ["
+            + node.getType() + "]");
+    }
+
+    return (Expression) repository.compile(functionName, arguments);
   }
 
   @Override

@@ -34,6 +34,7 @@ import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.ParseMethod;
 import org.opensearch.sql.ast.expression.QualifiedName;
+import org.opensearch.sql.ast.expression.RelevanceFunction;
 import org.opensearch.sql.ast.expression.Span;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.ast.expression.UnresolvedArgument;
@@ -244,6 +245,11 @@ public class AstDSL {
 
   public static Function function(String funcName, UnresolvedExpression... funcArgs) {
     return new Function(funcName, Arrays.asList(funcArgs));
+  }
+
+  public static RelevanceFunction relevanceFunction(String funcName,
+      RelevanceFunction.FunctionType type, UnresolvedExpression... funcArgs) {
+    return new RelevanceFunction(funcName, Arrays.asList(funcArgs), type);
   }
 
   public static Function constantFunction(String funcName, UnresolvedExpression... funcArgs) {

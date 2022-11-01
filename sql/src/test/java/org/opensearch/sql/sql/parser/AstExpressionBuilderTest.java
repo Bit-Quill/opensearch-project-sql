@@ -43,6 +43,7 @@ import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
+import org.opensearch.sql.ast.expression.RelevanceFunction;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.common.antlr.CaseInsensitiveCharStream;
 import org.opensearch.sql.common.antlr.SyntaxAnalysisErrorListener;
@@ -454,7 +455,8 @@ class AstExpressionBuilderTest {
   @Test
   public void matchPhrasePrefixAllParameters() {
     assertEquals(
-        AstDSL.function("match_phrase_prefix",
+        AstDSL.relevanceFunction("match_phrase_prefix",
+          RelevanceFunction.FunctionType.SINGLE_FIELD_FUNCTION,
           unresolvedArg("field", stringLiteral("test")),
           unresolvedArg("query", stringLiteral("search query")),
           unresolvedArg("slop", stringLiteral("3")),
@@ -471,13 +473,15 @@ class AstExpressionBuilderTest {
 
   @Test
   public void relevanceMatch() {
-    assertEquals(AstDSL.function("match",
+    assertEquals(AstDSL.relevanceFunction("match",
+        RelevanceFunction.FunctionType.SINGLE_FIELD_FUNCTION,
         unresolvedArg("field", stringLiteral("message")),
         unresolvedArg("query", stringLiteral("search query"))),
         buildExprAst("match('message', 'search query')")
     );
 
-    assertEquals(AstDSL.function("match",
+    assertEquals(AstDSL.relevanceFunction("match",
+        RelevanceFunction.FunctionType.SINGLE_FIELD_FUNCTION,
         unresolvedArg("field", stringLiteral("message")),
         unresolvedArg("query", stringLiteral("search query")),
         unresolvedArg("analyzer", stringLiteral("keyword")),
@@ -487,14 +491,16 @@ class AstExpressionBuilderTest {
 
   @Test
   public void relevanceMulti_match() {
-    assertEquals(AstDSL.function("multi_match",
+    assertEquals(AstDSL.relevanceFunction("multi_match",
+            RelevanceFunction.FunctionType.MULTI_FIELD_FUNCTION,
             unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
                 "field2", 3.2F, "field1", 1.F))),
             unresolvedArg("query", stringLiteral("search query"))),
         buildExprAst("multi_match(['field1', 'field2' ^ 3.2], 'search query')")
     );
 
-    assertEquals(AstDSL.function("multi_match",
+    assertEquals(AstDSL.relevanceFunction("multi_match",
+            RelevanceFunction.FunctionType.MULTI_FIELD_FUNCTION,
             unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
                 "field2", 3.2F, "field1", 1.F))),
             unresolvedArg("query", stringLiteral("search query")),
@@ -506,14 +512,16 @@ class AstExpressionBuilderTest {
 
   @Test
   public void relevanceSimple_query_string() {
-    assertEquals(AstDSL.function("simple_query_string",
+    assertEquals(AstDSL.relevanceFunction("simple_query_string",
+            RelevanceFunction.FunctionType.MULTI_FIELD_FUNCTION,
             unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
                 "field2", 3.2F, "field1", 1.F))),
             unresolvedArg("query", stringLiteral("search query"))),
         buildExprAst("simple_query_string(['field1', 'field2' ^ 3.2], 'search query')")
     );
 
-    assertEquals(AstDSL.function("simple_query_string",
+    assertEquals(AstDSL.relevanceFunction("simple_query_string",
+            RelevanceFunction.FunctionType.MULTI_FIELD_FUNCTION,
             unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
                 "field2", 3.2F, "field1", 1.F))),
             unresolvedArg("query", stringLiteral("search query")),
@@ -526,14 +534,16 @@ class AstExpressionBuilderTest {
 
   @Test
   public void relevanceQuery_string() {
-    assertEquals(AstDSL.function("query_string",
+    assertEquals(AstDSL.relevanceFunction("query_string",
+            RelevanceFunction.FunctionType.MULTI_FIELD_FUNCTION,
             unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
                 "field2", 3.2F, "field1", 1.F))),
             unresolvedArg("query", stringLiteral("search query"))),
         buildExprAst("query_string(['field1', 'field2' ^ 3.2], 'search query')")
     );
 
-    assertEquals(AstDSL.function("query_string",
+    assertEquals(AstDSL.relevanceFunction("query_string",
+            RelevanceFunction.FunctionType.MULTI_FIELD_FUNCTION,
             unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
                 "field2", 3.2F, "field1", 1.F))),
             unresolvedArg("query", stringLiteral("search query")),
