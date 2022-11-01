@@ -13,7 +13,7 @@ import org.opensearch.index.query.QueryStringQueryBuilder;
  */
 public class QueryQuery extends NoFieldQuery<QueryStringQueryBuilder> {
 
-  final String QUERY_QUERY_NAME = "query";
+  final String queryQueryName = "query";
 
   /**
    * Default constructor for QueryQuery configures how RelevanceQuery.build() handles
@@ -35,6 +35,6 @@ public class QueryQuery extends NoFieldQuery<QueryStringQueryBuilder> {
 
   @Override
   public String getQueryName() {
-    return QUERY_QUERY_NAME;
+    return queryQueryName;
   }
 }

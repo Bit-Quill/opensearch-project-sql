@@ -448,9 +448,9 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
   private void fillRelevanceArgs(List<OpenSearchSQLParser.RelevanceArgContext> args,
                                  ImmutableList.Builder<UnresolvedExpression> builder) {
-        args.forEach(v -> builder.add(new UnresolvedArgument(
-          v.relevanceArgName().getText().toLowerCase(), new Literal(StringUtils.unquoteText(
-              v.relevanceArgValue().getText()), DataType.STRING))));
+    args.forEach(v -> builder.add(new UnresolvedArgument(
+            v.relevanceArgName().getText().toLowerCase(), new Literal(StringUtils.unquoteText(
+                    v.relevanceArgValue().getText()), DataType.STRING))));
   }
 
   private List<UnresolvedExpression> noFieldRelevanceArguments(
@@ -474,7 +474,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     builder.add(new UnresolvedArgument("query",
         new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));
     fillRelevanceArgs(ctx.relevanceArg(), builder);
-            return builder.build();
+    return builder.build();
   }
 
 

@@ -34,7 +34,7 @@ public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery
             || a.getArgName().equalsIgnoreCase("query"));
   }
 
-  protected void checkValidArguments(String argNormalized, T queryBuilder){
+  protected void checkValidArguments(String argNormalized, T queryBuilder) {
     if (!queryBuildActions.containsKey(argNormalized)) {
       throw new SemanticCheckException(
               String.format("Parameter %s is invalid for %s function.",
