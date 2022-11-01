@@ -34,8 +34,8 @@ abstract class NoFieldQuery<T extends QueryBuilder> extends RelevanceQuery<T> {
   protected void checkValidArguments(String argNormalized, T queryBuilder) {
     if (!getQueryBuildActions().containsKey(argNormalized)) {
       throw new SemanticCheckException(
-              String.format("Parameter %s is invalid for query function.",
-                      argNormalized));
+              String.format("Parameter %s is invalid for %s function.",
+                      argNormalized, getQueryName()));
     }
   }
   /**
