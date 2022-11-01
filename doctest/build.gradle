@@ -3,8 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import java.util.concurrent.Callable
+
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.opensearch.gradle.testclusters.RunTask
+import java.util.concurrent.Callable
 
 plugins {
     id 'base'
@@ -31,6 +33,7 @@ task startPrometheus(type: SpawnProcessTask) {
         download.run {
             src 'https://github.com/prometheus/prometheus/releases/download/v2.39.1/prometheus-2.39.1.linux-amd64.tar.gz'
             dest new File("$projectDir/bin", 'prometheus.tar.gz')
+            overwrite false
         }
         copy {
             from tarTree("$projectDir/bin/prometheus.tar.gz")
@@ -85,9 +88,11 @@ task stopPrometheus() {
 }
 
 stopPrometheus.mustRunAfter startPrometheus
-doctest.dependsOn startOpenSearch
+if (DefaultNativePlatform.currentOperatingSystem.isLinux()) {
+    doctest.dependsOn startOpenSearch
+    doctest.finalizedBy stopOpenSearch
+}
 startOpenSearch.dependsOn startPrometheus
-doctest.finalizedBy stopOpenSearch
 stopOpenSearch.finalizedBy stopPrometheus
 build.dependsOn doctest
 clean.dependsOn(cleanBootstrap)

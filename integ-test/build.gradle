@@ -114,6 +114,7 @@ task startPrometheus(type: SpawnProcessTask) {
         download.run {
             src 'https://github.com/prometheus/prometheus/releases/download/v2.39.1/prometheus-2.39.1.linux-amd64.tar.gz'
             dest new File("$projectDir/bin", 'prometheus.tar.gz')
+            overwrite false
         }
         copy {
             from tarTree("$projectDir/bin/prometheus.tar.gz")
@@ -135,8 +136,11 @@ stopPrometheus.mustRunAfter startPrometheus
 // Run PPL ITs and new, legacy and comparison SQL ITs with new SQL engine enabled
 integTest {
     dependsOn ':opensearch-sql-plugin:bundlePlugin'
-    dependsOn startPrometheus
-    finalizedBy stopPrometheus
+
+    if (DefaultNativePlatform.currentOperatingSystem.isLinux()) {
+        dependsOn startPrometheus
+        finalizedBy stopPrometheus
+    }
 
     systemProperty 'tests.security.manager', 'false'
     systemProperty('project.root', project.projectDir.absolutePath)

@@ -13,10 +13,18 @@ import static org.opensearch.sql.util.MatcherUtils.verifyColumn;
 import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
 
 import java.io.IOException;
+import org.apache.commons.lang3.SystemUtils;
 import org.json.JSONObject;
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
 
 public class ShowCatalogsCommandIT extends PPLIntegTestCase {
+
+  @BeforeClass
+  public static void checkOs() {
+    Assume.assumeTrue(SystemUtils.IS_OS_LINUX);
+  }
 
   @Test
   public void testShowCatalogsCommands() throws IOException {
