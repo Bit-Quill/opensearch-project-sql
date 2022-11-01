@@ -6,6 +6,7 @@
 package org.opensearch.sql.expression.datetime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import java.time.Instant;
@@ -17,13 +18,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
@@ -47,22 +49,23 @@ public class TimestampTest extends ExpressionTestBase {
         expr.valueOf(env).datetimeValue());
   }
 
-  @Test
-  public void timestamp_one_arg_string_invalid_format() {
-    // Feb 30th
-    var expr = dsl.timestamp(DSL.literal("1984-02-30 12:20:42"));
-    assertEquals(TIMESTAMP, expr.type());
-    assertEquals(ExprNullValue.of(), expr.valueOf(env));
-
-    // 24:00:00
-    expr = dsl.timestamp(DSL.literal("1984-02-10 24:00:00"));
-    assertEquals(TIMESTAMP, expr.type());
-    assertEquals(ExprNullValue.of(), expr.valueOf(env));
-
-    // 2 digit year
-    expr = dsl.timestamp(DSL.literal("84-02-10 12:20:42"));
-    assertEquals(TIMESTAMP, expr.type());
-    assertEquals(ExprNullValue.of(), expr.valueOf(env));
+  /**
+   * Check that `TIMESTAMP` function throws an exception on incorrect string input.
+   * @param value A value.
+   * @param testName A test name.
+   */
+  @ParameterizedTest(name = "{1}")
+  @CsvSource({
+      "1984-02-30 12:20:42, Feb 30th",
+      "1984-02-10 24:00:00, 24:00:00",
+      "84-02-10 12:20:42, 2 digit year"
+  })
+  public void timestamp_one_arg_string_invalid_format(String value, String testName) {
+    // exception thrown from ExprTimestampValue(String) CTOR
+    var exception = assertThrows(SemanticCheckException.class,
+        () -> dsl.timestamp(DSL.literal(value)).valueOf(env));
+    assertEquals(String.format("timestamp:%s in unsupported format, please "
+        + "use yyyy-MM-dd HH:mm:ss[.SSSSSSSSS]", value), exception.getMessage());
   }
 
   @Test
