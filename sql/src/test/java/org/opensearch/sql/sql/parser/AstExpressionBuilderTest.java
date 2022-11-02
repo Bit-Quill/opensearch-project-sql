@@ -544,6 +544,15 @@ class AstExpressionBuilderTest {
   }
 
   @Test
+  public void relevanceWildcard_query() {
+    assertEquals(AstDSL.function("wildcard_query",
+            unresolvedArg("field", stringLiteral("field")),
+            unresolvedArg("query", stringLiteral("search query*"))),
+        buildExprAst("wildcard_query(field, 'search query*')")
+    );
+  }
+
+  @Test
   public void canBuildInClause() {
     assertEquals(
         AstDSL.in(qualifiedName("age"), AstDSL.intLiteral(20), AstDSL.intLiteral(30)),

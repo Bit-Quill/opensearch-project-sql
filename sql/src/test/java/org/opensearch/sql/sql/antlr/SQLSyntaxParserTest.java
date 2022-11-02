@@ -343,6 +343,18 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse("SELECT * FROM test WHERE match_phrase(column, 100500)"));
   }
 
+  @Test
+  public void can_parse_wildcard_query_relevance_function() {
+    assertNotNull(
+        parser.parse("SELECT * FROM test WHERE wildcard_query(column, \"this is a test*\")"));
+    assertNotNull(
+        parser.parse("SELECT * FROM test WHERE wildcard_query(column, 'this is a test*')"));
+    assertNotNull(
+        parser.parse("SELECT * FROM test WHERE wildcard_query(`column`, \"this is a test*\")"));
+    assertNotNull(
+        parser.parse("SELECT * FROM test WHERE wildcard_query(`column`, 'this is a test*')"));
+  }
+
   @ParameterizedTest
   @MethodSource({
       "matchPhraseComplexQueries",
