@@ -715,6 +715,10 @@ public class DSL {
     return compile(BuiltinFunctionName.MATCH_BOOL_PREFIX, args);
   }
 
+  public FunctionExpression wildcard_query(Expression... args) {
+    return compile(BuiltinFunctionName.WILDCARD_QUERY, args);
+  }
+
   public FunctionExpression now(Expression... args) {
     return compile(BuiltinFunctionName.NOW, args);
   }

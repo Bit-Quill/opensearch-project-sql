@@ -533,6 +533,17 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  void wildcard_query_expression() {
+    assertAnalyzeEqual(
+        dsl.wildcard_query(
+            dsl.namedArgument("field", "test"),
+            dsl.namedArgument("query", DSL.literal("query_value*"))),
+        AstDSL.function("wildcard_query",
+            unresolvedArg("field", stringLiteral("test")),
+            unresolvedArg("query", stringLiteral("query_value*"))));
+  }
+
+  @Test
   public void match_phrase_prefix_all_params() {
     assertAnalyzeEqual(
         dsl.match_phrase_prefix(
