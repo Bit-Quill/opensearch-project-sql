@@ -584,6 +584,16 @@ class FilterQueryBuilderTest {
   }
 
   @Test
+  void wildcard_query_invalid_parameter() {
+    FunctionExpression expr = dsl.wildcard_query(
+        dsl.namedArgument("fields", literal("field")),
+        dsl.namedArgument("query", literal("search query*")),
+        dsl.namedArgument("invalid_parameter", literal("invalid_value")));
+    assertThrows(SemanticCheckException.class, () -> buildQuery(expr),
+        "Parameter invalid_parameter is invalid for wildcard_query function.");
+  }
+
+  @Test
   void query_string_invalid_parameter() {
     FunctionExpression expr = dsl.query_string(
         dsl.namedArgument("fields", DSL.literal(
