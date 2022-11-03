@@ -691,6 +691,14 @@ public class DSL {
     return compile(BuiltinFunctionName.MATCH, args);
   }
 
+  public FunctionExpression matchquery(Expression... args) {
+    return compile(BuiltinFunctionName.MATCHQUERY, args);
+  }
+
+  public FunctionExpression match_query(Expression... args) {
+    return compile(BuiltinFunctionName.MATCH_QUERY, args);
+  }
+
   public FunctionExpression match_phrase(Expression... args) {
     return compile(BuiltinFunctionName.MATCH_PHRASE, args);
   }

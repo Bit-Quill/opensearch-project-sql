@@ -33,6 +33,8 @@ import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.Matc
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.MatchPhrasePrefixQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.MatchPhraseQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.MatchQuery;
+import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.MatchQueryQuery;
+import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.Match_QueryQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.MultiMatchQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.QueryStringQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.SimpleQueryStringQuery;
@@ -58,6 +60,8 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
           .put(BuiltinFunctionName.GTE.getName(), new RangeQuery(Comparison.GTE))
           .put(BuiltinFunctionName.LIKE.getName(), new WildcardQuery())
           .put(BuiltinFunctionName.MATCH.getName(), new MatchQuery())
+          .put(BuiltinFunctionName.MATCHQUERY.getName(), new MatchQueryQuery())
+          .put(BuiltinFunctionName.MATCH_QUERY.getName(), new Match_QueryQuery())
           .put(BuiltinFunctionName.MATCH_PHRASE.getName(), new MatchPhraseQuery())
           .put(BuiltinFunctionName.MATCHPHRASE.getName(), new MatchPhraseQuery())
           .put(BuiltinFunctionName.QUERY.getName(), new MatchQuery())
