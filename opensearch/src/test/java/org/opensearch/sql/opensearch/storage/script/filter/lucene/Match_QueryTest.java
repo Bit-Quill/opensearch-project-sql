@@ -3,12 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.opensearch.sql.opensearch.storage.script.filter.lucene;
+package org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.util.List;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -26,13 +22,17 @@ import org.opensearch.sql.expression.NamedArgumentExpression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.expression.env.Environment;
 import org.opensearch.sql.expression.function.FunctionName;
-import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.MatchQuery;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-public class MatchQueryTest {
+public class Match_QueryTest {
   private final DSL dsl = new ExpressionConfig().dsl(new ExpressionConfig().functionRepository());
   private final MatchQuery matchQuery = new MatchQuery();
-  private final FunctionName match = FunctionName.of("matchquery");
+  private final FunctionName match = FunctionName.of("match_query");
 
   static Stream<List<Expression>> generateValidData() {
     final DSL dsl = new ExpressionConfig().dsl(new ExpressionConfig().functionRepository());
@@ -145,7 +145,7 @@ public class MatchQueryTest {
 
   private class MatchExpression extends FunctionExpression {
     public MatchExpression(List<Expression> arguments) {
-      super(MatchQueryTest.this.match, arguments);
+      super(Match_QueryTest.this.match, arguments);
     }
 
     @Override
