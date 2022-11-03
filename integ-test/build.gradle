@@ -137,6 +137,10 @@ stopPrometheus.mustRunAfter startPrometheus
 integTest {
     dependsOn ':opensearch-sql-plugin:bundlePlugin'
 
+    // OpenSearch designed to run on Linux only in production, so main CI workflows are on Linux too.
+    // As of #977 gradle workflows which depend on Prometheus use hardcoded Linux version of it.
+    // Auxiliary workflows and developers who use other OS should be able to run tests as well,
+    // so this trick unblocks them to run ITs. Note: Prometheus related tests would be skipped.
     if (DefaultNativePlatform.currentOperatingSystem.isLinux()) {
         dependsOn startPrometheus
         finalizedBy stopPrometheus

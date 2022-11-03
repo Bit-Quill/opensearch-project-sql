@@ -21,6 +21,12 @@ import org.junit.jupiter.api.Test;
 
 public class ShowCatalogsCommandIT extends PPLIntegTestCase {
 
+  /**
+   * OpenSearch designed to run on Linux only in production, so main CI workflows are on Linux too.
+   * As of #977 gradle workflows which depend on Prometheus use hardcoded Linux version of it.
+   * Auxiliary workflows and developers who use other OS should be able to run tests as well,
+   * so this trick skips Prometheus related tests to avoid failures.
+   */
   @BeforeClass
   public static void checkOs() {
     Assume.assumeTrue(SystemUtils.IS_OS_LINUX);

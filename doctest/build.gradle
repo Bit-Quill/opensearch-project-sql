@@ -88,12 +88,18 @@ task stopPrometheus() {
 }
 
 stopPrometheus.mustRunAfter startPrometheus
+doctest.dependsOn startOpenSearch
+doctest.finalizedBy stopOpenSearch
+
+// OpenSearch designed to run on Linux only in production, so main CI workflows are on Linux too.
+// As of #977 gradle workflows which depend on Prometheus use hardcoded Linux version of it.
+// Auxiliary workflows and developers who use other OS should be able to run tests as well,
+// so this trick unblocks them to run doctests. Note: Prometheus related tests would fail.
 if (DefaultNativePlatform.currentOperatingSystem.isLinux()) {
-    doctest.dependsOn startOpenSearch
-    doctest.finalizedBy stopOpenSearch
+    startOpenSearch.dependsOn startPrometheus
+    stopOpenSearch.finalizedBy stopPrometheus
 }
-startOpenSearch.dependsOn startPrometheus
-stopOpenSearch.finalizedBy stopPrometheus
+
 build.dependsOn doctest
 clean.dependsOn(cleanBootstrap)
 
