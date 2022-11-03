@@ -756,6 +756,21 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
     );
   }
 
+  @Test
+  public void canBuildWildcard_queryRelevanceFunction() {
+    assertEqual(
+        "source=test | where wildcard_query(field, 'test query*')",
+        filter(
+            relation("test"),
+            function(
+                "wildcard_query",
+                unresolvedArg("field", stringLiteral("field")),
+                unresolvedArg("query", stringLiteral("test query*"))
+            )
+        )
+    );
+  }
+
   private Node buildExprAst(String query) {
     AstBuilder astBuilder = new AstBuilder(new AstExpressionBuilder(), query);
     return astBuilder.visit(new PPLSyntaxParser().parse(query));

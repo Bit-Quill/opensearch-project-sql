@@ -456,6 +456,7 @@ singleFieldRelevanceFunctionName
     | MATCH_PHRASE
     | MATCH_BOOL_PREFIX
     | MATCH_PHRASE_PREFIX
+    | WILDCARD_QUERY
     ;
 
 multiFieldRelevanceFunctionName
