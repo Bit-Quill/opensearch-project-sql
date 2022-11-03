@@ -423,7 +423,8 @@ systemFunctionName
     ;
 
 singleFieldRelevanceFunctionName
-    : MATCH | MATCH_PHRASE | MATCHPHRASE
+    : MATCH | MATCHQUERY | MATCH_QUERY
+    | MATCH_PHRASE | MATCHPHRASE
     | MATCH_BOOL_PREFIX | MATCH_PHRASE_PREFIX
     ;
 
