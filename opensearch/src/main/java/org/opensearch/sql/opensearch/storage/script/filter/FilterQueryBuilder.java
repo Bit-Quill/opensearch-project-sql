@@ -28,7 +28,6 @@ import org.opensearch.sql.opensearch.storage.script.filter.lucene.LuceneQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.RangeQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.RangeQuery.Comparison;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.TermQuery;
-import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.WildcardQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.MatchBoolPrefixQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.MatchPhrasePrefixQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.MatchPhraseQuery;
@@ -36,6 +35,7 @@ import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.Matc
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.MultiMatchQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.QueryStringQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.SimpleQueryStringQuery;
+import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.WildcardQuery;
 import org.opensearch.sql.opensearch.storage.serialization.ExpressionSerializer;
 
 @RequiredArgsConstructor
