@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.sql.antlr;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -15,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Stream;
@@ -384,6 +384,38 @@ class SQLSyntaxParserTest {
     assertNotNull(
             parser.parse("SELECT * FROM test WHERE match_phrase(`column`, 'this is a test')"));
     assertNotNull(parser.parse("SELECT * FROM test WHERE match_phrase(column, 100500)"));
+  }
+
+  @Test
+  public void describe_request_accepts_only_quoted_string_literals() {
+    assertAll(
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("DESCRIBE TABLES LIKE bank")),
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("DESCRIBE TABLES LIKE %bank%")),
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("DESCRIBE TABLES LIKE `bank`")),
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("DESCRIBE TABLES LIKE %bank% COLUMNS LIKE %status%")),
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("DESCRIBE TABLES LIKE 'bank' COLUMNS LIKE status")),
+        () -> assertNotNull(parser.parse("DESCRIBE TABLES LIKE 'bank' COLUMNS LIKE \"status\"")),
+        () -> assertNotNull(parser.parse("DESCRIBE TABLES LIKE \"bank\" COLUMNS LIKE 'status'"))
+    );
+  }
+
+  @Test
+  public void show_request_accepts_only_quoted_string_literals() {
+    assertAll(
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("SHOW TABLES LIKE bank")),
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("SHOW TABLES LIKE %bank%")),
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("SHOW TABLES LIKE `bank`")),
+        () -> assertNotNull(parser.parse("SHOW TABLES LIKE 'bank'")),
+        () -> assertNotNull(parser.parse("SHOW TABLES LIKE \"bank\""))
+    );
   }
 
   @ParameterizedTest
