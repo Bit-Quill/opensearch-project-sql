@@ -22,7 +22,6 @@ import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
-import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.NamedArgumentExpression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.expression.env.Environment;
@@ -39,8 +38,11 @@ class WildcardQueryTest {
   static Stream<List<Expression>> generateValidData() {
     return Stream.of(
         List.of(
-            dsl.namedArgument("field", "title"),
-            dsl.namedArgument("query", "query_value*")
+            dsl.namedArgument("field", DSL.literal("title")),
+            dsl.namedArgument("query", DSL.literal("query_value*")),
+            dsl.namedArgument("boost", DSL.literal("0.7")),
+            dsl.namedArgument("case_insensitive", DSL.literal("false")),
+            dsl.namedArgument("rewrite", DSL.literal("constant_score_boolean"))
         )
     );
   }
@@ -78,10 +80,6 @@ class WildcardQueryTest {
 
   private NamedArgumentExpression namedArgument(String name, String value) {
     return dsl.namedArgument(name, DSL.literal(value));
-  }
-
-  private NamedArgumentExpression namedArgument(String name, LiteralExpression value) {
-    return dsl.namedArgument(name, value);
   }
 
   private class WildcardQueryExpression extends FunctionExpression {

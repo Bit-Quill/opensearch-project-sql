@@ -188,6 +188,9 @@ public class PPLSyntaxParserTest {
         parser.parse("SOURCE=test | WHERE wildcard_query(`column`, \"this is a test*\")"));
     assertNotEquals(null,
         parser.parse("SOURCE=test | WHERE wildcard_query(`column`, 'this is a test*')"));
+    assertNotEquals(null,
+        parser.parse("SOURCE=test | WHERE wildcard_query(`column`, 'this is a test*',"
+            + "boost=1.5, case_insensitive=true, rewrite='scoring_boolean')"));
   }
 
   public void testDescribeCommandShouldPass() {

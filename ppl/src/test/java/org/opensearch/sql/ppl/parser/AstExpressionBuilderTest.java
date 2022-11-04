@@ -7,7 +7,6 @@
 package org.opensearch.sql.ppl.parser;
 
 import static java.util.Collections.emptyList;
-import static org.junit.Assert.assertEquals;
 import static org.opensearch.sql.ast.dsl.AstDSL.agg;
 import static org.opensearch.sql.ast.dsl.AstDSL.aggregate;
 import static org.opensearch.sql.ast.dsl.AstDSL.alias;
@@ -44,15 +43,11 @@ import static org.opensearch.sql.ast.dsl.AstDSL.unresolvedArg;
 import static org.opensearch.sql.ast.dsl.AstDSL.xor;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
-import java.util.Collections;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.opensearch.sql.ast.Node;
 import org.opensearch.sql.ast.expression.AllFields;
-import org.opensearch.sql.ast.expression.Argument;
 import org.opensearch.sql.ast.expression.DataType;
-import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ppl.antlr.PPLSyntaxParser;
 
@@ -759,13 +754,17 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
   @Test
   public void canBuildWildcard_queryRelevanceFunction() {
     assertEqual(
-        "source=test | where wildcard_query(field, 'test query*')",
+        "source=test | where wildcard_query(field, 'test query*', boost=1.5,"
+            + "case_insensitive=true, rewrite='scoring_boolean')",
         filter(
             relation("test"),
             function(
                 "wildcard_query",
                 unresolvedArg("field", stringLiteral("field")),
-                unresolvedArg("query", stringLiteral("test query*"))
+                unresolvedArg("query", stringLiteral("test query*")),
+                unresolvedArg("boost", stringLiteral("1.5")),
+                unresolvedArg("case_insensitive", stringLiteral("true")),
+                unresolvedArg("rewrite", stringLiteral("scoring_boolean"))
             )
         )
     );

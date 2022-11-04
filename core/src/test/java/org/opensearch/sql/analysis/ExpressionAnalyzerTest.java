@@ -536,11 +536,28 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   void wildcard_query_expression() {
     assertAnalyzeEqual(
         dsl.wildcard_query(
-            dsl.namedArgument("field", "test"),
+            dsl.namedArgument("field", DSL.literal("test")),
             dsl.namedArgument("query", DSL.literal("query_value*"))),
         AstDSL.function("wildcard_query",
             unresolvedArg("field", stringLiteral("test")),
             unresolvedArg("query", stringLiteral("query_value*"))));
+  }
+
+  @Test
+  void wildcard_query_expression_all_params() {
+    assertAnalyzeEqual(
+        dsl.wildcard_query(
+            dsl.namedArgument("field", DSL.literal("test")),
+            dsl.namedArgument("query", DSL.literal("query_value*")),
+            dsl.namedArgument("boost", DSL.literal("1.5")),
+            dsl.namedArgument("case_insensitive", DSL.literal("true")),
+            dsl.namedArgument("rewrite", DSL.literal("scoring_boolean"))),
+        AstDSL.function("wildcard_query",
+            unresolvedArg("field", stringLiteral("test")),
+            unresolvedArg("query", stringLiteral("query_value*")),
+            unresolvedArg("boost", stringLiteral("1.5")),
+            unresolvedArg("case_insensitive", stringLiteral("true")),
+            unresolvedArg("rewrite", stringLiteral("scoring_boolean"))));
   }
 
   @Test

@@ -20,7 +20,11 @@ public class WildcardQuery extends SingleFieldQuery<WildcardQueryBuilder> {
    */
   public WildcardQuery() {
     super(ImmutableMap.<String,
-        QueryBuilderStep<WildcardQueryBuilder>>builder().build());
+        QueryBuilderStep<WildcardQueryBuilder>>builder()
+        .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
+        .put("case_insensitive", (b, v) -> b.caseInsensitive(Boolean.parseBoolean(v.stringValue())))
+        .put("rewrite", (b, v) -> b.rewrite(v.stringValue()))
+        .build());
   }
 
   private String convertSqlWildcardToLucene(String text) {
