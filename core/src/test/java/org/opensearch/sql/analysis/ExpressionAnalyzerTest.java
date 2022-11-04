@@ -398,67 +398,6 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  void single_field_relevance_query() {
-    analysisContext.push();
-    analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "field"), STRING);
-
-    assertAnalyzeEqual(
-        dsl.match(
-            dsl.namedArgument("field", DSL.literal("field")),
-            dsl.namedArgument("query", DSL.literal("query_value"))),
-        AstDSL.function("match",
-            unresolvedArg("field", stringLiteral("field")),
-                unresolvedArg("query", stringLiteral("query_value"))));
-    analysisContext.pop();
-  }
-
-  @Test
-  void single_wildcard_field_relevance_query() {
-    assertAnalyzeEqual(
-        dsl.match(
-            dsl.namedArgument("field", DSL.literal("wildcard*")),
-            dsl.namedArgument("query", DSL.literal("query_value"))),
-        AstDSL.function("match",
-            unresolvedArg("field", stringLiteral("wildcard*")),
-                unresolvedArg("query", stringLiteral("query_value"))));
-  }
-
-  @Test
-  void multi_field_relevance_query() {
-    analysisContext.push();
-    analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "field2"), STRING);
-    analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "field1"), STRING);
-
-    assertAnalyzeEqual(
-        dsl.query_string(
-            dsl.namedArgument("fields", DSL.literal(
-                new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
-                    "field1", ExprValueUtils.floatValue(1.F),
-                    "field2", ExprValueUtils.floatValue(.3F)))))),
-            dsl.namedArgument("query", DSL.literal("query_value"))),
-        AstDSL.function("query_string",
-            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
-                    "field1", 1.F, "field2", .3F))),
-                unresolvedArg("query", stringLiteral("query_value"))));
-    analysisContext.pop();
-  }
-
-  @Test
-  void multi_wildcard_field_relevance_query() {
-    assertAnalyzeEqual(
-        dsl.query_string(
-            dsl.namedArgument("fields", DSL.literal(
-                new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
-                    "wildcard1*", ExprValueUtils.floatValue(1.F),
-                    "wildcard2*", ExprValueUtils.floatValue(.3F)))))),
-            dsl.namedArgument("query", DSL.literal("query_value"))),
-        AstDSL.function("query_string",
-            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
-                    "wildcard1*", 1.F, "wildcard2*", .3F))),
-                unresolvedArg("query", stringLiteral("query_value"))));
-  }
-
-  @Test
   void multi_match_expression() {
     assertAnalyzeEqual(
         dsl.multi_match(
