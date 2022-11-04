@@ -3066,3 +3066,45 @@ Example::
     |----------------+---------------+-----------------+------------------|
     | DATE           | INTEGER       | DATETIME        | STRUCT           |
     +----------------+---------------+-----------------+------------------+
+
+
+WILDCARD_QUERY
+------------
+
+Description
+>>>>>>>>>>>
+
+``wildcard_query(field_expression, query_expression[, option=<option_value>]*)``
+
+The wildcard_query function maps to the wildcard_query query used in search engine, to return the documents that match a provided text with a given field.
+Supported wildcard characters can be found here: https://opensearch.org/docs/latest/opensearch/query-dsl/term/#wildcards
+
+Available parameters include:
+
+- boost
+- case_insensitive
+- rewrite
+
+For backward compatibility, wildcardquery is also supported and mapped to wildcard_query query as well.
+
+Example with only ``field`` and ``query`` expressions, and all other parameters are set default values::
+
+    os> select Id, Tags from beer where wildcard_query(Tags, 'champagn*');
+    fetched rows / total rows = 2/2
+    +------+-----------------------------------------+
+    | Id   | Tags                                    |
+    |------+-----------------------------------------|
+    | 7419 | champagne                               |
+    | 7424 | alcohol-level yeast home-brew champagne |
+    +------+-----------------------------------------+
+
+Another example to show how to set custom values for the optional parameters::
+
+    os> select Id, Tags from beer where wildcard_query(Tags, 'champagn*', boost=0.7, case_insensitive=true, rewrite='constant_score');
+    fetched rows / total rows = 2/2
+    +------+-----------------------------------------+
+    | Id   | Tags                                    |
+    |------+-----------------------------------------|
+    | 7419 | champagne                               |
+    | 7424 | alcohol-level yeast home-brew champagne |
+    +------+-----------------------------------------+

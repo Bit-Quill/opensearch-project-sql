@@ -357,3 +357,42 @@ Limitations
 
 The relevance functions are available to execute only in OpenSearch DSL but not in memory as of now, so the relevance search might fail for queries that are too complex to translate into DSL if the relevance function is following after a complex PPL query. To make your queries always work-able, it is recommended to place the relevance commands as close to the search command as possible, to ensure the relevance functions are eligible to push down. For example, a complex query like ``search source = people | rename firstname as name | dedup account_number | fields name, account_number, balance, employer | where match(employer, 'Open Search') | stats count() by city`` could fail because it is difficult to translate to DSL, but it would be better if we rewrite it to an equivalent query as ``search source = people | where match(employer, 'Open Search') | rename firstname as name | dedup account_number | fields name, account_number, balance, employer | stats count() by city`` by moving the where command with relevance function to the second command right after the search command, and the relevance would be optimized and executed smoothly in OpenSearch DSL. See `Optimization <../../optimization/optimization.rst>`_ to get more details about the query engine optimization.
 
+
+WILDCARD_QUERY
+------------
+
+Description
+>>>>>>>>>>>
+
+``wildcard_query(field_expression, query_expression[, option=<option_value>]*)``
+
+The wildcard_query function maps to the wildcard_query query used in search engine, to return the documents that match a provided text with a given field.
+Supported wildcard characters can be found here: https://opensearch.org/docs/latest/opensearch/query-dsl/term/#wildcards
+
+Available parameters include:
+
+- boost
+- case_insensitive
+- rewrite
+
+Example with only ``field`` and ``query`` expressions, and all other parameters are set default values::
+
+    os> source=beer | where wildcard_query(Tags, 'champagn*') | fields Id,Tags;
+    fetched rows / total rows = 2/2
+    +------+-----------------------------------------+
+    | Id   | Tags                                    |
+    |------+-----------------------------------------|
+    | 7419 | champagne                               |
+    | 7424 | alcohol-level yeast home-brew champagne |
+    +------+-----------------------------------------+
+
+Another example to show how to set custom values for the optional parameters::
+
+    os> source=beer | where wildcard_query(Tags, 'champagn*', boost=0.7, case_insensitive=true, rewrite='constant_score') | fields Id, Tags;
+    fetched rows / total rows = 2/2
+    +------+-----------------------------------------+
+    | Id   | Tags                                    |
+    |------+-----------------------------------------|
+    | 7419 | champagne                               |
+    | 7424 | alcohol-level yeast home-brew champagne |
+    +------+-----------------------------------------+
