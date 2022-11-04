@@ -409,7 +409,7 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   @Test
   void match_query_expression_with_params() {
     assertAnalyzeEqual(
-        dsl.multi_match(
+        dsl.match_query(
             dsl.namedArgument("field", DSL.literal("sample query")),
             dsl.namedArgument("analyzer", DSL.literal("keyword"))),
         AstDSL.function("match_query",
