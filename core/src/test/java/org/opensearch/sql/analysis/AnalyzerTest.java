@@ -56,6 +56,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.Argument;
 import org.opensearch.sql.ast.expression.DataType;
+import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.ParseMethod;
@@ -381,6 +382,7 @@ class AnalyzerTest extends AnalyzerTestBase {
         )
     );
   }
+
 
   @Test
   public void remove_source() {

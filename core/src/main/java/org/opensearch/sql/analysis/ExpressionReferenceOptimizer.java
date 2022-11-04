@@ -6,19 +6,27 @@
 
 package org.opensearch.sql.analysis;
 
+import static org.opensearch.sql.expression.function.OpenSearchFunctions.isMultiFieldFunction;
+import static org.opensearch.sql.expression.function.OpenSearchFunctions.isSingleFieldFunction;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.opensearch.sql.analysis.symbol.Namespace;
+import org.opensearch.sql.analysis.symbol.Symbol;
+import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionNodeVisitor;
 import org.opensearch.sql.expression.FunctionExpression;
+import org.opensearch.sql.expression.NamedArgumentExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.aggregation.Aggregator;
 import org.opensearch.sql.expression.conditional.cases.CaseClause;
 import org.opensearch.sql.expression.conditional.cases.WhenClause;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
+import org.opensearch.sql.expression.function.FunctionImplementation;
 import org.opensearch.sql.planner.logical.LogicalAggregation;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.logical.LogicalPlanNodeVisitor;
@@ -70,7 +78,30 @@ public class ExpressionReferenceOptimizer
       final List<Expression> args =
           node.getArguments().stream().map(expr -> expr.accept(this, context))
               .collect(Collectors.toList());
-      return (Expression) repository.compile(node.getFunctionName(), args);
+      String funcName = node.getFunctionName().toString();
+      FunctionImplementation ret = repository.compile(node.getFunctionName(), args);
+
+      TypeEnvironment typeEnv = context.peek();
+      if (isSingleFieldFunction(funcName)) {
+        ret.getArguments().stream().filter(arg ->
+            (((NamedArgumentExpression)arg).getArgName().equals("field"))
+                && !((NamedArgumentExpression)arg).getValue().toString().contains("*")
+        ).forEach(arg ->
+            typeEnv.resolve(new Symbol(Namespace.FIELD_NAME,
+                StringUtils.unquoteText(((NamedArgumentExpression)arg).getValue().toString()))
+            )
+        );
+      } else if (isMultiFieldFunction(funcName)) {
+        ret.getArguments().stream().filter(arg ->
+            ((NamedArgumentExpression)arg).getArgName().equals("fields")
+        ).forEach(fields ->
+            ((NamedArgumentExpression)fields).getValue().valueOf(null).tupleValue()
+                .entrySet().stream().filter(k -> !(k.getKey().contains("*"))
+                ).forEach(key -> typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, key.getKey())))
+        );
+      }
+
+      return (Expression) ret;
     }
   }
 

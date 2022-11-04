@@ -75,7 +75,6 @@ import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
-import org.opensearch.sql.ast.expression.RelevanceFunction;
 import org.opensearch.sql.ast.expression.UnresolvedArgument;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.expression.When;
@@ -393,17 +392,17 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitSingleFieldRelevanceFunction(
       SingleFieldRelevanceFunctionContext ctx) {
-    return new RelevanceFunction(
+    return new Function(
         ctx.singleFieldRelevanceFunctionName().getText().toLowerCase(),
-        singleFieldRelevanceArguments(ctx), RelevanceFunction.FunctionType.SINGLE_FIELD_FUNCTION);
+        singleFieldRelevanceArguments(ctx));
   }
 
   @Override
   public UnresolvedExpression visitMultiFieldRelevanceFunction(
       MultiFieldRelevanceFunctionContext ctx) {
-    return new RelevanceFunction(
+    return new Function(
         ctx.multiFieldRelevanceFunctionName().getText().toLowerCase(),
-        multiFieldRelevanceArguments(ctx), RelevanceFunction.FunctionType.MULTI_FIELD_FUNCTION);
+        multiFieldRelevanceArguments(ctx));
   }
 
   private Function visitFunction(String functionName, FunctionArgsContext args) {

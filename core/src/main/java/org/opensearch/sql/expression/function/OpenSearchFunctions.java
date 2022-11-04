@@ -8,6 +8,7 @@ package org.opensearch.sql.expression.function;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +23,27 @@ import org.opensearch.sql.expression.env.Environment;
 
 @UtilityClass
 public class OpenSearchFunctions {
+  private final List<String> singleFieldFunctionNames = ImmutableList.of(
+      BuiltinFunctionName.MATCH.name(),
+      BuiltinFunctionName.MATCH_BOOL_PREFIX.name(),
+      BuiltinFunctionName.MATCHPHRASE.name(),
+      BuiltinFunctionName.MATCH_PHRASE_PREFIX.name()
+  );
+
+  private final List<String> multiFieldFunctionNames = ImmutableList.of(
+      BuiltinFunctionName.MULTI_MATCH.name(),
+      BuiltinFunctionName.SIMPLE_QUERY_STRING.name(),
+      BuiltinFunctionName.QUERY_STRING.name()
+  );
+
+  public static boolean isSingleFieldFunction(String funcName) {
+    return singleFieldFunctionNames.contains(funcName.toUpperCase());
+  }
+
+  public static boolean isMultiFieldFunction(String funcName) {
+    return multiFieldFunctionNames.contains(funcName.toUpperCase());
+  }
+
   /**
    * Add functions specific to OpenSearch to repository.
    */

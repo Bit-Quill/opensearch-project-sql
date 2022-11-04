@@ -8,13 +8,19 @@ package org.opensearch.sql.analysis;
 
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import java.util.LinkedHashMap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.opensearch.sql.data.model.ExprTupleValue;
+import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
@@ -43,6 +49,49 @@ class ExpressionReferenceOptimizerTest extends AnalyzerTestBase {
     assertEquals(
         DSL.ref("abs(balance)", INTEGER),
         optimize(dsl.abs(DSL.ref("balance", INTEGER)))
+    );
+  }
+
+  @Test
+  void missing_field_single_field_relevance_query() {
+    assertThrows(SemanticCheckException.class,
+        () -> optimize(dsl.match(
+            dsl.namedArgument("field", DSL.literal("field_value")),
+            dsl.namedArgument("query", DSL.literal("query_value")))));
+  }
+
+  @Test
+  void single_field_relevance_query() {
+    optimize(dsl.match(
+        dsl.namedArgument("field", DSL.literal("field_value*")),
+        dsl.namedArgument("query", DSL.literal("query_value"))));
+  }
+
+  @Test
+  void missing_field_multi_field_relevance_query() {
+    assertThrows(SemanticCheckException.class,
+        () -> optimize(dsl.query_string(
+            dsl.namedArgument("fields", DSL.literal(
+                new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                    "field1", ExprValueUtils.floatValue(1.F),
+                    "field2", ExprValueUtils.floatValue(.3F))
+                    )
+                )
+            ))
+        ))
+    );
+  }
+
+  @Test
+ void multi_field_relevance_query() {
+    optimize(dsl.query_string(
+           dsl.namedArgument("fields", DSL.literal(
+               new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                   "field1*", ExprValueUtils.floatValue(1.F),
+                   "field2*", ExprValueUtils.floatValue(.3F))
+               ))
+           ))
+       )
     );
   }
 

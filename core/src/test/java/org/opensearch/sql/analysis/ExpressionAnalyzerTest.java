@@ -26,7 +26,6 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.expression.DSL.ref;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,7 +38,6 @@ import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
-import org.opensearch.sql.ast.expression.RelevanceFunction;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
@@ -400,15 +398,6 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  void invalid_function_type_relevance_query() {
-    assertThrows(
-        IllegalArgumentException.class, () -> analyze(new RelevanceFunction("match",
-            Arrays.asList(unresolvedArg("field", stringLiteral("wildcard*")),
-                unresolvedArg("query", stringLiteral("query_value"))),
-            RelevanceFunction.FunctionType.INVALID_RELEVANCE_FUNCTION)));
-  }
-
-  @Test
   void single_field_relevance_query() {
     analysisContext.push();
     analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "field"), STRING);
@@ -417,10 +406,9 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         dsl.match(
             dsl.namedArgument("field", DSL.literal("field")),
             dsl.namedArgument("query", DSL.literal("query_value"))),
-        new RelevanceFunction("match",
-            Arrays.asList(unresolvedArg("field", stringLiteral("field")),
-                unresolvedArg("query", stringLiteral("query_value"))),
-            RelevanceFunction.FunctionType.SINGLE_FIELD_FUNCTION));
+        AstDSL.function("match",
+            unresolvedArg("field", stringLiteral("field")),
+                unresolvedArg("query", stringLiteral("query_value"))));
     analysisContext.pop();
   }
 
@@ -430,10 +418,9 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         dsl.match(
             dsl.namedArgument("field", DSL.literal("wildcard*")),
             dsl.namedArgument("query", DSL.literal("query_value"))),
-        new RelevanceFunction("match",
-            Arrays.asList(unresolvedArg("field", stringLiteral("wildcard*")),
-                unresolvedArg("query", stringLiteral("query_value"))),
-            RelevanceFunction.FunctionType.SINGLE_FIELD_FUNCTION));
+        AstDSL.function("match",
+            unresolvedArg("field", stringLiteral("wildcard*")),
+                unresolvedArg("query", stringLiteral("query_value"))));
   }
 
   @Test
@@ -449,11 +436,10 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
                     "field1", ExprValueUtils.floatValue(1.F),
                     "field2", ExprValueUtils.floatValue(.3F)))))),
             dsl.namedArgument("query", DSL.literal("query_value"))),
-        new RelevanceFunction("query_string",
-            Arrays.asList(unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+        AstDSL.function("query_string",
+            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
                     "field1", 1.F, "field2", .3F))),
-                unresolvedArg("query", stringLiteral("query_value"))),
-            RelevanceFunction.FunctionType.MULTI_FIELD_FUNCTION));
+                unresolvedArg("query", stringLiteral("query_value"))));
     analysisContext.pop();
   }
 
@@ -466,11 +452,10 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
                     "wildcard1*", ExprValueUtils.floatValue(1.F),
                     "wildcard2*", ExprValueUtils.floatValue(.3F)))))),
             dsl.namedArgument("query", DSL.literal("query_value"))),
-        new RelevanceFunction("query_string",
-            Arrays.asList(unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+        AstDSL.function("query_string",
+            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
                     "wildcard1*", 1.F, "wildcard2*", .3F))),
-                unresolvedArg("query", stringLiteral("query_value"))),
-            RelevanceFunction.FunctionType.MULTI_FIELD_FUNCTION));
+                unresolvedArg("query", stringLiteral("query_value"))));
   }
 
   @Test
