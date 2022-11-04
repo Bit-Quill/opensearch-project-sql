@@ -58,7 +58,7 @@ public abstract class RelevanceQuery<T extends QueryBuilder> extends LuceneQuery
       if (!queryBuildActions.containsKey(argNormalized)) {
         throw new SemanticCheckException(
             String.format("Parameter %s is invalid for %s function.",
-                argNormalized, queryBuilder.getWriteableName()));
+                argNormalized, func.getFunctionName()));
       }
       (Objects.requireNonNull(
           queryBuildActions

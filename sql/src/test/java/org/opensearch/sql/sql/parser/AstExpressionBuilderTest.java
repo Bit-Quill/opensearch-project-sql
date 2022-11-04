@@ -493,7 +493,7 @@ class AstExpressionBuilderTest {
         buildExprAst("matchquery('message', 'search query')")
     );
 
-    assertEquals(AstDSL.function("match",
+    assertEquals(AstDSL.function("matchquery",
             unresolvedArg("field", stringLiteral("message")),
             unresolvedArg("query", stringLiteral("search query")),
             unresolvedArg("analyzer", stringLiteral("keyword")),
@@ -509,7 +509,7 @@ class AstExpressionBuilderTest {
         buildExprAst("match_query('message', 'search query')")
     );
 
-    assertEquals(AstDSL.function("match",
+    assertEquals(AstDSL.function("match_query",
             unresolvedArg("field", stringLiteral("message")),
             unresolvedArg("query", stringLiteral("search query")),
             unresolvedArg("analyzer", stringLiteral("keyword")),
