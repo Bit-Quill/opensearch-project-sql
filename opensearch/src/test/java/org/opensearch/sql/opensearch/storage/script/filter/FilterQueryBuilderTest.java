@@ -48,7 +48,6 @@ import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
-import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
@@ -593,6 +592,42 @@ class FilterQueryBuilderTest {
         dsl.namedArgument("invalid_parameter", literal("invalid_value")));
     assertThrows(SemanticCheckException.class, () -> buildQuery(expr),
         "Parameter invalid_parameter is invalid for wildcard_query function.");
+  }
+
+  @Test
+  void wildcard_query_convert_sql_wildcard_to_lucene() {
+    // Test conversion of % wildcard to *
+    var expected = "{\n"
+        + "  \"wildcard\" : {\n"
+        + "    \"field\" : {\n"
+        + "      \"wildcard\" : \"search query*\",\n"
+        + "      \"boost\" : 1.0\n"
+        + "    }\n"
+        + "  }\n"
+        + "}";
+    var actual = buildQuery(dsl.wildcard_query(
+        dsl.namedArgument("field", literal("field")),
+        dsl.namedArgument("query", literal("search query%"))));
+
+
+    // Test conversion of _ wildcard to ?
+    assertTrue(new JSONObject(expected).similar(new JSONObject(actual)),
+        StringUtils.format("Actual %s doesn't match neither expected %s", actual, expected));
+
+    expected = "{\n"
+        + "  \"wildcard\" : {\n"
+        + "    \"field\" : {\n"
+        + "      \"wildcard\" : \"search query?\",\n"
+        + "      \"boost\" : 1.0\n"
+        + "    }\n"
+        + "  }\n"
+        + "}";
+    actual = buildQuery(dsl.wildcard_query(
+        dsl.namedArgument("field", literal("field")),
+        dsl.namedArgument("query", literal("search query_"))));
+
+    assertTrue(new JSONObject(expected).similar(new JSONObject(actual)),
+        StringUtils.format("Actual %s doesn't match neither expected %s", actual, expected));
   }
 
   @Test
