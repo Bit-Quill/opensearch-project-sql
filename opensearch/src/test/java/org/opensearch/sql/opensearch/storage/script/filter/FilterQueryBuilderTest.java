@@ -411,109 +411,109 @@ class FilterQueryBuilderTest {
     assertEquals("'field' parameter is missing.", msg);
   }
 
-  @Test
-  void match_query_invalid_parameter() {
-    FunctionExpression expr = dsl.match_query(
-        dsl.namedArgument("field", literal("message")),
-        dsl.namedArgument("query", literal("search query")),
-        dsl.namedArgument("invalid_parameter", literal("invalid_value")));
-    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
-    assertTrue(msg.startsWith("Parameter invalid_parameter is invalid for match_query function."));
-  }
-
-  @Test
-  void match_query_disallow_duplicate_parameter() {
-    FunctionExpression expr = dsl.match_query(
-        dsl.namedArgument("field", literal("message")),
-        dsl.namedArgument("query", literal("search query")),
-        dsl.namedArgument("analyzer", literal("keyword")),
-        dsl.namedArgument("AnalYzer", literal("english")));
-    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
-    assertEquals("Parameter 'analyzer' can only be specified once.", msg);
-  }
-
-  @Test
-  void match_query_disallow_duplicate_query() {
-    FunctionExpression expr = dsl.match_query(
-        dsl.namedArgument("field", literal("message")),
-        dsl.namedArgument("query", literal("search query")),
-        dsl.namedArgument("analyzer", literal("keyword")),
-        dsl.namedArgument("QUERY", literal("something")));
-    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
-    assertEquals("Parameter 'query' can only be specified once.", msg);
-  }
-
-  @Test
-  void match_query_disallow_duplicate_field() {
-    FunctionExpression expr = dsl.match_query(
-        dsl.namedArgument("field", literal("message")),
-        dsl.namedArgument("query", literal("search query")),
-        dsl.namedArgument("analyzer", literal("keyword")),
-        dsl.namedArgument("Field", literal("something")));
-    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
-    assertEquals("Parameter 'field' can only be specified once.", msg);
-  }
-
-  @Test
-  void match_query_missing_field() {
-    FunctionExpression expr = dsl.match_query(
-        dsl.namedArgument("query", literal("search query")),
-        dsl.namedArgument("analyzer", literal("keyword")));
-    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
-    assertEquals("'field' parameter is missing.", msg);
-  }
-
-  @Test
-  void matchquery_invalid_parameter() {
-    FunctionExpression expr = dsl.matchquery(
-        dsl.namedArgument("field", literal("message")),
-        dsl.namedArgument("query", literal("search query")),
-        dsl.namedArgument("invalid_parameter", literal("invalid_value")));
-    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
-    assertTrue(msg.startsWith("Parameter invalid_parameter is invalid for matchquery function."));
-  }
-
-  @Test
-  void matchquery_disallow_duplicate_parameter() {
-    FunctionExpression expr = dsl.matchquery(
-        dsl.namedArgument("field", literal("message")),
-        dsl.namedArgument("query", literal("search query")),
-        dsl.namedArgument("analyzer", literal("keyword")),
-        dsl.namedArgument("AnalYzer", literal("english")));
-    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
-    assertEquals("Parameter 'analyzer' can only be specified once.", msg);
-  }
-
-  @Test
-  void matchquery_disallow_duplicate_query() {
-    FunctionExpression expr = dsl.matchquery(
-        dsl.namedArgument("field", literal("message")),
-        dsl.namedArgument("query", literal("search query")),
-        dsl.namedArgument("analyzer", literal("keyword")),
-        dsl.namedArgument("QUERY", literal("something")));
-    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
-    assertEquals("Parameter 'query' can only be specified once.", msg);
-  }
-
-  @Test
-  void matchquery_disallow_duplicate_field() {
-    FunctionExpression expr = dsl.matchquery(
-        dsl.namedArgument("field", literal("message")),
-        dsl.namedArgument("query", literal("search query")),
-        dsl.namedArgument("analyzer", literal("keyword")),
-        dsl.namedArgument("Field", literal("something")));
-    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
-    assertEquals("Parameter 'field' can only be specified once.", msg);
-  }
-
-  @Test
-  void matchquery_missing_field() {
-    FunctionExpression expr = dsl.matchquery(
-        dsl.namedArgument("query", literal("search query")),
-        dsl.namedArgument("analyzer", literal("keyword")));
-    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
-    assertEquals("'field' parameter is missing.", msg);
-  }
+//  @Test
+//  void match_query_invalid_parameter() {
+//    FunctionExpression expr = dsl.match_query(
+//        dsl.namedArgument("field", literal("message")),
+//        dsl.namedArgument("query", literal("search query")),
+//        dsl.namedArgument("invalid_parameter", literal("invalid_value")));
+//    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+//    assertTrue(msg.startsWith("Parameter invalid_parameter is invalid for match_query function."));
+//  }
+//
+//  @Test
+//  void match_query_disallow_duplicate_parameter() {
+//    FunctionExpression expr = dsl.match_query(
+//        dsl.namedArgument("field", literal("message")),
+//        dsl.namedArgument("query", literal("search query")),
+//        dsl.namedArgument("analyzer", literal("keyword")),
+//        dsl.namedArgument("AnalYzer", literal("english")));
+//    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+//    assertEquals("Parameter 'analyzer' can only be specified once.", msg);
+//  }
+//
+//  @Test
+//  void match_query_disallow_duplicate_query() {
+//    FunctionExpression expr = dsl.match_query(
+//        dsl.namedArgument("field", literal("message")),
+//        dsl.namedArgument("query", literal("search query")),
+//        dsl.namedArgument("analyzer", literal("keyword")),
+//        dsl.namedArgument("QUERY", literal("something")));
+//    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+//    assertEquals("Parameter 'query' can only be specified once.", msg);
+//  }
+//
+//  @Test
+//  void match_query_disallow_duplicate_field() {
+//    FunctionExpression expr = dsl.match_query(
+//        dsl.namedArgument("field", literal("message")),
+//        dsl.namedArgument("query", literal("search query")),
+//        dsl.namedArgument("analyzer", literal("keyword")),
+//        dsl.namedArgument("Field", literal("something")));
+//    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+//    assertEquals("Parameter 'field' can only be specified once.", msg);
+//  }
+//
+//  @Test
+//  void match_query_missing_field() {
+//    FunctionExpression expr = dsl.match_query(
+//        dsl.namedArgument("query", literal("search query")),
+//        dsl.namedArgument("analyzer", literal("keyword")));
+//    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+//    assertEquals("'field' parameter is missing.", msg);
+//  }
+//
+//  @Test
+//  void matchquery_invalid_parameter() {
+//    FunctionExpression expr = dsl.matchquery(
+//        dsl.namedArgument("field", literal("message")),
+//        dsl.namedArgument("query", literal("search query")),
+//        dsl.namedArgument("invalid_parameter", literal("invalid_value")));
+//    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+//    assertTrue(msg.startsWith("Parameter invalid_parameter is invalid for matchquery function."));
+//  }
+//
+//  @Test
+//  void matchquery_disallow_duplicate_parameter() {
+//    FunctionExpression expr = dsl.matchquery(
+//        dsl.namedArgument("field", literal("message")),
+//        dsl.namedArgument("query", literal("search query")),
+//        dsl.namedArgument("analyzer", literal("keyword")),
+//        dsl.namedArgument("AnalYzer", literal("english")));
+//    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+//    assertEquals("Parameter 'analyzer' can only be specified once.", msg);
+//  }
+//
+//  @Test
+//  void matchquery_disallow_duplicate_query() {
+//    FunctionExpression expr = dsl.matchquery(
+//        dsl.namedArgument("field", literal("message")),
+//        dsl.namedArgument("query", literal("search query")),
+//        dsl.namedArgument("analyzer", literal("keyword")),
+//        dsl.namedArgument("QUERY", literal("something")));
+//    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+//    assertEquals("Parameter 'query' can only be specified once.", msg);
+//  }
+//
+//  @Test
+//  void matchquery_disallow_duplicate_field() {
+//    FunctionExpression expr = dsl.matchquery(
+//        dsl.namedArgument("field", literal("message")),
+//        dsl.namedArgument("query", literal("search query")),
+//        dsl.namedArgument("analyzer", literal("keyword")),
+//        dsl.namedArgument("Field", literal("something")));
+//    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+//    assertEquals("Parameter 'field' can only be specified once.", msg);
+//  }
+//
+//  @Test
+//  void matchquery_missing_field() {
+//    FunctionExpression expr = dsl.matchquery(
+//        dsl.namedArgument("query", literal("search query")),
+//        dsl.namedArgument("analyzer", literal("keyword")));
+//    var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
+//    assertEquals("'field' parameter is missing.", msg);
+//  }
 
   @Test
   void should_build_match_phrase_query_with_default_parameters() {
