@@ -773,9 +773,6 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
     );
   }
 
-  private Node buildExprAst(String query) {
-    AstBuilder astBuilder = new AstBuilder(new AstExpressionBuilder(), query);
-    return astBuilder.visit(new PPLSyntaxParser().parse(query));
   public void functionNameCanBeUsedAsIdentifier() {
     assertFunctionNameCouldBeId(
         "AVG | COUNT | SUM | MIN | MAX | VAR_SAMP | VAR_POP | STDDEV_SAMP | STDDEV_POP");

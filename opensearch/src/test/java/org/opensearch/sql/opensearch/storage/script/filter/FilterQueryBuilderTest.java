@@ -721,6 +721,9 @@ class FilterQueryBuilderTest {
 
     assertTrue(new JSONObject(expected).similar(new JSONObject(actual)),
         StringUtils.format("Actual %s doesn't match neither expected %s", actual, expected));
+  }
+
+  @Test
   void query_invalid_parameter() {
     FunctionExpression expr = dsl.query(
             dsl.namedArgument("invalid_parameter", literal("invalid_value")));
