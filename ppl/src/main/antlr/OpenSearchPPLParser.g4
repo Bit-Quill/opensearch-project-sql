@@ -26,7 +26,7 @@ pplCommands
 
 commands
     : whereCommand | fieldsCommand | renameCommand | statsCommand | dedupCommand | sortCommand | evalCommand | headCommand
-    | topCommand | rareCommand | grokCommand | parseCommand | patternsCommand | kmeansCommand | adCommand;
+    | topCommand | rareCommand | grokCommand | parseCommand | patternsCommand | kmeansCommand | adCommand | mlCommand;
 
 searchCommand
     : (SEARCH)? fromClause                                          #searchFrom
@@ -149,12 +149,18 @@ adParameter
     | (ANOMALY_SCORE_THRESHOLD EQUAL anomaly_score_threshold=decimalLiteral)
     ;
 
+mlCommand
+    : ML (mlArg)*
+    ;
+
+mlArg
+    : (argName=ident EQUAL argValue=literalValue)
+    ;
+
 /** clauses */
 fromClause
     : SOURCE EQUAL tableSourceClause
     | INDEX EQUAL tableSourceClause
-    | SOURCE EQUAL tableFunction
-    | INDEX EQUAL tableFunction
     ;
 
 tableSourceClause
@@ -422,7 +428,7 @@ dateAndTimeFunctionBase
 
 // Functions which value could be cached in scope of a single query
 constantFunctionName
-    : datetimeConstantLiteral
+    : CURRENT_DATE | CURRENT_TIME | CURRENT_TIMESTAMP | LOCALTIME | LOCALTIMESTAMP | UTC_TIMESTAMP | UTC_DATE | UTC_TIME
     | CURDATE | CURTIME | NOW
     ;
 
@@ -500,7 +506,6 @@ datetimeLiteral
     : dateLiteral
     | timeLiteral
     | timestampLiteral
-    | datetimeConstantLiteral
     ;
 
 dateLiteral
@@ -513,11 +518,6 @@ timeLiteral
 
 timestampLiteral
     : TIMESTAMP timestamp=stringLiteral
-    ;
-
-// Actually, these constants are shortcuts to the corresponding functions
-datetimeConstantLiteral
-    : CURRENT_DATE | CURRENT_TIME | CURRENT_TIMESTAMP | LOCALTIME | LOCALTIMESTAMP | UTC_TIMESTAMP | UTC_DATE | UTC_TIME
     ;
 
 intervalUnit
@@ -564,4 +564,8 @@ keywordsCanBeId
     | TIMESTAMP | DATE | TIME
     | FIRST | LAST
     | timespanUnit | SPAN
+    | constantFunctionName
+    | dateAndTimeFunctionBase
+    | textFunctionBase
+    | mathematicalFunctionBase
     ;
