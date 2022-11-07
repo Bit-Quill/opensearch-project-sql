@@ -22,6 +22,7 @@ import org.opensearch.index.query.Operator;
 import org.opensearch.index.query.QueryStringQueryBuilder;
 import org.opensearch.index.query.SimpleQueryStringBuilder;
 import org.opensearch.index.query.SimpleQueryStringFlag;
+import org.opensearch.index.query.WildcardQueryBuilder;
 import org.opensearch.index.query.support.QueryParsers;
 import org.opensearch.index.search.MatchQuery;
 import org.opensearch.sql.data.model.ExprValue;
@@ -165,6 +166,14 @@ public class FunctionParameterRepository {
           .put("minimum_should_match", (b, v) -> b.minimumShouldMatch(v.stringValue()))
           .put("quote_field_suffix", (b, v) -> b.quoteFieldSuffix(v.stringValue()))
           .build();
+
+  public static final Map<String, RelevanceQuery.QueryBuilderStep<WildcardQueryBuilder>>
+      WildcardQueryBuildActions = ImmutableMap.<String,
+          RelevanceQuery.QueryBuilderStep<WildcardQueryBuilder>>builder()
+      .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
+      .put("case_insensitive", (b, v) -> b.caseInsensitive(Boolean.parseBoolean(v.stringValue())))
+      .put("rewrite", (b, v) -> b.rewrite(v.stringValue()))
+      .build();
 
   public static final Map<String, String> ArgumentLimitations =
       ImmutableMap.<String, String>builder()
