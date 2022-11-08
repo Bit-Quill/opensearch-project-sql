@@ -396,46 +396,46 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         SemanticCheckException.class,
         () -> analyze(AstDSL.in(field("integer_value"), Collections.emptyList())));
   }
-//
-//  @Test
-//  void match_query_expression() {
-//    assertAnalyzeEqual(
-//        dsl.match_query(
-//            dsl.namedArgument("field", DSL.literal("sample query"))),
-//        AstDSL.function("match_query",
-//            AstDSL.unresolvedArg("field", stringLiteral("sample query"))));
-//  }
-//
-//  @Test
-//  void match_query_expression_with_params() {
-//    assertAnalyzeEqual(
-//        dsl.match_query(
-//            dsl.namedArgument("field", DSL.literal("sample query")),
-//            dsl.namedArgument("analyzer", DSL.literal("keyword"))),
-//        AstDSL.function("match_query",
-//            AstDSL.unresolvedArg("field", stringLiteral("sample query")),
-//            AstDSL.unresolvedArg("analyzer", stringLiteral("keyword"))));
-//  }
 
-//  @Test
-//  void matchquery_expression() {
-//    assertAnalyzeEqual(
-//        dsl.matchquery(
-//            dsl.namedArgument("field", DSL.literal("sample query"))),
-//        AstDSL.function("matchquery",
-//            AstDSL.unresolvedArg("field", stringLiteral("sample query"))));
-//  }
-//
-//  @Test
-//  void matchquery_expression_with_params() {
-//    assertAnalyzeEqual(
-//        dsl.matchquery(
-//            dsl.namedArgument("field", DSL.literal("sample query")),
-//            dsl.namedArgument("analyzer", DSL.literal("keyword"))),
-//        AstDSL.function("matchquery",
-//            AstDSL.unresolvedArg("field", stringLiteral("sample query")),
-//            AstDSL.unresolvedArg("analyzer", stringLiteral("keyword"))));
-//  }
+  @Test
+  void match_query_expression() {
+    assertAnalyzeEqual(
+        dsl.match_query(
+            dsl.namedArgument("field", DSL.literal("sample query"))),
+        AstDSL.function("match_query",
+            AstDSL.unresolvedArg("field", stringLiteral("sample query"))));
+  }
+
+  @Test
+  void match_query_expression_with_params() {
+    assertAnalyzeEqual(
+        dsl.match_query(
+            dsl.namedArgument("field", DSL.literal("sample query")),
+            dsl.namedArgument("analyzer", DSL.literal("keyword"))),
+        AstDSL.function("match_query",
+            AstDSL.unresolvedArg("field", stringLiteral("sample query")),
+            AstDSL.unresolvedArg("analyzer", stringLiteral("keyword"))));
+  }
+
+  @Test
+  void matchquery_expression() {
+    assertAnalyzeEqual(
+        dsl.matchquery(
+            dsl.namedArgument("field", DSL.literal("sample query"))),
+        AstDSL.function("matchquery",
+            AstDSL.unresolvedArg("field", stringLiteral("sample query"))));
+  }
+
+  @Test
+  void matchquery_expression_with_params() {
+    assertAnalyzeEqual(
+        dsl.matchquery(
+            dsl.namedArgument("field", DSL.literal("sample query")),
+            dsl.namedArgument("analyzer", DSL.literal("keyword"))),
+        AstDSL.function("matchquery",
+            AstDSL.unresolvedArg("field", stringLiteral("sample query")),
+            AstDSL.unresolvedArg("analyzer", stringLiteral("keyword"))));
+  }
 
   @Test
   void multi_match_expression() {

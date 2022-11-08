@@ -5,6 +5,10 @@
 
 package org.opensearch.sql.opensearch.storage.script.filter.lucene;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -24,16 +28,15 @@ import org.opensearch.sql.expression.env.Environment;
 import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.MatchQuery;
 
-import java.util.List;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class MatchTest {
   private final DSL dsl = new ExpressionConfig().dsl(new ExpressionConfig().functionRepository());
   private final MatchQuery matchQuery = new MatchQuery();
-  private final FunctionName match = FunctionName.of("match");
+  private final FunctionName matchName = FunctionName.of("match");
+  private final FunctionName matchQueryName = FunctionName.of("matchquery");
+  private final FunctionName matchQueryWithUnderscoreName = FunctionName.of("match_query");
+  private final FunctionName[] functionNames = {
+      matchName, matchQueryName, matchQueryWithUnderscoreName};
 
   static Stream<List<Expression>> generateValidData() {
     final DSL dsl = new ExpressionConfig().dsl(new ExpressionConfig().functionRepository());
@@ -113,21 +116,40 @@ public class MatchTest {
   @ParameterizedTest
   @MethodSource("generateValidData")
   public void test_valid_parameters(List<Expression> validArgs) {
-    Assertions.assertNotNull(matchQuery.build(new MatchExpression(validArgs)));
+    Assertions.assertNotNull(
+        matchQuery.build(new MatchExpression(validArgs)));
+  }
+
+  @ParameterizedTest
+  @MethodSource("generateValidData")
+  public void test_valid_parameters_match_query_function(List<Expression> validArgs) {
+    Assertions.assertNotNull(
+        matchQuery.build(new MatchExpression(validArgs, matchQueryWithUnderscoreName)));
+  }
+
+  @ParameterizedTest
+  @MethodSource("generateValidData")
+  public void test_valid_parameters_matchquery_function(List<Expression> validArgs) {
+    Assertions.assertNotNull(
+        matchQuery.build(new MatchExpression(validArgs, matchQueryName)));
   }
 
   @Test
   public void test_SyntaxCheckException_when_no_arguments() {
     List<Expression> arguments = List.of();
-    assertThrows(SyntaxCheckException.class,
-        () -> matchQuery.build(new MatchExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      assertThrows(SyntaxCheckException.class,
+          () -> matchQuery.build(new MatchExpression(arguments, funcName)));
+    }
   }
 
   @Test
   public void test_SyntaxCheckException_when_one_argument() {
     List<Expression> arguments = List.of(namedArgument("field", "field_value"));
-    assertThrows(SyntaxCheckException.class,
-        () -> matchQuery.build(new MatchExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      assertThrows(SyntaxCheckException.class,
+          () -> matchQuery.build(new MatchExpression(arguments, funcName)));
+    }
   }
 
   @Test
@@ -136,8 +158,10 @@ public class MatchTest {
         namedArgument("field", "field_value"),
         namedArgument("query", "query_value"),
         namedArgument("unsupported", "unsupported_value"));
-    Assertions.assertThrows(SemanticCheckException.class,
-        () -> matchQuery.build(new MatchExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      Assertions.assertThrows(SemanticCheckException.class,
+          () -> matchQuery.build(new MatchExpression(arguments, funcName)));
+    }
   }
 
   private NamedArgumentExpression namedArgument(String name, String value) {
@@ -146,7 +170,11 @@ public class MatchTest {
 
   private class MatchExpression extends FunctionExpression {
     public MatchExpression(List<Expression> arguments) {
-      super(MatchTest.this.match, arguments);
+      super(MatchTest.this.matchName, arguments);
+    }
+
+    public MatchExpression(List<Expression> arguments, FunctionName functionName) {
+      super(functionName, arguments);
     }
 
     @Override
