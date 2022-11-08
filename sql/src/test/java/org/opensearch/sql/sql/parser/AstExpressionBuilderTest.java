@@ -554,6 +554,9 @@ class AstExpressionBuilderTest {
         buildExprAst("wildcard_query(field, 'search query*', boost=1.5,"
             + "case_insensitive=true, rewrite='scoring_boolean'))")
     );
+  }
+
+  @Test
   public void relevanceQuery() {
     assertEquals(AstDSL.function("query",
                     unresolvedArg("query", stringLiteral("field1:query OR field2:query"))),
