@@ -21,9 +21,42 @@ public class WildcardQuery extends SingleFieldQuery<WildcardQueryBuilder> {
     super(FunctionParameterRepository.WildcardQueryBuildActions);
   }
 
+  private static final char DEFAULT_ESCAPE = '\\';
+
   private String convertSqlWildcardToLucene(String text) {
-    return text.replace('%', '*')
-               .replace('_', '?');
+    StringBuilder convertedString = new StringBuilder(text.length());
+    boolean escaped = false;
+
+    for (char currentChar : text.toCharArray()) {
+      switch (currentChar) {
+        case DEFAULT_ESCAPE:
+          escaped = true;
+          convertedString.append(currentChar);
+          break;
+        case '%':
+          if (escaped) {
+            convertedString.deleteCharAt(convertedString.length() - 1);
+            convertedString.append("%");
+          } else {
+            convertedString.append("*");
+          }
+          escaped = false;
+          break;
+        case '_':
+          if (escaped) {
+            convertedString.deleteCharAt(convertedString.length() - 1);
+            convertedString.append("_");
+          } else {
+            convertedString.append('?');
+          }
+          escaped = false;
+          break;
+        default:
+          convertedString.append(currentChar);
+          escaped = false;
+      }
+    }
+    return convertedString.toString();
   }
 
   @Override

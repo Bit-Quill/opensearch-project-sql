@@ -30,9 +30,6 @@ public class OpenSearchFunctionsTest extends ExpressionTestBase {
           "body", ExprValueUtils.floatValue(.3F))))));
   private final NamedArgumentExpression query = new NamedArgumentExpression(
       "query", DSL.literal("search query"));
-
-  private final NamedArgumentExpression wildcardQuery = new NamedArgumentExpression(
-      "query", DSL.literal("search query*"));
   private final NamedArgumentExpression analyzer = new NamedArgumentExpression(
       "analyzer", DSL.literal("keyword"));
   private final NamedArgumentExpression autoGenerateSynonymsPhrase = new NamedArgumentExpression(
@@ -203,9 +200,9 @@ public class OpenSearchFunctionsTest extends ExpressionTestBase {
 
   @Test
   void wildcard_query() {
-    FunctionExpression expr = dsl.wildcard_query(field, wildcardQuery);
+    FunctionExpression expr = dsl.wildcard_query(field, query);
     assertEquals(String.format("wildcard_query(field=%s, query=%s)",
-            field.getValue(), wildcardQuery.getValue()),
+            field.getValue(), query.getValue()),
         expr.toString());
   }
 }

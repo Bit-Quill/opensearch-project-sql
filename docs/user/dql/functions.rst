@@ -3137,7 +3137,7 @@ Description
 
 ``wildcard_query(field_expression, query_expression[, option=<option_value>]*)``
 
-The wildcard_query function maps to the wildcard_query query used in search engine, to return the documents that match a provided text with a given field.
+The wildcard_query function maps to the wildcard_query query used in search engine. It returns documents that match provided text in the specified field.
 Supported wildcard characters can be found here: https://opensearch.org/docs/latest/opensearch/query-dsl/term/#wildcards
 
 Available parameters include:

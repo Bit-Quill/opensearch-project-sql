@@ -170,9 +170,9 @@ public class FunctionParameterRepository {
   public static final Map<String, RelevanceQuery.QueryBuilderStep<WildcardQueryBuilder>>
       WildcardQueryBuildActions = ImmutableMap.<String,
           RelevanceQuery.QueryBuilderStep<WildcardQueryBuilder>>builder()
-      .put("boost", (b, v) -> b.boost(Float.parseFloat(v.stringValue())))
-      .put("case_insensitive", (b, v) -> b.caseInsensitive(Boolean.parseBoolean(v.stringValue())))
-      .put("rewrite", (b, v) -> b.rewrite(v.stringValue()))
+      .put("boost", (b, v) -> b.boost(convertFloatValue(v, "boost")))
+      .put("case_insensitive", (b, v) -> b.caseInsensitive(convertBoolValue(v, "case_insensitive")))
+      .put("rewrite", (b, v) -> b.rewrite(checkRewrite(v, "rewrite")))
       .build();
 
   public static final Map<String, String> ArgumentLimitations =

@@ -683,6 +683,69 @@ class FilterQueryBuilderTest {
   }
 
   @Test
+  void wildcard_query_escape_sql_wildcard_characters() {
+    var expected = "{\n"
+        + "  \"wildcard\" : {\n"
+        + "    \"field\" : {\n"
+        + "      \"wildcard\" : \"search query%\",\n"
+        + "      \"boost\" : 1.0\n"
+        + "    }\n"
+        + "  }\n"
+        + "}";
+    var actual = buildQuery(dsl.wildcard_query(
+        dsl.namedArgument("field", literal("field")),
+        dsl.namedArgument("query", literal("search query\\%"))));
+
+    assertTrue(new JSONObject(expected).similar(new JSONObject(actual)),
+        StringUtils.format("Actual %s doesn't match neither expected %s", actual, expected));
+
+    expected = "{\n"
+        + "  \"wildcard\" : {\n"
+        + "    \"field\" : {\n"
+        + "      \"wildcard\" : \"search query_\",\n"
+        + "      \"boost\" : 1.0\n"
+        + "    }\n"
+        + "  }\n"
+        + "}";
+    actual = buildQuery(dsl.wildcard_query(
+        dsl.namedArgument("field", literal("field")),
+        dsl.namedArgument("query", literal("search query\\_"))));
+
+    assertTrue(new JSONObject(expected).similar(new JSONObject(actual)),
+        StringUtils.format("Actual %s doesn't match neither expected %s", actual, expected));
+
+    expected = "{\n"
+        + "  \"wildcard\" : {\n"
+        + "    \"field\" : {\n"
+        + "      \"wildcard\" : \"search query\\\\*\",\n"
+        + "      \"boost\" : 1.0\n"
+        + "    }\n"
+        + "  }\n"
+        + "}";
+    actual = buildQuery(dsl.wildcard_query(
+        dsl.namedArgument("field", literal("field")),
+        dsl.namedArgument("query", literal("search query\\*"))));
+
+    assertTrue(new JSONObject(expected).similar(new JSONObject(actual)),
+        StringUtils.format("Actual %s doesn't match neither expected %s", actual, expected));
+
+    expected = "{\n"
+        + "  \"wildcard\" : {\n"
+        + "    \"field\" : {\n"
+        + "      \"wildcard\" : \"search query\\\\?\",\n"
+        + "      \"boost\" : 1.0\n"
+        + "    }\n"
+        + "  }\n"
+        + "}";
+    actual = buildQuery(dsl.wildcard_query(
+        dsl.namedArgument("field", literal("field")),
+        dsl.namedArgument("query", literal("search query\\?"))));
+
+    assertTrue(new JSONObject(expected).similar(new JSONObject(actual)),
+        StringUtils.format("Actual %s doesn't match neither expected %s", actual, expected));
+  }
+
+  @Test
   void should_build_wildcard_query_with_default_parameters() {
     var expected = "{\n"
         + "  \"wildcard\" : {\n"
@@ -708,7 +771,7 @@ class FilterQueryBuilderTest {
         + "      \"wildcard\" : \"search query*\",\n"
         + "      \"boost\" : 0.6,\n"
         + "      \"case_insensitive\" : true,\n"
-        + "      \"rewrite\" : \"top_terms_boost_N\"\n"
+        + "      \"rewrite\" : \"constant_score_boolean\"\n"
         + "    }\n"
         + "  }\n"
         + "}";
@@ -717,7 +780,7 @@ class FilterQueryBuilderTest {
         dsl.namedArgument("query", literal("search query*")),
         dsl.namedArgument("boost", literal("0.6")),
         dsl.namedArgument("case_insensitive", literal("true")),
-        dsl.namedArgument("rewrite", literal("top_terms_boost_N"))));
+        dsl.namedArgument("rewrite", literal("constant_score_boolean"))));
 
     assertTrue(new JSONObject(expected).similar(new JSONObject(actual)),
         StringUtils.format("Actual %s doesn't match neither expected %s", actual, expected));

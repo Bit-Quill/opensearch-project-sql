@@ -6,6 +6,7 @@
 package org.opensearch.sql.opensearch.storage.script.filter.lucene;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.opensearch.sql.expression.DSL.namedArgument;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -22,27 +23,23 @@ import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
-import org.opensearch.sql.expression.NamedArgumentExpression;
-import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.expression.env.Environment;
 import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance.WildcardQuery;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class WildcardQueryTest {
-  private static final DSL dsl = new ExpressionConfig()
-      .dsl(new ExpressionConfig().functionRepository());
   private final WildcardQuery wildcardQueryQuery = new WildcardQuery();
-  private final FunctionName wildcardQueryFunc = FunctionName.of("wildcard_query");
+  private static final FunctionName wildcardQueryFunc = FunctionName.of("wildcard_query");
 
   static Stream<List<Expression>> generateValidData() {
     return Stream.of(
         List.of(
-            dsl.namedArgument("field", DSL.literal("title")),
-            dsl.namedArgument("query", DSL.literal("query_value*")),
-            dsl.namedArgument("boost", DSL.literal("0.7")),
-            dsl.namedArgument("case_insensitive", DSL.literal("false")),
-            dsl.namedArgument("rewrite", DSL.literal("constant_score_boolean"))
+            DSL.namedArgument("field", DSL.literal("title")),
+            DSL.namedArgument("query", DSL.literal("query_value*")),
+            DSL.namedArgument("boost", DSL.literal("0.7")),
+            DSL.namedArgument("case_insensitive", DSL.literal("false")),
+            DSL.namedArgument("rewrite", DSL.literal("constant_score_boolean"))
         )
     );
   }
@@ -63,7 +60,7 @@ class WildcardQueryTest {
 
   @Test
   public void test_SyntaxCheckException_when_one_argument() {
-    List<Expression> arguments = List.of(namedArgument("field", "title"));
+    List<Expression> arguments = List.of(namedArgument("field", DSL.literal("title")));
     assertThrows(SyntaxCheckException.class,
         () -> wildcardQueryQuery.build(new WildcardQueryExpression(arguments)));
   }
@@ -71,15 +68,11 @@ class WildcardQueryTest {
   @Test
   public void test_SemanticCheckException_when_invalid_parameter() {
     List<Expression> arguments = List.of(
-        namedArgument("field", "title"),
-        namedArgument("query", "query_value*"),
-        namedArgument("unsupported", "unsupported_value"));
+        namedArgument("field", DSL.literal("title")),
+        namedArgument("query", DSL.literal("query_value*")),
+        namedArgument("unsupported", DSL.literal("unsupported_value")));
     Assertions.assertThrows(SemanticCheckException.class,
         () -> wildcardQueryQuery.build(new WildcardQueryExpression(arguments)));
-  }
-
-  private NamedArgumentExpression namedArgument(String name, String value) {
-    return dsl.namedArgument(name, DSL.literal(value));
   }
 
   private class WildcardQueryExpression extends FunctionExpression {
