@@ -38,10 +38,6 @@ apply plugin: 'java'
 apply plugin: 'io.freefair.lombok'
 apply plugin: 'com.wiredforcode.spawn'
 
-repositories {
-    mavenCentral()
-    maven { url 'https://jitpack.io' }
-}
 
 ext {
     projectSubstitutions = [:]
@@ -67,7 +63,6 @@ configurations.all {
     resolutionStrategy.force "com.fasterxml.jackson.core:jackson-databind:${jackson_databind_version}"
     resolutionStrategy.force "org.jetbrains.kotlin:kotlin-stdlib:1.6.0"
     resolutionStrategy.force "org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0"
-    resolutionStrategy.force "com.squareup.okhttp3:okhttp:4.9.3"
 }
 
 dependencies {
@@ -119,6 +114,7 @@ task startPrometheus(type: SpawnProcessTask) {
         download.run {
             src 'https://github.com/prometheus/prometheus/releases/download/v2.39.1/prometheus-2.39.1.linux-amd64.tar.gz'
             dest new File("$projectDir/bin", 'prometheus.tar.gz')
+            overwrite false
         }
         copy {
             from tarTree("$projectDir/bin/prometheus.tar.gz")
@@ -140,8 +136,15 @@ stopPrometheus.mustRunAfter startPrometheus
 // Run PPL ITs and new, legacy and comparison SQL ITs with new SQL engine enabled
 integTest {
     dependsOn ':opensearch-sql-plugin:bundlePlugin'
-    dependsOn startPrometheus
-    finalizedBy stopPrometheus
+
+    // OpenSearch designed to run on Linux only in production, so main CI workflows are on Linux too.
+    // As of #977 gradle workflows which depend on Prometheus use hardcoded Linux version of it.
+    // Auxiliary workflows and developers who use other OS should be able to run tests as well,
+    // so this trick unblocks them to run ITs. Note: Prometheus related tests would be skipped.
+    if (DefaultNativePlatform.currentOperatingSystem.isLinux()) {
+        dependsOn startPrometheus
+        finalizedBy stopPrometheus
+    }
 
     systemProperty 'tests.security.manager', 'false'
     systemProperty('project.root', project.projectDir.absolutePath)

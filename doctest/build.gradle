@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+
 import java.util.concurrent.Callable
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.opensearch.gradle.testclusters.RunTask
 
 plugins {
@@ -31,6 +33,7 @@ task startPrometheus(type: SpawnProcessTask) {
         download.run {
             src 'https://github.com/prometheus/prometheus/releases/download/v2.39.1/prometheus-2.39.1.linux-amd64.tar.gz'
             dest new File("$projectDir/bin", 'prometheus.tar.gz')
+            overwrite false
         }
         copy {
             from tarTree("$projectDir/bin/prometheus.tar.gz")
@@ -86,9 +89,17 @@ task stopPrometheus() {
 
 stopPrometheus.mustRunAfter startPrometheus
 doctest.dependsOn startOpenSearch
-startOpenSearch.dependsOn startPrometheus
 doctest.finalizedBy stopOpenSearch
-stopOpenSearch.finalizedBy stopPrometheus
+
+// OpenSearch designed to run on Linux only in production, so main CI workflows are on Linux too.
+// As of #977 gradle workflows which depend on Prometheus use hardcoded Linux version of it.
+// Auxiliary workflows and developers who use other OS should be able to run tests as well,
+// so this trick unblocks them to run doctests. Note: Prometheus related tests would fail.
+if (DefaultNativePlatform.currentOperatingSystem.isLinux()) {
+    startOpenSearch.dependsOn startPrometheus
+    stopOpenSearch.finalizedBy stopPrometheus
+}
+
 build.dependsOn doctest
 clean.dependsOn(cleanBootstrap)
 
@@ -104,9 +115,7 @@ String mlCommonsPlugin = 'opensearch-ml'
 
 testClusters {
     docTestCluster {
-        keystore 'plugins.query.federation.datasources.config', new File("$projectDir/catalog", 'catalog.json')
-        // Disable loading of `ML-commons` plugin, because it might be unavailable (not released yet).
-        /*
+        keystore 'plugins.query.federation.catalog.config', new File("$projectDir/catalog", 'catalog.json')
         plugin(provider(new Callable<RegularFile>(){
             @Override
             RegularFile call() throws Exception {
@@ -126,7 +135,6 @@ testClusters {
                 }
             }
         }))
-        */
         plugin ':opensearch-sql-plugin'
         testDistribution = 'integ_test'
     }

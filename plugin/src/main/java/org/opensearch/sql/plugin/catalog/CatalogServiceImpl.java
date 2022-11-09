@@ -28,7 +28,7 @@ import org.opensearch.sql.catalog.model.Catalog;
 import org.opensearch.sql.catalog.model.CatalogMetadata;
 import org.opensearch.sql.catalog.model.ConnectorType;
 import org.opensearch.sql.opensearch.security.SecurityAccess;
-import org.opensearch.sql.prometheus.storage.PrometheusStorageFactory;
+//import org.opensearch.sql.prometheus.storage.PrometheusStorageFactory;
 import org.opensearch.sql.storage.StorageEngine;
 import org.opensearch.sql.storage.StorageEngineFactory;
 
@@ -53,9 +53,9 @@ public class CatalogServiceImpl implements CatalogService {
 
   private CatalogServiceImpl() {
     connectorTypeStorageEngineFactoryMap = new HashMap<>();
-    PrometheusStorageFactory prometheusStorageFactory = new PrometheusStorageFactory();
-    connectorTypeStorageEngineFactoryMap.put(prometheusStorageFactory.getConnectorType(),
-        prometheusStorageFactory);
+//    PrometheusStorageFactory prometheusStorageFactory = new PrometheusStorageFactory();
+//    connectorTypeStorageEngineFactoryMap.put(prometheusStorageFactory.getConnectorType(),
+//        prometheusStorageFactory);
   }
 
   /**

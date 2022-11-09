@@ -7,8 +7,8 @@
 
 package org.opensearch.sql.ppl;
 
-import static org.opensearch.sql.prometheus.data.constants.PrometheusFieldConstants.TIMESTAMP;
-import static org.opensearch.sql.prometheus.data.constants.PrometheusFieldConstants.VALUE;
+//import static org.opensearch.sql.prometheus.data.constants.PrometheusFieldConstants.TIMESTAMP;
+//import static org.opensearch.sql.prometheus.data.constants.PrometheusFieldConstants.VALUE;
 import static org.opensearch.sql.util.MatcherUtils.schema;
 import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
@@ -27,8 +27,8 @@ public class PrometheusCatalogCommandsIT extends PPLIntegTestCase {
     JSONObject response =
         executeQuery("source=my_prometheus.prometheus_http_requests_total");
     verifySchema(response,
-        schema(VALUE, "double"),
-        schema(TIMESTAMP,  "timestamp"),
+//        schema(VALUE, "double"),
+//        schema(TIMESTAMP,  "timestamp"),
         schema("handler",  "string"),
         schema("code",  "string"),
         schema("instance",  "string"),
