@@ -38,7 +38,9 @@ class QueryStringTest {
   private static final DSL dsl = new ExpressionConfig()
       .dsl(new ExpressionConfig().functionRepository());
   private final QueryStringQuery queryStringQuery = new QueryStringQuery();
-  private final FunctionName queryStringFunc = FunctionName.of("query_string");
+  private final FunctionName queryStringFuncWithUnderscoreName = FunctionName.of("query_string");
+  private final FunctionName queryStringFuncName = FunctionName.of("querystring");
+  private final FunctionName[] functionNames = {queryStringFuncWithUnderscoreName, queryStringFuncName};
   private static final LiteralExpression fields_value = DSL.literal(
       new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
           "title", ExprValueUtils.floatValue(1.F),
@@ -84,22 +86,28 @@ class QueryStringTest {
   @ParameterizedTest
   @MethodSource("generateValidData")
   public void test_valid_parameters(List<Expression> validArgs) {
-    Assertions.assertNotNull(queryStringQuery.build(
-        new QueryStringExpression(validArgs)));
+    for (FunctionName funcName : functionNames) {
+      Assertions.assertNotNull(queryStringQuery.build(
+          new QueryStringExpression(validArgs, funcName)));
+    }
   }
 
   @Test
   public void test_SyntaxCheckException_when_no_arguments() {
     List<Expression> arguments = List.of();
-    assertThrows(SyntaxCheckException.class,
-        () -> queryStringQuery.build(new QueryStringExpression(arguments)));
+    for (FunctionName funcName : functionNames) {
+      assertThrows(SyntaxCheckException.class,
+          () -> queryStringQuery.build(new QueryStringExpression(arguments, funcName)));
+    }
   }
 
   @Test
   public void test_SyntaxCheckException_when_one_argument() {
     List<Expression> arguments = List.of(namedArgument("fields", fields_value));
-    assertThrows(SyntaxCheckException.class,
-        () -> queryStringQuery.build(new QueryStringExpression(arguments)));
+    for (FunctionName funcName : functionNames) {
+      assertThrows(SyntaxCheckException.class,
+          () -> queryStringQuery.build(new QueryStringExpression(arguments, funcName)));
+    }
   }
 
   @Test
@@ -108,8 +116,10 @@ class QueryStringTest {
         namedArgument("fields", fields_value),
         namedArgument("query", query_value),
         namedArgument("unsupported", "unsupported_value"));
-    Assertions.assertThrows(SemanticCheckException.class,
-        () -> queryStringQuery.build(new QueryStringExpression(arguments)));
+    for (FunctionName funcName : functionNames) {
+      Assertions.assertThrows(SemanticCheckException.class,
+          () -> queryStringQuery.build(new QueryStringExpression(arguments, funcName)));
+    }
   }
 
   private NamedArgumentExpression namedArgument(String name, String value) {
@@ -121,8 +131,8 @@ class QueryStringTest {
   }
 
   private class QueryStringExpression extends FunctionExpression {
-    public QueryStringExpression(List<Expression> arguments) {
-      super(QueryStringTest.this.queryStringFunc, arguments);
+    public QueryStringExpression(List<Expression> arguments, FunctionName funcName) {
+      super(funcName, arguments);
     }
 
     @Override

@@ -325,6 +325,67 @@ class SQLSyntaxParserTest {
             + "operator='AND', tie_breaker=0.3, type = \"most_fields\", fuzziness = 4)"));
   }
 
+  @Test
+  public void can_parse_querystring_relevance_function() {
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring(['*'], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring(['address'], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring(['add*'], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring(['*ess'], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring(['address', 'notes'], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring([\"*\"], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring([\"address\"], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring([\"ad*\"], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring([\"*s\"], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring([\"address\", \"notes\"], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring([`*`], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring([`address`], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring([`ad*`], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring([`*ss`], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring([`address`, `notes`], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring([address], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring([addr*], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring([*ss], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring([address, notes], 'query')"));
+
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE"
+            + " querystring(['address' ^ 1.0, 'notes' ^ 2.2], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring(['address' ^ 1.1, 'notes'], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring(['address', 'notes' ^ 1.5], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring(['address', 'notes' 3], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE querystring(['address' ^ .3, 'notes' 3], 'query')"));
+
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE"
+            + " querystring([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE"
+            + " querystring([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query', analyzer=keyword,"
+            + "operator='AND', tie_breaker=0.3, type = \"most_fields\", fuzziness = 4)"));
+  }
 
   @Test
   public void can_parse_query_relevance_function() {
