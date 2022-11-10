@@ -72,7 +72,6 @@ click.disable_unicode_literals_warning = True
     help="SQL OR PPL",
 )
 @click.option(
-    "-e",
     "--engine",
     "engine",
     type=click.STRING,
