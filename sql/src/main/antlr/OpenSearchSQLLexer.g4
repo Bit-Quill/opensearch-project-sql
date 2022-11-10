@@ -296,6 +296,7 @@ IN_TERMS:                           'IN_TERMS';
 MATCHPHRASE:                        'MATCHPHRASE';
 MATCH_PHRASE:                       'MATCH_PHRASE';
 SIMPLE_QUERY_STRING:                'SIMPLE_QUERY_STRING';
+SIMPLEQUERYSTRING:                  'SIMPLEQUERYSTRING';
 QUERY_STRING:                       'QUERY_STRING';
 MATCH_PHRASE_PREFIX:                'MATCH_PHRASE_PREFIX';
 MATCHQUERY:                         'MATCHQUERY';

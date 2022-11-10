@@ -29,7 +29,8 @@ public class OpenSearchFunctions {
     repository.register(match_bool_prefix());
     repository.register(match());
     repository.register(multi_match());
-    repository.register(simple_query_string());
+    repository.register(simple_query_string(BuiltinFunctionName.SIMPLE_QUERY_STRING));
+    repository.register(simple_query_string(BuiltinFunctionName.SIMPLEQUERYSTRING));
     repository.register(query());
     repository.register(query_string());
     // Register MATCHPHRASE as MATCH_PHRASE as well for backwards
@@ -64,8 +65,8 @@ public class OpenSearchFunctions {
     return new RelevanceFunctionResolver(funcName, STRUCT);
   }
 
-  private static FunctionResolver simple_query_string() {
-    FunctionName funcName = BuiltinFunctionName.SIMPLE_QUERY_STRING.getName();
+  private static FunctionResolver simple_query_string(BuiltinFunctionName simpleQueryString) {
+    FunctionName funcName = simpleQueryString.getName();
     return new RelevanceFunctionResolver(funcName, STRUCT);
   }
 

@@ -218,6 +218,7 @@ public enum BuiltinFunctionName {
    * Legacy Relevance Function.
    */
   QUERY(FunctionName.of("query")),
+  SIMPLEQUERYSTRING(FunctionName.of("simplequerystring")),
   MATCH_QUERY(FunctionName.of("match_query")),
   MATCHQUERY(FunctionName.of("matchquery")),
   MULTI_MATCH(FunctionName.of("multi_match"));
