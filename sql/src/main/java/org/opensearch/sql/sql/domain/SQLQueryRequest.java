@@ -33,6 +33,7 @@ public class SQLQueryRequest {
       "query", "fetch_size", "parameters");
   private static final String QUERY_PARAMS_FORMAT = "format";
   private static final String QUERY_PARAMS_SANITIZE = "sanitize";
+  private static final String QUERY_PARAMS_ENGINE = "engine";
 
   /**
    * JSON payload in REST request.
@@ -65,6 +66,12 @@ public class SQLQueryRequest {
   private boolean sanitize = true;
 
   /**
+   * SQL engine to use.
+   */
+  @Getter
+  private final String engine;
+
+  /**
    * Constructor of SQLQueryRequest that passes request params.
    */
   public SQLQueryRequest(
@@ -75,6 +82,7 @@ public class SQLQueryRequest {
     this.params = params;
     this.format = getFormat(params);
     this.sanitize = shouldSanitize(params);
+    this.engine = getEngine(params);
   }
 
   /**
@@ -139,4 +147,10 @@ public class SQLQueryRequest {
     return true;
   }
 
+  private String getEngine(Map<String, String> params) {
+    if (params.containsKey(QUERY_PARAMS_ENGINE)) {
+      return params.get(QUERY_PARAMS_ENGINE);
+    }
+    return "";
+  }
 }

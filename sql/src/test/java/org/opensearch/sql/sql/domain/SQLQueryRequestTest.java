@@ -142,6 +142,29 @@ public class SQLQueryRequestTest {
     assertTrue(csvRequest.isSupported());
   }
 
+  @Test
+  public void shouldSupportEngineSwitch() {
+    SQLQueryRequest request =
+            SQLQueryRequestBuilder.request("SELECT 1")
+                    .engine("v2")
+                    .build();
+    assertTrue(request.isSupported());
+
+    request = new SQLQueryRequest(new JSONObject("{}"), "SELECT 1", "_plugins/_sql", "", "v1");
+    assertTrue(request.isSupported());
+    assertFalse(request.getEngine().isEmpty());
+
+    request = new SQLQueryRequest(new JSONObject("{}"), "SELECT 1", "_plugins/_sql", "", "");
+    assertTrue(request.getEngine().isEmpty());
+
+    request = new SQLQueryRequest(new JSONObject("{}"), "SELECT 1", "_plugins/_sql", Map.of());
+    assertTrue(request.getEngine().isEmpty());
+
+    request = new SQLQueryRequest(new JSONObject("{}"), "SELECT 1", "_plugins/_sql",
+        Map.of("engine", "v1"));
+    assertEquals("v1", request.getEngine());
+  }
+
   /**
    * SQL query request build helper to improve test data setup readability.
    */
@@ -150,6 +173,7 @@ public class SQLQueryRequestTest {
     private String query;
     private String path = "_plugins/_sql";
     private String format;
+    private String engine = "default";
     private Map<String, String> params;
 
     static SQLQueryRequestBuilder request(String query) {
@@ -178,6 +202,11 @@ public class SQLQueryRequestTest {
       return this;
     }
 
+    SQLQueryRequestBuilder engine(String engine) {
+      this.engine = engine;
+      return this;
+    }
+
     SQLQueryRequest build() {
       if (jsonContent == null) {
         jsonContent = "{\"query\": \"" + query + "\"}";
@@ -185,7 +214,7 @@ public class SQLQueryRequestTest {
       if (params != null) {
         return new SQLQueryRequest(new JSONObject(jsonContent), query, path, params);
       }
-      return new SQLQueryRequest(new JSONObject(jsonContent), query, path, format);
+      return new SQLQueryRequest(new JSONObject(jsonContent), query, path, format, engine);
     }
   }
 

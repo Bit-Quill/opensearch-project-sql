@@ -46,6 +46,7 @@ public class ConnectionConfig {
     private String trustStoreType;
     private boolean trustSelfSigned;
     private boolean hostnameVerification;
+    private String engine;
 
     private ConnectionConfig(Builder builder) {
         this.url = builder.getUrl();
@@ -80,6 +81,7 @@ public class ConnectionConfig {
         this.trustSelfSigned = builder.getTrustSelfSignedConnectionProperty().getValue();
 
         this.hostnameVerification = builder.getHostnameVerificationConnectionProperty().getValue();
+        this.engine = builder.getEngineConnectionProperty().getValue();
     }
 
     public static Builder builder() {
@@ -182,6 +184,10 @@ public class ConnectionConfig {
         return hostnameVerification;
     }
 
+    public String getEngine() {
+      return engine;
+    }
+
     @Override
     public String toString() {
         return "ConnectionConfig{" +
@@ -209,6 +215,7 @@ public class ConnectionConfig {
                 ", trustStoreType='" + trustStoreType + '\'' +
                 ", trustSelfSigned='" + trustSelfSigned + '\'' +
                 ", hostnameVerification='" + hostnameVerification + '\'' +
+                ", engine='" + engine + '\'' +
                 '}';
     }
 
@@ -256,6 +263,9 @@ public class ConnectionConfig {
         private HostnameVerificationConnectionProperty hostnameVerificationConnectionProperty
                 = new HostnameVerificationConnectionProperty();
 
+        private EngineConnectionProperty engineConnectionProperty
+                = new EngineConnectionProperty();
+
         ConnectionProperty[] connectionProperties = new ConnectionProperty[]{
                 hostProperty,
                 portProperty,
@@ -278,7 +288,8 @@ public class ConnectionConfig {
                 trustStorePasswordConnectionProperty,
                 trustStoreTypeConnectionProperty,
                 trustSelfSignedConnectionProperty,
-                hostnameVerificationConnectionProperty
+                hostnameVerificationConnectionProperty,
+                engineConnectionProperty
         };
 
         private String url = null;
@@ -383,6 +394,10 @@ public class ConnectionConfig {
 
         public HostnameVerificationConnectionProperty getHostnameVerificationConnectionProperty() {
             return hostnameVerificationConnectionProperty;
+        }
+
+        public EngineConnectionProperty getEngineConnectionProperty() {
+          return engineConnectionProperty;
         }
 
         public Builder setLogWriter(PrintWriter printWriter) {

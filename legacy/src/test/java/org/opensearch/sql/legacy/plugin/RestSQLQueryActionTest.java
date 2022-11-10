@@ -57,7 +57,7 @@ public class RestSQLQueryActionTest {
         new JSONObject("{\"query\": \"SELECT -123\"}"),
         "SELECT -123",
         QUERY_API_ENDPOINT,
-        "");
+        "", "");
 
     RestSQLQueryAction queryAction = new RestSQLQueryAction(clusterService, settings, catalogService);
     assertNotSame(NOT_SUPPORTED_YET, queryAction.prepareRequest(request, nodeClient));
@@ -69,7 +69,7 @@ public class RestSQLQueryActionTest {
         new JSONObject("{\"query\": \"SELECT -123\"}"),
         "SELECT -123",
         EXPLAIN_API_ENDPOINT,
-        "");
+        "", "");
 
     RestSQLQueryAction queryAction = new RestSQLQueryAction(clusterService, settings, catalogService);
     assertNotSame(NOT_SUPPORTED_YET, queryAction.prepareRequest(request, nodeClient));
@@ -82,7 +82,7 @@ public class RestSQLQueryActionTest {
             "{\"query\": \"SELECT name FROM test1 JOIN test2 ON test1.name = test2.name\"}"),
         "SELECT name FROM test1 JOIN test2 ON test1.name = test2.name",
         QUERY_API_ENDPOINT,
-        "");
+        "", "");
 
     RestSQLQueryAction queryAction = new RestSQLQueryAction(clusterService, settings, catalogService);
     assertSame(NOT_SUPPORTED_YET, queryAction.prepareRequest(request, nodeClient));
