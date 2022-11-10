@@ -155,16 +155,29 @@ public class RestSqlAction extends BaseRestHandler {
                     // Route request to new query engine if it's supported already
                     SQLQueryRequest newSqlRequest = new SQLQueryRequest(sqlRequest.getJsonContent(),
                         sqlRequest.getSql(), request.path(), request.params());
-                    RestChannelConsumer result = newSqlQueryHandler.prepareRequest(newSqlRequest, client);
-                    if (result != RestSQLQueryAction.NOT_SUPPORTED_YET) {
-                        LOG.info("[{}] Request is handled by new SQL query engine",
-                            QueryContext.getRequestId());
+
+                    if (newSqlRequest.getEngine().toLowerCase().contains("v2")) {
+                        RestChannelConsumer result = newSqlQueryHandler.prepareRequest(newSqlRequest, client);
+                        LOG.info("[{}] Request is handled by new SQL query engine without fallback to legacy", QueryContext.getRequestId());
                         result.accept(channel);
-                    } else {
-                        LOG.debug("[{}] Request {} is not supported and falling back to old SQL engine",
-                            QueryContext.getRequestId(), newSqlRequest);
+                    } else if (newSqlRequest.getEngine().toLowerCase().contains("v1") ||
+                                newSqlRequest.getEngine().toLowerCase().contains("legacy")) {
+                        LOG.info("[{}] Request is handled by old SQL engine only",
+                            QueryContext.getRequestId());
                         QueryAction queryAction = explainRequest(client, sqlRequest, format);
                         executeSqlRequest(request, queryAction, client, channel);
+                    } else {
+                        RestChannelConsumer result = newSqlQueryHandler.prepareRequest(newSqlRequest, client);
+                        if (result != RestSQLQueryAction.NOT_SUPPORTED_YET) {
+                            LOG.info("[{}] Request is handled by new SQL query engine with fallback option to legacy",
+                                QueryContext.getRequestId());
+                            result.accept(channel);
+                        } else {
+                            LOG.info("[{}] Request is not supported and falling back to old SQL engine",
+                                QueryContext.getRequestId());
+                            QueryAction queryAction = explainRequest(client, sqlRequest, format);
+                            executeSqlRequest(request, queryAction, client, channel);
+                        }
                     }
                 } catch (Exception e) {
                     logAndPublishMetrics(e);
@@ -180,7 +193,7 @@ public class RestSqlAction extends BaseRestHandler {
     @Override
     protected Set<String> responseParams() {
         Set<String> responseParams = new HashSet<>(super.responseParams());
-        responseParams.addAll(Arrays.asList("sql", "flat", "separator", "_score", "_type", "_id", "newLine", "format", "sanitize"));
+        responseParams.addAll(Arrays.asList("sql", "flat", "separator", "_score", "_type", "_id", "newLine", "format", "sanitize", "engine"));
         return responseParams;
     }
 

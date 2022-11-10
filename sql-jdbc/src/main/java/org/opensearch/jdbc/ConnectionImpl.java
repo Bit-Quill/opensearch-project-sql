@@ -51,6 +51,7 @@ public class ConnectionImpl implements OpenSearchConnection, JdbcWrapper, Loggin
     private String user;
     private Logger log;
     private int fetchSize;
+    private String engine;
     private boolean open = false;
     private Transport transport;
     private Protocol protocol;
@@ -66,6 +67,7 @@ public class ConnectionImpl implements OpenSearchConnection, JdbcWrapper, Loggin
         this.url = connectionConfig.getUrl();
         this.user = connectionConfig.getUser();
         this.fetchSize = connectionConfig.getFetchSize();
+        this.engine = connectionConfig.getEngine();
 
         try {
             this.transport = transportFactory.getTransport(connectionConfig, log, getUserAgent());
@@ -95,6 +97,10 @@ public class ConnectionImpl implements OpenSearchConnection, JdbcWrapper, Loggin
 
     public int getFetchSize() {
         return fetchSize;
+    }
+
+    public String getEngine() {
+      return engine;
     }
 
     @Override

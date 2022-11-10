@@ -6,6 +6,7 @@
 
 package org.opensearch.jdbc.protocol.http;
 
+import org.opensearch.jdbc.config.ConnectionConfig;
 import org.opensearch.jdbc.protocol.ClusterMetadata;
 import org.opensearch.jdbc.protocol.ConnectionResponse;
 import org.opensearch.jdbc.protocol.Protocol;
@@ -22,6 +23,7 @@ import org.apache.http.message.BasicHeader;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 public class JsonHttpProtocol implements Protocol {
@@ -32,10 +34,9 @@ public class JsonHttpProtocol implements Protocol {
 
     private static final Header acceptJson = new BasicHeader(HttpHeaders.ACCEPT, "application/json");
     private static final Header contentTypeJson = new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-    private static final HttpParam requestJdbcFormatParam = new HttpParam("format", "jdbc");
     protected static final Header[] defaultJsonHeaders = new Header[]{acceptJson, contentTypeJson};
     private static final Header[] defaultEmptyRequestBodyJsonHeaders = new Header[]{acceptJson};
-    protected static final HttpParam[] defaultJdbcParams = new HttpParam[]{requestJdbcFormatParam};
+    protected final Map<String, String> httpParams = new HashMap<>();
 
     protected static final ObjectMapper mapper = new ObjectMapper();
     private String sqlContextPath;
@@ -46,7 +47,15 @@ public class JsonHttpProtocol implements Protocol {
         this(transport, DEFAULT_SQL_CONTEXT_PATH);
     }
 
+    public JsonHttpProtocol(ConnectionConfig connectionConfig, HttpTransport transport) {
+        this(transport, DEFAULT_SQL_CONTEXT_PATH);
+        if (connectionConfig.getEngine() != null) {
+            httpParams.put("engine", connectionConfig.getEngine());
+        }
+    }
+
     public JsonHttpProtocol(HttpTransport transport, String sqlContextPath) {
+        httpParams.put("format", "jdbc");
         this.transport = transport;
         this.sqlContextPath = sqlContextPath;
         this.jsonHttpResponseHandler = new JsonHttpResponseHandler(this);
@@ -76,12 +85,17 @@ public class JsonHttpProtocol implements Protocol {
         }
     }
 
+    protected HttpParam[] getHttpParams() {
+      return httpParams.entrySet().stream()
+          .map(e -> new HttpParam(e.getKey(), e.getValue())).toArray(HttpParam[]::new);
+    }
+
     @Override
     public QueryResponse execute(QueryRequest request) throws ResponseException, IOException {
         try (CloseableHttpResponse response = transport.doPost(
                 sqlContextPath,
                 defaultJsonHeaders,
-                defaultJdbcParams,
+                getHttpParams(),
                 buildQueryRequestBody(request), 0)) {
 
             return jsonHttpResponseHandler.handleResponse(response, this::processQueryResponse);

@@ -146,7 +146,7 @@ class OpenSearchConnection:
             )
             click.secho(repr(reconnection_err), err=True, fg="red")
 
-    def execute_query(self, query, output_format="jdbc", explain=False, use_console=True):
+    def execute_query(self, query, output_format="jdbc", explain=False, use_console=True, engine=None):
         """
         Handle user input, send SQL query and get response.
 
@@ -154,6 +154,7 @@ class OpenSearchConnection:
         :param query: SQL query
         :param output_format: jdbc/csv
         :param explain: if True, use _explain API.
+        :param engine: SQL engine to use
         :return: raw http response
         """
 
@@ -161,20 +162,22 @@ class OpenSearchConnection:
         #  to save cost of http client.
         # deal with input
         final_query = query.strip().strip(";")
+        params = None if explain else ({"format": output_format} if engine is None else
+                                       {"format": output_format, "engine": engine})
 
         try:
             if self.query_language == "sql":
                 data = self.client.transport.perform_request(
                     url="/_plugins/_sql/_explain" if explain else "/_plugins/_sql/",
                     method="POST",
-                    params=None if explain else {"format": output_format},
+                    params=params,
                     body={"query": final_query},
                 )
             else:
                 data = self.client.transport.perform_request(
                     url="/_plugins/_ppl/_explain" if explain else "/_plugins/_ppl/",
                     method="POST",
-                    params=None if explain else {"format": output_format},
+                    params=params,
                     body={"query": final_query},
                 )
             return data

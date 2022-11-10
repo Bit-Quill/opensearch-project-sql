@@ -36,7 +36,7 @@ public class JsonCursorHttpProtocol extends JsonHttpProtocol {
         try (CloseableHttpResponse response = getTransport().doPost(
                 getSqlContextPath(),
                 defaultJsonHeaders,
-                defaultJdbcParams,
+                getHttpParams(),
                 buildQueryRequestBody(request), 0)) {
 
             return getJsonHttpResponseHandler().handleResponse(response, this::processQueryResponse);

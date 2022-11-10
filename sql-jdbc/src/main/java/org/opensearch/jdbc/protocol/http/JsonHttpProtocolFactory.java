@@ -21,6 +21,6 @@ public class JsonHttpProtocolFactory implements ProtocolFactory<JsonHttpProtocol
 
     @Override
     public JsonHttpProtocol getProtocol(ConnectionConfig connectionConfig, HttpTransport transport) {
-        return new JsonHttpProtocol(transport);
+        return new JsonHttpProtocol(connectionConfig, transport);
     }
 }

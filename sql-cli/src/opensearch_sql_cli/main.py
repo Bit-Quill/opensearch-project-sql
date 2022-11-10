@@ -71,6 +71,13 @@ click.disable_unicode_literals_warning = True
     default="sql",
     help="SQL OR PPL",
 )
+@click.option(
+    "-e",
+    "--engine",
+    "engine",
+    type=click.STRING,
+    help="SQL engine to use: V2, V1 (aka legacy) or both"
+)
 def cli(
     endpoint,
     query,
@@ -83,6 +90,7 @@ def cli(
     always_use_pager,
     use_aws_authentication,
     query_language,
+    engine
 ):
     """
     Provide endpoint for OpenSearch client.
@@ -101,9 +109,10 @@ def cli(
         opensearch_executor = OpenSearchConnection(endpoint, http_auth, use_aws_authentication)
         opensearch_executor.set_connection()
         if explain:
-            output = opensearch_executor.execute_query(query, explain=True, use_console=False)
+            output = opensearch_executor.execute_query(query, explain=True, use_console=False, engine=engine)
         else:
-            output = opensearch_executor.execute_query(query, output_format=result_format, use_console=False)
+            output = opensearch_executor.execute_query(query, output_format=result_format, use_console=False,
+                                                       engine=engine)
             if output and result_format == "jdbc":
                 settings = OutputSettings(table_format="psql", is_vertical=is_vertical)
                 formatter = Formatter(settings)
@@ -119,6 +128,7 @@ def cli(
         always_use_pager=always_use_pager,
         use_aws_authentication=use_aws_authentication,
         query_language=query_language,
+        engine=engine
     )
     opensearchsql_cli.connect(endpoint, http_auth)
     opensearchsql_cli.run_cli()
