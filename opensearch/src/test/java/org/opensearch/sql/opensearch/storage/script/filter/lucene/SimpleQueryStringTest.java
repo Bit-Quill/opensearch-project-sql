@@ -39,7 +39,12 @@ class SimpleQueryStringTest {
   private static final DSL dsl = new ExpressionConfig()
       .dsl(new ExpressionConfig().functionRepository());
   private final SimpleQueryStringQuery simpleQueryStringQuery = new SimpleQueryStringQuery();
-  private final FunctionName simpleQueryString = FunctionName.of("simple_query_string");
+  private final FunctionName simpleQueryStringWithUnderscoresName =
+      FunctionName.of("simple_query_string");
+  private final FunctionName simpleQueryStringName = FunctionName.of("simplequerystring");
+  private final FunctionName[] functionNames =
+      {simpleQueryStringWithUnderscoresName, simpleQueryStringName};
+
   private static final LiteralExpression fields_value = DSL.literal(
       new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
           "title", ExprValueUtils.floatValue(1.F),
@@ -157,22 +162,28 @@ class SimpleQueryStringTest {
   @ParameterizedTest
   @MethodSource("generateValidData")
   public void test_valid_parameters(List<Expression> validArgs) {
-    Assertions.assertNotNull(simpleQueryStringQuery.build(
-        new SimpleQueryStringExpression(validArgs)));
+    for (FunctionName funcName : functionNames) {
+      Assertions.assertNotNull(simpleQueryStringQuery.build(
+          new SimpleQueryStringExpression(validArgs, funcName)));
+    }
   }
 
   @Test
   public void test_SyntaxCheckException_when_no_arguments() {
     List<Expression> arguments = List.of();
-    assertThrows(SyntaxCheckException.class,
-        () -> simpleQueryStringQuery.build(new SimpleQueryStringExpression(arguments)));
+    for (FunctionName funcName : functionNames) {
+      assertThrows(SyntaxCheckException.class,
+          () -> simpleQueryStringQuery.build(new SimpleQueryStringExpression(arguments, funcName)));
+    }
   }
 
   @Test
   public void test_SyntaxCheckException_when_one_argument() {
     List<Expression> arguments = List.of(namedArgument("fields", fields_value));
-    assertThrows(SyntaxCheckException.class,
-        () -> simpleQueryStringQuery.build(new SimpleQueryStringExpression(arguments)));
+    for (FunctionName funcName : functionNames) {
+      assertThrows(SyntaxCheckException.class,
+          () -> simpleQueryStringQuery.build(new SimpleQueryStringExpression(arguments, funcName)));
+    }
   }
 
   @Test
@@ -181,8 +192,10 @@ class SimpleQueryStringTest {
         namedArgument("fields", fields_value),
         namedArgument("query", query_value),
         namedArgument("unsupported", "unsupported_value"));
-    Assertions.assertThrows(SemanticCheckException.class,
-        () -> simpleQueryStringQuery.build(new SimpleQueryStringExpression(arguments)));
+    for (FunctionName funcName : functionNames) {
+      Assertions.assertThrows(SemanticCheckException.class,
+          () -> simpleQueryStringQuery.build(new SimpleQueryStringExpression(arguments, funcName)));
+    }
   }
 
   private NamedArgumentExpression namedArgument(String name, String value) {
@@ -194,8 +207,8 @@ class SimpleQueryStringTest {
   }
 
   private class SimpleQueryStringExpression extends FunctionExpression {
-    public SimpleQueryStringExpression(List<Expression> arguments) {
-      super(SimpleQueryStringTest.this.simpleQueryString, arguments);
+    public SimpleQueryStringExpression(List<Expression> arguments, FunctionName funcName) {
+      super(funcName, arguments);
     }
 
     @Override

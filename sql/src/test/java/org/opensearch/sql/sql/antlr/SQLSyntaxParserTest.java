@@ -264,6 +264,42 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void can_parse_simplequerystring_relevance_function() {
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE simplequerystring(['address'], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE simplequerystring(['address', 'notes'], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE simplequerystring([\"*\"], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE simplequerystring([\"address\"], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE simplequerystring([`address`], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE simplequerystring([address], 'query')"));
+
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE"
+            + " simplequerystring(['address' ^ 1.0, 'notes' ^ 2.2], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE simplequerystring(['address' ^ 1.1, 'notes'], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE simplequerystring(['address', 'notes' ^ 1.5], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE simplequerystring(['address', 'notes' 3], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE simplequerystring(['address' ^ .3, 'notes' 3], 'query')"));
+
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE"
+            + " simplequerystring([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE"
+            + " simplequerystring([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query', analyzer=keyword,"
+            + "flags='AND', quote_field_suffix=\".exact\", fuzzy_prefix_length = 4)"));
+  }
+
+  @Test
   public void can_parse_query_string_relevance_function() {
     assertNotNull(parser.parse(
         "SELECT id FROM test WHERE query_string(['*'], 'query')"));

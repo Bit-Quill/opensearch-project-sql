@@ -524,6 +524,25 @@ class AstExpressionBuilderTest {
   }
 
   @Test
+  public void relevanceSimplequerystring() {
+    assertEquals(AstDSL.function("simplequerystring",
+            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+                "field2", 3.2F, "field1", 1.F))),
+            unresolvedArg("query", stringLiteral("search query"))),
+        buildExprAst("simplequerystring(['field1', 'field2' ^ 3.2], 'search query')")
+    );
+
+    assertEquals(AstDSL.function("simplequerystring",
+            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+                "field2", 3.2F, "field1", 1.F))),
+            unresolvedArg("query", stringLiteral("search query")),
+            unresolvedArg("analyzer", stringLiteral("keyword")),
+            unresolvedArg("operator", stringLiteral("AND"))),
+        buildExprAst("simplequerystring(['field1', 'field2' ^ 3.2], 'search query',"
+            + "analyzer='keyword', operator='AND')"));
+  }
+
+  @Test
   public void relevanceQuery_string() {
     assertEquals(AstDSL.function("query_string",
             unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
