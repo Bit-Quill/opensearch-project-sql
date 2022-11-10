@@ -297,6 +297,7 @@ MATCHPHRASE:                        'MATCHPHRASE';
 MATCH_PHRASE:                       'MATCH_PHRASE';
 SIMPLE_QUERY_STRING:                'SIMPLE_QUERY_STRING';
 QUERY_STRING:                       'QUERY_STRING';
+QUERYSTRING:                        'QUERYSTRING';
 MATCH_PHRASE_PREFIX:                'MATCH_PHRASE_PREFIX';
 MATCHQUERY:                         'MATCHQUERY';
 MATCH_QUERY:                        'MATCH_QUERY';

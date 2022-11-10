@@ -433,6 +433,7 @@ multiFieldRelevanceFunctionName
     : MULTI_MATCH
     | SIMPLE_QUERY_STRING
     | QUERY_STRING
+    | QUERYSTRING
     ;
 
 legacyRelevanceFunctionName
