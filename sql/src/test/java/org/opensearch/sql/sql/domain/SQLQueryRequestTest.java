@@ -150,6 +150,7 @@ public class SQLQueryRequestTest {
     private String query;
     private String path = "_plugins/_sql";
     private String format;
+    private final String engine = "default";
     private Map<String, String> params;
 
     static SQLQueryRequestBuilder request(String query) {
@@ -185,7 +186,7 @@ public class SQLQueryRequestTest {
       if (params != null) {
         return new SQLQueryRequest(new JSONObject(jsonContent), query, path, params);
       }
-      return new SQLQueryRequest(new JSONObject(jsonContent), query, path, format);
+      return new SQLQueryRequest(new JSONObject(jsonContent), query, path, format, engine);
     }
   }
 
