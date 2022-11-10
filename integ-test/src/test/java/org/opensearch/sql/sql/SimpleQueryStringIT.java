@@ -61,4 +61,41 @@ public class SimpleQueryStringIT extends SQLIntegTestCase {
     var result = new JSONObject(executeQuery(query, "jdbc"));
     assertEquals(10, result.getInt("total"));
   }
+
+  @Test
+  public void test_mandatory_params_simplequerystring() throws IOException {
+    String query = "SELECT Id FROM "
+        + TEST_INDEX_BEER + " WHERE simplequerystring([\\\"Tags\\\" ^ 1.5, Title, `Body` 4.2], 'taste')";
+    var result = new JSONObject(executeQuery(query, "jdbc"));
+    assertEquals(16, result.getInt("total"));
+  }
+
+  @Test
+  public void test_all_params_simplequerystring() throws IOException {
+    String query = "SELECT Id FROM " + TEST_INDEX_BEER
+        + " WHERE simplequerystring(['Body', Tags, Title], 'taste beer', default_operator='or',"
+        + "analyzer=english, analyze_wildcard = false, quote_field_suffix = '.exact',"
+        + "auto_generate_synonyms_phrase_query=true, boost = 0.77, flags='PREFIX',"
+        + "fuzzy_transpositions = false, lenient = true, fuzzy_max_expansions = 25,"
+        + "minimum_should_match = '2<-25% 9<-3', fuzzy_prefix_length = 7);";
+    var result = new JSONObject(executeQuery(query, "jdbc"));
+    assertEquals(49, result.getInt("total"));
+  }
+
+  @Test
+  public void verify_wildcard_test_simplequerystring() throws IOException {
+    String query1 = "SELECT Id FROM "
+        + TEST_INDEX_BEER + " WHERE simplequerystring(['Tags'], 'taste')";
+    var result1 = new JSONObject(executeQuery(query1, "jdbc"));
+    String query2 = "SELECT Id FROM "
+        + TEST_INDEX_BEER + " WHERE simplequerystring(['T*'], 'taste')";
+    var result2 = new JSONObject(executeQuery(query2, "jdbc"));
+    assertNotEquals(result2.getInt("total"), result1.getInt("total"));
+
+    String query = "SELECT Id FROM " + TEST_INDEX_BEER
+        + " WHERE simplequerystring(['*Date'], '2014-01-22');";
+    var result = new JSONObject(executeQuery(query, "jdbc"));
+    assertEquals(10, result.getInt("total"));
+  }
+
 }
