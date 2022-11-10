@@ -151,6 +151,6 @@ public class SQLQueryRequest {
     if (params.containsKey(QUERY_PARAMS_ENGINE)) {
       return params.get(QUERY_PARAMS_ENGINE);
     }
-    return "both";
+    return "";
   }
 }
