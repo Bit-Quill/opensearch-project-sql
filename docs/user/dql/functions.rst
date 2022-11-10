@@ -2730,6 +2730,95 @@ Another example to show how to set custom values for the optional parameters::
     +------------+
 
 
+MATCHQUERY
+-----
+
+Description
+>>>>>>>>>>>
+
+``matchquery(field_expression, query_expression[, option=<option_value>]*)``
+
+The matchquery function maps to the match query used in search engine, to return the documents that match a provided text, number, date or boolean value with a given field. This is alternate syntax for the `match`_ function. Available parameters include:
+
+- analyzer
+- auto_generate_synonyms_phrase
+- fuzziness
+- max_expansions
+- prefix_length
+- fuzzy_transpositions
+- fuzzy_rewrite
+- lenient
+- operator
+- minimum_should_match
+- zero_terms_query
+- boost
+
+Example with only ``field`` and ``query`` expressions, and all other parameters are set default values::
+
+    os> SELECT lastname, address FROM accounts WHERE match(address, 'Street');
+    fetched rows / total rows = 2/2
+    +------------+--------------------+
+    | lastname   | address            |
+    |------------+--------------------|
+    | Bond       | 671 Bristol Street |
+    | Bates      | 789 Madison Street |
+    +------------+--------------------+
+
+Another example to show how to set custom values for the optional parameters::
+
+    os> SELECT lastname FROM accounts WHERE match(firstname, 'Hattie', operator='AND', boost=2.0);
+    fetched rows / total rows = 1/1
+    +------------+
+    | lastname   |
+    |------------|
+    | Bond       |
+    +------------+
+
+MATCH_QUERY
+-----
+
+Description
+>>>>>>>>>>>
+
+``match(field_expression, query_expression[, option=<option_value>]*)``
+
+The match function maps to the match query used in search engine, to return the documents that match a provided text, number, date or boolean value with a given field. This is alternate syntax for the `match`_ function.  Available parameters include:
+
+- analyzer
+- auto_generate_synonyms_phrase
+- fuzziness
+- max_expansions
+- prefix_length
+- fuzzy_transpositions
+- fuzzy_rewrite
+- lenient
+- operator
+- minimum_should_match
+- zero_terms_query
+- boost
+
+Example with only ``field`` and ``query`` expressions, and all other parameters are set default values::
+
+    os> SELECT lastname, address FROM accounts WHERE match(address, 'Street');
+    fetched rows / total rows = 2/2
+    +------------+--------------------+
+    | lastname   | address            |
+    |------------+--------------------|
+    | Bond       | 671 Bristol Street |
+    | Bates      | 789 Madison Street |
+    +------------+--------------------+
+
+Another example to show how to set custom values for the optional parameters::
+
+    os> SELECT lastname FROM accounts WHERE match(firstname, 'Hattie', operator='AND', boost=2.0);
+    fetched rows / total rows = 1/1
+    +------------+
+    | lastname   |
+    |------------|
+    | Bond       |
+    +------------+
+
+
 MATCH_PHRASE
 ------------
 
@@ -2954,57 +3043,6 @@ Another example to show how to set custom values for the optional parameters::
     | 1    | The House at Pooh Corner | Alan Alexander Milne |
     +------+--------------------------+----------------------+
 
-
-SIMPLEQUERYSTRING
--------------------
-
-Description
->>>>>>>>>>>
-
-``simplequerystring([field_expression+], query_expression[, option=<option_value>]*)``
-
-The simplequerystring function maps to the simple_query_string query used in search engine, to return the documents that match a provided text, number, date or boolean value with a given field or fields. This is an alternate syntax for `simple_query_string`_
-The **^** lets you *boost* certain fields. Boosts are multipliers that weigh matches in one field more heavily than matches in other fields. The syntax allows to specify the fields in double quotes, single quotes, in backtick or even without any wrap. All fields search using star ``"*"`` is also available (star symbol should be wrapped). The weight is optional and should be specified using after the field name, it could be delimeted by the `caret` character or by whitespace. Please, refer to examples below:
-
-| ``simplequerystring(["Tags" ^ 2, 'Title' 3.4, `Body`, Comments ^ 0.3], ...)``
-| ``simplequerystring(["*"], ...)``
-
-Available parameters include:
-
-- analyze_wildcard
-- analyzer
-- auto_generate_synonyms_phrase
-- flags
-- fuzziness
-- fuzzy_max_expansions
-- fuzzy_prefix_length
-- fuzzy_transpositions
-- lenient
-- default_operator
-- minimum_should_match
-- quote_field_suffix
-- boost
-
-Example with only ``fields`` and ``query`` expressions, and all other parameters are set default values::
-
-    os> select * from books where simplequerystring(['title'], 'Pooh House');
-    fetched rows / total rows = 2/2
-    +------+--------------------------+----------------------+
-    | id   | title                    | author               |
-    |------+--------------------------+----------------------|
-    | 1    | The House at Pooh Corner | Alan Alexander Milne |
-    | 2    | Winnie-the-Pooh          | Alan Alexander Milne |
-    +------+--------------------------+----------------------+
-
-Another example to show how to set custom values for the optional parameters::
-
-    os> select * from books where simplequerystring(['title'], 'Pooh House', flags='ALL', default_operator='AND');
-    fetched rows / total rows = 1/1
-    +------+--------------------------+----------------------+
-    | id   | title                    | author               |
-    |------+--------------------------+----------------------|
-    | 1    | The House at Pooh Corner | Alan Alexander Milne |
-    +------+--------------------------+----------------------+
 
 
 QUERY_STRING
