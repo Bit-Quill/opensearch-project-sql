@@ -3017,6 +3017,68 @@ Another example to show how to set custom values for the optional parameters::
     +------+--------------------------+----------------------+
 
 
+QUERYSTRING
+------------
+
+Description
+>>>>>>>>>>>
+
+``querystring([field_expression+], query_expression[, option=<option_value>]*)``
+
+The querystring function maps to the query_string query used in search engine, to return the documents that match a provided text, number, date or boolean value with a given field or fields. It is an alternate syntax for the `query_string`_ function.
+The **^** lets you *boost* certain fields. Boosts are multipliers that weigh matches in one field more heavily than matches in other fields. The syntax allows to specify the fields in double quotes, single quotes, backticks or without any wrap. All fields search using star ``"*"`` is also available (star symbol should be wrapped). The weight is optional and should be specified after the field name, it could be delimeted by the `caret` character or by whitespace. Please refer to examples below:
+
+| ``querystring(["Tags" ^ 2, 'Title' 3.4, `Body`, Comments ^ 0.3], ...)``
+| ``querystring(["*"], ...)``
+
+Available parameters include:
+
+- analyzer
+- escape
+- allow_leading_wildcard
+- analyze_wildcard
+- auto_generate_synonyms_phrase_query
+- boost
+- default_operator
+- enable_position_increments
+- fuzziness
+- fuzzy_max_expansions
+- fuzzy_prefix_length
+- fuzzy_transpositions
+- fuzzy_rewrite
+- tie_breaker
+- lenient
+- type
+- max_determinized_states
+- minimum_should_match
+- quote_analyzer
+- phrase_slop
+- quote_field_suffix
+- rewrite
+- time_zone
+
+Example with only ``fields`` and ``query`` expressions, and all other parameters are set default values::
+
+    os> select * from books where querystring(['title'], 'Pooh House');
+    fetched rows / total rows = 2/2
+    +------+--------------------------+----------------------+
+    | id   | title                    | author               |
+    |------+--------------------------+----------------------|
+    | 1    | The House at Pooh Corner | Alan Alexander Milne |
+    | 2    | Winnie-the-Pooh          | Alan Alexander Milne |
+    +------+--------------------------+----------------------+
+
+Another example to show how to set custom values for the optional parameters::
+
+    os> select * from books where querystring(['title'], 'Pooh House', default_operator='AND');
+    fetched rows / total rows = 1/1
+    +------+--------------------------+----------------------+
+    | id   | title                    | author               |
+    |------+--------------------------+----------------------|
+    | 1    | The House at Pooh Corner | Alan Alexander Milne |
+    +------+--------------------------+----------------------+
+
+
 QUERY
 -----
 
