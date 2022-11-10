@@ -40,7 +40,8 @@ class QueryStringTest {
   private final QueryStringQuery queryStringQuery = new QueryStringQuery();
   private final FunctionName queryStringFuncWithUnderscoreName = FunctionName.of("query_string");
   private final FunctionName queryStringFuncName = FunctionName.of("querystring");
-  private final FunctionName[] functionNames = {queryStringFuncWithUnderscoreName, queryStringFuncName};
+  private final FunctionName[] functionNames =
+      {queryStringFuncWithUnderscoreName, queryStringFuncName};
   private static final LiteralExpression fields_value = DSL.literal(
       new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
           "title", ExprValueUtils.floatValue(1.F),
