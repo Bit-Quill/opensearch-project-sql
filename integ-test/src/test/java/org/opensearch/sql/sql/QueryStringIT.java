@@ -11,6 +11,7 @@ import java.io.IOException;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.opensearch.sql.legacy.SQLIntegTestCase;
+import org.opensearch.sql.legacy.utils.StringUtils;
 
 public class QueryStringIT extends SQLIntegTestCase {
   @Override
@@ -64,5 +65,15 @@ public class QueryStringIT extends SQLIntegTestCase {
         + " WHERE query_string(['*Date'], '2014-01-22');";
     JSONObject result3 = executeJdbcRequest(query3);
     assertEquals(10, result3.getInt("total"));
+  }
+
+  @Test
+  public void missing_field_test() {
+    String query = StringUtils.format("SELECT * FROM %s WHERE query_string([invalid], 'beer')", TEST_INDEX_BEER);
+    final RuntimeException exception =
+        expectThrows(RuntimeException.class, () -> executeJdbcRequest(query));
+    assertTrue(exception.getMessage()
+        .contains("can't resolve Symbol(namespace=FIELD_NAME, name=invalid) in type env") &&
+        exception.getMessage().contains("SemanticCheckException"));
   }
 }

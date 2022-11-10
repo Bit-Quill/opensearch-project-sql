@@ -11,18 +11,10 @@ import static org.opensearch.sql.ast.tree.Sort.NullOrder.NULL_LAST;
 import static org.opensearch.sql.ast.tree.Sort.SortOrder.ASC;
 import static org.opensearch.sql.ast.tree.Sort.SortOrder.DESC;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
-import static org.opensearch.sql.utils.MLCommonsConstants.ACTION;
-import static org.opensearch.sql.utils.MLCommonsConstants.MODELID;
-import static org.opensearch.sql.utils.MLCommonsConstants.PREDICT;
 import static org.opensearch.sql.utils.MLCommonsConstants.RCF_ANOMALOUS;
 import static org.opensearch.sql.utils.MLCommonsConstants.RCF_ANOMALY_GRADE;
 import static org.opensearch.sql.utils.MLCommonsConstants.RCF_SCORE;
-import static org.opensearch.sql.utils.MLCommonsConstants.RCF_TIMESTAMP;
-import static org.opensearch.sql.utils.MLCommonsConstants.STATUS;
-import static org.opensearch.sql.utils.MLCommonsConstants.TASKID;
 import static org.opensearch.sql.utils.MLCommonsConstants.TIME_FIELD;
-import static org.opensearch.sql.utils.MLCommonsConstants.TRAIN;
-import static org.opensearch.sql.utils.MLCommonsConstants.TRAINANDPREDICT;
 import static org.opensearch.sql.utils.SystemIndexUtils.CATALOGS_TABLE_NAME;
 
 import com.google.common.collect.ImmutableList;
@@ -76,6 +68,7 @@ import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
+import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
@@ -83,6 +76,7 @@ import org.opensearch.sql.expression.aggregation.Aggregator;
 import org.opensearch.sql.expression.aggregation.NamedAggregator;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.expression.function.OpenSearchFunctions;
 import org.opensearch.sql.expression.function.TableFunctionImplementation;
 import org.opensearch.sql.expression.parse.ParseExpression;
 import org.opensearch.sql.planner.logical.LogicalAD;
@@ -224,6 +218,8 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   public LogicalPlan visitFilter(Filter node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
     Expression condition = expressionAnalyzer.analyze(node.getCondition(), context);
+
+    OpenSearchFunctions.validateFieldList((FunctionExpression)condition, context);
 
     ExpressionReferenceOptimizer optimizer =
         new ExpressionReferenceOptimizer(expressionAnalyzer.getRepository(), child);

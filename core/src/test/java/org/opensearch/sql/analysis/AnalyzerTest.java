@@ -58,6 +58,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -71,11 +72,14 @@ import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.ParseMethod;
+import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.ast.tree.AD;
 import org.opensearch.sql.ast.tree.Kmeans;
 import org.opensearch.sql.ast.tree.ML;
 import org.opensearch.sql.ast.tree.RareTopN.CommandType;
+import org.opensearch.sql.data.model.ExprTupleValue;
+import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
@@ -263,6 +267,131 @@ class AnalyzerTest extends AnalyzerTestBase {
                 emptyList()),
             compare(">",
                 aggregate("MIN", qualifiedName("integer_value")), intLiteral(10))));
+  }
+
+  @Test
+  public void single_field_relevance_query_semantic_exception() {
+    SemanticCheckException exception =
+        assertThrows(
+            SemanticCheckException.class,
+            () ->
+                analyze(
+                    AstDSL.filter(
+                        AstDSL.relation("schema"),
+                        AstDSL.function("match",
+                            AstDSL.unresolvedArg("field", stringLiteral("missing_value")),
+                            AstDSL.unresolvedArg("query", stringLiteral("query_value"))))));
+    assertEquals(
+        "can't resolve Symbol(namespace=FIELD_NAME, name=missing_value) in type env",
+        exception.getMessage());
+  }
+
+  @Test
+  public void single_field_relevance_query() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.filter(
+            LogicalPlanDSL.relation("schema", table),
+                dsl.match(
+                    dsl.namedArgument("field", DSL.literal("string_value")),
+                    dsl.namedArgument("query", DSL.literal("query_value")))),
+        AstDSL.filter(
+            AstDSL.relation("schema"),
+            AstDSL.function("match",
+                AstDSL.unresolvedArg("field", stringLiteral("string_value")),
+                AstDSL.unresolvedArg("query", stringLiteral("query_value")))));
+  }
+
+  @Test
+  public void single_field_wildcard_relevance_query() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.filter(
+            LogicalPlanDSL.relation("schema", table),
+            dsl.match(
+                dsl.namedArgument("field", DSL.literal("wildcard_field*")),
+                dsl.namedArgument("query", DSL.literal("query_value")))),
+        AstDSL.filter(
+            AstDSL.relation("schema"),
+            AstDSL.function("match",
+                AstDSL.unresolvedArg("field", stringLiteral("wildcard_field*")),
+                AstDSL.unresolvedArg("query", stringLiteral("query_value")))));
+  }
+
+  @Test
+  public void multi_field_relevance_query_semantic_exception() {
+    SemanticCheckException exception =
+        assertThrows(
+            SemanticCheckException.class,
+            () ->
+                analyze(
+                    AstDSL.filter(
+                        AstDSL.relation("schema"),
+                        AstDSL.function("query_string",
+                            AstDSL.unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+                                "missing_value1", 1.F, "missing_value2", .3F))),
+                            AstDSL.unresolvedArg("query", stringLiteral("query_value"))))));
+    assertEquals(
+        "can't resolve Symbol(namespace=FIELD_NAME, name=missing_value1) in type env",
+        exception.getMessage());
+  }
+
+  @Test
+  public void multi_field_relevance_query_mixed_fields_semantic_exception() {
+    SemanticCheckException exception =
+        assertThrows(
+            SemanticCheckException.class,
+            () ->
+                analyze(
+                    AstDSL.filter(
+                        AstDSL.relation("schema"),
+                        AstDSL.function("query_string",
+                            AstDSL.unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+                                "string_value", 1.F, "missing_value", .3F))),
+                            AstDSL.unresolvedArg("query", stringLiteral("query_value"))))));
+    assertEquals(
+        "can't resolve Symbol(namespace=FIELD_NAME, name=missing_value) in type env",
+        exception.getMessage());
+  }
+
+  @Test
+  public void multi_field_relevance_query() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.filter(
+            LogicalPlanDSL.relation("schema", table),
+            dsl.query_string(
+                dsl.namedArgument("fields", DSL.literal(
+                    new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                        "string_value", ExprValueUtils.floatValue(1.F),
+                        "integer_value", ExprValueUtils.floatValue(.3F))
+                    ))
+                )),
+                dsl.namedArgument("query", DSL.literal("query_value")))),
+        AstDSL.filter(
+            AstDSL.relation("schema"),
+            AstDSL.function("query_string",
+                AstDSL.unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+                    "string_value", 1.F, "integer_value", .3F))),
+                AstDSL.unresolvedArg("query", stringLiteral("query_value")))));
+  }
+
+  @Test
+  public void multi_field_wildcard_relevance_query() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.filter(
+            LogicalPlanDSL.relation("schema", table),
+            dsl.query_string(
+                dsl.namedArgument("fields", DSL.literal(
+                    new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                        "wildcard_field1*", ExprValueUtils.floatValue(1.F),
+                        "wildcard_field2*", ExprValueUtils.floatValue(.3F))
+                    ))
+                )),
+                dsl.namedArgument("query", DSL.literal("query_value")))),
+        AstDSL.filter(
+            AstDSL.relation("schema"),
+            AstDSL.function("query_string",
+                AstDSL.unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+                    "wildcard_field1*", 1.F, "wildcard_field2*", .3F))),
+                AstDSL.unresolvedArg("query", stringLiteral("query_value")))));
   }
 
   @Test
