@@ -123,6 +123,9 @@ public abstract class RestIntegTestCase extends OpenSearchSQLRestTestCase {
    */
   @AfterClass
   public static void cleanUpIndices() throws IOException {
+    if (client() == null) {
+      return;
+    }
     wipeAllOpenSearchIndices();
     wipeAllClusterSettings();
   }

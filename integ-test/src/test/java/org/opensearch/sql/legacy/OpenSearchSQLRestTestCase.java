@@ -66,9 +66,6 @@ public abstract class OpenSearchSQLRestTestCase extends OpenSearchRestTestCase {
   }
 
   protected static void wipeAllOpenSearchIndices() throws IOException {
-    if (client() == null) {
-      return;
-    }
     // include all the indices, included hidden indices.
     // https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-indices.html#cat-indices-api-query-params
     Response response = client().performRequest(new Request("GET", "/_cat/indices?format=json&expand_wildcards=all"));
