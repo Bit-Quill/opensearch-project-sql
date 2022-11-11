@@ -23,7 +23,7 @@ public class WildcardQuery extends SingleFieldQuery<WildcardQueryBuilder> {
 
   private static final char DEFAULT_ESCAPE = '\\';
 
-  private String convertSqlWildcardToLucene(String text) {
+  public String convertSqlWildcardToLucene(String text) {
     StringBuilder convertedString = new StringBuilder(text.length());
     boolean escaped = false;
 

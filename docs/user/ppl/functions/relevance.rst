@@ -368,6 +368,7 @@ Description
 
 The wildcard_query function maps to the wildcard_query query used in search engine. It returns documents that match provided text in the specified field.
 Supported wildcard characters can be found here: https://opensearch.org/docs/latest/opensearch/query-dsl/term/#wildcards
+SQL wildcard % is converted to * as well as _ to ?. You may include % and _ in the search by escaping with a backslash prefix.
 
 Available parameters include:
 
@@ -377,22 +378,32 @@ Available parameters include:
 
 Example with only ``field`` and ``query`` expressions, and all other parameters are set default values::
 
-    os> source=beer | where wildcard_query(Tags, 'champagn*') | fields Id,Tags;
-    fetched rows / total rows = 2/2
-    +------+-----------------------------------------+
-    | Id   | Tags                                    |
-    |------+-----------------------------------------|
-    | 7419 | champagne                               |
-    | 7424 | alcohol-level yeast home-brew champagne |
-    +------+-----------------------------------------+
+    os> source=wildcard | where wildcard_query(Body, "test wildcard*");
+    fetched rows / total rows = 7/7
+    +-------------------------------------------+
+    | Body                                      |
+    |-------------------------------------------|
+    | test wildcard                             |
+    | test wildcard in the end of the text%     |
+    | test wildcard in % the middle of the text |
+    | test wildcard %% beside each other        |
+    | test wildcard in the end of the text_     |
+    | test wildcard in _ the middle of the text |
+    | test wildcard __ beside each other        |
+    +-------------------------------------------+
 
 Another example to show how to set custom values for the optional parameters::
 
-    os> source=beer | where wildcard_query(Tags, 'champagn*', boost=0.7, case_insensitive=true, rewrite='constant_score') | fields Id, Tags;
-    fetched rows / total rows = 2/2
-    +------+-----------------------------------------+
-    | Id   | Tags                                    |
-    |------+-----------------------------------------|
-    | 7419 | champagne                               |
-    | 7424 | alcohol-level yeast home-brew champagne |
-    +------+-----------------------------------------+
+    os> source=wildcard | where wildcard_query(Body, "test wildcard*", boost=0.7, case_insensitive=true, rewrite='constant_score');
+    fetched rows / total rows = 7/7
+    +-------------------------------------------+
+    | Body                                      |
+    |-------------------------------------------|
+    | test wildcard                             |
+    | test wildcard in the end of the text%     |
+    | test wildcard in % the middle of the text |
+    | test wildcard %% beside each other        |
+    | test wildcard in the end of the text_     |
+    | test wildcard in _ the middle of the text |
+    | test wildcard __ beside each other        |
+    +-------------------------------------------+

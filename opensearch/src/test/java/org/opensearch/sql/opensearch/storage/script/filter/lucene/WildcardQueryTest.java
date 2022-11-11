@@ -5,6 +5,7 @@
 
 package org.opensearch.sql.opensearch.storage.script.filter.lucene;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opensearch.sql.expression.DSL.namedArgument;
 
@@ -73,6 +74,23 @@ class WildcardQueryTest {
         namedArgument("unsupported", DSL.literal("unsupported_value")));
     Assertions.assertThrows(SemanticCheckException.class,
         () -> wildcardQueryQuery.build(new WildcardQueryExpression(arguments)));
+  }
+
+  @Test
+  public void test_escaping_sql_wildcards() {
+    assertEquals("%", wildcardQueryQuery.convertSqlWildcardToLucene("\\%"));
+    assertEquals("\\*", wildcardQueryQuery.convertSqlWildcardToLucene("\\*"));
+    assertEquals("_", wildcardQueryQuery.convertSqlWildcardToLucene("\\_"));
+    assertEquals("\\?", wildcardQueryQuery.convertSqlWildcardToLucene("\\?"));
+    assertEquals("%*", wildcardQueryQuery.convertSqlWildcardToLucene("\\%%"));
+    assertEquals("*%", wildcardQueryQuery.convertSqlWildcardToLucene("%\\%"));
+    assertEquals("%*%", wildcardQueryQuery.convertSqlWildcardToLucene("\\%%\\%"));
+    assertEquals("*%*", wildcardQueryQuery.convertSqlWildcardToLucene("%\\%%"));
+    assertEquals("_?", wildcardQueryQuery.convertSqlWildcardToLucene("\\__"));
+    assertEquals("?_", wildcardQueryQuery.convertSqlWildcardToLucene("_\\_"));
+    assertEquals("_?_", wildcardQueryQuery.convertSqlWildcardToLucene("\\__\\_"));
+    assertEquals("?_?", wildcardQueryQuery.convertSqlWildcardToLucene("_\\__"));
+    assertEquals("%\\*_\\?", wildcardQueryQuery.convertSqlWildcardToLucene("\\%\\*\\_\\?"));
   }
 
   private class WildcardQueryExpression extends FunctionExpression {
