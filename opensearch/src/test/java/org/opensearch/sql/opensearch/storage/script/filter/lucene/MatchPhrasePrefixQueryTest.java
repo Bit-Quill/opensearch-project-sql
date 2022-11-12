@@ -30,20 +30,27 @@ public class MatchPhrasePrefixQueryTest {
 
   private final DSL dsl = new ExpressionConfig().dsl(new ExpressionConfig().functionRepository());
   private final MatchPhrasePrefixQuery matchPhrasePrefixQuery = new MatchPhrasePrefixQuery();
-  private final FunctionName matchPhrasePrefix = FunctionName.of("match_phrase_prefix");
+  private final FunctionName matchPhrasePrefixWithUnderscoresName = 
+      FunctionName.of("match_phrase_prefix");
+  private final FunctionName matchPhrasePrefixName = FunctionName.of("matchphraseprefix");
+  private final FunctionName[] functionNames = {matchPhrasePrefixWithUnderscoresName, matchPhrasePrefixName};
 
   @Test
   public void test_SyntaxCheckException_when_no_arguments() {
     List<Expression> arguments = List.of();
-    assertThrows(SyntaxCheckException.class,
-        () -> matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      assertThrows(SyntaxCheckException.class,
+          () -> matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments, funcName)));
+    }
   }
 
   @Test
   public void test_SyntaxCheckException_when_one_argument() {
     List<Expression> arguments = List.of(dsl.namedArgument("field", "test"));
-    assertThrows(SyntaxCheckException.class,
-        () -> matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      assertThrows(SyntaxCheckException.class,
+          () -> matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments, funcName)));
+    }
   }
 
   @Test
@@ -52,8 +59,10 @@ public class MatchPhrasePrefixQueryTest {
         dsl.namedArgument("field", "test"),
         dsl.namedArgument("query", "test2"),
         dsl.namedArgument("unsupported", "3"));
-    Assertions.assertThrows(SemanticCheckException.class,
-        () -> matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      Assertions.assertThrows(SemanticCheckException.class,
+          () -> matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments, funcName)));
+    }
   }
 
   @Test
@@ -63,7 +72,9 @@ public class MatchPhrasePrefixQueryTest {
         dsl.namedArgument("query", "t2"),
         dsl.namedArgument("analyzer", "standard")
     );
-    Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments, funcName)));
+    }
   }
 
   @Test
@@ -71,7 +82,9 @@ public class MatchPhrasePrefixQueryTest {
     List<Expression> arguments = List.of(
         dsl.namedArgument("field", "test"),
         dsl.namedArgument("query", "test2"));
-    Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments, funcName)));
+    }
   }
 
   @Test
@@ -81,7 +94,9 @@ public class MatchPhrasePrefixQueryTest {
         dsl.namedArgument("query", "t2"),
         dsl.namedArgument("slop", "2")
     );
-    Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments, funcName)));
+    }
   }
 
   @Test
@@ -91,7 +106,9 @@ public class MatchPhrasePrefixQueryTest {
         dsl.namedArgument("query", "t2"),
         dsl.namedArgument("zero_terms_query", "ALL")
     );
-    Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments, funcName)));
+    }
   }
 
   @Test
@@ -101,7 +118,9 @@ public class MatchPhrasePrefixQueryTest {
         dsl.namedArgument("query", "t2"),
         dsl.namedArgument("zero_terms_query", "all")
     );
-    Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments, funcName)));
+    }
   }
 
   @Test
@@ -111,12 +130,14 @@ public class MatchPhrasePrefixQueryTest {
         dsl.namedArgument("query", "t2"),
         dsl.namedArgument("boost", "0.1")
     );
-    Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      Assertions.assertNotNull(matchPhrasePrefixQuery.build(new MatchPhraseExpression(arguments, funcName)));
+    }
   }
 
   private class MatchPhraseExpression extends FunctionExpression {
-    public MatchPhraseExpression(List<Expression> arguments) {
-      super(MatchPhrasePrefixQueryTest.this.matchPhrasePrefix, arguments);
+    public MatchPhraseExpression(List<Expression> arguments, FunctionName funcName) {
+      super(funcName, arguments);
     }
 
     @Override
