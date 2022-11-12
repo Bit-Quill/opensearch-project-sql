@@ -36,7 +36,8 @@ public class OpenSearchFunctions {
     // compatibility.
     repository.register(match_phrase(BuiltinFunctionName.MATCH_PHRASE));
     repository.register(match_phrase(BuiltinFunctionName.MATCHPHRASE));
-    repository.register(match_phrase_prefix());
+    repository.register(match_phrase_prefix(BuiltinFunctionName.MATCH_PHRASE_PREFIX));
+    repository.register(match_phrase_prefix(BuiltinFunctionName.MATCHPHRASEPREFIX));
   }
 
   private static FunctionResolver match_bool_prefix() {
@@ -49,8 +50,8 @@ public class OpenSearchFunctions {
     return new RelevanceFunctionResolver(funcName, STRING);
   }
 
-  private static FunctionResolver match_phrase_prefix() {
-    FunctionName funcName = BuiltinFunctionName.MATCH_PHRASE_PREFIX.getName();
+  private static FunctionResolver match_phrase_prefix(BuiltinFunctionName matchPhrasePrefix) {
+    FunctionName funcName = matchPhrasePrefix.getName();
     return new RelevanceFunctionResolver(funcName, STRING);
   }
 

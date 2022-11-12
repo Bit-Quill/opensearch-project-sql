@@ -69,6 +69,7 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
           .put(BuiltinFunctionName.QUERY_STRING.getName(), new QueryStringQuery())
           .put(BuiltinFunctionName.MATCH_BOOL_PREFIX.getName(), new MatchBoolPrefixQuery())
           .put(BuiltinFunctionName.MATCH_PHRASE_PREFIX.getName(), new MatchPhrasePrefixQuery())
+          .put(BuiltinFunctionName.MATCHPHRASEPREFIX.getName(), new MatchPhrasePrefixQuery())
           .build();
 
   /**
