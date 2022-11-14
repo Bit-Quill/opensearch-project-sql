@@ -20,6 +20,7 @@ import static org.opensearch.sql.expression.function.FunctionDSL.define;
 import static org.opensearch.sql.expression.function.FunctionDSL.impl;
 import static org.opensearch.sql.expression.function.FunctionDSL.implWithProperties;
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
+import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandlingWithProperties;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_LONG_YEAR;
@@ -63,6 +64,7 @@ import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.DefaultFunctionResolver;
 import org.opensearch.sql.expression.function.FunctionDSL;
 import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.expression.function.FunctionProperties;
 import org.opensearch.sql.expression.function.FunctionResolver;
 import org.opensearch.sql.utils.DateTimeUtils;
 
@@ -255,7 +257,10 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, TIMESTAMP));
+        impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, TIMESTAMP),
+        implWithProperties(nullMissingHandlingWithProperties((functionProperties, exprTime) ->
+            new ExprDateValue(LocalDate.now(functionProperties.getQueryStartClock()))),
+            DATE, TIME));
   }
 
   /**

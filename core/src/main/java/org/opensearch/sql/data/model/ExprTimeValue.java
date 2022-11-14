@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.SemanticCheckException;
+import org.opensearch.sql.expression.function.FunctionProperties;
 
 /**
  * Expression Time Value.
