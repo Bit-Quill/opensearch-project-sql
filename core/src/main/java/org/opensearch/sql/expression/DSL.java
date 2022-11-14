@@ -120,7 +120,7 @@ public class DSL {
     return new NamedAggregator(name, aggregator);
   }
 
-  public  static NamedArgumentExpression namedArgument(String argName, Expression value) {
+  public static NamedArgumentExpression namedArgument(String argName, Expression value) {
     return new NamedArgumentExpression(argName, value);
   }
 
