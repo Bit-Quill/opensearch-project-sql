@@ -2851,6 +2851,49 @@ Another example to show how to set custom values for the optional parameters::
     +----------------------+--------------------------+
 
 
+MATCHPHRASEPREFIX
+------------
+
+Description
+>>>>>>>>>>>
+
+``matchphraseprefix(field_expression, query_expression[, option=<option_value>]*)``
+
+The matchphraseprefix function maps to the match_phrase_prefix query used in search engine,
+to return the documents that match a provided text with a given field.
+It is an alternate syntax for the `match_phrase_prefix`_ function.
+Available parameters include:
+
+- analyzer
+- slop
+- zero_terms_query
+- max_expansions
+- boost
+
+
+Example with only ``field`` and ``query`` expressions, and all other parameters are set default values::
+
+    os> SELECT author, title FROM books WHERE matchphraseprefix(author, 'Alexander Mil');
+    fetched rows / total rows = 2/2
+    +----------------------+--------------------------+
+    | author               | title                    |
+    |----------------------+--------------------------|
+    | Alan Alexander Milne | The House at Pooh Corner |
+    | Alan Alexander Milne | Winnie-the-Pooh          |
+    +----------------------+--------------------------+
+
+Another example to show how to set custom values for the optional parameters::
+
+    os> SELECT author, title FROM books WHERE matchphraseprefix(author, 'Alan Mil', slop = 2);
+    fetched rows / total rows = 2/2
+    +----------------------+--------------------------+
+    | author               | title                    |
+    |----------------------+--------------------------|
+    | Alan Alexander Milne | The House at Pooh Corner |
+    | Alan Alexander Milne | Winnie-the-Pooh          |
+    +----------------------+--------------------------+
+
+
 MULTI_MATCH
 -----------
 
