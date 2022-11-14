@@ -755,25 +755,6 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
   }
 
   @Test
-  public void canBuildWildcard_queryRelevanceFunction() {
-    assertEqual(
-        "source=test | where wildcard_query(field, 'test query*', boost=1.5,"
-            + "case_insensitive=true, rewrite='scoring_boolean')",
-        filter(
-            relation("test"),
-            function(
-                "wildcard_query",
-                unresolvedArg("field", stringLiteral("field")),
-                unresolvedArg("query", stringLiteral("test query*")),
-                unresolvedArg("boost", stringLiteral("1.5")),
-                unresolvedArg("case_insensitive", stringLiteral("true")),
-                unresolvedArg("rewrite", stringLiteral("scoring_boolean"))
-            )
-        )
-    );
-  }
-
-  @Test
   public void functionNameCanBeUsedAsIdentifier() {
     assertFunctionNameCouldBeId(
         "AVG | COUNT | SUM | MIN | MAX | VAR_SAMP | VAR_POP | STDDEV_SAMP | STDDEV_POP");

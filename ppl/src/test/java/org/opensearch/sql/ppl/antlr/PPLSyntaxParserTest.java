@@ -15,25 +15,24 @@ import org.junit.rules.ExpectedException;
 
 public class PPLSyntaxParserTest {
 
-  private final PPLSyntaxParser parser = new PPLSyntaxParser();
   @Rule
   public ExpectedException exceptionRule = ExpectedException.none();
 
   @Test
   public void testSearchCommandShouldPass() {
-    ParseTree tree = parser.parse("search source=t a=1 b=2");
+    ParseTree tree = new PPLSyntaxParser().parse("search source=t a=1 b=2");
     assertNotEquals(null, tree);
   }
 
   @Test
   public void testSearchCommandIgnoreSearchKeywordShouldPass() {
-    ParseTree tree = parser.parse("source=t a=1 b=2");
+    ParseTree tree = new PPLSyntaxParser().parse("source=t a=1 b=2");
     assertNotEquals(null, tree);
   }
 
   @Test
   public void testSearchFieldsCommandShouldPass() {
-    ParseTree tree = parser.parse("search source=t a=1 b=2 | fields a,b");
+    ParseTree tree = new PPLSyntaxParser().parse("search source=t a=1 b=2 | fields a,b");
     assertNotEquals(null, tree);
   }
 
@@ -42,171 +41,156 @@ public class PPLSyntaxParserTest {
     exceptionRule.expect(RuntimeException.class);
     exceptionRule.expectMessage("Failed to parse query due to offending symbol");
 
-    parser.parse("search a=1");
+    new PPLSyntaxParser().parse("search a=1");
   }
 
   @Test
   public void testRareCommandShouldPass() {
-    ParseTree tree = parser.parse("source=t a=1 | rare a");
+    ParseTree tree = new PPLSyntaxParser().parse("source=t a=1 | rare a");
     assertNotEquals(null, tree);
   }
 
   @Test
   public void testRareCommandWithGroupByShouldPass() {
-    ParseTree tree = parser.parse("source=t a=1 | rare a by b");
+    ParseTree tree = new PPLSyntaxParser().parse("source=t a=1 | rare a by b");
     assertNotEquals(null, tree);
   }
 
   @Test
   public void testTopCommandWithoutNShouldPass() {
-    ParseTree tree = parser.parse("source=t a=1 | top a");
+    ParseTree tree = new PPLSyntaxParser().parse("source=t a=1 | top a");
     assertNotEquals(null, tree);
   }
 
   @Test
   public void testTopCommandWithNShouldPass() {
-    ParseTree tree = parser.parse("source=t a=1 | top 1 a");
+    ParseTree tree = new PPLSyntaxParser().parse("source=t a=1 | top 1 a");
     assertNotEquals(null, tree);
   }
 
   @Test
   public void testTopCommandWithNAndGroupByShouldPass() {
-    ParseTree tree = parser.parse("source=t a=1 | top 1 a by b");
+    ParseTree tree = new PPLSyntaxParser().parse("source=t a=1 | top 1 a by b");
     assertNotEquals(null, tree);
   }
 
   @Test
   public void testTopCommandWithoutNAndGroupByShouldPass() {
-    ParseTree tree = parser.parse("source=t a=1 | top a by b");
+    ParseTree tree = new PPLSyntaxParser().parse("source=t a=1 | top a by b");
     assertNotEquals(null, tree);
   }
 
   @Test
   public void can_parse_multi_match_relevance_function() {
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match(['address'], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match(['address', 'notes'], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match([\"*\"], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match([\"address\"], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match([`address`], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match([address], 'query')"));
 
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match(['address' ^ 1.0, 'notes' ^ 2.2], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match(['address' ^ 1.1, 'notes'], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match(['address', 'notes' ^ 1.5], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match(['address', 'notes' 3], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match(['address' ^ .3, 'notes' 3], 'query')"));
 
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query',"
             + "analyzer=keyword, quote_field_suffix=\".exact\", fuzzy_prefix_length = 4)"));
   }
 
   @Test
   public void can_parse_simple_query_string_relevance_function() {
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE simple_query_string(['address'], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE simple_query_string(['address', 'notes'], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE simple_query_string([\"*\"], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE simple_query_string([\"address\"], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE simple_query_string([`address`], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE simple_query_string([address], 'query')"));
 
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE simple_query_string(['address' ^ 1.0, 'notes' ^ 2.2], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE simple_query_string(['address' ^ 1.1, 'notes'], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE simple_query_string(['address', 'notes' ^ 1.5], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE simple_query_string(['address', 'notes' 3], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE simple_query_string(['address' ^ .3, 'notes' 3], 'query')"));
 
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE simple_query_string([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE simple_query_string([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query',"
             + "analyzer=keyword, quote_field_suffix=\".exact\", fuzzy_prefix_length = 4)"));
   }
 
   @Test
   public void can_parse_query_string_relevance_function() {
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE query_string(['address'], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE query_string(['address', 'notes'], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE query_string([\"*\"], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE query_string([\"address\"], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE query_string([`address`], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE query_string([address], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE query_string(['address' ^ 1.0, 'notes' ^ 2.2], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE query_string(['address' ^ 1.1, 'notes'], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE query_string(['address', 'notes' ^ 1.5], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE query_string(['address', 'notes' 3], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE query_string(['address' ^ .3, 'notes' 3], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE query_string([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query')"));
-    assertNotEquals(null, parser.parse(
+    assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE query_string([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query',"
             + "analyzer=keyword, quote_field_suffix=\".exact\", fuzzy_prefix_length = 4)"));
   }
 
-  @Test
-  public void can_parse_wildcard_query_relevance_function() {
-    assertNotEquals(null,
-        parser.parse("SOURCE=test | WHERE wildcard_query(column, \"this is a test*\")"));
-    assertNotEquals(null,
-        parser.parse("SOURCE=test | WHERE wildcard_query(column, 'this is a test*')"));
-    assertNotEquals(null,
-        parser.parse("SOURCE=test | WHERE wildcard_query(`column`, \"this is a test*\")"));
-    assertNotEquals(null,
-        parser.parse("SOURCE=test | WHERE wildcard_query(`column`, 'this is a test*')"));
-    assertNotEquals(null,
-        parser.parse("SOURCE=test | WHERE wildcard_query(`column`, 'this is a test*',"
-            + "boost=1.5, case_insensitive=true, rewrite='scoring_boolean')"));
-  }
-
   public void testDescribeCommandShouldPass() {
-    ParseTree tree = parser.parse("describe t");
+    ParseTree tree = new PPLSyntaxParser().parse("describe t");
     assertNotEquals(null, tree);
   }
 
   @Test
   public void testDescribeCommandWithMultipleIndicesShouldPass() {
-    ParseTree tree = parser.parse("describe t,u");
+    ParseTree tree = new PPLSyntaxParser().parse("describe t,u");
     assertNotEquals(null, tree);
   }
 
   @Test
   public void testDescribeFieldsCommandShouldPass() {
-    ParseTree tree = parser.parse("describe t | fields a,b");
+    ParseTree tree = new PPLSyntaxParser().parse("describe t | fields a,b");
     assertNotEquals(null, tree);
   }
 
@@ -215,7 +199,7 @@ public class PPLSyntaxParserTest {
     exceptionRule.expect(RuntimeException.class);
     exceptionRule.expectMessage("Failed to parse query due to offending symbol");
 
-    parser.parse("describe source=t");
+    new PPLSyntaxParser().parse("describe source=t");
   }
 }
 
