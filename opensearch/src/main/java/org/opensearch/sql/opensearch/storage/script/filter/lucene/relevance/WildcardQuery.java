@@ -23,6 +23,11 @@ public class WildcardQuery extends SingleFieldQuery<WildcardQueryBuilder> {
 
   private static final char DEFAULT_ESCAPE = '\\';
 
+  /**
+   * Converts sql wildcard character % and _ to * and ?.
+   * @param text string to be converted
+   * @return converted string
+   */
   public String convertSqlWildcardToLucene(String text) {
     StringBuilder convertedString = new StringBuilder(text.length());
     boolean escaped = false;
