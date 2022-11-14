@@ -51,25 +51,33 @@ public class WildcardQueryIT extends SQLIntegTestCase {
   //  SQL uses ? as a wildcard which is converted to * in WildcardQuery.java
   @Test
   public void test_wildcard_query_sql_wildcard_percent_conversion() throws IOException {
-    String query = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test%') LIMIT 1";
-    JSONObject result = executeJdbcRequest(query);
-    verifyDataRows(result, rows("test wildcard"));
+    String query1 = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test%') LIMIT 1";
+    JSONObject result1 = executeJdbcRequest(query1);
+    verifyDataRows(result1, rows("test wildcard"));
 
-    query = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test%')";
-    result = executeJdbcRequest(query);
-    assertEquals(8, result.getInt("total"));
+    query1 = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test%')";
+    result1 = executeJdbcRequest(query1);
+    assertEquals(8, result1.getInt("total"));
+
+    String query2 = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test*')";
+    JSONObject result2 = executeJdbcRequest(query2);
+    assertEquals(result1.getInt("total"), result2.getInt("total"));
   }
 
   //  SQL uses _ as a wildcard which is converted to ? in WildcardQuery.java
   @Test
   public void test_wildcard_query_sql_wildcard_underscore_conversion() throws IOException {
-    String query = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test wild_ard') LIMIT 1";
-    JSONObject result = executeJdbcRequest(query);
-    verifyDataRows(result, rows("test wildcard"));
+    String query1 = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test wild_ard') LIMIT 1";
+    JSONObject result1 = executeJdbcRequest(query1);
+    verifyDataRows(result1, rows("test wildcard"));
 
-    query = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test wild_ard*')";
-    result = executeJdbcRequest(query);
-    assertEquals(7, result.getInt("total"));
+    query1 = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test wild_ard*')";
+    result1 = executeJdbcRequest(query1);
+    assertEquals(7, result1.getInt("total"));
+
+    String query2 = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test wild?ard*')";
+    JSONObject result2 = executeJdbcRequest(query2);
+    assertEquals(result1.getInt("total"), result2.getInt("total"));
   }
 
   @Test

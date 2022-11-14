@@ -41,25 +41,33 @@ public class WildcardQueryIT extends PPLIntegTestCase {
   //  SQL uses ? as a wildcard which is converted to * in WildcardQuery.java
   @Test
   public void test_wildcard_query_sql_wildcard_percent_conversion() throws IOException {
-    String query = "source=" + TEST_INDEX_WILDCARD + " | where wildcard_query(Body, 'test%') | head 1";
-    JSONObject result = executeQuery(query);
-    verifyDataRows(result, rows("test wildcard"));
+    String query1 = "source=" + TEST_INDEX_WILDCARD + " | where wildcard_query(Body, 'test%') | head 1";
+    JSONObject result1 = executeQuery(query1);
+    verifyDataRows(result1, rows("test wildcard"));
 
-    query = "source=" + TEST_INDEX_WILDCARD + " | where wildcard_query(Body, 'test%')";
-    result = executeQuery(query);
-    assertEquals(8, result.getInt("total"));
+    query1 = "source=" + TEST_INDEX_WILDCARD + " | where wildcard_query(Body, 'test%')";
+    result1 = executeQuery(query1);
+    assertEquals(8, result1.getInt("total"));
+
+    String query2 = "source=" + TEST_INDEX_WILDCARD + " | where wildcard_query(Body, 'test*')";
+    JSONObject result2 = executeQuery(query2);
+    assertEquals(result1.getInt("total"), result2.getInt("total"));
   }
 
   //  SQL uses _ as a wildcard which is converted to ? in WildcardQuery.java
   @Test
   public void test_wildcard_query_sql_wildcard_underscore_conversion() throws IOException {
-    String query = "source=" + TEST_INDEX_WILDCARD + " | where wildcard_query(Body, 'test wild_ard') | head 1";
-    JSONObject result = executeQuery(query);
-    verifyDataRows(result, rows("test wildcard"));
+    String query1 = "source=" + TEST_INDEX_WILDCARD + " | where wildcard_query(Body, 'test wild_ard') | head 1";
+    JSONObject result1 = executeQuery(query1);
+    verifyDataRows(result1, rows("test wildcard"));
 
-    query = "source=" + TEST_INDEX_WILDCARD + " | where wildcard_query(Body, 'test wild_ard*')";
-    result = executeQuery(query);
-    assertEquals(7, result.getInt("total"));
+    query1 = "source=" + TEST_INDEX_WILDCARD + " | where wildcard_query(Body, 'test wild_ard*')";
+    result1 = executeQuery(query1);
+    assertEquals(7, result1.getInt("total"));
+
+    String query2 = "source=" + TEST_INDEX_WILDCARD + " | where wildcard_query(Body, 'test wild?ard*')";
+    JSONObject result2 = executeQuery(query2);
+    assertEquals(result1.getInt("total"), result2.getInt("total"));
   }
 
   @Test
