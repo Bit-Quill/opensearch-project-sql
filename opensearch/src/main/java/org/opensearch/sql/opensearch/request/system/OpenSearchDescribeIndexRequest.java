@@ -118,11 +118,6 @@ public class OpenSearchDescribeIndexRequest implements OpenSearchSystemRequest {
               .filter(entry -> !ExprCoreType.UNKNOWN.equals(entry.getValue()))
               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
-    fieldTypes.put("_index", ExprCoreType.STRING);
-    fieldTypes.put("_id", ExprCoreType.STRING);
-    fieldTypes.put("_score", ExprCoreType.FLOAT);
-    fieldTypes.put("_maxscore", ExprCoreType.FLOAT);
-    fieldTypes.put("_sort", ExprCoreType.LONG);
     return fieldTypes;
   }
 

@@ -137,7 +137,7 @@ TRIM:                               'TRIM';
 
 // Metadata fields can be ID
 
-META_INDEX:                         '_ID';
+META_INDEX:                         '_INDEX';
 META_ID:                            '_ID';
 META_SCORE:                         '_SCORE';
 META_MAXSCORE:                      '_MAXSCORE';

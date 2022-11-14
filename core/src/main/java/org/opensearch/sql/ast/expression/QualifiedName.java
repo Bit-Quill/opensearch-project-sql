@@ -25,7 +25,6 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 public class QualifiedName extends UnresolvedExpression {
   private final List<String> parts;
 
-  @Getter
   private final Boolean isMetadataField;
 
   public QualifiedName(String name) {
@@ -124,5 +123,5 @@ public class QualifiedName extends UnresolvedExpression {
     return nodeVisitor.visitQualifiedName(this, context);
   }
 
-  public Boolean isMetadataField() { return Boolean.TRUE; }
+  public Boolean isMetadataField() { return this.isMetadataField; }
 }
