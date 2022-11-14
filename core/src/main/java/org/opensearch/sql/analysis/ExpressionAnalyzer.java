@@ -51,6 +51,7 @@ import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.expression.Xor;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
@@ -297,6 +298,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Override
   public Expression visitQualifiedName(QualifiedName node, AnalysisContext context) {
     QualifierAnalyzer qualifierAnalyzer = new QualifierAnalyzer(context);
+    if (node.isMetadataField().booleanValue()) {
+      return visitMetadata(qualifierAnalyzer.unqualified(node), context);
+    }
     return visitIdentifier(qualifierAnalyzer.unqualified(node), context);
   }
 
@@ -311,6 +315,33 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Override
   public Expression visitUnresolvedArgument(UnresolvedArgument node, AnalysisContext context) {
     return new NamedArgumentExpression(node.getArgName(), node.getValue().accept(this, context));
+  }
+
+  private Expression visitMetadata(String ident, AnalysisContext context) {
+    // ParseExpression will always override ReferenceExpression when ident conflicts
+    for (NamedExpression expr : context.getNamedParseExpressions()) {
+      if (expr.getNameOrAlias().equals(ident) && expr.getDelegated() instanceof ParseExpression) {
+        return expr.getDelegated();
+      }
+    }
+
+    ReferenceExpression ref;
+    switch(ident.toLowerCase()) {
+      case "_index":
+      case "_id":
+        ref = DSL.ref(ident, ExprCoreType.STRING);
+        break;
+      case "_score":
+      case "_maxscore":
+        ref = DSL.ref(ident, ExprCoreType.FLOAT);
+        break;
+      case "_sort":
+        ref = DSL.ref(ident, ExprCoreType.LONG);
+        break;
+      default:
+        throw new SemanticCheckException("invalid metadata field");
+    }
+    return ref;
   }
 
   private Expression visitIdentifier(String ident, AnalysisContext context) {
