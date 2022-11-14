@@ -21,7 +21,6 @@ import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.SemanticCheckException;
-import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.env.Environment;
@@ -36,11 +35,11 @@ class WildcardQueryTest {
   static Stream<List<Expression>> generateValidData() {
     return Stream.of(
         List.of(
-            DSL.namedArgument("field", DSL.literal("title")),
-            DSL.namedArgument("query", DSL.literal("query_value*")),
-            DSL.namedArgument("boost", DSL.literal("0.7")),
-            DSL.namedArgument("case_insensitive", DSL.literal("false")),
-            DSL.namedArgument("rewrite", DSL.literal("constant_score_boolean"))
+            namedArgument("field", "title"),
+            namedArgument("query", "query_value*"),
+            namedArgument("boost", "0.7"),
+            namedArgument("case_insensitive", "false"),
+            namedArgument("rewrite", "constant_score_boolean")
         )
     );
   }
@@ -61,7 +60,7 @@ class WildcardQueryTest {
 
   @Test
   public void test_SyntaxCheckException_when_one_argument() {
-    List<Expression> arguments = List.of(namedArgument("field", DSL.literal("title")));
+    List<Expression> arguments = List.of(namedArgument("field", "title"));
     assertThrows(SyntaxCheckException.class,
         () -> wildcardQueryQuery.build(new WildcardQueryExpression(arguments)));
   }
@@ -69,9 +68,9 @@ class WildcardQueryTest {
   @Test
   public void test_SemanticCheckException_when_invalid_parameter() {
     List<Expression> arguments = List.of(
-        namedArgument("field", DSL.literal("title")),
-        namedArgument("query", DSL.literal("query_value*")),
-        namedArgument("unsupported", DSL.literal("unsupported_value")));
+        namedArgument("field", "title"),
+        namedArgument("query", "query_value*"),
+        namedArgument("unsupported", "unsupported_value"));
     Assertions.assertThrows(SemanticCheckException.class,
         () -> wildcardQueryQuery.build(new WildcardQueryExpression(arguments)));
   }
