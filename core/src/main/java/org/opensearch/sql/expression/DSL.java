@@ -227,6 +227,10 @@ public class DSL {
     return function(BuiltinFunctionName.SQRT, expressions);
   }
 
+  public FunctionExpression cbrt(Expression... expressions) {
+    return function(BuiltinFunctionName.CBRT, expressions);
+  }
+
   public FunctionExpression truncate(Expression... expressions) {
     return function(BuiltinFunctionName.TRUNCATE, expressions);
   }
