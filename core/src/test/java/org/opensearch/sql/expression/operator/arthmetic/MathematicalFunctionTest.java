@@ -2365,7 +2365,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test cbrt with double value.
    */
   @ParameterizedTest(name = "cbrt({0})")
-  @ValueSource(doubles = {1D, 2D})
+  @ValueSource(doubles = {1D, 2D, Double.MAX_VALUE, Double.MIN_VALUE})
   public void cbrt_double_value(Double value) {
     FunctionExpression cbrt = dsl.cbrt(DSL.literal(value));
     assertThat(cbrt.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.cbrt(value))));
