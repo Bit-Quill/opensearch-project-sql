@@ -216,17 +216,17 @@ Argument type: INTEGER/LONG/FLOAT/DOUBLE
 Return type: DOUBLE
 
 (Non-negative) INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
-(Negative) INTEGER/LONG/FLOAT/DOUBLE -> NULL
+(Negative) INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
 
 Example::
 
-    opensearchsql> SELECT CBRT(8), CBRT(9.261);
+    opensearchsql> SELECT CBRT(8), CBRT(9.261), CBRT(-27);
     fetched rows / total rows = 1/1
-    +-----------+---------------+
-    | CBRT(8)   | CBRT(9.261)   |
-    |-----------+---------------|
-    | 2.0       | 2.1           |
-    +-----------+---------------+
+    +-----------+---------------+-------------+
+    | CBRT(8)   | CBRT(9.261)   | CBRT(-27)   |
+    |-----------+---------------+-------------|
+    | 2.0       | 2.1           | -3.0        |
+    +-----------+---------------+-------------+
 
 
 CEIL

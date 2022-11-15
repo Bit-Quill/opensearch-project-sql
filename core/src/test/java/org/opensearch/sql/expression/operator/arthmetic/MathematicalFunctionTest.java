@@ -2379,8 +2379,8 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   @ValueSource(doubles = {-1D, -2D})
   public void cbrt_negative_value(Double value) {
     FunctionExpression cbrt = dsl.cbrt(DSL.literal(value));
-    assertEquals(DOUBLE, cbrt.type());
-    assertTrue(cbrt.valueOf(valueEnv()).isNull());
+    assertThat(cbrt.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.cbrt(value))));
+    assertEquals(String.format("cbrt(%s)", value), cbrt.toString());
   }
 
   /**

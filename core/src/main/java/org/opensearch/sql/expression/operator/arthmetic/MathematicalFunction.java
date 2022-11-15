@@ -482,8 +482,7 @@ public class MathematicalFunction {
     return FunctionDSL.define(BuiltinFunctionName.CBRT.getName(),
         ExprCoreType.numberTypes().stream()
             .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                v -> v.doubleValue() < 0 ? ExprNullValue.of() :
-                    new ExprDoubleValue(Math.cbrt(v.doubleValue()))),
+                v -> new ExprDoubleValue(Math.cbrt(v.doubleValue()))),
                 DOUBLE, type)).collect(Collectors.toList()));
   }
 
