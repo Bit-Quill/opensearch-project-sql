@@ -611,7 +611,7 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
     var values = List.of(analyze(AstDSL.constantFunction("now")),
         analyze(AstDSL.constantFunction("now")), analyze(AstDSL.constantFunction("now")));
     assertTrue(values.stream().allMatch(v ->
-        v.valueOf(null) == analyze(AstDSL.constantFunction("now")).valueOf(null)));
+        v.valueOf() == analyze(AstDSL.constantFunction("now")).valueOf()));
   }
 
   @Test
@@ -621,8 +621,8 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
     // different values
     var values = List.of(analyze(function("sysdate")), analyze(function("sysdate")),
         analyze(function("sysdate")), analyze(function("sysdate")));
-    var referenceValue = analyze(function("sysdate")).valueOf(null);
-    assertTrue(values.stream().noneMatch(v -> v.valueOf(null) == referenceValue));
+    var referenceValue = analyze(function("sysdate")).valueOf();
+    assertTrue(values.stream().noneMatch(v -> v.valueOf() == referenceValue));
   }
 
   @Test
@@ -630,8 +630,8 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
     // // We can call `now()` as a function, in that case nothing should be cached
     var values = List.of(analyze(function("now")), analyze(function("now")),
         analyze(function("now")), analyze(function("now")));
-    var referenceValue = analyze(function("now")).valueOf(null);
-    assertTrue(values.stream().noneMatch(v -> v.valueOf(null) == referenceValue));
+    var referenceValue = analyze(function("now")).valueOf();
+    assertTrue(values.stream().noneMatch(v -> v.valueOf() == referenceValue));
   }
 
   protected Expression analyze(UnresolvedExpression unresolvedExpression) {
