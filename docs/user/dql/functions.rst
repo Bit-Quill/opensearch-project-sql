@@ -209,7 +209,7 @@ CBRT
 Description
 >>>>>>>>>>>
 
-Usage: CBRT(number) calculates the cube root of a non-negative number
+Usage: CBRT(number) calculates the cube root of a number
 
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 

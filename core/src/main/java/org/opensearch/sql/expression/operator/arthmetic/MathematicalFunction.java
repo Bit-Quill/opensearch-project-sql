@@ -474,7 +474,7 @@ public class MathematicalFunction {
 
   /**
    * Definition of cbrt(x) function.
-   * Calculate the cube root of a non-negative number x
+   * Calculate the cube root of a number x
    * The supported signature is
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
