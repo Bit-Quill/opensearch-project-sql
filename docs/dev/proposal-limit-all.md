@@ -29,6 +29,9 @@ The following use cases should notify users when incomplete data is returned.
 ```sql
 SELECT <...> FROM <...> WHERE <...> 
 ```
+SQL Plugin returns up to `query.size_limit` rows. 
+
+[Additional](#more-data-available-response) information is included when `query.size_limit < totalSize`
 
 ## Without cursor request, with LIMIT clause
 
@@ -59,7 +62,7 @@ SELECT <...> FROM <...> WHERE <...> LIMIT ALL OFFSET Y
 ```
 Overrides `query.size_limit` and returns all available rows up to `index.max_window_size`. Includes more [available response](#more-data-available-response) if applicable.
 
-More data available will be included even when `index.max_window_size < totalSize` but `totalSize - Y < index.max_window_size`
+More data available will be included even when `index.max_window_size < totalSize` but `totalSize - Y < index.max_window_size` -- in OpenSearch, `index.max_window_size` limits how many documents OpenSearch considers not how many are returned. To return `X` documents, while skipping `Y`, `X + Y` documents need to be considered.
 
 ## With cursor request
 
