@@ -7,6 +7,7 @@
 package org.opensearch.sql.sql.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opensearch.sql.ast.dsl.AstDSL.aggregate;
 import static org.opensearch.sql.ast.dsl.AstDSL.and;
 import static org.opensearch.sql.ast.dsl.AstDSL.booleanLiteral;
@@ -37,6 +38,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.ast.Node;
 import org.opensearch.sql.ast.dsl.AstDSL;
@@ -46,6 +48,7 @@ import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.common.antlr.CaseInsensitiveCharStream;
 import org.opensearch.sql.common.antlr.SyntaxAnalysisErrorListener;
+import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLLexer;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser;
 
@@ -502,6 +505,50 @@ class AstExpressionBuilderTest {
             unresolvedArg("operator", stringLiteral("AND"))),
         buildExprAst("multi_match(['field1', 'field2' ^ 3.2], 'search query',"
             + "analyzer='keyword', operator='AND')"));
+  }
+
+  @Test
+  public void relevanceMultimatch_alternate_parameter_syntax() {
+    assertEquals(AstDSL.function("multimatch",
+            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+                "field", 1F))),
+            unresolvedArg("query", stringLiteral("search query"))),
+        buildExprAst("multimatch(fields='field', query='search query')")
+    );
+
+    assertEquals(AstDSL.function("multimatch",
+            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+                "field", 1F))),
+            unresolvedArg("query", stringLiteral("search query")),
+            unresolvedArg("analyzer", stringLiteral("keyword")),
+            unresolvedArg("operator", stringLiteral("AND"))),
+        buildExprAst("multimatch(fields='field', query='search query',"
+            + "analyzer='keyword', operator='AND')"));
+  }
+
+  @Test
+  public void relevanceMultimatchquery_alternate_parameter_syntax() {
+    assertEquals(AstDSL.function("multimatchquery",
+            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+                "field", 1F))),
+            unresolvedArg("query", stringLiteral("search query"))),
+        buildExprAst("multimatchquery(fields='field', query='search query')")
+    );
+
+    assertEquals(AstDSL.function("multimatchquery",
+            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+                "field", 1F))),
+            unresolvedArg("query", stringLiteral("search query")),
+            unresolvedArg("analyzer", stringLiteral("keyword")),
+            unresolvedArg("operator", stringLiteral("AND"))),
+        buildExprAst("multimatchquery(fields='field', query='search query',"
+            + "analyzer='keyword', 'operator'='AND')"));
+  }
+
+  @Test
+  public void relevanceMultimatchquery_invalid_parameter_semantic_exception() {
+    Assertions.assertThrows(SemanticCheckException.class,
+        () -> buildExprAst("multimatchquery('invalid'='query_val', 'fields'='field_val')"));
   }
 
   @Test

@@ -39,7 +39,11 @@ class MultiMatchTest {
   private static final DSL dsl = new ExpressionConfig()
       .dsl(new ExpressionConfig().functionRepository());
   private final MultiMatchQuery multiMatchQuery = new MultiMatchQuery();
-  private final FunctionName multiMatch = FunctionName.of("multi_match");
+  private final FunctionName multiMatchName = FunctionName.of("multimatch");
+  private final FunctionName multiMatchWithUnderscoreName = FunctionName.of("multi_match");
+  private final FunctionName multiMatchQueryName = FunctionName.of("multi_match");
+  private final FunctionName[] functionNames =
+      {multiMatchName, multiMatchWithUnderscoreName, multiMatchQueryName};
   private static final LiteralExpression fields_value = DSL.literal(
       new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
           "title", ExprValueUtils.floatValue(1.F),
@@ -133,22 +137,28 @@ class MultiMatchTest {
   @ParameterizedTest
   @MethodSource("generateValidData")
   public void test_valid_parameters(List<Expression> validArgs) {
-    Assertions.assertNotNull(multiMatchQuery.build(
-        new MultiMatchExpression(validArgs)));
+    for (FunctionName funcName: functionNames) {
+      Assertions.assertNotNull(multiMatchQuery.build(
+          new MultiMatchExpression(validArgs, funcName)));
+    }
   }
 
   @Test
   public void test_SyntaxCheckException_when_no_arguments() {
     List<Expression> arguments = List.of();
-    assertThrows(SyntaxCheckException.class,
-        () -> multiMatchQuery.build(new MultiMatchExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      assertThrows(SyntaxCheckException.class,
+          () -> multiMatchQuery.build(new MultiMatchExpression(arguments, funcName)));
+    }
   }
 
   @Test
   public void test_SyntaxCheckException_when_one_argument() {
     List<Expression> arguments = List.of(namedArgument("fields", fields_value));
-    assertThrows(SyntaxCheckException.class,
-        () -> multiMatchQuery.build(new MultiMatchExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      assertThrows(SyntaxCheckException.class,
+          () -> multiMatchQuery.build(new MultiMatchExpression(arguments, funcName)));
+    }
   }
 
   @Test
@@ -157,8 +167,10 @@ class MultiMatchTest {
         namedArgument("fields", fields_value),
         namedArgument("query", query_value),
         dsl.namedArgument("unsupported", "unsupported_value"));
-    Assertions.assertThrows(SemanticCheckException.class,
-        () -> multiMatchQuery.build(new MultiMatchExpression(arguments)));
+    for (FunctionName funcName: functionNames) {
+      Assertions.assertThrows(SemanticCheckException.class,
+          () -> multiMatchQuery.build(new MultiMatchExpression(arguments, funcName)));
+    }
   }
 
   private NamedArgumentExpression namedArgument(String name, LiteralExpression value) {
@@ -166,8 +178,8 @@ class MultiMatchTest {
   }
 
   private class MultiMatchExpression extends FunctionExpression {
-    public MultiMatchExpression(List<Expression> arguments) {
-      super(MultiMatchTest.this.multiMatch, arguments);
+    public MultiMatchExpression(List<Expression> arguments, FunctionName funcName) {
+      super(funcName, arguments);
     }
 
     @Override

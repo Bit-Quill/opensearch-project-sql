@@ -28,7 +28,9 @@ public class OpenSearchFunctions {
   public void register(BuiltinFunctionRepository repository) {
     repository.register(match_bool_prefix());
     repository.register(match());
-    repository.register(multi_match());
+    repository.register(multi_match(BuiltinFunctionName.MULTI_MATCH));
+    repository.register(multi_match(BuiltinFunctionName.MULTIMATCH));
+    repository.register(multi_match(BuiltinFunctionName.MULTIMATCHQUERY));
     repository.register(simple_query_string());
     repository.register(query());
     repository.register(query_string());
@@ -59,8 +61,8 @@ public class OpenSearchFunctions {
     return new RelevanceFunctionResolver(funcName, STRING);
   }
 
-  private static FunctionResolver multi_match() {
-    FunctionName funcName = BuiltinFunctionName.MULTI_MATCH.getName();
+  private static FunctionResolver multi_match(BuiltinFunctionName matchPhrase) {
+    FunctionName funcName = matchPhrase.getName();
     return new RelevanceFunctionResolver(funcName, STRUCT);
   }
 

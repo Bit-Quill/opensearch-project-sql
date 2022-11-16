@@ -347,6 +347,9 @@ multiFieldRelevanceFunction
     : multiFieldRelevanceFunctionName LR_BRACKET
         LT_SQR_PRTHS field=relevanceFieldAndWeight (COMMA field=relevanceFieldAndWeight)* RT_SQR_PRTHS
         COMMA query=relevanceQuery (COMMA relevanceArg)* RR_BRACKET
+    | multiFieldRelevanceFunctionName LR_BRACKET
+              alternateMultiMatchQueryField  COMMA alternateMultiMatchQueryField
+              (COMMA alternateMultiMatchOptionalArg)* RR_BRACKET
     ;
 
 convertedDataType
@@ -431,6 +434,8 @@ singleFieldRelevanceFunctionName
 
 multiFieldRelevanceFunctionName
     : MULTI_MATCH
+    | MULTIMATCH
+    | MULTIMATCHQUERY
     | SIMPLE_QUERY_STRING
     | QUERY_STRING
     ;
@@ -498,3 +503,22 @@ highlightArgValue
     : stringLiteral
     ;
 
+alternateMultiMatchArgName
+    : FIELDS
+    | QUERY
+    | stringLiteral
+    ;
+
+alternateMultiMatchArgVal
+    : qualifiedName
+    | stringLiteral
+    ;
+
+alternateMultiMatchOptionalArg
+    : relevanceArg
+    | argName=stringLiteral EQUAL_SYMBOL argVal=relevanceArgValue
+    ;
+
+alternateMultiMatchQueryField
+    : argName=alternateMultiMatchArgName EQUAL_SYMBOL argVal=alternateMultiMatchArgVal
+    ;

@@ -194,6 +194,12 @@ class SQLSyntaxParserTest {
   @Test
   public void can_parse_multi_match_relevance_function() {
     assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE multi_match(\"fields\"=\"field\", \"query\"=\"query\")"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE multi_match(\'fields\'=\'field\', \'query\'=\'query\')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE multi_match(fields=\'field\', query=\'query\')"));
+    assertNotNull(parser.parse(
         "SELECT id FROM test WHERE multi_match(['address'], 'query')"));
     assertNotNull(parser.parse(
         "SELECT id FROM test WHERE multi_match(['address', 'notes'], 'query')"));

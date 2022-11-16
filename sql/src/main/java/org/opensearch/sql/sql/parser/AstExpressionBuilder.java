@@ -80,6 +80,8 @@ import org.opensearch.sql.ast.expression.When;
 import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.common.utils.StringUtils;
+import org.opensearch.sql.exception.SemanticCheckException;
+import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.AndExpressionContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.ColumnNameContext;
@@ -399,9 +401,24 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitMultiFieldRelevanceFunction(
       MultiFieldRelevanceFunctionContext ctx) {
-    return new Function(
-        ctx.multiFieldRelevanceFunctionName().getText().toLowerCase(),
-        multiFieldRelevanceArguments(ctx));
+    // To support alternate syntax for MULTI_MATCH like
+    // 'MULTI_MATCH('query'='query_val', 'fields'='*fields_val')'
+    if ((StringUtils.unquoteText(ctx.multiFieldRelevanceFunctionName().getText().toUpperCase())
+            .equals(BuiltinFunctionName.MULTI_MATCH.toString())
+        || StringUtils.unquoteText(ctx.multiFieldRelevanceFunctionName().getText().toUpperCase())
+            .equals(BuiltinFunctionName.MULTIMATCH.toString())
+        || StringUtils.unquoteText(ctx.multiFieldRelevanceFunctionName().getText().toUpperCase())
+            .equals(BuiltinFunctionName.MULTIMATCHQUERY.toString()))
+        && ! ctx.getRuleContexts(OpenSearchSQLParser.AlternateMultiMatchQueryFieldContext.class)
+        .isEmpty()) {
+      return new Function(
+          ctx.multiFieldRelevanceFunctionName().getText().toLowerCase(),
+          alternateMultiMatchArguments(ctx));
+    } else {
+      return new Function(
+          ctx.multiFieldRelevanceFunctionName().getText().toLowerCase(),
+          multiFieldRelevanceArguments(ctx));
+    }
   }
 
   private Function visitFunction(String functionName, FunctionArgsContext args) {
@@ -485,6 +502,56 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     builder.add(new UnresolvedArgument("query",
         new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));
     fillRelevanceArgs(ctx.relevanceArg(), builder);
+    return builder.build();
+  }
+
+  /**
+   * Adds support for multi_match alternate syntax like
+   * MULTI_MATCH('query'='Dale', 'fields'='*name').
+   * @param ctx : Context for multi field relevance function.
+   * @return : Returns list of all arguments for relevance function.
+   */
+  private List<UnresolvedExpression> alternateMultiMatchArguments(
+      OpenSearchSQLParser.MultiFieldRelevanceFunctionContext ctx) {
+    // all the arguments are defaulted to string values
+    // to skip environment resolving and function signature resolving
+    ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
+    String fields = "";
+    String query = "";
+    for (var arg : ctx.getRuleContexts(
+        OpenSearchSQLParser.AlternateMultiMatchQueryFieldContext.class)) {
+      switch (StringUtils.unquoteText(arg.argName.getText())) {
+        case "query":
+          query = StringUtils.unquoteText(arg.argVal.getText());
+          break;
+
+        case "fields":
+          fields = StringUtils.unquoteText(arg.argVal.getText());
+          break;
+
+        default:
+          throw new SemanticCheckException(
+              String.format("can't resolve argument %s for %s",
+                  StringUtils.unquoteText(arg.argName.getText()),
+                  StringUtils.unquoteText(ctx.multiFieldRelevanceFunctionName().getText()))
+          );
+      }
+    }
+
+    builder.add(new UnresolvedArgument("fields",
+        new RelevanceFieldList(ImmutableMap.of(fields, 1F))));
+    builder.add(new UnresolvedArgument("query",
+        new Literal(query, DataType.STRING)));
+
+    // To support old syntax we must support argument keys as quoted strings.
+    ctx.getRuleContexts(OpenSearchSQLParser.AlternateMultiMatchOptionalArgContext.class)
+        .forEach(v -> builder.add(v.relevanceArg() != null
+            ? new UnresolvedArgument(v.relevanceArg().relevanceArgName().getText().toLowerCase(),
+                new Literal(StringUtils.unquoteText(v.relevanceArg().relevanceArgValue().getText()),
+                    DataType.STRING))
+            : new UnresolvedArgument(StringUtils.unquoteText(v.argName.getText()).toLowerCase(),
+                new Literal(StringUtils.unquoteText(v.argVal.getText()), DataType.STRING))));
+
     return builder.build();
   }
 }
