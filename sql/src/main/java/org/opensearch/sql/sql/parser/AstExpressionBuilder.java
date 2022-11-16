@@ -409,7 +409,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
             .equals(BuiltinFunctionName.MULTIMATCH.toString())
         || StringUtils.unquoteText(ctx.multiFieldRelevanceFunctionName().getText().toUpperCase())
             .equals(BuiltinFunctionName.MULTIMATCHQUERY.toString()))
-        && ! ctx.getRuleContexts(OpenSearchSQLParser.AlternateMultiMatchQueryFieldContext.class)
+        && ! ctx.getRuleContexts(OpenSearchSQLParser.AlternateMultiMatchQueryContext.class)
         .isEmpty()) {
       return new Function(
           ctx.multiFieldRelevanceFunctionName().getText().toLowerCase(),
@@ -516,32 +516,17 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     // all the arguments are defaulted to string values
     // to skip environment resolving and function signature resolving
     ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
-    String fields = "";
-    String query = "";
-    for (var arg : ctx.getRuleContexts(
-        OpenSearchSQLParser.AlternateMultiMatchQueryFieldContext.class)) {
-      switch (StringUtils.unquoteText(arg.argName.getText())) {
-        case "query":
-          query = StringUtils.unquoteText(arg.argVal.getText());
-          break;
+    ctx.getRuleContexts(OpenSearchSQLParser.AlternateMultiMatchFieldContext.class).stream().findFirst().ifPresent(
+        arg ->
+          builder.add(new UnresolvedArgument("fields",
+              new RelevanceFieldList(ImmutableMap.of(StringUtils.unquoteText(arg.argVal.getText()), 1F))))
+    );
 
-        case "fields":
-          fields = StringUtils.unquoteText(arg.argVal.getText());
-          break;
-
-        default:
-          throw new SemanticCheckException(
-              String.format("can't resolve argument %s for %s",
-                  StringUtils.unquoteText(arg.argName.getText()),
-                  StringUtils.unquoteText(ctx.multiFieldRelevanceFunctionName().getText()))
-          );
-      }
-    }
-
-    builder.add(new UnresolvedArgument("fields",
-        new RelevanceFieldList(ImmutableMap.of(fields, 1F))));
-    builder.add(new UnresolvedArgument("query",
-        new Literal(query, DataType.STRING)));
+    ctx.getRuleContexts(OpenSearchSQLParser.AlternateMultiMatchQueryContext.class).stream().findFirst().ifPresent(
+        arg ->
+            builder.add(new UnresolvedArgument("query",
+                new Literal(StringUtils.unquoteText(arg.argVal.getText()), DataType.STRING)))
+    );
 
     // To support old syntax we must support argument keys as quoted strings.
     ctx.getRuleContexts(OpenSearchSQLParser.AlternateMultiMatchOptionalArgContext.class)

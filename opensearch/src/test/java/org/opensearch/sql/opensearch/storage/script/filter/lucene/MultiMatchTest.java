@@ -40,10 +40,10 @@ class MultiMatchTest {
       .dsl(new ExpressionConfig().functionRepository());
   private final MultiMatchQuery multiMatchQuery = new MultiMatchQuery();
   private final FunctionName multiMatchName = FunctionName.of("multimatch");
-  private final FunctionName multiMatchWithUnderscoreName = FunctionName.of("multi_match");
-  private final FunctionName multiMatchQueryName = FunctionName.of("multi_match");
+  private final FunctionName multi_matchName = FunctionName.of("multi_match");
+  private final FunctionName multiMatchQueryName = FunctionName.of("multimatchquery");
   private final FunctionName[] functionNames =
-      {multiMatchName, multiMatchWithUnderscoreName, multiMatchQueryName};
+      {multiMatchName, multi_matchName, multiMatchQueryName};
   private static final LiteralExpression fields_value = DSL.literal(
       new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
           "title", ExprValueUtils.floatValue(1.F),
