@@ -30,16 +30,22 @@ import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import java.time.DateTimeException;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
 import org.opensearch.common.time.DateFormatters;
 import org.opensearch.sql.data.model.ExprBooleanValue;
 import org.opensearch.sql.data.model.ExprByteValue;
@@ -61,6 +67,7 @@ import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.opensearch.data.utils.Content;
 import org.opensearch.sql.opensearch.data.utils.ObjectContent;
 import org.opensearch.sql.opensearch.data.utils.OpenSearchJsonContent;
+import org.opensearch.sql.opensearch.mapping.MappingEntry;
 import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseParser;
 
 /**
@@ -73,6 +80,9 @@ public class OpenSearchExprValueFactory {
   @Setter
   private Map<String, ExprType> typeMapping;
 
+
+  private Map<String, MappingEntry> typeMapping2;
+
   @Getter
   @Setter
   private OpenSearchAggregationResponseParser parser;
@@ -81,26 +91,26 @@ public class OpenSearchExprValueFactory {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-  private final Map<ExprType, Function<Content, ExprValue>> typeActionMap =
-      new ImmutableMap.Builder<ExprType, Function<Content, ExprValue>>()
-          .put(INTEGER, c -> new ExprIntegerValue(c.intValue()))
-          .put(LONG, c -> new ExprLongValue(c.longValue()))
-          .put(SHORT, c -> new ExprShortValue(c.shortValue()))
-          .put(BYTE, c -> new ExprByteValue(c.byteValue()))
-          .put(FLOAT, c -> new ExprFloatValue(c.floatValue()))
-          .put(DOUBLE, c -> new ExprDoubleValue(c.doubleValue()))
-          .put(STRING, c -> new ExprStringValue(c.stringValue()))
-          .put(BOOLEAN, c -> ExprBooleanValue.of(c.booleanValue()))
+  private final Map<ExprType, BiFunction<Content, MappingEntry, ExprValue>> typeActionMap =
+      new ImmutableMap.Builder<ExprType, BiFunction<Content, MappingEntry, ExprValue>>()
+          .put(INTEGER, (c, m) -> new ExprIntegerValue(c.intValue()))
+          .put(LONG, (c, m) -> new ExprLongValue(c.longValue()))
+          .put(SHORT, (c, m) -> new ExprShortValue(c.shortValue()))
+          .put(BYTE, (c, m) -> new ExprByteValue(c.byteValue()))
+          .put(FLOAT, (c, m) -> new ExprFloatValue(c.floatValue()))
+          .put(DOUBLE, (c, m) -> new ExprDoubleValue(c.doubleValue()))
+          .put(STRING, (c, m) -> new ExprStringValue(c.stringValue()))
+          .put(BOOLEAN, (c, m) -> ExprBooleanValue.of(c.booleanValue()))
           .put(TIMESTAMP, this::parseTimestamp)
-          .put(DATE, c -> new ExprDateValue(parseTimestamp(c).dateValue().toString()))
-          .put(TIME, c -> new ExprTimeValue(parseTimestamp(c).timeValue().toString()))
-          .put(DATETIME, c -> new ExprDatetimeValue(parseTimestamp(c).datetimeValue()))
-          .put(OPENSEARCH_TEXT, c -> new OpenSearchExprTextValue(c.stringValue()))
-          .put(OPENSEARCH_TEXT_KEYWORD, c -> new OpenSearchExprTextKeywordValue(c.stringValue()))
-          .put(OPENSEARCH_IP, c -> new OpenSearchExprIpValue(c.stringValue()))
-          .put(OPENSEARCH_GEO_POINT, c -> new OpenSearchExprGeoPointValue(c.geoValue().getLeft(),
+          .put(DATE, (c, m) -> new ExprDateValue(parseTimestamp(c, m).dateValue().toString()))
+          .put(TIME, (c, m) -> new ExprTimeValue(parseTimestamp(c, m).timeValue().toString()))
+          .put(DATETIME, (c, m) -> new ExprDatetimeValue(parseTimestamp(c, m).datetimeValue()))
+          .put(OPENSEARCH_TEXT, (c, m) -> new OpenSearchExprTextValue(c.stringValue()))
+          .put(OPENSEARCH_TEXT_KEYWORD, (c, m) -> new OpenSearchExprTextKeywordValue(c.stringValue()))
+          .put(OPENSEARCH_IP, (c, m) -> new OpenSearchExprIpValue(c.stringValue()))
+          .put(OPENSEARCH_GEO_POINT, (c, m) -> new OpenSearchExprGeoPointValue(c.geoValue().getLeft(),
               c.geoValue().getRight()))
-          .put(OPENSEARCH_BINARY, c -> new OpenSearchExprBinaryValue(c.stringValue()))
+          .put(OPENSEARCH_BINARY, (c, m) -> new OpenSearchExprBinaryValue(c.stringValue()))
           .build();
 
   /**
@@ -109,6 +119,12 @@ public class OpenSearchExprValueFactory {
   public OpenSearchExprValueFactory(
       Map<String, ExprType> typeMapping) {
     this.typeMapping = typeMapping;
+  }
+
+  public OpenSearchExprValueFactory(Map<String, ExprType> typeMapping,
+                                    Map<String, MappingEntry> typeMapping2) {
+    this.typeMapping = typeMapping;
+    this.typeMapping2 = typeMapping2;
   }
 
   /**
@@ -151,7 +167,7 @@ public class OpenSearchExprValueFactory {
       return parseArray(content, field);
     } else {
       if (typeActionMap.containsKey(type)) {
-        return typeActionMap.get(type).apply(content);
+        return typeActionMap.get(type).apply(content, typeMapping2.getOrDefault(field, null));
       } else {
         throw new IllegalStateException(
             String.format(
@@ -188,11 +204,61 @@ public class OpenSearchExprValueFactory {
     }
   }
 
-  private ExprValue parseTimestamp(Content value) {
+  // returns java.time.format.Parsed
+  private TemporalAccessor parseTimestampString(String value, MappingEntry mapping) {
+    if (mapping == null) {
+      return null;
+    }
+    for (var formatter : mapping.getRegularFormatters()) {
+      try {
+        return formatter.parse(value);
+      } catch (Exception ignored) {
+        // nothing to do, try another format
+      }
+    }
+    for (var formatter : mapping.getNamedFormatters()) {
+      try {
+        return formatter.parse(value);
+      } catch (Exception ignored) {
+        // nothing to do, try another format
+      }
+    }
+    return null;
+  }
+
+  private ExprValue parseTimestamp(Content value, MappingEntry mapping) {
     if (value.isNumber()) {
       return new ExprTimestampValue(Instant.ofEpochMilli(value.longValue()));
     } else if (value.isString()) {
-      return constructTimestamp(value.stringValue());
+      TemporalAccessor parsed = parseTimestampString(value.stringValue(), mapping);
+      if (parsed == null) { // failed to parse or no formats given
+        return constructTimestamp(value.stringValue());
+      }
+      try {
+        return new ExprTimestampValue(Instant.from(parsed));
+      } catch (DateTimeException ignored) {
+        // nothing to do, try another type
+      }
+      // TODO return not ExprTimestampValue
+      try {
+        return new ExprTimestampValue(new ExprDateValue(LocalDate.from(parsed)).timestampValue());
+      } catch (DateTimeException ignored) {
+        // nothing to do, try another type
+      }
+      try {
+        return new ExprTimestampValue(new ExprDatetimeValue(LocalDateTime.from(parsed)).timestampValue());
+      } catch (DateTimeException ignored) {
+        // nothing to do, try another type
+      }
+      try {
+        return new ExprTimestampValue(new ExprTimeValue(LocalTime.from(parsed)).timestampValue());
+      } catch (DateTimeException ignored) {
+        // nothing to do, try another type
+      }
+      // TODO throw exception
+      LogManager.getLogger(OpenSearchExprValueFactory.class).error(
+          String.format("Can't recognize parsed value: %s, %s", parsed, parsed.getClass()));
+      return new ExprStringValue(value.stringValue());
     } else {
       return new ExprTimestampValue((Instant) value.objectValue());
     }

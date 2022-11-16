@@ -17,6 +17,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.tuple.Triple;
+import org.opensearch.common.collect.Tuple;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
@@ -24,6 +27,7 @@ import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.mapping.IndexMapping;
+import org.opensearch.sql.opensearch.mapping.MappingEntry;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 
 /**
@@ -117,6 +121,20 @@ public class OpenSearchDescribeIndexRequest implements OpenSearchSystemRequest {
           .putAll(indexMapping.getAllFieldTypes(this::transformESTypeToExprType).entrySet().stream()
               .filter(entry -> !ExprCoreType.UNKNOWN.equals(entry.getValue()))
               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    }
+    return fieldTypes;
+  }
+
+  // TODO possible collision if two indices have fields with same names
+  public Map<String, MappingEntry> getFieldTypes2() {
+    Map<String, IndexMapping> indexMappings = client.getIndexMappings(indexName.getIndexNames());
+    Map<String, MappingEntry> fieldTypes = new HashMap<>();
+
+    for (IndexMapping indexMapping : indexMappings.values()) {
+      indexMapping.mapping2.forEach((key, value) ->
+          value.setDataType(transformESTypeToExprType(value.getFieldType())));
+      fieldTypes
+          .putAll(indexMapping.mapping2);
     }
     return fieldTypes;
   }

@@ -26,11 +26,14 @@ public class IndexMapping {
   /** Field mappings from field name to field type in OpenSearch date type system. */
   private final Map<String, String> fieldMappings;
 
+  public Map<String, MappingEntry> mapping2;
+
   public IndexMapping(Map<String, String> fieldMappings) {
     this.fieldMappings = fieldMappings;
   }
 
   public IndexMapping(MappingMetadata metaData) {
+    this.mapping2 = flat2(metaData.getSourceAsMap());
     this.fieldMappings = flatMappings(metaData.getSourceAsMap());
   }
 
@@ -64,6 +67,17 @@ public class IndexMapping {
     return fieldMappings.entrySet().stream()
         .collect(Collectors.toMap(Map.Entry::getKey, e -> transform.apply(e.getValue())));
   }
+
+  @SuppressWarnings("unchecked")
+  private Map<String, MappingEntry> flat2(Map<String, Object> indexMapping) {
+    return ((Map<String, Object>)indexMapping.get("properties")).entrySet().stream()
+        .collect(Collectors.toMap(e -> e.getKey(), e -> {
+          Map<String, Object> mapping = (Map<String, Object>) e.getValue();
+          return new MappingEntry((String) mapping.getOrDefault("type", "object"),
+              (String) mapping.getOrDefault("format", null), null);
+        }));
+  }
+
 
   @SuppressWarnings("unchecked")
   private Map<String, String> flatMappings(Map<String, Object> indexMapping) {

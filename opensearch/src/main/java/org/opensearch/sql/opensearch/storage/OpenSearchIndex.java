@@ -104,7 +104,8 @@ public class OpenSearchIndex implements Table {
   @Override
   public PhysicalPlan implement(LogicalPlan plan) {
     OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, settings, indexName,
-        getMaxResultWindow(), new OpenSearchExprValueFactory(getFieldTypes()));
+        getMaxResultWindow(), new OpenSearchExprValueFactory(getFieldTypes(),
+            new OpenSearchDescribeIndexRequest(client, indexName).getFieldTypes2()));
 
     /*
      * Visit logical plan with index scan as context so logical operators visited, such as
