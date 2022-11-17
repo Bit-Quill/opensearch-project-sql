@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
+import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.SemanticCheckException;
@@ -77,19 +78,19 @@ class WildcardQueryTest {
 
   @Test
   public void test_escaping_sql_wildcards() {
-    assertEquals("%", wildcardQueryQuery.convertSqlWildcardToLucene("\\%"));
-    assertEquals("\\*", wildcardQueryQuery.convertSqlWildcardToLucene("\\*"));
-    assertEquals("_", wildcardQueryQuery.convertSqlWildcardToLucene("\\_"));
-    assertEquals("\\?", wildcardQueryQuery.convertSqlWildcardToLucene("\\?"));
-    assertEquals("%*", wildcardQueryQuery.convertSqlWildcardToLucene("\\%%"));
-    assertEquals("*%", wildcardQueryQuery.convertSqlWildcardToLucene("%\\%"));
-    assertEquals("%*%", wildcardQueryQuery.convertSqlWildcardToLucene("\\%%\\%"));
-    assertEquals("*%*", wildcardQueryQuery.convertSqlWildcardToLucene("%\\%%"));
-    assertEquals("_?", wildcardQueryQuery.convertSqlWildcardToLucene("\\__"));
-    assertEquals("?_", wildcardQueryQuery.convertSqlWildcardToLucene("_\\_"));
-    assertEquals("_?_", wildcardQueryQuery.convertSqlWildcardToLucene("\\__\\_"));
-    assertEquals("?_?", wildcardQueryQuery.convertSqlWildcardToLucene("_\\__"));
-    assertEquals("%\\*_\\?", wildcardQueryQuery.convertSqlWildcardToLucene("\\%\\*\\_\\?"));
+    assertEquals("%", StringUtils.convertSqlWildcardToLucene("\\%"));
+    assertEquals("\\*", StringUtils.convertSqlWildcardToLucene("\\*"));
+    assertEquals("_", StringUtils.convertSqlWildcardToLucene("\\_"));
+    assertEquals("\\?", StringUtils.convertSqlWildcardToLucene("\\?"));
+    assertEquals("%*", StringUtils.convertSqlWildcardToLucene("\\%%"));
+    assertEquals("*%", StringUtils.convertSqlWildcardToLucene("%\\%"));
+    assertEquals("%*%", StringUtils.convertSqlWildcardToLucene("\\%%\\%"));
+    assertEquals("*%*", StringUtils.convertSqlWildcardToLucene("%\\%%"));
+    assertEquals("_?", StringUtils.convertSqlWildcardToLucene("\\__"));
+    assertEquals("?_", StringUtils.convertSqlWildcardToLucene("_\\_"));
+    assertEquals("_?_", StringUtils.convertSqlWildcardToLucene("\\__\\_"));
+    assertEquals("?_?", StringUtils.convertSqlWildcardToLucene("_\\__"));
+    assertEquals("%\\*_\\?", StringUtils.convertSqlWildcardToLucene("\\%\\*\\_\\?"));
   }
 
   private class WildcardQueryExpression extends FunctionExpression {

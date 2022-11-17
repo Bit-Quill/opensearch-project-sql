@@ -8,6 +8,7 @@ package org.opensearch.sql.opensearch.storage.script.filter.lucene.relevance;
 
 import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.index.query.WildcardQueryBuilder;
+import org.opensearch.sql.common.utils.StringUtils;
 
 /**
  * Lucene query that builds wildcard query.
@@ -21,49 +22,6 @@ public class WildcardQuery extends SingleFieldQuery<WildcardQueryBuilder> {
     super(FunctionParameterRepository.WildcardQueryBuildActions);
   }
 
-  private static final char DEFAULT_ESCAPE = '\\';
-
-  /**
-   * Converts sql wildcard character % and _ to * and ?.
-   * @param text string to be converted
-   * @return converted string
-   */
-  public String convertSqlWildcardToLucene(String text) {
-    StringBuilder convertedString = new StringBuilder(text.length());
-    boolean escaped = false;
-
-    for (char currentChar : text.toCharArray()) {
-      switch (currentChar) {
-        case DEFAULT_ESCAPE:
-          escaped = true;
-          convertedString.append(currentChar);
-          break;
-        case '%':
-          if (escaped) {
-            convertedString.deleteCharAt(convertedString.length() - 1);
-            convertedString.append("%");
-          } else {
-            convertedString.append("*");
-          }
-          escaped = false;
-          break;
-        case '_':
-          if (escaped) {
-            convertedString.deleteCharAt(convertedString.length() - 1);
-            convertedString.append("_");
-          } else {
-            convertedString.append('?');
-          }
-          escaped = false;
-          break;
-        default:
-          convertedString.append(currentChar);
-          escaped = false;
-      }
-    }
-    return convertedString.toString();
-  }
-
   @Override
   protected String getQueryName() {
     return WildcardQueryBuilder.NAME;
@@ -71,7 +29,7 @@ public class WildcardQuery extends SingleFieldQuery<WildcardQueryBuilder> {
 
   @Override
   protected WildcardQueryBuilder createBuilder(String field, String query) {
-    String matchText = convertSqlWildcardToLucene(query);
+    String matchText = StringUtils.convertSqlWildcardToLucene(query);
     return QueryBuilders.wildcardQuery(field, matchText);
   }
 }
