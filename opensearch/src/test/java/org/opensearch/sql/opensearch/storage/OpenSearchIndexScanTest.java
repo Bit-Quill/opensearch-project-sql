@@ -41,6 +41,7 @@ import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
+import org.opensearch.sql.opensearch.mapping.MappingEntry;
 import org.opensearch.sql.opensearch.request.OpenSearchQueryRequest;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
@@ -55,7 +56,8 @@ class OpenSearchIndexScanTest {
   private Settings settings;
 
   private OpenSearchExprValueFactory exprValueFactory = new OpenSearchExprValueFactory(
-      ImmutableMap.of("name", STRING, "department", STRING));
+      Map.of("name", new MappingEntry(null, null, STRING),
+              "department", new MappingEntry(null, null, STRING)));
 
   @BeforeEach
   void setup() {

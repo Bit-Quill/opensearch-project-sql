@@ -56,35 +56,37 @@ import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.opensearch.data.utils.OpenSearchJsonContent;
+import org.opensearch.sql.opensearch.mapping.MappingEntry;
 
 class OpenSearchExprValueFactoryTest {
 
-  private static final Map<String, ExprType> MAPPING =
-      new ImmutableMap.Builder<String, ExprType>()
-          .put("byteV", BYTE)
-          .put("shortV", SHORT)
-          .put("intV", INTEGER)
-          .put("longV", LONG)
-          .put("floatV", FLOAT)
-          .put("doubleV", DOUBLE)
-          .put("stringV", STRING)
-          .put("dateV", DATE)
-          .put("datetimeV", DATETIME)
-          .put("timeV", TIME)
-          .put("timestampV", TIMESTAMP)
-          .put("boolV", BOOLEAN)
-          .put("structV", STRUCT)
-          .put("structV.id", INTEGER)
-          .put("structV.state", STRING)
-          .put("arrayV", ARRAY)
-          .put("arrayV.info", STRING)
-          .put("arrayV.author", STRING)
-          .put("textV", OPENSEARCH_TEXT)
-          .put("textKeywordV", OPENSEARCH_TEXT_KEYWORD)
-          .put("ipV", OPENSEARCH_IP)
-          .put("geoV", OPENSEARCH_GEO_POINT)
-          .put("binaryV", OPENSEARCH_BINARY)
+    private static final Map<String, MappingEntry> MAPPING =
+      new ImmutableMap.Builder<String, MappingEntry>()
+          .put("byteV", new MappingEntry(null, null, BYTE))
+          .put("shortV", new MappingEntry(null, null, SHORT))
+          .put("intV", new MappingEntry(null, null, INTEGER))
+          .put("longV", new MappingEntry(null, null, LONG))
+          .put("floatV", new MappingEntry(null, null, FLOAT))
+          .put("doubleV", new MappingEntry(null, null, DOUBLE))
+          .put("stringV", new MappingEntry(null, null, STRING))
+          .put("dateV", new MappingEntry(null, null, DATE))
+          .put("datetimeV", new MappingEntry(null, null, DATETIME))
+          .put("timeV", new MappingEntry(null, null, TIME))
+          .put("timestampV", new MappingEntry(null, null, TIMESTAMP))
+          .put("boolV", new MappingEntry(null, null, BOOLEAN))
+          .put("structV", new MappingEntry(null, null, STRUCT))
+          .put("structV.id", new MappingEntry(null, null, INTEGER))
+          .put("structV.state", new MappingEntry(null, null, STRING))
+          .put("arrayV", new MappingEntry(null, null, ARRAY))
+          .put("arrayV.info", new MappingEntry(null, null, STRING))
+          .put("arrayV.author", new MappingEntry(null, null, STRING))
+          .put("textV", new MappingEntry(null, null, OPENSEARCH_TEXT))
+          .put("textKeywordV", new MappingEntry(null, null, OPENSEARCH_TEXT_KEYWORD))
+          .put("ipV", new MappingEntry(null, null, OPENSEARCH_IP))
+          .put("geoV", new MappingEntry(null, null, OPENSEARCH_GEO_POINT))
+          .put("binaryV", new MappingEntry(null, null, OPENSEARCH_BINARY))
           .build();
+
   private OpenSearchExprValueFactory exprValueFactory =
       new OpenSearchExprValueFactory(MAPPING);
 
@@ -364,7 +366,8 @@ class OpenSearchExprValueFactoryTest {
   @Test
   public void constructUnsupportedTypeThrowException() {
     OpenSearchExprValueFactory exprValueFactory =
-        new OpenSearchExprValueFactory(ImmutableMap.of("type", new TestType()));
+        new OpenSearchExprValueFactory(ImmutableMap.of("type",
+            new MappingEntry(null, null, new TestType())));
     IllegalStateException exception =
         assertThrows(IllegalStateException.class, () -> exprValueFactory.construct("{\"type\":1}"));
     assertEquals("Unsupported type: TEST_TYPE for value: 1.", exception.getMessage());

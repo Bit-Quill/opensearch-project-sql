@@ -77,11 +77,7 @@ public class OpenSearchExprValueFactory {
   /**
    * The Mapping of Field and ExprType.
    */
-  @Setter
-  private Map<String, ExprType> typeMapping;
-
-
-  private Map<String, MappingEntry> typeMapping2;
+  private Map<String, MappingEntry> typeMapping;
 
   @Getter
   @Setter
@@ -116,15 +112,8 @@ public class OpenSearchExprValueFactory {
   /**
    * Constructor of OpenSearchExprValueFactory.
    */
-  public OpenSearchExprValueFactory(
-      Map<String, ExprType> typeMapping) {
+  public OpenSearchExprValueFactory(Map<String, MappingEntry> typeMapping) {
     this.typeMapping = typeMapping;
-  }
-
-  public OpenSearchExprValueFactory(Map<String, ExprType> typeMapping,
-                                    Map<String, MappingEntry> typeMapping2) {
-    this.typeMapping = typeMapping;
-    this.typeMapping2 = typeMapping2;
   }
 
   /**
@@ -167,7 +156,7 @@ public class OpenSearchExprValueFactory {
       return parseArray(content, field);
     } else {
       if (typeActionMap.containsKey(type)) {
-        return typeActionMap.get(type).apply(content, typeMapping2.getOrDefault(field, null));
+        return typeActionMap.get(type).apply(content, typeMapping.getOrDefault(field, null));
       } else {
         throw new IllegalStateException(
             String.format(
@@ -181,7 +170,7 @@ public class OpenSearchExprValueFactory {
    * but has empty value. For example, {"empty_field": []}.
    */
   private Optional<ExprType> type(String field) {
-    return Optional.ofNullable(typeMapping.get(field));
+    return Optional.ofNullable(typeMapping.get(field).getDataType());
   }
 
   /**

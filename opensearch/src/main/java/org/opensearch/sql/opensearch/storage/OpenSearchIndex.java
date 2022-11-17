@@ -19,6 +19,7 @@ import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
+import org.opensearch.sql.opensearch.mapping.MappingEntry;
 import org.opensearch.sql.opensearch.planner.logical.OpenSearchLogicalIndexAgg;
 import org.opensearch.sql.opensearch.planner.logical.OpenSearchLogicalIndexScan;
 import org.opensearch.sql.opensearch.planner.logical.OpenSearchLogicalPlanOptimizerFactory;
@@ -60,6 +61,8 @@ public class OpenSearchIndex implements Table {
    */
   private Map<String, ExprType> cachedFieldTypes = null;
 
+  private Map<String, MappingEntry> cachedFieldMappings = null;
+
   /**
    * The cached max result window setting of index.
    */
@@ -87,6 +90,13 @@ public class OpenSearchIndex implements Table {
     return cachedFieldTypes;
   }
 
+  public Map<String, MappingEntry> getFieldMappings() {
+    if (cachedFieldMappings == null) {
+      cachedFieldMappings = new OpenSearchDescribeIndexRequest(client, indexName).getFieldMappings();
+    }
+    return cachedFieldMappings;
+  }
+
   /**
    * Get the max result window setting of the table.
    */
@@ -104,8 +114,7 @@ public class OpenSearchIndex implements Table {
   @Override
   public PhysicalPlan implement(LogicalPlan plan) {
     OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, settings, indexName,
-        getMaxResultWindow(), new OpenSearchExprValueFactory(getFieldTypes(),
-            new OpenSearchDescribeIndexRequest(client, indexName).getFieldTypes2()));
+        getMaxResultWindow(), new OpenSearchExprValueFactory(getFieldMappings()));
 
     /*
      * Visit logical plan with index scan as context so logical operators visited, such as

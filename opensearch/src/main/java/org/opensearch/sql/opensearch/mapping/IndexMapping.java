@@ -68,9 +68,11 @@ public class IndexMapping {
         .collect(Collectors.toMap(Map.Entry::getKey, e -> transform.apply(e.getValue())));
   }
 
+  // TODO nested, consider recursive call
   @SuppressWarnings("unchecked")
   private Map<String, MappingEntry> flat2(Map<String, Object> indexMapping) {
-    return ((Map<String, Object>)indexMapping.get("properties")).entrySet().stream()
+    return ((Map<String, Object>)indexMapping.getOrDefault("properties", emptyMap()))
+        .entrySet().stream()
         .collect(Collectors.toMap(e -> e.getKey(), e -> {
           Map<String, Object> mapping = (Map<String, Object>) e.getValue();
           return new MappingEntry((String) mapping.getOrDefault("type", "object"),

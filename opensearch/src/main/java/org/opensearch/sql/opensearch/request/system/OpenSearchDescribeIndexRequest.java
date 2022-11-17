@@ -17,9 +17,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.tuple.Triple;
-import org.opensearch.common.collect.Tuple;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
@@ -126,7 +123,7 @@ public class OpenSearchDescribeIndexRequest implements OpenSearchSystemRequest {
   }
 
   // TODO possible collision if two indices have fields with same names
-  public Map<String, MappingEntry> getFieldTypes2() {
+  public Map<String, MappingEntry> getFieldMappings() {
     Map<String, IndexMapping> indexMappings = client.getIndexMappings(indexName.getIndexNames());
     Map<String, MappingEntry> fieldTypes = new HashMap<>();
 

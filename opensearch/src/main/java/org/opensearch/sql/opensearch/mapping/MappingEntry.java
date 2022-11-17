@@ -20,12 +20,21 @@ import org.opensearch.sql.data.type.ExprType;
 @AllArgsConstructor
 public class MappingEntry {
 
+  /**
+   * Data type stored in index mapping.
+   */
   @Getter
   private String fieldType;
 
+  /**
+   * Date formats stored in index mapping.
+   */
   @Getter
   private String formats;
 
+  /**
+   * ExprType calculated for given `fieldType`.
+   */
   @Getter
   @Setter
   private ExprType dataType;
