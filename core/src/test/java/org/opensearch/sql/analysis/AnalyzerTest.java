@@ -80,11 +80,17 @@ import org.opensearch.sql.ast.tree.Kmeans;
 import org.opensearch.sql.ast.tree.ML;
 import org.opensearch.sql.ast.tree.RareTopN.CommandType;
 import org.opensearch.sql.data.model.ExprTupleValue;
+import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
+import org.opensearch.sql.expression.Expression;
+import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.HighlightExpression;
+import org.opensearch.sql.expression.env.Environment;
+import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.window.WindowDefinition;
 import org.opensearch.sql.planner.logical.LogicalAD;
 import org.opensearch.sql.planner.logical.LogicalMLCommons;
@@ -270,6 +276,23 @@ class AnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void test_base_class_validate_parameters_method_does_nothing() {
+    var funcExpr = new FunctionExpression(FunctionName.of("func_name"),
+        List.of()) {
+      @Override
+      public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
+        return null;
+      }
+
+      @Override
+      public ExprType type() {
+        return null;
+      }
+    };
+    funcExpr.validateParameters(analysisContext);
+  }
+
+  @Test
   public void single_field_relevance_query_semantic_exception() {
     SemanticCheckException exception =
         assertThrows(
@@ -350,6 +373,19 @@ class AnalyzerTest extends AnalyzerTestBase {
     assertEquals(
         "can't resolve Symbol(namespace=FIELD_NAME, name=missing_value) in type env",
         exception.getMessage());
+  }
+
+  @Test
+  public void no_field_relevance_query_semantic_exception() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.filter(
+            LogicalPlanDSL.relation("schema", table),
+            DSL.query(
+                DSL.namedArgument("query", DSL.literal("string_value:query_value")))),
+        AstDSL.filter(
+            AstDSL.relation("schema"),
+            AstDSL.function("query",
+                AstDSL.unresolvedArg("query", stringLiteral("string_value:query_value")))));
   }
 
   @Test

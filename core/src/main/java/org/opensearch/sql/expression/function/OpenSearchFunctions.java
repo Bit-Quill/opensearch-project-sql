@@ -8,7 +8,6 @@ package org.opensearch.sql.expression.function;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
@@ -27,14 +26,14 @@ import org.opensearch.sql.expression.env.Environment;
 
 @UtilityClass
 public class OpenSearchFunctions {
-  private final List<String> singleFieldFunctionNames = ImmutableList.of(
+  private final List<String> singleFieldFunctionNames = List.of(
       BuiltinFunctionName.MATCH.name(),
       BuiltinFunctionName.MATCH_BOOL_PREFIX.name(),
       BuiltinFunctionName.MATCHPHRASE.name(),
       BuiltinFunctionName.MATCH_PHRASE_PREFIX.name()
   );
 
-  private final List<String> multiFieldFunctionNames = ImmutableList.of(
+  private final List<String> multiFieldFunctionNames = List.of(
       BuiltinFunctionName.MULTI_MATCH.name(),
       BuiltinFunctionName.SIMPLE_QUERY_STRING.name(),
       BuiltinFunctionName.QUERY_STRING.name()
@@ -56,35 +55,6 @@ public class OpenSearchFunctions {
    */
   public static boolean isMultiFieldFunction(String funcName) {
     return multiFieldFunctionNames.contains(funcName.toUpperCase());
-  }
-
-  /**
-   * Verify if function queries fields available in type environment.
-   * @param node : Function used in query.
-   * @param context : Context of fields querying.
-   */
-  public static void validateFieldList(FunctionExpression node, AnalysisContext context) {
-    String funcName = node.getFunctionName().toString();
-
-    TypeEnvironment typeEnv = context.peek();
-    if (isSingleFieldFunction(funcName)) {
-      node.getArguments().stream().map(NamedArgumentExpression.class::cast).filter(arg ->
-          ((arg.getArgName().equals("field")
-              && !arg.getValue().toString().contains("*"))
-          )).findFirst().ifPresent(arg ->
-          typeEnv.resolve(new Symbol(Namespace.FIELD_NAME,
-              StringUtils.unquoteText(arg.getValue().toString()))
-          )
-      );
-    } else if (isMultiFieldFunction(funcName)) {
-      node.getArguments().stream().map(NamedArgumentExpression.class::cast).filter(arg ->
-          arg.getArgName().equals("fields")
-      ).findFirst().ifPresent(fields ->
-          fields.getValue().valueOf(null).tupleValue()
-              .entrySet().stream().filter(k -> !(k.getKey().contains("*"))
-              ).forEach(key -> typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, key.getKey())))
-      );
-    }
   }
 
   /**
@@ -190,5 +160,35 @@ public class OpenSearchFunctions {
           .collect(Collectors.toList());
       return String.format("%s(%s)", functionName, String.join(", ", args));
     }
+
+    /**
+     * Verify if function queries fields available in type environment.
+     * @param context : Context of fields querying.
+     */
+    @Override
+    public void validateParameters(AnalysisContext context) {
+      String funcName = this.getFunctionName().toString();
+
+      TypeEnvironment typeEnv = context.peek();
+      if (isSingleFieldFunction(funcName)) {
+        this.getArguments().stream().map(NamedArgumentExpression.class::cast).filter(arg ->
+            ((arg.getArgName().equals("field")
+                && !arg.getValue().toString().contains("*"))
+            )).findFirst().ifPresent(arg ->
+            typeEnv.resolve(new Symbol(Namespace.FIELD_NAME,
+                StringUtils.unquoteText(arg.getValue().toString()))
+            )
+        );
+      } else if (isMultiFieldFunction(funcName)) {
+        this.getArguments().stream().map(NamedArgumentExpression.class::cast).filter(arg ->
+            arg.getArgName().equals("fields")
+        ).findFirst().ifPresent(fields ->
+            fields.getValue().valueOf(null).tupleValue()
+                .entrySet().stream().filter(k -> !(k.getKey().contains("*"))
+                ).forEach(key -> typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, key.getKey())))
+        );
+      }
+    }
+
   }
 }

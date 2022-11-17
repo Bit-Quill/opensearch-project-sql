@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.opensearch.sql.analysis.AnalysisContext;
 import org.opensearch.sql.expression.function.FunctionImplementation;
 import org.opensearch.sql.expression.function.FunctionName;
 
@@ -32,4 +33,11 @@ public abstract class FunctionExpression implements Expression, FunctionImplemen
     return visitor.visitFunction(this, context);
   }
 
+  /**
+   * Verify if function queries fields available in type environment.
+   * @param context : Context of fields querying.
+   */
+  public void validateParameters(AnalysisContext context) {
+    return;
+  }
 }

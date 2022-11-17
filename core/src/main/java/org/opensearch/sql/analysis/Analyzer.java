@@ -68,7 +68,6 @@ import org.opensearch.sql.datasource.model.DataSource;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
@@ -222,7 +221,9 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     LogicalPlan child = node.getChild().get(0).accept(this, context);
     Expression condition = expressionAnalyzer.analyze(node.getCondition(), context);
 
-    OpenSearchFunctions.validateFieldList((FunctionExpression)condition, context);
+    if (condition instanceof OpenSearchFunctions.OpenSearchFunction) {
+      ((OpenSearchFunctions.OpenSearchFunction)condition).validateParameters(context);
+    }
 
     ExpressionReferenceOptimizer optimizer =
         new ExpressionReferenceOptimizer(expressionAnalyzer.getRepository(), child);
