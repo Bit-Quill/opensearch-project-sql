@@ -30,6 +30,7 @@ import org.opensearch.sql.expression.ExpressionNodeVisitor;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.aggregation.NamedAggregator;
+import org.opensearch.sql.opensearch.mapping.MappingEntry;
 import org.opensearch.sql.opensearch.response.agg.CompositeAggregationParser;
 import org.opensearch.sql.opensearch.response.agg.MetricParser;
 import org.opensearch.sql.opensearch.response.agg.NoBucketAggregationParser;
@@ -104,14 +105,14 @@ public class AggregationQueryBuilder extends ExpressionNodeVisitor<AggregationBu
   }
 
   /**
-   * Build ElasticsearchExprValueFactory.
+   * Build mapping for OpenSearchExprValueFactory.
    */
-  public Map<String, ExprType> buildTypeMapping(
+  public Map<String, MappingEntry> buildTypeMapping(
       List<NamedAggregator> namedAggregatorList,
       List<NamedExpression> groupByList) {
-    ImmutableMap.Builder<String, ExprType> builder = new ImmutableMap.Builder<>();
-    namedAggregatorList.forEach(agg -> builder.put(agg.getName(), agg.type()));
-    groupByList.forEach(group -> builder.put(group.getNameOrAlias(), group.type()));
+    ImmutableMap.Builder<String, MappingEntry> builder = new ImmutableMap.Builder<>();
+    namedAggregatorList.forEach(agg -> builder.put(agg.getName(), new MappingEntry(null, null, agg.type())));
+    groupByList.forEach(group -> builder.put(group.getNameOrAlias(), new MappingEntry(null, null, group.type())));
     return builder.build();
   }
 
