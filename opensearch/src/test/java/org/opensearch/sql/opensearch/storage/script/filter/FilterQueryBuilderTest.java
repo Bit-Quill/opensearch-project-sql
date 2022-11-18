@@ -140,9 +140,7 @@ class FilterQueryBuilderTest {
             + "  }\n"
             + "}",
         buildQuery(
-            dsl.like(
-                dsl.namedArgument("field", literal("name")),
-                dsl.namedArgument("query", literal("*John?")))));
+            dsl.like(ref("name", STRING), literal("*John?"))));
   }
 
   @Test
@@ -291,9 +289,7 @@ class FilterQueryBuilderTest {
             + "  }\n"
             + "}",
         buildQuery(
-            dsl.like(
-                dsl.namedArgument("field", literal("name.keyword")),
-                dsl.namedArgument("query", literal("John%")))));
+            dsl.like(ref("name.keyword", STRING), literal("John%"))));
   }
 
   @Test

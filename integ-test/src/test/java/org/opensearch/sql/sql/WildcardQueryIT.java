@@ -36,19 +36,6 @@ public class WildcardQueryIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void test_LIKE() throws IOException {
-    String expected = "test wildcard";
-
-    String query1 = "SELECT Body, Body LIKE 't*' FROM " + TEST_INDEX_WILDCARD + " LIMIT 1";
-    JSONObject result1 = executeJdbcRequest(query1);
-    verifyDataRows(result1, rows(expected));
-
-    query1 = "SELECT Body FROM " + TEST_INDEX_WILDCARD + " WHERE Body LIKE 't*' LIMIT 1";
-    result1 = executeJdbcRequest(query1);
-    verifyDataRows(result1, rows(expected));
-  }
-
-  @Test
   public void test_wildcard_query_question_mark_function() throws IOException {
     String expected = "test wildcard";
 
