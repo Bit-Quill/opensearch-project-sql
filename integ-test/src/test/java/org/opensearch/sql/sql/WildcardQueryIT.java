@@ -51,12 +51,8 @@ public class WildcardQueryIT extends SQLIntegTestCase {
   //  SQL uses ? as a wildcard which is converted to * in WildcardQuery.java
   @Test
   public void test_wildcard_query_sql_wildcard_percent_conversion() throws IOException {
-    String query1 = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test%') LIMIT 1";
+    String query1 = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test%')";
     JSONObject result1 = executeJdbcRequest(query1);
-    verifyDataRows(result1, rows("test wildcard"));
-
-    query1 = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test%')";
-    result1 = executeJdbcRequest(query1);
     assertEquals(8, result1.getInt("total"));
 
     String query2 = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test*')";
@@ -67,12 +63,8 @@ public class WildcardQueryIT extends SQLIntegTestCase {
   //  SQL uses _ as a wildcard which is converted to ? in WildcardQuery.java
   @Test
   public void test_wildcard_query_sql_wildcard_underscore_conversion() throws IOException {
-    String query1 = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test wild_ard') LIMIT 1";
+    String query1 = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test wild_ard*')";
     JSONObject result1 = executeJdbcRequest(query1);
-    verifyDataRows(result1, rows("test wildcard"));
-
-    query1 = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test wild_ard*')";
-    result1 = executeJdbcRequest(query1);
     assertEquals(7, result1.getInt("total"));
 
     String query2 = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE wildcard_query(Body, 'test wild?ard*')";

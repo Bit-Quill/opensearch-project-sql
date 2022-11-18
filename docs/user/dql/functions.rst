@@ -3137,9 +3137,9 @@ Description
 
 ``wildcard_query(field_expression, query_expression[, option=<option_value>]*)``
 
-The wildcard_query function maps to the wildcard_query query used in search engine. It returns documents that match provided text in the specified field.
-Supported wildcard characters can be found here: https://opensearch.org/docs/latest/opensearch/query-dsl/term/#wildcards
-SQL wildcard % is converted to * as well as _ to ?. You may include % and _ in the search by escaping with a backslash prefix.
+The `wildcard_query` function maps to the `wildcard_query` query used in search engine. It returns documents that match provided text in the specified field.
+OpenSearch supports wildcard characters `*` and `?`.  See the full description here: https://opensearch.org/docs/latest/opensearch/query-dsl/term/#wildcards.
+SQL wildcard character `%` is converted to `*`. SQL character wildcard `_` is converted to `?`. You may include a backslash `\` to escape wildcard characters.
 
 Available parameters include:
 
@@ -3147,7 +3147,7 @@ Available parameters include:
 - case_insensitive
 - rewrite
 
-For backward compatibility, wildcardquery is also supported and mapped to wildcard_query query as well.
+For backward compatibility, `wildcardquery` is also supported and mapped to `wildcard_query` query as well.
 
 Example with only ``field`` and ``query`` expressions, and all other parameters are set default values::
 
@@ -3180,3 +3180,4 @@ Another example to show how to set custom values for the optional parameters::
     | test wildcard in _ the middle of the text |
     | test wildcard __ beside each other        |
     +-------------------------------------------+
+
