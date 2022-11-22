@@ -24,7 +24,7 @@ public class LikeQueryIT extends SQLIntegTestCase {
 
   @Test
   public void test_like_in_select() throws IOException {
-    String query = "SELECT Body, Body LIKE 'test wildcard%' FROM " + TEST_INDEX_WILDCARD;
+    String query = "SELECT KeywordBody, KeywordBody LIKE 'test wildcard%' FROM " + TEST_INDEX_WILDCARD;
     JSONObject result = executeJdbcRequest(query);
     verifyDataRows(result,
         rows("test wildcard", true),
@@ -41,7 +41,7 @@ public class LikeQueryIT extends SQLIntegTestCase {
 
   @Test
   public void test_like_in_select_with_escaped_percent() throws IOException {
-    String query = "SELECT Body, Body LIKE '\\\\%test wildcard%' FROM " + TEST_INDEX_WILDCARD;
+    String query = "SELECT KeywordBody, KeywordBody LIKE '\\\\%test wildcard%' FROM " + TEST_INDEX_WILDCARD;
     JSONObject result = executeJdbcRequest(query);
     verifyDataRows(result,
         rows("test wildcard", false),
@@ -58,7 +58,7 @@ public class LikeQueryIT extends SQLIntegTestCase {
 
   @Test
   public void test_like_in_select_with_escaped_underscore() throws IOException {
-    String query = "SELECT Body, Body LIKE '\\\\_test wildcard%' FROM " + TEST_INDEX_WILDCARD;
+    String query = "SELECT KeywordBody, KeywordBody LIKE '\\\\_test wildcard%' FROM " + TEST_INDEX_WILDCARD;
     JSONObject result = executeJdbcRequest(query);
     verifyDataRows(result,
         rows("test wildcard", false),
@@ -75,7 +75,7 @@ public class LikeQueryIT extends SQLIntegTestCase {
 
   @Test
   public void test_like_in_where() throws IOException {
-    String query = "SELECT Body FROM " + TEST_INDEX_WILDCARD + " WHERE Body LIKE 'test wildcard%'";
+    String query = "SELECT KeywordBody FROM " + TEST_INDEX_WILDCARD + " WHERE KeywordBody LIKE 'test wildcard%'";
     JSONObject result = executeJdbcRequest(query);
     verifyDataRows(result,
         rows("test wildcard"),
@@ -89,7 +89,7 @@ public class LikeQueryIT extends SQLIntegTestCase {
 
   @Test
   public void test_like_in_where_with_escaped_percent() throws IOException {
-    String query = "SELECT Body FROM " + TEST_INDEX_WILDCARD + " WHERE Body LIKE '\\\\%test wildcard%'";
+    String query = "SELECT KeywordBody FROM " + TEST_INDEX_WILDCARD + " WHERE KeywordBody LIKE '\\\\%test wildcard%'";
     JSONObject result = executeJdbcRequest(query);
     verifyDataRows(result,
         rows("%test wildcard in the beginning of the text"));
@@ -97,9 +97,44 @@ public class LikeQueryIT extends SQLIntegTestCase {
 
   @Test
   public void test_like_in_where_with_escaped_underscore() throws IOException {
-    String query = "SELECT Body FROM " + TEST_INDEX_WILDCARD + " WHERE Body LIKE '\\\\_test wildcard%'";
+    String query = "SELECT KeywordBody FROM " + TEST_INDEX_WILDCARD + " WHERE KeywordBody LIKE '\\\\_test wildcard%'";
     JSONObject result = executeJdbcRequest(query);
     verifyDataRows(result,
         rows("_test wildcard in the beginning of the text"));
+  }
+
+  @Test
+  public void test_like_on_text_field_with_one_word() throws IOException {
+    String query = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE TextBody LIKE 'test*'";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(9, result.getInt("total"));
+  }
+
+  @Test
+  public void test_like_on_text_keyword_field_with_one_word() throws IOException {
+    String query = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE TextKeywordBody LIKE 'test*'";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(8, result.getInt("total"));
+  }
+
+  @Test
+  public void test_like_on_text_keyword_field_with_greater_than_one_word() throws IOException {
+    String query = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE TextKeywordBody LIKE 'test wild*'";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(7, result.getInt("total"));
+  }
+
+  @Test
+  public void test_like_on_text_field_with_greater_than_one_word() throws IOException {
+    String query = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE TextBody LIKE 'test wild*'";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(0, result.getInt("total"));
+  }
+
+  @Test
+  public void test_convert_field_text_to_keyword() throws IOException {
+    String query = "SELECT * FROM " + TEST_INDEX_WILDCARD + " WHERE TextKeywordBody LIKE '*'";
+    String result = explainQuery(query);
+    assertTrue(result.contains("TextKeywordBody.keyword"));
   }
 }
