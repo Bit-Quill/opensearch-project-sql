@@ -949,6 +949,85 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         exception.getMessage());
   }
 
+  private void testWeek_Of_Year(String date, int mode, int expectedResult) {
+    FunctionExpression expression = DSL
+        .week_of_year(DSL.literal(new ExprDateValue(date)), DSL.literal(mode));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(String.format("week_of_year(DATE '%s', %d)", date, mode), expression.toString());
+    assertEquals(integerValue(expectedResult), eval(expression));
+  }
+
+  private void testNullMissingWeek_Of_Year(ExprCoreType date) {
+    when(nullRef.type()).thenReturn(date);
+    when(missingRef.type()).thenReturn(date);
+    assertEquals(nullValue(), eval(DSL.week_of_year(nullRef)));
+    assertEquals(missingValue(), eval(DSL.week_of_year(missingRef)));
+  }
+
+  @Test
+  public void week_of_year() {
+    testNullMissingWeek_Of_Year(DATE);
+    testNullMissingWeek_Of_Year(DATETIME);
+    testNullMissingWeek_Of_Year(TIMESTAMP);
+    testNullMissingWeek_Of_Year(STRING);
+
+    when(nullRef.type()).thenReturn(INTEGER);
+    when(missingRef.type()).thenReturn(INTEGER);
+    assertEquals(nullValue(), eval(DSL.week_of_year(DSL.literal("2019-01-05"), nullRef)));
+    assertEquals(missingValue(), eval(DSL.week_of_year(DSL.literal("2019-01-05"), missingRef)));
+
+    when(nullRef.type()).thenReturn(DATE);
+    when(missingRef.type()).thenReturn(INTEGER);
+    assertEquals(missingValue(), eval(DSL.week_of_year(nullRef, missingRef)));
+
+    FunctionExpression expression = DSL
+        .week_of_year(DSL.literal(new ExprTimestampValue("2019-01-05 01:02:03")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week_of_year(TIMESTAMP '2019-01-05 01:02:03')", expression.toString());
+    assertEquals(integerValue(0), eval(expression));
+
+    expression = DSL.week_of_year(DSL.literal("2019-01-05"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week_of_year(\"2019-01-05\")", expression.toString());
+    assertEquals(integerValue(0), eval(expression));
+
+    expression = DSL.week_of_year(DSL.literal("2019-01-05 00:01:00"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week_of_year(\"2019-01-05 00:01:00\")", expression.toString());
+    assertEquals(integerValue(0), eval(expression));
+
+    testWeek_Of_Year("2019-01-05", 0, 0);
+    testWeek_Of_Year("2019-01-05", 1, 1);
+    testWeek_Of_Year("2019-01-05", 2, 52);
+    testWeek_Of_Year("2019-01-05", 3, 1);
+    testWeek_Of_Year("2019-01-05", 4, 1);
+    testWeek_Of_Year("2019-01-05", 5, 0);
+    testWeek_Of_Year("2019-01-05", 6, 1);
+    testWeek_Of_Year("2019-01-05", 7, 53);
+
+    testWeek_Of_Year("2019-01-06", 0, 1);
+    testWeek_Of_Year("2019-01-06", 1, 1);
+    testWeek_Of_Year("2019-01-06", 2, 1);
+    testWeek_Of_Year("2019-01-06", 3, 1);
+    testWeek_Of_Year("2019-01-06", 4, 2);
+    testWeek_Of_Year("2019-01-06", 5, 0);
+    testWeek_Of_Year("2019-01-06", 6, 2);
+    testWeek_Of_Year("2019-01-06", 7, 53);
+
+    testWeek_Of_Year("2019-01-07", 0, 1);
+    testWeek_Of_Year("2019-01-07", 1, 2);
+    testWeek_Of_Year("2019-01-07", 2, 1);
+    testWeek_Of_Year("2019-01-07", 3, 2);
+    testWeek_Of_Year("2019-01-07", 4, 2);
+    testWeek_Of_Year("2019-01-07", 5, 1);
+    testWeek_Of_Year("2019-01-07", 6, 2);
+    testWeek_Of_Year("2019-01-07", 7, 1);
+
+    testWeek_Of_Year("2000-01-01", 0, 0);
+    testWeek_Of_Year("2000-01-01", 2, 52);
+    testWeek_Of_Year("1999-12-31", 0, 52);
+  }
+
   @Test
   public void to_days() {
     when(nullRef.type()).thenReturn(DATE);

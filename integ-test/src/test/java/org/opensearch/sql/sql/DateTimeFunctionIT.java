@@ -444,6 +444,19 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     week("2000-01-01", 2, 52);
   }
 
+  @Test
+  public void testWeek_Of_Year() throws IOException {
+    JSONObject result = executeQuery("select week_of_year(date('2008-02-20'))");
+    verifySchema(result, schema("week_of_year(date('2008-02-20'))", null, "integer"));
+    verifyDataRows(result, rows(7));
+
+    week("2008-02-20", 0, 7);
+    week("2008-02-20", 1, 8);
+    week("2008-12-31", 1, 53);
+    week("2000-01-01", 0, 0);
+    week("2000-01-01", 2, 52);
+  }
+
   void verifyDateFormat(String date, String type, String format, String formatted) throws IOException {
     String query = String.format("date_format(%s('%s'), '%s')", type, date, format);
     JSONObject result = executeQuery("select " + query);
