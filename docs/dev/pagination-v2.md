@@ -7,9 +7,7 @@ results sets one subset at a time.
 A cursor is a SQL abstraction for pagination. A client can open a cursor, retrieve a subset of data given a cursor and close a cursor.
 <!-- What applications will use pagination? -->
 
-Currently, SQL plugin does not provide SQL cursor syntax. However, the SQL REST endpoint can return results a single page at a time.
-
-JDBC and ODBC drivers are the main users of cursor REST API.
+Currently, SQL plugin does not provide SQL cursor syntax. However, the SQL REST endpoint can return result a page at a time. This feature is used by JDBC and ODBC drivers.
 
 <!-- How will applications use pagination? -->
 
@@ -22,8 +20,10 @@ The primary goal is to reach feature parity with the v1 engine. v1 engine suppor
 <!-- How can one tell that v2 engine pagination is compatible with v1? -->
 
 The REST API will remain the same. However, v1 cursors are a thin wrapper over OpenSearch's scroll API.
-This is not possible with v2 engine because it may perform some processing in-memory
 
+This is not possible with v2 engine because it may perform some queries in-memory.
+
+As a result, the cursor format will change and some 
 # Behaviour Specification
 ## Default Scenario
 
@@ -108,7 +108,7 @@ Response
 v1 engine always returns sucess on close even if the cursor is no longer alive as long as it recognizes cursor_id as a valid cursor identifier.
 
 v1 engine responds with an error such this if cursor_id is not a valid cursor identifier.
-```json
+```json5
 {
     "error": {
         // ...
@@ -116,7 +116,11 @@ v1 engine responds with an error such this if cursor_id is not a valid cursor id
     "status": 400
 }
 ```
+## Communication with OpenSearch
 
+There are several options to communicate with OpenSearch.
+
+Depending on the type of query, it 
 ### Non-scroll request
 
 For some queries, SQL plugin can fetch all data from OpenSearch at once.
@@ -165,7 +169,11 @@ sequenceDiagram
 
 
 ### Search after request
-Scroll requests are not recommended for some sets of queries. 
+Scroll requests are resource intensive and are not recommended for some sets of queries.
+
+Search after is a simpler API that may be appliacble in some scenarios.
+
+For example, if a query uses `ORDER BY` clause we may get the data using search after instead of a scroll request.
 
 # Open Questions
 
