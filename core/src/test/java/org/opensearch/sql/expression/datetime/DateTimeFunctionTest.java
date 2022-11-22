@@ -626,6 +626,29 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
+  public void month_of_year() {
+    when(nullRef.type()).thenReturn(DATE);
+    when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(DSL.month_of_year(nullRef)));
+    assertEquals(missingValue(), eval(DSL.month_of_year(missingRef)));
+
+    FunctionExpression expression = DSL.month_of_year(DSL.literal(new ExprDateValue("2020-08-07")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("month_of_year(DATE '2020-08-07')", expression.toString());
+    assertEquals(integerValue(8), eval(expression));
+
+    expression = DSL.month_of_year(DSL.literal("2020-08-07"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("month_of_year(\"2020-08-07\")", expression.toString());
+    assertEquals(integerValue(8), eval(expression));
+
+    expression = DSL.month_of_year(DSL.literal("2020-08-07 01:02:03"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("month_of_year(\"2020-08-07 01:02:03\")", expression.toString());
+    assertEquals(integerValue(8), eval(expression));
+  }
+
+  @Test
   public void monthName() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
