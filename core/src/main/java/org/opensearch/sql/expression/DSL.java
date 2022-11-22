@@ -332,6 +332,7 @@ public class DSL {
   public static FunctionExpression from_days(Expression... expressions) {
     return compile(BuiltinFunctionName.FROM_DAYS, expressions);
   }
+
   public static FunctionExpression hour(Expression... expressions) {
     return compile(BuiltinFunctionName.HOUR, expressions);
   }
