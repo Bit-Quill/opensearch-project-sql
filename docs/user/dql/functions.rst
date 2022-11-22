@@ -2060,6 +2060,7 @@ Description
 >>>>>>>>>>>
 
 Usage: week(date[, mode]) returns the week number for date. If the mode argument is omitted, the default mode 0 is used.
+The function week_of_year is also provided as an alternate syntax.
 
 .. list-table:: The following table describes how the mode argument works.
    :widths: 25 50 25 75
@@ -2115,6 +2116,14 @@ Example::
     |----------------------------|-------------------------------|
     | 7                          | 8                             |
     +----------------------------+-------------------------------+
+
+    >od SELECT WEEK_OF_YEAR(DATE('2008-02-20')), WEEK_OF_YEAR(DATE('2008-02-20'), 1)
+    fetched rows / total rows = 1/1
+    +------------------------------------+---------------------------------------+
+    | WEEK_OF_YEAR(DATE('2008-02-20'))   | WEEK_OF_YEAR(DATE('2008-02-20'), 1)   |
+    |------------------------------------|---------------------------------------|
+    | 7                                  | 8                                     |
+    +------------------------------------+---------------------------------------+
 
 
 YEAR
