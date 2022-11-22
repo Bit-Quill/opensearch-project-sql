@@ -7,7 +7,7 @@ results sets one subset at a time.
 A cursor is a SQL abstraction for pagination. A client can open a cursor, retrieve a subset of data given a cursor and close a cursor.
 <!-- What applications will use pagination? -->
 
-Currently, SQL plugin does not provide SQL cursor syntax. However, the SQL REST endpoint can return result a page at a time.
+Currently, SQL plugin does not provide SQL cursor syntax. However, the SQL REST endpoint can return results a single page at a time.
 
 JDBC and ODBC drivers are the main users of cursor REST API.
 
@@ -16,7 +16,7 @@ JDBC and ODBC drivers are the main users of cursor REST API.
 # Scope
 <!-- What scenarios are excluded from this discussion? Why? -->
 
-The primary goal is to reach feature parity with the v1 engine. v1 engine suppors pagination only for simple `SELECT` queries with optional `WHERE` or `ORDER BY` clauses.
+The primary goal is to reach feature parity with the v1 engine. v1 engine supports pagination only for simple `SELECT` queries with optional `WHERE` or `ORDER BY` clauses.
 
 ## Compatibility with v1 engine
 <!-- How can one tell that v2 engine pagination is compatible with v1? -->
