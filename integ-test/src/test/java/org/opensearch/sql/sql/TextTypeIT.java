@@ -57,4 +57,11 @@ package org.opensearch.sql.sql;
       verifySchema(result,
           schema("sum(int0)", null, "integer"));
     }
+
+    @Test
+    public void aggregateOnTextAndFieldDataNoFields() throws IOException {
+      var result = executeJdbcRequest(String.format("select sum(int0) from %s GROUP BY textDataFieldNoFields", TEST_INDEX_TEXTKEYWORD));
+      verifySchema(result,
+          schema("sum(int0)", null, "integer"));
+    }
   }

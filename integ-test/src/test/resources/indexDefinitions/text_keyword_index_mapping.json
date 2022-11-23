@@ -12,7 +12,7 @@
         "fields": {
           "keyword": {
             "type": "keyword",
-            "ignore_above": 256
+            "ignore_above": 10
           }
         }      },
       "typeTextFieldData" : {
@@ -21,9 +21,13 @@
         "fields": {
           "keyword": {
             "type": "keyword",
-            "ignore_above": 256
+            "ignore_above": 10
           }
         }
+      },
+      "textDataFieldNoFields" : {
+        "type": "text",
+        "fielddata": true
       },
       "int0" : {
         "type": "integer"
