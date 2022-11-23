@@ -1,0 +1,33 @@
+{
+  "mappings" : {
+    "properties" : {
+      "typeKeyword" : {
+        "type" : "keyword"
+      },
+      "typeText" : {
+        "type" : "text"
+      },
+      "typeKeywordFieldNoFieldData" : {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }      },
+      "typeTextFieldData" : {
+        "type": "text",
+        "fielddata": true,
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "int0" : {
+        "type": "integer"
+      }
+    }
+  }
+}
