@@ -949,7 +949,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         exception.getMessage());
   }
 
-  private void testWeek_Of_Year(String date, int mode, int expectedResult) {
+  private void testWeekOfYear(String date, int mode, int expectedResult) {
     FunctionExpression expression = DSL
         .week_of_year(DSL.literal(new ExprDateValue(date)), DSL.literal(mode));
     assertEquals(INTEGER, expression.type());
@@ -957,7 +957,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(expectedResult), eval(expression));
   }
 
-  private void testNullMissingWeek_Of_Year(ExprCoreType date) {
+  private void testNullMissingWeekOfYear(ExprCoreType date) {
     when(nullRef.type()).thenReturn(date);
     when(missingRef.type()).thenReturn(date);
     assertEquals(nullValue(), eval(DSL.week_of_year(nullRef)));
@@ -966,10 +966,10 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   @Test
   public void week_of_year() {
-    testNullMissingWeek_Of_Year(DATE);
-    testNullMissingWeek_Of_Year(DATETIME);
-    testNullMissingWeek_Of_Year(TIMESTAMP);
-    testNullMissingWeek_Of_Year(STRING);
+    testNullMissingWeekOfYear(DATE);
+    testNullMissingWeekOfYear(DATETIME);
+    testNullMissingWeekOfYear(TIMESTAMP);
+    testNullMissingWeekOfYear(STRING);
 
     when(nullRef.type()).thenReturn(INTEGER);
     when(missingRef.type()).thenReturn(INTEGER);
@@ -996,36 +996,36 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("week_of_year(\"2019-01-05 00:01:00\")", expression.toString());
     assertEquals(integerValue(0), eval(expression));
 
-    testWeek_Of_Year("2019-01-05", 0, 0);
-    testWeek_Of_Year("2019-01-05", 1, 1);
-    testWeek_Of_Year("2019-01-05", 2, 52);
-    testWeek_Of_Year("2019-01-05", 3, 1);
-    testWeek_Of_Year("2019-01-05", 4, 1);
-    testWeek_Of_Year("2019-01-05", 5, 0);
-    testWeek_Of_Year("2019-01-05", 6, 1);
-    testWeek_Of_Year("2019-01-05", 7, 53);
+    testWeekOfYear("2019-01-05", 0, 0);
+    testWeekOfYear("2019-01-05", 1, 1);
+    testWeekOfYear("2019-01-05", 2, 52);
+    testWeekOfYear("2019-01-05", 3, 1);
+    testWeekOfYear("2019-01-05", 4, 1);
+    testWeekOfYear("2019-01-05", 5, 0);
+    testWeekOfYear("2019-01-05", 6, 1);
+    testWeekOfYear("2019-01-05", 7, 53);
 
-    testWeek_Of_Year("2019-01-06", 0, 1);
-    testWeek_Of_Year("2019-01-06", 1, 1);
-    testWeek_Of_Year("2019-01-06", 2, 1);
-    testWeek_Of_Year("2019-01-06", 3, 1);
-    testWeek_Of_Year("2019-01-06", 4, 2);
-    testWeek_Of_Year("2019-01-06", 5, 0);
-    testWeek_Of_Year("2019-01-06", 6, 2);
-    testWeek_Of_Year("2019-01-06", 7, 53);
+    testWeekOfYear("2019-01-06", 0, 1);
+    testWeekOfYear("2019-01-06", 1, 1);
+    testWeekOfYear("2019-01-06", 2, 1);
+    testWeekOfYear("2019-01-06", 3, 1);
+    testWeekOfYear("2019-01-06", 4, 2);
+    testWeekOfYear("2019-01-06", 5, 0);
+    testWeekOfYear("2019-01-06", 6, 2);
+    testWeekOfYear("2019-01-06", 7, 53);
 
-    testWeek_Of_Year("2019-01-07", 0, 1);
-    testWeek_Of_Year("2019-01-07", 1, 2);
-    testWeek_Of_Year("2019-01-07", 2, 1);
-    testWeek_Of_Year("2019-01-07", 3, 2);
-    testWeek_Of_Year("2019-01-07", 4, 2);
-    testWeek_Of_Year("2019-01-07", 5, 1);
-    testWeek_Of_Year("2019-01-07", 6, 2);
-    testWeek_Of_Year("2019-01-07", 7, 1);
+    testWeekOfYear("2019-01-07", 0, 1);
+    testWeekOfYear("2019-01-07", 1, 2);
+    testWeekOfYear("2019-01-07", 2, 1);
+    testWeekOfYear("2019-01-07", 3, 2);
+    testWeekOfYear("2019-01-07", 4, 2);
+    testWeekOfYear("2019-01-07", 5, 1);
+    testWeekOfYear("2019-01-07", 6, 2);
+    testWeekOfYear("2019-01-07", 7, 1);
 
-    testWeek_Of_Year("2000-01-01", 0, 0);
-    testWeek_Of_Year("2000-01-01", 2, 52);
-    testWeek_Of_Year("1999-12-31", 0, 52);
+    testWeekOfYear("2000-01-01", 0, 0);
+    testWeekOfYear("2000-01-01", 2, 52);
+    testWeekOfYear("1999-12-31", 0, 52);
   }
 
   @Test
