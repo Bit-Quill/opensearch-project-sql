@@ -501,6 +501,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("day_of_year(\"2020-08-07 01:02:03\")", expression.toString());
     assertEquals(integerValue(220), eval(expression));
   }
+  
   @Test
   public void from_days() {
     when(nullRef.type()).thenReturn(LONG);
