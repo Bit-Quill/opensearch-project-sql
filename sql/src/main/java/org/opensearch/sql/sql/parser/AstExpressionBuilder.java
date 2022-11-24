@@ -72,6 +72,7 @@ import org.opensearch.sql.ast.expression.IntervalUnit;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
+import org.opensearch.sql.ast.expression.PositionFunction;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.UnresolvedArgument;
@@ -426,6 +427,12 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
         .stream()
         .map(this::visitFunctionArg)
         .collect(Collectors.toList()));
+  }
+  @Override
+  public UnresolvedExpression visitPositionFunction(OpenSearchSQLParser.PositionFunctionContext ctx) {
+    return new PositionFunction(visitFunctionArg(ctx.inFunctionsArgs().functionArg(0)),
+            visitFunctionArg(ctx.inFunctionsArgs().functionArg(1)));
+
   }
 
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {

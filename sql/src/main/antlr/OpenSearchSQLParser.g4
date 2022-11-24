@@ -302,6 +302,7 @@ functionCall
     | relevanceFunction                                             #relevanceFunctionCall
     | highlightFunction                                             #highlightFunctionCall
     | constantFunction                                              #constantFunctionCall
+    | positionFunction                                              #positionFunctionCall
     ;
 
 constantFunction
@@ -310,6 +311,10 @@ constantFunction
 
 highlightFunction
     : HIGHLIGHT LR_BRACKET relevanceField (COMMA highlightArg)* RR_BRACKET
+    ;
+
+positionFunction
+    : POSITION LR_BRACKET inFunctionsArgs RR_BRACKET
     ;
 
 scalarFunctionName
@@ -453,6 +458,10 @@ relevanceArg
 
 highlightArg
     : highlightArgName EQUAL_SYMBOL highlightArgValue
+    ;
+
+inFunctionsArgs
+    : functionArg IN functionArg
     ;
 
 relevanceArgName

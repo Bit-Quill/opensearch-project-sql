@@ -55,6 +55,7 @@ public class TextFunction {
     repository.register(ascii());
     repository.register(locate());
     repository.register(replace());
+    repository.register(position());
   }
 
   /**
@@ -242,6 +243,15 @@ public class TextFunction {
   }
 
   /**
+   * POSITION(substr IN str) returns the position of the first occurrence of a substring in a string.
+   * If the substring is not found within the original string, this function returns 0.
+   */
+  private DefaultFunctionResolver position() {
+    return define(BuiltinFunctionName.POSITION.getName(),
+            impl(nullMissingHandling(TextFunction::exprPosition), STRING, STRING, STRING));
+  }
+
+  /**
    * REPLACE(str, from_str, to_str) returns the string str with all occurrences of
    * the string from_str replaced by the string to_str.
    * REPLACE() performs a case-sensitive match when searching for from_str.
@@ -311,6 +321,10 @@ public class TextFunction {
   private static ExprValue exprLocate(ExprValue subStr, ExprValue str, ExprValue pos) {
     return new ExprIntegerValue(
         str.stringValue().indexOf(subStr.stringValue(), pos.integerValue() - 1) + 1);
+  }
+
+  private static ExprValue exprPosition(ExprValue subStr, ExprValue str) {
+    return exprLocate(subStr, str);
   }
 
   private static ExprValue exprReplace(ExprValue str, ExprValue from, ExprValue to) {

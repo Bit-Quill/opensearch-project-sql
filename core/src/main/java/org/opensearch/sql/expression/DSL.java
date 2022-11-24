@@ -229,6 +229,10 @@ public class DSL {
     return compile(BuiltinFunctionName.CBRT, expressions);
   }
 
+  public static FunctionExpression position(Expression... expressions) {
+    return compile(BuiltinFunctionName.POSITION, expressions);
+  }
+
   public static FunctionExpression truncate(Expression... expressions) {
     return compile(BuiltinFunctionName.TRUNCATE, expressions);
   }
