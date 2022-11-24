@@ -965,7 +965,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void week_of_year() {
+  public void invalid_week_of_year() {
     testNullMissingWeekOfYear(DATE);
     testNullMissingWeekOfYear(DATETIME);
     testNullMissingWeekOfYear(TIMESTAMP);
@@ -979,6 +979,14 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(INTEGER);
     assertEquals(missingValue(), eval(DSL.week_of_year(nullRef, missingRef)));
+  }
+
+  @Test
+  public void week_of_year() {
+    testNullMissingWeekOfYear(DATE);
+    testNullMissingWeekOfYear(DATETIME);
+    testNullMissingWeekOfYear(TIMESTAMP);
+    testNullMissingWeekOfYear(STRING);
 
     FunctionExpression expression = DSL
         .week_of_year(DSL.literal(new ExprTimestampValue("2019-01-05 01:02:03")));
