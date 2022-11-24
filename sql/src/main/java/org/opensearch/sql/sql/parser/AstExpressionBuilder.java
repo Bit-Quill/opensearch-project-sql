@@ -430,8 +430,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   }
   @Override
   public UnresolvedExpression visitPositionFunction(OpenSearchSQLParser.PositionFunctionContext ctx) {
-    return new PositionFunction(visitFunctionArg(ctx.inFunctionsArgs().functionArg(0)),
-            visitFunctionArg(ctx.inFunctionsArgs().functionArg(1)));
+    return new PositionFunction(visitFunctionArg(ctx.functionArg(0)), visitFunctionArg(ctx.functionArg(1)));
 
   }
 

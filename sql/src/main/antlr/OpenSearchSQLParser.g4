@@ -314,7 +314,7 @@ highlightFunction
     ;
 
 positionFunction
-    : POSITION LR_BRACKET inFunctionsArgs RR_BRACKET
+    : POSITION LR_BRACKET functionArg IN functionArg RR_BRACKET
     ;
 
 scalarFunctionName
@@ -460,9 +460,6 @@ highlightArg
     : highlightArgName EQUAL_SYMBOL highlightArgValue
     ;
 
-inFunctionsArgs
-    : functionArg IN functionArg
-    ;
 
 relevanceArgName
     : ALLOW_LEADING_WILDCARD | ANALYZER | ANALYZE_WILDCARD | AUTO_GENERATE_SYNONYMS_PHRASE_QUERY
