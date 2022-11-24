@@ -965,7 +965,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void invalid_week_of_year() {
+  public void invalidWeekOfYear() {
     testNullMissingWeekOfYear(DATE);
     testNullMissingWeekOfYear(DATETIME);
     testNullMissingWeekOfYear(TIMESTAMP);
@@ -982,7 +982,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void week_of_year() {
+  public void weekOfYear() {
     testNullMissingWeekOfYear(DATE);
     testNullMissingWeekOfYear(DATETIME);
     testNullMissingWeekOfYear(TIMESTAMP);
@@ -1004,6 +1004,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("week_of_year(\"2019-01-05 00:01:00\")", expression.toString());
     assertEquals(integerValue(0), eval(expression));
 
+    //Test the behavior of different modes passed into the 'week_of_year' function
     testWeekOfYear("2019-01-05", 0, 0);
     testWeekOfYear("2019-01-05", 1, 1);
     testWeekOfYear("2019-01-05", 2, 52);
