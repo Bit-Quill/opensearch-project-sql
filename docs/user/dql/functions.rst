@@ -3103,32 +3103,6 @@ Example searching for field Tags::
     | [Winnie-the-<em>Pooh</em>]                   |
     +----------------------------------------------+
 
-System Functions
-================
-
-TYPEOF
-------
-
-Description
->>>>>>>>>>>
-
-Usage: typeof(expr) function returns name of the data type of the value that is passed to it. This can be helpful for troubleshooting or dynamically constructing SQL queries.
-
-Argument type: ANY
-
-Return type: STRING
-
-Example::
-
-    os> select typeof(DATE('2008-04-14')) as `typeof(date)`, typeof(1) as `typeof(int)`, typeof(now()) as `typeof(now())`, typeof(accounts) as `typeof(column)` from people
-    fetched rows / total rows = 1/1
-    +----------------+---------------+-----------------+------------------+
-    | typeof(date)   | typeof(int)   | typeof(now())   | typeof(column)   |
-    |----------------+---------------+-----------------+------------------|
-    | DATE           | INTEGER       | DATETIME        | STRUCT           |
-    +----------------+---------------+-----------------+------------------+
-
-
 WILDCARD_QUERY
 ------------
 
@@ -3137,9 +3111,9 @@ Description
 
 ``wildcard_query(field_expression, query_expression[, option=<option_value>]*)``
 
-The `wildcard_query` function maps to the `wildcard_query` query used in search engine. It returns documents that match provided text in the specified field.
-OpenSearch supports wildcard characters `*` and `?`.  See the full description here: https://opensearch.org/docs/latest/opensearch/query-dsl/term/#wildcards.
-SQL wildcard character `%` is converted to `*`. SQL character wildcard `_` is converted to `?`. You may include a backslash `\` to escape wildcard characters.
+The ``wildcard_query`` function maps to the ``wildcard_query`` query used in search engine. It returns documents that match provided text in the specified field.
+OpenSearch supports wildcard characters ``*`` and ``?``.  See the full description here: https://opensearch.org/docs/latest/opensearch/query-dsl/term/#wildcards.
+You may include a backslash ``\\`` to escape SQL wildcard characters ``\\%`` and ``\\_``.
 
 Available parameters include:
 
@@ -3180,4 +3154,30 @@ Another example to show how to set custom values for the optional parameters::
     | test wildcard in _ the middle of the text |
     | test wildcard __ beside each other        |
     +-------------------------------------------+
+
+System Functions
+================
+
+TYPEOF
+------
+
+Description
+>>>>>>>>>>>
+
+Usage: typeof(expr) function returns name of the data type of the value that is passed to it. This can be helpful for troubleshooting or dynamically constructing SQL queries.
+
+Argument type: ANY
+
+Return type: STRING
+
+Example::
+
+    os> select typeof(DATE('2008-04-14')) as `typeof(date)`, typeof(1) as `typeof(int)`, typeof(now()) as `typeof(now())`, typeof(accounts) as `typeof(column)` from people
+    fetched rows / total rows = 1/1
+    +----------------+---------------+-----------------+------------------+
+    | typeof(date)   | typeof(int)   | typeof(now())   | typeof(column)   |
+    |----------------+---------------+-----------------+------------------|
+    | DATE           | INTEGER       | DATETIME        | STRUCT           |
+    +----------------+---------------+-----------------+------------------+
+
 
