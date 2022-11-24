@@ -3121,7 +3121,7 @@ Available parameters include:
 - case_insensitive
 - rewrite
 
-For backward compatibility, `wildcardquery` is also supported and mapped to `wildcard_query` query as well.
+For backward compatibility, ``wildcardquery`` is also supported and mapped to ``wildcard_query`` query as well.
 
 Example with only ``field`` and ``query`` expressions, and all other parameters are set default values::
 
