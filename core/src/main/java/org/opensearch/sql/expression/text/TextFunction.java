@@ -243,12 +243,15 @@ public class TextFunction {
   }
 
   /**
-   * POSITION(substr IN str) returns the position of the first occurrence of a substring in a string.
-   * If the substring is not found within the original string, this function returns 0.
+   * Returns the position of the first occurrence of a substring in a string.
+   * Returns 0 if substring is not in string.
+   * Returns NULL if any argument is NULL.
+   * Supports following signature:
+   * (STRING IN STRING) -> INTEGER
    */
   private DefaultFunctionResolver position() {
     return define(BuiltinFunctionName.POSITION.getName(),
-            impl(nullMissingHandling(TextFunction::exprPosition), STRING, STRING, STRING));
+            impl(nullMissingHandling(TextFunction::exprPosition), INTEGER, STRING, STRING));
   }
 
   /**

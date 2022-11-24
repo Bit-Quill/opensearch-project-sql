@@ -29,7 +29,7 @@ public class PositionFunctionIT extends SQLIntegTestCase {
     JSONObject response = executeJdbcRequest(String.format(query, TestsConstants.TEST_INDEX_PEOPLE2));
 
     verifySchema(response, schema("firstname", null, "keyword"),
-            schema("position('a' IN firstname)", null, "keyword"));
+            schema("position('a' IN firstname)", null, "integer"));
     assertEquals(12, response.getInt("total"));
 
     verifyDataRows(response,
@@ -47,7 +47,7 @@ public class PositionFunctionIT extends SQLIntegTestCase {
     JSONObject response = executeJdbcRequest(String.format(query, TestsConstants.TEST_INDEX_CALCS));
 
     verifySchema(response, schema("str2", null, "keyword"),
-            schema("position('ee' IN str2)", null, "keyword"));
+            schema("position('ee' IN str2)", null, "integer"));
     assertEquals(17, response.getInt("total"));
 
     verifyDataRows(response,
@@ -67,7 +67,7 @@ public class PositionFunctionIT extends SQLIntegTestCase {
     String query = "SELECT position('world' IN 'hello world')";
     JSONObject response = executeJdbcRequest(query);
 
-    verifySchema(response, schema("position('world' IN 'hello world')", null, "keyword"));
+    verifySchema(response, schema("position('world' IN 'hello world')", null, "integer"));
     assertEquals(1, response.getInt("total"));
 
     verifyDataRows(response, rows(7));
@@ -78,7 +78,7 @@ public class PositionFunctionIT extends SQLIntegTestCase {
     String query = "SELECT position(str3 IN str2) FROM %s where str2 IN ('one', 'two', 'three')";
     JSONObject response = executeJdbcRequest(String.format(query, TestsConstants.TEST_INDEX_CALCS));
 
-    verifySchema(response, schema("position(str3 IN str2)", null, "keyword"));
+    verifySchema(response, schema("position(str3 IN str2)", null, "integer"));
     assertEquals(3, response.getInt("total"));
 
     verifyDataRows(response, rows(3), rows(0), rows(4));
@@ -89,7 +89,7 @@ public class PositionFunctionIT extends SQLIntegTestCase {
     String query = "SELECT position(upper(str3) IN str1) FROM %s where str1 LIKE 'BINDING SUPPLIES'";
     JSONObject response = executeJdbcRequest(String.format(query, TestsConstants.TEST_INDEX_CALCS));
 
-    verifySchema(response, schema("position(upper(str3) IN str1)", null, "keyword"));
+    verifySchema(response, schema("position(upper(str3) IN str1)", null, "integer"));
     assertEquals(1, response.getInt("total"));
 
     verifyDataRows(response, rows(15));
