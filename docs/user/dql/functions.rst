@@ -3113,7 +3113,7 @@ Description
 
 The ``wildcard_query`` function maps to the ``wildcard_query`` query used in search engine. It returns documents that match provided text in the specified field.
 OpenSearch supports wildcard characters ``*`` and ``?``.  See the full description here: https://opensearch.org/docs/latest/opensearch/query-dsl/term/#wildcards.
-You may include a backslash ``\\`` to escape SQL wildcard characters ``\\%`` and ``\\_``.
+You may include a backslash ``\`` to escape SQL wildcard characters ``\%`` and ``\_``.
 
 Available parameters include:
 
