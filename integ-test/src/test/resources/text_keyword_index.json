@@ -1,16 +1,16 @@
-{"index": {}}
+{"index": {"_id":"1"}}
 {"typeKeyword": "key00", "typeText": "text00", "typeKeywordFieldNoFieldData": "keyword00","typeTextFieldData": "keyFD00", "typeKeywordFieldData":  "textFD00", "textDataFieldNoFields": "textFDNF00","int0": 0}
-{"index": {}}
+{"index": {"_id":"2"}}
 {"typeKeyword": "key01", "typeText": "text01", "typeKeywordFieldNoFieldData": "keyword01", "typeTextFieldData": "keyFD01", "typeTextFieldData":  "textFD01OverTen", "textDataFieldNoFields": "textFDNF01", "int0": 1}
-{"index": {}}
+{"index": {"_id":"3"}}
 {"typeKeyword": "key02", "typeText": "text02", "typeKeywordFieldNoFieldData": "keyword02", "typeTextFieldData": "keyFD02", "typeKeywordFieldData":  "textFD02", "textDataFieldNoFields": "textFDNF02", "int0": 2}
-{"index": {}}
+{"index": {"_id":"4"}}
 {"typeKeyword": "key03", "typeText": "text03", "typeKeywordFieldNoFieldData": "keyword03", "typeTextFieldData": "keyFD03OverTen", "typeKeywordFieldData":  "textFD03", "textDataFieldNoFields": "textFDNF03", "int0": 3}
-{"index": {}}
+{"index": {"_id":"5"}}
 {"typeKeyword": "key04", "typeText": "text04", "typeKeywordFieldNoFieldData": "keyword04", "typeTextFieldData": "keyFD04", "typeKeywordFieldData":  "textFD04", "textDataFieldNoFields": "textFDNF04", "int0": 4}
-{"index": {}}
+{"index": {"_id":"6"}}
 {"typeKeyword": "key05", "typeText": "text05", "typeKeywordFieldNoFieldData": "keyword05", "typeTextFieldData": "keyFD05", "typeKeywordFieldData":  "textFD0OverTen5", "textDataFieldNoFields": "textFDNF05", "int0": 5}
-{"index": {}}
+{"index": {"_id":"7"}}
 {"typeKeyword": "key06", "typeText": "text06", "typeKeywordFieldNoFieldData": "keyword06", "typeTextFieldData": "keyFD06OverTen", "typeKeywordFieldData":  "textFD06", "textDataFieldNoFields": "textFDNF06", "int0": 6}
-{"index": {}}
+{"index": {"_id":"8"}}
 {"typeKeyword": "key07", "typeText": "text07", "typeKeywordFieldNoFieldData": "keyword07", "typeTextFieldData": "keyFD07", "typeKeywordFieldData":  "textFD07", "textDataFieldNoFields": "textFDNF07", "int0": 7}

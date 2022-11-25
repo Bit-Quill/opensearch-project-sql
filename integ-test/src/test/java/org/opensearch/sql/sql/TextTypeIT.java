@@ -26,9 +26,9 @@ package org.opensearch.sql.sql;
 
     @Test
     public void textKeywordTest() {
-      var result = executeJdbcRequest(String.format("select typeText from %s", TEST_INDEX_TEXTKEYWORD));
+      var result = executeJdbcRequest(String.format("select typeKeyword from %s", TEST_INDEX_TEXTKEYWORD));
       verifySchema(result,
-          schema("typeText", null, "text"));
+          schema("typeKeyword", null, "keyword"));
     }
 
     @Test
