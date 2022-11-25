@@ -8,6 +8,7 @@ package org.opensearch.sql.expression.datetime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.longValue;
@@ -965,7 +966,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void invalidWeekOfYear() {
+  public void testInvalidWeekOfYear() {
     testNullMissingWeekOfYear(DATE);
     testNullMissingWeekOfYear(DATETIME);
     testNullMissingWeekOfYear(TIMESTAMP);
@@ -989,11 +990,9 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void weekOfYear() {
-    testNullMissingWeekOfYear(DATE);
-    testNullMissingWeekOfYear(DATETIME);
-    testNullMissingWeekOfYear(TIMESTAMP);
-    testNullMissingWeekOfYear(STRING);
+  public void testWeekOfYearAlternateArgumentFormats() {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
     FunctionExpression expression = DSL
         .week_of_year(DSL.literal(new ExprTimestampValue("2019-01-05 01:02:03")));
@@ -1010,6 +1009,12 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(INTEGER, expression.type());
     assertEquals("week_of_year(\"2019-01-05 00:01:00\")", expression.toString());
     assertEquals(integerValue(0), eval(expression));
+  }
+
+  @Test
+  public void testWeekOfYearDifferentModes() {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
     //Test the behavior of different modes passed into the 'week_of_year' function
     testWeekOfYear("2019-01-05", 0, 0);
@@ -1042,6 +1047,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     testWeekOfYear("2000-01-01", 0, 0);
     testWeekOfYear("2000-01-01", 2, 52);
     testWeekOfYear("1999-12-31", 0, 52);
+
   }
 
   @Test

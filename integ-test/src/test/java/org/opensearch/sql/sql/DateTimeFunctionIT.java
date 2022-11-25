@@ -446,7 +446,7 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void testWeek_Of_Year() throws IOException {
+  public void testWeekOfYear() throws IOException {
     JSONObject result = executeQuery("select week_of_year(date('2008-02-20'))");
     verifySchema(result, schema("week_of_year(date('2008-02-20'))", null, "integer"));
     verifyDataRows(result, rows(7));
@@ -463,7 +463,7 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     JSONObject result1 = executeQuery("SELECT week(date('2022-11-22'))");
     JSONObject result2 = executeQuery("SELECT week_of_year(date('2022-11-22'))");
     verifyDataRows(result1, rows(47));
-    assertEquals(result1.get("datarows").toString(), result2.get("datarows").toString());
+    assertTrue(result1.similar(result2));
   }
 
   void verifyDateFormat(String date, String type, String format, String formatted) throws IOException {
