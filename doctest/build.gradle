@@ -93,7 +93,7 @@ doctest.dependsOn startOpenSearch
 startOpenSearch.dependsOn startPrometheus
 doctest.finalizedBy stopOpenSearch
 stopOpenSearch.finalizedBy stopPrometheus
-build.dependsOn doctest
+check.dependsOn doctest
 clean.dependsOn(cleanBootstrap)
 
 // 2.0.0-alpha1-SNAPSHOT -> 2.0.0.0-alpha1-SNAPSHOT
@@ -108,7 +108,7 @@ String mlCommonsPlugin = 'opensearch-ml'
 
 testClusters {
     docTestCluster {
-        keystore 'plugins.query.federation.datasources.config', new File("$projectDir/catalog", 'catalog.json')
+        keystore 'plugins.query.federation.datasources.config', new File("$projectDir/datasource", 'datasources.json')
         // Disable loading of `ML-commons` plugin, because it might be unavailable (not released yet).
         /*
         plugin(provider(new Callable<RegularFile>(){
