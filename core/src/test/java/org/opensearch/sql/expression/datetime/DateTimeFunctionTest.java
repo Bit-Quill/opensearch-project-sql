@@ -979,6 +979,13 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(INTEGER);
     assertEquals(missingValue(), eval(DSL.week_of_year(nullRef, missingRef)));
+
+    //test invalid month
+    assertThrows(SemanticCheckException.class, () -> testWeekOfYear("2019-13-05 01:02:03", 0, 0));
+    //test invalid day
+    assertThrows(SemanticCheckException.class, () -> testWeekOfYear("2019-01-50 01:02:03", 0, 0));
+    //test invalid leap year
+    assertThrows(SemanticCheckException.class, () -> testWeekOfYear("2019-02-29 01:02:03", 0, 0));
   }
 
   @Test
@@ -1035,6 +1042,24 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     testWeekOfYear("2000-01-01", 0, 0);
     testWeekOfYear("2000-01-01", 2, 52);
     testWeekOfYear("1999-12-31", 0, 52);
+  }
+
+  @Test
+  public void weekOfYearModeInUnsupportedFormat() {
+    testNullMissingWeekOfYear(DATE);
+
+    FunctionExpression expression1 = DSL
+        .week_of_year(DSL.literal(new ExprDateValue("2019-01-05")), DSL.literal(8));
+    SemanticCheckException exception =
+        assertThrows(SemanticCheckException.class, () -> eval(expression1));
+    assertEquals("mode:8 is invalid, please use mode value between 0-7",
+        exception.getMessage());
+
+    FunctionExpression expression2 = DSL
+        .week_of_year(DSL.literal(new ExprDateValue("2019-01-05")), DSL.literal(-1));
+    exception = assertThrows(SemanticCheckException.class, () -> eval(expression2));
+    assertEquals("mode:-1 is invalid, please use mode value between 0-7",
+        exception.getMessage());
   }
 
   @Test
