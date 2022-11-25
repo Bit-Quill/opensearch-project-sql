@@ -33,6 +33,7 @@ import org.opensearch.sql.ast.expression.Map;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.ParseMethod;
+import org.opensearch.sql.ast.expression.PositionFunction;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.Span;
 import org.opensearch.sql.ast.expression.SpanUnit;
@@ -286,6 +287,10 @@ public class AstDSL {
   public UnresolvedExpression highlight(UnresolvedExpression fieldName,
       java.util.Map<String, Literal> arguments) {
     return new HighlightFunction(fieldName, arguments);
+  }
+
+  public UnresolvedExpression position(UnresolvedExpression left, UnresolvedExpression right) {
+    return new PositionFunction(left, right);
   }
 
   public UnresolvedExpression window(UnresolvedExpression function,

@@ -278,6 +278,7 @@ public abstract class AbstractNodeVisitor<T, C> {
   public T visitHighlightFunction(HighlightFunction node, C context) {
     return visitChildren(node, context);
   }
+
   public T visitPositionFunction(PositionFunction node, C context) {
     return visitChildren(node, context);
   }

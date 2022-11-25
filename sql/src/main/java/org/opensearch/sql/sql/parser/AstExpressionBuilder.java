@@ -428,10 +428,12 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
         .map(this::visitFunctionArg)
         .collect(Collectors.toList()));
   }
-  @Override
-  public UnresolvedExpression visitPositionFunction(OpenSearchSQLParser.PositionFunctionContext ctx) {
-    return new PositionFunction(visitFunctionArg(ctx.functionArg(0)), visitFunctionArg(ctx.functionArg(1)));
 
+  @Override
+  public UnresolvedExpression visitPositionFunction(
+          OpenSearchSQLParser.PositionFunctionContext ctx) {
+    return new PositionFunction(visitFunctionArg(ctx.functionArg(0)),
+            visitFunctionArg(ctx.functionArg(1)));
   }
 
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {
