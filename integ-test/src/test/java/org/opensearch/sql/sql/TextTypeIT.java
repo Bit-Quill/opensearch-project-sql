@@ -171,7 +171,7 @@ package org.opensearch.sql.sql;
 
     @Test
     public void selectPositionTextDataFieldNoFields() {
-      executeJdbcRequest(String.format("select  POSITION(textDataFieldNoFields) from %s", TEST_INDEX_TEXTKEYWORD));
+      executeJdbcRequest(String.format("select POSITION(textFDNF IN textDataFieldNoFields) from %s", TEST_INDEX_TEXTKEYWORD));
     }
 
     // Substring
