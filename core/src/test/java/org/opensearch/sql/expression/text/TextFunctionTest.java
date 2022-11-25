@@ -378,6 +378,20 @@ public class TextFunctionTest extends ExpressionTestBase {
   }
 
   @Test
+  void position() {
+    FunctionExpression expression = DSL.position(
+        DSL.literal("world"),
+        DSL.literal("helloworld"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(6, eval(expression).integerValue());
+
+    when(nullRef.type()).thenReturn(STRING);
+    assertEquals(nullValue(), eval(DSL.position(nullRef, DSL.literal("hello"))));
+    when(missingRef.type()).thenReturn(STRING);
+    assertEquals(missingValue(), eval(DSL.position(missingRef, DSL.literal("hello"))));
+  }
+
+  @Test
   void replace() {
     FunctionExpression expression = DSL.replace(
         DSL.literal("helloworld"),
