@@ -18,7 +18,7 @@ public class LikeQuery extends LuceneQuery {
   @Override
   public QueryBuilder build(FunctionExpression func) {
     ReferenceExpression ref = (ReferenceExpression) func.getArguments().get(0);
-    String field = convertTextToKeyword(ref.toString(), ref.type());
+    String field = convertTextToKeyword(ref.getAttr(), ref.type());
     Expression expr = func.getArguments().get(1);
     ExprValue literalValue = expr.valueOf();
     return createBuilder(field, literalValue.stringValue());
