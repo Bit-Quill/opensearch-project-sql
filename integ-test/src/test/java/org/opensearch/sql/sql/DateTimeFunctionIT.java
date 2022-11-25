@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.sql;
 
+import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_PEOPLE2;
 import static org.opensearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
@@ -423,11 +424,11 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifyDataRows(result, rows(2020));
   }
 
-  private void week(String date, int mode, int expectedResult) throws IOException {
-    JSONObject result = executeQuery(StringUtils.format("select week(date('%s'), %d)", date,
+  private void week(String date, int mode, int expectedResult, String functionName) throws IOException {
+    JSONObject result = executeQuery(StringUtils.format("select %s(date('%s'), %d)", functionName, date,
         mode));
     verifySchema(result,
-        schema(StringUtils.format("week(date('%s'), %d)", date, mode), null, "integer"));
+        schema(StringUtils.format("%s(date('%s'), %d)", functionName, date, mode), null, "integer"));
     verifyDataRows(result, rows(expectedResult));
   }
 
@@ -437,11 +438,11 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifySchema(result, schema("week(date('2008-02-20'))", null, "integer"));
     verifyDataRows(result, rows(7));
 
-    week("2008-02-20", 0, 7);
-    week("2008-02-20", 1, 8);
-    week("2008-12-31", 1, 53);
-    week("2000-01-01", 0, 0);
-    week("2000-01-01", 2, 52);
+    week("2008-02-20", 0, 7, "week");
+    week("2008-02-20", 1, 8, "week");
+    week("2008-12-31", 1, 53, "week");
+    week("2000-01-01", 0, 0, "week");
+    week("2000-01-01", 2, 52, "week");
   }
 
   @Test
@@ -450,11 +451,19 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifySchema(result, schema("week_of_year(date('2008-02-20'))", null, "integer"));
     verifyDataRows(result, rows(7));
 
-    week("2008-02-20", 0, 7);
-    week("2008-02-20", 1, 8);
-    week("2008-12-31", 1, 53);
-    week("2000-01-01", 0, 0);
-    week("2000-01-01", 2, 52);
+    week("2008-02-20", 0, 7, "week_of_year");
+    week("2008-02-20", 1, 8, "week_of_year");
+    week("2008-12-31", 1, 53, "week_of_year");
+    week("2000-01-01", 0, 0, "week_of_year");
+    week("2000-01-01", 2, 52, "week_of_year");
+  }
+
+  @Test
+  public void testWeekAlternateSyntaxesReturnTheSameResults() throws IOException {
+    JSONObject result1 = executeQuery("SELECT week(date('2022-11-22'))");
+    JSONObject result2 = executeQuery("SELECT week_of_year(date('2022-11-22'))");
+    verifyDataRows(result1, rows(47));
+    assertEquals(result1.get("datarows").toString(), result2.get("datarows").toString());
   }
 
   void verifyDateFormat(String date, String type, String format, String formatted) throws IOException {
