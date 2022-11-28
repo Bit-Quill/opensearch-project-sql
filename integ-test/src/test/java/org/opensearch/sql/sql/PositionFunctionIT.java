@@ -75,7 +75,7 @@ public class PositionFunctionIT extends SQLIntegTestCase {
 
   @Test
   public void position_function_with_only_fields_as_args_test() {
-    String query = "SELECT position(str3 IN str2) FROM %s where str2 IN ('one', 'two', 'three')";
+    String query = "SELECT position(str3 IN str2) FROM %s WHERE str2 IN ('one', 'two', 'three')";
     JSONObject response = executeJdbcRequest(String.format(query, TestsConstants.TEST_INDEX_CALCS));
 
     verifySchema(response, schema("position(str3 IN str2)", null, "integer"));
@@ -86,12 +86,23 @@ public class PositionFunctionIT extends SQLIntegTestCase {
 
   @Test
   public void position_function_with_function_as_arg_test() {
-    String query = "SELECT position(upper(str3) IN str1) FROM %s where str1 LIKE 'BINDING SUPPLIES'";
+    String query = "SELECT position(upper(str3) IN str1) FROM %s WHERE str1 LIKE 'BINDING SUPPLIES'";
     JSONObject response = executeJdbcRequest(String.format(query, TestsConstants.TEST_INDEX_CALCS));
 
     verifySchema(response, schema("position(upper(str3) IN str1)", null, "integer"));
     assertEquals(1, response.getInt("total"));
 
     verifyDataRows(response, rows(15));
+  }
+
+  @Test
+  public void position_function_in_where_clause_test() {
+    String query = "SELECT str2 FROM %s WHERE position(str3 IN str2)=1";
+    JSONObject response = executeJdbcRequest(String.format(query, TestsConstants.TEST_INDEX_CALCS));
+
+    verifySchema(response, schema("str2", null, "keyword"));
+    assertEquals(2, response.getInt("total"));
+
+    verifyDataRows(response, rows("eight"), rows("eleven"));
   }
 }
