@@ -479,6 +479,12 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(220), eval(expression));
   }
 
+  public void test_day_of_year(String date, int dayOfYear) {
+    FunctionExpression expression = DSL.day_of_year(DSL.literal(new ExprDateValue(date)));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(integerValue(dayOfYear), eval(expression));
+  }
+
   @Test
   public void day_Of_Year() {
     when(nullRef.type()).thenReturn(DATE);
@@ -500,6 +506,34 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(INTEGER, expression.type());
     assertEquals("day_of_year(\"2020-08-07 01:02:03\")", expression.toString());
     assertEquals(integerValue(220), eval(expression));
+
+    //28th of Feb
+    test_day_of_year("2020-02-28", 59);
+    //29th of Feb during leap year
+    test_day_of_year("2020-02-29", 60);
+
+    //1st of March during leap year
+    test_day_of_year("2020-03-01", 61);
+
+    //1st of March during non leap year
+    test_day_of_year("2019-03-01", 60);
+
+    //31st of December during  leap year (should be 366)
+    test_day_of_year("2020-12-31", 366);
+
+    //Year 1200
+    test_day_of_year("1200-02-28", 59);
+
+    //Year 4000
+    test_day_of_year("4000-02-28", 59);
+  }
+
+  @Test
+  public void invalid_day_of_year() {
+    //todo -ve year
+    //TODO: (invalid) 29th of Feb non-leapyear
+    //TODO: 13th month
+    //TODO: incorrect format for type tests
   }
   
   @Test
