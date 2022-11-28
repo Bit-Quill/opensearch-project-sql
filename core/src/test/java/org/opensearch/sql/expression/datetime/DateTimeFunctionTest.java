@@ -547,7 +547,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     //13th month
     assertThrows(SemanticCheckException.class, () ->  test_invalid_day_of_year("2019-13-15"));
     //incorrect format for type
-    assertThrows(SemanticCheckException.class, () ->  test_invalid_day_of_year("2019-13-15"));
+    assertThrows(SemanticCheckException.class, () ->  test_invalid_day_of_year("asdfasdfasdf"));
   }
   
   @Test
