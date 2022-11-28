@@ -542,7 +542,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(nullValue(), eval(DSL.day_of_year(nullRef)));
     assertEquals(missingValue(), eval(DSL.day_of_year(missingRef)));
 
-    //invalid) 29th of Feb non-leapyear
+    //29th of Feb non-leapyear
     assertThrows(SemanticCheckException.class, () ->  test_invalid_day_of_year("2019-02-29"));
     //13th month
     assertThrows(SemanticCheckException.class, () ->  test_invalid_day_of_year("2019-13-15"));
