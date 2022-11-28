@@ -8,6 +8,7 @@ package org.opensearch.sql.expression.datetime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.longValue;
@@ -487,10 +488,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   @Test
   public void day_Of_Year() {
-    when(nullRef.type()).thenReturn(DATE);
-    when(missingRef.type()).thenReturn(DATE);
-    assertEquals(nullValue(), eval(DSL.day_of_year(nullRef)));
-    assertEquals(missingValue(), eval(DSL.day_of_year(missingRef)));
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
     FunctionExpression expression = DSL.day_of_year(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(INTEGER, expression.type());
@@ -509,10 +508,13 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
     //28th of Feb
     test_day_of_year("2020-02-28", 59);
+
     //29th of Feb during leap year
+    test_day_of_year("2020-02-29 23:59:59", 60);
     test_day_of_year("2020-02-29", 60);
 
     //1st of March during leap year
+    test_day_of_year("2020-03-01 00:00:00", 61);
     test_day_of_year("2020-03-01", 61);
 
     //1st of March during non leap year
@@ -528,12 +530,24 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     test_day_of_year("4000-02-28", 59);
   }
 
+  public void test_invalid_day_of_year(String date) {
+    FunctionExpression expression = DSL.day_of_year(DSL.literal(new ExprDateValue(date)));
+    eval(expression);
+  }
+
   @Test
   public void invalid_day_of_year() {
-    //todo -ve year
-    //TODO: (invalid) 29th of Feb non-leapyear
-    //TODO: 13th month
-    //TODO: incorrect format for type tests
+    when(nullRef.type()).thenReturn(DATE);
+    when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(DSL.day_of_year(nullRef)));
+    assertEquals(missingValue(), eval(DSL.day_of_year(missingRef)));
+
+    //invalid) 29th of Feb non-leapyear
+    assertThrows(SemanticCheckException.class, () ->  test_invalid_day_of_year("2019-02-29"));
+    //13th month
+    assertThrows(SemanticCheckException.class, () ->  test_invalid_day_of_year("2019-13-15"));
+    //incorrect format for type
+    assertThrows(SemanticCheckException.class, () ->  test_invalid_day_of_year("2019-13-15"));
   }
   
   @Test
