@@ -226,9 +226,17 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void testDay_Of_Year() throws IOException {
+  public void testDayOfYearWithUnderscores() throws IOException {
     JSONObject result = executeQuery("select day_of_year(date('2020-09-16'))");
     verifySchema(result, schema("day_of_year(date('2020-09-16'))", null, "integer"));
+    verifyDataRows(result, rows(260));
+
+    result = executeQuery("select day_of_year(datetime('2020-09-16 00:00:00'))");
+    verifySchema(result, schema("day_of_year(datetime('2020-09-16 00:00:00'))", null, "integer"));
+    verifyDataRows(result, rows(260));
+
+    result = executeQuery("select day_of_year(timestamp('2020-09-16 00:00:00'))");
+    verifySchema(result, schema("day_of_year(timestamp('2020-09-16 00:00:00'))", null, "integer"));
     verifyDataRows(result, rows(260));
 
     result = executeQuery("select day_of_year('2020-09-16')");
