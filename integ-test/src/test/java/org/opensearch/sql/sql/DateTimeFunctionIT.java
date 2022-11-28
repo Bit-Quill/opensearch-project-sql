@@ -323,10 +323,14 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void testMonth_Of_Year() throws IOException {
+  public void testMonthOfYearDateType() throws IOException {
     JSONObject result = executeQuery("select month_of_year(date('2020-09-16'))");
     verifySchema(result, schema("month_of_year(date('2020-09-16'))", null, "integer"));
     verifyDataRows(result, rows(9));
+
+//    result = executeQuery("select month_of_year(datetime('2020-09-16'))");
+//    verifySchema(result, schema("month_of_year(datetime('2020-09-16'))", null, "integer"));
+//    verifyDataRows(result, rows(9));
 
     result = executeQuery("select month_of_year('2020-09-16')");
     verifySchema(result, schema("month_of_year('2020-09-16')", null, "integer"));

@@ -8,6 +8,7 @@ package org.opensearch.sql.expression.datetime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.longValue;
@@ -625,12 +626,27 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(8), eval(expression));
   }
 
-  @Test
-  public void month_of_year() {
+  public void testInvalidDates(String date) throws SemanticCheckException {
+    FunctionExpression expression = DSL.month_of_year(DSL.literal(new ExprDateValue(date)));
+    eval(expression);
+  }
+
+  @Test void monthOfYearInvalidDates() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
     assertEquals(nullValue(), eval(DSL.month_of_year(nullRef)));
     assertEquals(missingValue(), eval(DSL.month_of_year(missingRef)));
+
+    assertThrows(SemanticCheckException.class, () ->  testInvalidDates("2019-01-50"));
+    assertThrows(SemanticCheckException.class, () ->  testInvalidDates("2019-02-29"));
+    assertThrows(SemanticCheckException.class, () ->  testInvalidDates("2019-02-31"));
+    assertThrows(SemanticCheckException.class, () ->  testInvalidDates("2019-13-05"));
+  }
+
+  @Test
+  public void monthOfYearAlternateArgumentSyntaxes() {
+    lenient().when(nullRef.type()).thenReturn(DATE);
+    lenient().when(missingRef.type()).thenReturn(DATE);
 
     FunctionExpression expression = DSL.month_of_year(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(INTEGER, expression.type());
