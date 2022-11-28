@@ -328,9 +328,13 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifySchema(result, schema("month_of_year(date('2020-09-16'))", null, "integer"));
     verifyDataRows(result, rows(9));
 
-//    result = executeQuery("select month_of_year(datetime('2020-09-16'))");
-//    verifySchema(result, schema("month_of_year(datetime('2020-09-16'))", null, "integer"));
-//    verifyDataRows(result, rows(9));
+    result = executeQuery("select month_of_year(datetime('2020-09-16 00:00:00'))");
+    verifySchema(result, schema("month_of_year(datetime('2020-09-16 00:00:00'))", null, "integer"));
+    verifyDataRows(result, rows(9));
+
+    result = executeQuery("select month_of_year(timestamp('2020-09-16 00:00:00'))");
+    verifySchema(result, schema("month_of_year(timestamp('2020-09-16 00:00:00'))", null, "integer"));
+    verifyDataRows(result, rows(9));
 
     result = executeQuery("select month_of_year('2020-09-16')");
     verifySchema(result, schema("month_of_year('2020-09-16')", null, "integer"));
