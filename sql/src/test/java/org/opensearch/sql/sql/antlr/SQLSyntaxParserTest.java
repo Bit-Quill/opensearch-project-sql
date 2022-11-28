@@ -195,6 +195,16 @@ class SQLSyntaxParserTest {
   public void can_parse_month_of_year_function() {
     assertNotNull(parser.parse("SELECT month('2022-11-18')"));
     assertNotNull(parser.parse("SELECT month_of_year('2022-11-18')"));
+
+    assertNotNull(parser.parse("SELECT month(date('2022-11-18'))"));
+    assertNotNull(parser.parse("SELECT month_of_year(date('2022-11-18'))"));
+
+    assertNotNull(parser.parse("SELECT month(datetime('2022-11-18 00:00:00'))"));
+    assertNotNull(parser.parse("SELECT month_of_year(datetime('2022-11-18 00:00:00'))"));
+
+    assertNotNull(parser.parse("SELECT month(timestamp('2022-11-18 00:00:00'))"));
+    assertNotNull(parser.parse("SELECT month_of_year(timestamp('2022-11-18 00:00:00'))"));
+
   }
 
   @Test
