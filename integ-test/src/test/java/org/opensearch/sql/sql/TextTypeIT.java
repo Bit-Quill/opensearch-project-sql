@@ -156,7 +156,7 @@ package org.opensearch.sql.sql;
 
     @Test
     public void selectPositionText() {
-      executeJdbcRequest(String.format("select POSITION(text IN typeText) from %s", TEST_INDEX_TEXTKEYWORD));
+      executeJdbcRequest(String.format("select POSITION(\\\"text\\\" IN typeText) from %s", TEST_INDEX_TEXTKEYWORD));
     }
 
     @Test
@@ -166,7 +166,7 @@ package org.opensearch.sql.sql;
 
     @Test
     public void selectPositionTypeTextFieldData() {
-      executeJdbcRequest(String.format("select POSITION(keyFD IN typeTextFieldData) from %s", TEST_INDEX_TEXTKEYWORD));
+      executeJdbcRequest(String.format("select POSITION(\\\"keyFD\\\" IN typeTextFieldData) from %s", TEST_INDEX_TEXTKEYWORD));
     }
 
     @Test

@@ -1,7 +1,7 @@
 {"index": {"_id":"1"}}
 {"typeKeyword": "key00", "typeText": "text00", "typeKeywordFieldNoFieldData": "keyword00","typeTextFieldData": "keyFD00", "typeKeywordFieldData":  "textFD00", "textDataFieldNoFields": "textFDNF00","int0": 0}
 {"index": {"_id":"2"}}
-{"typeKeyword": "key01", "typeText": "text01", "typeKeywordFieldNoFieldData": "keyword01", "typeTextFieldData": "keyFD01", "typeTextFieldData":  "textFD01OverTen", "textDataFieldNoFields": "textFDNF01", "int0": 1}
+{"typeKeyword": "key01", "typeText": "text01", "typeKeywordFieldNoFieldData": "keyword01", "typeTextFieldData": "keyFD01", "typeKeywordFieldData":  "textFD01OverTen", "textDataFieldNoFields": "textFDNF01", "int0": 1}
 {"index": {"_id":"3"}}
 {"typeKeyword": "key02", "typeText": "text02", "typeKeywordFieldNoFieldData": "keyword02", "typeTextFieldData": "keyFD02", "typeKeywordFieldData":  "textFD02", "textDataFieldNoFields": "textFDNF02", "int0": 2}
 {"index": {"_id":"4"}}
