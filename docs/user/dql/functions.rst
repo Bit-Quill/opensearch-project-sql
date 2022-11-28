@@ -1699,7 +1699,7 @@ Description
 >>>>>>>>>>>
 
 Usage: month(date) returns the month for date, in the range 1 to 12 for January to December. The dates with value 0 such as '0000-00-00' or '2008-00-00' are invalid.
-The function month_of_year is also provided as an alternate syntax.
+The function month_of_year is also provided as an alias
 
 Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
