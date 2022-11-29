@@ -22,6 +22,7 @@ import org.opensearch.jdbc.protocol.http.JdbcCursorQueryRequest;
 import org.opensearch.jdbc.protocol.http.JsonCursorHttpProtocol;
 import org.opensearch.jdbc.protocol.http.JsonCursorHttpProtocolFactory;
 import org.opensearch.jdbc.transport.http.HttpTransport;
+import org.opensearch.jdbc.types.OpenSearchType;
 import org.opensearch.jdbc.types.TypeConverter;
 import org.opensearch.jdbc.types.TypeConverters;
 import org.opensearch.jdbc.types.UnrecognizedOpenSearchTypeException;
@@ -97,6 +98,26 @@ public class ResultSetImpl implements ResultSet, JdbcWrapper, LoggingSource {
                     .collect(Collectors.toList()));
 
             List<Row> rows = getRowsFromDataRows(dataRows);
+
+            for (int i = 0; i < columnDescriptors.size(); i ++) {
+                if (schema.getOpenSearchType(i) == OpenSearchType.TIMESTAMP ||
+                    schema.getOpenSearchType(i) == OpenSearchType.DATETIME ||
+                    schema.getOpenSearchType(i) == OpenSearchType.TIME ||
+                    schema.getOpenSearchType(i) == OpenSearchType.DATE) {
+                    int maxLength = 0;
+                    for (Row row : rows) {
+                        Object obj = row.get(i);
+                        if (obj != null) {
+                            int len = obj.toString().length();
+                            if (len > maxLength) {
+                              maxLength = len;
+                            }
+                        }
+                    }
+                    schema.getColumnMetaData(i).setPrecision(maxLength);
+                }
+            }
+
 
             this.cursor = new Cursor(schema, rows);
             this.cursorId = cursorId;

@@ -52,7 +52,12 @@ public class ColumnMetaData {
     }
 
     public int getPrecision() {
-       return  precision;
+       return precision;
+    }
+
+    // Set precision once it is calculated
+    public void setPrecision(int precision) {
+        this.precision = precision;
     }
 
     public int getScale() {
