@@ -317,7 +317,7 @@ nestedFunction
     ;
 
 nestedField
-    : ID DOT ID (DOT ID)*
+    : ident DOT ident (DOT ident)*
     ;
 
 highlightFunction

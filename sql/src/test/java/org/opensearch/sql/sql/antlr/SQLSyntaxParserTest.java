@@ -510,6 +510,24 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void can_parse_nested_function() {
+    assertNotNull(
+        parser.parse("SELECT NESTED(FIELD.DAYOFWEEK) FROM TEST"));
+    assertNotNull(
+        parser.parse("SELECT SUM(NESTED(FIELD.SUBFIELD)) FROM TEST"));
+    assertNotNull(
+        parser.parse("SELECT COUNT(*) FROM TEST GROUP BY NESTED(FIELD.SUBFIELD)"));
+  }
+
+  @Test
+  public void can_not_parse_nested_function_without_dot() {
+    assertThrows(SyntaxCheckException.class,
+        () -> parser.parse("SELECT NESTED(FIELD) FROM TEST"));
+    assertThrows(SyntaxCheckException.class,
+        () -> parser.parse("SELECT COUNT(*) FROM TEST GROUP BY NESTED(FIELD)"));
+  }
+
+  @Test
   public void describe_request_accepts_only_quoted_string_literals() {
     assertAll(
         () -> assertThrows(SyntaxCheckException.class,
