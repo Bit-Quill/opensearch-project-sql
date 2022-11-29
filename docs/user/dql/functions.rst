@@ -1467,7 +1467,7 @@ Example::
     | 239                                          |
     +----------------------------------------------+
 
-    os> SELECT DAYOFYEAR(DATE('2020-08-26 00:00:00'))
+    os> SELECT DAYOFYEAR(TIMESTAMP('2020-08-26 00:00:00'))
     fetched rows / total rows = 1/1
     +-----------------------------------------------+
     | DAYOFYEAR(TIMESTAMP('2020-08-26 00:00:00'))   |
@@ -1506,7 +1506,7 @@ Example::
     | 239                                            |
     +------------------------------------------------+
 
-    os> SELECT DAY_OF_YEAR(DATE('2020-08-26 00:00:00'))
+    os> SELECT DAY_OF_YEAR(TIMESTAMP('2020-08-26 00:00:00'))
     fetched rows / total rows = 1/1
     +-------------------------------------------------+
     | DAY_OF_YEAR(TIMESTAMP('2020-08-26 00:00:00'))   |
