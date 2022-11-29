@@ -488,7 +488,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void DayOfYearWithUnderscoresDifferentArgumentFormats() {
+  public void dayOfYearWithUnderscoresDifferentArgumentFormats() {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
@@ -509,7 +509,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void DayOfYearWithUnderscoresCornerCaseDates() {
+  public void dayOfYearWithUnderscoresCornerCaseDates() {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
@@ -524,7 +524,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void DayOfYearWithUnderscoresLeapYear() {
+  public void dayOfYearWithUnderscoresLeapYear() {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
