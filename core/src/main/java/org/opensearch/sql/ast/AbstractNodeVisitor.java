@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.ast;
 
+import org.opensearch.sql.analysis.AnalysisContext;
 import org.opensearch.sql.ast.expression.AggregateFunction;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
@@ -25,6 +26,7 @@ import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.Let;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.Map;
+import org.opensearch.sql.ast.expression.NestedFunction;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
@@ -56,6 +58,7 @@ import org.opensearch.sql.ast.tree.Rename;
 import org.opensearch.sql.ast.tree.Sort;
 import org.opensearch.sql.ast.tree.TableFunction;
 import org.opensearch.sql.ast.tree.Values;
+import org.opensearch.sql.expression.Expression;
 
 /**
  * AST nodes visitor Defines the traverse path.
@@ -288,5 +291,9 @@ public abstract class AbstractNodeVisitor<T, C> {
 
   public T visitExplain(Explain node, C context) {
     return visitStatement(node, context);
+  }
+
+  public T visitNestedFunction(NestedFunction node, C context) {
+    return visitChildren(node, context);
   }
 }

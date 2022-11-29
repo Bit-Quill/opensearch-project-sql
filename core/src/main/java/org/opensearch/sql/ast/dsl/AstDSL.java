@@ -30,6 +30,7 @@ import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.Let;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.Map;
+import org.opensearch.sql.ast.expression.NestedFunction;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.ParseMethod;
@@ -283,6 +284,11 @@ public class AstDSL {
   public UnresolvedExpression highlight(UnresolvedExpression fieldName,
       java.util.Map<String, Literal> arguments) {
     return new HighlightFunction(fieldName, arguments);
+  }
+
+  public UnresolvedExpression nested(UnresolvedExpression fieldName,
+                                        java.util.Map<String, Literal> arguments) {
+    return new NestedFunction(fieldName, arguments);
   }
 
   public UnresolvedExpression window(UnresolvedExpression function,

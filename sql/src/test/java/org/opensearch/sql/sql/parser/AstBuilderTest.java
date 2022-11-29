@@ -697,4 +697,18 @@ class AstBuilderTest extends AstBuilderTestBase {
     );
   }
 
+  @Test
+  public void can_build_nested_in_select() {
+    assertEquals(
+        project(relation("test"),
+            alias("field.subfield",
+                qualifiedName("field.subfield"))),
+        buildAST("SELECT nested(\"field.subfield\") FROM test")
+    );
+  }
+
+  private UnresolvedPlan buildAST(String query) {
+    ParseTree parseTree = parser.parse(query);
+    return parseTree.accept(new AstBuilder(query));
+  }
 }

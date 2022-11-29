@@ -309,8 +309,12 @@ functionCall
     | relevanceFunction                                             #relevanceFunctionCall
     | highlightFunction                                             #highlightFunctionCall
     | positionFunction                                              #positionFunctionCall
+    | nestedFunction                                                #nestedFunctionCall
     ;
 
+nestedFunction
+    : NESTED LR_BRACKET functionArgs RR_BRACKET
+    ;
 
 highlightFunction
     : HIGHLIGHT LR_BRACKET relevanceField (COMMA highlightArg)* RR_BRACKET
