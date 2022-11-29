@@ -312,6 +312,7 @@ functionCall
     | extractFunction                                               #extractFunctionCall
     | getFormatFunction                                             #getFormatFunctionCall
     | timestampAddFunction                                          #timestampAddFunctionCall
+    | nestedFunction                                                #nestedFunctionCall
     ;
 
 timestampAddFunction
@@ -362,6 +363,14 @@ complexDateTimePart
 datetimePart
     : simpleDateTimePart
     | complexDateTimePart
+    ;
+
+nestedFunction
+    : NESTED LR_BRACKET nestedField RR_BRACKET
+    ;
+
+nestedField
+    : ID DOT ID (DOT ID)*
     ;
 
 highlightFunction
