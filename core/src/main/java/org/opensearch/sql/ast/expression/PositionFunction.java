@@ -15,7 +15,7 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 
 
 /**
- * Expression node of Highlight function.
+ * Expression node of Position function.
  */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
@@ -23,13 +23,13 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 @ToString
 public class PositionFunction extends UnresolvedExpression {
   @Getter
-  private UnresolvedExpression left;
+  private UnresolvedExpression stringPatternExpr;
   @Getter
-  private UnresolvedExpression right;
+  private UnresolvedExpression searchStringExpr;
 
   @Override
   public List<UnresolvedExpression> getChild() {
-    return Arrays.asList(left, right);
+    return Arrays.asList(stringPatternExpr, searchStringExpr);
   }
 
   @Override

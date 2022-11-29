@@ -289,8 +289,9 @@ public class AstDSL {
     return new HighlightFunction(fieldName, arguments);
   }
 
-  public UnresolvedExpression position(UnresolvedExpression left, UnresolvedExpression right) {
-    return new PositionFunction(left, right);
+  public UnresolvedExpression position(UnresolvedExpression stringPatternExpr,
+                                       UnresolvedExpression searchStringExpr) {
+    return new PositionFunction(stringPatternExpr, searchStringExpr);
   }
 
   public UnresolvedExpression window(UnresolvedExpression function,

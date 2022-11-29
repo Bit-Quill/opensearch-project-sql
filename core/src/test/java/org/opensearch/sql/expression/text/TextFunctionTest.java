@@ -381,9 +381,15 @@ public class TextFunctionTest extends ExpressionTestBase {
   void position() {
     FunctionExpression expression = DSL.position(
         DSL.literal("world"),
-        DSL.literal("helloworld"));
+        DSL.literal("helloworldworld"));
     assertEquals(INTEGER, expression.type());
     assertEquals(6, eval(expression).integerValue());
+
+    expression = DSL.position(
+            DSL.literal("abc"),
+            DSL.literal("hello world"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(0, eval(expression).integerValue());
 
     when(nullRef.type()).thenReturn(STRING);
     assertEquals(nullValue(), eval(DSL.position(nullRef, DSL.literal("hello"))));

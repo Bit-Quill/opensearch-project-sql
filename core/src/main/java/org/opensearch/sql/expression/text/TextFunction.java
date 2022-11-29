@@ -39,23 +39,23 @@ public class TextFunction {
    * @param repository {@link BuiltinFunctionRepository}.
    */
   public void register(BuiltinFunctionRepository repository) {
-    repository.register(substr());
-    repository.register(substring());
-    repository.register(ltrim());
-    repository.register(rtrim());
-    repository.register(trim());
-    repository.register(lower());
-    repository.register(upper());
+    repository.register(ascii());
     repository.register(concat());
     repository.register(concat_ws());
-    repository.register(length());
-    repository.register(strcmp());
-    repository.register(right());
     repository.register(left());
-    repository.register(ascii());
+    repository.register(length());
     repository.register(locate());
-    repository.register(replace());
+    repository.register(lower());
+    repository.register(ltrim());
     repository.register(position());
+    repository.register(replace());
+    repository.register(right());
+    repository.register(rtrim());
+    repository.register(strcmp());
+    repository.register(substr());
+    repository.register(substring());
+    repository.register(trim());
+    repository.register(upper());
   }
 
   /**
@@ -243,7 +243,7 @@ public class TextFunction {
   }
 
   /**
-   * Returns the position of the first occurrence of a substring in a string.
+   * Returns the position of the first occurrence of a substring in a string starting from 1.
    * Returns 0 if substring is not in string.
    * Returns NULL if any argument is NULL.
    * Supports following signature:

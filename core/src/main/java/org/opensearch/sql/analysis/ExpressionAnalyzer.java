@@ -216,9 +216,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitPositionFunction(PositionFunction node, AnalysisContext context) {
-    Expression left = node.getLeft().accept(this, context);
-    Expression right = node.getRight().accept(this, context);
-    return DSL.position(left, right);
+    Expression stringPatternExpr = node.getStringPatternExpr().accept(this, context);
+    Expression searchStringExpr = node.getSearchStringExpr().accept(this, context);
+    return DSL.position(stringPatternExpr, searchStringExpr);
   }
 
   @Override

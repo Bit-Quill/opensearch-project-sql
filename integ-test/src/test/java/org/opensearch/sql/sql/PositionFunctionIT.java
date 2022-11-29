@@ -105,4 +105,25 @@ public class PositionFunctionIT extends SQLIntegTestCase {
 
     verifyDataRows(response, rows("eight"), rows("eleven"));
   }
+
+  @Test
+  public void position_function_with_null_args_test() {
+    String query1 = "SELECT str2, position(null IN str2) FROM %s WHERE str2 IN ('one')";
+    String query2 = "SELECT str2, position(str2 IN null) FROM %s WHERE str2 IN ('one')";
+    JSONObject response1 = executeJdbcRequest(String.format(query1, TestsConstants.TEST_INDEX_CALCS));
+    JSONObject response2 = executeJdbcRequest(String.format(query2, TestsConstants.TEST_INDEX_CALCS));
+
+    verifySchema(response1,
+            schema("str2", null, "keyword"),
+            schema("position(null IN str2)", null, "integer"));
+    assertEquals(1, response1.getInt("total"));
+
+    verifySchema(response2,
+            schema("str2", null, "keyword"),
+            schema("position(str2 IN null)", null, "integer"));
+    assertEquals(1, response2.getInt("total"));
+
+    verifyDataRows(response1, rows("one", null));
+    verifyDataRows(response2, rows("one", null));
+  }
 }

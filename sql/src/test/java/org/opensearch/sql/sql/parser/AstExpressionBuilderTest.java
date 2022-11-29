@@ -338,6 +338,14 @@ class AstExpressionBuilderTest {
   }
 
   @Test
+  public void canBuildStringLiteralPositionFunction() {
+    assertEquals(
+            position(AstDSL.stringLiteral("fieldA"), AstDSL.stringLiteral("fieldB")),
+            buildExprAst("position(\"fieldA\" IN \"fieldB\")")
+    );
+  }
+
+  @Test
   public void canBuildWindowFunctionWithoutOrderBy() {
     assertEquals(
         window(
