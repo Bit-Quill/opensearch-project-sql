@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.expression.datetime;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.lenient;
@@ -480,74 +481,91 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(220), eval(expression));
   }
 
-  public void test_day_of_year(String date, int dayOfYear) {
+  public void testDayOfYearWithUnderscores(String date, int dayOfYear) {
     FunctionExpression expression = DSL.day_of_year(DSL.literal(new ExprDateValue(date)));
     assertEquals(INTEGER, expression.type());
     assertEquals(integerValue(dayOfYear), eval(expression));
   }
 
   @Test
-  public void day_Of_Year() {
+  public void DayOfYearWithUnderscoresDifferentArgumentFormats() {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
-    FunctionExpression expression = DSL.day_of_year(DSL.literal(new ExprDateValue("2020-08-07")));
-    assertEquals(INTEGER, expression.type());
-    assertEquals("day_of_year(DATE '2020-08-07')", expression.toString());
-    assertEquals(integerValue(220), eval(expression));
+    FunctionExpression expression1 = DSL.day_of_year(DSL.literal(new ExprDateValue("2020-08-07")));
+    FunctionExpression expression2 = DSL.day_of_year(DSL.literal("2020-08-07"));
+    FunctionExpression expression3 = DSL.day_of_year(DSL.literal("2020-08-07 01:02:03"));
 
-    expression = DSL.day_of_year(DSL.literal("2020-08-07"));
-    assertEquals(INTEGER, expression.type());
-    assertEquals("day_of_year(\"2020-08-07\")", expression.toString());
-    assertEquals(integerValue(220), eval(expression));
+    assertAll(
+        () -> testDayOfYearWithUnderscores("2020-08-07", 220),
+        () -> assertEquals("day_of_year(DATE '2020-08-07')", expression1.toString()),
 
-    expression = DSL.day_of_year(DSL.literal("2020-08-07 01:02:03"));
-    assertEquals(INTEGER, expression.type());
-    assertEquals("day_of_year(\"2020-08-07 01:02:03\")", expression.toString());
-    assertEquals(integerValue(220), eval(expression));
+        () -> testDayOfYearWithUnderscores("2020-08-07", 220),
+        () ->     assertEquals("day_of_year(\"2020-08-07\")", expression2.toString()),
 
-    //28th of Feb
-    test_day_of_year("2020-02-28", 59);
-
-    //29th of Feb during leap year
-    test_day_of_year("2020-02-29 23:59:59", 60);
-    test_day_of_year("2020-02-29", 60);
-
-    //1st of March during leap year
-    test_day_of_year("2020-03-01 00:00:00", 61);
-    test_day_of_year("2020-03-01", 61);
-
-    //1st of March during non leap year
-    test_day_of_year("2019-03-01", 60);
-
-    //31st of December during  leap year (should be 366)
-    test_day_of_year("2020-12-31", 366);
-
-    //Year 1200
-    test_day_of_year("1200-02-28", 59);
-
-    //Year 4000
-    test_day_of_year("4000-02-28", 59);
+        () -> testDayOfYearWithUnderscores("2020-08-07 01:02:03", 220),
+        () ->     assertEquals("day_of_year(\"2020-08-07 01:02:03\")", expression3.toString())
+    );
   }
 
-  public void test_invalid_day_of_year(String date) {
+  @Test
+  public void DayOfYearWithUnderscoresCornerCaseDates() {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
+    assertAll(
+        //31st of December during non leap year (should be 365)
+        () -> testDayOfYearWithUnderscores("2019-12-31", 365),
+        //Year 1200
+        () -> testDayOfYearWithUnderscores("1200-02-28", 59),
+        //Year 4000
+        () -> testDayOfYearWithUnderscores("4000-02-28", 59)
+    );
+  }
+
+  @Test
+  public void DayOfYearWithUnderscoresLeapYear() {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
+    assertAll(
+        //28th of Feb
+        () -> testDayOfYearWithUnderscores("2020-02-28", 59),
+
+        //29th of Feb during leap year
+        () -> testDayOfYearWithUnderscores("2020-02-29 23:59:59", 60),
+        () -> testDayOfYearWithUnderscores("2020-02-29", 60),
+
+        //1st of March during leap year
+        () -> testDayOfYearWithUnderscores("2020-03-01 00:00:00", 61),
+        () -> testDayOfYearWithUnderscores("2020-03-01", 61),
+
+        //1st of March during non leap year
+        () -> testDayOfYearWithUnderscores("2019-03-01", 60),
+
+        //31st of December during  leap year (should be 366)
+        () -> testDayOfYearWithUnderscores("2020-12-31", 366)
+    );
+  }
+
+  public void testInvalidDayOfYear(String date) {
     FunctionExpression expression = DSL.day_of_year(DSL.literal(new ExprDateValue(date)));
     eval(expression);
   }
 
   @Test
-  public void invalid_day_of_year() {
+  public void invalidDayOfYearArgument() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
     assertEquals(nullValue(), eval(DSL.day_of_year(nullRef)));
     assertEquals(missingValue(), eval(DSL.day_of_year(missingRef)));
 
     //29th of Feb non-leapyear
-    assertThrows(SemanticCheckException.class, () ->  test_invalid_day_of_year("2019-02-29"));
+    assertThrows(SemanticCheckException.class, () ->  testInvalidDayOfYear("2019-02-29"));
     //13th month
-    assertThrows(SemanticCheckException.class, () ->  test_invalid_day_of_year("2019-13-15"));
+    assertThrows(SemanticCheckException.class, () ->  testInvalidDayOfYear("2019-13-15"));
     //incorrect format for type
-    assertThrows(SemanticCheckException.class, () ->  test_invalid_day_of_year("asdfasdfasdf"));
+    assertThrows(SemanticCheckException.class, () ->  testInvalidDayOfYear("asdfasdfasdf"));
   }
   
   @Test
