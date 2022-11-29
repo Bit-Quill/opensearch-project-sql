@@ -27,6 +27,7 @@ import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.aggregation.AggregatorFunction;
 import org.opensearch.sql.expression.datetime.DateTimeFunction;
 import org.opensearch.sql.expression.datetime.IntervalClause;
+import org.opensearch.sql.expression.nested.NestedFunctions;
 import org.opensearch.sql.expression.operator.arthmetic.ArithmeticFunction;
 import org.opensearch.sql.expression.operator.arthmetic.MathematicalFunction;
 import org.opensearch.sql.expression.operator.convert.TypeCastOperator;
@@ -83,6 +84,7 @@ public class BuiltinFunctionRepository {
       TypeCastOperator.register(instance);
       SystemFunctions.register(instance);
       OpenSearchFunctions.register(instance);
+      NestedFunctions.register(instance);
     }
     return instance;
   }
