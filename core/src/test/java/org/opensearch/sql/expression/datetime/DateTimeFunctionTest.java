@@ -645,8 +645,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   @Test
   public void monthOfYearAlternateArgumentSyntaxes() {
-    lenient().when(nullRef.type()).thenReturn(DATE);
-    lenient().when(missingRef.type()).thenReturn(DATE);
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
     FunctionExpression expression = DSL.month_of_year(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(INTEGER, expression.type());
