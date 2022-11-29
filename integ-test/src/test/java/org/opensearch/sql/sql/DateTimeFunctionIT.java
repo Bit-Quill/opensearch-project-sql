@@ -6,8 +6,8 @@
 
 package org.opensearch.sql.sql;
 
-import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
+import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_CALCS;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_PEOPLE2;
 import static org.opensearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 import static org.opensearch.sql.util.MatcherUtils.rows;
@@ -49,6 +49,7 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   public void init() throws Exception {
     super.init();
     loadIndex(Index.BANK);
+    loadIndex(Index.CALCS);
     loadIndex(Index.PEOPLE2);
   }
 
@@ -463,7 +464,31 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     JSONObject result1 = executeQuery("SELECT week(date('2022-11-22'))");
     JSONObject result2 = executeQuery("SELECT week_of_year(date('2022-11-22'))");
     verifyDataRows(result1, rows(47));
-    assertTrue(result1.similar(result2));
+    result1.getJSONArray("datarows").similar(result2.getJSONArray("datarows"));
+
+    result1 = executeQuery(String.format(
+        "SELECT week(CAST(date0 AS date)) FROM %s", TEST_INDEX_CALCS));
+    result2 = executeQuery(String.format(
+        "SELECT week_of_year(CAST(date0 AS date)) FROM %s", TEST_INDEX_CALCS));
+    result1.getJSONArray("datarows").similar(result2.getJSONArray("datarows"));
+
+    result1 = executeQuery(String.format(
+        "SELECT week(datetime(CAST(time0 AS STRING))) FROM %s", TEST_INDEX_CALCS));
+    result2 = executeQuery(String.format(
+        "SELECT week_of_year(datetime(CAST(time0 AS STRING))) FROM %s", TEST_INDEX_CALCS));
+    result1.getJSONArray("datarows").similar(result2.getJSONArray("datarows"));
+
+    result1 = executeQuery(String.format(
+        "SELECT week(CAST(time0 AS STRING)) FROM %s", TEST_INDEX_CALCS));
+    result2 = executeQuery(String.format(
+        "SELECT week_of_year(CAST(time0 AS STRING)) FROM %s", TEST_INDEX_CALCS));
+    result1.getJSONArray("datarows").similar(result2.getJSONArray("datarows"));
+
+    result1 = executeQuery(String.format(
+        "SELECT week(CAST(datetime0 AS timestamp)) FROM %s", TEST_INDEX_CALCS));
+    result2 = executeQuery(String.format(
+        "SELECT week_of_year(CAST(datetime0 AS timestamp)) FROM %s", TEST_INDEX_CALCS));
+    result1.getJSONArray("datarows").similar(result2.getJSONArray("datarows"));
   }
 
   void verifyDateFormat(String date, String type, String format, String formatted) throws IOException {
