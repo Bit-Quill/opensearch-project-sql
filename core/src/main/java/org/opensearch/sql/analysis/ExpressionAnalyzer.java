@@ -33,6 +33,7 @@ import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.In;
 import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.Literal;
+import org.opensearch.sql.ast.expression.NestedFunction;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
@@ -210,6 +211,12 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Override
   public Expression visitHighlightFunction(HighlightFunction node, AnalysisContext context) {
     Expression expr = node.getHighlightField().accept(this, context);
+    return new HighlightExpression(expr);
+  }
+
+  @Override
+  public Expression visitNestedFunction(NestedFunction node, AnalysisContext context) {
+    Expression expr = node.getNestedField().accept(this, context);
     return new HighlightExpression(expr);
   }
 

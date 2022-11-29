@@ -302,6 +302,11 @@ functionCall
     | relevanceFunction                                             #relevanceFunctionCall
     | highlightFunction                                             #highlightFunctionCall
     | constantFunction                                              #constantFunctionCall
+    | nestedFunction                                                #nestedFunctionCall
+    ;
+
+nestedFunction
+    : NESTED LR_BRACKET functionArgs RR_BRACKET
     ;
 
 constantFunction

@@ -18,6 +18,7 @@ import static org.opensearch.sql.ast.dsl.AstDSL.highlight;
 import static org.opensearch.sql.ast.dsl.AstDSL.intLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.intervalLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.longLiteral;
+import static org.opensearch.sql.ast.dsl.AstDSL.nested;
 import static org.opensearch.sql.ast.dsl.AstDSL.not;
 import static org.opensearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.or;
@@ -325,6 +326,24 @@ class AstExpressionBuilderTest {
     assertEquals(
         highlight(AstDSL.qualifiedName("fieldA"), args),
         buildExprAst("highlight(fieldA)")
+    );
+  }
+
+  @Test
+  public void canBuildStringLiteralNestedFunction() {
+    HashMap<String, Literal> args = new HashMap<>();
+    assertEquals(
+        nested(AstDSL.stringLiteral("field.subfield"), args),
+        buildExprAst("nested(\"field.subfield\")")
+    );
+  }
+
+  @Test
+  public void canBuildQualifiedNameNestedFunction() {
+    HashMap<String, Literal> args = new HashMap<>();
+    assertEquals(
+        nested(AstDSL.qualifiedName("field.subfield"), args),
+        buildExprAst("nested(field.subfield)")
     );
   }
 
