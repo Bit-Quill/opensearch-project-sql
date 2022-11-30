@@ -166,7 +166,7 @@ Return type integer:
 
 Example::
 
-    opensearchsql> source=location | eval `POSITION('world' IN 'helloworld')` = POSITION('world' IN 'helloworld'), `POSITION('invalid' IN 'helloworld')`= POSITION('invalid' IN 'helloworld')  | fields `POSITION('world' IN 'helloworld')`, `POSITION('invalid' IN 'helloworld')`;
+    os> source=location | eval `POSITION('world' IN 'helloworld')` = POSITION('world' IN 'helloworld'), `POSITION('invalid' IN 'helloworld')`= POSITION('invalid' IN 'helloworld')  | fields `POSITION('world' IN 'helloworld')`, `POSITION('invalid' IN 'helloworld')`;
     fetched rows / total rows = 2/2
     +-------------------------------------+---------------------------------------+
     | POSITION('world' IN 'helloworld')   | POSITION('invalid' IN 'helloworld')   |
