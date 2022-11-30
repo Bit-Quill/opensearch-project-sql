@@ -55,6 +55,7 @@ import org.opensearch.sql.expression.HighlightExpression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.NamedArgumentExpression;
 import org.opensearch.sql.expression.NamedExpression;
+import org.opensearch.sql.expression.NestedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.aggregation.AggregationState;
 import org.opensearch.sql.expression.aggregation.Aggregator;
@@ -217,7 +218,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Override
   public Expression visitNestedFunction(NestedFunction node, AnalysisContext context) {
     Expression expr = node.getNestedField().accept(this, context);
-    return new HighlightExpression(expr);
+    return new NestedExpression(expr);
   }
 
   @Override
