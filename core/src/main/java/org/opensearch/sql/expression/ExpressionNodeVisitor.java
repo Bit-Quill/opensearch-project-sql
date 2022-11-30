@@ -60,6 +60,10 @@ public abstract class ExpressionNodeVisitor<T, C> {
     return visitNode(node, context);
   }
 
+  public T visitNested(NestedExpression node, C context) {
+    return visitNode(node, context);
+  }
+
   public T visitReference(ReferenceExpression node, C context) {
     return visitNode(node, context);
   }
