@@ -35,6 +35,7 @@ import static org.opensearch.sql.ast.dsl.AstDSL.longLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.not;
 import static org.opensearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.or;
+import static org.opensearch.sql.ast.dsl.AstDSL.position;
 import static org.opensearch.sql.ast.dsl.AstDSL.projectWithArg;
 import static org.opensearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static org.opensearch.sql.ast.dsl.AstDSL.relation;
@@ -177,6 +178,18 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
             let(
                 field("f"),
                 function("PI")
+            )
+        ));
+  }
+
+  @Test
+  public void testPositionFunctionExpr() {
+    assertEqual("source=t | eval f=position(fieldA IN fieldB)",
+        eval(
+            relation("t"),
+            let(
+                field("f"),
+                position(field("fieldA"), field("fieldB"))
             )
         ));
   }

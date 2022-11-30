@@ -150,6 +150,32 @@ Example::
     +---------------------+---------------------+
 
 
+POSITION
+------
+
+Description
+>>>>>>>>>>>
+
+Usage: The syntax POSITION(substr IN str) returns the position of the first occurrence of substring substr in string str. Returns 0 if substr is not in str. Returns NULL if any argument is NULL.
+
+Argument type: STRING, STRING, INTEGER
+
+Return type integer:
+
+(STRING IN STRING) -> INTEGER
+
+Example::
+
+    opensearchsql> source=location | eval `POSITION('world' IN 'helloworld')` = POSITION('world' IN 'helloworld'), `POSITION('invalid' IN 'helloworld')`= POSITION('invalid' IN 'helloworld')  | fields `POSITION('world' IN 'helloworld')`, `POSITION('invalid' IN 'helloworld')`;
+    fetched rows / total rows = 2/2
+    +-------------------------------------+---------------------------------------+
+    | POSITION('world' IN 'helloworld')   | POSITION('invalid' IN 'helloworld')   |
+    |-------------------------------------+---------------------------------------|
+    | 6                                   | 0                                     |
+    | 6                                   | 0                                     |
+    +-------------------------------------+---------------------------------------+
+
+
 RIGHT
 -----
 

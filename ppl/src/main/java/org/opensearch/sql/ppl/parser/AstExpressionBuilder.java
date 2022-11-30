@@ -69,6 +69,7 @@ import org.opensearch.sql.ast.expression.Let;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
+import org.opensearch.sql.ast.expression.PositionFunction;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.Span;
@@ -288,6 +289,13 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
     } else {
       return visitIdentifiers(Arrays.asList(ctx));
     }
+  }
+
+  @Override
+  public UnresolvedExpression visitPositionFunction(
+          OpenSearchPPLParser.PositionFunctionContext ctx) {
+    return new PositionFunction(visitFunctionArg(ctx.functionArg(0)),
+            visitFunctionArg(ctx.functionArg(1)));
   }
 
   /**
