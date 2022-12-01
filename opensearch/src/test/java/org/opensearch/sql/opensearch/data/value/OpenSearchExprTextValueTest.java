@@ -7,13 +7,13 @@
 package org.opensearch.sql.opensearch.data.value;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.OPENSEARCH_TEXT;
+import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
 import org.junit.jupiter.api.Test;
 
 class OpenSearchExprTextValueTest {
   @Test
   public void typeOfExprTextValue() {
-    assertEquals(OPENSEARCH_TEXT, new OpenSearchExprTextValue("A").type());
+    assertEquals(STRING, new OpenSearchExprTextValue("A").type());
   }
 }

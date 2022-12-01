@@ -9,7 +9,7 @@ package org.opensearch.sql.opensearch.data.value;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.OPENSEARCH_GEO_POINT;
+import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +25,7 @@ class OpenSearchExprGeoPointValueTest {
 
   @Test
   void type() {
-    assertEquals(OPENSEARCH_GEO_POINT, geoPointValue.type());
+    assertEquals(UNKNOWN, geoPointValue.type());
   }
 
   @Test

@@ -17,7 +17,6 @@ import static org.opensearch.search.sort.FieldSortBuilder.DOC_FIELD_NAME;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,8 +39,8 @@ import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
+import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
-import org.opensearch.sql.opensearch.mapping.MappingEntry;
 import org.opensearch.sql.opensearch.request.OpenSearchQueryRequest;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
@@ -56,8 +55,8 @@ class OpenSearchIndexScanTest {
   private Settings settings;
 
   private OpenSearchExprValueFactory exprValueFactory = new OpenSearchExprValueFactory(
-      Map.of("name", new MappingEntry(null, null, STRING),
-              "department", new MappingEntry(null, null, STRING)));
+      Map.of("name", new OpenSearchDataType(STRING),
+              "department", new OpenSearchDataType(STRING)));
 
   @BeforeEach
   void setup() {

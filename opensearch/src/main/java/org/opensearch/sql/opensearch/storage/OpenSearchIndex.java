@@ -18,8 +18,8 @@ import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
+import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
-import org.opensearch.sql.opensearch.mapping.MappingEntry;
 import org.opensearch.sql.opensearch.planner.logical.OpenSearchLogicalIndexAgg;
 import org.opensearch.sql.opensearch.planner.logical.OpenSearchLogicalIndexScan;
 import org.opensearch.sql.opensearch.planner.logical.OpenSearchLogicalPlanOptimizerFactory;
@@ -59,9 +59,7 @@ public class OpenSearchIndex implements Table {
   /**
    * The cached mapping of field and type in index.
    */
-  private Map<String, ExprType> cachedFieldTypes = null;
-
-  private Map<String, MappingEntry> cachedFieldMappings = null;
+  private Map<String, OpenSearchDataType> cachedFieldTypes = null;
 
   /**
    * The cached max result window setting of index.
@@ -87,14 +85,8 @@ public class OpenSearchIndex implements Table {
     if (cachedFieldTypes == null) {
       cachedFieldTypes = new OpenSearchDescribeIndexRequest(client, indexName).getFieldTypes();
     }
-    return cachedFieldTypes;
-  }
-
-  public Map<String, MappingEntry> getFieldMappings() {
-    if (cachedFieldMappings == null) {
-      cachedFieldMappings = new OpenSearchDescribeIndexRequest(client, indexName).getFieldMappings();
-    }
-    return cachedFieldMappings;
+    return cachedFieldTypes.entrySet().stream()
+        .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getExprCoreType()));
   }
 
   /**
@@ -114,7 +106,7 @@ public class OpenSearchIndex implements Table {
   @Override
   public PhysicalPlan implement(LogicalPlan plan) {
     OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, settings, indexName,
-        getMaxResultWindow(), new OpenSearchExprValueFactory(getFieldMappings()));
+        getMaxResultWindow(), new OpenSearchExprValueFactory(cachedFieldTypes));
 
     /*
      * Visit logical plan with index scan as context so logical operators visited, such as

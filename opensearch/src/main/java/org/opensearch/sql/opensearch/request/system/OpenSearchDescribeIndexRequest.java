@@ -10,21 +10,17 @@ import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.stringValue;
 import static org.opensearch.sql.opensearch.client.OpenSearchClient.META_CLUSTER_NAME;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.type.ExprCoreType;
-import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.mapping.IndexMapping;
-import org.opensearch.sql.opensearch.mapping.MappingEntry;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 
 /**
@@ -39,33 +35,6 @@ public class OpenSearchDescribeIndexRequest implements OpenSearchSystemRequest {
   private static final Integer DEFAULT_NULLABLE = 2;
 
   private static final String DEFAULT_IS_AUTOINCREMENT = "NO";
-
-  /**
-   * Type mapping from OpenSearch data type to expression type in our type system in query
-   * engine. TODO: geo, ip etc.
-   */
-  private static final Map<String, ExprType> OPENSEARCH_TYPE_TO_EXPR_TYPE_MAPPING =
-      ImmutableMap.<String, ExprType>builder()
-          .put("text", OpenSearchDataType.OPENSEARCH_TEXT)
-          .put("text_keyword", OpenSearchDataType.OPENSEARCH_TEXT_KEYWORD)
-          .put("keyword", ExprCoreType.STRING)
-          .put("byte", ExprCoreType.BYTE)
-          .put("short", ExprCoreType.SHORT)
-          .put("integer", ExprCoreType.INTEGER)
-          .put("long", ExprCoreType.LONG)
-          .put("float", ExprCoreType.FLOAT)
-          .put("half_float", ExprCoreType.FLOAT)
-          .put("scaled_float", ExprCoreType.DOUBLE)
-          .put("double", ExprCoreType.DOUBLE)
-          .put("boolean", ExprCoreType.BOOLEAN)
-          .put("nested", ExprCoreType.ARRAY)
-          .put("object", ExprCoreType.STRUCT)
-          .put("date", ExprCoreType.TIMESTAMP)
-          .put("date_nanos", ExprCoreType.TIMESTAMP)
-          .put("ip", OpenSearchDataType.OPENSEARCH_IP)
-          .put("geo_point", OpenSearchDataType.OPENSEARCH_GEO_POINT)
-          .put("binary", OpenSearchDataType.OPENSEARCH_BINARY)
-          .build();
 
   /**
    * OpenSearch client connection.
@@ -97,7 +66,7 @@ public class OpenSearchDescribeIndexRequest implements OpenSearchSystemRequest {
     List<ExprValue> results = new ArrayList<>();
     Map<String, String> meta = client.meta();
     int pos = 0;
-    for (Map.Entry<String, ExprType> entry : getFieldTypes().entrySet()) {
+    for (Map.Entry<String, OpenSearchDataType> entry : getFieldTypes().entrySet()) {
       results.add(
           row(entry.getKey(), entry.getValue().legacyTypeName().toLowerCase(), pos++,
               clusterName(meta)));
@@ -110,28 +79,12 @@ public class OpenSearchDescribeIndexRequest implements OpenSearchSystemRequest {
    *
    * @return mapping of field and type.
    */
-  public Map<String, ExprType> getFieldTypes() {
-    Map<String, ExprType> fieldTypes = new HashMap<>();
+  // TODO possible collision if two indices have fields with same names and different mappings
+  public Map<String, OpenSearchDataType> getFieldTypes() {
+    Map<String, OpenSearchDataType> fieldTypes = new HashMap<>();
     Map<String, IndexMapping> indexMappings = client.getIndexMappings(indexName.getIndexNames());
     for (IndexMapping indexMapping : indexMappings.values()) {
-      fieldTypes
-          .putAll(indexMapping.getAllFieldTypes(this::transformESTypeToExprType).entrySet().stream()
-              .filter(entry -> !ExprCoreType.UNKNOWN.equals(entry.getValue()))
-              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-    }
-    return fieldTypes;
-  }
-
-  // TODO possible collision if two indices have fields with same names
-  public Map<String, MappingEntry> getFieldMappings() {
-    Map<String, IndexMapping> indexMappings = client.getIndexMappings(indexName.getIndexNames());
-    Map<String, MappingEntry> fieldTypes = new HashMap<>();
-
-    for (IndexMapping indexMapping : indexMappings.values()) {
-      indexMapping.mapping2.forEach((key, value) ->
-          value.setDataType(transformESTypeToExprType(value.getFieldType())));
-      fieldTypes
-          .putAll(indexMapping.mapping2);
+      fieldTypes.putAll(indexMapping.getFieldMappings());
     }
     return fieldTypes;
   }
@@ -144,10 +97,6 @@ public class OpenSearchDescribeIndexRequest implements OpenSearchSystemRequest {
   public Integer getMaxResultWindow() {
     return client.getIndexMaxResultWindows(indexName.getIndexNames())
         .values().stream().min(Integer::compare).get();
-  }
-
-  private ExprType transformESTypeToExprType(String openSearchType) {
-    return OPENSEARCH_TYPE_TO_EXPR_TYPE_MAPPING.getOrDefault(openSearchType, ExprCoreType.UNKNOWN);
   }
 
   private ExprTupleValue row(String fieldName, String fieldType, int position, String clusterName) {

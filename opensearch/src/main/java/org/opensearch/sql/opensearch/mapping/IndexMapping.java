@@ -9,12 +9,18 @@ package org.opensearch.sql.opensearch.mapping;
 import static java.util.Collections.emptyMap;
 
 import com.google.common.collect.ImmutableMap;
+
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import lombok.Getter;
 import lombok.ToString;
+import org.apache.commons.lang3.EnumUtils;
 import org.opensearch.cluster.metadata.MappingMetadata;
+import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 
 /**
  * OpenSearch index mapping. Because there is no specific behavior for different field types,
@@ -24,17 +30,19 @@ import org.opensearch.cluster.metadata.MappingMetadata;
 public class IndexMapping {
 
   /** Field mappings from field name to field type in OpenSearch date type system. */
-  private final Map<String, String> fieldMappings;
+  @Getter
+  private final Map<String, OpenSearchDataType> fieldMappings;
 
-  public Map<String, MappingEntry> mapping2;
-
+  // TODO remove, used in tests only
   public IndexMapping(Map<String, String> fieldMappings) {
-    this.fieldMappings = fieldMappings;
+    this.fieldMappings = fieldMappings.entrySet().stream()
+        .collect(Collectors.toMap(e -> e.getKey(), e -> new OpenSearchDataType(
+            EnumUtils.getEnumIgnoreCase(OpenSearchDataType.Type.class, e.getValue()))
+        ));
   }
 
   public IndexMapping(MappingMetadata metaData) {
-    this.mapping2 = flat2(metaData.getSourceAsMap());
-    this.fieldMappings = flatMappings(metaData.getSourceAsMap());
+    this.fieldMappings = parseMapping(metaData.getSourceAsMap());
   }
 
   /**
@@ -53,68 +61,31 @@ public class IndexMapping {
    * @return field type in string. Or null if not exist.
    */
   public String getFieldType(String fieldName) {
-    return fieldMappings.get(fieldName);
-  }
-
-  /**
-   * Get all field types and transform raw string type to expected type.
-   *
-   * @param transform transform function to transform field type in string to another type
-   * @param <T> expected field type class
-   * @return mapping from field name to field type
-   */
-  public <T> Map<String, T> getAllFieldTypes(Function<String, T> transform) {
-    return fieldMappings.entrySet().stream()
-        .collect(Collectors.toMap(Map.Entry::getKey, e -> transform.apply(e.getValue())));
-  }
-
-  // TODO nested, consider recursive call
-  @SuppressWarnings("unchecked")
-  private Map<String, MappingEntry> flat2(Map<String, Object> indexMapping) {
-    return ((Map<String, Object>)indexMapping.getOrDefault("properties", emptyMap()))
-        .entrySet().stream()
-        .collect(Collectors.toMap(e -> e.getKey(), e -> {
-          Map<String, Object> mapping = (Map<String, Object>) e.getValue();
-          return new MappingEntry((String) mapping.getOrDefault("type", "object"),
-              (String) mapping.getOrDefault("format", null), null);
-        }));
-  }
-
-
-  @SuppressWarnings("unchecked")
-  private Map<String, String> flatMappings(Map<String, Object> indexMapping) {
-    ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
-
-    flatMappings(
-        ((Map<String, Object>) indexMapping.getOrDefault("properties", emptyMap())),
-        "",
-        builder::put);
-    return builder.build();
+    // TODO - returns 'GeoPoint' instead of 'geo_point'
+    return fieldMappings.get(fieldName).typeName();
   }
 
   @SuppressWarnings("unchecked")
-  private void flatMappings(
-      Map<String, Object> mappings, String path, BiConsumer<String, String> func) {
-    mappings.forEach(
-        (fieldName, mappingObject) -> {
-          Map<String, Object> mapping = (Map<String, Object>) mappingObject;
-          String fullFieldName = path.isEmpty() ? fieldName : path + "." + fieldName;
-
-          if (isMultiField(mapping)) {
-            func.accept(fullFieldName, "text_keyword");
-          } else {
-            String type = (String) mapping.getOrDefault("type", "object");
-            func.accept(fullFieldName, type);
+  private Map<String, OpenSearchDataType> parseMapping(Map<String, Object> indexMapping) {
+    Map<String, OpenSearchDataType> result = new HashMap<>();
+    Map<String, Object> mappingInfo = null;
+    if (indexMapping.containsKey("properties")) {
+      mappingInfo = (Map<String, Object>)indexMapping.get("properties");
+    } else if (indexMapping.containsKey("fields")) {
+      mappingInfo = (Map<String, Object>)indexMapping.get("fields");
+    }
+    if (mappingInfo != null) {
+      mappingInfo.forEach((k, v) -> {
+          var innerMap = (Map<String, Object>)v;
+          var type = ((String) innerMap.get("type")).replace("_", "");
+          var value = new OpenSearchDataType(EnumUtils.getEnumIgnoreCase(OpenSearchDataType.Type.class, type));
+          // TODO read formats for date type
+          if (innerMap.containsKey("properties") || innerMap.containsKey("fields")) { // can be omitted
+            value.getFieldsOrProperties().putAll(parseMapping(innerMap));
           }
-
-          if (mapping.containsKey("properties")) { // Nested field
-            flatMappings((Map<String, Object>) mapping.get("properties"), fullFieldName, func);
-          }
+          result.put(k, value);
         });
+    }
+    return result;
   }
-
-  private boolean isMultiField(Map<String, Object> mapping) {
-    return mapping.containsKey("fields");
-  }
-
 }

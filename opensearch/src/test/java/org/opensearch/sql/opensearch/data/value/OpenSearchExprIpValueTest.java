@@ -9,7 +9,7 @@ package org.opensearch.sql.opensearch.data.value;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.OPENSEARCH_IP;
+import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +24,7 @@ public class OpenSearchExprIpValueTest {
 
   @Test
   void type() {
-    assertEquals(OPENSEARCH_IP, ipValue.type());
+    assertEquals(UNKNOWN, ipValue.type());
   }
 
   @Test

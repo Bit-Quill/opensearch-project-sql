@@ -22,14 +22,15 @@ import java.util.function.Supplier;
 import lombok.EqualsAndHashCode;
 import org.opensearch.index.fielddata.ScriptDocValues;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionNodeVisitor;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.env.Environment;
 import org.opensearch.sql.expression.parse.ParseExpression;
+import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
-import org.opensearch.sql.opensearch.mapping.MappingEntry;
 import org.opensearch.sql.opensearch.storage.script.ScriptUtils;
 
 /**
@@ -106,9 +107,8 @@ public class ExpressionScript {
   }
 
   private OpenSearchExprValueFactory buildValueFactory(Set<ReferenceExpression> fields) {
-    Map<String, MappingEntry> typeEnv = fields.stream().collect(toMap(
-        e -> e.getAttr(),
-        e -> new MappingEntry(null, null, e.type())));
+    Map<String, OpenSearchDataType> typeEnv = fields.stream().collect(toMap(
+        ReferenceExpression::getAttr, e -> new OpenSearchDataType((ExprCoreType) e.type())));
     return new OpenSearchExprValueFactory(typeEnv);
   }
 

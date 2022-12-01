@@ -21,6 +21,8 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.expression.DSL.literal;
 import static org.opensearch.sql.expression.DSL.named;
 import static org.opensearch.sql.expression.DSL.ref;
+import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.Type.Binary;
+import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.Type.Text;
 import static org.opensearch.sql.opensearch.utils.Utils.indexScan;
 import static org.opensearch.sql.opensearch.utils.Utils.indexScanAgg;
 import static org.opensearch.sql.opensearch.utils.Utils.noProjects;
@@ -119,7 +121,7 @@ class OpenSearchIndexTest {
         allOf(
             aMapWithSize(13),
             hasEntry("name", ExprCoreType.STRING),
-            hasEntry("address", (ExprType) OpenSearchDataType.OPENSEARCH_TEXT),
+            hasEntry("address", (ExprType) new OpenSearchDataType(Text)),
             hasEntry("age", ExprCoreType.INTEGER),
             hasEntry("account_number", ExprCoreType.LONG),
             hasEntry("balance1", ExprCoreType.FLOAT),
@@ -130,7 +132,7 @@ class OpenSearchIndexTest {
             hasEntry("birthday", ExprCoreType.TIMESTAMP),
             hasEntry("id1", ExprCoreType.BYTE),
             hasEntry("id2", ExprCoreType.SHORT),
-            hasEntry("blob", (ExprType) OpenSearchDataType.OPENSEARCH_BINARY)
+            hasEntry("blob", (ExprType) new OpenSearchDataType(Binary))
         ));
   }
 

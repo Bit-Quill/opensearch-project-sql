@@ -6,8 +6,6 @@
 
 package org.opensearch.sql.opensearch.storage.script.filter.lucene;
 
-import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.OPENSEARCH_TEXT_KEYWORD;
-
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -233,9 +231,7 @@ public abstract class LuceneQuery {
    * @return            keyword field name for multi-field, otherwise original field name returned
    */
   protected String convertTextToKeyword(String fieldName, ExprType fieldType) {
-    if (fieldType == OPENSEARCH_TEXT_KEYWORD) {
-      return fieldName + ".keyword";
-    }
+    // TODO
     return fieldName;
   }
 

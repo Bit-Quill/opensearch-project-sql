@@ -25,7 +25,6 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.expression.DSL.literal;
 import static org.opensearch.sql.expression.DSL.ref;
-import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.OPENSEARCH_TEXT_KEYWORD;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.LinkedHashMap;
@@ -275,7 +274,7 @@ class FilterQueryBuilderTest {
             + "}",
         buildQuery(
             dsl.equal(
-                ref("name", OPENSEARCH_TEXT_KEYWORD), literal("John"))));
+                ref("name", STRING), literal("John"))));
   }
 
   @Test
@@ -291,7 +290,7 @@ class FilterQueryBuilderTest {
             + "}",
         buildQuery(
             dsl.like(
-                ref("name", OPENSEARCH_TEXT_KEYWORD), literal("John%"))));
+                ref("name", STRING), literal("John%"))));
   }
 
   @Test

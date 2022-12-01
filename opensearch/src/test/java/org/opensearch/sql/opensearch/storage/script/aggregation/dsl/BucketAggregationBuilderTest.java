@@ -13,7 +13,6 @@ import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.expression.DSL.named;
 import static org.opensearch.sql.expression.DSL.ref;
-import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.OPENSEARCH_TEXT_KEYWORD;
 
 import java.util.Arrays;
 import java.util.List;
@@ -81,7 +80,7 @@ class BucketAggregationBuilderTest {
             + "}",
         buildQuery(
             Arrays.asList(
-                asc(named("name", ref("name", OPENSEARCH_TEXT_KEYWORD))))));
+                asc(named("name", ref("name", STRING))))));
   }
 
   @Test

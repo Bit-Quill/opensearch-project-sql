@@ -21,7 +21,6 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.expression.DSL.literal;
 import static org.opensearch.sql.expression.DSL.ref;
-import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.OPENSEARCH_TEXT_KEYWORD;
 
 import com.google.common.collect.ImmutableMap;
 import java.time.ZonedDateTime;
@@ -91,7 +90,7 @@ class ExpressionFilterScriptTest {
     assertThat()
         .docValues("name.keyword", "John")
         .filterBy(
-            dsl.equal(ref("name", OPENSEARCH_TEXT_KEYWORD), literal("John")))
+            dsl.equal(ref("name", STRING), literal("John")))
         .shouldMatch();
   }
 

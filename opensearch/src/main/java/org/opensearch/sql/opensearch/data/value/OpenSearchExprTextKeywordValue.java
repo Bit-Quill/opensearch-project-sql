@@ -6,8 +6,6 @@
 
 package org.opensearch.sql.opensearch.data.value;
 
-import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.OPENSEARCH_TEXT_KEYWORD;
-
 import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.type.ExprType;
 
@@ -24,7 +22,7 @@ public class OpenSearchExprTextKeywordValue extends ExprStringValue {
 
   @Override
   public ExprType type() {
-    return OPENSEARCH_TEXT_KEYWORD;
+    return null;
   }
 
 }

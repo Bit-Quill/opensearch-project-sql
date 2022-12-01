@@ -6,8 +6,6 @@
 
 package org.opensearch.sql.opensearch.storage.script;
 
-import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.OPENSEARCH_TEXT_KEYWORD;
-
 import lombok.experimental.UtilityClass;
 import org.opensearch.sql.data.type.ExprType;
 
@@ -22,9 +20,7 @@ public class ScriptUtils {
    * Limitation: assume inner field name is always "keyword".
    */
   public static String convertTextToKeyword(String fieldName, ExprType fieldType) {
-    if (fieldType == OPENSEARCH_TEXT_KEYWORD) {
-      return fieldName + ".keyword";
-    }
+    // TODO
     return fieldName;
   }
 }

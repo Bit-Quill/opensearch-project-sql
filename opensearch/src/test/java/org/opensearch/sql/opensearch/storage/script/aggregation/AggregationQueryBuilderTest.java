@@ -22,7 +22,6 @@ import static org.opensearch.sql.expression.DSL.literal;
 import static org.opensearch.sql.expression.DSL.named;
 import static org.opensearch.sql.expression.DSL.ref;
 import static org.opensearch.sql.expression.DSL.span;
-import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.OPENSEARCH_TEXT_KEYWORD;
 import static org.opensearch.sql.opensearch.utils.Utils.agg;
 import static org.opensearch.sql.opensearch.utils.Utils.avg;
 import static org.opensearch.sql.opensearch.utils.Utils.group;
@@ -53,6 +52,7 @@ import org.opensearch.sql.expression.aggregation.AvgAggregator;
 import org.opensearch.sql.expression.aggregation.CountAggregator;
 import org.opensearch.sql.expression.aggregation.NamedAggregator;
 import org.opensearch.sql.expression.config.ExpressionConfig;
+import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.storage.serialization.ExpressionSerializer;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -181,7 +181,7 @@ class AggregationQueryBuilderTest {
         buildQuery(
             Arrays.asList(
                 named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER))),
-            Arrays.asList(named("name", ref("name", OPENSEARCH_TEXT_KEYWORD)))));
+            Arrays.asList(named("name", ref("name", STRING)))));
   }
 
   @Test
@@ -189,10 +189,10 @@ class AggregationQueryBuilderTest {
     assertThat(
         buildTypeMapping(Arrays.asList(
             named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER))),
-            Arrays.asList(named("name", ref("name", OPENSEARCH_TEXT_KEYWORD)))),
+            Arrays.asList(named("name", ref("name", STRING)))),
         containsInAnyOrder(
             map("avg(age)", INTEGER),
-            map("name", OPENSEARCH_TEXT_KEYWORD)
+            map("name", STRING)
         ));
   }
 
@@ -613,7 +613,7 @@ class AggregationQueryBuilderTest {
         .toPrettyString();
   }
 
-  private Set<Map.Entry<String, ExprType>> buildTypeMapping(
+  private Set<Map.Entry<String, OpenSearchDataType>> buildTypeMapping(
       List<NamedAggregator> namedAggregatorList,
       List<NamedExpression> groupByList) {
     return queryBuilder.buildTypeMapping(namedAggregatorList, groupByList).entrySet();

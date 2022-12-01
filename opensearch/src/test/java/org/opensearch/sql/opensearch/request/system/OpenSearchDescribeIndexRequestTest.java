@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
+import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.mapping.IndexMapping;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,7 +71,7 @@ class OpenSearchDescribeIndexRequestTest {
                         .put("@timestamp", "alias")
                         .build())));
 
-    final Map<String, ExprType> fieldTypes =
+    final Map<String, OpenSearchDataType> fieldTypes =
         new OpenSearchDescribeIndexRequest(client, "index").getFieldTypes();
     assertEquals(1, fieldTypes.size());
     assertThat(fieldTypes, hasEntry("name", STRING));
