@@ -219,7 +219,7 @@ INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
 
 Example::
 
-    opensearchsql> SELECT CBRT(8), CBRT(9.261), CBRT(-27);
+    os> SELECT CBRT(8), CBRT(9.261), CBRT(-27)
     fetched rows / total rows = 1/1
     +-----------+---------------+-------------+
     | CBRT(8)   | CBRT(9.261)   | CBRT(-27)   |

@@ -166,12 +166,11 @@ Return type integer:
 
 Example::
 
-    os> source=location | eval `POSITION('world' IN 'helloworld')` = POSITION('world' IN 'helloworld'), `POSITION('invalid' IN 'helloworld')`= POSITION('invalid' IN 'helloworld')  | fields `POSITION('world' IN 'helloworld')`, `POSITION('invalid' IN 'helloworld')`;
-    fetched rows / total rows = 2/2
+    os> source=people | eval `POSITION('world' IN 'helloworld')` = POSITION('world' IN 'helloworld'), `POSITION('invalid' IN 'helloworld')`= POSITION('invalid' IN 'helloworld')  | fields `POSITION('world' IN 'helloworld')`, `POSITION('invalid' IN 'helloworld')`
+    fetched rows / total rows = 1/1
     +-------------------------------------+---------------------------------------+
     | POSITION('world' IN 'helloworld')   | POSITION('invalid' IN 'helloworld')   |
     |-------------------------------------+---------------------------------------|
-    | 6                                   | 0                                     |
     | 6                                   | 0                                     |
     +-------------------------------------+---------------------------------------+
 
