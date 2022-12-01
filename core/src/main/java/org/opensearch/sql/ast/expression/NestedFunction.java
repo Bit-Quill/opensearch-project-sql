@@ -22,7 +22,6 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 @ToString
 public class NestedFunction extends UnresolvedExpression {
   private final UnresolvedExpression nestedField;
-  private final Map<String, Literal> arguments;
 
   @Override
   public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {

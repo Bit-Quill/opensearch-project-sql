@@ -289,9 +289,8 @@ public class AstDSL {
     return new HighlightFunction(fieldName, arguments);
   }
 
-  public UnresolvedExpression nested(UnresolvedExpression fieldName,
-                                        java.util.Map<String, Literal> arguments) {
-    return new NestedFunction(fieldName, arguments);
+  public UnresolvedExpression nested(UnresolvedExpression fieldName) {
+    return new NestedFunction(fieldName);
   }
 
   public UnresolvedExpression window(UnresolvedExpression function,

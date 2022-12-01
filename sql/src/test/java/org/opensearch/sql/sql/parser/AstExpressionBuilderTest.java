@@ -331,18 +331,16 @@ class AstExpressionBuilderTest {
 
   @Test
   public void canBuildStringLiteralNestedFunction() {
-    HashMap<String, Literal> args = new HashMap<>();
     assertEquals(
-        nested(AstDSL.stringLiteral("field.subfield"), args),
+        nested(AstDSL.stringLiteral("field.subfield")),
         buildExprAst("nested(\"field.subfield\")")
     );
   }
 
   @Test
   public void canBuildQualifiedNameNestedFunction() {
-    HashMap<String, Literal> args = new HashMap<>();
     assertEquals(
-        nested(AstDSL.qualifiedName("field.subfield"), args),
+        nested(AstDSL.qualifiedName("field","subfield")),
         buildExprAst("nested(field.subfield)")
     );
   }
