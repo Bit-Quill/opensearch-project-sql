@@ -313,7 +313,7 @@ functionCall
     ;
 
 nestedFunction
-    : NESTED LR_BRACKET functionArgs RR_BRACKET
+    : NESTED LR_BRACKET nestedField RR_BRACKET
     ;
 
 highlightFunction
@@ -563,6 +563,11 @@ relevanceFieldWeight
 relevanceField
     : qualifiedName
     | stringLiteral
+    ;
+
+nestedField
+    : qualifiedName
+    | stringLiteral (DOT stringLiteral)*
     ;
 
 relevanceQuery
