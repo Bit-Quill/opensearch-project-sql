@@ -44,8 +44,17 @@ public class SqlRequestFactory {
         return new SqlRequest(sql, null);
     }
 
+    private static String checkAlternateMatchQuerySyntax(String sqlQuery) {
+        if(sqlQuery.matches("(.*) = match_query(.*)")) {
+            //TODO: Temporary for Proof Of Concept. Do actual processing of the string here.
+            return "{\"query\":\"SELECT * FROM stackexchange_beer WHERE match('Tags', 'taste')\"}";
+        } else {
+            return sqlQuery;
+        }
+    }
+
     private static SqlRequest parseSqlRequestFromPayload(RestRequest restRequest) {
-        String content = restRequest.content().utf8ToString();
+        String content = checkAlternateMatchQuerySyntax(restRequest.content().utf8ToString());
 
         JSONObject jsonContent;
         try {
