@@ -156,7 +156,7 @@ POSITION
 Description
 >>>>>>>>>>>
 
-Usage: The syntax POSITION(substr IN str) returns the position of the first occurrence of substring substr in string str. Returns 0 if substr is not in str. Returns NULL if any argument is NULL.
+Usage: The syntax `POSITION(substr IN str)` returns the position of the first occurrence of substring `substr` in string `str`. Returns `0` if `substr` is not in `str`. Returns `NULL` if any argument is `NULL`.
 
 Argument type: STRING, STRING
 
