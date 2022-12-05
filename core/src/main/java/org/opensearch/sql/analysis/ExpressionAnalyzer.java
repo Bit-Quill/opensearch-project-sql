@@ -32,6 +32,7 @@ import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.In;
 import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.Literal;
+import org.opensearch.sql.ast.expression.MatchQueryAltSyntaxFunction;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
@@ -203,9 +204,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitMatchQueryAltSyntaxFunction(MatchQueryAltSyntaxFunction node, AnalysisContext context) {
-    Expression stringPatternExpr = node.getStringPatternExpr().accept(this, context);
-    Expression searchStringExpr = node.getSearchStringExpr().accept(this, context);
-    return DSL.matchQueryAltSyntax(stringPatternExpr, searchStringExpr);
+    Expression Field = node.getField().accept(this, context);
+    Expression Query = node.getQuery().accept(this, context);
+    return DSL.matchQueryAltSyntax(Query, Field);
   }
 
   @Override

@@ -23,13 +23,13 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 @ToString
 public class MatchQueryAltSyntaxFunction extends UnresolvedExpression {
   @Getter
-  private UnresolvedExpression stringPatternExpr;
+  private UnresolvedExpression field;
   @Getter
-  private UnresolvedExpression searchStringExpr;
+  private UnresolvedExpression query;
 
   @Override
   public List<UnresolvedExpression> getChild() {
-    return Arrays.asList(stringPatternExpr, searchStringExpr);
+    return Arrays.asList(field, query);
   }
 
   @Override
