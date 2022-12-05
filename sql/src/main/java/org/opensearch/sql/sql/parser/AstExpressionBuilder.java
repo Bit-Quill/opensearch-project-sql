@@ -408,6 +408,14 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   }
 
   @Override
+  public UnresolvedExpression visitMatchQueryAltSyntaxFunction(
+      OpenSearchSQLParser.MatchQueryAltSyntaxFunctionContext ctx) {
+    return new Function(
+        "match_query",
+        matchQueryAltSyntaxArguments(ctx));
+  }
+
+  @Override
   public UnresolvedExpression visitMultiFieldRelevanceFunction(
       MultiFieldRelevanceFunctionContext ctx) {
     // To support alternate syntax for MULTI_MATCH like
@@ -438,20 +446,6 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
             .collect(Collectors.toList())
     );
   }
-
-  @Override
-  public UnresolvedExpression visitMatchQueryAltSyntaxFunction(
-      OpenSearchSQLParser.MatchQueryAltSyntaxFunctionContext ctx) {
-    return new MatchQueryAltSyntaxFunction(visitFunctionArg(ctx.),
-        visitFunctionArg(ctx.functionArg(1)));
-  }
-
-/*  public UnresolvedExpression visitMatchQueryAltSyntaxFunction(
-      OpenSearchSQLParser.MatchQueryAltSyntaxFunctionContext ctx) {
-    return new Function(
-        "match_query",
-        matchQueryAltSyntaxArguments(ctx));
-  }*/
 
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {
     return new QualifiedName(
@@ -497,7 +491,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     return builder.build();
   }
 
-/*  private List<UnresolvedExpression> matchQueryAltSyntaxArguments(
+  private List<UnresolvedExpression> matchQueryAltSyntaxArguments(
       OpenSearchSQLParser.MatchQueryAltSyntaxFunctionContext ctx) {
     // all the arguments are defaulted to string values
     // to skip environment resolving and function signature resolving
@@ -506,9 +500,9 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
         new Literal(StringUtils.unquoteText(ctx.field.getText()), DataType.STRING)));
     builder.add(new UnresolvedArgument("query",
         new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));
-    fillRelevanceArgs(ctx.relevanceArg(), builder);
+    //fillRelevanceArgs(ctx.relevanceArg(), builder);
     return builder.build();
-  }*/
+  }
 
   private List<UnresolvedExpression> multiFieldRelevanceArguments(
       OpenSearchSQLParser.MultiFieldRelevanceFunctionContext ctx) {

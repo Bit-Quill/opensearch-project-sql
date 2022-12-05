@@ -202,12 +202,12 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     return new HighlightExpression(expr);
   }
 
-  @Override
-  public Expression visitMatchQueryAltSyntaxFunction(MatchQueryAltSyntaxFunction node, AnalysisContext context) {
-    Expression Field = node.getField().accept(this, context);
-    Expression Query = node.getQuery().accept(this, context);
-    return DSL.matchQueryAltSyntax(Query, Field);
-  }
+//  @Override
+//  public Expression visitMatchQueryAltSyntaxFunction(MatchQueryAltSyntaxFunction node, AnalysisContext context) {
+//    Expression Field = node.getField().accept(this, context);
+//    Expression Query = node.getQuery().accept(this, context);
+//    return DSL.match(Query, Field);
+//  }
 
   @Override
   public Expression visitIn(In node, AnalysisContext context) {
