@@ -40,21 +40,4 @@ public class NestedFunctions {
   private ExprValue nested_returns_str(ExprValue obj, ExprValue field) {
     return obj.tupleValue().get(field.stringValue());
   }
-
-  public static class NestedFunction extends ReferenceExpression {
-    private final String functionName;
-
-    private final ExprType type;
-
-    /**
-     * Required argument constructor.
-     *
-     * @param functionName name of the function
-     */
-    public NestedFunction(String functionName, ExprType type) {
-      super(functionName, type);
-      this.functionName = functionName;
-      this.type = type;
-    }
-  }
 }
