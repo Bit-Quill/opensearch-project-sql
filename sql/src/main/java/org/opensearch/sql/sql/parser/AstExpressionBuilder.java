@@ -161,9 +161,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 //    String field = splitArg[0]; // TODO: Check if empty and if more than 2 elements
 //    String nestedField = splitArg[1]; // TODO: last element of splitArg
     return new NestedFunction(
-        visit(ctx.nestedFunction().nestedField().qualifiedName(0)),
-        new Literal(ctx.nestedFunction().nestedField().qualifiedName(1).getText(),
-            DataType.STRING));
+        visit(ctx.nestedFunction().nestedField().qualifiedName()));
   }
 
   @Override

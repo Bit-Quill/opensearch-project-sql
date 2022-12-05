@@ -23,7 +23,6 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 public class NestedFunction extends UnresolvedExpression {
 
   private final UnresolvedExpression field;
-  private final UnresolvedExpression nestedField;
 
   @Override
   public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
@@ -32,6 +31,6 @@ public class NestedFunction extends UnresolvedExpression {
 
   @Override
   public List<UnresolvedExpression> getChild() {
-    return List.of(field, nestedField);
+    return List.of(field);
   }
 }
