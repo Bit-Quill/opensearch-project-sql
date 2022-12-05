@@ -492,7 +492,8 @@ relevanceField
     ;
 
 nestedField
-    : qualifiedName
+    : qualifiedName DOT qualifiedName
+//    | qualifiedName (DOT qualifiedName)*
     | stringLiteral (DOT stringLiteral)*
     ;
 

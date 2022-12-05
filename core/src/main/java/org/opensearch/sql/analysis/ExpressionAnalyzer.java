@@ -217,8 +217,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitNestedFunction(NestedFunction node, AnalysisContext context) {
+    Expression exprField = node.getField().accept(this, context);
     Expression expr = node.getNestedField().accept(this, context);
-    return new NestedExpression(expr);
+    return new NestedExpression(exprField, expr);
   }
 
   @Override
