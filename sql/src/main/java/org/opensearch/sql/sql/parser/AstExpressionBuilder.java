@@ -71,6 +71,7 @@ import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.IntervalUnit;
 import org.opensearch.sql.ast.expression.Literal;
+import org.opensearch.sql.ast.expression.MatchQueryAltSyntaxFunction;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
@@ -438,6 +439,20 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     );
   }
 
+  @Override
+  public UnresolvedExpression visitMatchQueryAltSyntaxFunction(
+      OpenSearchSQLParser.MatchQueryAltSyntaxFunctionContext ctx) {
+    return new MatchQueryAltSyntaxFunction(visitFunctionArg(ctx.),
+        visitFunctionArg(ctx.functionArg(1)));
+  }
+
+/*  public UnresolvedExpression visitMatchQueryAltSyntaxFunction(
+      OpenSearchSQLParser.MatchQueryAltSyntaxFunctionContext ctx) {
+    return new Function(
+        "match_query",
+        matchQueryAltSyntaxArguments(ctx));
+  }*/
+
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {
     return new QualifiedName(
         identifiers.stream()
@@ -482,7 +497,18 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     return builder.build();
   }
 
-
+/*  private List<UnresolvedExpression> matchQueryAltSyntaxArguments(
+      OpenSearchSQLParser.MatchQueryAltSyntaxFunctionContext ctx) {
+    // all the arguments are defaulted to string values
+    // to skip environment resolving and function signature resolving
+    ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();
+    builder.add(new UnresolvedArgument("field",
+        new Literal(StringUtils.unquoteText(ctx.field.getText()), DataType.STRING)));
+    builder.add(new UnresolvedArgument("query",
+        new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));
+    fillRelevanceArgs(ctx.relevanceArg(), builder);
+    return builder.build();
+  }*/
 
   private List<UnresolvedExpression> multiFieldRelevanceArguments(
       OpenSearchSQLParser.MultiFieldRelevanceFunctionContext ctx) {

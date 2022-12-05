@@ -314,6 +314,7 @@ functionCall
     | windowFunctionClause                                          #windowFunctionCall
     | aggregateFunction                                             #aggregateFunctionCall
     | aggregateFunction (orderByClause)? filterClause               #filteredAggregationFunctionCall
+    | matchQueryAltSyntaxFunction                                   #matchQueryAltFunctionCall
     | relevanceFunction                                             #relevanceFunctionCall
     | highlightFunction                                             #highlightFunctionCall
     | positionFunction                                              #positionFunctionCall
@@ -326,6 +327,10 @@ highlightFunction
 
 positionFunction
     : POSITION LR_BRACKET functionArg IN functionArg RR_BRACKET
+    ;
+
+matchQueryAltSyntaxFunction
+    : field=relevanceField EQUAL_SYMBOL MATCH_QUERY LR_BRACKET query=relevanceQuery RR_BRACKET
     ;
 
 scalarFunctionName
