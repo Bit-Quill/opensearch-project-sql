@@ -94,8 +94,8 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   @Test
   public void nested() {
     assertAnalyzeEqual(
-        DSL.nested(DSL.ref("struct_value", STRUCT), DSL.literal("subfield")),
-        AstDSL.nested(qualifiedName("struct_value"), AstDSL.stringLiteral("subfield")));
+        DSL.nested(DSL.ref("field.subfield", STRING)),
+        AstDSL.nested(qualifiedName("field.subfield")));
   }
 
   @Test

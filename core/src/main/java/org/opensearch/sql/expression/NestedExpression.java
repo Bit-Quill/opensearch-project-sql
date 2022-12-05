@@ -27,17 +27,17 @@ import org.opensearch.sql.expression.function.BuiltinFunctionName;
 public class NestedExpression extends FunctionExpression {
 
   private final Expression field;
-  private final Expression nestedField;
+//  private final Expression nestedField;
   private final ExprType type;
 
   /**
    * NestedExpression Constructor.
-   * @param nestedField : Nested field for expression.
+   * @param field : Nested field for expression.
    */
-  public NestedExpression(Expression field, Expression nestedField) {
-    super(BuiltinFunctionName.NESTED.getName(), List.of(field, nestedField));
+  public NestedExpression(Expression field) {
+    super(BuiltinFunctionName.NESTED.getName(), List.of(field));
     this.field = field;
-    this.nestedField = nestedField;
+//    this.nestedField = nestedField;
     this.type = ExprCoreType.STRING;
   }
 
@@ -48,7 +48,7 @@ public class NestedExpression extends FunctionExpression {
    */
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-    String refName = "_nested" + "." + StringUtils.unquoteText(getNestedField().toString());
+    String refName = "_nested" + "." + StringUtils.unquoteText(getField().toString());
     ExprValue value = valueEnv.resolve(DSL.ref(refName, ExprCoreType.STRING));
     return value;
   }
