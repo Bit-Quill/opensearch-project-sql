@@ -25,6 +25,8 @@ import org.opensearch.sql.expression.function.BuiltinFunctionName;
  */
 @Getter
 public class NestedExpression extends FunctionExpression {
+
+  private final Expression field;
   private final Expression nestedField;
   private final ExprType type;
 
@@ -32,11 +34,11 @@ public class NestedExpression extends FunctionExpression {
    * NestedExpression Constructor.
    * @param nestedField : Nested field for expression.
    */
-  public NestedExpression(Expression nestedField) {
-    super(BuiltinFunctionName.NESTED.getName(), List.of(nestedField));
+  public NestedExpression(Expression field, Expression nestedField) {
+    super(BuiltinFunctionName.NESTED.getName(), List.of(field, nestedField));
+    this.field = field;
     this.nestedField = nestedField;
-    this.type = this.nestedField.toString().contains("*")
-        ? ExprCoreType.STRUCT : ExprCoreType.ARRAY;
+    this.type = ExprCoreType.STRING;
   }
 
   /**
@@ -47,10 +49,6 @@ public class NestedExpression extends FunctionExpression {
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
     String refName = "_nested" + "." + StringUtils.unquoteText(getNestedField().toString());
-    // Not a wildcard expression
-//    if (this.type == ExprCoreType.ARRAY) {
-//      refName += "." + StringUtils.unquoteText(getNestedField().toString());
-//    }
     ExprValue value = valueEnv.resolve(DSL.ref(refName, ExprCoreType.STRING));
     return value;
   }

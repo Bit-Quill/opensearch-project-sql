@@ -15,6 +15,7 @@ import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.Literal;
+import org.opensearch.sql.ast.expression.NestedFunction;
 import org.opensearch.sql.expression.NamedExpression;
 
 class NamedExpressionAnalyzerTest extends AnalyzerTestBase {

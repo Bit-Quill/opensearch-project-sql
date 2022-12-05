@@ -286,8 +286,8 @@ public class AstDSL {
     return new HighlightFunction(fieldName, arguments);
   }
 
-  public UnresolvedExpression nested(UnresolvedExpression fieldName) {
-    return new NestedFunction(fieldName);
+  public UnresolvedExpression nested(UnresolvedExpression field, UnresolvedExpression fieldName) {
+    return new NestedFunction(field, fieldName);
   }
 
   public UnresolvedExpression window(UnresolvedExpression function,

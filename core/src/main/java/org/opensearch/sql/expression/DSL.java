@@ -536,6 +536,10 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.XOR, expressions);
   }
 
+  public static FunctionExpression nested(Expression... expressions) {
+    return compile(BuiltinFunctionName.NESTED, expressions);
+  }
+
   public static FunctionExpression not(Expression... expressions) {
     return compile(FunctionProperties.None, BuiltinFunctionName.NOT, expressions);
   }
