@@ -169,6 +169,7 @@ public enum BuiltinFunctionName {
   REPLACE(FunctionName.of("replace")),
   RIGHT(FunctionName.of("right")),
   RTRIM(FunctionName.of("rtrim")),
+  REVERSE(FunctionName.of("reverse")),
   STRCMP(FunctionName.of("strcmp")),
   SUBSTR(FunctionName.of("substr")),
   SUBSTRING(FunctionName.of("substring")),
