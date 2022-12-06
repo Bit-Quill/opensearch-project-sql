@@ -166,7 +166,7 @@ Return type INTEGER:
 
 Example::
 
-    os> SELECT POSITION('world' IN 'helloworld'), POSITION('invalid' IN 'helloworld');
+    os> source=people | eval `POSITION('world' IN 'helloworld')` = POSITION('world' IN 'helloworld'), `POSITION('invalid' IN 'helloworld')`= POSITION('invalid' IN 'helloworld')  | fields `POSITION('world' IN 'helloworld')`, `POSITION('invalid' IN 'helloworld')`
     fetched rows / total rows = 1/1
     +-------------------------------------+---------------------------------------+
     | POSITION('world' IN 'helloworld')   | POSITION('invalid' IN 'helloworld')   |
