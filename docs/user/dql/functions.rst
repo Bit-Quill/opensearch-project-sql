@@ -2482,13 +2482,13 @@ Return type: STRING
 
 Example::
 
-    os> SELECT REVERSE('abcde')
+    os> SELECT REVERSE('abcde'), REVERSE(null)
     fetched rows / total rows = 1/1
-    +--------------------+
-    | REVERSE('abcde')   |
-    |--------------------|
-    | edcba              |
-    +--------------------+
+    +--------------------+-----------------+
+    | REVERSE('abcde')   | REVERSE(null)   |
+    |--------------------+-----------------|
+    | edcba              | null            |
+    +--------------------+-----------------+
 
 
 RIGHT

@@ -156,7 +156,7 @@ REVERSE
 Description
 >>>>>>>>>>>
 
-Usage: REVERSE(str) returns reversed string of the string supplied as an argument. Returns NULL if the argument is NULL.
+Usage: REVERSE(str) returns reversed string of the string supplied as an argument.
 
 Argument type: STRING
 
