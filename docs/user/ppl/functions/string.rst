@@ -160,7 +160,7 @@ Usage: The syntax POSITION(substr IN str) returns the position of the first occu
 
 Argument type: STRING, STRING
 
-Return type INTEGER:
+Return type INTEGER
 
 (STRING IN STRING) -> INTEGER
 
