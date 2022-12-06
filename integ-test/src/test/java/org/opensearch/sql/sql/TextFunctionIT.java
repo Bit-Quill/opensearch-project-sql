@@ -48,6 +48,12 @@ public class TextFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
+  public void testReverse() throws IOException {
+    verifyQuery("reverse('hello')", "keyword", "olleh");
+    verifyQuery("reverse('')", "keyword", "");
+  }
+
+  @Test
   public void testSubstr() throws IOException {
     verifyQuery("substr('hello', 2)", "keyword", "ello");
     verifyQuery("substr('hello', 2, 2)", "keyword", "el");
