@@ -9,6 +9,7 @@ package org.opensearch.sql.ppl.parser;
 import static org.opensearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
+import static org.opensearch.sql.expression.function.BuiltinFunctionName.POSITION;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.BinaryArithmeticContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.BooleanFunctionCallContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.BooleanLiteralContext;
@@ -69,7 +70,6 @@ import org.opensearch.sql.ast.expression.Let;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
-import org.opensearch.sql.ast.expression.PositionFunction;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.Span;
@@ -294,8 +294,10 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitPositionFunction(
           OpenSearchPPLParser.PositionFunctionContext ctx) {
-    return new PositionFunction(visitFunctionArg(ctx.functionArg(0)),
-            visitFunctionArg(ctx.functionArg(1)));
+    return new Function(
+            POSITION.getName().getFunctionName(),
+            Arrays.asList(visitFunctionArg(ctx.functionArg(0)),
+                    visitFunctionArg(ctx.functionArg(1))));
   }
 
   /**
