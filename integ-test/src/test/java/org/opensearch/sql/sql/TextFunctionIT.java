@@ -41,6 +41,13 @@ public class TextFunctionIT extends SQLIntegTestCase {
     verifyDataRows(result, rows(output));
   }
 
+  void verifyQueryWithNullOutput(String query, String type) throws IOException {
+    JSONObject result = executeQuery("select 'test null'," + query);
+    verifySchema(result, schema(query, null, type),
+            schema("'test null'", null, type));
+    verifyDataRows(result, rows("test null", null));
+  }
+
   @Test
   public void testRegexp() throws IOException {
     verifyQuery("'a' regexp 'b'", "integer", 0);
@@ -51,6 +58,7 @@ public class TextFunctionIT extends SQLIntegTestCase {
   public void testReverse() throws IOException {
     verifyQuery("reverse('hello')", "keyword", "olleh");
     verifyQuery("reverse('')", "keyword", "");
+    verifyQueryWithNullOutput("reverse(null)", "keyword");
   }
 
   @Test
