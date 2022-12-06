@@ -57,7 +57,6 @@ import static org.opensearch.sql.legacy.TestUtils.getPeople2IndexMapping;
 import static org.opensearch.sql.legacy.TestUtils.getPhraseIndexMapping;
 import static org.opensearch.sql.legacy.TestUtils.getResponseBody;
 import static org.opensearch.sql.legacy.TestUtils.getStringIndexMapping;
-import static org.opensearch.sql.legacy.TestUtils.getUnexpandedObjectIndexMapping;
 import static org.opensearch.sql.legacy.TestUtils.getWeblogsIndexMapping;
 import static org.opensearch.sql.legacy.TestUtils.isIndexExist;
 import static org.opensearch.sql.legacy.TestUtils.loadDataByRestClient;
@@ -518,10 +517,6 @@ public abstract class SQLIntegTestCase extends OpenSearchSQLRestTestCase {
         "joinType",
         getJoinTypeIndexMapping(),
         "src/test/resources/join_objects.json"),
-    UNEXPANDED_OBJECT(TestsConstants.TEST_INDEX_UNEXPANDED_OBJECT,
-        "unexpandedObject",
-        getUnexpandedObjectIndexMapping(),
-        "src/test/resources/unexpanded_objects.json"),
     BANK(TestsConstants.TEST_INDEX_BANK,
         "account",
         getBankIndexMapping(),
@@ -593,7 +588,11 @@ public abstract class SQLIntegTestCase extends OpenSearchSQLRestTestCase {
     WILDCARD(TestsConstants.TEST_INDEX_WILDCARD,
         "wildcard",
         getMappingFile("wildcard_index_mappings.json"),
-        "src/test/resources/wildcard.json"),;
+        "src/test/resources/wildcard.json"),
+    MULTI_NESTED(TestsConstants.TEST_INDEX_MULTI_NESTED,
+        "multi_nested",
+        getMappingFile("indexDefinitions/multi_nested.json"),
+        "src/test/resources/multi_nested_objects.json");
 
     private final String name;
     private final String type;
