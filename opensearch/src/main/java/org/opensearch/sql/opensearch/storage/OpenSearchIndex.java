@@ -39,6 +39,7 @@ import org.opensearch.sql.planner.logical.LogicalAD;
 import org.opensearch.sql.planner.logical.LogicalHighlight;
 import org.opensearch.sql.planner.logical.LogicalML;
 import org.opensearch.sql.planner.logical.LogicalMLCommons;
+import org.opensearch.sql.planner.logical.LogicalNested;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.logical.LogicalRelation;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
@@ -238,5 +239,17 @@ public class OpenSearchIndex implements Table {
           StringUtils.unquoteText(node.getHighlightField().toString()), node.getArguments());
       return visitChild(node, context);
     }
+
+    @Override
+    public PhysicalPlan visitNested(LogicalNested node, OpenSearchIndexScan context) {
+      // Request = DSL: {"_source":{"includes":[],"excludes":[]}}
+      // Select = fields/types
+//      new NestedFieldProjection(request);
+//      new NestedFieldProjection(request).project(select.getFields(), select.getNestedJoinType());
+      context.getRequestBuilder().pushDownNested(node.getField().toString());
+      return visitChild(node, context);
+    }
+
+
   }
 }
