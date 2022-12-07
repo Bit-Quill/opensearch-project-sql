@@ -12,3 +12,7 @@ LOCATE('world', 'hello') as column
 LOCATE('world', 'helloworld', 7) as column
 REPLACE('helloworld', 'world', 'opensearch') as column
 REPLACE('hello', 'world', 'opensearch') as column
+REVERSE('hello') as column
+POSITION('world' IN 'hello world') as column
+POSITION('' IN 'hello world') as column
+POSITION('invalid' IN 'hello world') as column
