@@ -21,7 +21,7 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 @EqualsAndHashCode(callSuper = false)
 @Getter
 @ToString
-public class MatchQueryAltSyntaxFunction extends UnresolvedExpression {
+public class AltSingleFieldRelevanceFunction extends UnresolvedExpression {
   @Getter
   private UnresolvedExpression field;
   @Getter
@@ -34,6 +34,6 @@ public class MatchQueryAltSyntaxFunction extends UnresolvedExpression {
 
   @Override
   public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-    return nodeVisitor.visitMatchQueryAltSyntaxFunction(this, context);
+    return nodeVisitor.visitAltSingleFieldRelevanceFunction(this, context);
   }
 }

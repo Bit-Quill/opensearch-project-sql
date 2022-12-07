@@ -62,6 +62,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.AggregateFunction;
 import org.opensearch.sql.ast.expression.AllFields;
+import org.opensearch.sql.ast.expression.AltSingleFieldRelevanceFunction;
 import org.opensearch.sql.ast.expression.And;
 import org.opensearch.sql.ast.expression.Case;
 import org.opensearch.sql.ast.expression.Cast;
@@ -71,7 +72,6 @@ import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.IntervalUnit;
 import org.opensearch.sql.ast.expression.Literal;
-import org.opensearch.sql.ast.expression.MatchQueryAltSyntaxFunction;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
@@ -408,11 +408,11 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   }
 
   @Override
-  public UnresolvedExpression visitMatchQueryAltSyntaxFunction(
-      OpenSearchSQLParser.MatchQueryAltSyntaxFunctionContext ctx) {
+  public UnresolvedExpression visitAltSingleFieldRelevanceFunction(
+      OpenSearchSQLParser.AltSingleFieldRelevanceFunctionContext ctx) {
     return new Function(
-        "match_query",
-        matchQueryAltSyntaxArguments(ctx));
+        ctx.altSyntaxFunctionName.getText().toLowerCase(),
+        altSingleFieldRelevanceFunctionArguments(ctx));
   }
 
   @Override
@@ -491,8 +491,8 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     return builder.build();
   }
 
-  private List<UnresolvedExpression> matchQueryAltSyntaxArguments(
-      OpenSearchSQLParser.MatchQueryAltSyntaxFunctionContext ctx) {
+  private List<UnresolvedExpression> altSingleFieldRelevanceFunctionArguments(
+      OpenSearchSQLParser.AltSingleFieldRelevanceFunctionContext ctx) {
     // all the arguments are defaulted to string values
     // to skip environment resolving and function signature resolving
     ImmutableList.Builder<UnresolvedExpression> builder = ImmutableList.builder();

@@ -32,7 +32,7 @@ import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.In;
 import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.Literal;
-import org.opensearch.sql.ast.expression.MatchQueryAltSyntaxFunction;
+import org.opensearch.sql.ast.expression.AltSingleFieldRelevanceFunction;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;

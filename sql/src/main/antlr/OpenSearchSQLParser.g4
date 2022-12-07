@@ -314,7 +314,6 @@ functionCall
     | windowFunctionClause                                          #windowFunctionCall
     | aggregateFunction                                             #aggregateFunctionCall
     | aggregateFunction (orderByClause)? filterClause               #filteredAggregationFunctionCall
-    | matchQueryAltSyntaxFunction                                   #matchQueryAltFunctionCall
     | relevanceFunction                                             #relevanceFunctionCall
     | highlightFunction                                             #highlightFunctionCall
     | positionFunction                                              #positionFunctionCall
@@ -350,7 +349,8 @@ specificFunction
     ;
 
 relevanceFunction
-    : noFieldRelevanceFunction | singleFieldRelevanceFunction | multiFieldRelevanceFunction
+    : noFieldRelevanceFunction | singleFieldRelevanceFunction | multiFieldRelevanceFunction | altSingleFieldRelevanceFunction
+
     ;
 
 noFieldRelevanceFunction
@@ -370,6 +370,10 @@ multiFieldRelevanceFunction
         COMMA query=relevanceQuery (COMMA relevanceArg)* RR_BRACKET
     | multiFieldRelevanceFunctionName LR_BRACKET
         alternateMultiMatchQuery  COMMA alternateMultiMatchField (COMMA relevanceArg)* RR_BRACKET
+    ;
+
+altSingleFieldRelevanceFunction
+    : field=relevanceField EQUAL_SYMBOL altSyntaxFunctionName=(MATCH_QUERY|MULTI_MATCH) LR_BRACKET query=relevanceQuery RR_BRACKET
     ;
 
 convertedDataType
