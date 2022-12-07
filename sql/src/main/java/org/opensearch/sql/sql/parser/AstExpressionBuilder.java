@@ -62,7 +62,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.AggregateFunction;
 import org.opensearch.sql.ast.expression.AllFields;
-//import org.opensearch.sql.ast.expression.AltSingleFieldRelevanceFunction;
 import org.opensearch.sql.ast.expression.And;
 import org.opensearch.sql.ast.expression.Case;
 import org.opensearch.sql.ast.expression.Cast;
@@ -490,6 +489,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     fillRelevanceArgs(ctx.relevanceArg(), builder);
     return builder.build();
   }
+
 
   private List<UnresolvedExpression> altSingleFieldRelevanceFunctionArguments(
       OpenSearchSQLParser.AltSingleFieldRelevanceFunctionContext ctx) {
