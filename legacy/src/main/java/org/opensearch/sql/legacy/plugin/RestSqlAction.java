@@ -155,9 +155,10 @@ public class RestSqlAction extends BaseRestHandler {
                             if (newSqlRequest.isExplainRequest()) {
                                 LOG.info("Request is falling back to old SQL engine due to: " + exception.getMessage());
                             }
-                            throw new SQLFeatureDisabledException("buuuu");
-//                            QueryAction queryAction = explainRequest(client, sqlRequest, format);
-//                            executeSqlRequest(request, queryAction, client, restChannel);
+                            LOG.debug("[{}] Request {} is not supported and falling back to old SQL engine",
+                                QueryContext.getRequestId(), newSqlRequest);
+                            QueryAction queryAction = explainRequest(client, sqlRequest, format);
+                            executeSqlRequest(request, queryAction, client, restChannel);
                         } catch (Exception e) {
                             logAndPublishMetrics(e);
                             reportError(restChannel, e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
