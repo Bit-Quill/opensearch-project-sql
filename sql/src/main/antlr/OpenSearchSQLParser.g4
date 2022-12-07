@@ -373,7 +373,7 @@ multiFieldRelevanceFunction
     ;
 
 altSingleFieldRelevanceFunction
-    : field=relevanceField EQUAL_SYMBOL altSyntaxFunctionName=(MATCH_QUERY|MULTI_MATCH) LR_BRACKET query=relevanceQuery RR_BRACKET
+    : field=relevanceField EQUAL_SYMBOL altSyntaxFunctionName=altSingleFieldRelevanceFunctionName LR_BRACKET query=relevanceQuery RR_BRACKET
     ;
 
 convertedDataType
@@ -491,6 +491,15 @@ multiFieldRelevanceFunctionName
     | MULTIMATCHQUERY
     | SIMPLE_QUERY_STRING
     | QUERY_STRING
+    ;
+
+altSingleFieldRelevanceFunctionName
+    : MATCH_QUERY
+    | MATCHQUERY
+    | MATCH_PHRASE
+    | MATCHPHRASE
+    | MULTI_MATCH
+    | MULTIMATCH
     ;
 
 functionArgs
