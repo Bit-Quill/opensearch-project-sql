@@ -164,8 +164,7 @@ public class RestSqlAction extends BaseRestHandler {
                             LOG.debug("[{}] Request {} is not supported and falling back to old SQL engine",
                                 QueryContext.getRequestId(), newSqlRequest);
                             QueryAction queryAction = explainRequest(client, sqlRequest, format);
-                            //Below commented out to remove ability to fall back to legacy engine.
-                            //executeSqlRequest(request, queryAction, client, restChannel);
+                            executeSqlRequest(request, queryAction, client, restChannel);
                         } catch (Exception e) {
                             logAndPublishMetrics(e);
                             reportError(restChannel, e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
