@@ -598,27 +598,27 @@ class AstExpressionBuilderTest {
   @Test
   public void relevanceMultiMatchAltSyntax() {
     assertEquals(AstDSL.function("multi_match",
-            unresolvedArg("field", stringLiteral("message")),
+            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of("field1", 1.F))),
             unresolvedArg("query", stringLiteral("search query"))),
-        buildExprAst("message = multi_match('search query')")
+        buildExprAst("field1 = multi_match('search query')")
     );
 
     assertEquals(AstDSL.function("multi_match",
-            unresolvedArg("field", stringLiteral("message")),
+            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of("field1", 1.F))),
             unresolvedArg("query", stringLiteral("search query"))),
-        buildExprAst("message = multi_match(\"search query\")")
+        buildExprAst("field1 = multi_match(\"search query\")")
     );
 
     assertEquals(AstDSL.function("multimatch",
-            unresolvedArg("field", stringLiteral("message")),
+            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of("field1", 1.F))),
             unresolvedArg("query", stringLiteral("search query"))),
-        buildExprAst("message = multimatch('search query')")
+        buildExprAst("field1 = multimatch('search query')")
     );
 
     assertEquals(AstDSL.function("multimatch",
-            unresolvedArg("field", stringLiteral("message")),
+            unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of("field1", 1.F))),
             unresolvedArg("query", stringLiteral("search query"))),
-        buildExprAst("message = multimatch(\"search query\")")
+        buildExprAst("field1 = multimatch(\"search query\")")
     );
   }
 
