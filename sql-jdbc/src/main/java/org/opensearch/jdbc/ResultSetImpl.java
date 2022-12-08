@@ -105,7 +105,8 @@ public class ResultSetImpl implements ResultSet, JdbcWrapper, LoggingSource {
                     schema.getOpenSearchType(i) == OpenSearchType.TIME ||
                     schema.getOpenSearchType(i) == OpenSearchType.DATE) {
                     int maxLength = 0;
-                    for (Row row : rows) {
+                    // analyze first 100 rows.
+                    for (Row row : rows.subList(0, Math.min(rows.size() - 1, 100))) {
                         Object obj = row.get(i);
                         if (obj != null) {
                             int len = obj.toString().length();
