@@ -12,4 +12,4 @@ LOCATE('world', 'hello') as column
 LOCATE('world', 'helloworld', 7) as column
 REPLACE('helloworld', 'world', 'opensearch') as column
 REPLACE('hello', 'world', 'opensearch') as column
-CAST(REVERSE('hello') as string) as column
+CAST(REVERSE('hello') as VARCHAR(5)) as column
