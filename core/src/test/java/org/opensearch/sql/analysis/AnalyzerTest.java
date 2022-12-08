@@ -59,7 +59,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -73,24 +72,15 @@ import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.ParseMethod;
-import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.ast.tree.AD;
 import org.opensearch.sql.ast.tree.Kmeans;
 import org.opensearch.sql.ast.tree.ML;
 import org.opensearch.sql.ast.tree.RareTopN.CommandType;
-import org.opensearch.sql.data.model.ExprTupleValue;
-import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.model.ExprValueUtils;
-import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
-import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.HighlightExpression;
-import org.opensearch.sql.expression.env.Environment;
-import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.window.WindowDefinition;
 import org.opensearch.sql.planner.logical.LogicalAD;
 import org.opensearch.sql.planner.logical.LogicalMLCommons;
@@ -273,161 +263,6 @@ class AnalyzerTest extends AnalyzerTestBase {
                 emptyList()),
             compare(">",
                 aggregate("MIN", qualifiedName("integer_value")), intLiteral(10))));
-  }
-
-  @Test
-  public void test_base_class_validate_parameters_method_does_nothing() {
-    var funcExpr = new FunctionExpression(FunctionName.of("func_name"),
-        List.of()) {
-      @Override
-      public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-        return null;
-      }
-
-      @Override
-      public ExprType type() {
-        return null;
-      }
-    };
-    funcExpr.validateParameters(analysisContext);
-  }
-
-  @Test
-  public void single_field_relevance_query_semantic_exception() {
-    SemanticCheckException exception =
-        assertThrows(
-            SemanticCheckException.class,
-            () ->
-                analyze(
-                    AstDSL.filter(
-                        AstDSL.relation("schema"),
-                        AstDSL.function("match",
-                            AstDSL.unresolvedArg("field", stringLiteral("missing_value")),
-                            AstDSL.unresolvedArg("query", stringLiteral("query_value"))))));
-    assertEquals(
-        "can't resolve Symbol(namespace=FIELD_NAME, name=missing_value) in type env",
-        exception.getMessage());
-  }
-
-  @Test
-  public void single_field_relevance_query() {
-    assertAnalyzeEqual(
-        LogicalPlanDSL.filter(
-            LogicalPlanDSL.relation("schema", table),
-            DSL.match(
-                DSL.namedArgument("field", DSL.literal("string_value")),
-                DSL.namedArgument("query", DSL.literal("query_value")))),
-        AstDSL.filter(
-            AstDSL.relation("schema"),
-            AstDSL.function("match",
-                AstDSL.unresolvedArg("field", stringLiteral("string_value")),
-                AstDSL.unresolvedArg("query", stringLiteral("query_value")))));
-  }
-
-  @Test
-  public void single_field_wildcard_relevance_query() {
-    assertAnalyzeEqual(
-        LogicalPlanDSL.filter(
-            LogicalPlanDSL.relation("schema", table),
-            DSL.match(
-                DSL.namedArgument("field", DSL.literal("wildcard_field*")),
-                DSL.namedArgument("query", DSL.literal("query_value")))),
-        AstDSL.filter(
-            AstDSL.relation("schema"),
-            AstDSL.function("match",
-                AstDSL.unresolvedArg("field", stringLiteral("wildcard_field*")),
-                AstDSL.unresolvedArg("query", stringLiteral("query_value")))));
-  }
-
-  @Test
-  public void multi_field_relevance_query_semantic_exception() {
-    SemanticCheckException exception =
-        assertThrows(
-            SemanticCheckException.class,
-            () ->
-                analyze(
-                    AstDSL.filter(
-                        AstDSL.relation("schema"),
-                        AstDSL.function("query_string",
-                            AstDSL.unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
-                                "missing_value1", 1.F, "missing_value2", .3F))),
-                            AstDSL.unresolvedArg("query", stringLiteral("query_value"))))));
-    assertEquals(
-        "can't resolve Symbol(namespace=FIELD_NAME, name=missing_value1) in type env",
-        exception.getMessage());
-  }
-
-  @Test
-  public void multi_field_relevance_query_mixed_fields_semantic_exception() {
-    SemanticCheckException exception =
-        assertThrows(
-            SemanticCheckException.class,
-            () ->
-                analyze(
-                    AstDSL.filter(
-                        AstDSL.relation("schema"),
-                        AstDSL.function("query_string",
-                            AstDSL.unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
-                                "string_value", 1.F, "missing_value", .3F))),
-                            AstDSL.unresolvedArg("query", stringLiteral("query_value"))))));
-    assertEquals(
-        "can't resolve Symbol(namespace=FIELD_NAME, name=missing_value) in type env",
-        exception.getMessage());
-  }
-
-  @Test
-  public void no_field_relevance_query_semantic_exception() {
-    assertAnalyzeEqual(
-        LogicalPlanDSL.filter(
-            LogicalPlanDSL.relation("schema", table),
-            DSL.query(
-                DSL.namedArgument("query", DSL.literal("string_value:query_value")))),
-        AstDSL.filter(
-            AstDSL.relation("schema"),
-            AstDSL.function("query",
-                AstDSL.unresolvedArg("query", stringLiteral("string_value:query_value")))));
-  }
-
-  @Test
-  public void multi_field_relevance_query() {
-    assertAnalyzeEqual(
-        LogicalPlanDSL.filter(
-            LogicalPlanDSL.relation("schema", table),
-            DSL.query_string(
-                DSL.namedArgument("fields", DSL.literal(
-                    new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
-                        "string_value", ExprValueUtils.floatValue(1.F),
-                        "integer_value", ExprValueUtils.floatValue(.3F))
-                    ))
-                )),
-                DSL.namedArgument("query", DSL.literal("query_value")))),
-        AstDSL.filter(
-            AstDSL.relation("schema"),
-            AstDSL.function("query_string",
-                AstDSL.unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
-                    "string_value", 1.F, "integer_value", .3F))),
-                AstDSL.unresolvedArg("query", stringLiteral("query_value")))));
-  }
-
-  @Test
-  public void multi_field_wildcard_relevance_query() {
-    assertAnalyzeEqual(
-        LogicalPlanDSL.filter(
-            LogicalPlanDSL.relation("schema", table),
-            DSL.query_string(
-                DSL.namedArgument("fields", DSL.literal(
-                    new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
-                        "wildcard_field1*", ExprValueUtils.floatValue(1.F),
-                        "wildcard_field2*", ExprValueUtils.floatValue(.3F))
-                    ))
-                )),
-                DSL.namedArgument("query", DSL.literal("query_value")))),
-        AstDSL.filter(
-            AstDSL.relation("schema"),
-            AstDSL.function("query_string",
-                AstDSL.unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
-                    "wildcard_field1*", 1.F, "wildcard_field2*", .3F))),
-                AstDSL.unresolvedArg("query", stringLiteral("query_value")))));
   }
 
   @Test

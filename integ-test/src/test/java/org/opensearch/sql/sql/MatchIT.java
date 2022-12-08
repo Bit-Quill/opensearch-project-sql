@@ -42,9 +42,11 @@ public class MatchIT extends SQLIntegTestCase {
     String query = StringUtils.format("SELECT * FROM %s WHERE match(invalid, 'Bates')", TEST_INDEX_ACCOUNT);
     final RuntimeException exception =
         expectThrows(RuntimeException.class, () -> executeJdbcRequest(query));
+
     assertTrue(exception.getMessage()
-        .contains("can't resolve Symbol(namespace=FIELD_NAME, name=invalid) in type env") &&
-        exception.getMessage().contains("SemanticCheckException"));
+        .contains("can't resolve Symbol(namespace=FIELD_NAME, name=invalid) in type env"));
+
+    assertTrue(exception.getMessage().contains("SemanticCheckException"));
   }
 
   @Test

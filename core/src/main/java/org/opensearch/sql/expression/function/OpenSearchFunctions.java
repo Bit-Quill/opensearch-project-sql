@@ -5,17 +5,9 @@
 
 package org.opensearch.sql.expression.function;
 
-import static org.opensearch.sql.data.type.ExprCoreType.STRING;
-import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
-import org.opensearch.sql.analysis.AnalysisContext;
-import org.opensearch.sql.analysis.TypeEnvironment;
-import org.opensearch.sql.analysis.symbol.Namespace;
-import org.opensearch.sql.analysis.symbol.Symbol;
-import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
@@ -26,37 +18,6 @@ import org.opensearch.sql.expression.env.Environment;
 
 @UtilityClass
 public class OpenSearchFunctions {
-  private final List<String> singleFieldFunctionNames = List.of(
-      BuiltinFunctionName.MATCH.name(),
-      BuiltinFunctionName.MATCH_BOOL_PREFIX.name(),
-      BuiltinFunctionName.MATCHPHRASE.name(),
-      BuiltinFunctionName.MATCH_PHRASE_PREFIX.name()
-  );
-
-  private final List<String> multiFieldFunctionNames = List.of(
-      BuiltinFunctionName.MULTI_MATCH.name(),
-      BuiltinFunctionName.SIMPLE_QUERY_STRING.name(),
-      BuiltinFunctionName.QUERY_STRING.name()
-  );
-
-  /**
-   * Check if supplied function name is valid SingleFieldRelevanceFunction.
-   * @param funcName : Name of function
-   * @return : True if function is single-field function
-   */
-  public static boolean isSingleFieldFunction(String funcName) {
-    return singleFieldFunctionNames.contains(funcName.toUpperCase());
-  }
-
-  /**
-   * Check if supplied function name is valid MultiFieldRelevanceFunction.
-   * @param funcName : Name of function
-   * @return : True if function is multi-field function
-   */
-  public static boolean isMultiFieldFunction(String funcName) {
-    return multiFieldFunctionNames.contains(funcName.toUpperCase());
-  }
-
   /**
    * Add functions specific to OpenSearch to repository.
    */
@@ -83,46 +44,46 @@ public class OpenSearchFunctions {
 
   private static FunctionResolver match_bool_prefix() {
     FunctionName name = BuiltinFunctionName.MATCH_BOOL_PREFIX.getName();
-    return new RelevanceFunctionResolver(name, STRING);
+    return new RelevanceFunctionResolver(name);
   }
 
   private static FunctionResolver match(BuiltinFunctionName match) {
     FunctionName funcName = match.getName();
-    return new RelevanceFunctionResolver(funcName, STRING);
+    return new RelevanceFunctionResolver(funcName);
   }
 
   private static FunctionResolver match_phrase_prefix() {
     FunctionName funcName = BuiltinFunctionName.MATCH_PHRASE_PREFIX.getName();
-    return new RelevanceFunctionResolver(funcName, STRING);
+    return new RelevanceFunctionResolver(funcName);
   }
 
   private static FunctionResolver match_phrase(BuiltinFunctionName matchPhrase) {
     FunctionName funcName = matchPhrase.getName();
-    return new RelevanceFunctionResolver(funcName, STRING);
+    return new RelevanceFunctionResolver(funcName);
   }
 
   private static FunctionResolver multi_match(BuiltinFunctionName multiMatchName) {
-    return new RelevanceFunctionResolver(multiMatchName.getName(), STRUCT);
+    return new RelevanceFunctionResolver(multiMatchName.getName());
   }
 
   private static FunctionResolver simple_query_string() {
     FunctionName funcName = BuiltinFunctionName.SIMPLE_QUERY_STRING.getName();
-    return new RelevanceFunctionResolver(funcName, STRUCT);
+    return new RelevanceFunctionResolver(funcName);
   }
 
   private static FunctionResolver query() {
     FunctionName funcName = BuiltinFunctionName.QUERY.getName();
-    return new RelevanceFunctionResolver(funcName, STRING);
+    return new RelevanceFunctionResolver(funcName);
   }
 
   private static FunctionResolver query_string() {
     FunctionName funcName = BuiltinFunctionName.QUERY_STRING.getName();
-    return new RelevanceFunctionResolver(funcName, STRUCT);
+    return new RelevanceFunctionResolver(funcName);
   }
 
   private static FunctionResolver wildcard_query(BuiltinFunctionName wildcardQuery) {
     FunctionName funcName = wildcardQuery.getName();
-    return new RelevanceFunctionResolver(funcName, STRING);
+    return new RelevanceFunctionResolver(funcName);
   }
 
   public static class OpenSearchFunction extends FunctionExpression {
@@ -160,35 +121,5 @@ public class OpenSearchFunctions {
           .collect(Collectors.toList());
       return String.format("%s(%s)", functionName, String.join(", ", args));
     }
-
-    /**
-     * Verify if function queries fields available in type environment.
-     * @param context : Context of fields querying.
-     */
-    @Override
-    public void validateParameters(AnalysisContext context) {
-      String funcName = this.getFunctionName().toString();
-
-      TypeEnvironment typeEnv = context.peek();
-      if (isSingleFieldFunction(funcName)) {
-        this.getArguments().stream().map(NamedArgumentExpression.class::cast).filter(arg ->
-            ((arg.getArgName().equals("field")
-                && !arg.getValue().toString().contains("*"))
-            )).findFirst().ifPresent(arg ->
-            typeEnv.resolve(new Symbol(Namespace.FIELD_NAME,
-                StringUtils.unquoteText(arg.getValue().toString()))
-            )
-        );
-      } else if (isMultiFieldFunction(funcName)) {
-        this.getArguments().stream().map(NamedArgumentExpression.class::cast).filter(arg ->
-            arg.getArgName().equals("fields")
-        ).findFirst().ifPresent(fields ->
-            fields.getValue().valueOf(null).tupleValue()
-                .entrySet().stream().filter(k -> !(k.getKey().contains("*"))
-                ).forEach(key -> typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, key.getKey())))
-        );
-      }
-    }
-
   }
 }
