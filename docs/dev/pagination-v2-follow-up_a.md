@@ -52,30 +52,25 @@ While each cursor is bound a to a single SQL plug node, this is a per-node setti
 It will become a cluster setting if we add shared cursor context as described in the following section. 
 
 
-## SQL Node Load Balancing and Failover
-V1 SQL engine supports sql node failover -- a cursor request can be routed to any SQL node in a cluster.
+## SQL Node Load Balancing
+V1 SQL engine supports *sql node load balancing* -- a cursor request can be routed to any SQL node in a cluster.
 
 This is trivial in V1 engine because of context-free nature of V1 cursors but needs to be implemented for V2 cursors.
 
-The core of the implemention will make cursor context shared between all nodes in the cluster.
+Implementing this for V2 cursors will make cursor context shared between all nodes in the cluster.
+Any node that recieves a SQL request with a cursor id will then responsible for updating the shared cursor context.
 
-Any node that recieves a SQL request with a cursor id is responsible for updating the shared cursor context.
-
-In discussion with Amazon team this was flagged as not necessary to deprecate V1 engine.
-
-# Fallback to V1 engine
-Any cursor request that cannot be satisfied by the V2 engine will be passed to the V1 engine. 
+This adds significant complexity. In discussion with Amazon team it was flagged as not necessary to deprecate V1 engine.
 
 # Delivery Breakdown
-## Phase 1 - Minimum viable release
+
+## Phase 1 - Minimum V1 Parity
 1. filter-and-project queries, under window_size, one open cursor, single coordination node.
 1. filter-and-project queries, under window_size, multiple open cursors, single coordination node.
-
-## Phase 2 - Minimum V1 engine parity
 1. filter-and-project queries, over window_size, one open cursor, single coordination node.
 1. filter-and-project queries, over window_size, multiple open cursors, single coordination node.
 
-## Phase 3 - SQL Node Load Balancing and Failover
+## Phase 3 - SQL Node Load Balancing
 
 1. filter-and-project queries, under window_size, one open cursor, sql node load balancing. 
 1. filter-and-project queries, over window_size, one open cursor, sql node load balancing.
@@ -83,6 +78,4 @@ Any cursor request that cannot be satisfied by the V2 engine will be passed to t
 1. filter-and-project queries, over window_size, multiple open cursors, sql node load balancing
 
 ## Phase 4 - Aggregation Queries
-Pagination of aggregation queries will be considered separately.
-
-V1 engine does not support pagination with aggregation queries therefore its not necessary to deperecate it.
+Pagination of aggregation queries will be considered separately. V1 engine does not support this therefore its not necessary to deperecate it.
