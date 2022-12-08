@@ -96,6 +96,7 @@ import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParserBaseVisitor;
  * Expression builder to parse text to expression in AST.
  */
 public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedExpression> {
+  
   @Override
   public UnresolvedExpression visitTableName(TableNameContext ctx) {
     return visit(ctx.qualifiedName());
