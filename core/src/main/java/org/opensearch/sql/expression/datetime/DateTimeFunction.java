@@ -65,13 +65,14 @@ import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.DefaultFunctionResolver;
-import org.opensearch.sql.expression.function.FunctionDSL;
 import org.opensearch.sql.expression.function.FunctionBuilder;
+import org.opensearch.sql.expression.function.FunctionDSL;
 import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.expression.function.FunctionProperties;
 import org.opensearch.sql.expression.function.FunctionResolver;
 import org.opensearch.sql.expression.function.FunctionSignature;
-import org.opensearch.sql.expression.function.SerializableBiFunction;
 import org.opensearch.sql.expression.function.SerializableFunction;
+import org.opensearch.sql.expression.function.SerializableTriFunction;
 import org.opensearch.sql.utils.DateTimeUtils;
 
 /**
@@ -227,12 +228,12 @@ public class DateTimeFunction {
    *                                      // result has date or datetime depending on interval type
    */
   private SerializableFunction<?, ?>[] get_date_add_date_sub_signatures(
-      SerializableBiFunction<ExprValue, ExprValue, ExprValue> function) {
+      SerializableTriFunction<FunctionProperties, ExprValue, ExprValue, ExprValue> function) {
     return new SerializableFunction[]{
-        impl(nullMissingHandling(function), DATETIME, DATE, INTERVAL),
-        impl(nullMissingHandling(function), DATETIME, DATETIME, INTERVAL),
-        impl(nullMissingHandling(function), DATETIME, TIMESTAMP, INTERVAL),
-        impl(nullMissingHandling(function), DATETIME, TIME, INTERVAL)
+        implWithProperties(function, DATETIME, DATE, INTERVAL),
+        implWithProperties(function, DATETIME, DATETIME, INTERVAL),
+        implWithProperties(function, DATETIME, TIMESTAMP, INTERVAL),
+        implWithProperties(function, DATETIME, TIME, INTERVAL)
     };
   }
 
@@ -243,12 +244,12 @@ public class DateTimeFunction {
    * (TIME/DATETIME/TIMESTAMP, LONG) -> DATETIME
    */
   private SerializableFunction<?, ?>[] get_adddate_subdate_signatures(
-      SerializableBiFunction<ExprValue, ExprValue, ExprValue> function) {
+      SerializableTriFunction<FunctionProperties, ExprValue, ExprValue, ExprValue> function) {
     return new SerializableFunction[]{
-        impl(nullMissingHandling(function), DATE, DATE, LONG),
-        impl(nullMissingHandling(function), DATETIME, DATETIME, LONG),
-        impl(nullMissingHandling(function), DATETIME, TIMESTAMP, LONG),
-        impl(nullMissingHandling(function), DATETIME, TIME, LONG)
+        implWithProperties(function, DATE, DATE, LONG),
+        implWithProperties(function, DATETIME, DATETIME, LONG),
+        implWithProperties(function, DATETIME, TIMESTAMP, LONG),
+        implWithProperties(function, DATETIME, TIME, LONG)
     };
   }
 
@@ -632,54 +633,62 @@ public class DateTimeFunction {
   /**
    * DATE_ADD function implementation for ExprValue.
    *
+   * @param functionProperties An FunctionProperties object.
    * @param datetime ExprValue of Date/Time/Datetime/Timestamp type.
    * @param interval ExprValue of Interval type, the temporal amount to add.
    * @return Datetime resulted from `interval` added to `datetime`.
    */
-  private ExprValue exprAddDateInterval(ExprValue datetime, ExprValue interval) {
-    return exprDateApplyInterval(datetime, interval.intervalValue(), true);
+  private ExprValue exprAddDateInterval(FunctionProperties functionProperties,
+                                        ExprValue datetime, ExprValue interval) {
+    return exprDateApplyInterval(functionProperties, datetime, interval.intervalValue(), true);
   }
 
   /**
    * Adds or subtracts `interval` to/from `datetime`.
    *
+   * @param functionProperties An FunctionProperties object.
    * @param datetime A Date/Time/Datetime/Timestamp value to change.
    * @param interval An Interval to isAdd or subtract.
    * @param isAdd A flag: true to isAdd, false to subtract.
    * @return Datetime calculated.
    */
-  private ExprValue exprDateApplyInterval(ExprValue datetime,
+  private ExprValue exprDateApplyInterval(FunctionProperties functionProperties,
+                                          ExprValue datetime,
                                           TemporalAmount interval,
                                           Boolean isAdd) {
-    var dt = datetime.datetimeValue();
+    var dt = extractDateTime(datetime, functionProperties);
     return new ExprDatetimeValue(isAdd ? dt.plus(interval) : dt.minus(interval));
   }
 
   /**
    * ADDDATE function implementation for ExprValue.
    *
+   * @param functionProperties An FunctionProperties object.
    * @param datetime ExprValue of Time/Date/Datetime/Timestamp type.
    * @param days ExprValue of Long type, representing the number of days to add.
    * @return Date/Datetime resulted from days added to `datetime`.
    */
-  private ExprValue exprAddDateDays(ExprValue datetime, ExprValue days) {
-    return exprDateApplyDays(datetime, days.longValue(), true);
+  private ExprValue exprAddDateDays(FunctionProperties functionProperties,
+                                    ExprValue datetime, ExprValue days) {
+    return exprDateApplyDays(functionProperties, datetime, days.longValue(), true);
   }
 
   /**
    * Adds or subtracts `days` to/from `datetime`.
    *
+   * @param functionProperties An FunctionProperties object.
    * @param datetime A Date/Time/Datetime/Timestamp value to change.
    * @param days A days amount to add or subtract.
    * @param isAdd A flag: true to add, false to subtract.
    * @return Datetime calculated.
    */
-  private ExprValue exprDateApplyDays(ExprValue datetime, Long days, Boolean isAdd) {
+  private ExprValue exprDateApplyDays(FunctionProperties functionProperties,
+                                      ExprValue datetime, Long days, Boolean isAdd) {
     if (datetime.type() == DATE) {
       return new ExprDateValue(isAdd ? datetime.dateValue().plusDays(days)
           : datetime.dateValue().minusDays(days));
     }
-    var dt = datetime.datetimeValue();
+    var dt = extractDateTime(datetime, functionProperties);
     return new ExprDatetimeValue(isAdd ? dt.plusDays(days) : dt.minusDays(days));
   }
 
@@ -1044,23 +1053,27 @@ public class DateTimeFunction {
   /**
    * SUBDATE function implementation for ExprValue.
    *
+   * @param functionProperties An FunctionProperties object.
    * @param date ExprValue of Time/Date/Datetime/Timestamp type.
    * @param days ExprValue of Long type, representing the number of days to subtract.
    * @return Date/Datetime resulted from days subtracted to date.
    */
-  private ExprValue exprSubDateDays(ExprValue date, ExprValue days) {
-    return exprDateApplyDays(date, days.longValue(), false);
+  private ExprValue exprSubDateDays(FunctionProperties functionProperties,
+                                    ExprValue date, ExprValue days) {
+    return exprDateApplyDays(functionProperties, date, days.longValue(), false);
   }
 
   /**
    * DATE_SUB function implementation for ExprValue.
    *
+   * @param functionProperties An FunctionProperties object.
    * @param datetime ExprValue of Time/Date/Datetime/Timestamp type.
    * @param expr ExprValue of Interval type, the temporal amount to subtract.
    * @return Datetime resulted from expr subtracted to `datetime`.
    */
-  private ExprValue exprSubDateInterval(ExprValue datetime, ExprValue expr) {
-    return exprDateApplyInterval(datetime, expr.intervalValue(), false);
+  private ExprValue exprSubDateInterval(FunctionProperties functionProperties,
+                                        ExprValue datetime, ExprValue expr) {
+    return exprDateApplyInterval(functionProperties, datetime, expr.intervalValue(), false);
   }
 
   /**
@@ -1236,5 +1249,11 @@ public class DateTimeFunction {
     var nano = new BigDecimal(res.getNano())
         .setScale(fsp - defaultPrecision, RoundingMode.DOWN).intValue();
     return res.withNano(nano);
+  }
+
+  private LocalDateTime extractDateTime(ExprValue value, FunctionProperties functionProperties) {
+    return value instanceof ExprTimeValue
+        ? ((ExprTimeValue) value).datetimeValue(functionProperties)
+        : value.datetimeValue();
   }
 }
