@@ -303,7 +303,10 @@ public class MockResultSetMetaData implements ResultSetMetaData, JdbcWrapper {
             assertEquals(this.getColumnTypeName(i), other.getColumnTypeName(i), "column "+i+" column type name");
             assertEquals(this.isSigned(i), other.isSigned(i), "column "+i+" signed");
             assertEquals(this.getSchemaName(i), other.getSchemaName(i), "column "+i+" schema name");
-            assertEquals(this.getPrecision(i), other.getPrecision(i), "column "+i+" precision");
+            // Test deactivated because precision is calculated in runtime and
+            //  1) it could not match default value (at least for datetime types);
+            //  2) it could have different value for the same type in different result sets.
+            //assertEquals(this.getPrecision(i), other.getPrecision(i), "column "+i+" precision");
             assertEquals(this.getScale(i), other.getScale(i), "column "+i+" scale");
             assertEquals(this.getTableName(i), other.getTableName(i), "column "+i+" table name");
             assertEquals(this.isReadOnly(i), other.isReadOnly(i), "column "+i+" read only");
