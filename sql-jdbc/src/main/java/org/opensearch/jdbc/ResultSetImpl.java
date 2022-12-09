@@ -6,15 +6,15 @@
 
 package org.opensearch.jdbc;
 
+import org.opensearch.jdbc.internal.JdbcWrapper;
+import org.opensearch.jdbc.internal.exceptions.ObjectClosedException;
 import org.opensearch.jdbc.internal.results.ColumnMetaData;
 import org.opensearch.jdbc.internal.results.Cursor;
-import org.opensearch.jdbc.internal.exceptions.ObjectClosedException;
 import org.opensearch.jdbc.internal.results.Row;
 import org.opensearch.jdbc.internal.results.Schema;
-import org.opensearch.jdbc.logging.LoggingSource;
 import org.opensearch.jdbc.logging.Logger;
+import org.opensearch.jdbc.logging.LoggingSource;
 import org.opensearch.jdbc.protocol.ColumnDescriptor;
-import org.opensearch.jdbc.internal.JdbcWrapper;
 import org.opensearch.jdbc.protocol.QueryResponse;
 import org.opensearch.jdbc.protocol.exceptions.InternalServerErrorException;
 import org.opensearch.jdbc.protocol.exceptions.ResponseException;
@@ -22,7 +22,6 @@ import org.opensearch.jdbc.protocol.http.JdbcCursorQueryRequest;
 import org.opensearch.jdbc.protocol.http.JsonCursorHttpProtocol;
 import org.opensearch.jdbc.protocol.http.JsonCursorHttpProtocolFactory;
 import org.opensearch.jdbc.transport.http.HttpTransport;
-import org.opensearch.jdbc.types.OpenSearchType;
 import org.opensearch.jdbc.types.TypeConverter;
 import org.opensearch.jdbc.types.TypeConverters;
 import org.opensearch.jdbc.types.UnrecognizedOpenSearchTypeException;
@@ -100,28 +99,31 @@ public class ResultSetImpl implements ResultSet, JdbcWrapper, LoggingSource {
             List<Row> rows = getRowsFromDataRows(dataRows);
 
             for (int i = 0; i < columnDescriptors.size(); i ++) {
-                if (schema.getOpenSearchType(i) == OpenSearchType.TIMESTAMP ||
-                    schema.getOpenSearchType(i) == OpenSearchType.DATETIME ||
-                    schema.getOpenSearchType(i) == OpenSearchType.TIME) {
-                    int maxLength = 0;
-                    // analyze first 100 rows.
-                    for (Row row : rows.subList(0, Math.min(rows.size(), 100))) {
-                        Object obj = row.get(i);
-                        if (obj != null) {
-                            // `obj` is a string actually returned from SQL plugin
-                            // `java.sql.*` time types have no second fraction part, so we return the
-                            // length of the integer part of the value. Fraction part would be lost.
-                            int len = obj.toString().lastIndexOf('.');
-                            if (-1 == len) {
-                                // No fraction part
-                                len = obj.toString().length();
-                            }
-                            if (len > maxLength) {
-                                maxLength = len;
+                switch (schema.getOpenSearchType(i)) {
+                    case TIMESTAMP:
+                    case DATETIME:
+                    case TIME: {
+                        int maxLength = 0;
+                        // analyze first 100 rows or until `maxLength` calculated
+                        // (result set could have first 100 rows with nulls)
+                        for (int r = 0; r < Math.min(rows.size(), 100) || (maxLength == 0 && r < rows.size()); r++) {
+                            Object obj = rows.get(r).get(i);
+                            if (obj != null) {
+                                // `obj` is a string actually returned from SQL plugin
+                                // `java.sql.*` time types have no second fraction part, so we return the
+                                // length of the integer part of the value. Fraction part would be lost.
+                                int len = obj.toString().lastIndexOf('.');
+                                if (-1 == len) {
+                                    // No fraction part
+                                    len = obj.toString().length();
+                                }
+                                if (len > maxLength) {
+                                    maxLength = len;
+                                }
                             }
                         }
+                        schema.getColumnMetaData(i).setPrecision(maxLength);
                     }
-                    schema.getColumnMetaData(i).setPrecision(maxLength);
                 }
             }
 
