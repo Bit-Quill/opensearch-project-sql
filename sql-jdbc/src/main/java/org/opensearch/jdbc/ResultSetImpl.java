@@ -102,16 +102,22 @@ public class ResultSetImpl implements ResultSet, JdbcWrapper, LoggingSource {
             for (int i = 0; i < columnDescriptors.size(); i ++) {
                 if (schema.getOpenSearchType(i) == OpenSearchType.TIMESTAMP ||
                     schema.getOpenSearchType(i) == OpenSearchType.DATETIME ||
-                    schema.getOpenSearchType(i) == OpenSearchType.TIME ||
-                    schema.getOpenSearchType(i) == OpenSearchType.DATE) {
+                    schema.getOpenSearchType(i) == OpenSearchType.TIME) {
                     int maxLength = 0;
                     // analyze first 100 rows.
-                    for (Row row : rows.subList(0, Math.min(rows.size() - 1, 100))) {
+                    for (Row row : rows.subList(0, Math.min(rows.size(), 100))) {
                         Object obj = row.get(i);
                         if (obj != null) {
-                            int len = obj.toString().length();
+                            // `obj` is a string actually returned from SQL plugin
+                            // `java.sql.*` time types have no second fraction part, so we return the
+                            // length of the integer part of the value. Fraction part would be lost.
+                            int len = obj.toString().lastIndexOf('.');
+                            if (-1 == len) {
+                                // No fraction part
+                                len = obj.toString().length();
+                            }
                             if (len > maxLength) {
-                              maxLength = len;
+                                maxLength = len;
                             }
                         }
                     }
