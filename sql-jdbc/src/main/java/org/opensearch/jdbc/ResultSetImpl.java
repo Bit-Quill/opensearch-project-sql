@@ -104,9 +104,10 @@ public class ResultSetImpl implements ResultSet, JdbcWrapper, LoggingSource {
                     case DATETIME:
                     case TIME: {
                         int maxLength = 0;
-                        // analyze first 100 rows or until `maxLength` calculated
-                        // (result set could have first 100 rows with nulls)
-                        for (int r = 0; r < Math.min(rows.size(), 100) || (maxLength == 0 && r < rows.size()); r++) {
+                        int analyzed = 0;
+                        // analyze first 1000 rows or stop earlier if `maxLength` calculated on 100 entries of those 1000
+                        // (result set could have first N rows with nulls)
+                        for (int r = 0; r < Math.min(rows.size(), 1000); r++) {
                             Object obj = rows.get(r).get(i);
                             if (obj != null) {
                                 // `obj` is a string actually returned from SQL plugin
@@ -119,10 +120,16 @@ public class ResultSetImpl implements ResultSet, JdbcWrapper, LoggingSource {
                                 }
                                 if (len > maxLength) {
                                     maxLength = len;
+                                    analyzed++;
+                                }
+                                if (analyzed > 100) {
+                                  break;
                                 }
                             }
                         }
-                        schema.getColumnMetaData(i).setPrecision(maxLength);
+                        if (maxLength != 0) {
+                            schema.getColumnMetaData(i).setPrecision(maxLength);
+                        }
                     }
                 }
             }
