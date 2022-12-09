@@ -54,7 +54,6 @@ import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
-import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.storage.serialization.ExpressionSerializer;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -362,7 +361,8 @@ class FilterQueryBuilderTest {
   @Test
   void match_invalid_parameter() {
     FunctionExpression expr = DSL.match(
-        DSL.namedArgument("field", literal("message")),
+        DSL.namedArgument("field",
+            new ReferenceExpression("message", OPENSEARCH_TEXT_KEYWORD)),
         DSL.namedArgument("query", literal("search query")),
         DSL.namedArgument("invalid_parameter", literal("invalid_value")));
     var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
@@ -640,7 +640,8 @@ class FilterQueryBuilderTest {
   @Test
   void wildcard_query_invalid_parameter() {
     FunctionExpression expr = DSL.wildcard_query(
-        DSL.namedArgument("field", literal("field")),
+        DSL.namedArgument("field",
+            new ReferenceExpression("field", OPENSEARCH_TEXT_KEYWORD)),
         DSL.namedArgument("query", literal("search query*")),
         DSL.namedArgument("invalid_parameter", literal("invalid_value")));
     assertThrows(SemanticCheckException.class, () -> buildQuery(expr),
@@ -1100,7 +1101,8 @@ class FilterQueryBuilderTest {
   @Test
   void match_phrase_invalid_parameter() {
     FunctionExpression expr = DSL.match_phrase(
-        DSL.namedArgument("field", literal("message")),
+        DSL.namedArgument("field",
+            new ReferenceExpression("message", OPENSEARCH_TEXT_KEYWORD)),
         DSL.namedArgument("query", literal("search query")),
         DSL.namedArgument("invalid_parameter", literal("invalid_value")));
     var msg = assertThrows(SemanticCheckException.class, () -> buildQuery(expr)).getMessage();
@@ -1109,7 +1111,8 @@ class FilterQueryBuilderTest {
 
   @Test
   void relevancy_func_invalid_arg_values() {
-    final var field = DSL.namedArgument("field", literal("message"));
+    final var field = DSL.namedArgument("field",
+        new ReferenceExpression("message", OPENSEARCH_TEXT_KEYWORD));
     final var fields = DSL.namedArgument("fields", DSL.literal(
         new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
             "field1", ExprValueUtils.floatValue(1.F),

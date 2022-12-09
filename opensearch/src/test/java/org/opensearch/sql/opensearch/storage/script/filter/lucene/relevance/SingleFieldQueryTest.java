@@ -37,12 +37,26 @@ class SingleFieldQueryTest {
   }
 
   @Test
-  void createQueryBuilderQualifiedNameTest() {
+  void createQueryBuilderTestTypeTextKeyword() {
     String sampleQuery = "sample query";
     String sampleField = "fieldA";
 
     query.createQueryBuilder(List.of(DSL.namedArgument("field",
             new ReferenceExpression(sampleField, OpenSearchDataType.OPENSEARCH_TEXT_KEYWORD)),
+        DSL.namedArgument("query",
+            new LiteralExpression(ExprValueUtils.stringValue(sampleQuery)))));
+
+    verify(query).createBuilder(eq(sampleField),
+        eq(sampleQuery));
+  }
+
+  @Test
+  void createQueryBuilderTestTypeText() {
+    String sampleQuery = "sample query";
+    String sampleField = "fieldA";
+
+    query.createQueryBuilder(List.of(DSL.namedArgument("field",
+            new ReferenceExpression(sampleField, OpenSearchDataType.OPENSEARCH_TEXT)),
         DSL.namedArgument("query",
             new LiteralExpression(ExprValueUtils.stringValue(sampleQuery)))));
 

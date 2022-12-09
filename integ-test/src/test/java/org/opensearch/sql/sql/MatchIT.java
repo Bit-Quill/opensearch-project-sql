@@ -50,6 +50,30 @@ public class MatchIT extends SQLIntegTestCase {
   }
 
   @Test
+  public void missing_quoted_field_test() {
+    String query = StringUtils.format("SELECT * FROM %s WHERE match('invalid', 'Bates')", TEST_INDEX_ACCOUNT);
+    final RuntimeException exception =
+        expectThrows(RuntimeException.class, () -> executeJdbcRequest(query));
+
+    assertTrue(exception.getMessage()
+        .contains("can't resolve Symbol(namespace=FIELD_NAME, name=invalid) in type env"));
+
+    assertTrue(exception.getMessage().contains("SemanticCheckException"));
+  }
+
+  @Test
+  public void missing_backtick_field_test() {
+    String query = StringUtils.format("SELECT * FROM %s WHERE match(`invalid`, 'Bates')", TEST_INDEX_ACCOUNT);
+    final RuntimeException exception =
+        expectThrows(RuntimeException.class, () -> executeJdbcRequest(query));
+
+    assertTrue(exception.getMessage()
+        .contains("can't resolve Symbol(namespace=FIELD_NAME, name=invalid) in type env"));
+
+    assertTrue(exception.getMessage().contains("SemanticCheckException"));
+  }
+
+  @Test
   public void matchquery_in_where() throws IOException {
     JSONObject result = executeJdbcRequest("SELECT firstname FROM " + TEST_INDEX_ACCOUNT + " WHERE matchquery(lastname, 'Bates')");
     verifySchema(result, schema("firstname", "text"));
