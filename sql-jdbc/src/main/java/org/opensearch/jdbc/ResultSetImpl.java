@@ -99,41 +99,19 @@ public class ResultSetImpl implements ResultSet, JdbcWrapper, LoggingSource {
             List<Row> rows = getRowsFromDataRows(dataRows);
 
             for (int i = 0; i < columnDescriptors.size(); i ++) {
+                int precision = 0;
                 switch (schema.getOpenSearchType(i)) {
                     case TIMESTAMP:
                     case DATETIME:
-                    case TIME: {
-                        int maxLength = 0;
-                        int analyzed = 0;
-                        // analyze first 1000 rows or stop earlier if `maxLength` calculated on 100 entries of those 1000
-                        // (result set could have first N rows with nulls)
-                        for (int r = 0; r < Math.min(rows.size(), 1000); r++) {
-                            Object obj = rows.get(r).get(i);
-                            if (obj != null) {
-                                // `obj` is a string actually returned from SQL plugin
-                                // `java.sql.*` time types have no second fraction part, so we return the
-                                // length of the integer part of the value. Fraction part would be lost.
-                                int len = obj.toString().lastIndexOf('.');
-                                if (-1 == len) {
-                                    // No fraction part
-                                    len = obj.toString().length();
-                                }
-                                if (len > maxLength) {
-                                    maxLength = len;
-                                    analyzed++;
-                                }
-                                if (analyzed > 100) {
-                                  break;
-                                }
-                            }
-                        }
-                        if (maxLength != 0) {
-                            schema.getColumnMetaData(i).setPrecision(maxLength);
-                        }
-                    }
+                        precision = calculatePrecisionForColumn(rows, i, false);
+                        break;
+                    case TIME:
+                        precision = calculatePrecisionForColumn(rows, i, true);
+                }
+                if (precision != 0) {
+                    schema.getColumnMetaData(i).setPrecision(precision);
                 }
             }
-
 
             this.cursor = new Cursor(schema, rows);
             this.cursorId = cursorId;
@@ -142,7 +120,37 @@ public class ResultSetImpl implements ResultSet, JdbcWrapper, LoggingSource {
         } catch (UnrecognizedOpenSearchTypeException ex) {
             logAndThrowSQLException(log, new SQLException("Exception creating a ResultSet.", ex));
         }
+    }
 
+    private int calculatePrecisionForColumn(List<Row> rows, int col, boolean ignoreFsp) {
+        int maxLength = 0;
+        int analyzed = 0;
+        // analyze first 1000 rows or stop earlier if `maxLength` calculated on 100 entries of those 1000
+        // (result set could have first N rows with nulls)
+        for (int r = 0; r < Math.min(rows.size(), 1000); r++) {
+            Object obj = rows.get(r).get(col);
+            if (obj != null) {
+                int len = -1;
+                // `obj` is a string actually returned from SQL plugin
+                // `java.sql.time` has no second fraction part, so we return the
+                // length of the integer part of the value. Fraction part would be lost.
+                if (ignoreFsp) {
+                    len = obj.toString().lastIndexOf('.');
+                }
+                if (-1 == len) {
+                    // No fraction part
+                    len = obj.toString().length();
+                }
+                if (len > maxLength) {
+                    maxLength = len;
+                    analyzed++;
+                }
+                if (analyzed > 100) {
+                  break;
+                }
+            }
+        }
+        return maxLength;
     }
 
     @Override
