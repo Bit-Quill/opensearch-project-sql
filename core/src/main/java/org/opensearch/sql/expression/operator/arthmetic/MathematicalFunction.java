@@ -500,26 +500,22 @@ public class MathematicalFunction {
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (x, y) -> new ExprLongValue(
-                    new BigDecimal(x.integerValue()).setScale(y.integerValue(),
-                        RoundingMode.DOWN).longValue())),
+                        MathUtil.truncateNumber(x.integerValue(), y.integerValue()).longValue())),
             LONG, INTEGER, INTEGER),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (x, y) -> new ExprLongValue(
-                    new BigDecimal(x.integerValue()).setScale(y.integerValue(),
-                        RoundingMode.DOWN).longValue())),
+                        MathUtil.truncateNumber(x.longValue(), y.integerValue()).longValue())),
             LONG, LONG, INTEGER),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (x, y) -> new ExprDoubleValue(
-                    new BigDecimal(x.floatValue()).setScale(y.integerValue(),
-                        RoundingMode.DOWN).doubleValue())),
+                        MathUtil.truncateNumber(x.floatValue(), y.integerValue()).doubleValue())),
             DOUBLE, FLOAT, INTEGER),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (x, y) -> new ExprDoubleValue(
-                    new BigDecimal(x.doubleValue()).setScale(y.integerValue(),
-                        RoundingMode.DOWN).doubleValue())),
+                        MathUtil.truncateNumber(x.doubleValue(), y.integerValue()).doubleValue())),
             DOUBLE, DOUBLE, INTEGER));
   }
 

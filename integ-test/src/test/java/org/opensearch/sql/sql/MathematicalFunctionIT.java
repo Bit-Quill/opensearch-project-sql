@@ -142,6 +142,14 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
     result = executeQuery("select truncate(-56, -1)");
     verifySchema(result, schema("truncate(-56, -1)", null, "long"));
     verifyDataRows(result, rows(-50));
+
+    result = executeQuery("select truncate(-1.2, 1)");
+    verifySchema(result, schema("truncate(-1.2, 1)", null, "double"));
+    verifyDataRows(result, rows(-1.2));
+
+    result = executeQuery("select truncate(1004.3, 1)");
+    verifySchema(result, schema("truncate(1004.3, 1)", null, "double"));
+    verifyDataRows(result, rows(1004.3));
   }
 
   @Test
