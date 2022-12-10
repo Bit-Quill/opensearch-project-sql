@@ -20,11 +20,13 @@ import static org.opensearch.sql.expression.function.FunctionDSL.define;
 import static org.opensearch.sql.expression.function.FunctionDSL.impl;
 import static org.opensearch.sql.expression.function.FunctionDSL.implWithProperties;
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
+import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandlingWithProperties;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_STRICT_WITH_TZ;
+import static org.opensearch.sql.utils.DateTimeUtils.extractDateTime;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -64,6 +66,7 @@ import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.DefaultFunctionResolver;
 import org.opensearch.sql.expression.function.FunctionDSL;
 import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.expression.function.FunctionProperties;
 import org.opensearch.sql.expression.function.FunctionResolver;
 import org.opensearch.sql.utils.DateTimeUtils;
 
@@ -247,22 +250,38 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver addtime() {
     return define(BuiltinFunctionName.ADDTIME.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), TIME, TIME, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), TIME, TIME, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), TIME, TIME, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), TIME, TIME, TIMESTAMP),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATETIME, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATETIME, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATETIME, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATETIME, TIMESTAMP),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATE, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATE, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATE, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, DATE, TIMESTAMP),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, TIMESTAMP, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, TIMESTAMP, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, TIMESTAMP, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprAddTime), DATETIME, TIMESTAMP, TIMESTAMP)
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            TIME, TIME, TIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            TIME, TIME, DATE),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            TIME, TIME, DATETIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            TIME, TIME, TIMESTAMP),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            DATETIME, DATETIME, TIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            DATETIME, DATETIME, DATE),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            DATETIME, DATETIME, DATETIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            DATETIME, DATETIME, TIMESTAMP),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            DATETIME, DATE, TIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            DATETIME, DATE, DATE),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            DATETIME, DATE, DATETIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            DATETIME, DATE, TIMESTAMP),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            DATETIME, TIMESTAMP, TIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            DATETIME, TIMESTAMP, DATE),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            DATETIME, TIMESTAMP, DATETIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            DATETIME, TIMESTAMP, TIMESTAMP)
     );
   }
 
@@ -549,22 +568,38 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver subtime() {
     return define(BuiltinFunctionName.SUBTIME.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), TIME, TIME, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), TIME, TIME, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), TIME, TIME, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), TIME, TIME, TIMESTAMP),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATETIME, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATETIME, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATETIME, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATETIME, TIMESTAMP),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATE, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATE, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATE, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, DATE, TIMESTAMP),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, TIMESTAMP, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, TIMESTAMP, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, TIMESTAMP, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprSubTime), DATETIME, TIMESTAMP, TIMESTAMP)
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            TIME, TIME, TIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            TIME, TIME, DATE),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            TIME, TIME, DATETIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            TIME, TIME, TIMESTAMP),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            DATETIME, DATETIME, TIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            DATETIME, DATETIME, DATE),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            DATETIME, DATETIME, DATETIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            DATETIME, DATETIME, TIMESTAMP),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            DATETIME, DATE, TIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            DATETIME, DATE, DATE),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            DATETIME, DATE, DATETIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            DATETIME, DATE, TIMESTAMP),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            DATETIME, TIMESTAMP, TIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            DATETIME, TIMESTAMP, DATE),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            DATETIME, TIMESTAMP, DATETIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            DATETIME, TIMESTAMP, TIMESTAMP)
     );
   }
 
@@ -707,16 +742,18 @@ public class DateTimeFunction {
   /**
    * Adds or subtracts time to/from date and returns the result.
    *
+   * @param functionProperties A FunctionProperties object.
    * @param temporal A Date/Time/Datetime/Timestamp value to change.
    * @param temporalDelta A Date/Time/Datetime/Timestamp object to add/subtract time from.
    * @param isAdd A flag: true to add, false to subtract.
    * @return A value calculated.
    */
-  private ExprValue exprApplyTime(ExprValue temporal, ExprValue temporalDelta, Boolean isAdd) {
+  private ExprValue exprApplyTime(FunctionProperties functionProperties,
+                                  ExprValue temporal, ExprValue temporalDelta, Boolean isAdd) {
     var interval = Duration.between(LocalTime.MIN, temporalDelta.timeValue());
     var result = isAdd
-        ? temporal.datetimeValue().plus(interval)
-        : temporal.datetimeValue().minus(interval);
+        ? extractDateTime(temporal, functionProperties).plus(interval)
+        : extractDateTime(temporal, functionProperties).minus(interval);
     return temporal.type() == TIME
         ? new ExprTimeValue(result.toLocalTime())
         : new ExprDatetimeValue(result);
@@ -725,12 +762,14 @@ public class DateTimeFunction {
   /**
    * Adds time to date and returns the result.
    *
+   * @param functionProperties A FunctionProperties object.
    * @param temporal A Date/Time/Datetime/Timestamp value to change.
    * @param temporalDelta A Date/Time/Datetime/Timestamp object to add time from.
    * @return A value calculated.
    */
-  private ExprValue exprAddTime(ExprValue temporal, ExprValue temporalDelta) {
-    return exprApplyTime(temporal, temporalDelta, true);
+  private ExprValue exprAddTime(FunctionProperties functionProperties,
+                                ExprValue temporal, ExprValue temporalDelta) {
+    return exprApplyTime(functionProperties, temporal, temporalDelta, true);
   }
 
   /**
@@ -1124,8 +1163,9 @@ public class DateTimeFunction {
    * @param temporalDelta A Date/Time/Datetime/Timestamp to subtract time from.
    * @return A value calculated.
    */
-  private ExprValue exprSubTime(ExprValue temporal, ExprValue temporalDelta) {
-    return exprApplyTime(temporal, temporalDelta, false);
+  private ExprValue exprSubTime(FunctionProperties functionProperties,
+                                ExprValue temporal, ExprValue temporalDelta) {
+    return exprApplyTime(functionProperties, temporal, temporalDelta, false);
   }
 
   /**
