@@ -20,11 +20,13 @@ import static org.opensearch.sql.expression.function.FunctionDSL.define;
 import static org.opensearch.sql.expression.function.FunctionDSL.impl;
 import static org.opensearch.sql.expression.function.FunctionDSL.implWithProperties;
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
+import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandlingWithProperties;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_STRICT_WITH_TZ;
+import static org.opensearch.sql.utils.DateTimeUtils.extractDateTime;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -230,10 +232,12 @@ public class DateTimeFunction {
   private SerializableFunction<?, ?>[] get_date_add_date_sub_signatures(
       SerializableTriFunction<FunctionProperties, ExprValue, ExprValue, ExprValue> function) {
     return new SerializableFunction[]{
-        implWithProperties(function, DATETIME, DATE, INTERVAL),
-        implWithProperties(function, DATETIME, DATETIME, INTERVAL),
-        implWithProperties(function, DATETIME, TIMESTAMP, INTERVAL),
-        implWithProperties(function, DATETIME, TIME, INTERVAL)
+        implWithProperties(nullMissingHandlingWithProperties(function), DATETIME, DATE, INTERVAL),
+        implWithProperties(nullMissingHandlingWithProperties(function),
+            DATETIME, DATETIME, INTERVAL),
+        implWithProperties(nullMissingHandlingWithProperties(function),
+            DATETIME, TIMESTAMP, INTERVAL),
+        implWithProperties(nullMissingHandlingWithProperties(function), DATETIME, TIME, INTERVAL)
     };
   }
 
@@ -246,10 +250,10 @@ public class DateTimeFunction {
   private SerializableFunction<?, ?>[] get_adddate_subdate_signatures(
       SerializableTriFunction<FunctionProperties, ExprValue, ExprValue, ExprValue> function) {
     return new SerializableFunction[]{
-        implWithProperties(function, DATE, DATE, LONG),
-        implWithProperties(function, DATETIME, DATETIME, LONG),
-        implWithProperties(function, DATETIME, TIMESTAMP, LONG),
-        implWithProperties(function, DATETIME, TIME, LONG)
+        implWithProperties(nullMissingHandlingWithProperties(function), DATE, DATE, LONG),
+        implWithProperties(nullMissingHandlingWithProperties(function), DATETIME, DATETIME, LONG),
+        implWithProperties(nullMissingHandlingWithProperties(function), DATETIME, TIMESTAMP, LONG),
+        implWithProperties(nullMissingHandlingWithProperties(function), DATETIME, TIME, LONG)
     };
   }
 
@@ -1249,11 +1253,5 @@ public class DateTimeFunction {
     var nano = new BigDecimal(res.getNano())
         .setScale(fsp - defaultPrecision, RoundingMode.DOWN).intValue();
     return res.withNano(nano);
-  }
-
-  private LocalDateTime extractDateTime(ExprValue value, FunctionProperties functionProperties) {
-    return value instanceof ExprTimeValue
-        ? ((ExprTimeValue) value).datetimeValue(functionProperties)
-        : value.datetimeValue();
   }
 }

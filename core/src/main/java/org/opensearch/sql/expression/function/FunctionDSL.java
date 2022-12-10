@@ -363,4 +363,22 @@ public class FunctionDSL {
       }
     };
   }
+
+  /**
+   * Wrapper for the ExprValue function that takes 2 arguments and is aware of FunctionProperties,
+   * with default NULL and MISSING handling.
+   */
+  public static SerializableTriFunction<FunctionProperties, ExprValue, ExprValue, ExprValue>
+        nullMissingHandlingWithProperties(
+      SerializableTriFunction<FunctionProperties, ExprValue, ExprValue,ExprValue> implementation) {
+    return (functionProperties, v1, v2) -> {
+      if (v1.isMissing() || v2.isMissing()) {
+        return ExprValueUtils.missingValue();
+      } else if (v1.isNull() || v2.isNull()) {
+        return ExprValueUtils.nullValue();
+      } else {
+        return implementation.apply(functionProperties, v1, v2);
+      }
+    };
+  }
 }
