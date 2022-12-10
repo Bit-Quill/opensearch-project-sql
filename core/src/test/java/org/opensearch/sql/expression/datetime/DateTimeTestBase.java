@@ -6,17 +6,12 @@
 package org.opensearch.sql.expression.datetime;
 
 import static org.opensearch.sql.data.model.ExprValueUtils.fromObjectValue;
-import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprMissingValue;
@@ -27,34 +22,20 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
-import org.opensearch.sql.expression.env.Environment;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
-import org.opensearch.sql.expression.function.FunctionProperties;
 
-@ExtendWith(MockitoExtension.class)
 public class DateTimeTestBase extends ExpressionTestBase {
 
   protected final BuiltinFunctionRepository functionRepository
       = BuiltinFunctionRepository.getInstance();
-
-  @Mock
-  protected Environment<Expression, ExprValue> env;
-
-
-  protected static FunctionProperties functionProperties;
-
-  @BeforeAll
-  public static void setup() {
-    functionProperties = new FunctionProperties();
-  }
 
   protected Expression nullRef = DSL.literal(ExprNullValue.of());
 
   protected Expression missingRef = DSL.literal(ExprMissingValue.of());
 
   protected ExprValue eval(Expression expression) {
-    return expression.valueOf(env);
+    return expression.valueOf();
   }
 
   protected FunctionExpression adddate(Expression date, Expression interval) {

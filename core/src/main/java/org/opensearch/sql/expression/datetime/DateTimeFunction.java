@@ -223,7 +223,6 @@ public class DateTimeFunction {
    * The return type depends on the date type and the interval unit. Detailed supported signatures:
    * (DATE/DATETIME/TIMESTAMP/TIME, INTERVAL) -> DATETIME
    * MySQL has these signatures too
-   * (STRING, INTERVAL) -> STRING
    * (DATE, INTERVAL) -> DATE                                     // when interval has no time part
    * (TIME, INTERVAL) -> TIME                                     // when interval has no date part
    * (STRING, INTERVAL) -> STRING         // when argument has date or datetime string,

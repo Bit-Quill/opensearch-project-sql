@@ -17,25 +17,20 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneOffset;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 
 public class DateAddAndAddDateTest extends DateTimeTestBase {
 
-  private static LocalDate today;
-
-  @BeforeAll
-  public static void setup() {
-    DateTimeTestBase.setup();
-    today = LocalDate.now(functionProperties.getQueryStartClock());
+  private LocalDate today() {
+    return LocalDate.now(functionProperties.getQueryStartClock());
   }
 
   @Test
   public void adddate_returns_datetime_when_args_are_time_and_time_interval() {
     var res = adddate(LocalTime.MIN, Duration.ofHours(1).plusMinutes(2));
     assertEquals(DATETIME, res.type());
-    assertEquals(LocalTime.of(1, 2).atDate(today), res.datetimeValue());
+    assertEquals(LocalTime.of(1, 2).atDate(today()), res.datetimeValue());
   }
 
   @Test
@@ -43,7 +38,7 @@ public class DateAddAndAddDateTest extends DateTimeTestBase {
     var res = date_add(LocalTime.of(10, 20, 30),
         Duration.ofHours(1).plusMinutes(2).plusSeconds(42));
     assertEquals(DATETIME, res.type());
-    assertEquals(LocalTime.of(11, 23, 12).atDate(today), res.datetimeValue());
+    assertEquals(LocalTime.of(11, 23, 12).atDate(today()), res.datetimeValue());
   }
 
   @Test
@@ -94,14 +89,14 @@ public class DateAddAndAddDateTest extends DateTimeTestBase {
     // Date based on today
     var res = adddate(LocalTime.of(1, 2, 0), Period.ofDays(1));
     assertEquals(DATETIME, res.type());
-    assertEquals(today.plusDays(1).atTime(LocalTime.of(1, 2, 0)), res.datetimeValue());
+    assertEquals(today().plusDays(1).atTime(LocalTime.of(1, 2, 0)), res.datetimeValue());
   }
 
   @Test
   public void date_add_returns_datetime_when_args_are_time_and_date_interval() {
     var res = date_add(LocalTime.MIDNIGHT, Period.ofDays(0));
     assertEquals(DATETIME, res.type());
-    assertEquals(today.atStartOfDay(), res.datetimeValue());
+    assertEquals(today().atStartOfDay(), res.datetimeValue());
   }
 
   @Test
@@ -154,7 +149,7 @@ public class DateAddAndAddDateTest extends DateTimeTestBase {
 
     res = adddate(LocalTime.now(), 2);
     assertEquals(DATETIME, res.type());
-    assertEquals(today.plusDays(2), res.dateValue());
+    assertEquals(today().plusDays(2), res.dateValue());
 
     res = adddate(Instant.ofEpochSecond(42), 2);
     assertEquals(DATETIME, res.type());

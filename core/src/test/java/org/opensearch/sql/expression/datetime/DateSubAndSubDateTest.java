@@ -17,25 +17,20 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneOffset;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 
 public class DateSubAndSubDateTest extends DateTimeTestBase {
 
-  private static LocalDate today;
-
-  @BeforeAll
-  public static void setup() {
-    DateTimeTestBase.setup();
-    today = LocalDate.now(functionProperties.getQueryStartClock());
+  private LocalDate today() {
+    return LocalDate.now(functionProperties.getQueryStartClock());
   }
 
   @Test
   public void subdate_returns_datetime_when_args_are_time_and_time_interval() {
     var res = subdate(LocalTime.of(21, 0), Duration.ofHours(1).plusMinutes(2));
     assertEquals(DATETIME, res.type());
-    assertEquals(LocalTime.of(19, 58).atDate(today), res.datetimeValue());
+    assertEquals(LocalTime.of(19, 58).atDate(today()), res.datetimeValue());
   }
 
   @Test
@@ -43,7 +38,7 @@ public class DateSubAndSubDateTest extends DateTimeTestBase {
     var res = date_sub(LocalTime.of(10, 20, 30),
         Duration.ofHours(1).plusMinutes(2).plusSeconds(42));
     assertEquals(DATETIME, res.type());
-    assertEquals(LocalTime.of(9, 17, 48).atDate(today), res.datetimeValue());
+    assertEquals(LocalTime.of(9, 17, 48).atDate(today()), res.datetimeValue());
   }
 
   @Test
@@ -94,14 +89,14 @@ public class DateSubAndSubDateTest extends DateTimeTestBase {
     // Date based on today
     var res = subdate(LocalTime.of(1, 2, 0), Period.ofDays(1));
     assertEquals(DATETIME, res.type());
-    assertEquals(today.minusDays(1).atTime(LocalTime.of(1, 2, 0)), res.datetimeValue());
+    assertEquals(today().minusDays(1).atTime(LocalTime.of(1, 2, 0)), res.datetimeValue());
   }
 
   @Test
   public void date_sub_returns_datetime_when_args_are_time_and_date_interval() {
     var res = date_sub(LocalTime.MIDNIGHT, Period.ofDays(0));
     assertEquals(DATETIME, res.type());
-    assertEquals(today.atStartOfDay(), res.datetimeValue());
+    assertEquals(today().atStartOfDay(), res.datetimeValue());
   }
 
   @Test
@@ -151,6 +146,10 @@ public class DateSubAndSubDateTest extends DateTimeTestBase {
     var res = subdate(LocalDate.of(2000, 1, 1).atStartOfDay(), 2);
     assertEquals(DATETIME, res.type());
     assertEquals(LocalDateTime.of(1999, 12, 30, 0, 0), res.datetimeValue());
+
+    res = subdate(LocalTime.now(), 2);
+    assertEquals(DATETIME, res.type());
+    assertEquals(today().minusDays(2), res.dateValue());
 
     res = subdate(Instant.ofEpochSecond(42), 2);
     assertEquals(DATETIME, res.type());
