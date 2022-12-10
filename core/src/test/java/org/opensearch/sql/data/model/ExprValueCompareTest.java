@@ -12,8 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
-import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
-import static org.opensearch.sql.data.model.ExprValueUtils.stringValue;
+import static org.opensearch.sql.utils.DateTimeUtils.extractDateTime;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -22,10 +21,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.opensearch.sql.data.utils.ExprValueOrdering;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
+import org.opensearch.sql.expression.ExpressionTestBase;
 
-public class ExprValueCompareTest {
+public class ExprValueCompareTest extends ExpressionTestBase {
 
   @Test
   public void timeValueCompare() {
@@ -94,11 +93,17 @@ public class ExprValueCompareTest {
     );
   }
 
+  /**
+   *  We can't compare directly ExprValues of different datetime types, we need to use
+   *  `FunctionProperties` object to extract comparable values.
+   */
   @ParameterizedTest
   @MethodSource("getEqualDatetimeValuesOfDifferentTypes")
   public void compareEqDifferentDateTimeValueTypes(ExprValue left, ExprValue right) {
-    assertEquals(0, left.compareTo(right));
-    assertEquals(0, right.compareTo(left));
+    assertEquals(0, extractDateTime(left, functionProperties)
+        .compareTo(extractDateTime(right, functionProperties)));
+    assertEquals(0, extractDateTime(right, functionProperties)
+        .compareTo(extractDateTime(left, functionProperties)));
   }
 
   private static Stream<Arguments> getNotEqualDatetimeValuesOfDifferentTypes() {
@@ -138,10 +143,17 @@ public class ExprValueCompareTest {
     );
   }
 
+  /**
+   *  We can't compare directly ExprValues of different datetime types, we need to use
+   *  `FunctionProperties` object to extract comparable values.
+   */
   @ParameterizedTest
   @MethodSource("getNotEqualDatetimeValuesOfDifferentTypes")
   public void compareNeqDifferentDateTimeValueTypes(ExprValue left, ExprValue right) {
-    assertNotEquals(0, left.compareTo(right));
+    assertNotEquals(0, extractDateTime(left, functionProperties)
+        .compareTo(extractDateTime(right, functionProperties)));
+    assertNotEquals(0, extractDateTime(right, functionProperties)
+        .compareTo(extractDateTime(left, functionProperties)));
   }
 
   @Test

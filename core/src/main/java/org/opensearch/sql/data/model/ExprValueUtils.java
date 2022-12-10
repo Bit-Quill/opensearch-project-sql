@@ -19,8 +19,6 @@ import lombok.experimental.UtilityClass;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 
-// TODO merge file from #122
-
 /**
  * The definition of {@link ExprValue} factory.
  */

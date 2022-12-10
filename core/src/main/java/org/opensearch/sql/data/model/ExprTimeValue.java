@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.SemanticCheckException;
+import org.opensearch.sql.expression.function.FunctionProperties;
 
 /**
  * Expression Time Value.
@@ -56,19 +57,17 @@ public class ExprTimeValue extends AbstractExprValue {
     return time;
   }
 
-  @Override
-  public LocalDate dateValue() {
-    return LocalDate.now();
+  public LocalDate dateValue(FunctionProperties functionProperties) {
+    return LocalDate.now(functionProperties.getQueryStartClock());
   }
 
-  @Override
-  public LocalDateTime datetimeValue() {
-    return LocalDateTime.of(dateValue(), timeValue());
+  public LocalDateTime datetimeValue(FunctionProperties functionProperties) {
+    return LocalDateTime.of(dateValue(functionProperties), timeValue());
   }
 
-  @Override
-  public Instant timestampValue() {
-    return ZonedDateTime.of(dateValue(), timeValue(), ExprTimestampValue.ZONE).toInstant();
+  public Instant timestampValue(FunctionProperties functionProperties) {
+    return ZonedDateTime.of(dateValue(functionProperties), timeValue(), ExprTimestampValue.ZONE)
+        .toInstant();
   }
 
   @Override

@@ -409,14 +409,14 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   @ParameterizedTest(name = "equal({0}, {1})")
   @MethodSource("testEqualArguments")
   public void test_equal(ExprValue v1, ExprValue v2) {
-    FunctionExpression equal = DSL.equal(DSL.literal(v1), DSL.literal(v2));
+    FunctionExpression equal = DSL.equal(functionProperties, DSL.literal(v1), DSL.literal(v2));
     assertEquals(BOOLEAN, equal.type());
     if (v1.type() == v2.type()) {
       assertEquals(v1.value().equals(v2.value()),
           ExprValueUtils.getBooleanValue(equal.valueOf(valueEnv())));
     }
     if (v1.type() != STRUCT && v1.type() != ARRAY) {
-      assertEquals(0 == compare(v1, v2),
+      assertEquals(0 == compare(functionProperties, v1, v2),
           ExprValueUtils.getBooleanValue(equal.valueOf(valueEnv())));
     }
     assertEquals(String.format("=(%s, %s)", v1.toString(), v2.toString()), equal.toString());
@@ -464,14 +464,15 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   @ParameterizedTest(name = "equal({0}, {1})")
   @MethodSource({"testEqualArguments", "testNotEqualArguments"})
   public void test_notequal(ExprValue v1, ExprValue v2) {
-    FunctionExpression notequal = DSL.notequal(DSL.literal(v1), DSL.literal(v2));
+    FunctionExpression notequal = DSL.notequal(functionProperties,
+        DSL.literal(v1), DSL.literal(v2));
     assertEquals(BOOLEAN, notequal.type());
     if (v1.type() == v2.type()) {
       assertEquals(!v1.value().equals(v2.value()),
           ExprValueUtils.getBooleanValue(notequal.valueOf(valueEnv())));
     }
     if (v1.type() != STRUCT && v1.type() != ARRAY) {
-      assertEquals(0 != compare(v1, v2),
+      assertEquals(0 != compare(functionProperties, v1, v2),
           ExprValueUtils.getBooleanValue(notequal.valueOf(valueEnv())));
     }
     assertEquals(String.format("!=(%s, %s)", v1.toString(), v2.toString()), notequal.toString());
@@ -523,9 +524,9 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   @ParameterizedTest(name = "less({0}, {1})")
   @MethodSource("testCompareValueArguments")
   public void test_less(ExprValue v1, ExprValue v2) {
-    FunctionExpression less = DSL.less(DSL.literal(v1), DSL.literal(v2));
+    FunctionExpression less = DSL.less(functionProperties, DSL.literal(v1), DSL.literal(v2));
     assertEquals(BOOLEAN, less.type());
-    assertEquals(compare(v1, v2) < 0,
+    assertEquals(compare(functionProperties, v1, v2) < 0,
         ExprValueUtils.getBooleanValue(less.valueOf(valueEnv())));
     assertEquals(String.format("<(%s, %s)", v1.toString(), v2.toString()), less.toString());
   }
@@ -580,9 +581,9 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   @ParameterizedTest(name = "lte({0}, {1})")
   @MethodSource("testCompareValueArguments")
   public void test_lte(ExprValue v1, ExprValue v2) {
-    FunctionExpression lte = DSL.lte(DSL.literal(v1), DSL.literal(v2));
+    FunctionExpression lte = DSL.lte(functionProperties, DSL.literal(v1), DSL.literal(v2));
     assertEquals(BOOLEAN, lte.type());
-    assertEquals(compare(v1, v2) <= 0,
+    assertEquals(compare(functionProperties, v1, v2) <= 0,
         ExprValueUtils.getBooleanValue(lte.valueOf(valueEnv())));
     assertEquals(String.format("<=(%s, %s)", v1.toString(), v2.toString()), lte.toString());
   }
@@ -637,9 +638,9 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   @ParameterizedTest(name = "greater({0}, {1})")
   @MethodSource("testCompareValueArguments")
   public void test_greater(ExprValue v1, ExprValue v2) {
-    FunctionExpression greater = DSL.greater(DSL.literal(v1), DSL.literal(v2));
+    FunctionExpression greater = DSL.greater(functionProperties, DSL.literal(v1), DSL.literal(v2));
     assertEquals(BOOLEAN, greater.type());
-    assertEquals(compare(v1, v2) > 0,
+    assertEquals(compare(functionProperties, v1, v2) > 0,
         ExprValueUtils.getBooleanValue(greater.valueOf(valueEnv())));
     assertEquals(String.format(">(%s, %s)", v1.toString(), v2.toString()), greater.toString());
   }
@@ -694,9 +695,9 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   @ParameterizedTest(name = "gte({0}, {1})")
   @MethodSource("testCompareValueArguments")
   public void test_gte(ExprValue v1, ExprValue v2) {
-    FunctionExpression gte = DSL.gte(DSL.literal(v1), DSL.literal(v2));
+    FunctionExpression gte = DSL.gte(functionProperties, DSL.literal(v1), DSL.literal(v2));
     assertEquals(BOOLEAN, gte.type());
-    assertEquals(compare(v1, v2) >= 0,
+    assertEquals(compare(functionProperties, v1, v2) >= 0,
         ExprValueUtils.getBooleanValue(gte.valueOf(valueEnv())));
     assertEquals(String.format(">=(%s, %s)", v1.toString(), v2.toString()), gte.toString());
   }
