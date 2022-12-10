@@ -21,11 +21,13 @@ import static org.opensearch.sql.expression.function.FunctionDSL.define;
 import static org.opensearch.sql.expression.function.FunctionDSL.impl;
 import static org.opensearch.sql.expression.function.FunctionDSL.implWithProperties;
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
+import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandlingWithProperties;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_STRICT_WITH_TZ;
+import static org.opensearch.sql.utils.DateTimeUtils.extractDate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -65,6 +67,7 @@ import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.DefaultFunctionResolver;
 import org.opensearch.sql.expression.function.FunctionDSL;
 import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.expression.function.FunctionProperties;
 import org.opensearch.sql.expression.function.FunctionResolver;
 import org.opensearch.sql.utils.DateTimeUtils;
 
@@ -271,22 +274,38 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver datediff() {
     return define(BuiltinFunctionName.DATEDIFF.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATE, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATETIME, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATE, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATETIME, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATE, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIME, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIME, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIMESTAMP, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATE, TIMESTAMP),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIMESTAMP, TIMESTAMP),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIMESTAMP, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIME, TIMESTAMP),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIMESTAMP, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATETIME, TIMESTAMP),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, TIME, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprDateDiff), LONG, DATETIME, TIME));
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, DATE, DATE),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, DATETIME, DATE),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, DATE, DATETIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, DATETIME, DATETIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, DATE, TIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, TIME, DATE),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, TIME, TIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, TIMESTAMP, DATE),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, DATE, TIMESTAMP),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, TIMESTAMP, TIMESTAMP),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, TIMESTAMP, TIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, TIME, TIMESTAMP),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, TIMESTAMP, DATETIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, DATETIME, TIMESTAMP),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, TIME, DATETIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprDateDiff),
+            LONG, DATETIME, TIME));
   }
 
   /**
@@ -743,9 +762,12 @@ public class DateTimeFunction {
    * @param second The second value.
    * @return The diff.
    */
-  private ExprValue exprDateDiff(ExprValue first, ExprValue second) {
+  private ExprValue exprDateDiff(FunctionProperties functionProperties,
+                                 ExprValue first, ExprValue second) {
     // java inverses the value, so we have to swap 1 and 2
-    return new ExprLongValue(DAYS.between(second.dateValue(), first.dateValue()));
+    return new ExprLongValue(DAYS.between(
+        extractDate(second, functionProperties),
+        extractDate(first, functionProperties)));
   }
 
   /**

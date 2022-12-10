@@ -43,14 +43,6 @@ public class DateTimeTestBase extends ExpressionTestBase {
   @Mock
   protected Environment<Expression, ExprValue> env;
 
-
-  protected static FunctionProperties functionProperties;
-
-  @BeforeAll
-  public static void setup() {
-    functionProperties = new FunctionProperties();
-  }
-
   protected Expression nullRef = DSL.literal(ExprNullValue.of());
 
   protected Expression missingRef = DSL.literal(ExprMissingValue.of());
