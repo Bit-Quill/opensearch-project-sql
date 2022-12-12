@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
+import org.opensearch.action.search.SearchAction;
+import org.opensearch.action.search.SearchRequestBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.aggregations.AggregationBuilder;
 import org.opensearch.sql.common.setting.Settings;
@@ -246,6 +248,8 @@ public class OpenSearchIndex implements Table {
       // Select = fields/types
 //      new NestedFieldProjection(request);
 //      new NestedFieldProjection(request).project(select.getFields(), select.getNestedJoinType());
+//      var blah = new SearchRequestBuilder(client, SearchAction.INSTANCE);
+      var blah = context.getRequestBuilder();
       context.getRequestBuilder().pushDownNested(node.getField().toString());
       return visitChild(node, context);
     }
