@@ -7,6 +7,8 @@
 package org.opensearch.sql.opensearch.request;
 
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.existsQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
@@ -23,26 +25,24 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.lucene.search.join.ScoreMode;
-import org.opensearch.action.search.SearchAction;
-import org.opensearch.action.search.SearchRequestBuilder;
 import org.opensearch.common.unit.TimeValue;
 import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.InnerHitBuilder;
 import org.opensearch.index.query.NestedQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
-import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.search.aggregations.AggregationBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.opensearch.search.fetch.subphase.FetchSourceContext;
 import org.opensearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.opensearch.search.sort.SortBuilder;
+import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Literal;
+import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.type.ExprType;
@@ -58,6 +58,31 @@ import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseP
 @Getter
 @ToString
 public class OpenSearchRequestBuilder {
+
+  public static enum JoinType {
+    COMMA(","), //
+    JOIN("JOIN"), //
+    INNER_JOIN("INNER JOIN"), //
+    CROSS_JOIN("CROSS JOIN"), //
+    NATURAL_JOIN("NATURAL JOIN"), //
+    NATURAL_INNER_JOIN("NATURAL INNER JOIN"), //
+    LEFT_OUTER_JOIN("LEFT JOIN"), //
+    RIGHT_OUTER_JOIN("RIGHT JOIN"), //
+    FULL_OUTER_JOIN("FULL JOIN"),//
+    STRAIGHT_JOIN("STRAIGHT_JOIN"), //
+    OUTER_APPLY("OUTER APPLY"),//
+    CROSS_APPLY("CROSS APPLY");
+
+    public final String name;
+
+    JoinType(String name){
+      this.name = name;
+    }
+
+    public static String toString(JoinType joinType) {
+      return joinType.name;
+    }
+  }
 
   /**
    * Default query timeout in minutes.
@@ -239,7 +264,7 @@ public class OpenSearchRequestBuilder {
   }
 
   public void pushDownNested(String field) {
-    project(null, null);
+    project(List.of(new Field(new QualifiedName(field))), null);
     return;
   }
 
@@ -280,7 +305,10 @@ public class OpenSearchRequestBuilder {
    */
   private boolean isAnyNestedField(List<Field> fields) {
     for (Field field : fields) {
-      if (field.isNested() && !field.isReverseNested()) {
+//      if (field.isNested() && !field.isReverseNested()) {
+//        return true;
+//      }
+      if (field.toString().contains(".")) {
         return true;
       }
     }
