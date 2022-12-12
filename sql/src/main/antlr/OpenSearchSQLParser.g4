@@ -373,11 +373,11 @@ multiFieldRelevanceFunction
     ;
 
 altSingleFieldRelevanceFunction
-    : field=relevanceField EQUAL_SYMBOL altSyntaxFunctionName=altSingleFieldRelevanceFunctionName LR_BRACKET query=relevanceQuery RR_BRACKET
+    : field=relevanceField EQUAL_SYMBOL altSyntaxFunctionName=altSingleFieldRelevanceFunctionName LR_BRACKET query=relevanceQuery (COMMA relevanceArg)* RR_BRACKET
     ;
 
 altMultiFieldRelevanceFunction
-    : field=relevanceField EQUAL_SYMBOL altSyntaxFunctionName=altMultiFieldRelevanceFunctionName LR_BRACKET query=relevanceQuery RR_BRACKET
+    : field=relevanceField EQUAL_SYMBOL altSyntaxFunctionName=altMultiFieldRelevanceFunctionName LR_BRACKET query=relevanceQuery (COMMA relevanceArg)* RR_BRACKET
     ;
 
 convertedDataType

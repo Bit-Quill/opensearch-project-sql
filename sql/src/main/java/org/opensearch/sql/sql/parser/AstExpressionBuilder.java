@@ -508,6 +508,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
         new Literal(StringUtils.unquoteText(ctx.field.getText()), DataType.STRING)));
     builder.add(new UnresolvedArgument("query",
         new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));
+    fillRelevanceArgs(ctx.relevanceArg(), builder);
     return builder.build();
   }
 
@@ -577,6 +578,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     builder.add(new UnresolvedArgument("fields", fields));
     builder.add(new UnresolvedArgument("query",
         new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));
+    fillRelevanceArgs(ctx.relevanceArg(), builder);
     return builder.build();
   }
 }
