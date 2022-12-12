@@ -6,7 +6,6 @@
 package org.opensearch.sql.sql;
 
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BEER;
-import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_PHRASE;
 import static org.opensearch.sql.util.MatcherUtils.rows;
 import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
 
@@ -155,7 +154,5 @@ public class MultiMatchIT extends SQLIntegTestCase {
     var result3 = new JSONObject(executeQuery(query3, "jdbc"));
     assertEquals(result1.getInt("total"), result2.getInt("total"));
     assertEquals(result1.getInt("total"), result3.getInt("total"));
-//    assertTrue(result1.similar(result2));
-//    assertTrue(result1.similar(result3));
   }
 }
