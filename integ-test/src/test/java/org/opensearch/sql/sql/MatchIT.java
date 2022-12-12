@@ -83,17 +83,17 @@ public class MatchIT extends SQLIntegTestCase {
   @Test
   public void match_query_alternate_syntax() throws IOException {
     JSONObject result = executeJdbcRequest(
-        "SELECT firstname FROM " + TEST_INDEX_ACCOUNT + " WHERE lastname = match_query('Bates')");
-    verifySchema(result, schema("firstname", "text"));
-    verifyDataRows(result, rows("Nanette"));
+        "SELECT lastname FROM " + TEST_INDEX_ACCOUNT + " WHERE lastname = match_query('Bates')");
+    verifySchema(result, schema("lastname", "text"));
+    verifyDataRows(result, rows("Bates"));
   }
 
   @Test
   public void matchquery_alternate_syntax() throws IOException {
     JSONObject result = executeJdbcRequest(
-        "SELECT firstname FROM " + TEST_INDEX_ACCOUNT + " WHERE lastname = matchquery('Bates')");
-    verifySchema(result, schema("firstname", "text"));
-    verifyDataRows(result, rows("Nanette"));
+        "SELECT lastname FROM " + TEST_INDEX_ACCOUNT + " WHERE lastname = matchquery('Bates')");
+    verifySchema(result, schema("lastname", "text"));
+    verifyDataRows(result, rows("Bates"));
   }
 
   @Test
