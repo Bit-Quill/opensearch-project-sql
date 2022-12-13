@@ -6,7 +6,6 @@
 package org.opensearch.sql.expression.datetime;
 
 import static org.opensearch.sql.data.model.ExprValueUtils.fromObjectValue;
-import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -80,17 +79,6 @@ public class DateTimeTestBase extends ExpressionTestBase {
   protected String fromUnixTime(Double value, String format) {
     return fromUnixTime(DSL.literal(value), DSL.literal(format))
         .valueOf().stringValue();
-  }
-
-  protected FunctionExpression addtime(Expression date, Expression interval) {
-    var func = functionRepository.resolve(new FunctionSignature(new FunctionName("addtime"),
-        List.of(date.type(), interval.type())));
-    return (FunctionExpression)func.apply(List.of(date, interval));
-  }
-
-  protected ExprValue addtime(Temporal first, Temporal second) {
-    return addtime(DSL.literal(fromObjectValue(first)), DSL.literal(fromObjectValue(second)))
-        .valueOf(null);
   }
 
   protected FunctionExpression maketime(Expression hour, Expression minute, Expression second) {
@@ -179,18 +167,8 @@ public class DateTimeTestBase extends ExpressionTestBase {
         .valueOf().doubleValue();
   }
 
-  protected FunctionExpression subtime(Expression date, Expression interval) {
-    var func = functionRepository.resolve(new FunctionSignature(new FunctionName("subtime"),
-        List.of(date.type(), interval.type())));
-    return (FunctionExpression)func.apply(List.of(date, interval));
-  }
-
-  protected ExprValue subtime(Temporal first, Temporal second) {
-    return subtime(DSL.literal(fromObjectValue(first)), DSL.literal(fromObjectValue(second)))
-        .valueOf(null);
-  }
-
-  protected ExprValue eval(Expression expression) {
-    return expression.valueOf(env);
+  protected Double unixTimeStampOf(Instant value) {
+    return unixTimeStampOf(DSL.literal(new ExprTimestampValue(value)))
+        .valueOf().doubleValue();
   }
 }

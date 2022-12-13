@@ -411,15 +411,6 @@ trigonometricFunctionName
     ;
 
 dateTimeFunctionName
-    : ADDDATE | ADDTIME | CONVERT_TZ | DATE | DATE_ADD | DATE_FORMAT | DATE_SUB
-    | DATETIME | DAY | DAYNAME | DAYOFMONTH | DAYOFWEEK | DAYOFYEAR | FROM_DAYS | FROM_UNIXTIME
-    | HOUR | MAKEDATE | MAKETIME | MICROSECOND | MINUTE | MONTH | MONTHNAME
-    | QUARTER | SECOND | SUBDATE | SUBTIME | SYSDATE | TIME | TIME_TO_SEC
-    | TIMESTAMP | TO_DAYS | UNIX_TIMESTAMP | WEEK | YEAR
-    ;
-
-// Functions which value could be cached in scope of a single query
-constantFunctionName
     : datetimeConstantLiteral
     | ADDDATE
     | ADDTIME

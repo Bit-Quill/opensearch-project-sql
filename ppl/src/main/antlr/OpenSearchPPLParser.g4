@@ -428,17 +428,53 @@ trigonometricFunctionName
     ;
 
 dateAndTimeFunctionBase
-    : ADDDATE | ADDTIME | CONVERT_TZ | DATE | DATE_ADD | DATE_FORMAT | DATE_SUB
-    | DATETIME | DAY | DAYNAME | DAYOFMONTH | DAYOFWEEK | DAYOFYEAR | FROM_DAYS | FROM_UNIXTIME
-    | HOUR | MAKEDATE | MAKETIME | MICROSECOND | MINUTE | MONTH | MONTHNAME
-    | QUARTER | SECOND | SUBDATE | SUBTIME | SYSDATE | TIME | TIME_TO_SEC
-    | TIMESTAMP | TO_DAYS | UNIX_TIMESTAMP | WEEK | YEAR
-    ;
-
-// Functions which value could be cached in scope of a single query
-constantFunctionName
-    : datetimeConstantLiteral
-    | CURDATE | CURTIME | NOW
+    : ADDDATE
+    | ADDTIME
+    | CONVERT_TZ
+    | CURRENT_DATE
+    | CURRENT_TIME
+    | CURRENT_TIMESTAMP
+    | DATE
+    | DATE_ADD
+    | DATE_FORMAT
+    | DATE_SUB
+    | DATETIME
+    | DAY
+    | DAYNAME
+    | DAYOFMONTH
+    | DAYOFWEEK
+    | DAYOFYEAR
+    | CURDATE
+    | CURTIME
+    | FROM_DAYS
+    | FROM_UNIXTIME
+    | HOUR
+    | LOCALTIME
+    | LOCALTIMESTAMP
+    | MAKEDATE
+    | MAKETIME
+    | MICROSECOND
+    | MINUTE
+    | MONTH
+    | MONTHNAME
+    | NOW
+    | PERIOD_ADD
+    | PERIOD_DIFF
+    | QUARTER
+    | SECOND
+    | SUBDATE
+    | SUBTIME
+    | SYSDATE
+    | TIME
+    | TIME_TO_SEC
+    | TIMESTAMP
+    | TO_DAYS
+    | UNIX_TIMESTAMP
+    | UTC_DATE
+    | UTC_TIME
+    | UTC_TIMESTAMP
+    | WEEK
+    | YEAR
     ;
 
 /** condition function return boolean value */

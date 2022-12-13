@@ -32,10 +32,23 @@ public class DateTimeValueTest {
     assertEquals(TIME, timeValue.type());
 
     assertEquals(LocalTime.parse("01:01:01"), timeValue.timeValue());
-    assertEquals(LocalDate.now(), timeValue.dateValue());
-    assertEquals(LocalDate.now().atTime(1, 1, 1), timeValue.datetimeValue());
-    assertEquals(ZonedDateTime.of(LocalTime.parse("01:01:01").atDate(LocalDate.now()),
-        ZoneId.systemDefault()).toInstant(), timeValue.timestampValue());
+    // It is prohibited to acquire values which include date part from `ExprTimeValue`
+    // without a FunctionProperties object
+    var exception = assertThrows(ExpressionEvaluationException.class, timeValue::dateValue);
+    assertEquals("invalid to get dateValue from value of type TIME", exception.getMessage());
+    exception = assertThrows(ExpressionEvaluationException.class, timeValue::datetimeValue);
+    assertEquals("invalid to get datetimeValue from value of type TIME", exception.getMessage());
+    exception = assertThrows(ExpressionEvaluationException.class, timeValue::timestampValue);
+    assertEquals("invalid to get timestampValue from value of type TIME", exception.getMessage());
+
+    var functionProperties = new FunctionProperties();
+    var today = LocalDate.now(functionProperties.getQueryStartClock());
+
+    assertEquals(today, timeValue.dateValue(functionProperties));
+    assertEquals(today.atTime(1, 1, 1), timeValue.datetimeValue(functionProperties));
+    assertEquals(ZonedDateTime.of(LocalTime.parse("01:01:01").atDate(today),
+        ExprTimestampValue.ZONE).toInstant(), timeValue.timestampValue(functionProperties));
+
     assertEquals("01:01:01", timeValue.value());
     assertEquals("TIME '01:01:01'", timeValue.toString());
     exception = assertThrows(ExpressionEvaluationException.class,
