@@ -15,38 +15,28 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprTimestampValue;
-import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
-import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
-import org.opensearch.sql.expression.env.Environment;
 
-@ExtendWith(MockitoExtension.class)
 public class TimestampTest extends ExpressionTestBase {
-
-  @Mock
-  Environment<Expression, ExprValue> env;
 
   @Test
   public void timestamp_one_arg_string() {
-    var expr = dsl.timestamp(DSL.literal("1961-04-12 09:07:00"));
+    var expr = DSL.timestamp(functionProperties, DSL.literal("1961-04-12 09:07:00"));
     assertEquals(TIMESTAMP, expr.type());
-    assertEquals(new ExprTimestampValue("1961-04-12 09:07:00"), expr.valueOf(env));
+    assertEquals(new ExprTimestampValue("1961-04-12 09:07:00"), expr.valueOf());
 
-    expr = dsl.timestamp(DSL.literal("1961-04-12 09:07:00.123456"));
+    expr = DSL.timestamp(functionProperties, DSL.literal("1961-04-12 09:07:00.123456"));
     assertEquals(TIMESTAMP, expr.type());
     assertEquals(LocalDateTime.of(1961, 4, 12, 9, 7, 0, 123456000),
-        expr.valueOf(env).datetimeValue());
+        expr.valueOf().datetimeValue());
   }
 
   /**
@@ -63,42 +53,43 @@ public class TimestampTest extends ExpressionTestBase {
   public void timestamp_one_arg_string_invalid_format(String value, String testName) {
     // exception thrown from ExprTimestampValue(String) CTOR
     var exception = assertThrows(SemanticCheckException.class,
-        () -> dsl.timestamp(DSL.literal(value)).valueOf(env));
+        () -> DSL.timestamp(functionProperties, DSL.literal(value)).valueOf());
     assertEquals(String.format("timestamp:%s in unsupported format, please "
         + "use yyyy-MM-dd HH:mm:ss[.SSSSSSSSS]", value), exception.getMessage());
   }
 
   @Test
   public void timestamp_one_arg_time() {
-    var expr = dsl.timestamp(dsl.time(DSL.literal("22:33:44")));
+    var expr = DSL.timestamp(functionProperties, DSL.time(DSL.literal("22:33:44")));
     assertEquals(TIMESTAMP, expr.type());
     var refValue = LocalDate.now().atTime(LocalTime.of(22, 33, 44))
         .atZone(ExprTimestampValue.ZONE).toInstant();
-    assertEquals(new ExprTimestampValue(refValue), expr.valueOf(env));
+    assertEquals(new ExprTimestampValue(refValue), expr.valueOf());
   }
 
   @Test
   public void timestamp_one_arg_date() {
-    var expr = dsl.timestamp(dsl.date(DSL.literal("2077-12-15")));
+    var expr = DSL.timestamp(functionProperties, DSL.date(DSL.literal("2077-12-15")));
     assertEquals(TIMESTAMP, expr.type());
     var refValue = LocalDate.of(2077, 12, 15).atStartOfDay()
         .atZone(ExprTimestampValue.ZONE).toInstant();
-    assertEquals(new ExprTimestampValue(refValue), expr.valueOf(env));
+    assertEquals(new ExprTimestampValue(refValue), expr.valueOf());
   }
 
   @Test
   public void timestamp_one_arg_datetime() {
-    var expr = dsl.timestamp(dsl.datetime(DSL.literal("1961-04-12 09:07:00")));
+    var expr = DSL.timestamp(functionProperties, DSL.datetime(DSL.literal("1961-04-12 09:07:00")));
     assertEquals(TIMESTAMP, expr.type());
-    assertEquals(LocalDateTime.of(1961, 4, 12, 9, 7, 0), expr.valueOf(env).datetimeValue());
+    assertEquals(LocalDateTime.of(1961, 4, 12, 9, 7, 0), expr.valueOf().datetimeValue());
   }
 
   @Test
   public void timestamp_one_arg_timestamp() {
     var refValue = new ExprTimestampValue(Instant.ofEpochSecond(10050042));
-    var expr = dsl.timestamp(dsl.timestamp(DSL.literal(refValue)));
+    var expr = DSL.timestamp(functionProperties,
+        DSL.timestamp(functionProperties, DSL.literal(refValue)));
     assertEquals(TIMESTAMP, expr.type());
-    assertEquals(refValue, expr.valueOf(env));
+    assertEquals(refValue, expr.valueOf());
   }
 
   private static Instant dateTime2Instant(LocalDateTime dt) {
@@ -186,10 +177,10 @@ public class TimestampTest extends ExpressionTestBase {
   @ParameterizedTest
   @MethodSource("getTestData")
   public void timestamp_with_two_args(Object arg1, Object arg2, ExprTimestampValue expected) {
-    var expr = dsl.timestamp(
+    var expr = DSL.timestamp(functionProperties,
         DSL.literal(ExprValueUtils.fromObjectValue(arg1)),
         DSL.literal(ExprValueUtils.fromObjectValue(arg2)));
     assertEquals(TIMESTAMP, expr.type());
-    assertEquals(expected, expr.valueOf(env));
+    assertEquals(expected, expr.valueOf());
   }
 }

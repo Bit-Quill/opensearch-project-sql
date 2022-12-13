@@ -893,7 +893,7 @@ Antonyms: `SUBTIME`_
 
 Example::
 
-    os> SELECT ADDTIME(TIME('23:59:59'), DATE('2004-01-01')) AS `'23:59:59' + 0`
+    os> SELECT ADDTIME(DATE('2008-12-12'), DATE('2008-11-15')) AS `'2008-12-12' + 0 `
     fetched rows / total rows = 1/1
     +---------------------+
     | '2008-12-12' + 0    |
@@ -2081,11 +2081,38 @@ Example::
 
     os> SELECT SUBTIME(TIMESTAMP('2007-03-01 10:20:30'), DATETIME('2002-03-04 20:40:50')) AS `'2007-03-01 10:20:30' - '20:40:50'`
     fetched rows / total rows = 1/1
-    +-----------------------------------------+
-    | `'2007-03-01 10:20:30' - '20:40:50'`    |
-    |-----------------------------------------|
-    | 2007-02-28 13:39:40                     |
-    +-----------------------------------------+
+    +--------------------------------------+
+    | '2007-03-01 10:20:30' - '20:40:50'   |
+    |--------------------------------------|
+    | 2007-02-28 13:39:40                  |
+    +--------------------------------------+
+
+
+SYSDATE
+-------
+
+Description
+>>>>>>>>>>>
+
+Returns the current date and time as a value in 'YYYY-MM-DD hh:mm:ss[.nnnnnn]'.
+SYSDATE() returns the time at which it executes. This differs from the behavior for `NOW() <#now>`_, which returns a constant time that indicates the time at which the statement began to execute.
+If the argument is given, it specifies a fractional seconds precision from 0 to 6, the return value includes a fractional seconds part of that many digits.
+
+Optional argument type: INTEGER
+
+Return type: DATETIME
+
+Specification: SYSDATE([INTEGER]) -> DATETIME
+
+Example::
+
+    > SELECT SYSDATE() as value_1, SYSDATE(6) as value_2;
+    fetched rows / total rows = 1/1
+    +---------------------+----------------------------+
+    | value_1             | value_2                    |
+    |---------------------+----------------------------|
+    | 2022-08-02 15:39:05 | 2022-08-02 15:39:05.123456 |
+    +---------------------+----------------------------+
 
 
 TIME
