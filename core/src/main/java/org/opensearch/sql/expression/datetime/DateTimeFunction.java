@@ -228,16 +228,16 @@ public class DateTimeFunction {
    * (STRING, INTERVAL) -> STRING         // when argument has date or datetime string,
    *                                      // result has date or datetime depending on interval type
    */
-  private SerializableFunction<?, ?>[] get_date_add_date_sub_signatures(
+  private Stream<SerializableFunction<?, ?>> get_date_add_date_sub_signatures(
       SerializableTriFunction<FunctionProperties, ExprValue, ExprValue, ExprValue> function) {
-    return new SerializableFunction[]{
+    return Stream.of(
         implWithProperties(nullMissingHandlingWithProperties(function), DATETIME, DATE, INTERVAL),
         implWithProperties(nullMissingHandlingWithProperties(function),
             DATETIME, DATETIME, INTERVAL),
         implWithProperties(nullMissingHandlingWithProperties(function),
             DATETIME, TIMESTAMP, INTERVAL),
         implWithProperties(nullMissingHandlingWithProperties(function), DATETIME, TIME, INTERVAL)
-    };
+    );
   }
 
   /**
@@ -246,22 +246,22 @@ public class DateTimeFunction {
    * (DATE, LONG) -> DATE
    * (TIME/DATETIME/TIMESTAMP, LONG) -> DATETIME
    */
-  private SerializableFunction<?, ?>[] get_adddate_subdate_signatures(
+  private Stream<SerializableFunction<?, ?>> get_adddate_subdate_signatures(
       SerializableTriFunction<FunctionProperties, ExprValue, ExprValue, ExprValue> function) {
-    return new SerializableFunction[]{
+    return Stream.of(
         implWithProperties(nullMissingHandlingWithProperties(function), DATE, DATE, LONG),
         implWithProperties(nullMissingHandlingWithProperties(function), DATETIME, DATETIME, LONG),
         implWithProperties(nullMissingHandlingWithProperties(function), DATETIME, TIMESTAMP, LONG),
         implWithProperties(nullMissingHandlingWithProperties(function), DATETIME, TIME, LONG)
-    };
+    );
   }
 
   private DefaultFunctionResolver adddate() {
     return define(BuiltinFunctionName.ADDDATE.getName(),
         (SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>[])
             (Stream.concat(
-            Arrays.stream(get_date_add_date_sub_signatures(DateTimeFunction::exprAddDateInterval)),
-            Arrays.stream(get_adddate_subdate_signatures(DateTimeFunction::exprAddDateDays)))
+            get_date_add_date_sub_signatures(DateTimeFunction::exprAddDateInterval),
+            get_adddate_subdate_signatures(DateTimeFunction::exprAddDateDays))
                 .toArray(SerializableFunction<?, ?>[]::new)));
   }
 
@@ -311,13 +311,15 @@ public class DateTimeFunction {
   private DefaultFunctionResolver date_add() {
     return define(BuiltinFunctionName.DATE_ADD.getName(),
         (SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>[])
-              get_date_add_date_sub_signatures(DateTimeFunction::exprAddDateInterval));
+            get_date_add_date_sub_signatures(DateTimeFunction::exprAddDateInterval)
+                .toArray(SerializableFunction<?, ?>[]::new));
   }
 
   private DefaultFunctionResolver date_sub() {
     return define(BuiltinFunctionName.DATE_SUB.getName(),
         (SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>[])
-              get_date_add_date_sub_signatures(DateTimeFunction::exprSubDateInterval));
+            get_date_add_date_sub_signatures(DateTimeFunction::exprSubDateInterval)
+                .toArray(SerializableFunction<?, ?>[]::new));
   }
 
   /**
@@ -518,8 +520,8 @@ public class DateTimeFunction {
     return define(BuiltinFunctionName.SUBDATE.getName(),
         (SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>[])
             (Stream.concat(
-            Arrays.stream(get_date_add_date_sub_signatures(DateTimeFunction::exprSubDateInterval)),
-            Arrays.stream(get_adddate_subdate_signatures(DateTimeFunction::exprSubDateDays)))
+            get_date_add_date_sub_signatures(DateTimeFunction::exprSubDateInterval),
+            get_adddate_subdate_signatures(DateTimeFunction::exprSubDateDays))
                 .toArray(SerializableFunction<?, ?>[]::new)));
   }
 
