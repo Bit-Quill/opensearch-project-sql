@@ -33,8 +33,22 @@ pplCommands
     ;
 
 commands
-    : whereCommand | fieldsCommand | renameCommand | statsCommand | dedupCommand | sortCommand | evalCommand | headCommand
-    | topCommand | rareCommand | grokCommand | parseCommand | patternsCommand | kmeansCommand | adCommand | mlCommand;
+    : whereCommand
+    | fieldsCommand
+    | renameCommand
+    | statsCommand
+    | dedupCommand
+    | sortCommand
+    | evalCommand
+    | headCommand
+    | topCommand
+    | rareCommand
+    | grokCommand
+    | parseCommand
+    | patternsCommand
+    | kmeansCommand
+    | adCommand
+    | mlCommand;
 
 searchCommand
     : (SEARCH)? fromClause                                          #searchFrom
@@ -255,10 +269,10 @@ comparisonExpression
 
 valueExpression
     : left=valueExpression
-        binaryOperator=(STAR | DIVIDE | MODULE)
+        binaryOperator//=(STAR | DIVIDE | MODULE)
             right=valueExpression                                   #binaryArithmetic
     | left=valueExpression
-        binaryOperator=(PLUS | MINUS)
+        binaryOperator//=(PLUS | MINUS)
             right=valueExpression                                   #binaryArithmetic
     | primaryExpression                                             #valueExpressionDefault
     | positionFunction                                              #positionFunctionCall
@@ -387,12 +401,38 @@ relevanceArg
     ;
 
 relevanceArgName
-    : ALLOW_LEADING_WILDCARD | ANALYZER | ANALYZE_WILDCARD | AUTO_GENERATE_SYNONYMS_PHRASE_QUERY
-    | BOOST | CUTOFF_FREQUENCY | DEFAULT_FIELD | DEFAULT_OPERATOR | ENABLE_POSITION_INCREMENTS
-    | ESCAPE | FIELDS | FLAGS | FUZZINESS | FUZZY_MAX_EXPANSIONS | FUZZY_PREFIX_LENGTH
-    | FUZZY_REWRITE | FUZZY_TRANSPOSITIONS | LENIENT | LOW_FREQ_OPERATOR | MAX_DETERMINIZED_STATES
-    | MAX_EXPANSIONS | MINIMUM_SHOULD_MATCH | OPERATOR | PHRASE_SLOP | PREFIX_LENGTH
-    | QUOTE_ANALYZER | QUOTE_FIELD_SUFFIX | REWRITE | SLOP | TIE_BREAKER | TIME_ZONE | TYPE
+    : ALLOW_LEADING_WILDCARD
+    | ANALYZER
+    | ANALYZE_WILDCARD
+    | AUTO_GENERATE_SYNONYMS_PHRASE_QUERY
+    | BOOST
+    | CUTOFF_FREQUENCY
+    | DEFAULT_FIELD
+    | DEFAULT_OPERATOR
+    | ENABLE_POSITION_INCREMENTS
+    | ESCAPE
+    | FIELDS
+    | FLAGS
+    | FUZZINESS
+    | FUZZY_MAX_EXPANSIONS
+    | FUZZY_PREFIX_LENGTH
+    | FUZZY_REWRITE
+    | FUZZY_TRANSPOSITIONS
+    | LENIENT
+    | LOW_FREQ_OPERATOR
+    | MAX_DETERMINIZED_STATES
+    | MAX_EXPANSIONS
+    | MINIMUM_SHOULD_MATCH
+    | OPERATOR
+    | PHRASE_SLOP
+    | PREFIX_LENGTH
+    | QUOTE_ANALYZER
+    | QUOTE_FIELD_SUFFIX
+    | REWRITE
+    | SLOP
+    | TIE_BREAKER
+    | TIME_ZONE
+    | TYPE
     | ZERO_TERMS_QUERY
     ;
 
@@ -422,13 +462,42 @@ relevanceArgValue
     ;
 
 mathematicalFunctionBase
-    : ABS | CBRT | CEIL | CEILING | CONV | CRC32 | E | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | MOD | PI |POW | POWER
-    | RAND | ROUND | SIGN | SQRT | TRUNCATE
+    : ABS
+    | CBRT
+    | CEIL
+    | CEILING
+    | CONV
+    | CRC32
+    | E
+    | EXP
+    | FLOOR
+    | LN
+    | LOG
+    | LOG10
+    | LOG2
+    | MOD
+    | PI
+    | POW
+    | POWER
+    | RAND
+    | ROUND
+    | SIGN
+    | SQRT
+    | TRUNCATE
     | trigonometricFunctionName
     ;
 
 trigonometricFunctionName
-    : ACOS | ASIN | ATAN | ATAN2 | COS | COT | DEGREES | RADIANS | SIN | TAN
+    : ACOS
+    | ASIN
+    | ATAN
+    | ATAN2
+    | COS
+    | COT
+    | DEGREES
+    | RADIANS
+    | SIN
+    | TAN
     ;
 
 dateAndTimeFunctionBase
@@ -494,8 +563,23 @@ systemFunctionBase
     ;
 
 textFunctionBase
-    : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER | CONCAT | CONCAT_WS | LENGTH | STRCMP
-    | RIGHT | LEFT | ASCII | LOCATE | REPLACE | REVERSE
+    : SUBSTR
+    | SUBSTRING
+    | TRIM
+    | LTRIM
+    | RTRIM
+    | LOWER
+    | UPPER
+    | CONCAT
+    | CONCAT_WS
+    | LENGTH
+    | STRCMP
+    | RIGHT
+    | LEFT
+    | ASCII
+    | LOCATE
+    | REPLACE
+    | REVERSE
     ;
 
 positionFunctionName
@@ -504,9 +588,22 @@ positionFunctionName
 
 /** operators */
 comparisonOperator
-    : EQUAL | NOT_EQUAL | LESS | NOT_LESS | GREATER | NOT_GREATER | REGEXP
+    : EQUAL
+    | NOT_EQUAL
+    | LESS
+    | NOT_LESS
+    | GREATER
+    | NOT_GREATER
+    | REGEXP
     ;
 
+binaryOperator
+    : PLUS
+    | MINUS
+    | STAR
+    | DIVIDE
+    | MODULE
+    ;
 
 singleFieldRelevanceFunctionName
     : MATCH
@@ -571,9 +668,26 @@ timestampLiteral
     ;
 
 intervalUnit
-    : MICROSECOND | SECOND | MINUTE | HOUR | DAY | WEEK | MONTH | QUARTER | YEAR | SECOND_MICROSECOND
-    | MINUTE_MICROSECOND | MINUTE_SECOND | HOUR_MICROSECOND | HOUR_SECOND | HOUR_MINUTE | DAY_MICROSECOND
-    | DAY_SECOND | DAY_MINUTE | DAY_HOUR | YEAR_MONTH
+    : MICROSECOND
+    | SECOND
+    | MINUTE
+    | HOUR
+    | DAY
+    | WEEK
+    | MONTH
+    | QUARTER
+    | YEAR
+    | SECOND_MICROSECOND
+    | MINUTE_MICROSECOND
+    | MINUTE_SECOND
+    | HOUR_MICROSECOND
+    | HOUR_SECOND
+    | HOUR_MINUTE
+    | DAY_MICROSECOND
+    | DAY_SECOND
+    | DAY_MINUTE
+    | DAY_HOUR
+    | YEAR_MONTH
     ;
 
 timespanUnit
