@@ -500,22 +500,22 @@ public class MathematicalFunction {
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (x, y) -> new ExprLongValue(
-                        MathUtil.truncateNumber(x.integerValue(), y.integerValue()).longValue())),
+                        MathUtil.truncateInt(x.integerValue(), y.integerValue()))),
             LONG, INTEGER, INTEGER),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (x, y) -> new ExprLongValue(
-                        MathUtil.truncateNumber(x.longValue(), y.integerValue()).longValue())),
+                        MathUtil.truncateLong(x.longValue(), y.integerValue()))),
             LONG, LONG, INTEGER),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (x, y) -> new ExprDoubleValue(
-                        MathUtil.truncateNumber(x.floatValue(), y.integerValue()).doubleValue())),
+                        MathUtil.truncateFloat(x.floatValue(), y.integerValue()))),
             DOUBLE, FLOAT, INTEGER),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (x, y) -> new ExprDoubleValue(
-                        MathUtil.truncateNumber(x.doubleValue(), y.integerValue()).doubleValue())),
+                        MathUtil.truncateDouble(x.doubleValue(), y.integerValue()))),
             DOUBLE, DOUBLE, INTEGER));
   }
 
