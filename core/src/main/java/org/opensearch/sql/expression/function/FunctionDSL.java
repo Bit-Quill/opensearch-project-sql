@@ -227,31 +227,8 @@ public class FunctionDSL {
       ExprType args1Type,
       ExprType args2Type) {
 
-    return functionName -> {
-      FunctionSignature functionSignature =
-          new FunctionSignature(functionName, Arrays.asList(args1Type, args2Type));
-      FunctionBuilder functionBuilder =
-          (functionProperties, arguments) -> new FunctionExpression(functionName, arguments) {
-            @Override
-            public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-              ExprValue arg1 = arguments.get(0).valueOf(valueEnv);
-              ExprValue arg2 = arguments.get(1).valueOf(valueEnv);
-              return function.apply(arg1, arg2);
-            }
-
-            @Override
-            public ExprType type() {
-              return returnType;
-            }
-
-            @Override
-            public String toString() {
-              return String.format("%s(%s, %s)", functionName, arguments.get(0).toString(),
-                  arguments.get(1).toString());
-            }
-          };
-      return Pair.of(functionSignature, functionBuilder);
-    };
+    return implWithProperties((fp, arg1, arg2) ->
+        function.apply(arg1, arg2), returnType, args1Type, args2Type);
   }
 
   /**
