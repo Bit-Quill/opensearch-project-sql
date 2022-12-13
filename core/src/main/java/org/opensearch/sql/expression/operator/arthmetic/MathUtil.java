@@ -11,6 +11,10 @@ import java.math.RoundingMode;
 
 public class MathUtil {
 
+  private MathUtil() {
+    // Utility class
+  }
+
   /**
    * Truncates a double number to required decimal places.
    *

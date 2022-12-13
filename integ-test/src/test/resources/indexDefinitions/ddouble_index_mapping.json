@@ -1,0 +1,12 @@
+{
+    "mappings" : {
+        "properties" : {
+            "key" : {
+                "type" : "keyword"
+            },
+            "val" : {
+                "type" : "double"
+            }
+        }
+    }
+}
