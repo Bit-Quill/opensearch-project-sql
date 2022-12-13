@@ -828,7 +828,7 @@ public class DateTimeFunction {
                                 ExprValue temporal, ExprValue temporalDelta) {
     return exprApplyTime(functionProperties, temporal, temporalDelta, true);
   }
-  
+
   /**
    * CONVERT_TZ function implementation for ExprValue.
    * Returns null for time zones outside of +13:00 and -12:00.
