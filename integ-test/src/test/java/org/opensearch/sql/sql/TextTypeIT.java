@@ -149,35 +149,35 @@ package org.opensearch.sql.sql;
     public void selectLocateKeyword() {
       var result = executeJdbcRequest(String.format("select locate(\\\"key*\\\", typeKeyword) from %s", TEST_INDEX_TEXTKEYWORD));
       verifySchema(result,
-          schema("locate(\\\"key*\\\", typeKeyword)", null, "integer"));
+          schema("locate(\"key*\", typeKeyword)", null, "integer"));
     }
 
     @Test
     public void selectLocateText() {
       var result = executeJdbcRequest(String.format("select locate(\\\"text*\\\", typeText) from %s", TEST_INDEX_TEXTKEYWORD));
       verifySchema(result,
-          schema("locate(\\\"text*\\\", typeText)", null, "integer"));
+          schema("locate(\"text*\", typeText)", null, "integer"));
     }
 
     @Test
     public void selectLocateTextKeywordFieldNoFieldData() {
       var result = executeJdbcRequest(String.format("select locate(\\\"keyword*\\\", typeKeywordFieldNoFieldData) from %s", TEST_INDEX_TEXTKEYWORD));
       verifySchema(result,
-          schema("locate(\\\"keyword*\\\", typeKeywordFieldNoFieldData)", null, "integer"));
+          schema("locate(\"keyword*\", typeKeywordFieldNoFieldData)", null, "integer"));
     }
 
     @Test
     public void selectLocateTypeTextFieldData() {
       var result = executeJdbcRequest(String.format("select locate(\\\"keyFD*\\\", typeTextFieldData) from %s", TEST_INDEX_TEXTKEYWORD));
       verifySchema(result,
-          schema("locate(\\\"keyFD*\\\", typeTextFieldData)", null, "integer"));
+          schema("locate(\"keyFD*\", typeTextFieldData)", null, "integer"));
     }
 
     @Test
     public void selectLocateTextDataFieldNoFields() {
       var result = executeJdbcRequest(String.format("select locate(\\\"textFDNF*\\\", textDataFieldNoFields) from %s", TEST_INDEX_TEXTKEYWORD));
       verifySchema(result,
-          schema("locate(\\\"textFDNF*\\\", textDataFieldNoFields)", null, "integer"));
+          schema("locate(\"textFDNF*\", textDataFieldNoFields)", null, "integer"));
     }
 
     // Position
@@ -194,11 +194,7 @@ package org.opensearch.sql.sql;
       var result = executeQuery(String.format("select POSITION(\\\"text\\\" IN typeText) from %s", TEST_INDEX_TEXTKEYWORD));
       verifySchema(result,
           schema("typeText", null, "double"));
-//      //assertFalse(result.has("error"));
-//      if(result.has("error")) {
-//        fail(result.optJSONObject("error").getString("reason") + "\n" + result.optJSONObject("error").getString("details"));
-//      } else {
-//        assert(true);
+
 //      }
     }
 
