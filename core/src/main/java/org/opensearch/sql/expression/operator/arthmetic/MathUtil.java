@@ -16,7 +16,7 @@ public class MathUtil {
    *
    * @param numberToTruncate number to be truncated
    * @param numberOfDecimals required decimal places
-   * @return truncated number as {@link BigDecimal}
+   * @return truncated number as double
    */
   public static double truncateDouble(double numberToTruncate, int numberOfDecimals) {
     return new BigDecimal(String.valueOf(numberToTruncate)).setScale(numberOfDecimals,
@@ -28,7 +28,7 @@ public class MathUtil {
    *
    * @param numberToTruncate number to be truncated
    * @param numberOfDecimals required decimal places
-   * @return truncated number as {@link BigDecimal}
+   * @return truncated number as double
    */
   public static double truncateFloat(float numberToTruncate, int numberOfDecimals) {
     return new BigDecimal(String.valueOf(numberToTruncate)).setScale(numberOfDecimals,
@@ -40,7 +40,7 @@ public class MathUtil {
    *
    * @param numberToTruncate number to be truncated
    * @param numberOfDecimals required decimal places
-   * @return truncated number as {@link BigDecimal}
+   * @return truncated number as long
    */
   public static long truncateInt(int numberToTruncate, int numberOfDecimals) {
     return new BigDecimal(String.valueOf(numberToTruncate)).setScale(numberOfDecimals,
@@ -52,7 +52,7 @@ public class MathUtil {
    *
    * @param numberToTruncate number to be truncated
    * @param numberOfDecimals required decimal places
-   * @return truncated number as {@link BigDecimal}
+   * @return truncated number as long
    */
   public static long truncateLong(long numberToTruncate, int numberOfDecimals) {
     return new BigDecimal(String.valueOf(numberToTruncate)).setScale(numberOfDecimals,
