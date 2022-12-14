@@ -77,6 +77,9 @@ public class DateTimeFunction {
   // The number of days from year zero to year 1970.
   private static final Long DAYS_0000_TO_1970 = (146097 * 5L) - (30L * 365L + 7L);
 
+  // The number of minutes in an hour
+  private static final int MINUTES_PER_HOUR = 60;
+
   // MySQL doesn't process any datetime/timestamp values which are greater than
   // 32536771199.999999, or equivalent '3001-01-18 23:59:59.999999' UTC
   private static final Double MYSQL_MAX_TIMESTAMP = 32536771200d;
@@ -922,7 +925,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprMinuteOfDay(ExprValue time) {
-    return new ExprIntegerValue(time.timeValue().getHour()*60 + time.timeValue().getMinute());
+    return new ExprIntegerValue(time.timeValue().getHour()*MINUTES_PER_HOUR + time.timeValue().getMinute());
   }
 
   /**
