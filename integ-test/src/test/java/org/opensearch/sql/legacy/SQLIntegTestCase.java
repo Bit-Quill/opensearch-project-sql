@@ -590,7 +590,7 @@ public abstract class SQLIntegTestCase extends OpenSearchSQLRestTestCase {
         getMappingFile("wildcard_index_mappings.json"),
         "src/test/resources/wildcard.json"),
     DOUBLE(TestsConstants.TEST_INDEX_DOUBLE,
-        "ddouble",
+        "double",
         getMappingFile("double_index_mapping.json"),
         "src/test/resources/double.json"),;
 
