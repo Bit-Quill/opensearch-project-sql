@@ -7,7 +7,7 @@
 package org.opensearch.sql.sql;
 
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
-import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DDOUBLE;
+import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DOUBLE;
 import static org.opensearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 import static org.opensearch.sql.util.MatcherUtils.rows;
 import static org.opensearch.sql.util.MatcherUtils.schema;
@@ -30,7 +30,7 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
   public void init() throws Exception {
     super.init();
     loadIndex(Index.BANK);
-    loadIndex(Index.DDOUBLE);
+    loadIndex(Index.DOUBLE);
   }
 
   @Test
@@ -170,7 +170,7 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
     verifyDataRows(result, rows(3.141592));
 
     String query = "select val, truncate(val, 1) from %s";
-    JSONObject response = executeJdbcRequest(String.format(query, TEST_INDEX_DDOUBLE));
+    JSONObject response = executeJdbcRequest(String.format(query, TEST_INDEX_DOUBLE));
     verifySchema(response, schema("val", null, "double"),
             schema("truncate(val, 1)", null, "double"));
     assertEquals(20, response.getInt("total"));
