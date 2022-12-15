@@ -925,7 +925,8 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprMinuteOfDay(ExprValue time) {
-    return new ExprIntegerValue(time.timeValue().getHour()*MINUTES_PER_HOUR + time.timeValue().getMinute());
+    return new ExprIntegerValue(
+        time.timeValue().getHour() * MINUTES_PER_HOUR + time.timeValue().getMinute());
   }
 
   /**

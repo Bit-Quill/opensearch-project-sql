@@ -455,6 +455,7 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse("SELECT minute_of_day(\"2022-12-14 12:23:34\");"));;
     assertNotNull(parser.parse("SELECT minute_of_day('2022-12-14 12:23:34');"));;
   }
+
   @Test
   public void can_parse_wildcard_query_relevance_function() {
     assertNotNull(
