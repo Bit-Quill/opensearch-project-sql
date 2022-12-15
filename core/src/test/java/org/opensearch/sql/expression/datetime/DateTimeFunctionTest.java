@@ -727,6 +727,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(INTEGER, expression.type());
     assertEquals(integerValue(value), eval(expression));
   }
+  
   @Test
   public void minuteOfDay() {
     when(nullRef.type()).thenReturn(TIME);
