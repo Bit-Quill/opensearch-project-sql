@@ -2167,7 +2167,7 @@ TIMESTAMP
 Description
 >>>>>>>>>>>
 
-Usage: timestamp(expr) constructs a timestamp type with the input string `expr` as an timestamp. If the argument is not a string, it casts `expr` to timestamp type with default timezone UTC. If argument is a time, it applied to today's date before cast.
+Usage: timestamp(expr) constructs a timestamp type with the input string `expr` as an timestamp. If the argument is not a string, it casts `expr` to timestamp type with default timezone UTC. If argument is a time, it applies today's date before cast.
 With two arguments `timestamp(expr1, expr2)` adds the time expression `expr2` to the date or datetime expression `expr1` and returns the result as a timestamp value.
 
 Argument type: STRING/DATE/TIME/DATETIME/TIMESTAMP
