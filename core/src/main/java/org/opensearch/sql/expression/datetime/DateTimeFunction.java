@@ -101,7 +101,8 @@ public class DateTimeFunction {
     repository.register(day());
     repository.register(dayName());
     repository.register(dayOfMonth());
-    repository.register(dayOfWeek());
+    repository.register(dayOfWeek(BuiltinFunctionName.DAYOFWEEK.getName()));
+    repository.register(dayOfWeek(BuiltinFunctionName.DAY_OF_WEEK.getName()));
     repository.register(dayOfYear(BuiltinFunctionName.DAYOFYEAR));
     repository.register(dayOfYear(BuiltinFunctionName.DAY_OF_YEAR));
     repository.register(from_days());
@@ -349,8 +350,8 @@ public class DateTimeFunction {
    * DAYOFWEEK(STRING/DATE/DATETIME/TIMESTAMP).
    * return the weekday index for date (1 = Sunday, 2 = Monday, …, 7 = Saturday).
    */
-  private DefaultFunctionResolver dayOfWeek() {
-    return define(BuiltinFunctionName.DAYOFWEEK.getName(),
+  private DefaultFunctionResolver dayOfWeek(FunctionName name) {
+    return define(name,
         impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, TIMESTAMP),

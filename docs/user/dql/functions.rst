@@ -1434,6 +1434,8 @@ Description
 
 Usage: dayofweek(date) returns the weekday index for date (1 = Sunday, 2 = Monday, …, 7 = Saturday).
 
+The `day_of_week` function is also provided as an alias.
+
 Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
 Return type: INTEGER
@@ -1447,6 +1449,47 @@ Example::
     |---------------------------------|
     | 4                               |
     +---------------------------------+
+
+    os> SELECT DAYOFWEEK(DATETIME('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +-------------------------------------+
+    | DAYOFWEEK(DATETIME('2020-08-26'))   |
+    |-------------------------------------|
+    | 4                                   |
+    +-------------------------------------+
+
+    os> SELECT DAYOFWEEK(TIMESTAMP('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +--------------------------------------+
+    | DAYOFWEEK(TIMESTAMP('2020-08-26'))   |
+    |--------------------------------------|
+    | 4                                    |
+    +--------------------------------------+
+
+    os> SELECT DAY_OF_WEEK(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +-----------------------------------+
+    | DAY_OF_WEEK(DATE('2020-08-26'))   |
+    |-----------------------------------|
+    | 4                                 |
+    +-----------------------------------+
+
+    os> SELECT DAY_OF_WEEK(DATETIME('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +---------------------------------------+
+    | DAY_OF_WEEK(DATETIME('2020-08-26'))   |
+    |---------------------------------------|
+    | 4                                     |
+    +---------------------------------------+
+
+    os> SELECT DAY_OF_WEEK(TIMESTAMP('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +----------------------------------------+
+    | DAY_OF_WEEK(TIMESTAMP('2020-08-26'))   |
+    |----------------------------------------|
+    | 4                                      |
+    +----------------------------------------+
+
 
 
 

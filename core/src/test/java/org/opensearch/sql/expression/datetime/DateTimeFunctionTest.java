@@ -465,8 +465,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   @Test
   public void dayOfWeekWithUnderscores() {
-    lenient().when(nullRef.type()).thenReturn(DATE);
-    lenient().when(missingRef.type()).thenReturn(DATE);
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
     FunctionExpression expression1 = DSL.day_of_week(DSL.literal(new ExprDateValue("2020-08-07")));
     FunctionExpression expression2 = DSL.day_of_week(DSL.literal(new ExprDateValue("2020-08-09")));
@@ -493,9 +493,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     FunctionExpression expression = DSL.day_of_year(DSL.literal(new ExprDateValue(date)));
     eval(expression);
   }
+
+  @Test
   public void dayOfWeekWithUnderscoresLeapYear() {
-    lenient().when(nullRef.type()).thenReturn(DATE);
-    lenient().when(missingRef.type()).thenReturn(DATE);
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
     //Feb. 29 of a leap year
     testDayOfWeekWithUnderscoress(DSL.day_of_week(DSL.literal("2020-02-29")), 7);
@@ -504,13 +506,14 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     testDayOfWeekWithUnderscoress(DSL.day_of_week(DSL.literal("2020-03-01")), 1);
 
     //Feb. 28 of a non-leap year
-    testDayOfWeekWithUnderscoress(DSL.day_of_week(DSL.literal("2021-02-28")), 7);
+    testDayOfWeekWithUnderscoress(DSL.day_of_week(DSL.literal("2021-02-28")), 1);
 
     //Feb. 29 of a non-leap year
     assertThrows(SemanticCheckException.class, () ->  testInvalidDayOfWeek("2021-02-29"));
 
   }
 
+  @Test
   public void dayOfWeekWithUnderscoresInvalidArgument() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);

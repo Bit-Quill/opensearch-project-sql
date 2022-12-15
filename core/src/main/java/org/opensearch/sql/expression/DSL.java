@@ -338,6 +338,10 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.DAY_OF_YEAR, expressions);
   }
 
+  public static FunctionExpression day_of_week(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.DAY_OF_WEEK, expressions);
+  }
+
   public static FunctionExpression from_days(Expression... expressions) {
     return compile(FunctionProperties.None, BuiltinFunctionName.FROM_DAYS, expressions);
   }
