@@ -1,9 +1,117 @@
-# Pagination in v2 SQL Engine
+# Pagination in v2 Engine
+
+<!-- Why is pagination necessary? -->
+Pagination allows a SQL plugin client to retrieve arbitrarily large
+results sets one subset at a time.
+
+A cursor is a SQL abstraction for pagination. A client can open a cursor, retrieve a subset of data given a cursor and close a cursor.
+<!-- What applications will use pagination? -->
+
+Currently, SQL plugin does not provide SQL cursor syntax. However, the SQL REST endpoint can return result a page at a time. This feature is used by JDBC and ODBC drivers.
+
+<!-- How will applications use pagination? -->
+
+# Scope
+<!-- What scenarios are excluded from this discussion? Why? -->
+
+The primary goal is to reach feature parity with the v1 engine. v1 engine supports pagination only for simple `SELECT` queries with optional `WHERE` or `ORDER BY` clauses.
+
+<!-- How can one tell that v2 engine pagination is compatible with v1? -->
+
+# REST API
+## Initial Query Request
+```
+POST /_plugins/_sql
+{
+    "query" : "...",
+    "fetch_size": N
+}
+```
+
+Response:
+```
+{
+  "cursor": /* cursor_id */,
+  "datarows": [
+    // ...
+    ],
+  "schema" : [
+    // ...
+  ]
+}
+```
+`query` is a DQL statement. `fetch_size` is a positive integer, indicating number of rows to return in each page.
+
+If `query` is a DML statement then pagination does not apply, the `fetch_size` parameter is ignored and a cursor is not created. This is existing behaviour in v1 engine.
+
+The client receives an (error response](#error-response) if:
+- `fetch_size` is not a positive integer, or
+-  evaluating `query` results in a server-side error. 
+
+## Next Page Request
+```
+POST /_plugins/_sql
+{
+  "cursor": "<cursor_id>"
+}
+```
+Similarly to v1 engine, the response object is the same as initial response if this is not the last page.
+
+`cursor_id` will be different with each request.
+
+If this is the last page, the `cursor` property is ommitted. The cursor is closed automatically.
+
+The client will receive an [error response](#error-response) if executing this request results in an OpenSearch or SQL plug-in error. 
+
+## Close Cursor Request
+```
+POST /_plugins/_sql/close
+{
+    "cursor" : "<cursor_id>"
+}
+```
+
+Response:
+```json
+{
+    "succeeded": true
+}
+
+```
+The SQL engine always returns success on close even if the cursor is no longer alive as long as it can validate `<cursor_id>` as a valid cursor identifier.
+
+It [responds with an error](#error-response) if `<cursor_id>` is not a valid cursor identifier.
+
+## Cursor Keep Alive Timeout
+Each cursor has a keep alive timer associated with it. When the timer runs out, the cursor is closed by OpenSearch.
+
+This timer is reset every time a page is retrieved.
+
+The client will receive an [error response](#error-response) if it sends a cursor request for an expired cursor. 
+
+## Error Response
+The client will receive an error response if any of the above REST calls result in an server-side error.
+
+The response object has the following format:
+```json5
+{
+    "error": {
+        "details": <string>,
+        "reason": <string>,
+        "type": <string>
+    },
+    "status": <integer>
+}
+```
+
+`details`, `reason`, and `type` properties are string values. The exact values will depend on the error state encountered.
+`status` is an HTTP status code
+
+# Adding pagination to v2 SQL Engine
 
 Implementing pagination in the OpenSearch SQL plugin can be partitioned along several dimensions:
 1. SQL query type,
 1. Size of queried dataset,
-1. Number of open cursors,
 1. SQL node load balancing and failover.
 
 ## SQL Query Type
@@ -15,67 +123,42 @@ Therefore, discussion of pagination in V2 engine will also be limited to filter-
 
 Pagination of aggregation queries can be considered after V1 engine is deprecated.
 
-## Size of Queried Dataset
+## OpenSearch Data Retrieval Strategy
 
 OpenSearch provides several data retrival APIs that are optimized for different use cases.
 
-At this time, SQL plugin concerns only uses simple search API and scroll API.
+At this time, SQL plugin uses simple search API and scroll API.
 
-Simple search API will only return at most `window_size` number of documents where `window_size` is an index setting.
+Simple retrieval API returns at most `max_result_window` number of documents.  `max_result_window` is an index setting.
 
-Scroll API requests will return all documents but can incur high memory costs on OpenSearch coordination node.
+Scroll API requests returns all documents but can incur high memory costs on OpenSearch coordination node.
 
-This document uses *under window_size* for scenarios that can be implemented with simple search API and
-*over window_size* for scenarios that require scroll API to implement.
+Efficient implementation of pagination needs to be aware of retrival API used. Each retrieval strategy will be considered separately.
 
-## Number of Open Cursors
-In V1 engine, number of open cursors is limited by how many open scroll requests OpenSearch supports. All V1 cursor context is captured by combination of cursor id returned to the client and scroll context maintained by OpenSearch node. SQL node does not need to do any resource management.
-
-This is not possible in V2 engine. It supports queries that require in-memory processing, such as `SELECT fieldA, fieldA*3 FROM indexA`. Therefore, it needs to maintain some context for each cursor. Therefore, it will need manage number of open cursors.
-
-In the simplest case, each node supports only *one open cursor*. This is invaluable for development but minimum viable release will need to support *multiple open cursors*.
-
-### SQL Node Maximum Open Cursors Specification
-This section specifies behaviour of a SQL plugin node regarding multiple open cursors.
-
-1. Each cursor will have a keep alive timeout.
-1. Each node will allow a maxmimum number of open cursors.
-1. When a node reached maximum number of open cursors and a client requests a new cursor, the client will recieve an error response.
-1. Each page request refreshes the keep alive timeout.
-1. When a cursor's keep alive timeout expires, the SQL plugin will delete the cursor context and clean up corresponding OpenSearch resources.
-1. Requests with expired cursor id  will recieve similar error response to requests with invalid cursor id.
-1. Cursor keep alive timeout is set to the  `plugins.sql.cursor.keep_alive` SQL plugin setting.
-1. Maximum number of open cursors is defined by `plugins.sql.cursor.max_open` SQL plugin setting.
-
-Note that logically `plugins.sql.cursor.max_open` governs the size of "cursor resource pool." 
-While each cursor is bound a to a single SQL plug node, this is a per-node setting.
-It will become a cluster setting if we add shared cursor context as described in the following section. 
-
+The discussion below uses *under max_result_window* to refer to scenarios that can be implemented with simple retrieval API and *over max_result_window* for scenarios that require scroll API to implement.
 
 ## SQL Node Load Balancing
-V1 SQL engine supports *sql node load balancing* -- a cursor request can be routed to any SQL node in a cluster.
+V1 SQL engine supports *sql node load balancing* -- a cursor request can be routed to any SQL node in a cluster. This is achieved by encoding all data necessary to retrieve the next page in the `cursor_id`.
 
-This is trivial in V1 engine because of context-free nature of V1 cursors but needs to be implemented for V2 cursors.
+This implmentation will use similar approach. 
+# Implementation Plan
 
-Implementing this for V2 cursors will make cursor context shared between all nodes in the cluster.
-Any node that recieves a SQL request with a cursor id will then responsible for updating the shared cursor context.
+In all scenarios below, if v2 engine cannot paginate a query, the query will be passed to the v1 engine.
 
-This adds significant complexity. In discussion with Amazon team it was flagged as not necessary to deprecate V1 engine.
+Each phase can be committed separately.
 
-# Delivery Breakdown
+## Phase 1
+Goal of this phase is to support pagination in v2 engine for simplest queries -- `SELECT * FROM index` with small datasets but in all scenarios.
 
-## Phase 1 - Minimum V1 Parity
-1. filter-and-project queries, under window_size, one open cursor, single coordination node.
-1. filter-and-project queries, under window_size, multiple open cursors, single coordination node.
-1. filter-and-project queries, over window_size, one open cursor, single coordination node.
-1. filter-and-project queries, over window_size, multiple open cursors, single coordination node.
+1. Under max_result_window, no load balancing.
+1. Under max_result_window, with load balancing.
 
-## Phase 3 - SQL Node Load Balancing
+## Phase 2
+Goal of this phase is to support getting arbitrarily large datasets, done in two stages:
+1. Over max_result_window, no load balancing. 
+1. Over max_result_window, with load balancing.
 
-1. filter-and-project queries, under window_size, one open cursor, sql node load balancing. 
-1. filter-and-project queries, over window_size, one open cursor, sql node load balancing.
-1. filter-and-project queries, under window_size, multiple open cursors, sql node load balancing.
-1. filter-and-project queries, over window_size, multiple open cursors, sql node load balancing
 
-## Phase 4 - Aggregation Queries
-Pagination of aggregation queries will be considered separately. V1 engine does not support this therefore its not necessary to deperecate it.
+## Phase 3
+Support queries with `WHERE` and `ORDER` by clauses.
+The focus of this phase will be on sharing query context for the paginated query between all SQL nodes in the cluster.
