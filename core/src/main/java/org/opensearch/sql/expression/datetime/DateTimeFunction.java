@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.expression.datetime;
 
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
@@ -76,9 +77,6 @@ import org.opensearch.sql.utils.DateTimeUtils;
 public class DateTimeFunction {
   // The number of days from year zero to year 1970.
   private static final Long DAYS_0000_TO_1970 = (146097 * 5L) - (30L * 365L + 7L);
-
-  // The number of minutes in an hour
-  private static final int MINUTES_PER_HOUR = 60;
 
   // MySQL doesn't process any datetime/timestamp values which are greater than
   // 32536771199.999999, or equivalent '3001-01-18 23:59:59.999999' UTC
@@ -443,6 +441,7 @@ public class DateTimeFunction {
     return define(BuiltinFunctionName.MINUTE_OF_DAY.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprMinuteOfDay), INTEGER, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprMinuteOfDay), INTEGER, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprMinuteOfDay), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprMinuteOfDay), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprMinuteOfDay), INTEGER, TIMESTAMP)
     );
@@ -926,7 +925,7 @@ public class DateTimeFunction {
    */
   private ExprValue exprMinuteOfDay(ExprValue time) {
     return new ExprIntegerValue(
-        time.timeValue().getHour() * MINUTES_PER_HOUR + time.timeValue().getMinute());
+        MINUTES.between(LocalTime.MIN, time.timeValue()));
   }
 
   /**
