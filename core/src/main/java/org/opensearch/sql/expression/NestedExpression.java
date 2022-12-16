@@ -48,7 +48,7 @@ public class NestedExpression extends FunctionExpression {
    */
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-    String refName = "_nested" + "." + StringUtils.unquoteText(getField().toString());
+    String refName = StringUtils.unquoteText(getField().toString());
     ExprValue value = valueEnv.resolve(DSL.ref(refName, ExprCoreType.STRING));
     return value;
   }

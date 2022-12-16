@@ -8,7 +8,9 @@ package org.opensearch.sql.opensearch.response;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
@@ -95,6 +97,10 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
       return Arrays.stream(hits.getHits())
           .map(hit -> {
             ExprValue docData = exprValueFactory.construct(hit.getSourceAsString());
+            Map<String, Object> rowSource = hit.getSourceAsMap();
+            List<String> head = docData.tupleValue().keySet().stream().collect(Collectors.toList());
+            rowSource = flatRow(head, rowSource);
+            docData = ExprValueUtils.tupleValue(rowSource);
             if (hit.getHighlightFields().isEmpty()) {
               return docData;
             } else {
@@ -111,5 +117,51 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
             }
           }).iterator();
     }
+  }
+
+  /**
+   * Simplifies the structure of row's source Map by flattening it, making the full path of an object the key
+   * and the Object it refers to the value. This handles the case of regular object since nested objects will not
+   * be in hit.source but rather in hit.innerHits
+   * <p>
+   * Sample input:
+   * keys = ['comments.likes']
+   * row = comments: {
+   * likes: 2
+   * }
+   * <p>
+   * Return:
+   * flattenedRow = {comment.likes: 2}
+   */
+  @SuppressWarnings("unchecked")
+  private Map<String, Object> flatRow(List<String> keys, Map<String, Object> row) {
+    Map<String, Object> flattenedRow = new HashMap<>();
+    for (String key : keys) {
+      String[] splitKeys = key.split("\\.");
+      boolean found = true;
+      Object currentObj = row;
+
+      for (String splitKey : splitKeys) {
+        // This check is made to prevent Cast Exception as an ArrayList of objects can be in the sourceMap
+        if (!(currentObj instanceof Map)) {
+          found = false;
+          break;
+        }
+
+        Map<String, Object> currentMap = (Map<String, Object>) currentObj;
+        if (!currentMap.containsKey(splitKey)) {
+          found = false;
+          break;
+        }
+
+        currentObj = currentMap.get(splitKey);
+      }
+
+      if (found) {
+        flattenedRow.put(key, currentObj);
+      }
+    }
+
+    return flattenedRow;
   }
 }
