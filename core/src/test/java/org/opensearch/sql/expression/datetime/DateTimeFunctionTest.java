@@ -486,7 +486,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
         () -> testDayOfWeekWithUnderscoress(expression4, 1),
         () -> assertEquals("day_of_week(\"2020-08-09 01:02:03\")", expression4.toString())
-        );
+    );
   }
 
   public void testInvalidDayOfWeek(String date) {
