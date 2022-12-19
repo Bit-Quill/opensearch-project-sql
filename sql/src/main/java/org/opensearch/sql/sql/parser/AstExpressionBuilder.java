@@ -138,12 +138,6 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitNestedFunctionCall(
       OpenSearchSQLParser.NestedFunctionCallContext ctx) {
-    // Need its own visitchildren function to get all the strings from the argument
-//    String arg = ctx.nestedFunction().nestedField().getText();
-//    var a = ctx.nestedFunction().nestedField();
-//    String[] splitArg = arg.split("\\.");
-//    String field = splitArg[0]; // TODO: Check if empty and if more than 2 elements
-//    String nestedField = splitArg[1]; // TODO: last element of splitArg
     return new NestedFunction(
         visit(ctx.nestedFunction().nestedField().qualifiedName()));
   }

@@ -59,31 +59,6 @@ import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseP
 @ToString
 public class OpenSearchRequestBuilder {
 
-  public static enum JoinType {
-    COMMA(","), //
-    JOIN("JOIN"), //
-    INNER_JOIN("INNER JOIN"), //
-    CROSS_JOIN("CROSS JOIN"), //
-    NATURAL_JOIN("NATURAL JOIN"), //
-    NATURAL_INNER_JOIN("NATURAL INNER JOIN"), //
-    LEFT_OUTER_JOIN("LEFT JOIN"), //
-    RIGHT_OUTER_JOIN("RIGHT JOIN"), //
-    FULL_OUTER_JOIN("FULL JOIN"),//
-    STRAIGHT_JOIN("STRAIGHT_JOIN"), //
-    OUTER_APPLY("OUTER APPLY"),//
-    CROSS_APPLY("CROSS APPLY");
-
-    public final String name;
-
-    JoinType(String name){
-      this.name = name;
-    }
-
-    public static String toString(JoinType joinType) {
-      return joinType.name;
-    }
-  }
-
   /**
    * Default query timeout in minutes.
    */
@@ -264,38 +239,17 @@ public class OpenSearchRequestBuilder {
   }
 
   public void pushDownNested(String field) {
-    project(List.of(new Field(new QualifiedName(field))), null);
-    return;
+    project(List.of(new Field(new QualifiedName(field))));
   }
 
-  public void project(List<Field> fields, JoinType nestedJoinType) {
+  public void project(List<Field> fields) {
     if (isAnyNestedField(fields)) {
       initBoolQueryFilterIfNull();
       List<NestedQueryBuilder> nestedQueries = extractNestedQueries(query());
 
-      if (nestedJoinType == JoinType.LEFT_OUTER_JOIN) {
-        // for LEFT JOIN on nested field as right table, the query will have only one nested field, so one path
-        Map<String, List<String>> fieldNamesByPath = groupFieldNamesByPath(fields);
-
-        if (fieldNamesByPath.size() > 1) {
-          String message = StringUtils.format(
-              "only single nested field is allowed as right table for LEFT JOIN, found %s ",
-              fieldNamesByPath.keySet()
-          );
-//          throw new VerificationException(message);
-            return;
-        }
-
-        Map.Entry<String, List<String>> pathToFields = fieldNamesByPath.entrySet().iterator().next();
-        String path = pathToFields.getKey();
-        List<String> fieldNames = pathToFields.getValue();
-        buildNestedLeftJoinQuery(path, fieldNames);
-      } else {
-
-        groupFieldNamesByPath(fields).forEach(
-            (path, fieldNames) -> buildInnerHit(fieldNames, findNestedQueryWithSamePath(nestedQueries, path))
-        );
-      }
+      groupFieldNamesByPath(fields).forEach(
+          (path, fieldNames) -> buildInnerHit(fieldNames, findNestedQueryWithSamePath(nestedQueries, path))
+      );
     }
   }
 
@@ -305,9 +259,6 @@ public class OpenSearchRequestBuilder {
    */
   private boolean isAnyNestedField(List<Field> fields) {
     for (Field field : fields) {
-//      if (field.isNested() && !field.isReverseNested()) {
-//        return true;
-//      }
       if (field.toString().contains(".")) {
         return true;
       }
@@ -392,15 +343,4 @@ public class OpenSearchRequestBuilder {
     return predicate.negate();
   }
 
-
-  private void buildNestedLeftJoinQuery(String path, List<String> fieldNames) {
-    BoolQueryBuilder existsNestedQuery = boolQuery();
-    existsNestedQuery.mustNot().add(nestedQuery(path, existsQuery(path), ScoreMode.None));
-
-    NestedQueryBuilder matchAllNestedQuery = nestedQuery(path, matchAllQuery(), ScoreMode.None);
-    buildInnerHit(fieldNames, matchAllNestedQuery);
-
-    ((BoolQueryBuilder) query().filter().get(0)).should().add(existsNestedQuery);
-    ((BoolQueryBuilder) query().filter().get(0)).should().add(matchAllNestedQuery);
-  }
 }
