@@ -106,7 +106,8 @@ public class DateTimeFunction {
     repository.register(dayOfYear(BuiltinFunctionName.DAY_OF_YEAR));
     repository.register(from_days());
     repository.register(from_unixtime());
-    repository.register(hour());
+    repository.register(hour(BuiltinFunctionName.HOUR));
+    repository.register(hour(BuiltinFunctionName.HOUR_OF_DAY));
     repository.register(localtime());
     repository.register(localtimestamp());
     repository.register(makedate());
@@ -389,8 +390,8 @@ public class DateTimeFunction {
   /**
    * HOUR(STRING/TIME/DATETIME/TIMESTAMP). return the hour value for time.
    */
-  private DefaultFunctionResolver hour() {
-    return define(BuiltinFunctionName.HOUR.getName(),
+  private DefaultFunctionResolver hour(BuiltinFunctionName name) {
+    return define(name.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprHour), INTEGER, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprHour), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprHour), INTEGER, DATETIME),
