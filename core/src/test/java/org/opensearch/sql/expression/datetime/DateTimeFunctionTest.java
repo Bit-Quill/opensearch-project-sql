@@ -621,10 +621,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   @Test
   public void hourOfDay() {
-    when(nullRef.type()).thenReturn(TIME);
-    when(missingRef.type()).thenReturn(TIME);
-    assertEquals(nullValue(), eval(DSL.hour_of_day(nullRef)));
-    assertEquals(missingValue(), eval(DSL.hour_of_day(missingRef)));
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
     FunctionExpression expression1 = DSL.hour_of_day(DSL.literal(new ExprTimeValue("01:02:03")));
     FunctionExpression expression2 = DSL.hour_of_day(DSL.literal("01:02:03"));
@@ -659,10 +657,10 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   @Test
   public void hourOfDayInvalidArguments() {
-    lenient().when(nullRef.type()).thenReturn(DATE);
-    lenient().when(missingRef.type()).thenReturn(DATE);
-    assertEquals(nullValue(), eval(DSL.hour_of_day(nullRef)));
-    assertEquals(missingValue(), eval(DSL.hour_of_day(missingRef)));
+    when(nullRef.type()).thenReturn(TIME);
+    when(missingRef.type()).thenReturn(TIME);
+    assertEquals(nullValue(), eval(DSL.hour(nullRef)));
+    assertEquals(missingValue(), eval(DSL.hour(missingRef)));
 
     //Invalid Seconds
     assertThrows(SemanticCheckException.class, () -> testInvalidHourOfDay("12:23:61"));
