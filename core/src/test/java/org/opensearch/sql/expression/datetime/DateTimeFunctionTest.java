@@ -653,7 +653,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   public void testInvalidHourOfDay(String time) {
-    FunctionExpression expression = DSL.hour_of_day(DSL.literal(new ExprTimeValue(date)));
+    FunctionExpression expression = DSL.hour_of_day(DSL.literal(new ExprTimeValue(time)));
     eval(expression);
   }
 
