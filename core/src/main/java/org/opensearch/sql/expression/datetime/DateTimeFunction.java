@@ -57,7 +57,6 @@ import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
-import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.DefaultFunctionResolver;
@@ -100,7 +99,8 @@ public class DateTimeFunction {
     repository.register(date_sub());
     repository.register(day());
     repository.register(dayName());
-    repository.register(dayOfMonth());
+    repository.register(dayOfMonth(BuiltinFunctionName.DAYOFMONTH));
+    repository.register(dayOfMonth(BuiltinFunctionName.DAY_OF_MONTH));
     repository.register(dayOfWeek());
     repository.register(dayOfYear(BuiltinFunctionName.DAYOFYEAR));
     repository.register(dayOfYear(BuiltinFunctionName.DAY_OF_YEAR));
@@ -336,8 +336,8 @@ public class DateTimeFunction {
   /**
    * DAYOFMONTH(STRING/DATE/DATETIME/TIMESTAMP). return the day of the month (1-31).
    */
-  private DefaultFunctionResolver dayOfMonth() {
-    return define(BuiltinFunctionName.DAYOFMONTH.getName(),
+  private DefaultFunctionResolver dayOfMonth(BuiltinFunctionName name) {
+    return define(name.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, TIMESTAMP),
