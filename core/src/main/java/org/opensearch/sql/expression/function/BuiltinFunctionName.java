@@ -165,6 +165,8 @@ public enum BuiltinFunctionName {
   STDDEV_POP(FunctionName.of("stddev_pop")),
   // take top documents from aggregation bucket.
   TAKE(FunctionName.of("take")),
+  // TODO: nested aggregation function
+  NESTED(FunctionName.of("nested")),
 
   /**
    * Text Functions.
@@ -221,11 +223,6 @@ public enum BuiltinFunctionName {
   CAST_TO_TIMESTAMP(FunctionName.of("cast_to_timestamp")),
   CAST_TO_DATETIME(FunctionName.of("cast_to_datetime")),
   TYPEOF(FunctionName.of("typeof")),
-
-  /**
-   * Nested
-   */
-  NESTED(FunctionName.of("nested")),
 
   /**
    * Relevance Function.

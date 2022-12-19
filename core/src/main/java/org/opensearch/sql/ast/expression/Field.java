@@ -64,10 +64,6 @@ public class Field extends UnresolvedExpression {
     if (!this.isNested()) {
       return null;
     }
-    if (this.isReverseNested()) {
-//      String reverseNestedPath = this.getParamsAsMap().get("reverse_nested").toString();
-//      return reverseNestedPath.isEmpty() ? null : reverseNestedPath;
-    }
 
     return this.field.toString().split("\\.")[0];
   }

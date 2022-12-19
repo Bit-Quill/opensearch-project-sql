@@ -37,7 +37,6 @@ public class NestedExpression extends FunctionExpression {
   public NestedExpression(Expression field) {
     super(BuiltinFunctionName.NESTED.getName(), List.of(field));
     this.field = field;
-//    this.nestedField = nestedField;
     this.type = ExprCoreType.STRING;
   }
 
@@ -48,6 +47,8 @@ public class NestedExpression extends FunctionExpression {
    */
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
+    // This logic needs further work. Thinking we may want to use the nested path to
+    // nested data and further filter in this function based upon field.
     String refName = StringUtils.unquoteText(getField().toString());
     ExprValue value = valueEnv.resolve(DSL.ref(refName, ExprCoreType.STRING));
     return value;

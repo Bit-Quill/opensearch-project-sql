@@ -10,6 +10,9 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.search.aggregations.AggregationBuilder;
 import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
@@ -148,6 +151,12 @@ public class OpenSearchIndex implements Table {
     public PhysicalPlan visitML(LogicalML node, OpenSearchIndexScan context) {
       return new MLOperator(visitChild(node, context),
               node.getArguments(), client.getNodeClient());
+    }
+
+    @Override
+    public PhysicalPlan visitNested(LogicalNested node, OpenSearchIndexScan context) {
+      context.getRequestBuilder().pushDownNested(node.getField().toString());
+      return visitChild(node, context);
     }
   }
 }
