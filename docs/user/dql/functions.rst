@@ -95,9 +95,24 @@ ABS
 Description
 >>>>>>>>>>>
 
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
 Specifications:
 
 1. ABS(NUMBER T) -> T
+
+Example::
+
+    os> SELECT ABS(0), ABS(10), ABS(-10), ABS(12.34567), ABS(-12.34567)
+    fetched rows / total rows = 1/1
+    +----------+-----------+------------+-----------------+------------------+
+    | ABS(0)   | ABS(10)   | ABS(-10)   | ABS(12.34567)   | ABS(-12.34567)   |
+    |----------+-----------+------------+-----------------+------------------|
+    | 0        | 10        | 10         | 12.34567        | 12.34567         |
+    +----------+-----------+------------+-----------------+------------------+
+
 
 
 ACOS
@@ -219,7 +234,7 @@ INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
 
 Example::
 
-    opensearchsql> SELECT CBRT(8), CBRT(9.261), CBRT(-27);
+    os> SELECT CBRT(8), CBRT(9.261), CBRT(-27);
     fetched rows / total rows = 1/1
     +-----------+---------------+-------------+
     | CBRT(8)   | CBRT(9.261)   | CBRT(-27)   |
@@ -240,7 +255,11 @@ CEILING
 Description
 >>>>>>>>>>>
 
-Usage: CEILING(T) takes the ceiling of value T.
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: INTEGER
+
+Specifications:
 
 Note: `CEIL`_ and CEILING functions have the same implementation & functionality
 
@@ -267,6 +286,18 @@ Example::
     |-----------------------------+-------------------------------+-----------------------------|
     | 3147483648                  | 113147483648                  | 3147483648                  |
     +-----------------------------+-------------------------------+-----------------------------+
+
+Example::
+
+    os> SELECT CEIL(0), CEIL(12.34567), CEIL(-12.34567)
+    fetched rows / total rows = 1/1
+    +-----------+------------------+-------------------+
+    | CEIL(0)   | CEIL(12.34567)   | CEIL(-12.34567)   |
+    |-----------+------------------+-------------------|
+    | 0         | 13               | -12               |
+    +-----------+------------------+-------------------+
+
+
 
 
 CONV
@@ -432,9 +463,24 @@ EXP
 Description
 >>>>>>>>>>>
 
+Usage: EXP() returns Euler's number raised to the specified number
+
+Return type: DOUBLE
+
 Specifications:
 
 1. EXP(NUMBER T) -> T
+
+Example::
+
+    os> SELECT EXP(2)
+    fetched rows / total rows = 1/1
+    +------------------+
+    | EXP(2)           |
+    |------------------|
+    | 7.38905609893065 |
+    +------------------+
+
 
 
 EXPM1
@@ -488,15 +534,30 @@ Example::
     | 282474973688888              | 9223372036854775807              | 9223372036854775807                  |
     +------------------------------+----------------------------------+--------------------------------------+
 
+
 LN
 --
 
 Description
 >>>>>>>>>>>
 
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
 Specifications:
 
-1. LN(NUMBER T) -> DOUBLE
+1. LN(NUMBER T) -> T
+
+Example::
+
+    os> SELECT ABS(0), ABS(10), ABS(-10), ABS(12.34567), ABS(-12.34567)
+    fetched rows / total rows = 1/1
+    +----------+-----------+------------+-----------------+------------------+
+    | ABS(0)   | ABS(10)   | ABS(-10)   | ABS(12.34567)   | ABS(-12.34567)   |
+    |----------+-----------+------------+-----------------+------------------|
+    | 0        | 10        | 10         | 12.34567        | 12.34567         |
+    +----------+-----------+------------+-----------------+------------------+
 
 
 LOG
