@@ -1763,7 +1763,10 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test truncate with double value.
    */
   @ParameterizedTest(name = "truncate({0}, {1})")
-  @ValueSource(doubles = {2D, -1.2D, Double.MAX_VALUE, Double.MIN_VALUE})
+  @ValueSource(doubles = {2D, -9.223372036854776e+18D, -2147483649.0D, -2147483648.0D,
+                          -32769.0D, -32768.0D, -34.84D, -2.0D, -1.2D, -1.0D, 0.0D, 1.0D,
+                          1.3D, 2.0D, 1004.3D, 32767.0D, 32768.0D, 2147483647.0D, 2147483648.0D,
+                          9.223372036854776e+18D, Double.MAX_VALUE, Double.MIN_VALUE})
   public void truncate_double_value(Double value) {
     FunctionExpression truncate = DSL.truncate(DSL.literal(value), DSL.literal(1));
     assertThat(

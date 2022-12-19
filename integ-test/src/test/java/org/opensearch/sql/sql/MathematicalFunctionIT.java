@@ -7,7 +7,6 @@
 package org.opensearch.sql.sql;
 
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
-import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DOUBLE;
 import static org.opensearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 import static org.opensearch.sql.util.MatcherUtils.rows;
 import static org.opensearch.sql.util.MatcherUtils.schema;
@@ -30,7 +29,6 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
   public void init() throws Exception {
     super.init();
     loadIndex(Index.BANK);
-    loadIndex(Index.DOUBLE);
   }
 
   @Test
@@ -168,25 +166,6 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
     result = executeQuery(String.format("select truncate(%s, 6)", Math.PI));
     verifySchema(result, schema(String.format("truncate(%s, 6)", Math.PI), null, "double"));
     verifyDataRows(result, rows(3.141592));
-
-    String query = "select val, truncate(val, 1) from %s";
-    JSONObject response = executeJdbcRequest(String.format(query, TEST_INDEX_DOUBLE));
-    verifySchema(response, schema("val", null, "double"),
-            schema("truncate(val, 1)", null, "double"));
-    assertEquals(20, response.getInt("total"));
-
-    verifyDataRows(response,
-            rows(null, null), rows(-9.223372036854776e+18, -9.223372036854776e+18),
-            rows(-2147483649.0, -2147483649.0), rows(-2147483648.0, -2147483648.0),
-            rows(-32769.0, -32769.0), rows(-32768.0, -32768.0),
-            rows(-34.84, -34.8), rows(-2.0, -2.0),
-            rows(-1.2, -1.2), rows(-1.0, -1.0),
-            rows(0.0 , 0.0), rows(1.0, 1.0),
-            rows(1.3, 1.3), rows(2.0, 2.0),
-            rows(1004.3, 1004.3), rows(32767.0 , 32767.0 ),
-            rows(32768.0 , 32768.0 ), rows(2147483647.0, 2147483647.0),
-            rows(2147483648.0, 2147483648.0),
-            rows(9.223372036854776e+18, 9.223372036854776e+18));
   }
 
   @Test
