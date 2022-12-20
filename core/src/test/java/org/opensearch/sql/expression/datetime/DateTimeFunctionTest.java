@@ -691,6 +691,63 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("minute(\"2020-08-17 01:02:03\")", expression.toString());
   }
 
+  public void testMinuteOfHour(FunctionExpression dateExpression, int minute, String testExpr) {
+    assertEquals(INTEGER, dateExpression.type());
+    assertEquals(integerValue(minute), eval(dateExpression));
+    assertEquals(testExpr, dateExpression.toString());
+  }
+
+  @Test
+  public void minuteOfHour() {
+    lenient().when(nullRef.type()).thenReturn(TIME);
+    lenient().when(missingRef.type()).thenReturn(TIME);
+
+    FunctionExpression expression1 = DSL.minute_of_hour(
+        DSL.literal(new ExprTimeValue("01:02:03")));
+    FunctionExpression expression2 = DSL.minute_of_hour(DSL.literal("01:02:03"));
+    FunctionExpression expression3 = DSL.minute_of_hour(
+        DSL.literal(new ExprTimestampValue("2020-08-17 01:02:03")));
+    FunctionExpression expression4 = DSL.minute_of_hour(
+        DSL.literal(new ExprDatetimeValue("2020-08-17 01:02:03")));
+    FunctionExpression expression5 = DSL.minute_of_hour(DSL.literal("2020-08-17 01:02:03"));
+
+
+    assertAll(
+      () -> testMinuteOfHour(expression1, 2, "minute(TIME '01:02:03')"),
+      () -> testMinuteOfHour(expression2, 2, "minute(\"01:02:03\")"),
+      () -> testMinuteOfHour(expression3, 2, "minute(TIMESTAMP '2020-08-17 01:02:03')"),
+      () -> testMinuteOfHour(expression4, 2, "minute(DATETIME '2020-08-17 01:02:03')"),
+      () -> testMinuteOfHour(expression5, 2, "minute(\"2020-08-17 01:02:03\")")
+    );
+  }
+
+  public void testInvalidMinuteOfHour(String time) {
+    FunctionExpression expression = DSL.minute_of_hour(DSL.literal(new ExprTimeValue(time)));
+    eval(expression);
+  }
+
+  //TODO
+  @Test
+  public void hourOfDayInvalidArguments() {
+    when(nullRef.type()).thenReturn(TIME);
+    when(missingRef.type()).thenReturn(TIME);
+    assertEquals(nullValue(), eval(DSL.minute_of_hour(nullRef)));
+    assertEquals(missingValue(), eval(DSL.minute_of_hour(missingRef)));
+
+    //Invalid Seconds
+    assertThrows(SemanticCheckException.class, () -> testInvalidMinuteOfHour("12:23:61"));
+
+    //Invalid Minutes
+    assertThrows(SemanticCheckException.class, () -> testInvalidMinuteOfHour("12:61:34"));
+
+    //Invalid Hours
+    assertThrows(SemanticCheckException.class, () -> testInvalidMinuteOfHour("25:23:34"));
+
+    //incorrect format
+    assertThrows(SemanticCheckException.class, () -> testInvalidMinuteOfHour("asdfasdf"));
+  }
+
+
   @Test
   public void month() {
     when(nullRef.type()).thenReturn(DATE);
