@@ -713,11 +713,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
 
     assertAll(
-      () -> testMinuteOfHour(expression1, 2, "minute(TIME '01:02:03')"),
-      () -> testMinuteOfHour(expression2, 2, "minute(\"01:02:03\")"),
-      () -> testMinuteOfHour(expression3, 2, "minute(TIMESTAMP '2020-08-17 01:02:03')"),
-      () -> testMinuteOfHour(expression4, 2, "minute(DATETIME '2020-08-17 01:02:03')"),
-      () -> testMinuteOfHour(expression5, 2, "minute(\"2020-08-17 01:02:03\")")
+        () -> testMinuteOfHour(expression1, 2, "minute(TIME '01:02:03')"),
+        () -> testMinuteOfHour(expression2, 2, "minute(\"01:02:03\")"),
+        () -> testMinuteOfHour(expression3, 2, "minute(TIMESTAMP '2020-08-17 01:02:03')"),
+        () -> testMinuteOfHour(expression4, 2, "minute(DATETIME '2020-08-17 01:02:03')"),
+        () -> testMinuteOfHour(expression5, 2, "minute(\"2020-08-17 01:02:03\")")
     );
   }
 
