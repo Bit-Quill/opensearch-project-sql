@@ -699,8 +699,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   @Test
   public void minuteOfHour() {
-    lenient().when(nullRef.type()).thenReturn(TIME);
-    lenient().when(missingRef.type()).thenReturn(TIME);
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
     FunctionExpression expression1 = DSL.minute_of_hour(
         DSL.literal(new ExprTimeValue("01:02:03")));
@@ -713,11 +713,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
 
     assertAll(
-        () -> testMinuteOfHour(expression1, 2, "minute(TIME '01:02:03')"),
-        () -> testMinuteOfHour(expression2, 2, "minute(\"01:02:03\")"),
-        () -> testMinuteOfHour(expression3, 2, "minute(TIMESTAMP '2020-08-17 01:02:03')"),
-        () -> testMinuteOfHour(expression4, 2, "minute(DATETIME '2020-08-17 01:02:03')"),
-        () -> testMinuteOfHour(expression5, 2, "minute(\"2020-08-17 01:02:03\")")
+        () -> testMinuteOfHour(expression1, 2, "minute_of_hour(TIME '01:02:03')"),
+        () -> testMinuteOfHour(expression2, 2, "minute_of_hour(\"01:02:03\")"),
+        () -> testMinuteOfHour(expression3, 2, "minute_of_hour(TIMESTAMP '2020-08-17 01:02:03')"),
+        () -> testMinuteOfHour(expression4, 2, "minute_of_hour(DATETIME '2020-08-17 01:02:03')"),
+        () -> testMinuteOfHour(expression5, 2, "minute_of_hour(\"2020-08-17 01:02:03\")")
     );
   }
 
