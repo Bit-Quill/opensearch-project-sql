@@ -726,9 +726,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     eval(expression);
   }
 
-  //TODO
   @Test
-  public void hourOfDayInvalidArguments() {
+  public void minuteOfHourInvalidArguments() {
     when(nullRef.type()).thenReturn(TIME);
     when(missingRef.type()).thenReturn(TIME);
     assertEquals(nullValue(), eval(DSL.minute_of_hour(nullRef)));
