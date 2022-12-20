@@ -20,7 +20,7 @@
                 "type" : "double"
             },
             "str0" : {
-                "type" : "keyword"
+                "type" : "integer"
             },
             "str1" : {
                 "type" : "keyword"

@@ -57,6 +57,7 @@ import static org.opensearch.sql.legacy.TestUtils.getPeople2IndexMapping;
 import static org.opensearch.sql.legacy.TestUtils.getPhraseIndexMapping;
 import static org.opensearch.sql.legacy.TestUtils.getResponseBody;
 import static org.opensearch.sql.legacy.TestUtils.getStringIndexMapping;
+import static org.opensearch.sql.legacy.TestUtils.getDataTextKeywordIndexMapping;
 import static org.opensearch.sql.legacy.TestUtils.getWeblogsIndexMapping;
 import static org.opensearch.sql.legacy.TestUtils.isIndexExist;
 import static org.opensearch.sql.legacy.TestUtils.loadDataByRestClient;
@@ -584,7 +585,11 @@ public abstract class SQLIntegTestCase extends OpenSearchSQLRestTestCase {
     CALCS(TestsConstants.TEST_INDEX_CALCS,
         "calcs",
         getMappingFile("calcs_index_mappings.json"),
-        "src/test/resources/calcs.json"),;
+        "src/test/resources/calcs.json"),
+    TEXTKEYWORD(TestsConstants.TEST_INDEX_TEXTKEYWORD,
+        "textkeyword",
+          getMappingFile("text_keyword_index_mapping.json"),
+        "src/test/resources/text_keyword_index.json");
 
     private final String name;
     private final String type;
