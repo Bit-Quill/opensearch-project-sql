@@ -20,9 +20,9 @@ public class TimeTypeTest {
 
   @ParameterizedTest
   @CsvSource(value = {
-      "1986-03-20 00:00:00, 00:00:00",
-      "1976-12-04 01:01:01, 01:01:01",
-      "2000-06-16 23:59:59, 23:59:59"
+      "00:00:00, 00:00:00",
+      "01:01:01, 01:01:01",
+      "23:59:59, 23:59:59"
   })
   void testTimeFromString(String inputString, String resultString) {
     Time time = Assertions.assertDoesNotThrow(

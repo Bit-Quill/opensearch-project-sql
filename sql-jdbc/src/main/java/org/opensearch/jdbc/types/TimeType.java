@@ -11,9 +11,11 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
 public class TimeType implements TypeHelper<Time>{
 
@@ -41,39 +43,27 @@ public class TimeType implements TypeHelper<Time>{
   }
 
   public Time asTime(String value, Calendar calendar) throws SQLException {
-    try {
-      // Make some effort to understand ISO format
-      if (value.length() > 11 && value.charAt(10) == 'T') {
-        value = value.replace('T', ' ');
-      }
-      // Timestamp.valueOf() does not like timezone information
-      if (value.length() > 23) {
-        if (value.length() == 24 && value.charAt(23) == 'Z') {
-          value = value.substring(0, 23);
-        } else if (value.charAt(23) == '+' || value.charAt(23) == '-') {
-          // 'calendar' parameter takes precedence
-          if (calendar == null) {
-            calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT" + value.substring(23)));
-          }
-          value = value.substring(0, 23);
-        }
-      }
+    Time time;
+    LocalDateTime localDateTime;
 
-      final Timestamp ts;
-      // 11 to check if the value is in yyyy-MM-dd format
-      if (value.length() < 11) {
-        ts = Timestamp.valueOf(LocalDate.parse(value).atStartOfDay());
-      } else {
-        ts = Timestamp.valueOf(value);
-      }
+    if (value.length() > 10) {
+      TemporalAccessor temporal = DateTimeFormatter
+              .ofPattern("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+              .parse(value);
 
-      if (calendar == null) {
-        return new Time(ts.getTime());
-      }
-      return localDateTimeToTimestamp(ts.toLocalDateTime(), calendar);
-    } catch (IllegalArgumentException iae) {
-      throw stringConversionException(value, iae);
+      localDateTime = LocalDate.from(temporal).atStartOfDay();
+      time = Time.valueOf(localDateTime.toLocalTime());
+    } else {
+      time = Time.valueOf(value);
     }
+
+    if (calendar == null) {
+      return time;
+    }
+
+    localDateTime = time.toLocalTime().atDate(LocalDate.now());
+
+    return localDateTimeToTime(localDateTime, calendar);
   }
 
   public Time asTime(Number value) {
@@ -85,7 +75,7 @@ public class TimeType implements TypeHelper<Time>{
     return "Time";
   }
 
-  private Time localDateTimeToTimestamp(LocalDateTime ldt, Calendar calendar) {
+  private Time localDateTimeToTime(LocalDateTime ldt, Calendar calendar) {
     calendar.set(ldt.getYear(), ldt.getMonthValue()-1, ldt.getDayOfMonth(),
             ldt.getHour(), ldt.getMinute(), ldt.getSecond());
     calendar.set(Calendar.MILLISECOND, ldt.getNano()/1000000);
