@@ -1747,6 +1747,7 @@ Description
 >>>>>>>>>>>
 
 Usage: minute(time) returns the minute for time, in the range 0 to 59.
+The `minute_of_hour` function is provided as an alias.
 
 Argument type: STRING/TIME/DATETIME/TIMESTAMP
 
@@ -1762,6 +1763,37 @@ Example::
     | 2                           |
     +-----------------------------+
 
+    os> SELECT MINUTE_OF_HOUR((TIME '01:02:03'))
+    fetched rows / total rows = 1/1
+    +-------------------------------------+
+    | MINUTE_OF_HOUR((TIME '01:02:03'))   |
+    |-------------------------------------|
+    | 2                                   |
+    +-------------------------------------+
+
+    os> SELECT MINUTE_OF_HOUR((TIME '01:02:03'))
+    fetched rows / total rows = 1/1
+    +-------------------------------------+
+    | MINUTE_OF_HOUR((TIME '01:02:03'))   |
+    |-------------------------------------|
+    | 2                                   |
+    +-------------------------------------+
+
+    os> SELECT MINUTE_OF_HOUR(datetime('2022-12-20 01:02:03'))
+    fetched rows / total rows = 1/1
+    +---------------------------------------------------+
+    | MINUTE_OF_HOUR(datetime('2022-12-20 01:02:03'))   |
+    |---------------------------------------------------|
+    | 2                                                 |
+    +---------------------------------------------------+
+
+    os> SELECT MINUTE_OF_HOUR((TIMESTAMP '2022-12-20 01:02:03'))
+    fetched rows / total rows = 1/1
+    +-----------------------------------------------------+
+    | MINUTE_OF_HOUR((TIMESTAMP '2022-12-20 01:02:03'))   |
+    |-----------------------------------------------------|
+    | 2                                                   |
+    +-----------------------------------------------------+
 
 MONTH
 -----
