@@ -255,16 +255,4 @@ package org.opensearch.sql.sql;
       verifySchema(result,
           schema("SUBSTRING(textDataFieldNoFields, 1, 1)", null, "keyword"));
     }
-
-//    protected JSONObject executeQuery(String query) throws IOException {
-//      Request request = new Request("POST", QUERY_API_ENDPOINT);
-//      request.setJsonEntity(String.format(Locale.ROOT, "{\n" + "  \"query\": \"%s\"\n" + "}", query));
-//
-//      RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
-//      restOptionsBuilder.addHeader("Content-Type", "application/json");
-//      request.setOptions(restOptionsBuilder);
-//
-//      Response response = client().performRequest(request);
-//      return new JSONObject(getResponseBody(response));
-//    }
   }
