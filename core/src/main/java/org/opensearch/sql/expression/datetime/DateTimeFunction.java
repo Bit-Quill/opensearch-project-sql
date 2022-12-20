@@ -120,7 +120,8 @@ public class DateTimeFunction {
     repository.register(period_add());
     repository.register(period_diff());
     repository.register(quarter());
-    repository.register(second());
+    repository.register(second(BuiltinFunctionName.SECOND));
+    repository.register(second(BuiltinFunctionName.SECOND_OF_MINUTE));
     repository.register(subdate());
     repository.register(sysdate());
     repository.register(time());
@@ -492,8 +493,8 @@ public class DateTimeFunction {
   /**
    * SECOND(STRING/TIME/DATETIME/TIMESTAMP). return the second value for time.
    */
-  private DefaultFunctionResolver second() {
-    return define(BuiltinFunctionName.SECOND.getName(),
+  private DefaultFunctionResolver second(BuiltinFunctionName name) {
+    return define(name.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprSecond), INTEGER, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprSecond), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprSecond), INTEGER, DATETIME),
