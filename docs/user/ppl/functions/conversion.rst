@@ -56,7 +56,7 @@ Cast to number example::
 
 Cast to date example::
 
-    os> source=people | eval `cdate` = CAST('2012-08-07' as date), `ctime` = CAST('2012-08-07 01:01:01' as time), `ctimestamp` = CAST('2012-08-07 01:01:01' as timestamp) | fields `cdate`, `ctime`, `ctimestamp`
+    os> source=people | eval `cdate` = CAST('2012-08-07' as date), `ctime` = CAST('01:01:01' as time), `ctimestamp` = CAST('2012-08-07 01:01:01' as timestamp) | fields `cdate`, `ctime`, `ctimestamp`
     fetched rows / total rows = 1/1
     +------------+----------+---------------------+
     | cdate      | ctime    | ctimestamp          |

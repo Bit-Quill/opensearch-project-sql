@@ -67,7 +67,7 @@ Cast to number example::
 
 Cast to date example::
 
-    os> SELECT cast('2012-08-07' as date) as cdate, cast('2012-08-07 01:01:01' as time) as ctime, cast('2012-08-07 01:01:01' as timestamp) as ctimestamp
+    os> SELECT cast('2012-08-07' as date) as cdate, cast('01:01:01' as time) as ctime, cast('2012-08-07 01:01:01' as timestamp) as ctimestamp
     fetched rows / total rows = 1/1
     +------------+----------+---------------------+
     | cdate      | ctime    | ctimestamp          |
