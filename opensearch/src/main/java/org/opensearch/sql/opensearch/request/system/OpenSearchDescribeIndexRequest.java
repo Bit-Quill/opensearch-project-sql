@@ -66,7 +66,7 @@ public class OpenSearchDescribeIndexRequest implements OpenSearchSystemRequest {
     List<ExprValue> results = new ArrayList<>();
     Map<String, String> meta = client.meta();
     int pos = 0;
-    for (Map.Entry<String, OpenSearchDataType> entry : getFieldTypes().entrySet()) {
+    for (Map.Entry<String, OpenSearchDataType> entry : OpenSearchDataType.traverseAndFlatten(getFieldTypes()).entrySet()) {
       results.add(
           row(entry.getKey(), entry.getValue().legacyTypeName().toLowerCase(), pos++,
               clusterName(meta)));
@@ -79,7 +79,7 @@ public class OpenSearchDescribeIndexRequest implements OpenSearchSystemRequest {
    *
    * @return mapping of field and type.
    */
-  // TODO possible collision if two indices have fields with same names and different mappings
+  // TODO possible collision if two indices have fields with the same name and different mappings
   public Map<String, OpenSearchDataType> getFieldTypes() {
     Map<String, OpenSearchDataType> fieldTypes = new HashMap<>();
     Map<String, IndexMapping> indexMappings = client.getIndexMappings(indexName.getIndexNames());

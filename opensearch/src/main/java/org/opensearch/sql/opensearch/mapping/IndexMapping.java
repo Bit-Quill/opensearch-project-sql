@@ -36,7 +36,7 @@ public class IndexMapping {
   // TODO remove, used in tests only
   public IndexMapping(Map<String, String> fieldMappings) {
     this.fieldMappings = fieldMappings.entrySet().stream()
-        .collect(Collectors.toMap(e -> e.getKey(), e -> new OpenSearchDataType(
+        .collect(Collectors.toMap(e -> e.getKey(), e -> OpenSearchDataType.of(
             EnumUtils.getEnumIgnoreCase(OpenSearchDataType.Type.class, e.getValue()))
         ));
   }
@@ -77,11 +77,19 @@ public class IndexMapping {
     if (mappingInfo != null) {
       mappingInfo.forEach((k, v) -> {
           var innerMap = (Map<String, Object>)v;
-          var type = ((String) innerMap.get("type")).replace("_", "");
-          var value = new OpenSearchDataType(EnumUtils.getEnumIgnoreCase(OpenSearchDataType.Type.class, type));
+          // TODO: confirm that only `object` mappings can omit `type` field.
+          var type = ((String) innerMap.getOrDefault("type", "object")).replace("_", "");
+          if (!EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.Type.class, type)) {
+            // unknown type, e.g. `alias`
+            // TODO resolve alias reference
+            return;
+          }
+          var value = OpenSearchDataType.of(EnumUtils.getEnumIgnoreCase(OpenSearchDataType.Type.class, type));
           // TODO read formats for date type
-          if (innerMap.containsKey("properties") || innerMap.containsKey("fields")) { // can be omitted
-            value.getFieldsOrProperties().putAll(parseMapping(innerMap));
+          if (innerMap.containsKey("properties")) {
+            value.getProperties().putAll(parseMapping(innerMap));
+          } else if (innerMap.containsKey("fields")) {
+            value.getFields().putAll(parseMapping(innerMap));
           }
           result.put(k, value);
         });

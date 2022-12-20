@@ -32,6 +32,7 @@ import org.opensearch.sql.expression.NamedArgumentExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 
 /**
  * Lucene query abstraction that builds Lucene query from function expression.
@@ -231,7 +232,10 @@ public abstract class LuceneQuery {
    * @return            keyword field name for multi-field, otherwise original field name returned
    */
   protected String convertTextToKeyword(String fieldName, ExprType fieldType) {
-    // TODO
+    if (fieldType instanceof OpenSearchTextType
+        && ((OpenSearchTextType) fieldType).getFields().size() > 0) {
+      return fieldName + ".keyword";
+    }
     return fieldName;
   }
 

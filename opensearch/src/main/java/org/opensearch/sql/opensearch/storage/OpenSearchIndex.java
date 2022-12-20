@@ -85,8 +85,8 @@ public class OpenSearchIndex implements Table {
     if (cachedFieldTypes == null) {
       cachedFieldTypes = new OpenSearchDescribeIndexRequest(client, indexName).getFieldTypes();
     }
-    return cachedFieldTypes.entrySet().stream()
-        .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getExprCoreType()));
+    return OpenSearchDataType.traverseAndFlatten(cachedFieldTypes).entrySet().stream()
+        .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getExprType()));
   }
 
   /**

@@ -108,7 +108,7 @@ public class ExpressionScript {
 
   private OpenSearchExprValueFactory buildValueFactory(Set<ReferenceExpression> fields) {
     Map<String, OpenSearchDataType> typeEnv = fields.stream().collect(toMap(
-        ReferenceExpression::getAttr, e -> new OpenSearchDataType((ExprCoreType) e.type())));
+        ReferenceExpression::getAttr, e -> OpenSearchDataType.of(e.type())));
     return new OpenSearchExprValueFactory(typeEnv);
   }
 

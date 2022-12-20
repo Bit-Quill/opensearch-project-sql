@@ -8,20 +8,25 @@ package org.opensearch.sql.opensearch.data.type;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.opensearch.sql.data.type.ExprCoreType;
-import org.opensearch.sql.data.type.ExprType;
-
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.opensearch.sql.data.type.ExprCoreType;
+import org.opensearch.sql.data.type.ExprType;
 
 /**
  * The extension of ExprType in OpenSearch.
  */
 @EqualsAndHashCode
-public class OpenSearchDataType implements ExprType {
+public class OpenSearchDataType implements ExprType, Comparable<OpenSearchDataType>, Serializable {
+
+  @Override
+  public int compareTo(OpenSearchDataType o) {
+    return equals(o) ? 0 : 1;
+  }
 
   public enum Type {
     Text("text"),
@@ -30,6 +35,7 @@ public class OpenSearchDataType implements ExprType {
     GeoPoint("geo_point"),
     Binary("binary"),
     Date("date"),
+    Object("object"),
     Nested("nested"),
     Byte("byte"),
     Short("short"),
@@ -40,28 +46,38 @@ public class OpenSearchDataType implements ExprType {
     ScaledFloat("scaled_float"),
     Double("double"),
     Boolean("boolean");
-    // TODO: nested, object, ranges, geo shape, point, shape, scaled_float
+    // TODO: ranges, geo shape, point, shape
 
     private String name;
 
     Type(String name) {
       this.name = name;
     }
+
+    public String toString() {
+      return name;
+    }
   }
 
-  //@Getter
   @EqualsAndHashCode.Exclude
   private Type type;
 
   // resolved ExprCoreType
-  @Getter
-  private ExprCoreType exprCoreType;
+  protected ExprCoreType exprCoreType;
 
-  public OpenSearchDataType(Type type) {
-    this.type = type;
+  // Need to avoid returning `UNKNOWN` for `OpenSearch*Type`s, e.g. for IP
+  public ExprType getExprType() {
+    if (exprCoreType != ExprCoreType.UNKNOWN) {
+      return exprCoreType;
+    }
+    return this;
+  }
+
+  public static OpenSearchDataType of(Type type) {
+    ExprCoreType exprCoreType = ExprCoreType.UNKNOWN;
     switch (type) {
       // TODO update these 2 below #1038 https://github.com/opensearch-project/sql/issues/1038
-      case Text:
+      case Text: return new OpenSearchTextType();
       case Keyword: exprCoreType = ExprCoreType.STRING; break;
       case Byte: exprCoreType = ExprCoreType.BYTE; break;
       case Short: exprCoreType = ExprCoreType.SHORT; break;
@@ -74,35 +90,48 @@ public class OpenSearchDataType implements ExprType {
       case Boolean: exprCoreType = ExprCoreType.BOOLEAN; break;
       // TODO: check formats, it could allow TIME or DATE only
       case Date: exprCoreType = ExprCoreType.TIMESTAMP; break;
-      // TODO validate that it works ok, prev impl had `nested` -> ARRAY, `object` -> STRUCT
-      case Nested: exprCoreType = ExprCoreType.STRUCT; break;
-      // TODO
-      case GeoPoint:
-      case Binary:
-      case Ip:
+      case Object: exprCoreType = ExprCoreType.STRUCT; break;
+      case Nested: exprCoreType = ExprCoreType.ARRAY; break;
+      case GeoPoint: return new OpenSearchGeoPointType();
+      case Binary: return new OpenSearchBinaryType();
+      case Ip: return new OpenSearchIpType();
       default:
-        exprCoreType = ExprCoreType.UNKNOWN;
     }
+    var res = new OpenSearchDataType(type);
+    res.exprCoreType = exprCoreType;
+    return res;
   }
 
-  public OpenSearchDataType(ExprCoreType type) {
+  protected OpenSearchDataType(Type type) {
+    this.type = type;
+  }
+
+  public static OpenSearchDataType of(ExprType type) {
+    if (type instanceof OpenSearchDataType) {
+      return (OpenSearchDataType) type;
+    }
+    return new OpenSearchDataType((ExprCoreType) type);
+  }
+
+  protected OpenSearchDataType(ExprCoreType type) {
     this.exprCoreType = type;
-    // TODO set type?
   }
 
-  // nested has properties, text could have fields
-  // TODO could be fields in other types?
-  // TODO what is better structure - map (nested maps) or a tree?
+  protected OpenSearchDataType() { }
+
+  // object has properties
   @Getter
   @EqualsAndHashCode.Exclude
-  Map<String, OpenSearchDataType> fieldsOrProperties = new HashMap<>();
+  Map<String, OpenSearchDataType> properties = new HashMap<>();
 
-  public Boolean hasNestedFields() {
-    return fieldsOrProperties.size() > 0;
-  }
+  // text could have fields
+  @Getter
+  @EqualsAndHashCode.Exclude
+  Map<String, OpenSearchDataType> fields = new HashMap<>();
+
 
   /**
-   * Date formats stored in index mapping. Applicable for {@link Type.Date} only.
+   * Date formats stored in index mapping. Applicable for {@link Type#Date} only.
    */
   @Getter
   @EqualsAndHashCode.Exclude
@@ -119,30 +148,21 @@ public class OpenSearchDataType implements ExprType {
 
   @Override
   public String typeName() {
-    return type.toString();
-    /*
-    switch (type) {
-      case GeoPoint: return "geo_point";
-      case HalfFloat: return "half_point";
-      case ScaledFloat: return "scaled_point";
-      // TODO update these 2 below #1038 https://github.com/opensearch-project/sql/issues/1038
-      case Text: return "string";
-      case Keyword: return "string";
-      case Ip: return "ip";
-      case Binary: return "binary";
-      case Nested: return "nested";
-    }
-    throw new IllegalArgumentException(type.toString());
-    */
+    return type.toString().toLowerCase();
   }
 
   @Override
   public String legacyTypeName() {
-    throw new UnsupportedOperationException();
+    return typeName();
   }
 
-  private OpenSearchDataType cloneWithoutNested() {
-    var copy = new OpenSearchDataType(type);
+  /**
+   * Clone type object without {@link #properties} - without info nested about nested object types.
+   * @return A clone.
+   */
+  private OpenSearchDataType cloneEmpty() {
+    var copy = type != null ? of(type) : new OpenSearchDataType(exprCoreType);
+    copy.fields = fields; //TODO do we need to clone object?
     copy.exprCoreType = exprCoreType;
     copy.formats = formats;
     return copy;
@@ -152,15 +172,13 @@ public class OpenSearchDataType implements ExprType {
       Map<String, OpenSearchDataType> tree) {
     Map<String, OpenSearchDataType> result = new HashMap<>();
     for (var entry : tree.entrySet()) {
-      result.put(entry.getKey(), entry.getValue().cloneWithoutNested());
-      if (entry.getValue().hasNestedFields()) { // can be omitted
-        result.putAll(
-            traverseAndFlatten(entry.getValue().fieldsOrProperties)
-                .entrySet().stream()
-                .collect(Collectors.toMap(
-                    e -> String.format("%s.%s", entry.getKey(), e.getKey()),
-                    e -> e.getValue())));
-      }
+      result.put(entry.getKey(), entry.getValue().cloneEmpty());
+      result.putAll(
+          traverseAndFlatten(entry.getValue().properties)
+              .entrySet().stream()
+              .collect(Collectors.toMap(
+                  e -> String.format("%s.%s", entry.getKey(), e.getKey()),
+                  e -> e.getValue())));
     }
     return result;
   }

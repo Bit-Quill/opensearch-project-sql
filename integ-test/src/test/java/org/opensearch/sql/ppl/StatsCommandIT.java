@@ -119,7 +119,7 @@ public class StatsCommandIT extends PPLIntegTestCase {
             "source=%s | stats sum(balance) as a by state | where a > 780000",
             TEST_INDEX_ACCOUNT));
     verifySchema(response, schema("a", null, "long"),
-        schema("state", null, "string"));
+        schema("state", null, "text"));
     verifyDataRows(response, rows(782199, "TX"));
   }
 

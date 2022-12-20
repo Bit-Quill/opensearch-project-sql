@@ -54,7 +54,7 @@ public class SystemFunctionIT extends SQLIntegTestCase {
         //+ ", typeof(nested_value)"
         + " from %s;", TEST_INDEX_DATATYPE_NONNUMERIC));
     verifyDataRows(response,
-        rows("OPENSEARCH_TEXT", "TIMESTAMP", "BOOLEAN", "STRUCT", "STRING",
-                "OPENSEARCH_IP", "OPENSEARCH_BINARY", "OPENSEARCH_GEO_POINT"));
+        rows("text", "TIMESTAMP", "BOOLEAN", "STRUCT", "STRING",
+                "ip", "binary", "geo_point"));
   }
 }

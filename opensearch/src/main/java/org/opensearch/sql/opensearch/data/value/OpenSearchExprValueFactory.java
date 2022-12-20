@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
+import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -26,9 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
 import org.opensearch.common.time.DateFormatters;
 import org.opensearch.sql.data.model.ExprBooleanValue;
 import org.opensearch.sql.data.model.ExprByteValue;
@@ -47,7 +50,10 @@ import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchBinaryType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchGeoPointType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchIpType;
 import org.opensearch.sql.opensearch.data.utils.Content;
 import org.opensearch.sql.opensearch.data.utils.ObjectContent;
 import org.opensearch.sql.opensearch.data.utils.OpenSearchJsonContent;
@@ -60,8 +66,18 @@ public class OpenSearchExprValueFactory {
   /**
    * The Mapping of Field and ExprType.
    */
-  @Setter
-  private Map<String, OpenSearchDataType> typeMapping;
+  private final Map<String, OpenSearchDataType> typeMapping;
+
+  // Called from aggregation: AggregationQueryBuilder::buildTypeMapping
+  public void extendTypeMapping(Map<String, OpenSearchDataType> typeMapping) {
+    for (var field : typeMapping.keySet()) {
+      // Prevent overwriting, because aggregation engine may be not aware of all niceties of all types.
+      if (!this.typeMapping.containsKey(field)) {
+        this.typeMapping.put(field, typeMapping.get(field));
+      }
+    }
+    // this.typeMapping = typeMapping;
+  }
 
   @Getter
   @Setter
@@ -71,52 +87,47 @@ public class OpenSearchExprValueFactory {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-  private final Map<ExprType, BiFunction<Content, OpenSearchDataType, ExprValue>> typeActionMap =
-      new ImmutableMap.Builder<ExprType, BiFunction<Content, OpenSearchDataType, ExprValue>>()
-          .put(new OpenSearchDataType(OpenSearchDataType.Type.Integer),
-              (c, dt) -> new ExprIntegerValue(c.intValue()))
-          .put(new OpenSearchDataType(OpenSearchDataType.Type.Long),
-              (c, dt) -> new ExprLongValue(c.longValue()))
-          .put(new OpenSearchDataType(OpenSearchDataType.Type.Short),
-              (c, dt) -> new ExprShortValue(c.shortValue()))
-          .put(new OpenSearchDataType(OpenSearchDataType.Type.Byte),
-              (c, dt) -> new ExprByteValue(c.byteValue()))
-          .put(new OpenSearchDataType(OpenSearchDataType.Type.Float),
-              (c, dt) -> new ExprFloatValue(c.floatValue()))
-          .put(new OpenSearchDataType(OpenSearchDataType.Type.Double),
-              (c, dt) -> new ExprDoubleValue(c.doubleValue()))
-          // TODO commented out because `Text` and `Keyword` mapped to the same ExprCoreType
-          //.put(new OpenSearchDataType(OpenSearchDataType.Type.Text),
-          //    (c, dt) -> new OpenSearchExprTextValue(c.stringValue()))
-          .put(new OpenSearchDataType(OpenSearchDataType.Type.Keyword),
-              (c, dt) -> new ExprStringValue(c.stringValue()))
-          // TODO do we need entry for `new OpenSearchDataType(STRING)` ?
-          .put(new OpenSearchDataType(OpenSearchDataType.Type.Boolean),
-              (c, dt) -> ExprBooleanValue.of(c.booleanValue()))
-          .put(new OpenSearchDataType(TIMESTAMP), this::constructTimestamp)
-          .put(new OpenSearchDataType(DATE),
-              (c, dt) -> new ExprDateValue(constructTimestamp(c, dt).dateValue().toString()))
-          .put(new OpenSearchDataType(TIME),
-              (c, dt) -> new ExprTimeValue(constructTimestamp(c, dt).timeValue().toString()))
-          .put(new OpenSearchDataType(DATETIME),
-              (c, dt) -> new ExprDatetimeValue(constructTimestamp(c, dt).datetimeValue()))
-          // TODO commented out because these types mapped to the same ExprCoreType : UNKNOWN
-          /*
-          .put(new OpenSearchDataType(Ip),
-              (c, dt) -> new OpenSearchExprIpValue(c.stringValue()))
-          .put(new OpenSearchDataType(GeoPoint),
-              (c, dt) -> new OpenSearchExprGeoPointValue(c.geoValue().getLeft(),
+  private final Map<ExprType, Function<Content, ExprValue>> typeActionMap =
+      new ImmutableMap.Builder<ExprType, Function<Content, ExprValue>>()
+          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Integer),
+              c -> new ExprIntegerValue(c.intValue()))
+          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Long),
+              c -> new ExprLongValue(c.longValue()))
+          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Short),
+              c -> new ExprShortValue(c.shortValue()))
+          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Byte),
+              c -> new ExprByteValue(c.byteValue()))
+          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Float),
+              c -> new ExprFloatValue(c.floatValue()))
+          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Double),
+              c -> new ExprDoubleValue(c.doubleValue()))
+          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Text),
+              c -> new OpenSearchExprTextValue(c.stringValue()))
+          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Keyword),
+              c -> new ExprStringValue(c.stringValue()))
+          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Boolean),
+              c -> ExprBooleanValue.of(c.booleanValue()))
+          .put(OpenSearchDataType.of(TIMESTAMP), this::parseTimestamp)
+          .put(OpenSearchDataType.of(DATE),
+              c -> new ExprDateValue(parseTimestamp(c).dateValue().toString()))
+          .put(OpenSearchDataType.of(TIME),
+              c -> new ExprTimeValue(parseTimestamp(c).timeValue().toString()))
+          .put(OpenSearchDataType.of(DATETIME),
+              c -> new ExprDatetimeValue(parseTimestamp(c).datetimeValue()))
+          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Ip),
+              c -> new OpenSearchExprIpValue(c.stringValue()))
+          .put(OpenSearchDataType.of(OpenSearchDataType.Type.GeoPoint),
+              c -> new OpenSearchExprGeoPointValue(c.geoValue().getLeft(),
                   c.geoValue().getRight()))
-          .put(new OpenSearchDataType(Binary),
-              (c, dt) -> new OpenSearchExprBinaryValue(c.stringValue()))
-           */
+          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Binary),
+              c -> new OpenSearchExprBinaryValue(c.stringValue()))
           .build();
 
   /**
    * Constructor of OpenSearchExprValueFactory.
    */
   public OpenSearchExprValueFactory(Map<String, OpenSearchDataType> typeMapping) {
-    this.typeMapping = typeMapping;
+    this.typeMapping = OpenSearchDataType.traverseAndFlatten(typeMapping);
   }
 
   /**
@@ -153,17 +164,22 @@ public class OpenSearchExprValueFactory {
     }
 
     ExprType type = fieldType.get();
-    if (type == STRUCT) {
+    if (type.equals(OpenSearchDataType.of(OpenSearchDataType.Type.Object)) || type == STRUCT) {
       return parseStruct(content, field);
-    } else if (type == ARRAY) {
+    } else if (type.equals(OpenSearchDataType.of(OpenSearchDataType.Type.Nested)) || type == ARRAY) {
       return parseArray(content, field);
     } else {
       if (typeActionMap.containsKey(type)) {
-        return typeActionMap.get(type).apply(content, (OpenSearchDataType)type);
+        return typeActionMap.get(type).apply(content);
       } else {
+        System.err.println(String.format(
+                "\u001B[31mUnsupported type: %s for value: %s.\u001B[0m", type.typeName(), content.objectValue()));
+        return new ExprStringValue(content.objectValue().toString());
+        /*
         throw new IllegalStateException(
             String.format(
                 "Unsupported type: %s for value: %s.", type.typeName(), content.objectValue()));
+         */
       }
     }
   }
@@ -183,16 +199,26 @@ public class OpenSearchExprValueFactory {
    * https://www.elastic.co/guide/en/elasticsearch/reference/current/date_nanos.html
    * The customized date_format is not supported.
    */
-  private ExprValue constructTimestamp(Content value, OpenSearchDataType __) {
+  private ExprValue constructTimestamp(String value) {
     try {
       return new ExprTimestampValue(
           // Using OpenSearch DateFormatters for now.
-          DateFormatters.from(DATE_TIME_FORMATTER.parse(value.stringValue())).toInstant());
+          DateFormatters.from(DATE_TIME_FORMATTER.parse(value)).toInstant());
     } catch (DateTimeParseException e) {
       throw new IllegalStateException(
           String.format(
               "Construct ExprTimestampValue from \"%s\" failed, unsupported date format.", value),
           e);
+    }
+  }
+
+  private ExprValue parseTimestamp(Content value) {
+    if (value.isNumber()) {
+      return new ExprTimestampValue(Instant.ofEpochMilli(value.longValue()));
+    } else if (value.isString()) {
+      return constructTimestamp(value.stringValue());
+    } else {
+      return new ExprTimestampValue((Instant) value.objectValue());
     }
   }
 

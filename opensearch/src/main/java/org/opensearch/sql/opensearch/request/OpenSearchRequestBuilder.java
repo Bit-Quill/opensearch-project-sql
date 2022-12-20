@@ -214,7 +214,7 @@ public class OpenSearchRequestBuilder {
   }
 
   public void pushTypeMapping(Map<String, OpenSearchDataType> typeMapping) {
-    exprValueFactory.setTypeMapping(typeMapping);
+    exprValueFactory.extendTypeMapping(typeMapping);
   }
 
   private boolean isBoolFilterQuery(QueryBuilder current) {

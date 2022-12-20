@@ -14,6 +14,7 @@ import org.opensearch.sql.data.model.AbstractExprValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchIpType;
 
 /**
  * OpenSearch IP ExprValue.
@@ -31,7 +32,7 @@ public class OpenSearchExprIpValue extends AbstractExprValue {
 
   @Override
   public ExprType type() {
-    return new OpenSearchDataType(Ip);
+    return new OpenSearchIpType();
   }
 
   @Override
