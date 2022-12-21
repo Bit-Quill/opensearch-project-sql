@@ -244,7 +244,6 @@ datetimeConstantLiteral
     : CURRENT_DATE
     | CURRENT_TIME
     | CURRENT_TIMESTAMP
-    | DAY_OF_WEEK
     | DAY_OF_YEAR
     | LOCALTIME
     | LOCALTIMESTAMP
@@ -427,6 +426,7 @@ dateTimeFunctionName
     | DAYOFMONTH
     | DAYOFWEEK
     | DAYOFYEAR
+    | DAY_OF_WEEK
     | FROM_DAYS
     | FROM_UNIXTIME
     | HOUR
