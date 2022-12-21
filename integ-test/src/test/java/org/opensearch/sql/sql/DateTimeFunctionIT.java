@@ -387,14 +387,8 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Test
   public void testMinuteFunctionAliasesReturnTheSameResults() throws IOException {
     JSONObject result1 = executeQuery("SELECT minute('11:30:00')");
-    JSONObject result2 = executeQuery("SELECT minute_of_hour(date('11:30:00')");
+    JSONObject result2 = executeQuery("SELECT minute_of_hour('11:30:00')");
     verifyDataRows(result1, rows(30));
-    result1.getJSONArray("datarows").similar(result2.getJSONArray("datarows"));
-
-    result1 = executeQuery(String.format(
-        "SELECT minute(CAST(date0 AS date)) FROM %s", TEST_INDEX_CALCS));
-    result2 = executeQuery(String.format(
-        "SELECT minute_of_hour(CAST(date0 AS date)) FROM %s", TEST_INDEX_CALCS));
     result1.getJSONArray("datarows").similar(result2.getJSONArray("datarows"));
 
     result1 = executeQuery(String.format(
