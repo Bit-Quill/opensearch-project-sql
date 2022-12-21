@@ -430,7 +430,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(8), eval(expression));
   }
 
-  public void testDayOfMonthWithUnderscores(FunctionExpression dateExpression, int dayOfMonth) {
+  private void testDayOfMonthWithUnderscores(FunctionExpression dateExpression, int dayOfMonth) {
     assertEquals(INTEGER, dateExpression.type());
     assertEquals(integerValue(dayOfMonth), eval(dateExpression));
   }
@@ -454,7 +454,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     );
   }
 
-  public void testInvalidDayOfMonth(String date) {
+  private void testInvalidDayOfMonth(String date) {
     FunctionExpression expression = DSL.day_of_month(DSL.literal(new ExprDateValue(date)));
     eval(expression);
   }

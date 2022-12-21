@@ -1359,7 +1359,7 @@ DAY
 Description
 >>>>>>>>>>>
 
-Usage: day(date) extracts the day of the month for date, in the range 1 to 31. The dates with value 0 such as '0000-00-00' or '2008-00-00' are invalid.
+Usage: day(date) extracts the day of the month for date, in the range 1 to 31.
 
 Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
@@ -1407,7 +1407,7 @@ DAYOFMONTH
 Description
 >>>>>>>>>>>
 
-Usage: dayofmonth(date) extracts the day of the month for date, in the range 1 to 31. The dates with value 0 such as '0000-00-00' or '2008-00-00' are invalid.
+Usage: dayofmonth(date) extracts the day of the month for date, in the range 1 to 31.
 
 Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
@@ -1431,7 +1431,7 @@ DAY_OF_MONTH
 Description
 >>>>>>>>>>>
 
-Usage: day_of_month(date) extracts the day of the month for date, in the range 1 to 31. The dates with value 0 such as '0000-00-00' or '2008-00-00' are invalid.
+Usage: day_of_month(date) extracts the day of the month for date, in the range 1 to 31.
 
 Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
@@ -1448,31 +1448,6 @@ Example::
     |------------------------------|
     | 26                           |
     +------------------------------+
-
-    os> SELECT DAY_OF_MONTH(DATE('2020-08-26'))
-    fetched rows / total rows = 1/1
-    +------------------------------------+
-    | DAY_OF_MONTH(DATE('2020-08-26'))   |
-    |------------------------------------|
-    | 26                                 |
-    +------------------------------------+
-
-    os> SELECT DAY_OF_MONTH(TIMESTAMP('2020-08-26 00:00:00'))
-    fetched rows / total rows = 1/1
-    +--------------------------------------------------+
-    | DAY_OF_MONTH(TIMESTAMP('2020-08-26 00:00:00'))   |
-    |--------------------------------------------------|
-    | 26                                               |
-    +--------------------------------------------------+
-
-    os> SELECT DAY_OF_MONTH(DATETIME('2020-08-26 00:00:00'))
-    fetched rows / total rows = 1/1
-    +-------------------------------------------------+
-    | DAY_OF_MONTH(DATETIME('2020-08-26 00:00:00'))   |
-    |-------------------------------------------------|
-    | 26                                              |
-    +-------------------------------------------------+
-
 
 DAYOFWEEK
 ---------
