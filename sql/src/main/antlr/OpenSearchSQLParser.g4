@@ -245,7 +245,6 @@ datetimeConstantLiteral
     | CURRENT_TIME
     | CURRENT_TIMESTAMP
     | DAY_OF_YEAR
-    | HOUR_OF_DAY
     | LOCALTIME
     | LOCALTIMESTAMP
     | MONTH_OF_YEAR
@@ -432,6 +431,7 @@ dateTimeFunctionName
     | FROM_DAYS
     | FROM_UNIXTIME
     | HOUR
+    | HOUR_OF_DAY
     | MAKEDATE
     | MAKETIME
     | MICROSECOND
