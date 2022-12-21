@@ -36,13 +36,13 @@ public class TimeType implements TypeHelper<Time>{
     } else if (value instanceof String) {
       return asTime((String) value, calendar);
     } else if (value instanceof Number) {
-      return this.asTime((Number) value);
+      return asTime((Number) value);
     } else {
       throw objectConversionException(value);
     }
   }
 
-  public Time asTime(String value, Calendar calendar) throws SQLException {
+  public Time asTime(String value, Calendar calendar) {
     Time time;
     LocalDateTime localDateTime;
 
@@ -51,7 +51,7 @@ public class TimeType implements TypeHelper<Time>{
               .ofPattern("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
               .parse(value);
 
-      localDateTime = LocalDate.from(temporal).atStartOfDay();
+      localDateTime = LocalDateTime.from(temporal);
       time = Time.valueOf(localDateTime.toLocalTime());
     } else {
       time = Time.valueOf(value);
