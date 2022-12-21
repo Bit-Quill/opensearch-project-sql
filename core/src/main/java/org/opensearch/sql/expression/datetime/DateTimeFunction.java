@@ -355,7 +355,8 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, TIMESTAMP),
-        impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, STRING)
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, TIME)
     );
   }
 
@@ -772,11 +773,17 @@ public class DateTimeFunction {
   /**
    * Day of Week implementation for ExprValue.
    *
-   * @param date ExprValue of Date/String type.
+   * @param exprValue ExprValue of Date/Datetime/String/Time type.
    * @return ExprValue.
    */
-  private ExprValue exprDayOfWeek(ExprValue date) {
-    return new ExprIntegerValue((date.dateValue().getDayOfWeek().getValue() % 7) + 1);
+  private ExprValue exprDayOfWeek(ExprValue exprValue) {
+    switch ((ExprCoreType) exprValue.type()){
+      case TIME:
+        return new ExprIntegerValue(
+            (formatNow(Clock.systemDefaultZone()).getDayOfWeek().getValue() % 7) + 1);
+      default:
+        return new ExprIntegerValue((exprValue.dateValue().getDayOfWeek().getValue() % 7) + 1);
+    }
   }
 
   /**
