@@ -842,11 +842,14 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
-    FunctionExpression expression1 = DSL.second_of_minute(DSL.literal(new ExprTimeValue("01:02:03")));
+    FunctionExpression expression1 = DSL.second_of_minute(
+        DSL.literal(new ExprTimeValue("01:02:03")));
     FunctionExpression expression2 = DSL.second_of_minute(DSL.literal("01:02:03"));
     FunctionExpression expression3 = DSL.second_of_minute(DSL.literal("2020-08-17 01:02:03"));
-    FunctionExpression expression4 = DSL.second_of_minute(DSL.literal(new ExprTimestampValue("2020-08-17 01:02:03")));
-    FunctionExpression expression5 = DSL.second_of_minute(DSL.literal(new ExprDatetimeValue("2020-08-17 01:02:03")));
+    FunctionExpression expression4 = DSL.second_of_minute(
+        DSL.literal(new ExprTimestampValue("2020-08-17 01:02:03")));
+    FunctionExpression expression5 = DSL.second_of_minute(
+        DSL.literal(new ExprDatetimeValue("2020-08-17 01:02:03")));
 
     assertAll(
         () -> testSecondOfMinute(expression1, 3, "second_of_minute(TIME '01:02:03')"),

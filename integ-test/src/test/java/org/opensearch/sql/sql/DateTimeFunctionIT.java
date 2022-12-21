@@ -488,15 +488,9 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
 
   @Test
   public void testSecondFunctionAliasesReturnTheSameResults() throws IOException {
-    JSONObject result1 = executeQuery("SELECT second(date('2022-11-22 12:23:34'))");
-    JSONObject result2 = executeQuery("SELECT second_of_minute(date('2022-11-22 12:23:34'))");
+    JSONObject result1 = executeQuery("SELECT second('2022-11-22 12:23:34')");
+    JSONObject result2 = executeQuery("SELECT second_of_minute('2022-11-22 12:23:34')");
     verifyDataRows(result1, rows(34));
-    result1.getJSONArray("datarows").similar(result2.getJSONArray("datarows"));
-
-    result1 = executeQuery(String.format(
-        "SELECT second(CAST(date0 AS date)) FROM %s", TEST_INDEX_CALCS));
-    result2 = executeQuery(String.format(
-        "SELECT second_of_minute(CAST(date0 AS date)) FROM %s", TEST_INDEX_CALCS));
     result1.getJSONArray("datarows").similar(result2.getJSONArray("datarows"));
 
     result1 = executeQuery(String.format(
