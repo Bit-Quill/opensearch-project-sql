@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.expression.datetime;
 
+import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
@@ -388,12 +389,13 @@ public class DateTimeFunction {
   }
 
   /**
-   * HOUR(STRING/TIME/DATETIME/TIMESTAMP). return the hour value for time.
+   * HOUR(STRING/TIME/DATETIME/DATE/TIMESTAMP). return the hour value for time.
    */
   private DefaultFunctionResolver hour(BuiltinFunctionName name) {
     return define(name.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprHour), INTEGER, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprHour), INTEGER, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprHour), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprHour), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprHour), INTEGER, TIMESTAMP)
     );
@@ -835,7 +837,8 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprHour(ExprValue time) {
-    return new ExprIntegerValue(time.timeValue().getHour());
+    return new ExprIntegerValue(
+        HOURS.between(LocalTime.MIN, time.timeValue()));
   }
 
   /**
