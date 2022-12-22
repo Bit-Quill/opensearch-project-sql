@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.expression.datetime;
 
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
@@ -429,6 +430,7 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprMinute), INTEGER, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprMinute), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprMinute), INTEGER, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprMinute), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprMinute), INTEGER, TIMESTAMP)
     );
   }
@@ -900,7 +902,8 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprMinute(ExprValue time) {
-    return new ExprIntegerValue(time.timeValue().getMinute());
+    return new ExprIntegerValue(
+        (MINUTES.between(LocalTime.MIN, time.timeValue()) % 60));
   }
 
   /**
