@@ -33,6 +33,7 @@ import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_SH
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_STRICT_WITH_TZ;
 import static org.opensearch.sql.utils.DateTimeUtils.extractDate;
 import static org.opensearch.sql.utils.DateTimeUtils.extractDateTime;
+import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -962,7 +963,6 @@ public class DateTimeFunction {
       return new ExprDatetimeValue(
           zonedDateTime.withZoneSameInstant(convertedToTz).toLocalDateTime());
 
-
       // Catches exception for invalid timezones.
       // ex. "+0:00" is an invalid timezone and would result in this exception being thrown.
     } catch (ExpressionEvaluationException | DateTimeException e) {
@@ -1009,7 +1009,6 @@ public class DateTimeFunction {
    */
   private ExprValue exprDateTime(ExprValue dateTime, ExprValue timeZone) {
     String defaultTimeZone = TimeZone.getDefault().getID();
-
 
     try {
       LocalDateTime ldtFormatted =
@@ -1124,7 +1123,7 @@ public class DateTimeFunction {
   private LocalDateTime exprFromUnixTimeImpl(ExprValue time) {
     return LocalDateTime.ofInstant(
             Instant.ofEpochSecond((long)Math.floor(time.doubleValue())),
-            ZoneId.of("UTC"))
+            UTC_ZONE_ID)
         .withNano((int)((time.doubleValue() % 1) * 1E9));
   }
 
@@ -1439,7 +1438,7 @@ public class DateTimeFunction {
    */
   private ExprValue exprUtcTimeStamp(FunctionProperties functionProperties) {
     var zdt = ZonedDateTime.now(functionProperties.getQueryStartClock())
-        .withZoneSameInstant(ZoneId.of("UTC"));
+        .withZoneSameInstant(UTC_ZONE_ID);
     return new ExprDatetimeValue(zdt.toLocalDateTime());
   }
 
