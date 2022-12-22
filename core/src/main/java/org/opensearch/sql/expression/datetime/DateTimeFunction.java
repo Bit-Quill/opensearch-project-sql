@@ -339,8 +339,8 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver dayOfMonth(BuiltinFunctionName name) {
     return define(name.getName(),
-        implWithProperties((functionProperties, arg)
-            -> DateTimeFunction.dayOfMonthToday(functionProperties.getQueryStartClock()), INTEGER, TIME),
+        implWithProperties((functionProperties, arg) -> DateTimeFunction.dayOfMonthToday(
+            functionProperties.getQueryStartClock()), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, STRING),
@@ -768,11 +768,11 @@ public class DateTimeFunction {
   /**
    * Day of Month implementation for ExprValue.
    *
-   * @param exprValue ExprValue of Date/Datetime/String/Time/Timestamp type.
+   * @param date ExprValue of Date/Datetime/String/Time/Timestamp type.
    * @return ExprValue.
    */
-  private ExprValue exprDayOfMonth(ExprValue exprValue) {
-    return new ExprIntegerValue(exprValue.dateValue().getDayOfMonth());
+  private ExprValue exprDayOfMonth(ExprValue date) {
+    return new ExprIntegerValue(date.dateValue().getDayOfMonth());
   }
 
   /**

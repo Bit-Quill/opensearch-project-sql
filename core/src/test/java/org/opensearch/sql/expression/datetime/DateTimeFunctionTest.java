@@ -419,7 +419,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(nullValue(), eval(DSL.dayofmonth(functionProperties, nullRef)));
     assertEquals(missingValue(), eval(DSL.dayofmonth(functionProperties, missingRef)));
 
-    FunctionExpression expression = DSL.dayofmonth(functionProperties, DSL.literal(new ExprDateValue("2020-08-07")));
+    FunctionExpression expression = DSL.dayofmonth(
+        functionProperties, DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(INTEGER, expression.type());
     assertEquals("dayofmonth(DATE '2020-08-07')", expression.toString());
     assertEquals(integerValue(7), eval(expression));
@@ -441,7 +442,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
 
-    FunctionExpression expression1 = DSL.dayofmonth(functionProperties, DSL.literal(new ExprDateValue("2020-08-07")));
+    FunctionExpression expression1 = DSL.dayofmonth(
+        functionProperties, DSL.literal(new ExprDateValue("2020-08-07")));
     FunctionExpression expression2 = DSL.dayofmonth(functionProperties, DSL.literal("2020-07-08"));
 
     assertAll(
@@ -458,15 +460,19 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void testDayOfMonthWithTimeType() {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
-    FunctionExpression expression = DSL.day_of_month(functionProperties, DSL.literal(new ExprTimeValue("12:23:34")));
+    FunctionExpression expression = DSL.day_of_month(
+        functionProperties, DSL.literal(new ExprTimeValue("12:23:34")));
 
     assertEquals(INTEGER, eval(expression).type());
-    assertEquals(LocalDate.now(functionProperties.getQueryStartClock()).getDayOfMonth(), eval(expression).integerValue());
+    assertEquals(
+        LocalDate.now(functionProperties.getQueryStartClock()).getDayOfMonth(),
+        eval(expression).integerValue());
     assertEquals("day_of_month(TIME '12:23:34')", expression.toString());
   }
 
   private void testInvalidDayOfMonth(String date) {
-    FunctionExpression expression = DSL.day_of_month(functionProperties, DSL.literal(new ExprDateValue(date)));
+    FunctionExpression expression = DSL.day_of_month(
+        functionProperties, DSL.literal(new ExprDateValue(date)));
     eval(expression);
   }
 
@@ -476,7 +482,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
     //Feb. 29 of a leap year
-    testDayOfMonthWithUnderscores(DSL.day_of_month(functionProperties, DSL.literal("2020-02-29")), 29);
+    testDayOfMonthWithUnderscores(DSL.day_of_month(
+        functionProperties, DSL.literal("2020-02-29")), 29);
 
     //Feb. 29 of a non-leap year
     assertThrows(SemanticCheckException.class, () -> testInvalidDayOfMonth("2021-02-29"));
