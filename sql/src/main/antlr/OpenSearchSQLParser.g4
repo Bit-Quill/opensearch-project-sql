@@ -247,7 +247,6 @@ datetimeConstantLiteral
     | DAY_OF_YEAR
     | LOCALTIME
     | LOCALTIMESTAMP
-    | MINUTE_OF_HOUR
     | MONTH_OF_YEAR
     | UTC_TIMESTAMP
     | UTC_DATE
@@ -436,6 +435,7 @@ dateTimeFunctionName
     | MAKETIME
     | MICROSECOND
     | MINUTE
+    | MINUTE_OF_HOUR
     | MONTH
     | MONTHNAME
     | NOW
