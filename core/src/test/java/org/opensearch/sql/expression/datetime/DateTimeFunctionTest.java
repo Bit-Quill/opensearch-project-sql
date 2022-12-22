@@ -491,7 +491,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
     FunctionExpression expression = DSL.day_of_week(DSL.literal(new ExprTimeValue("12:23:34")));
 
-    assertEquals(INTEGER, expression.type());
+    assertEquals(INTEGER, eval(expression).type());
     //assertEquals(integerValue(4), eval(expression));
     assertEquals("day_of_week(TIME '12:23:34')", expression.toString());
   }
