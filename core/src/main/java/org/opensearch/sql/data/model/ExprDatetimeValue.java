@@ -6,6 +6,9 @@
 
 package org.opensearch.sql.data.model;
 
+import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_WITH_TZ;
+import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
+
 import com.google.common.base.Objects;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -20,8 +23,6 @@ import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.SemanticCheckException;
 
-import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_WITH_TZ;
-import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
 
 @RequiredArgsConstructor
 public class ExprDatetimeValue extends AbstractExprValue {
