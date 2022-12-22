@@ -777,7 +777,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprDayOfWeek(ExprValue exprValue) {
-    switch ((ExprCoreType) exprValue.type()){
+    switch ((ExprCoreType) exprValue.type()) {
       case TIME:
         return new ExprIntegerValue(
             (formatNow(Clock.systemDefaultZone()).getDayOfWeek().getValue() % 7) + 1);

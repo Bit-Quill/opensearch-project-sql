@@ -458,7 +458,10 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(1), eval(expression));
   }
 
-  private void testDayOfWeekWithUnderscores(FunctionExpression dateExpression, int dayOfWeek, String testExpr) {
+  private void testDayOfWeekWithUnderscores(
+      FunctionExpression dateExpression,
+      int dayOfWeek,
+      String testExpr) {
     assertEquals(INTEGER, dateExpression.type());
     assertEquals(integerValue(dayOfWeek), eval(dateExpression));
     assertEquals(testExpr, dateExpression.toString());
