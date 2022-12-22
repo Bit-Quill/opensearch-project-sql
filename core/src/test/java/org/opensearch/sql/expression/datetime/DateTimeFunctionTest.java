@@ -614,7 +614,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("hour(\"2020-08-17 01:02:03\")", expression.toString());
   }
 
-  public void testHourOfDay(FunctionExpression dateExpression, int hour) {
+  private void testHourOfDay(FunctionExpression dateExpression, int hour) {
     assertEquals(INTEGER, dateExpression.type());
     assertEquals(integerValue(hour), eval(dateExpression));
   }
@@ -650,7 +650,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     );
   }
 
-  public void testInvalidHourOfDay(String time) {
+  private void testInvalidHourOfDay(String time) {
     FunctionExpression expression = DSL.hour_of_day(DSL.literal(new ExprTimeValue(time)));
     eval(expression);
   }
