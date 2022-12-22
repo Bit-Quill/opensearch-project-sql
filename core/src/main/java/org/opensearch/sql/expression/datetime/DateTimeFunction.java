@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.expression.datetime;
 
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
@@ -340,8 +341,9 @@ public class DateTimeFunction {
     return define(name.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, TIMESTAMP),
-        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, STRING)
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, TIMESTAMP)
     );
   }
 
@@ -761,11 +763,16 @@ public class DateTimeFunction {
   /**
    * Day of Month implementation for ExprValue.
    *
-   * @param date ExprValue of Date/String type.
+   * @param exprValue ExprValue of Date/Datetime/String/Time/Timestamp type.
    * @return ExprValue.
    */
-  private ExprValue exprDayOfMonth(ExprValue date) {
-    return new ExprIntegerValue(date.dateValue().getDayOfMonth());
+  private ExprValue exprDayOfMonth(ExprValue exprValue) {
+    switch ((ExprCoreType) exprValue.type()) {
+      case TIME:
+        return new ExprIntegerValue(formatNow(Clock.systemDefaultZone()).getDayOfMonth());
+      default:
+        return new ExprIntegerValue(exprValue.dateValue().getDayOfMonth());
+    }
   }
 
   /**
