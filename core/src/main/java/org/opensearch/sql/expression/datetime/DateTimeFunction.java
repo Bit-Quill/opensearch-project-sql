@@ -368,10 +368,11 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver dayOfYear(BuiltinFunctionName dayOfYear) {
     return define(dayOfYear.getName(),
+        implWithProperties((functionProperties, arg) -> DateTimeFunction.dayOfYearToday(
+            functionProperties.getQueryStartClock()), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, TIMESTAMP),
-        impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, STRING)
     );
   }
@@ -442,6 +443,8 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver month(BuiltinFunctionName month) {
     return define(month.getName(),
+        implWithProperties((functionProperties, arg) -> DateTimeFunction.monthOfYearToday(
+            functionProperties.getQueryStartClock()), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprMonth), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprMonth), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprMonth), INTEGER, TIMESTAMP),
@@ -606,10 +609,12 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATE, INTEGER),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATETIME, INTEGER),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, TIMESTAMP, INTEGER),
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, TIME, INTEGER),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, STRING, INTEGER)
     );
   }
@@ -645,6 +650,10 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
             STRING, TIMESTAMP, STRING)
     );
+  }
+
+  private ExprValue dayOfYearToday(Clock clock) {
+    return new ExprIntegerValue((formatNow(clock).getDayOfYear()));
   }
 
   /**
@@ -1140,12 +1149,19 @@ public class DateTimeFunction {
   /**
    * Week for date implementation for ExprValue.
    *
-   * @param date ExprValue of Date/Datetime/Timestamp/String type.
+   * @param expr ExprValue of Date/Datetime/Time/Timestamp/String type.
    * @param mode ExprValue of Integer type.
    */
-  private ExprValue exprWeek(ExprValue date, ExprValue mode) {
-    return new ExprIntegerValue(
-        CalendarLookup.getWeekNumber(mode.integerValue(), date.dateValue()));
+  private ExprValue exprWeek(ExprValue expr, ExprValue mode) {
+    switch ((ExprCoreType)expr.type()){
+      case TIME:
+        return new ExprIntegerValue(
+            CalendarLookup.getWeekNumber(mode.integerValue(),
+                formatNow(Clock.systemDefaultZone()).toLocalDate()));
+      default:
+        return new ExprIntegerValue(
+            CalendarLookup.getWeekNumber(mode.integerValue(), expr.dateValue()));
+    }
   }
 
   private ExprValue unixTimeStamp(Clock clock) {
@@ -1225,11 +1241,11 @@ public class DateTimeFunction {
    * Week for date implementation for ExprValue.
    * When mode is not specified default value mode 0 is used for default_week_format.
    *
-   * @param date ExprValue of Date/Datetime/Timestamp/String type.
+   * @param expr ExprValue of Date/Datetime/Time/Timestamp/String type.
    * @return ExprValue.
    */
-  private ExprValue exprWeekWithoutMode(ExprValue date) {
-    return exprWeek(date, new ExprIntegerValue(0));
+  private ExprValue exprWeekWithoutMode(ExprValue expr) {
+    return exprWeek(expr, new ExprIntegerValue(0));
   }
 
   /**
@@ -1240,6 +1256,10 @@ public class DateTimeFunction {
    */
   private ExprValue exprYear(ExprValue date) {
     return new ExprIntegerValue(date.dateValue().getYear());
+  }
+
+  private ExprValue monthOfYearToday(Clock clock) {
+    return new ExprIntegerValue((formatNow(clock).getMonthValue()));
   }
 
   private LocalDateTime formatNow(Clock clock) {
