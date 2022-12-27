@@ -11,18 +11,18 @@ import org.opensearch.sql.legacy.SQLIntegTestCase;
 
 import java.io.IOException;
 
-import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_MULTI_NESTED;
+import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_NESTED_TYPE;
 
 public class NestedIT extends SQLIntegTestCase {
   @Override
   public void init() throws IOException {
-    loadIndex(Index.MULTI_NESTED);
+    loadIndex(Index.NESTED);
   }
 
   @Test
   public void nested_string_subfield_test() {
-    String query = "SELECT nested(message.info) FROM " + TEST_INDEX_MULTI_NESTED;
+    String query = "SELECT nested(message.dayOfWeek) FROM " + TEST_INDEX_NESTED_TYPE;
     JSONObject result = executeJdbcRequest(query);
-    assertEquals(6, result.getInt("total"));
+    assertEquals(5, result.getInt("total"));
   }
 }

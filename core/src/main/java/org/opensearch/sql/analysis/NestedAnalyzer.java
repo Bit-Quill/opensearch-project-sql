@@ -8,11 +8,9 @@ package org.opensearch.sql.analysis;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.Alias;
-import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.NestedFunction;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.planner.logical.LogicalHighlight;
 import org.opensearch.sql.planner.logical.LogicalNested;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 
@@ -32,8 +30,8 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
 
   @Override
   public LogicalPlan visitNestedFunction(NestedFunction node, AnalysisContext context) {
-    LogicalPlan highlight = node.accept(this, context);
-    return (highlight == null) ? child : highlight;
+    LogicalPlan nested = node.accept(this, context);
+    return (nested == null) ? child : nested;
   }
 
   @Override

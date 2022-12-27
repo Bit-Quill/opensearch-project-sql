@@ -6,7 +6,6 @@
 
 package org.opensearch.sql.ast;
 
-import org.opensearch.sql.analysis.AnalysisContext;
 import org.opensearch.sql.ast.expression.AggregateFunction;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
@@ -58,7 +57,6 @@ import org.opensearch.sql.ast.tree.Rename;
 import org.opensearch.sql.ast.tree.Sort;
 import org.opensearch.sql.ast.tree.TableFunction;
 import org.opensearch.sql.ast.tree.Values;
-import org.opensearch.sql.expression.Expression;
 
 /**
  * AST nodes visitor Defines the traverse path.

@@ -5,16 +5,10 @@
 
 package org.opensearch.sql.expression;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import org.opensearch.sql.common.utils.StringUtils;
-import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.env.Environment;
@@ -27,7 +21,6 @@ import org.opensearch.sql.expression.function.BuiltinFunctionName;
 public class NestedExpression extends FunctionExpression {
 
   private final Expression field;
-//  private final Expression nestedField;
   private final ExprType type;
 
   /**
