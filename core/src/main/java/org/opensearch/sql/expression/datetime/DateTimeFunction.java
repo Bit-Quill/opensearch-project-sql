@@ -371,6 +371,7 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, STRING)
     );
   }
