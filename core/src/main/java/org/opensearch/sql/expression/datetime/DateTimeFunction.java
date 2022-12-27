@@ -7,6 +7,7 @@
 package org.opensearch.sql.expression.datetime;
 
 import static java.time.temporal.ChronoUnit.MONTHS;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
@@ -497,6 +498,7 @@ public class DateTimeFunction {
     return define(name.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprSecond), INTEGER, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprSecond), INTEGER, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprSecond), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprSecond), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprSecond), INTEGER, TIMESTAMP)
     );
@@ -997,7 +999,8 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprSecond(ExprValue time) {
-    return new ExprIntegerValue(time.timeValue().getSecond());
+    return new ExprIntegerValue(
+        (SECONDS.between(LocalTime.MIN, time.timeValue()) % 60));
   }
 
   /**
