@@ -1153,7 +1153,7 @@ public class DateTimeFunction {
    * @param mode ExprValue of Integer type.
    */
   private ExprValue exprWeek(ExprValue expr, ExprValue mode) {
-    switch ((ExprCoreType)expr.type()){
+    switch ((ExprCoreType)expr.type()) {
       case TIME:
         return new ExprIntegerValue(
             CalendarLookup.getWeekNumber(mode.integerValue(),
