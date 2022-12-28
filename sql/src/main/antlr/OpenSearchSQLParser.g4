@@ -425,8 +425,6 @@ dateTimeFunctionName
     | DAYOFMONTH
     | DAYOFWEEK
     | DAYOFYEAR
-    | DAY_OF_MONTH
-    | DAY_OF_WEEK
     | DAY_OF_YEAR
     | FROM_DAYS
     | FROM_UNIXTIME
@@ -437,6 +435,7 @@ dateTimeFunctionName
     | MINUTE
     | MONTH
     | MONTHNAME
+    | MONTH_OF_YEAR
     | NOW
     | PERIOD_ADD
     | PERIOD_DIFF
@@ -450,6 +449,7 @@ dateTimeFunctionName
     | TO_DAYS
     | UNIX_TIMESTAMP
     | WEEK
+    | WEEK_OF_YEAR
     | YEAR
     ;
 
