@@ -82,6 +82,9 @@ public class DateTimeFunction {
   // 32536771199.999999, or equivalent '3001-01-18 23:59:59.999999' UTC
   private static final Double MYSQL_MAX_TIMESTAMP = 32536771200d;
 
+  // Mode used for week/week_of_year function by default when no argument is provided
+  private static final ExprIntegerValue DEFAULT_WEEK_OF_YEAR_MODE = new ExprIntegerValue(0);
+
   /**
    * Register Date and Time Functions.
    *
@@ -607,14 +610,14 @@ public class DateTimeFunction {
   private DefaultFunctionResolver week(BuiltinFunctionName week) {
     return define(week.getName(),
         implWithProperties((functionProperties, arg) -> DateTimeFunction.weekOfYearToday(
-            new ExprIntegerValue(0),
+            DEFAULT_WEEK_OF_YEAR_MODE,
             functionProperties.getQueryStartClock()), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, TIMESTAMP),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, STRING),
-        implWithProperties((functionProperties, arg1, arg2) -> DateTimeFunction.weekOfYearToday(
-            arg2,
+        implWithProperties((functionProperties, time, modeArg) -> DateTimeFunction.weekOfYearToday(
+            modeArg,
             functionProperties.getQueryStartClock()), INTEGER, TIME, INTEGER),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATE, INTEGER),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATETIME, INTEGER),

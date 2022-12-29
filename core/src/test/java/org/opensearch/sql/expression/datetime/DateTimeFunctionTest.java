@@ -497,7 +497,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("day_of_year(TIME '12:23:34')", expression.toString());
   }
 
-  public void testDayOfYearWithUnderscores(String date, int dayOfYear) {
+  public void dayOfYearWithUnderscoresQuery(String date, int dayOfYear) {
     FunctionExpression expression = DSL.day_of_year(
         functionProperties,
         DSL.literal(new ExprDateValue(date)));
@@ -521,13 +521,13 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         DSL.literal("2020-08-07 01:02:03"));
 
     assertAll(
-        () -> testDayOfYearWithUnderscores("2020-08-07", 220),
+        () -> dayOfYearWithUnderscoresQuery("2020-08-07", 220),
         () -> assertEquals("day_of_year(DATE '2020-08-07')", expression1.toString()),
 
-        () -> testDayOfYearWithUnderscores("2020-08-07", 220),
+        () -> dayOfYearWithUnderscoresQuery("2020-08-07", 220),
         () ->     assertEquals("day_of_year(\"2020-08-07\")", expression2.toString()),
 
-        () -> testDayOfYearWithUnderscores("2020-08-07 01:02:03", 220),
+        () -> dayOfYearWithUnderscoresQuery("2020-08-07 01:02:03", 220),
         () ->     assertEquals("day_of_year(\"2020-08-07 01:02:03\")", expression3.toString())
     );
   }
@@ -539,11 +539,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
     assertAll(
         //31st of December during non leap year (should be 365)
-        () -> testDayOfYearWithUnderscores("2019-12-31", 365),
+        () -> dayOfYearWithUnderscoresQuery("2019-12-31", 365),
         //Year 1200
-        () -> testDayOfYearWithUnderscores("1200-02-28", 59),
+        () -> dayOfYearWithUnderscoresQuery("1200-02-28", 59),
         //Year 4000
-        () -> testDayOfYearWithUnderscores("4000-02-28", 59)
+        () -> dayOfYearWithUnderscoresQuery("4000-02-28", 59)
     );
   }
 
@@ -554,25 +554,25 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
     assertAll(
         //28th of Feb
-        () -> testDayOfYearWithUnderscores("2020-02-28", 59),
+        () -> dayOfYearWithUnderscoresQuery("2020-02-28", 59),
 
         //29th of Feb during leap year
-        () -> testDayOfYearWithUnderscores("2020-02-29 23:59:59", 60),
-        () -> testDayOfYearWithUnderscores("2020-02-29", 60),
+        () -> dayOfYearWithUnderscoresQuery("2020-02-29 23:59:59", 60),
+        () -> dayOfYearWithUnderscoresQuery("2020-02-29", 60),
 
         //1st of March during leap year
-        () -> testDayOfYearWithUnderscores("2020-03-01 00:00:00", 61),
-        () -> testDayOfYearWithUnderscores("2020-03-01", 61),
+        () -> dayOfYearWithUnderscoresQuery("2020-03-01 00:00:00", 61),
+        () -> dayOfYearWithUnderscoresQuery("2020-03-01", 61),
 
         //1st of March during non leap year
-        () -> testDayOfYearWithUnderscores("2019-03-01", 60),
+        () -> dayOfYearWithUnderscoresQuery("2019-03-01", 60),
 
         //31st of December during  leap year (should be 366)
-        () -> testDayOfYearWithUnderscores("2020-12-31", 366)
+        () -> dayOfYearWithUnderscoresQuery("2020-12-31", 366)
     );
   }
 
-  public void testInvalidDayOfYear(String date) {
+  public void invalidDayOfYearQuery(String date) {
     FunctionExpression expression = DSL.day_of_year(
         functionProperties,
         DSL.literal(new ExprDateValue(date)));
@@ -591,11 +591,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         missingRef)));
 
     //29th of Feb non-leapyear
-    assertThrows(SemanticCheckException.class, () ->  testInvalidDayOfYear("2019-02-29"));
+    assertThrows(SemanticCheckException.class, () ->  invalidDayOfYearQuery("2019-02-29"));
     //13th month
-    assertThrows(SemanticCheckException.class, () ->  testInvalidDayOfYear("2019-13-15"));
+    assertThrows(SemanticCheckException.class, () ->  invalidDayOfYearQuery("2019-13-15"));
     //incorrect format for type
-    assertThrows(SemanticCheckException.class, () ->  testInvalidDayOfYear("asdfasdfasdf"));
+    assertThrows(SemanticCheckException.class, () ->  invalidDayOfYearQuery("asdfasdfasdf"));
   }
   
   @Test
@@ -759,7 +759,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("month_of_year(TIME '12:23:34')", expression.toString());
   }
 
-  public void testInvalidDates(String date) throws SemanticCheckException {
+  public void invalidDatesQuery(String date) throws SemanticCheckException {
     FunctionExpression expression = DSL.month_of_year(
         functionProperties,
         DSL.literal(new ExprDateValue(date)));
@@ -776,10 +776,10 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         functionProperties,
         missingRef)));
 
-    assertThrows(SemanticCheckException.class, () ->  testInvalidDates("2019-01-50"));
-    assertThrows(SemanticCheckException.class, () ->  testInvalidDates("2019-02-29"));
-    assertThrows(SemanticCheckException.class, () ->  testInvalidDates("2019-02-31"));
-    assertThrows(SemanticCheckException.class, () ->  testInvalidDates("2019-13-05"));
+    assertThrows(SemanticCheckException.class, () ->  invalidDatesQuery("2019-01-50"));
+    assertThrows(SemanticCheckException.class, () ->  invalidDatesQuery("2019-02-29"));
+    assertThrows(SemanticCheckException.class, () ->  invalidDatesQuery("2019-02-31"));
+    assertThrows(SemanticCheckException.class, () ->  invalidDatesQuery("2019-13-05"));
   }
 
   @Test
