@@ -606,13 +606,15 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver week(BuiltinFunctionName week) {
     return define(week.getName(),
-        implWithProperties((functionProperties, arg) -> DateTimeFunction.weekOfYearToday(new ExprIntegerValue(0),
+        implWithProperties((functionProperties, arg) -> DateTimeFunction.weekOfYearToday(
+            new ExprIntegerValue(0),
             functionProperties.getQueryStartClock()), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, TIMESTAMP),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, STRING),
-        implWithProperties((functionProperties, arg1, arg2) -> DateTimeFunction.weekOfYearToday(arg2,
+        implWithProperties((functionProperties, arg1, arg2) -> DateTimeFunction.weekOfYearToday(
+            arg2,
             functionProperties.getQueryStartClock()), INTEGER, TIME, INTEGER),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATE, INTEGER),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATETIME, INTEGER),
@@ -659,7 +661,8 @@ public class DateTimeFunction {
   }
 
   private ExprValue weekOfYearToday(ExprValue mode, Clock clock) {
-    return new ExprIntegerValue(CalendarLookup.getWeekNumber(mode.integerValue(), formatNow(clock).toLocalDate()));
+    return new ExprIntegerValue(
+        CalendarLookup.getWeekNumber(mode.integerValue(), formatNow(clock).toLocalDate()));
   }
 
   /**

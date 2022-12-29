@@ -148,7 +148,7 @@ public class FunctionDSL {
    * @return Binary Function Implementation.
    */
   public static SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>
-  implWithProperties(
+      implWithProperties(
       SerializableTriFunction<FunctionProperties, ExprValue, ExprValue, ExprValue> function,
       ExprType returnType,
       ExprType args1Type,
