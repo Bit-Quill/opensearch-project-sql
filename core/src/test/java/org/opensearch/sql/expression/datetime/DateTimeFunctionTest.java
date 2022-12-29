@@ -1038,7 +1038,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   private void testWeek(String date, int mode, int expectedResult) {
     FunctionExpression expression = DSL
-        .week(DSL.literal(new ExprDateValue(date)), DSL.literal(mode));
+        .week(functionProperties, DSL.literal(new ExprDateValue(date)), DSL.literal(mode));
     assertEquals(INTEGER, expression.type());
     assertEquals(String.format("week(DATE '%s', %d)", date, mode), expression.toString());
     assertEquals(integerValue(expectedResult), eval(expression));
@@ -1047,8 +1047,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   private void testNullMissingWeek(ExprCoreType date) {
     when(nullRef.type()).thenReturn(date);
     when(missingRef.type()).thenReturn(date);
-    assertEquals(nullValue(), eval(DSL.week(nullRef)));
-    assertEquals(missingValue(), eval(DSL.week(missingRef)));
+    assertEquals(nullValue(), eval(DSL.week(functionProperties, nullRef)));
+    assertEquals(missingValue(), eval(DSL.week(functionProperties, missingRef)));
   }
 
   @Test
@@ -1060,25 +1060,31 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
     when(nullRef.type()).thenReturn(INTEGER);
     when(missingRef.type()).thenReturn(INTEGER);
-    assertEquals(nullValue(), eval(DSL.week(DSL.literal("2019-01-05"), nullRef)));
-    assertEquals(missingValue(), eval(DSL.week(DSL.literal("2019-01-05"), missingRef)));
+    assertEquals(nullValue(), eval(DSL.week(
+        functionProperties,
+        DSL.literal("2019-01-05"), nullRef)));
+    assertEquals(missingValue(), eval(DSL.week(
+        functionProperties,
+        DSL.literal("2019-01-05"), missingRef)));
 
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(INTEGER);
-    assertEquals(missingValue(), eval(DSL.week(nullRef, missingRef)));
+    assertEquals(missingValue(), eval(DSL.week(
+        functionProperties,
+        nullRef, missingRef)));
 
     FunctionExpression expression = DSL
-        .week(DSL.literal(new ExprTimestampValue("2019-01-05 01:02:03")));
+        .week(functionProperties, DSL.literal(new ExprTimestampValue("2019-01-05 01:02:03")));
     assertEquals(INTEGER, expression.type());
     assertEquals("week(TIMESTAMP '2019-01-05 01:02:03')", expression.toString());
     assertEquals(integerValue(0), eval(expression));
 
-    expression = DSL.week(DSL.literal("2019-01-05"));
+    expression = DSL.week(functionProperties, DSL.literal("2019-01-05"));
     assertEquals(INTEGER, expression.type());
     assertEquals("week(\"2019-01-05\")", expression.toString());
     assertEquals(integerValue(0), eval(expression));
 
-    expression = DSL.week(DSL.literal("2019-01-05 00:01:00"));
+    expression = DSL.week(functionProperties, DSL.literal("2019-01-05 00:01:00"));
     assertEquals(INTEGER, expression.type());
     assertEquals("week(\"2019-01-05 00:01:00\")", expression.toString());
     assertEquals(integerValue(0), eval(expression));
@@ -1119,10 +1125,18 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void testWeekOfYearWithTimeType() {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
-    FunctionExpression expression = DSL.week_of_year(
+
+    FunctionExpression expression = DSL
+        .week(functionProperties, DSL.literal(new ExprTimeValue("12:23:34")), DSL.literal(0));
+    assertEquals(INTEGER, eval(expression).type());
+    assertEquals(LocalDate.now(
+            functionProperties.getQueryStartClock()).get(ALIGNED_WEEK_OF_YEAR),
+        eval(expression).integerValue());
+    assertEquals("week(TIME '12:23:34', 0)", expression.toString());
+
+    expression = DSL.week_of_year(
         functionProperties,
         DSL.literal(new ExprTimeValue("12:23:34")));
-
     assertEquals(INTEGER, eval(expression).type());
     assertEquals(LocalDate.now(
             functionProperties.getQueryStartClock()).get(ALIGNED_WEEK_OF_YEAR),
@@ -1135,14 +1149,14 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     testNullMissingWeek(DATE);
 
     FunctionExpression expression1 = DSL
-        .week(DSL.literal(new ExprDateValue("2019-01-05")), DSL.literal(8));
+        .week(functionProperties, DSL.literal(new ExprDateValue("2019-01-05")), DSL.literal(8));
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class, () -> eval(expression1));
     assertEquals("mode:8 is invalid, please use mode value between 0-7",
         exception.getMessage());
 
     FunctionExpression expression2 = DSL
-        .week(DSL.literal(new ExprDateValue("2019-01-05")), DSL.literal(-1));
+        .week(functionProperties, DSL.literal(new ExprDateValue("2019-01-05")), DSL.literal(-1));
     exception = assertThrows(SemanticCheckException.class, () -> eval(expression2));
     assertEquals("mode:-1 is invalid, please use mode value between 0-7",
         exception.getMessage());
