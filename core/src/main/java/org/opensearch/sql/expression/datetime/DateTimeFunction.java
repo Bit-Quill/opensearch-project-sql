@@ -1155,12 +1155,12 @@ public class DateTimeFunction {
   /**
    * Week for date implementation for ExprValue.
    *
-   * @param expr ExprValue of Date/Datetime/Time/Timestamp/String type.
+   * @param date ExprValue of Date/Datetime/Timestamp/String type.
    * @param mode ExprValue of Integer type.
    */
-  private ExprValue exprWeek(ExprValue expr, ExprValue mode) {
-      return new ExprIntegerValue(
-          CalendarLookup.getWeekNumber(mode.integerValue(), expr.dateValue()));
+  private ExprValue exprWeek(ExprValue date, ExprValue mode) {
+    return new ExprIntegerValue(
+        CalendarLookup.getWeekNumber(mode.integerValue(), date.dateValue()));
   }
 
   private ExprValue unixTimeStamp(Clock clock) {
@@ -1240,11 +1240,11 @@ public class DateTimeFunction {
    * Week for date implementation for ExprValue.
    * When mode is not specified default value mode 0 is used for default_week_format.
    *
-   * @param expr ExprValue of Date/Datetime/Time/Timestamp/String type.
+   * @param date ExprValue of Date/Datetime/Timestamp/String type.
    * @return ExprValue.
    */
-  private ExprValue exprWeekWithoutMode(ExprValue expr) {
-    return exprWeek(expr, new ExprIntegerValue(0));
+  private ExprValue exprWeekWithoutMode(ExprValue date) {
+    return exprWeek(date, new ExprIntegerValue(0));
   }
 
   /**
