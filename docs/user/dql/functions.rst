@@ -1919,7 +1919,7 @@ Description
 >>>>>>>>>>>
 
 Usage: second(time) returns the second for time, in the range 0 to 59.
-The function `second_of_minute` is provided as an alias
+The function `second_of_minute`_ is provided as an alias
 
 Argument type: STRING/TIME/DATETIME/TIMESTAMP
 
