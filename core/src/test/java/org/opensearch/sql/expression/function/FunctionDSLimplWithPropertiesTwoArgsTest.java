@@ -6,12 +6,11 @@
 package org.opensearch.sql.expression.function;
 
 
+import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
-
-import java.util.List;
 
 class FunctionDSLimplWithPropertiesTwoArgsTest extends FunctionDSLimplTestBase {
 
