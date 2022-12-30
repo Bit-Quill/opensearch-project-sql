@@ -766,7 +766,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     eval(expression);
   }
 
-  @Test void monthOfYearInvalidDates() {
+  @Test
+  public void monthOfYearInvalidDates() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
     assertEquals(nullValue(), eval(DSL.month_of_year(
@@ -1036,7 +1037,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("timestamp(TIMESTAMP '2020-08-17 01:01:01')", expr.toString());
   }
 
-  private void testWeek(String date, int mode, int expectedResult) {
+  private void weekQuery(String date, int mode, int expectedResult) {
     FunctionExpression expression = DSL
         .week(functionProperties, DSL.literal(new ExprDateValue(date)), DSL.literal(mode));
     assertEquals(INTEGER, expression.type());
@@ -1089,36 +1090,36 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("week(\"2019-01-05 00:01:00\")", expression.toString());
     assertEquals(integerValue(0), eval(expression));
 
-    testWeek("2019-01-05", 0, 0);
-    testWeek("2019-01-05", 1, 1);
-    testWeek("2019-01-05", 2, 52);
-    testWeek("2019-01-05", 3, 1);
-    testWeek("2019-01-05", 4, 1);
-    testWeek("2019-01-05", 5, 0);
-    testWeek("2019-01-05", 6, 1);
-    testWeek("2019-01-05", 7, 53);
+    weekQuery("2019-01-05", 0, 0);
+    weekQuery("2019-01-05", 1, 1);
+    weekQuery("2019-01-05", 2, 52);
+    weekQuery("2019-01-05", 3, 1);
+    weekQuery("2019-01-05", 4, 1);
+    weekQuery("2019-01-05", 5, 0);
+    weekQuery("2019-01-05", 6, 1);
+    weekQuery("2019-01-05", 7, 53);
 
-    testWeek("2019-01-06", 0, 1);
-    testWeek("2019-01-06", 1, 1);
-    testWeek("2019-01-06", 2, 1);
-    testWeek("2019-01-06", 3, 1);
-    testWeek("2019-01-06", 4, 2);
-    testWeek("2019-01-06", 5, 0);
-    testWeek("2019-01-06", 6, 2);
-    testWeek("2019-01-06", 7, 53);
+    weekQuery("2019-01-06", 0, 1);
+    weekQuery("2019-01-06", 1, 1);
+    weekQuery("2019-01-06", 2, 1);
+    weekQuery("2019-01-06", 3, 1);
+    weekQuery("2019-01-06", 4, 2);
+    weekQuery("2019-01-06", 5, 0);
+    weekQuery("2019-01-06", 6, 2);
+    weekQuery("2019-01-06", 7, 53);
 
-    testWeek("2019-01-07", 0, 1);
-    testWeek("2019-01-07", 1, 2);
-    testWeek("2019-01-07", 2, 1);
-    testWeek("2019-01-07", 3, 2);
-    testWeek("2019-01-07", 4, 2);
-    testWeek("2019-01-07", 5, 1);
-    testWeek("2019-01-07", 6, 2);
-    testWeek("2019-01-07", 7, 1);
+    weekQuery("2019-01-07", 0, 1);
+    weekQuery("2019-01-07", 1, 2);
+    weekQuery("2019-01-07", 2, 1);
+    weekQuery("2019-01-07", 3, 2);
+    weekQuery("2019-01-07", 4, 2);
+    weekQuery("2019-01-07", 5, 1);
+    weekQuery("2019-01-07", 6, 2);
+    weekQuery("2019-01-07", 7, 1);
 
-    testWeek("2000-01-01", 0, 0);
-    testWeek("2000-01-01", 2, 52);
-    testWeek("1999-12-31", 0, 52);
+    weekQuery("2000-01-01", 0, 0);
+    weekQuery("2000-01-01", 2, 52);
+    weekQuery("1999-12-31", 0, 52);
   }
 
   @Test
@@ -1162,7 +1163,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         exception.getMessage());
   }
 
-  private void testWeekOfYear(String date, int mode, int expectedResult) {
+  private void weekOfYearQuery(String date, int mode, int expectedResult) {
     FunctionExpression expression = DSL
         .week_of_year(
             functionProperties,
@@ -1206,11 +1207,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         nullRef, missingRef)));
 
     //test invalid month
-    assertThrows(SemanticCheckException.class, () -> testWeekOfYear("2019-13-05 01:02:03", 0, 0));
+    assertThrows(SemanticCheckException.class, () -> weekOfYearQuery("2019-13-05 01:02:03", 0, 0));
     //test invalid day
-    assertThrows(SemanticCheckException.class, () -> testWeekOfYear("2019-01-50 01:02:03", 0, 0));
+    assertThrows(SemanticCheckException.class, () -> weekOfYearQuery("2019-01-50 01:02:03", 0, 0));
     //test invalid leap year
-    assertThrows(SemanticCheckException.class, () -> testWeekOfYear("2019-02-29 01:02:03", 0, 0));
+    assertThrows(SemanticCheckException.class, () -> weekOfYearQuery("2019-02-29 01:02:03", 0, 0));
   }
 
   @Test
@@ -1247,36 +1248,36 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
     //Test the behavior of different modes passed into the 'week_of_year' function
-    testWeekOfYear("2019-01-05", 0, 0);
-    testWeekOfYear("2019-01-05", 1, 1);
-    testWeekOfYear("2019-01-05", 2, 52);
-    testWeekOfYear("2019-01-05", 3, 1);
-    testWeekOfYear("2019-01-05", 4, 1);
-    testWeekOfYear("2019-01-05", 5, 0);
-    testWeekOfYear("2019-01-05", 6, 1);
-    testWeekOfYear("2019-01-05", 7, 53);
+    weekOfYearQuery("2019-01-05", 0, 0);
+    weekOfYearQuery("2019-01-05", 1, 1);
+    weekOfYearQuery("2019-01-05", 2, 52);
+    weekOfYearQuery("2019-01-05", 3, 1);
+    weekOfYearQuery("2019-01-05", 4, 1);
+    weekOfYearQuery("2019-01-05", 5, 0);
+    weekOfYearQuery("2019-01-05", 6, 1);
+    weekOfYearQuery("2019-01-05", 7, 53);
 
-    testWeekOfYear("2019-01-06", 0, 1);
-    testWeekOfYear("2019-01-06", 1, 1);
-    testWeekOfYear("2019-01-06", 2, 1);
-    testWeekOfYear("2019-01-06", 3, 1);
-    testWeekOfYear("2019-01-06", 4, 2);
-    testWeekOfYear("2019-01-06", 5, 0);
-    testWeekOfYear("2019-01-06", 6, 2);
-    testWeekOfYear("2019-01-06", 7, 53);
+    weekOfYearQuery("2019-01-06", 0, 1);
+    weekOfYearQuery("2019-01-06", 1, 1);
+    weekOfYearQuery("2019-01-06", 2, 1);
+    weekOfYearQuery("2019-01-06", 3, 1);
+    weekOfYearQuery("2019-01-06", 4, 2);
+    weekOfYearQuery("2019-01-06", 5, 0);
+    weekOfYearQuery("2019-01-06", 6, 2);
+    weekOfYearQuery("2019-01-06", 7, 53);
 
-    testWeekOfYear("2019-01-07", 0, 1);
-    testWeekOfYear("2019-01-07", 1, 2);
-    testWeekOfYear("2019-01-07", 2, 1);
-    testWeekOfYear("2019-01-07", 3, 2);
-    testWeekOfYear("2019-01-07", 4, 2);
-    testWeekOfYear("2019-01-07", 5, 1);
-    testWeekOfYear("2019-01-07", 6, 2);
-    testWeekOfYear("2019-01-07", 7, 1);
+    weekOfYearQuery("2019-01-07", 0, 1);
+    weekOfYearQuery("2019-01-07", 1, 2);
+    weekOfYearQuery("2019-01-07", 2, 1);
+    weekOfYearQuery("2019-01-07", 3, 2);
+    weekOfYearQuery("2019-01-07", 4, 2);
+    weekOfYearQuery("2019-01-07", 5, 1);
+    weekOfYearQuery("2019-01-07", 6, 2);
+    weekOfYearQuery("2019-01-07", 7, 1);
 
-    testWeekOfYear("2000-01-01", 0, 0);
-    testWeekOfYear("2000-01-01", 2, 52);
-    testWeekOfYear("1999-12-31", 0, 52);
+    weekOfYearQuery("2000-01-01", 0, 0);
+    weekOfYearQuery("2000-01-01", 2, 52);
+    weekOfYearQuery("1999-12-31", 0, 52);
 
   }
 
