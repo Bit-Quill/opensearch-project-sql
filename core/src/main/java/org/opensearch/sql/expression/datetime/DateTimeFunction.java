@@ -20,6 +20,7 @@ import static org.opensearch.sql.expression.function.FunctionDSL.define;
 import static org.opensearch.sql.expression.function.FunctionDSL.impl;
 import static org.opensearch.sql.expression.function.FunctionDSL.implWithProperties;
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
+import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandlingWithProperties;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_LONG_YEAR;
@@ -371,8 +372,9 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver dayOfYear(BuiltinFunctionName dayOfYear) {
     return define(dayOfYear.getName(),
-        implWithProperties((functionProperties, arg) -> DateTimeFunction.dayOfYearToday(
-            functionProperties.getQueryStartClock()), INTEGER, TIME),
+        implWithProperties(nullMissingHandlingWithProperties((functionProperties, arg)
+            -> DateTimeFunction.dayOfYearToday(
+            functionProperties.getQueryStartClock())), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, TIMESTAMP),
@@ -446,8 +448,9 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver month(BuiltinFunctionName month) {
     return define(month.getName(),
-        implWithProperties((functionProperties, arg) -> DateTimeFunction.monthOfYearToday(
-            functionProperties.getQueryStartClock()), INTEGER, TIME),
+        implWithProperties(nullMissingHandlingWithProperties((functionProperties, arg)
+            -> DateTimeFunction.monthOfYearToday(
+            functionProperties.getQueryStartClock())), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprMonth), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprMonth), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprMonth), INTEGER, TIMESTAMP),
@@ -609,9 +612,10 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver week(BuiltinFunctionName week) {
     return define(week.getName(),
-        implWithProperties((functionProperties, arg) -> DateTimeFunction.weekOfYearToday(
+        implWithProperties(nullMissingHandlingWithProperties((functionProperties, arg)
+            -> DateTimeFunction.weekOfYearToday(
             DEFAULT_WEEK_OF_YEAR_MODE,
-            functionProperties.getQueryStartClock()), INTEGER, TIME),
+            functionProperties.getQueryStartClock())), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, TIMESTAMP),
