@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Locale;
@@ -46,14 +47,14 @@ public class TimeType implements TypeHelper<Time>{
     Time time;
     LocalDateTime localDateTime;
 
-    if (value.length() > 10) {
+    try {
       TemporalAccessor temporal = DateTimeFormatter
               .ofPattern("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
               .parse(value);
 
       localDateTime = LocalDateTime.from(temporal);
       time = Time.valueOf(localDateTime.toLocalTime());
-    } else {
+    } catch (DateTimeParseException exception) {
       time = Time.valueOf(value);
     }
 
