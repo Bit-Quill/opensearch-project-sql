@@ -876,13 +876,17 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         () -> assertEquals(nullValue(), eval(DSL.second_of_minute(nullRef))),
         () -> assertEquals(missingValue(), eval(DSL.second_of_minute(missingRef))),
         //Invalid Seconds
-        () -> assertThrows(SemanticCheckException.class, () -> invalidSecondOfMinuteQuery("12:23:61")),
+        () -> assertThrows(SemanticCheckException.class,
+            () -> invalidSecondOfMinuteQuery("12:23:61")),
         //Invalid Minutes
-        () -> assertThrows(SemanticCheckException.class, () -> invalidSecondOfMinuteQuery("12:61:34")),
+        () -> assertThrows(SemanticCheckException.class,
+            () -> invalidSecondOfMinuteQuery("12:61:34")),
         //Invalid Hours
-        () -> assertThrows(SemanticCheckException.class, () -> invalidSecondOfMinuteQuery("25:23:34")),
+        () -> assertThrows(SemanticCheckException.class,
+            () -> invalidSecondOfMinuteQuery("25:23:34")),
         //incorrect format
-        () -> assertThrows(SemanticCheckException.class, () -> invalidSecondOfMinuteQuery("asdfasdf"))
+        () -> assertThrows(SemanticCheckException.class,
+            () -> invalidSecondOfMinuteQuery("asdfasdf"))
     );
 
 
