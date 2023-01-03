@@ -493,17 +493,25 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void dayOfMonthWithUnderscoresInvalidArguments() {
     lenient().when(nullRef.type()).thenReturn(DATE);
     lenient().when(missingRef.type()).thenReturn(DATE);
-    assertEquals(nullValue(), eval(DSL.day_of_month(functionProperties, nullRef)));
-    assertEquals(missingValue(), eval(DSL.day_of_month(functionProperties, missingRef)));
 
-    //40th day of the month
-    assertThrows(SemanticCheckException.class, () -> testInvalidDayOfMonth("2021-02-40"));
+    assertAll(
+        () -> assertEquals(nullValue(), eval(DSL.day_of_month(functionProperties, nullRef))),
+        () -> assertEquals(
+            missingValue(), eval(DSL.day_of_month(functionProperties, missingRef))),
 
-    //13th month of the year
-    assertThrows(SemanticCheckException.class, () -> testInvalidDayOfMonth("2021-13-40"));
+        //40th day of the month
+        () -> assertThrows(
+            SemanticCheckException.class, () -> testInvalidDayOfMonth("2021-02-40")),
+        //13th month of the year
+        () -> assertThrows(
+            SemanticCheckException.class, () -> testInvalidDayOfMonth("2021-13-40")),
+        //incorrect format
+        () -> assertThrows(
+            SemanticCheckException.class, () -> testInvalidDayOfMonth("asdfasdfasdf"))
+        );
 
-    //incorrect format
-    assertThrows(SemanticCheckException.class, () -> testInvalidDayOfMonth("asdfasdfasdf"));
+
+
   }
 
   @Test

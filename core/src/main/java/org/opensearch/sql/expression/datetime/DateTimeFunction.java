@@ -21,6 +21,7 @@ import static org.opensearch.sql.expression.function.FunctionDSL.define;
 import static org.opensearch.sql.expression.function.FunctionDSL.impl;
 import static org.opensearch.sql.expression.function.FunctionDSL.implWithProperties;
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
+import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandlingWithProperties;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_LONG_YEAR;
@@ -339,8 +340,8 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver dayOfMonth(BuiltinFunctionName name) {
     return define(name.getName(),
-        implWithProperties((functionProperties, arg) -> DateTimeFunction.dayOfMonthToday(
-            functionProperties.getQueryStartClock()), INTEGER, TIME),
+        implWithProperties(nullMissingHandlingWithProperties((functionProperties, arg) -> DateTimeFunction.dayOfMonthToday(
+            functionProperties.getQueryStartClock())), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, STRING),
@@ -619,7 +620,7 @@ public class DateTimeFunction {
   }
 
   private ExprValue dayOfMonthToday(Clock clock) {
-    return new ExprIntegerValue(formatNow(clock).getDayOfMonth());
+    return new ExprIntegerValue(LocalDateTime.now(clock).getDayOfMonth());
   }
 
   /**

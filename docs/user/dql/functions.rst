@@ -1426,14 +1426,14 @@ Example::
     +----------------------------------+
 
 DAY_OF_MONTH
-----------
+------------
 
 Description
 >>>>>>>>>>>
 
 Usage: day_of_month(date) extracts the day of the month for date, in the range 1 to 31.
 
-Argument type: STRING/DATE/DATETIME/TIMESTAMP
+Argument type: STRING/DATE/TIME/DATETIME/TIMESTAMP
 
 Return type: INTEGER
 
