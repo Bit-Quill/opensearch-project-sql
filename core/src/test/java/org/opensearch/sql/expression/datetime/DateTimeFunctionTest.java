@@ -691,10 +691,12 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("minute(\"2020-08-17 01:02:03\")", expression.toString());
   }
 
-  private void testMinuteOfHour(FunctionExpression dateExpression, int minute, String testExpr) {
-    assertEquals(INTEGER, dateExpression.type());
-    assertEquals(integerValue(minute), eval(dateExpression));
-    assertEquals(testExpr, dateExpression.toString());
+  private void minuteOfHourQuery(FunctionExpression dateExpression, int minute, String testExpr) {
+    assertAll(
+        () -> assertEquals(INTEGER, dateExpression.type()),
+        () -> assertEquals(integerValue(minute), eval(dateExpression)),
+        () -> assertEquals(testExpr, dateExpression.toString())
+    );
   }
 
   @Test
@@ -713,15 +715,15 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
 
     assertAll(
-        () -> testMinuteOfHour(expression1, 2, "minute_of_hour(TIME '01:02:03')"),
-        () -> testMinuteOfHour(expression2, 2, "minute_of_hour(\"01:02:03\")"),
-        () -> testMinuteOfHour(expression3, 2, "minute_of_hour(TIMESTAMP '2020-08-17 01:02:03')"),
-        () -> testMinuteOfHour(expression4, 2, "minute_of_hour(DATETIME '2020-08-17 01:02:03')"),
-        () -> testMinuteOfHour(expression5, 2, "minute_of_hour(\"2020-08-17 01:02:03\")")
+        () -> minuteOfHourQuery(expression1, 2, "minute_of_hour(TIME '01:02:03')"),
+        () -> minuteOfHourQuery(expression2, 2, "minute_of_hour(\"01:02:03\")"),
+        () -> minuteOfHourQuery(expression3, 2, "minute_of_hour(TIMESTAMP '2020-08-17 01:02:03')"),
+        () -> minuteOfHourQuery(expression4, 2, "minute_of_hour(DATETIME '2020-08-17 01:02:03')"),
+        () -> minuteOfHourQuery(expression5, 2, "minute_of_hour(\"2020-08-17 01:02:03\")")
     );
   }
 
-  private void testInvalidMinuteOfHour(String time) {
+  private void invalidMinuteOfHourQuery(String time) {
     FunctionExpression expression = DSL.minute_of_hour(DSL.literal(new ExprTimeValue(time)));
     eval(expression);
   }
@@ -734,16 +736,16 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(missingValue(), eval(DSL.minute_of_hour(missingRef)));
 
     //Invalid Seconds
-    assertThrows(SemanticCheckException.class, () -> testInvalidMinuteOfHour("12:23:61"));
+    assertThrows(SemanticCheckException.class, () -> invalidMinuteOfHourQuery("12:23:61"));
 
     //Invalid Minutes
-    assertThrows(SemanticCheckException.class, () -> testInvalidMinuteOfHour("12:61:34"));
+    assertThrows(SemanticCheckException.class, () -> invalidMinuteOfHourQuery("12:61:34"));
 
     //Invalid Hours
-    assertThrows(SemanticCheckException.class, () -> testInvalidMinuteOfHour("25:23:34"));
+    assertThrows(SemanticCheckException.class, () -> invalidMinuteOfHourQuery("25:23:34"));
 
     //incorrect format
-    assertThrows(SemanticCheckException.class, () -> testInvalidMinuteOfHour("asdfasdf"));
+    assertThrows(SemanticCheckException.class, () -> invalidMinuteOfHourQuery("asdfasdf"));
   }
 
 
