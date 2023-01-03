@@ -1078,14 +1078,9 @@ public class ResultSetImpl implements ResultSet, JdbcWrapper, LoggingSource {
         log.debug(() -> logEntry("getTime (%d, %s)", columnIndex,
                 cal == null ? "null" : "Calendar TZ= " + cal.getTimeZone()));
         checkCursorOperationPossible();
-        log.debug(() -> {
-            try {
-                return logExit("getTime", getTimeX(columnIndex, cal));
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return getTimeX(columnIndex, cal);
+        Time value = getTimeX(columnIndex, cal);
+        log.debug(() -> logExit("getTime", value));
+        return value;
     }
 
     @Override
@@ -1093,14 +1088,9 @@ public class ResultSetImpl implements ResultSet, JdbcWrapper, LoggingSource {
         log.debug(() -> logEntry("getTime (%s, %s)", columnLabel,
                 cal == null ? "null" : "Calendar TZ= " + cal.getTimeZone()));
         checkCursorOperationPossible();
-        log.debug(() -> {
-            try {
-                return logExit("getTime", getTimeX(getColumnIndex(columnLabel), cal));
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return getTimeX(getColumnIndex(columnLabel), cal);
+        Time value = getTimeX(getColumnIndex(columnLabel), cal);
+        log.debug(() -> logExit("getTime", value));
+        return value;
     }
 
     @Override
