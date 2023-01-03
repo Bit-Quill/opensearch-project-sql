@@ -614,7 +614,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("hour(\"2020-08-17 01:02:03\")", expression.toString());
   }
 
-  private void testHourOfDay(FunctionExpression dateExpression, int hour) {
+  private void hourOfDayQuery(FunctionExpression dateExpression, int hour) {
     assertEquals(INTEGER, dateExpression.type());
     assertEquals(integerValue(hour), eval(dateExpression));
   }
@@ -633,24 +633,24 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     FunctionExpression expression5 = DSL.hour_of_day(DSL.literal("2020-08-17 01:02:03"));
 
     assertAll(
-        () -> testHourOfDay(expression1, 1),
+        () -> hourOfDayQuery(expression1, 1),
         () -> assertEquals("hour_of_day(TIME '01:02:03')", expression1.toString()),
 
-        () -> testHourOfDay(expression2, 1),
+        () -> hourOfDayQuery(expression2, 1),
         () -> assertEquals("hour_of_day(\"01:02:03\")", expression2.toString()),
 
-        () -> testHourOfDay(expression3, 1),
+        () -> hourOfDayQuery(expression3, 1),
         () -> assertEquals("hour_of_day(TIMESTAMP '2020-08-17 01:02:03')", expression3.toString()),
 
-        () -> testHourOfDay(expression4, 1),
+        () -> hourOfDayQuery(expression4, 1),
         () -> assertEquals("hour_of_day(DATETIME '2020-08-17 01:02:03')", expression4.toString()),
 
-        () -> testHourOfDay(expression5, 1),
+        () -> hourOfDayQuery(expression5, 1),
         () -> assertEquals("hour_of_day(\"2020-08-17 01:02:03\")", expression5.toString())
     );
   }
 
-  private void testInvalidHourOfDay(String time) {
+  private void invalidHourOfDayQuery(String time) {
     FunctionExpression expression = DSL.hour_of_day(DSL.literal(new ExprTimeValue(time)));
     eval(expression);
   }
@@ -659,20 +659,22 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void hourOfDayInvalidArguments() {
     when(nullRef.type()).thenReturn(TIME);
     when(missingRef.type()).thenReturn(TIME);
-    assertEquals(nullValue(), eval(DSL.hour(nullRef)));
-    assertEquals(missingValue(), eval(DSL.hour(missingRef)));
 
-    //Invalid Seconds
-    assertThrows(SemanticCheckException.class, () -> testInvalidHourOfDay("12:23:61"));
+    assertAll(
+        () -> assertEquals(nullValue(), eval(DSL.hour(nullRef))),
+        () -> assertEquals(missingValue(), eval(DSL.hour(missingRef))),
+        //Invalid Seconds
+        () -> assertThrows(SemanticCheckException.class, () -> invalidHourOfDayQuery("12:23:61")),
+        //Invalid Minutes
+        () -> assertThrows(SemanticCheckException.class, () -> invalidHourOfDayQuery("12:61:34")),
 
-    //Invalid Minutes
-    assertThrows(SemanticCheckException.class, () -> testInvalidHourOfDay("12:61:34"));
+        //Invalid Hours
+        () -> assertThrows(SemanticCheckException.class, () -> invalidHourOfDayQuery("25:23:34")),
 
-    //Invalid Hours
-    assertThrows(SemanticCheckException.class, () -> testInvalidHourOfDay("25:23:34"));
+        //incorrect format
+        () -> assertThrows(SemanticCheckException.class, () -> invalidHourOfDayQuery("asdfasdf"))
+    );
 
-    //incorrect format
-    assertThrows(SemanticCheckException.class, () -> testInvalidHourOfDay("asdfasdf"));
   }
 
   @Test
