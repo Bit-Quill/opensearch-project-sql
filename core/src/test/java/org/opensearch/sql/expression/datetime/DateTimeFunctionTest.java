@@ -831,7 +831,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("second(DATETIME '2020-08-17 01:02:03')", expression.toString());
   }
 
-  public void testSecondOfMinute(FunctionExpression dateExpression, int second, String testExpr) {
+  private void secondOfMinuteQuery(FunctionExpression dateExpression, int second, String testExpr) {
     assertEquals(INTEGER, dateExpression.type());
     assertEquals(integerValue(second), eval(dateExpression));
     assertEquals(testExpr, dateExpression.toString());
@@ -852,17 +852,17 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         DSL.literal(new ExprDatetimeValue("2020-08-17 01:02:03")));
 
     assertAll(
-        () -> testSecondOfMinute(expression1, 3, "second_of_minute(TIME '01:02:03')"),
-        () -> testSecondOfMinute(expression2, 3, "second_of_minute(\"01:02:03\")"),
-        () -> testSecondOfMinute(expression3, 3, "second_of_minute(\"2020-08-17 01:02:03\")"),
-        () -> testSecondOfMinute(
+        () -> secondOfMinuteQuery(expression1, 3, "second_of_minute(TIME '01:02:03')"),
+        () -> secondOfMinuteQuery(expression2, 3, "second_of_minute(\"01:02:03\")"),
+        () -> secondOfMinuteQuery(expression3, 3, "second_of_minute(\"2020-08-17 01:02:03\")"),
+        () -> secondOfMinuteQuery(
             expression4, 3, "second_of_minute(TIMESTAMP '2020-08-17 01:02:03')"),
-        () -> testSecondOfMinute(
+        () -> secondOfMinuteQuery(
             expression5, 3, "second_of_minute(DATETIME '2020-08-17 01:02:03')")
     );
   }
 
-  public void testInvalidSecondOfMinute(String time) {
+  private void invalidSecondOfMinuteQuery(String time) {
     FunctionExpression expression = DSL.second_of_minute(DSL.literal(new ExprTimeValue(time)));
     eval(expression);
   }
@@ -875,16 +875,16 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(missingValue(), eval(DSL.second_of_minute(missingRef)));
 
     //Invalid Seconds
-    assertThrows(SemanticCheckException.class, () -> testInvalidSecondOfMinute("12:23:61"));
+    assertThrows(SemanticCheckException.class, () -> invalidSecondOfMinuteQuery("12:23:61"));
 
     //Invalid Minutes
-    assertThrows(SemanticCheckException.class, () -> testInvalidSecondOfMinute("12:61:34"));
+    assertThrows(SemanticCheckException.class, () -> invalidSecondOfMinuteQuery("12:61:34"));
 
     //Invalid Hours
-    assertThrows(SemanticCheckException.class, () -> testInvalidSecondOfMinute("25:23:34"));
+    assertThrows(SemanticCheckException.class, () -> invalidSecondOfMinuteQuery("25:23:34"));
 
     //incorrect format
-    assertThrows(SemanticCheckException.class, () -> testInvalidSecondOfMinute("asdfasdf"));
+    assertThrows(SemanticCheckException.class, () -> invalidSecondOfMinuteQuery("asdfasdf"));
   }
 
 
