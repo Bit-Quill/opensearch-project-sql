@@ -488,6 +488,47 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(220), eval(expression));
   }
 
+  private static Stream<Arguments> getTestDataForDayOfYear() {
+    return Stream.of(
+        Arguments.of(DSL.literal(
+            new ExprDateValue("2020-08-07")),
+            "day_of_year(DATE '2020-08-07')",
+            220),
+        Arguments.of(DSL.literal(
+                new ExprDatetimeValue("2020-08-07 12:23:34")),
+            "day_of_year(DATETIME '2020-08-07 12:23:34')",
+            220),
+        Arguments.of(DSL.literal(
+                new ExprTimestampValue("2020-08-07 12:23:34")),
+            "day_of_year(TIMESTAMP '2020-08-07 12:23:34')",
+            220),
+        Arguments.of(DSL.literal(
+            "2020-08-07"),
+            "day_of_year(\"2020-08-07\")",
+            220),
+        Arguments.of(DSL.literal(
+            "2020-08-07 01:02:03"),
+            "day_of_year(\"2020-08-07 01:02:03\")",
+            220)
+    );
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("getTestDataForDayOfYear")
+  public void dayOfYearWithUnderscores(
+      LiteralExpression arg,
+      String expectedString,
+      int expectedResult) {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
+    validateStringFormat(
+        DSL.day_of_year(functionProperties, arg),
+        expectedString,
+        expectedResult
+    );
+  }
+
   @Test
   public void testDayOfYearWithTimeType() {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
@@ -601,7 +642,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         () -> assertThrows(
             SemanticCheckException.class,
             () ->  invalidDayOfYearQuery("2019-13-15")),
-        
+
         //incorrect format for type
         () -> assertThrows(
             SemanticCheckException.class,
@@ -753,6 +794,43 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(INTEGER, expression.type());
     assertEquals("month(\"2020-08-07 01:02:03\")", expression.toString());
     assertEquals(integerValue(8), eval(expression));
+  }
+
+  private static Stream<Arguments> getTestDataForMonthOfYear() {
+    return Stream.of(
+        Arguments.of(
+            DSL.literal(new ExprDateValue("2020-08-07")),
+            "month_of_year(DATE '2020-08-07')",
+            8),
+        Arguments.of(
+            DSL.literal(new ExprDatetimeValue("2020-08-07 12:23:34")),
+            "month_of_year(DATETIME '2020-08-07 12:23:34')",
+            8),
+        Arguments.of(
+            DSL.literal(new ExprTimestampValue("2020-08-07 12:23:34")),
+            "month_of_year(TIMESTAMP '2020-08-07 12:23:34')",
+            8),
+        Arguments.of(
+            DSL.literal("2020-08-07"),
+            "month_of_year(\"2020-08-07\")",
+            8),
+        Arguments.of(
+            DSL.literal("2020-08-07 01:02:03"),
+            "month_of_year(\"2020-08-07 01:02:03\")",
+            8)
+    );
+  }
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("getTestDataForMonthOfYear")
+  public void monthOfYear(LiteralExpression arg, String expectedString, int expectedResult) {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
+    validateStringFormat(
+        DSL.month_of_year(functionProperties, arg),
+        expectedString,
+        expectedResult
+    );
   }
 
   @Test
@@ -1155,6 +1233,12 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   private static Stream<Arguments> getTestDataForWeekFormats() {
     return Stream.of(
+        Arguments.of(DSL.literal(new ExprDateValue("2019-01-05")),
+            "DATE '2019-01-05'",
+            0),
+        Arguments.of(DSL.literal(new ExprDatetimeValue("2019-01-05 01:02:03")),
+            "DATETIME '2019-01-05 01:02:03'",
+            0),
         Arguments.of(DSL.literal(new ExprTimestampValue("2019-01-05 01:02:03")),
             "TIMESTAMP '2019-01-05 01:02:03'",
             0),
@@ -1169,7 +1253,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     );
   }
 
-  @ParameterizedTest(name = "{1}{2}")
+  @ParameterizedTest(name = "{0}")
   @MethodSource("getTestDataForWeekFormats")
   public void testWeekFormats(
       LiteralExpression arg,
