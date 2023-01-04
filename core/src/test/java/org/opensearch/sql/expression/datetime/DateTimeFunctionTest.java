@@ -754,15 +754,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void testMonthOfYearWithTimeType() {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
-    FunctionExpression expression = DSL.month_of_year(
-        functionProperties,
-        DSL.literal(new ExprTimeValue("12:23:34")));
 
-    assertEquals(INTEGER, eval(expression).type());
-    assertEquals(LocalDate.now(
-            functionProperties.getQueryStartClock()).getMonthValue(),
-        eval(expression).integerValue());
-    assertEquals("month_of_year(TIME '12:23:34')", expression.toString());
+    validateStringFormat(
+        DSL.month_of_year(functionProperties, DSL.literal(new ExprTimeValue("12:23:34"))),
+        "month_of_year(TIME '12:23:34')",
+        LocalDate.now(functionProperties.getQueryStartClock()).getMonthValue());
   }
 
   public void invalidDatesQuery(String date) throws SemanticCheckException {
@@ -776,17 +772,22 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void monthOfYearInvalidDates() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
-    assertEquals(nullValue(), eval(DSL.month_of_year(
-        functionProperties,
-        nullRef)));
-    assertEquals(missingValue(), eval(DSL.month_of_year(
-        functionProperties,
-        missingRef)));
 
-    assertThrows(SemanticCheckException.class, () ->  invalidDatesQuery("2019-01-50"));
-    assertThrows(SemanticCheckException.class, () ->  invalidDatesQuery("2019-02-29"));
-    assertThrows(SemanticCheckException.class, () ->  invalidDatesQuery("2019-02-31"));
-    assertThrows(SemanticCheckException.class, () ->  invalidDatesQuery("2019-13-05"));
+    assertAll(
+        () -> assertEquals(nullValue(), eval(DSL.month_of_year(
+            functionProperties,
+            nullRef))),
+        () -> assertEquals(missingValue(), eval(DSL.month_of_year(
+            functionProperties,
+            missingRef))),
+        () -> assertThrows(SemanticCheckException.class, () ->  invalidDatesQuery("2019-01-50")),
+        () -> assertThrows(SemanticCheckException.class, () ->  invalidDatesQuery("2019-02-29")),
+        () -> assertThrows(SemanticCheckException.class, () ->  invalidDatesQuery("2019-02-31")),
+        () -> assertThrows(SemanticCheckException.class, () ->  invalidDatesQuery("2019-13-05"))
+    );
+
+
+
   }
 
   @Test
@@ -1250,11 +1251,17 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
     assertAll(
         //test invalid month
-        () -> assertThrows(SemanticCheckException.class, () -> weekOfYearQuery("2019-13-05 01:02:03", 0, 0)),
+        () -> assertThrows(
+            SemanticCheckException.class,
+            () -> weekOfYearQuery("2019-13-05 01:02:03", 0, 0)),
         //test invalid day
-        () -> assertThrows(SemanticCheckException.class, () -> weekOfYearQuery("2019-01-50 01:02:03", 0, 0)),
+        () -> assertThrows(
+            SemanticCheckException.class,
+            () -> weekOfYearQuery("2019-01-50 01:02:03", 0, 0)),
         //test invalid leap year
-        () -> assertThrows(SemanticCheckException.class, () -> weekOfYearQuery("2019-02-29 01:02:03", 0, 0))
+        () -> assertThrows(
+            SemanticCheckException.class,
+            () -> weekOfYearQuery("2019-02-29 01:02:03", 0, 0))
     );
   }
 
