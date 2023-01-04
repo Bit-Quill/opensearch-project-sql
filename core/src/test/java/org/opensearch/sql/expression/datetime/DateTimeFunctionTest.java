@@ -492,23 +492,21 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void testDayOfYearWithTimeType() {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
-    FunctionExpression expression = DSL.day_of_year(
-        functionProperties,
-        DSL.literal(new ExprTimeValue("12:23:34")));
 
-    assertEquals(INTEGER, eval(expression).type());
-    assertEquals(LocalDate.now(
-            functionProperties.getQueryStartClock()).getDayOfYear(),
-        eval(expression).integerValue());
-    assertEquals("day_of_year(TIME '12:23:34')", expression.toString());
+    validateStringFormat(
+        DSL.day_of_year(functionProperties, DSL.literal(new ExprTimeValue("12:23:34"))),
+        "day_of_year(TIME '12:23:34')",
+        LocalDate.now(functionProperties.getQueryStartClock()).getDayOfYear());
   }
 
   public void dayOfYearWithUnderscoresQuery(String date, int dayOfYear) {
     FunctionExpression expression = DSL.day_of_year(
         functionProperties,
         DSL.literal(new ExprDateValue(date)));
-    assertEquals(INTEGER, expression.type());
-    assertEquals(integerValue(dayOfYear), eval(expression));
+    assertAll(
+        () -> assertEquals(INTEGER, expression.type()),
+        () -> assertEquals(integerValue(dayOfYear), eval(expression))
+    );
   }
 
   @Test
@@ -589,19 +587,26 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void invalidDayOfYearArgument() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
-    assertEquals(nullValue(), eval(DSL.day_of_year(
-        functionProperties,
-        nullRef)));
-    assertEquals(missingValue(), eval(DSL.day_of_year(
-        functionProperties,
-        missingRef)));
 
-    //29th of Feb non-leapyear
-    assertThrows(SemanticCheckException.class, () ->  invalidDayOfYearQuery("2019-02-29"));
-    //13th month
-    assertThrows(SemanticCheckException.class, () ->  invalidDayOfYearQuery("2019-13-15"));
-    //incorrect format for type
-    assertThrows(SemanticCheckException.class, () ->  invalidDayOfYearQuery("asdfasdfasdf"));
+    assertAll(
+        () -> assertEquals(nullValue(), eval(DSL.day_of_year(functionProperties, nullRef))),
+        () -> assertEquals(missingValue(), eval(DSL.day_of_year(functionProperties, missingRef))),
+
+        //29th of Feb non-leapyear
+        () -> assertThrows(
+            SemanticCheckException.class,
+            () ->  invalidDayOfYearQuery("2019-02-29")),
+
+        //13th month
+        () -> assertThrows(
+            SemanticCheckException.class,
+            () ->  invalidDayOfYearQuery("2019-13-15")),
+        
+        //incorrect format for type
+        () -> assertThrows(
+            SemanticCheckException.class,
+            () ->  invalidDayOfYearQuery("asdfasdfasdf"))
+    );
   }
   
   @Test
