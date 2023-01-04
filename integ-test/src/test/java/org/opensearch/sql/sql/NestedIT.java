@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static org.opensearch.sql.util.MatcherUtils.schema;
+import static org.opensearch.sql.util.MatcherUtils.verifyColumn;
 
 public class NestedIT extends SQLIntegTestCase {
   @Override
@@ -33,7 +34,7 @@ public class NestedIT extends SQLIntegTestCase {
 
     String query = "SELECT nested(" + fieldArg + ") FROM " + TEST_INDEX_NESTED_TYPE;
     JSONObject result = executeJdbcRequest(query);
-    assertEquals(query, schema("nested(" + fieldArg + ")", fieldArg, "keyword"));
+    verifyColumn(result, schema(fieldArg, "keyword"));
   }
 
   @Test
@@ -43,6 +44,6 @@ public class NestedIT extends SQLIntegTestCase {
 
     String query = "SELECT nested(" + fieldArg + ") AS " + alias + " FROM " + TEST_INDEX_NESTED_TYPE;
     JSONObject result = executeJdbcRequest(query);
-    assertEquals(query, schema("nested(" + fieldArg + ")", alias, "keyword"));
+    verifyColumn(result, schema(fieldArg, alias, "keyword"));
   }
 }
