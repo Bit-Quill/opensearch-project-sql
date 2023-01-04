@@ -20,6 +20,7 @@ import static org.opensearch.sql.expression.function.FunctionDSL.define;
 import static org.opensearch.sql.expression.function.FunctionDSL.impl;
 import static org.opensearch.sql.expression.function.FunctionDSL.implWithProperties;
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
+import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandlingWithProperties;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_LONG_YEAR;
@@ -347,13 +348,13 @@ public class DateTimeFunction {
   }
 
   /**
-   * DAYOFWEEK(STRING/DATE/DATETIME/TIMESTAMP).
+   * DAYOFWEEK(STRING/DATE/DATETIME/TIME/TIMESTAMP).
    * return the weekday index for date (1 = Sunday, 2 = Monday, …, 7 = Saturday).
    */
   private DefaultFunctionResolver dayOfWeek(FunctionName name) {
     return define(name,
-        implWithProperties((functionProperties, arg) -> DateTimeFunction.dayOfWeekToday(
-            functionProperties.getQueryStartClock()), INTEGER, TIME),
+        implWithProperties(nullMissingHandlingWithProperties((functionProperties, arg) -> DateTimeFunction.dayOfWeekToday(
+            functionProperties.getQueryStartClock())), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, TIMESTAMP),
@@ -618,6 +619,12 @@ public class DateTimeFunction {
     );
   }
 
+  /**
+   * Day of Week implementation for ExprValue when passing in an arguemt of type TIME.
+   *
+   * @param clock Current clock taken from function properties
+   * @return ExprValue.
+   */
   private ExprValue dayOfWeekToday(Clock clock) {
     return new ExprIntegerValue((formatNow(clock).getDayOfWeek().getValue() % 7) + 1);
   }
@@ -778,7 +785,7 @@ public class DateTimeFunction {
   /**
    * Day of Week implementation for ExprValue.
    *
-   * @param date ExprValue of Date/Datetime/String type.
+   * @param date ExprValue of Date/Datetime/String/Timstamp type.
    * @return ExprValue.
    */
   private ExprValue exprDayOfWeek(ExprValue date) {
