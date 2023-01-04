@@ -620,9 +620,10 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, TIMESTAMP),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, STRING),
-        implWithProperties((functionProperties, time, modeArg) -> DateTimeFunction.weekOfYearToday(
-            modeArg,
-            functionProperties.getQueryStartClock()), INTEGER, TIME, INTEGER),
+        implWithProperties(nullMissingHandlingWithProperties((functionProperties, time, modeArg)
+            -> DateTimeFunction.weekOfYearToday(
+                modeArg,
+            functionProperties.getQueryStartClock())), INTEGER, TIME, INTEGER),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATE, INTEGER),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATETIME, INTEGER),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, TIMESTAMP, INTEGER),
@@ -664,12 +665,12 @@ public class DateTimeFunction {
   }
 
   private ExprValue dayOfYearToday(Clock clock) {
-    return new ExprIntegerValue((formatNow(clock).getDayOfYear()));
+    return new ExprIntegerValue(LocalDateTime.now(clock).getDayOfYear());
   }
 
   private ExprValue weekOfYearToday(ExprValue mode, Clock clock) {
     return new ExprIntegerValue(
-        CalendarLookup.getWeekNumber(mode.integerValue(), formatNow(clock).toLocalDate()));
+        CalendarLookup.getWeekNumber(mode.integerValue(), LocalDateTime.now(clock).toLocalDate()));
   }
 
   /**
@@ -1268,7 +1269,7 @@ public class DateTimeFunction {
   }
 
   private ExprValue monthOfYearToday(Clock clock) {
-    return new ExprIntegerValue((formatNow(clock).getMonthValue()));
+    return new ExprIntegerValue(LocalDateTime.now(clock).getMonthValue());
   }
 
   private LocalDateTime formatNow(Clock clock) {
