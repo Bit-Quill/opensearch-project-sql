@@ -31,13 +31,13 @@ public class OpenSearchDataTypeRecognitionTest {
   }
 
   private static Stream<Arguments> types() {
-    // TODO: OPENSEARCH_ARRAY and new types
+    // TODO: ARRAY and new types
     return Stream.of(
-        Arguments.of("OPENSEARCH_TEXT", new OpenSearchExprTextValue("A")),
-        Arguments.of("OPENSEARCH_BINARY", new OpenSearchExprBinaryValue("A")),
-        Arguments.of("OPENSEARCH_IP", new OpenSearchExprIpValue("A")),
-        Arguments.of("OPENSEARCH_TEXT_KEYWORD", new OpenSearchExprTextKeywordValue("A")),
-        Arguments.of("OPENSEARCH_GEO_POINT", new OpenSearchExprGeoPointValue(0d, 0d))
+        Arguments.of("text", new OpenSearchExprTextValue("A")),
+        Arguments.of("binary", new OpenSearchExprBinaryValue("A")),
+        Arguments.of("ip", new OpenSearchExprIpValue("A")),
+        Arguments.of("text", new OpenSearchExprTextKeywordValue("A")),
+        Arguments.of("geo_point", new OpenSearchExprGeoPointValue(0d, 0d))
     );
   }
 

@@ -18,7 +18,6 @@ import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -26,9 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Function;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -50,10 +47,7 @@ import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
-import org.opensearch.sql.opensearch.data.type.OpenSearchBinaryType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
-import org.opensearch.sql.opensearch.data.type.OpenSearchGeoPointType;
-import org.opensearch.sql.opensearch.data.type.OpenSearchIpType;
 import org.opensearch.sql.opensearch.data.utils.Content;
 import org.opensearch.sql.opensearch.data.utils.ObjectContent;
 import org.opensearch.sql.opensearch.data.utils.OpenSearchJsonContent;
@@ -71,12 +65,12 @@ public class OpenSearchExprValueFactory {
   // Called from aggregation: AggregationQueryBuilder::buildTypeMapping
   public void extendTypeMapping(Map<String, OpenSearchDataType> typeMapping) {
     for (var field : typeMapping.keySet()) {
-      // Prevent overwriting, because aggregation engine may be not aware of all niceties of all types.
+      // Prevent overwriting, because aggregation engine may be not aware
+      // of all niceties of all types.
       if (!this.typeMapping.containsKey(field)) {
         this.typeMapping.put(field, typeMapping.get(field));
       }
     }
-    // this.typeMapping = typeMapping;
   }
 
   @Getter
@@ -131,10 +125,14 @@ public class OpenSearchExprValueFactory {
   }
 
   /**
-   * The struct construction has the following assumption. 1. The field has OpenSearch Object
-   * data type. https://www.elastic.co/guide/en/elasticsearch/reference/current/object.html 2. The
-   * deeper field is flattened in the typeMapping. e.g. {"employ", "STRUCT"} {"employ.id",
-   * "INTEGER"} {"employ.state", "STRING"}
+   * The struct construction has the following assumption:
+   *  1. The field has OpenSearch Object data type.
+   *     See <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/object.html">
+   *       docs</a>
+   *  2. The deeper field is flattened in the typeMapping. e.g.
+   *     { "employ",       "STRUCT"  }
+   *     { "employ.id",    "INTEGER" }
+   *     { "employ.state", "STRING"  }
    */
   public ExprValue construct(String jsonString) {
     try {
@@ -172,14 +170,14 @@ public class OpenSearchExprValueFactory {
       if (typeActionMap.containsKey(type)) {
         return typeActionMap.get(type).apply(content);
       } else {
+        /*
         System.err.println(String.format(
                 "\u001B[31mUnsupported type: %s for value: %s.\u001B[0m", type.typeName(), content.objectValue()));
         return new ExprStringValue(content.objectValue().toString());
-        /*
+         */
         throw new IllegalStateException(
             String.format(
                 "Unsupported type: %s for value: %s.", type.typeName(), content.objectValue()));
-         */
       }
     }
   }
@@ -195,8 +193,8 @@ public class OpenSearchExprValueFactory {
   /**
    * Only default strict_date_optional_time||epoch_millis is supported,
    * strict_date_optional_time_nanos||epoch_millis if field is date_nanos.
-   * https://www.elastic.co/guide/en/elasticsearch/reference/current/date.html
-   * https://www.elastic.co/guide/en/elasticsearch/reference/current/date_nanos.html
+   * <a href="https://opensearch.org/docs/latest/opensearch/supported-field-types/date/#formats">
+   *   docs</a>
    * The customized date_format is not supported.
    */
   private ExprValue constructTimestamp(String value) {
@@ -232,9 +230,9 @@ public class OpenSearchExprValueFactory {
   }
 
   /**
-   * Todo. ARRAY is not support now. In Elasticsearch, there is no dedicated array data type.
-   * https://www.elastic.co/guide/en/elasticsearch/reference/current/array.html. The similar data
-   * type is nested, but it can only allow a list of objects.
+   * Todo. ARRAY is not completely supported now. In OpenSearch, there is no dedicated array type.
+   * <a href="https://opensearch.org/docs/latest/opensearch/supported-field-types/nested/">docs</a>
+   * The similar data type is nested, but it can only allow a list of objects.
    */
   private ExprValue parseArray(Content content, String prefix) {
     List<ExprValue> result = new ArrayList<>();
@@ -242,7 +240,7 @@ public class OpenSearchExprValueFactory {
       // ExprCoreType.ARRAY does not indicate inner elements type. OpenSearch nested will be an
       // array of structs, otherwise parseArray currently only supports array of strings.
       if (v.isString()) {
-        result.add(parse(v, prefix, Optional.of(STRING)));
+        result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(STRING))));
       } else {
         result.add(parse(v, prefix, Optional.of(STRUCT)));
       }

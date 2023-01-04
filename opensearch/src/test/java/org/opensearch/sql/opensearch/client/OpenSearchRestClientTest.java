@@ -6,8 +6,10 @@
 
 package org.opensearch.sql.opensearch.client;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
@@ -56,6 +58,8 @@ import org.opensearch.search.SearchHits;
 import org.opensearch.sql.data.model.ExprIntegerValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.mapping.IndexMapping;
 import org.opensearch.sql.opensearch.request.OpenSearchScrollRequest;
@@ -100,28 +104,66 @@ class OpenSearchRestClientTest {
         .thenReturn(response);
 
     Map<String, IndexMapping> indexMappings = client.getIndexMappings(indexName);
-    assertEquals(1, indexMappings.size());
 
     IndexMapping indexMapping = indexMappings.values().iterator().next();
-    assertEquals(18, indexMapping.size());
-    assertEquals("text", indexMapping.getFieldType("address"));
-    assertEquals("integer", indexMapping.getFieldType("age"));
-    assertEquals("double", indexMapping.getFieldType("balance"));
-    assertEquals("keyword", indexMapping.getFieldType("city"));
-    assertEquals("date", indexMapping.getFieldType("birthday"));
-    assertEquals("geo_point", indexMapping.getFieldType("location"));
-    assertEquals("some_new_es_type_outside_type_system", indexMapping.getFieldType("new_field"));
-    assertEquals("text", indexMapping.getFieldType("field with spaces"));
-    assertEquals("text_keyword", indexMapping.getFieldType("employer"));
-    assertEquals("nested", indexMapping.getFieldType("projects"));
-    assertEquals("boolean", indexMapping.getFieldType("projects.active"));
-    assertEquals("date", indexMapping.getFieldType("projects.release"));
-    assertEquals("nested", indexMapping.getFieldType("projects.members"));
-    assertEquals("text", indexMapping.getFieldType("projects.members.name"));
-    assertEquals("object", indexMapping.getFieldType("manager"));
-    assertEquals("text_keyword", indexMapping.getFieldType("manager.name"));
-    assertEquals("keyword", indexMapping.getFieldType("manager.address"));
-    assertEquals("long", indexMapping.getFieldType("manager.salary"));
+    var parsedTypes = OpenSearchDataType.traverseAndFlatten(indexMapping.getFieldMappings());
+    assertAll(
+        () -> assertEquals(1, indexMappings.size()),
+        // 10 types extended to 17 after flattening
+        () -> assertEquals(10, indexMapping.size()),
+        () -> assertEquals(17, parsedTypes.size()),
+        () -> assertEquals("text", indexMapping.getFieldType("address")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Text),
+            parsedTypes.get("address")),
+        () -> assertEquals("integer", indexMapping.getFieldType("age")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Integer),
+            parsedTypes.get("age")),
+        () -> assertEquals("double", indexMapping.getFieldType("balance")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Double),
+            parsedTypes.get("balance")),
+        () -> assertEquals("keyword", indexMapping.getFieldType("city")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Keyword),
+            parsedTypes.get("city")),
+        () -> assertEquals("date", indexMapping.getFieldType("birthday")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Date),
+            parsedTypes.get("birthday")),
+        () -> assertEquals("geo_point", indexMapping.getFieldType("location")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.GeoPoint),
+            parsedTypes.get("location")),
+        // unknown type isn't parsed and ignored
+        () -> assertNull(indexMapping.getFieldType("new_field")),
+        () -> assertNull(parsedTypes.get("new_field")),
+        () -> assertEquals("text", indexMapping.getFieldType("field with spaces")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Text),
+            parsedTypes.get("field with spaces")),
+        () -> assertEquals("text", indexMapping.getFieldType("employer")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Text),
+            parsedTypes.get("employer")),
+        // `employer` is a `text` with `fields`
+        () -> assertTrue(parsedTypes.get("employer").getFields().size() > 0),
+        () -> assertEquals("nested", indexMapping.getFieldType("projects")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Nested),
+            parsedTypes.get("projects")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Boolean),
+            parsedTypes.get("projects.active")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Date),
+            parsedTypes.get("projects.release")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Nested),
+            parsedTypes.get("projects.members")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Text),
+            parsedTypes.get("projects.members.name")),
+        () -> assertEquals("object", indexMapping.getFieldType("manager")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Object),
+                parsedTypes.get("manager")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Text),
+            parsedTypes.get("manager.name")),
+        // `manager.name` is a `text` with `fields`
+        () -> assertTrue(parsedTypes.get("manager.name").getFields().size() > 0),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Keyword),
+            parsedTypes.get("manager.address")),
+        () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.Type.Long),
+            parsedTypes.get("manager.salary"))
+    );
   }
 
   @Test

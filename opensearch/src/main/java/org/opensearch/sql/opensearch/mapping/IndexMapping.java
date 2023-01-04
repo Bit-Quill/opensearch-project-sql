@@ -36,6 +36,7 @@ public class IndexMapping {
   // TODO remove, used in tests only
   public IndexMapping(Map<String, String> fieldMappings) {
     this.fieldMappings = fieldMappings.entrySet().stream()
+        .filter(e -> EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.Type.class, e.getValue()))
         .collect(Collectors.toMap(e -> e.getKey(), e -> OpenSearchDataType.of(
             EnumUtils.getEnumIgnoreCase(OpenSearchDataType.Type.class, e.getValue()))
         ));
@@ -61,7 +62,9 @@ public class IndexMapping {
    * @return field type in string. Or null if not exist.
    */
   public String getFieldType(String fieldName) {
-    // TODO - returns 'GeoPoint' instead of 'geo_point'
+    if (!fieldMappings.containsKey(fieldName)) {
+      return null;
+    }
     return fieldMappings.get(fieldName).typeName();
   }
 

@@ -146,13 +146,16 @@ class AggregationQueryBuilderTest {
             named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER))),
             Arrays.asList(named("name", ref("name", STRING)))),
         containsInAnyOrder(
-            map("avg(age)", INTEGER),
-            map("name", STRING)
+            map("avg(age)", OpenSearchDataType.of(INTEGER)),
+            map("name", OpenSearchDataType.of(STRING))
         ));
   }
 
   @Test
   void should_build_composite_aggregation_for_field_reference_of_keyword() {
+    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.Type.Text);
+    textWithKeywordType.getFields().put("keyword",
+        OpenSearchDataType.of(OpenSearchDataType.Type.Keyword));
     assertEquals(format(
         "{%n"
             + "  \"composite_buckets\" : {%n"
@@ -181,7 +184,7 @@ class AggregationQueryBuilderTest {
         buildQuery(
             Arrays.asList(
                 named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER))),
-            Arrays.asList(named("name", ref("name", STRING)))));
+            Arrays.asList(named("name", ref("name", textWithKeywordType)))));
   }
 
   @Test
@@ -191,8 +194,8 @@ class AggregationQueryBuilderTest {
             named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER))),
             Arrays.asList(named("name", ref("name", STRING)))),
         containsInAnyOrder(
-            map("avg(age)", INTEGER),
-            map("name", STRING)
+            map("avg(age)", OpenSearchDataType.of(INTEGER)),
+            map("name", OpenSearchDataType.of(STRING))
         ));
   }
 
@@ -292,8 +295,8 @@ class AggregationQueryBuilderTest {
                 Arrays.asList(dsl.abs(ref("balance", INTEGER))), INTEGER))),
             Arrays.asList(named("age", dsl.asin(ref("age", INTEGER))))),
         containsInAnyOrder(
-            map("avg(balance)", INTEGER),
-            map("age", DOUBLE)
+            map("avg(balance)", OpenSearchDataType.of(INTEGER)),
+            map("age", OpenSearchDataType.of(DOUBLE))
         ));
   }
 
@@ -392,7 +395,7 @@ class AggregationQueryBuilderTest {
             Arrays.asList(named("avg(age) filter(where age > 34)",
                 new AvgAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER)
                     .condition(dsl.greater(ref("age", INTEGER), literal(20))))),
-            Arrays.asList(named(ref("gender", STRING)))));
+            Arrays.asList(named(ref("gender", OpenSearchDataType.of(STRING))))));
   }
 
   @Test
@@ -403,7 +406,7 @@ class AggregationQueryBuilderTest {
                 Arrays.asList(ref("balance", INTEGER)), INTEGER))),
             Collections.emptyList()),
         containsInAnyOrder(
-            map("avg(balance)", INTEGER)
+            map("avg(balance)", OpenSearchDataType.of(INTEGER))
         ));
   }
 

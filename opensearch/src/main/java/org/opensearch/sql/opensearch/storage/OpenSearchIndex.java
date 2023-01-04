@@ -89,6 +89,13 @@ public class OpenSearchIndex implements Table {
         .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getExprType()));
   }
 
+  public Map<String, OpenSearchDataType> getFieldOpenSearchTypes() {
+    if (cachedFieldTypes == null) {
+      cachedFieldTypes = new OpenSearchDescribeIndexRequest(client, indexName).getFieldTypes();
+    }
+    return cachedFieldTypes;
+  }
+
   /**
    * Get the max result window setting of the table.
    */
@@ -106,7 +113,7 @@ public class OpenSearchIndex implements Table {
   @Override
   public PhysicalPlan implement(LogicalPlan plan) {
     OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, settings, indexName,
-        getMaxResultWindow(), new OpenSearchExprValueFactory(cachedFieldTypes));
+        getMaxResultWindow(), new OpenSearchExprValueFactory(getFieldOpenSearchTypes()));
 
     /*
      * Visit logical plan with index scan as context so logical operators visited, such as

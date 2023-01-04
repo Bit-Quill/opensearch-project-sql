@@ -35,6 +35,7 @@ import org.opensearch.search.sort.SortOrder;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.parse.ParseExpression;
+import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.storage.serialization.ExpressionSerializer;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -69,6 +70,9 @@ class BucketAggregationBuilderTest {
 
   @Test
   void should_build_bucket_with_keyword_field() {
+    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.Type.Text);
+    textWithKeywordType.getFields().put("keyword",
+        OpenSearchDataType.of(OpenSearchDataType.Type.Keyword));
     assertEquals(
         "{\n"
             + "  \"terms\" : {\n"
@@ -80,7 +84,7 @@ class BucketAggregationBuilderTest {
             + "}",
         buildQuery(
             Arrays.asList(
-                asc(named("name", ref("name", STRING))))));
+                asc(named("name", ref("name", textWithKeywordType))))));
   }
 
   @Test

@@ -49,41 +49,44 @@ import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.type.ExprCoreType;
-import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.utils.OpenSearchJsonContent;
 
 class OpenSearchExprValueFactoryTest {
+  private static OpenSearchDataType getTextWithKeyword() {
+    var type = OpenSearchDataType.of(OpenSearchDataType.Type.Text);
+    type.getFields().put("words", OpenSearchDataType.of(OpenSearchDataType.Type.Keyword));
+    return type;
+  }
 
-    private static final Map<String, OpenSearchDataType> MAPPING =
+  private static final Map<String, OpenSearchDataType> MAPPING =
       new ImmutableMap.Builder<String, OpenSearchDataType>()
-          .put("byteV", new OpenSearchDataType(BYTE))
-          .put("shortV", new OpenSearchDataType(SHORT))
-          .put("intV", new OpenSearchDataType(INTEGER))
-          .put("longV", new OpenSearchDataType(LONG))
-          .put("floatV", new OpenSearchDataType(FLOAT))
-          .put("doubleV", new OpenSearchDataType(DOUBLE))
-          .put("stringV", new OpenSearchDataType(STRING))
-          .put("dateV", new OpenSearchDataType(DATE))
-          .put("datetimeV", new OpenSearchDataType(DATETIME))
-          .put("timeV", new OpenSearchDataType(TIME))
-          .put("timestampV", new OpenSearchDataType(TIMESTAMP))
-          .put("boolV", new OpenSearchDataType(BOOLEAN))
-          .put("structV", new OpenSearchDataType(STRUCT))
-          .put("structV.id", new OpenSearchDataType(INTEGER))
-          .put("structV.state", new OpenSearchDataType(STRING))
-          .put("arrayV", new OpenSearchDataType(ARRAY))
-          .put("arrayV.info", new OpenSearchDataType(STRING))
-          .put("arrayV.author", new OpenSearchDataType(STRING))
-          //.put("textV", new OpenSearchDataType(OPENSEARCH_TEXT))
-          //.put("textKeywordV", new OpenSearchDataType(OPENSEARCH_TEXT_KEYWORD))
-          .put("ipV", new OpenSearchDataType(OpenSearchDataType.Type.Ip))
-          .put("geoV", new OpenSearchDataType(OpenSearchDataType.Type.GeoPoint))
-          .put("binaryV", new OpenSearchDataType(OpenSearchDataType.Type.Binary))
+          .put("byteV", OpenSearchDataType.of(BYTE))
+          .put("shortV", OpenSearchDataType.of(SHORT))
+          .put("intV", OpenSearchDataType.of(INTEGER))
+          .put("longV", OpenSearchDataType.of(LONG))
+          .put("floatV", OpenSearchDataType.of(FLOAT))
+          .put("doubleV", OpenSearchDataType.of(DOUBLE))
+          .put("stringV", OpenSearchDataType.of(STRING))
+          .put("dateV", OpenSearchDataType.of(DATE))
+          .put("datetimeV", OpenSearchDataType.of(DATETIME))
+          .put("timeV", OpenSearchDataType.of(TIME))
+          .put("timestampV", OpenSearchDataType.of(TIMESTAMP))
+          .put("boolV", OpenSearchDataType.of(BOOLEAN))
+          .put("structV", OpenSearchDataType.of(STRUCT))
+          .put("structV.id", OpenSearchDataType.of(INTEGER))
+          .put("structV.state", OpenSearchDataType.of(STRING))
+          .put("arrayV", OpenSearchDataType.of(ARRAY))
+          .put("arrayV.info", OpenSearchDataType.of(STRING))
+          .put("arrayV.author", OpenSearchDataType.of(STRING))
+          .put("textV", OpenSearchDataType.of(OpenSearchDataType.Type.Text))
+          .put("textKeywordV", getTextWithKeyword())
+          .put("ipV", OpenSearchDataType.of(OpenSearchDataType.Type.Ip))
+          .put("geoV", OpenSearchDataType.of(OpenSearchDataType.Type.GeoPoint))
+          .put("binaryV", OpenSearchDataType.of(OpenSearchDataType.Type.Binary))
           .build();
 
-  private OpenSearchExprValueFactory exprValueFactory =
+  private final OpenSearchExprValueFactory exprValueFactory =
       new OpenSearchExprValueFactory(MAPPING);
 
   @Test
@@ -362,8 +365,7 @@ class OpenSearchExprValueFactoryTest {
   @Test
   public void constructUnsupportedTypeThrowException() {
     OpenSearchExprValueFactory exprValueFactory =
-        new OpenSearchExprValueFactory(ImmutableMap.of("type",
-            new OpenSearchDataType((ExprCoreType) (ExprType) new TestType())));
+        new OpenSearchExprValueFactory(ImmutableMap.of("type", new TestType()));
     IllegalStateException exception =
         assertThrows(IllegalStateException.class, () -> exprValueFactory.construct("{\"type\":1}"));
     assertEquals("Unsupported type: TEST_TYPE for value: 1.", exception.getMessage());
@@ -384,9 +386,18 @@ class OpenSearchExprValueFactoryTest {
     return exprValueFactory.construct(fieldName, value);
   }
 
-  @EqualsAndHashCode
+  @EqualsAndHashCode(callSuper = false)
   @ToString
-  private static class TestType implements ExprType {
+  private static class TestType extends OpenSearchDataType {
+
+    public TestType() {
+      type = null;
+    }
+
+    @Override
+    protected OpenSearchDataType cloneEmpty() {
+      return this;
+    }
 
     @Override
     public String typeName() {

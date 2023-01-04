@@ -55,8 +55,8 @@ class OpenSearchIndexScanTest {
   private Settings settings;
 
   private OpenSearchExprValueFactory exprValueFactory = new OpenSearchExprValueFactory(
-      Map.of("name", new OpenSearchDataType(STRING),
-              "department", new OpenSearchDataType(STRING)));
+      Map.of("name", OpenSearchDataType.of(STRING),
+              "department", OpenSearchDataType.of(STRING)));
 
   @BeforeEach
   void setup() {

@@ -9,14 +9,13 @@ package org.opensearch.sql.opensearch.data.value;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import org.junit.jupiter.api.Test;
+import org.opensearch.sql.opensearch.data.type.OpenSearchGeoPointType;
 
 class OpenSearchExprGeoPointValueTest {
 
-  private OpenSearchExprGeoPointValue geoPointValue = new OpenSearchExprGeoPointValue(1.0,
-      1.0);
+  private OpenSearchExprGeoPointValue geoPointValue = new OpenSearchExprGeoPointValue(1.0, 1.0);
 
   @Test
   void value() {
@@ -25,18 +24,18 @@ class OpenSearchExprGeoPointValueTest {
 
   @Test
   void type() {
-    assertEquals(UNKNOWN, geoPointValue.type());
+    assertEquals(new OpenSearchGeoPointType(), geoPointValue.type());
   }
 
   @Test
   void compare() {
     assertEquals(0, geoPointValue.compareTo(new OpenSearchExprGeoPointValue(1.0, 1.0)));
+    assertEquals(geoPointValue, new OpenSearchExprGeoPointValue(1.0, 1.0));
   }
 
   @Test
   void equal() {
-    assertTrue(geoPointValue.equal(new OpenSearchExprGeoPointValue(1.0,
-        1.0)));
+    assertTrue(geoPointValue.equal(new OpenSearchExprGeoPointValue(1.0, 1.0)));
   }
 
   @Test

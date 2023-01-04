@@ -121,7 +121,7 @@ class OpenSearchIndexTest {
         allOf(
             aMapWithSize(13),
             hasEntry("name", ExprCoreType.STRING),
-            hasEntry("address", (ExprType) new OpenSearchDataType(Text)),
+            hasEntry("address", (ExprType) OpenSearchDataType.of(Text)),
             hasEntry("age", ExprCoreType.INTEGER),
             hasEntry("account_number", ExprCoreType.LONG),
             hasEntry("balance1", ExprCoreType.FLOAT),
@@ -132,7 +132,7 @@ class OpenSearchIndexTest {
             hasEntry("birthday", ExprCoreType.TIMESTAMP),
             hasEntry("id1", ExprCoreType.BYTE),
             hasEntry("id2", ExprCoreType.SHORT),
-            hasEntry("blob", (ExprType) new OpenSearchDataType(Binary))
+            hasEntry("blob", (ExprType) OpenSearchDataType.of(Binary))
         ));
   }
 

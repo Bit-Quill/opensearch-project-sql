@@ -44,6 +44,7 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
+import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
@@ -87,10 +88,13 @@ class ExpressionFilterScriptTest {
 
   @Test
   void can_execute_expression_with_text_keyword_field() {
+    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.Type.Text);
+    textWithKeywordType.getFields().put("keyword",
+        OpenSearchDataType.of(OpenSearchDataType.Type.Keyword));
     assertThat()
         .docValues("name.keyword", "John")
         .filterBy(
-            dsl.equal(ref("name", STRING), literal("John")))
+            dsl.equal(ref("name", textWithKeywordType), literal("John")))
         .shouldMatch();
   }
 

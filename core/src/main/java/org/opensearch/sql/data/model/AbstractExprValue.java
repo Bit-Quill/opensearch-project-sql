@@ -21,7 +21,7 @@ public abstract class AbstractExprValue implements ExprValue {
       throw new IllegalStateException(
            String.format("[BUG] Unreachable, Comparing with NULL or MISSING is undefined"));
     }
-    if ((this.isNumber() && other.isNumber()) || this.type() == other.type()) {
+    if ((this.isNumber() && other.isNumber()) || this.type().equals(other.type())) {
       return compare(other);
     } else {
       throw new ExpressionEvaluationException(

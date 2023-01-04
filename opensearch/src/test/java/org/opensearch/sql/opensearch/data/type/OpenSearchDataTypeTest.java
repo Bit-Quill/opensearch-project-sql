@@ -10,36 +10,48 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
+import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.Type.Keyword;
+import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.Type.Text;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class OpenSearchDataTypeTest {
-  /*
+
+  private static OpenSearchDataType textType;
+  private static OpenSearchDataType textKeywordType;
+
+  @BeforeAll
+  private static void setUpTypes() {
+    textType = OpenSearchDataType.of(Text);
+    textKeywordType = OpenSearchDataType.of(Text);
+    textKeywordType.getFields().put("words", OpenSearchTextType.of(Keyword));
+  }
+
   @Test
   public void testIsCompatible() {
-    assertTrue(STRING.isCompatible(OPENSEARCH_TEXT));
-    assertFalse(OPENSEARCH_TEXT.isCompatible(STRING));
+    assertTrue(STRING.isCompatible(textType));
+    assertFalse(textType.isCompatible(STRING));
 
-    assertTrue(STRING.isCompatible(OPENSEARCH_TEXT_KEYWORD));
-    assertTrue(OPENSEARCH_TEXT.isCompatible(OPENSEARCH_TEXT_KEYWORD));
+    assertTrue(STRING.isCompatible(textKeywordType));
+    assertTrue(textType.isCompatible(textKeywordType));
   }
 
   @Test
   public void testTypeName() {
-    assertEquals("string", OPENSEARCH_TEXT.typeName());
-    assertEquals("string", OPENSEARCH_TEXT_KEYWORD.typeName());
+    assertEquals("text", textType.typeName());
+    assertEquals("text", textKeywordType.typeName());
   }
 
   @Test
   public void legacyTypeName() {
-    assertEquals("text", OPENSEARCH_TEXT.legacyTypeName());
-    assertEquals("text", OPENSEARCH_TEXT_KEYWORD.legacyTypeName());
+    assertEquals("text", textType.legacyTypeName());
+    assertEquals("text", textKeywordType.legacyTypeName());
   }
 
   @Test
   public void testShouldCast() {
-    assertFalse(OPENSEARCH_TEXT.shouldCast(STRING));
-    assertFalse(OPENSEARCH_TEXT_KEYWORD.shouldCast(STRING));
+    assertFalse(textType.shouldCast(STRING));
+    assertFalse(textKeywordType.shouldCast(STRING));
   }
-   */
 }

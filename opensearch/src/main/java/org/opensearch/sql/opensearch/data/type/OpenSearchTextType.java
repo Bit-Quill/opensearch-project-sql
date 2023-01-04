@@ -9,8 +9,8 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import java.util.List;
-import org.opensearch.sql.data.type.ExprType;
 import lombok.EqualsAndHashCode;
+import org.opensearch.sql.data.type.ExprType;
 
 @EqualsAndHashCode(callSuper = false)
 public class OpenSearchTextType extends OpenSearchDataType {

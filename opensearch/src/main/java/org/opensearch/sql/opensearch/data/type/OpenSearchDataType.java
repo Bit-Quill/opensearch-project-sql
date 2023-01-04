@@ -60,7 +60,7 @@ public class OpenSearchDataType implements ExprType, Comparable<OpenSearchDataTy
   }
 
   @EqualsAndHashCode.Exclude
-  private Type type;
+  protected Type type;
 
   // resolved ExprCoreType
   protected ExprCoreType exprCoreType;
@@ -160,7 +160,7 @@ public class OpenSearchDataType implements ExprType, Comparable<OpenSearchDataTy
    * Clone type object without {@link #properties} - without info nested about nested object types.
    * @return A clone.
    */
-  private OpenSearchDataType cloneEmpty() {
+  protected OpenSearchDataType cloneEmpty() {
     var copy = type != null ? of(type) : new OpenSearchDataType(exprCoreType);
     copy.fields = fields; //TODO do we need to clone object?
     copy.exprCoreType = exprCoreType;

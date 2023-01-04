@@ -12,7 +12,6 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.opensearch.sql.data.model.ExprValueUtils.stringValue;
-import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
@@ -22,7 +21,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.mapping.IndexMapping;
@@ -74,6 +72,6 @@ class OpenSearchDescribeIndexRequestTest {
     final Map<String, OpenSearchDataType> fieldTypes =
         new OpenSearchDescribeIndexRequest(client, "index").getFieldTypes();
     assertEquals(1, fieldTypes.size());
-    assertThat(fieldTypes, hasEntry("name", STRING));
+    assertThat(fieldTypes, hasEntry("name", OpenSearchDataType.of(OpenSearchDataType.Type.Keyword)));
   }
 }
