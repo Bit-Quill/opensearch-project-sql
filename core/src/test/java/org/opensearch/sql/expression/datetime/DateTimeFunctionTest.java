@@ -29,10 +29,15 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import com.google.common.collect.ImmutableList;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
+
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
@@ -47,6 +52,7 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
+import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.env.Environment;
 
 @ExtendWith(MockitoExtension.class)
@@ -1045,7 +1051,17 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(expectedResult), eval(expression));
   }
 
-  private void testNullMissingWeek(ExprCoreType date) {
+  private void weekOfYearQuery(String date, int mode, int expectedResult) {
+    FunctionExpression expression = DSL
+        .week_of_year(
+            functionProperties,
+            DSL.literal(new ExprDateValue(date)), DSL.literal(mode));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(String.format("week_of_year(DATE '%s', %d)", date, mode), expression.toString());
+    assertEquals(integerValue(expectedResult), eval(expression));
+  }
+
+  private void nullMissingWeekQuery(ExprCoreType date) {
     when(nullRef.type()).thenReturn(date);
     when(missingRef.type()).thenReturn(date);
     assertEquals(nullValue(), eval(DSL.week(functionProperties, nullRef)));
@@ -1053,11 +1069,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void week() {
-    testNullMissingWeek(DATE);
-    testNullMissingWeek(DATETIME);
-    testNullMissingWeek(TIMESTAMP);
-    testNullMissingWeek(STRING);
+  public void testNullMissingWeek(){
+    nullMissingWeekQuery(DATE);
+    nullMissingWeekQuery(DATETIME);
+    nullMissingWeekQuery(TIMESTAMP);
+    nullMissingWeekQuery(STRING);
 
     when(nullRef.type()).thenReturn(INTEGER);
     when(missingRef.type()).thenReturn(INTEGER);
@@ -1073,53 +1089,94 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(missingValue(), eval(DSL.week(
         functionProperties,
         nullRef, missingRef)));
+  }
 
-    FunctionExpression expression = DSL
-        .week(functionProperties, DSL.literal(new ExprTimestampValue("2019-01-05 01:02:03")));
-    assertEquals(INTEGER, expression.type());
-    assertEquals("week(TIMESTAMP '2019-01-05 01:02:03')", expression.toString());
-    assertEquals(integerValue(0), eval(expression));
+  private static Stream<Arguments> getTestDataForWeek() {
+    //Test the behavior of different modes passed into the 'week_of_year' function
+    return Stream.of(
+        Arguments.of("2019-01-05", 0, 0),
+        Arguments.of("2019-01-05", 1, 1),
+        Arguments.of("2019-01-05", 2, 52),
+        Arguments.of("2019-01-05", 3, 1),
+        Arguments.of("2019-01-05", 4, 1),
+        Arguments.of("2019-01-05", 5, 0),
+        Arguments.of("2019-01-05", 6, 1),
+        Arguments.of("2019-01-05", 7, 53),
 
-    expression = DSL.week(functionProperties, DSL.literal("2019-01-05"));
-    assertEquals(INTEGER, expression.type());
-    assertEquals("week(\"2019-01-05\")", expression.toString());
-    assertEquals(integerValue(0), eval(expression));
+        Arguments.of("2019-01-06", 0, 1),
+        Arguments.of("2019-01-06", 1, 1),
+        Arguments.of("2019-01-06", 2, 1),
+        Arguments.of("2019-01-06", 3, 1),
+        Arguments.of("2019-01-06", 4, 2),
+        Arguments.of("2019-01-06", 5, 0),
+        Arguments.of("2019-01-06", 6, 2),
+        Arguments.of("2019-01-06", 7, 53),
 
-    expression = DSL.week(functionProperties, DSL.literal("2019-01-05 00:01:00"));
-    assertEquals(INTEGER, expression.type());
-    assertEquals("week(\"2019-01-05 00:01:00\")", expression.toString());
-    assertEquals(integerValue(0), eval(expression));
+        Arguments.of("2019-01-07", 0, 1),
+        Arguments.of("2019-01-07", 1, 2),
+        Arguments.of("2019-01-07", 2, 1),
+        Arguments.of("2019-01-07", 3, 2),
+        Arguments.of("2019-01-07", 4, 2),
+        Arguments.of("2019-01-07", 5, 1),
+        Arguments.of("2019-01-07", 6, 2),
+        Arguments.of("2019-01-07", 7, 1),
 
-    weekQuery("2019-01-05", 0, 0);
-    weekQuery("2019-01-05", 1, 1);
-    weekQuery("2019-01-05", 2, 52);
-    weekQuery("2019-01-05", 3, 1);
-    weekQuery("2019-01-05", 4, 1);
-    weekQuery("2019-01-05", 5, 0);
-    weekQuery("2019-01-05", 6, 1);
-    weekQuery("2019-01-05", 7, 53);
+        Arguments.of("2000-01-01", 0, 0),
+        Arguments.of("2000-01-01", 2, 52),
+        Arguments.of("1999-12-31", 0, 52)
+    );
+  }
 
-    weekQuery("2019-01-06", 0, 1);
-    weekQuery("2019-01-06", 1, 1);
-    weekQuery("2019-01-06", 2, 1);
-    weekQuery("2019-01-06", 3, 1);
-    weekQuery("2019-01-06", 4, 2);
-    weekQuery("2019-01-06", 5, 0);
-    weekQuery("2019-01-06", 6, 2);
-    weekQuery("2019-01-06", 7, 53);
+  @ParameterizedTest(name = "{1}{2}")
+  @MethodSource("getTestDataForWeek")
+  public void testWeek(String date, int mode, int expected) {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+    weekQuery(date, mode, expected);
+    weekOfYearQuery(date, mode, expected);
+  }
 
-    weekQuery("2019-01-07", 0, 1);
-    weekQuery("2019-01-07", 1, 2);
-    weekQuery("2019-01-07", 2, 1);
-    weekQuery("2019-01-07", 3, 2);
-    weekQuery("2019-01-07", 4, 2);
-    weekQuery("2019-01-07", 5, 1);
-    weekQuery("2019-01-07", 6, 2);
-    weekQuery("2019-01-07", 7, 1);
+  private void validateStringFormat(
+      FunctionExpression expr,
+      String expectedString,
+      int expectedResult) {
+    assertAll(
+        () -> assertEquals(INTEGER, expr.type()),
+        () -> assertEquals(expectedString, expr.toString()),
+        () -> assertEquals(integerValue(expectedResult), eval(expr))
+    );
+  }
 
-    weekQuery("2000-01-01", 0, 0);
-    weekQuery("2000-01-01", 2, 52);
-    weekQuery("1999-12-31", 0, 52);
+  private static Stream<Arguments> getTestDataForWeekFormats() {
+    return Stream.of(
+        Arguments.of(DSL.literal(new ExprTimestampValue("2019-01-05 01:02:03")),
+            "TIMESTAMP '2019-01-05 01:02:03'",
+            0),
+        Arguments.of(
+            DSL.literal("2019-01-05"),
+            "\"2019-01-05\"",
+            0),
+        Arguments.of(
+            DSL.literal("2019-01-05 00:01:00"),
+            "\"2019-01-05 00:01:00\"",
+            0)
+    );
+  }
+
+  @ParameterizedTest(name = "{1}{2}")
+  @MethodSource("getTestDataForWeekFormats")
+  public void testWeekFormats(
+      LiteralExpression arg,
+      String expectedString,
+      Integer expectedInteger) {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+    validateStringFormat(
+        DSL.week(functionProperties, arg),
+        String.format("week(%s)", expectedString), expectedInteger);
+    validateStringFormat(
+        DSL.week_of_year(functionProperties, arg),
+        String.format("week_of_year(%s)", expectedString), expectedInteger);
   }
 
   @Test
@@ -1127,27 +1184,22 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
-    FunctionExpression expression = DSL
-        .week(functionProperties, DSL.literal(new ExprTimeValue("12:23:34")), DSL.literal(0));
-    assertEquals(INTEGER, eval(expression).type());
-    assertEquals(LocalDate.now(
-            functionProperties.getQueryStartClock()).get(ALIGNED_WEEK_OF_YEAR),
-        eval(expression).integerValue());
-    assertEquals("week(TIME '12:23:34', 0)", expression.toString());
+    assertAll(
+        () -> validateStringFormat(
+            DSL.week(functionProperties, DSL.literal(new ExprTimeValue("12:23:34")), DSL.literal(0)),
+            "week(TIME '12:23:34', 0)",
+            LocalDate.now(functionProperties.getQueryStartClock()).get(ALIGNED_WEEK_OF_YEAR)),
 
-    expression = DSL.week_of_year(
-        functionProperties,
-        DSL.literal(new ExprTimeValue("12:23:34")));
-    assertEquals(INTEGER, eval(expression).type());
-    assertEquals(LocalDate.now(
-            functionProperties.getQueryStartClock()).get(ALIGNED_WEEK_OF_YEAR),
-        eval(expression).integerValue());
-    assertEquals("week_of_year(TIME '12:23:34')", expression.toString());
+        () -> validateStringFormat(
+            DSL.week_of_year(functionProperties, DSL.literal(new ExprTimeValue("12:23:34"))),
+            "week_of_year(TIME '12:23:34')",
+            LocalDate.now(functionProperties.getQueryStartClock()).get(ALIGNED_WEEK_OF_YEAR))
+    );
   }
 
   @Test
   public void modeInUnsupportedFormat() {
-    testNullMissingWeek(DATE);
+    nullMissingWeekQuery(DATE);
 
     FunctionExpression expression1 = DSL
         .week(functionProperties, DSL.literal(new ExprDateValue("2019-01-05")), DSL.literal(8));
@@ -1163,17 +1215,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         exception.getMessage());
   }
 
-  private void weekOfYearQuery(String date, int mode, int expectedResult) {
-    FunctionExpression expression = DSL
-        .week_of_year(
-            functionProperties,
-            DSL.literal(new ExprDateValue(date)), DSL.literal(mode));
-    assertEquals(INTEGER, expression.type());
-    assertEquals(String.format("week_of_year(DATE '%s', %d)", date, mode), expression.toString());
-    assertEquals(integerValue(expectedResult), eval(expression));
-  }
-
-  private void testNullMissingWeekOfYear(ExprCoreType date) {
+  private void nullMissingWeekOfYearQuery(ExprCoreType date) {
     when(nullRef.type()).thenReturn(date);
     when(missingRef.type()).thenReturn(date);
     assertEquals(nullValue(), eval(DSL.week_of_year(
@@ -1186,10 +1228,10 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   @Test
   public void testInvalidWeekOfYear() {
-    testNullMissingWeekOfYear(DATE);
-    testNullMissingWeekOfYear(DATETIME);
-    testNullMissingWeekOfYear(TIMESTAMP);
-    testNullMissingWeekOfYear(STRING);
+    nullMissingWeekOfYearQuery(DATE);
+    nullMissingWeekOfYearQuery(DATETIME);
+    nullMissingWeekOfYearQuery(TIMESTAMP);
+    nullMissingWeekOfYearQuery(STRING);
 
     when(nullRef.type()).thenReturn(INTEGER);
     when(missingRef.type()).thenReturn(INTEGER);
@@ -1206,84 +1248,19 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         functionProperties,
         nullRef, missingRef)));
 
-    //test invalid month
-    assertThrows(SemanticCheckException.class, () -> weekOfYearQuery("2019-13-05 01:02:03", 0, 0));
-    //test invalid day
-    assertThrows(SemanticCheckException.class, () -> weekOfYearQuery("2019-01-50 01:02:03", 0, 0));
-    //test invalid leap year
-    assertThrows(SemanticCheckException.class, () -> weekOfYearQuery("2019-02-29 01:02:03", 0, 0));
-  }
-
-  @Test
-  public void testWeekOfYearAlternateArgumentFormats() {
-    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
-    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
-
-    FunctionExpression expression = DSL
-        .week_of_year(
-            functionProperties,
-            DSL.literal(new ExprTimestampValue("2019-01-05 01:02:03")));
-    assertEquals(INTEGER, expression.type());
-    assertEquals("week_of_year(TIMESTAMP '2019-01-05 01:02:03')", expression.toString());
-    assertEquals(integerValue(0), eval(expression));
-
-    expression = DSL.week_of_year(
-        functionProperties,
-        DSL.literal("2019-01-05"));
-    assertEquals(INTEGER, expression.type());
-    assertEquals("week_of_year(\"2019-01-05\")", expression.toString());
-    assertEquals(integerValue(0), eval(expression));
-
-    expression = DSL.week_of_year(
-        functionProperties,
-        DSL.literal("2019-01-05 00:01:00"));
-    assertEquals(INTEGER, expression.type());
-    assertEquals("week_of_year(\"2019-01-05 00:01:00\")", expression.toString());
-    assertEquals(integerValue(0), eval(expression));
-  }
-
-  @Test
-  public void testWeekOfYearDifferentModes() {
-    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
-    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
-
-    //Test the behavior of different modes passed into the 'week_of_year' function
-    weekOfYearQuery("2019-01-05", 0, 0);
-    weekOfYearQuery("2019-01-05", 1, 1);
-    weekOfYearQuery("2019-01-05", 2, 52);
-    weekOfYearQuery("2019-01-05", 3, 1);
-    weekOfYearQuery("2019-01-05", 4, 1);
-    weekOfYearQuery("2019-01-05", 5, 0);
-    weekOfYearQuery("2019-01-05", 6, 1);
-    weekOfYearQuery("2019-01-05", 7, 53);
-
-    weekOfYearQuery("2019-01-06", 0, 1);
-    weekOfYearQuery("2019-01-06", 1, 1);
-    weekOfYearQuery("2019-01-06", 2, 1);
-    weekOfYearQuery("2019-01-06", 3, 1);
-    weekOfYearQuery("2019-01-06", 4, 2);
-    weekOfYearQuery("2019-01-06", 5, 0);
-    weekOfYearQuery("2019-01-06", 6, 2);
-    weekOfYearQuery("2019-01-06", 7, 53);
-
-    weekOfYearQuery("2019-01-07", 0, 1);
-    weekOfYearQuery("2019-01-07", 1, 2);
-    weekOfYearQuery("2019-01-07", 2, 1);
-    weekOfYearQuery("2019-01-07", 3, 2);
-    weekOfYearQuery("2019-01-07", 4, 2);
-    weekOfYearQuery("2019-01-07", 5, 1);
-    weekOfYearQuery("2019-01-07", 6, 2);
-    weekOfYearQuery("2019-01-07", 7, 1);
-
-    weekOfYearQuery("2000-01-01", 0, 0);
-    weekOfYearQuery("2000-01-01", 2, 52);
-    weekOfYearQuery("1999-12-31", 0, 52);
-
+    assertAll(
+        //test invalid month
+        () -> assertThrows(SemanticCheckException.class, () -> weekOfYearQuery("2019-13-05 01:02:03", 0, 0)),
+        //test invalid day
+        () -> assertThrows(SemanticCheckException.class, () -> weekOfYearQuery("2019-01-50 01:02:03", 0, 0)),
+        //test invalid leap year
+        () -> assertThrows(SemanticCheckException.class, () -> weekOfYearQuery("2019-02-29 01:02:03", 0, 0))
+    );
   }
 
   @Test
   public void weekOfYearModeInUnsupportedFormat() {
-    testNullMissingWeekOfYear(DATE);
+    nullMissingWeekOfYearQuery(DATE);
 
     FunctionExpression expression1 = DSL
         .week_of_year(
