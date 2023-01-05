@@ -729,12 +729,13 @@ class DateTimeFunctionTest extends ExpressionTestBase {
             "minute_of_hour(\"2020-08-17 01:02:03\")")
     );
   }
+  
   @ParameterizedTest(name = "{2}")
   @MethodSource("getTestDataForMinuteOfHour")
   public void minuteOfHour(LiteralExpression arg, int expectedResult, String expectedString) {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
-    
+
     minuteOfHourQuery(DSL.minute_of_hour(arg), expectedResult, expectedString);
   }
 
