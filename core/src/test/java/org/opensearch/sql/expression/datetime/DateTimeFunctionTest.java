@@ -29,7 +29,6 @@ import com.google.common.collect.ImmutableList;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
-
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -870,7 +869,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     );
   }
 
-  @ParameterizedTest(name="{2}")
+  @ParameterizedTest(name = "{2}")
   @MethodSource("getTestDataForSecondOfMinute")
   public void secondOfMinute(LiteralExpression arg, int expectedResult, String expectedString) {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
