@@ -904,10 +904,6 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         () -> assertThrows(SemanticCheckException.class,
             () -> invalidSecondOfMinuteQuery("asdfasdf"))
     );
-
-
-
-
   }
 
 
