@@ -379,13 +379,13 @@ public class FunctionDSL {
    */
   public SerializableVarargsFunction<ExprValue, ExprValue> nullMissingHandling(
           SerializableVarargsFunction<ExprValue, ExprValue> function, boolean withVarargs) {
-    return (strings) -> {
-      if (Arrays.stream(strings).anyMatch(ExprValue::isMissing)) {
+    return (args) -> {
+      if (Arrays.stream(args).anyMatch(ExprValue::isMissing)) {
         return ExprValueUtils.missingValue();
-      } else if (Arrays.stream(strings).anyMatch(ExprValue::isNull)) {
+      } else if (Arrays.stream(args).anyMatch(ExprValue::isNull)) {
         return ExprValueUtils.nullValue();
       } else {
-        return function.apply(strings);
+        return function.apply(args);
       }
     };
   }
