@@ -30,7 +30,6 @@ import com.google.common.collect.ImmutableList;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
-
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -820,6 +819,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
             8)
     );
   }
+
   @ParameterizedTest(name = "{0}")
   @MethodSource("getTestDataForMonthOfYear")
   public void monthOfYear(LiteralExpression arg, String expectedString, int expectedResult) {
@@ -1153,7 +1153,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void testNullMissingWeek(){
+  public void testNullMissingWeek() {
     nullMissingWeekQuery(DATE);
     nullMissingWeekQuery(DATETIME);
     nullMissingWeekQuery(TIMESTAMP);
@@ -1276,7 +1276,10 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
     assertAll(
         () -> validateStringFormat(
-            DSL.week(functionProperties, DSL.literal(new ExprTimeValue("12:23:34")), DSL.literal(0)),
+            DSL.week(
+                functionProperties,
+                DSL.literal(new ExprTimeValue("12:23:34")),
+                DSL.literal(0)),
             "week(TIME '12:23:34', 0)",
             LocalDate.now(functionProperties.getQueryStartClock()).get(ALIGNED_WEEK_OF_YEAR)),
 
