@@ -28,10 +28,15 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import com.google.common.collect.ImmutableList;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
+
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
@@ -46,6 +51,7 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
+import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.env.Environment;
 
 @ExtendWith(MockitoExtension.class)
@@ -837,29 +843,40 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(testExpr, dateExpression.toString());
   }
 
-  @Test
-  public void secondOfMinute() {
+  private static Stream<Arguments> getTestDataForSecondOfMinute() {
+    return Stream.of(
+        Arguments.of(
+            DSL.literal(new ExprTimeValue("01:02:03")),
+            3,
+            "second_of_minute(TIME '01:02:03')"),
+        Arguments.of(
+            DSL.literal("01:02:03"),
+            3,
+            "second_of_minute(\"01:02:03\")"),
+        Arguments.of(
+            DSL.literal("2020-08-17 01:02:03"),
+            3,
+            "second_of_minute(\"2020-08-17 01:02:03\")"),
+        Arguments.of(
+
+            DSL.literal(new ExprTimestampValue("2020-08-17 01:02:03")),
+            3,
+            "second_of_minute(TIMESTAMP '2020-08-17 01:02:03')"),
+        Arguments.of(
+
+            DSL.literal(new ExprDatetimeValue("2020-08-17 01:02:03")),
+            3,
+            "second_of_minute(DATETIME '2020-08-17 01:02:03')")
+    );
+  }
+
+  @ParameterizedTest(name="{2}")
+  @MethodSource("getTestDataForSecondOfMinute")
+  public void secondOfMinute(LiteralExpression arg, int expectedResult, String expectedString) {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
-    FunctionExpression expression1 = DSL.second_of_minute(
-        DSL.literal(new ExprTimeValue("01:02:03")));
-    FunctionExpression expression2 = DSL.second_of_minute(DSL.literal("01:02:03"));
-    FunctionExpression expression3 = DSL.second_of_minute(DSL.literal("2020-08-17 01:02:03"));
-    FunctionExpression expression4 = DSL.second_of_minute(
-        DSL.literal(new ExprTimestampValue("2020-08-17 01:02:03")));
-    FunctionExpression expression5 = DSL.second_of_minute(
-        DSL.literal(new ExprDatetimeValue("2020-08-17 01:02:03")));
-
-    assertAll(
-        () -> secondOfMinuteQuery(expression1, 3, "second_of_minute(TIME '01:02:03')"),
-        () -> secondOfMinuteQuery(expression2, 3, "second_of_minute(\"01:02:03\")"),
-        () -> secondOfMinuteQuery(expression3, 3, "second_of_minute(\"2020-08-17 01:02:03\")"),
-        () -> secondOfMinuteQuery(
-            expression4, 3, "second_of_minute(TIMESTAMP '2020-08-17 01:02:03')"),
-        () -> secondOfMinuteQuery(
-            expression5, 3, "second_of_minute(DATETIME '2020-08-17 01:02:03')")
-    );
+    secondOfMinuteQuery(DSL.second_of_minute(arg), expectedResult, expectedString);
   }
 
   private void invalidSecondOfMinuteQuery(String time) {
