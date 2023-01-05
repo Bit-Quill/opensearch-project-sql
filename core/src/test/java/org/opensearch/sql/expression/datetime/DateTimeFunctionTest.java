@@ -28,10 +28,15 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import com.google.common.collect.ImmutableList;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
+
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
@@ -46,6 +51,7 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
+import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.env.Environment;
 
 @ExtendWith(MockitoExtension.class)
@@ -699,28 +705,37 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     );
   }
 
-  @Test
-  public void minuteOfHour() {
+  private static Stream<Arguments> getTestDataForMinuteOfHour() {
+    return Stream.of(
+        Arguments.of(
+            DSL.literal(new ExprTimeValue("01:02:03")),
+            2,
+            "minute_of_hour(TIME '01:02:03')"),
+        Arguments.of(
+            DSL.literal("01:02:03"),
+            2,
+            "minute_of_hour(\"01:02:03\")"),
+        Arguments.of(
+            DSL.literal(new ExprTimestampValue("2020-08-17 01:02:03")),
+            2,
+            "minute_of_hour(TIMESTAMP '2020-08-17 01:02:03')"),
+        Arguments.of(
+            DSL.literal(new ExprDatetimeValue("2020-08-17 01:02:03")),
+            2,
+            "minute_of_hour(DATETIME '2020-08-17 01:02:03')"),
+        Arguments.of(
+            DSL.literal("2020-08-17 01:02:03"),
+            2,
+            "minute_of_hour(\"2020-08-17 01:02:03\")")
+    );
+  }
+  @ParameterizedTest(name = "{2}")
+  @MethodSource("getTestDataForMinuteOfHour")
+  public void minuteOfHour(LiteralExpression arg, int expectedResult, String expectedString) {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
-
-    FunctionExpression expression1 = DSL.minute_of_hour(
-        DSL.literal(new ExprTimeValue("01:02:03")));
-    FunctionExpression expression2 = DSL.minute_of_hour(DSL.literal("01:02:03"));
-    FunctionExpression expression3 = DSL.minute_of_hour(
-        DSL.literal(new ExprTimestampValue("2020-08-17 01:02:03")));
-    FunctionExpression expression4 = DSL.minute_of_hour(
-        DSL.literal(new ExprDatetimeValue("2020-08-17 01:02:03")));
-    FunctionExpression expression5 = DSL.minute_of_hour(DSL.literal("2020-08-17 01:02:03"));
-
-
-    assertAll(
-        () -> minuteOfHourQuery(expression1, 2, "minute_of_hour(TIME '01:02:03')"),
-        () -> minuteOfHourQuery(expression2, 2, "minute_of_hour(\"01:02:03\")"),
-        () -> minuteOfHourQuery(expression3, 2, "minute_of_hour(TIMESTAMP '2020-08-17 01:02:03')"),
-        () -> minuteOfHourQuery(expression4, 2, "minute_of_hour(DATETIME '2020-08-17 01:02:03')"),
-        () -> minuteOfHourQuery(expression5, 2, "minute_of_hour(\"2020-08-17 01:02:03\")")
-    );
+    
+    minuteOfHourQuery(DSL.minute_of_hour(arg), expectedResult, expectedString);
   }
 
   private void invalidMinuteOfHourQuery(String time) {
@@ -732,20 +747,31 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void minuteOfHourInvalidArguments() {
     when(nullRef.type()).thenReturn(TIME);
     when(missingRef.type()).thenReturn(TIME);
-    assertEquals(nullValue(), eval(DSL.minute_of_hour(nullRef)));
-    assertEquals(missingValue(), eval(DSL.minute_of_hour(missingRef)));
 
-    //Invalid Seconds
-    assertThrows(SemanticCheckException.class, () -> invalidMinuteOfHourQuery("12:23:61"));
+    assertAll(
+        () -> assertEquals(nullValue(), eval(DSL.minute_of_hour(nullRef))),
+        () -> assertEquals(missingValue(), eval(DSL.minute_of_hour(missingRef))),
 
-    //Invalid Minutes
-    assertThrows(SemanticCheckException.class, () -> invalidMinuteOfHourQuery("12:61:34"));
+        //Invalid Seconds
+        () -> assertThrows(
+            SemanticCheckException.class,
+            () -> invalidMinuteOfHourQuery("12:23:61")),
 
-    //Invalid Hours
-    assertThrows(SemanticCheckException.class, () -> invalidMinuteOfHourQuery("25:23:34"));
+        //Invalid Minutes
+        () -> assertThrows(
+            SemanticCheckException.class,
+            () -> invalidMinuteOfHourQuery("12:61:34")),
 
-    //incorrect format
-    assertThrows(SemanticCheckException.class, () -> invalidMinuteOfHourQuery("asdfasdf"));
+        //Invalid Hours
+        () -> assertThrows(
+            SemanticCheckException.class,
+            () -> invalidMinuteOfHourQuery("25:23:34")),
+
+        //incorrect format
+        () ->  assertThrows(
+            SemanticCheckException.class,
+            () -> invalidMinuteOfHourQuery("asdfasdf"))
+    );
   }
 
 
