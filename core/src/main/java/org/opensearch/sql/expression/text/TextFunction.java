@@ -23,6 +23,9 @@ import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.function.SerializableBiFunction;
 import org.opensearch.sql.expression.function.SerializableTriFunction;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 
 /**
  * The definition of text functions.
@@ -149,8 +152,10 @@ public class TextFunction {
    */
   private DefaultFunctionResolver concat() {
     return define(BuiltinFunctionName.CONCAT.getName(),
-        impl(nullMissingHandling((str1, str2) ->
-            new ExprStringValue(str1.stringValue() + str2.stringValue())), STRING, STRING, STRING));
+        impl(nullMissingHandling(strings ->
+            new ExprStringValue(Arrays.stream(strings)
+                    .map(ExprValue::stringValue)
+                    .collect(Collectors.joining())), true), STRING, STRING, true));
   }
 
   /**

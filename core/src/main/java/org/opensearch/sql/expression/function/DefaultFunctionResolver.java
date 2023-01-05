@@ -50,7 +50,8 @@ public class DefaultFunctionResolver implements FunctionResolver {
               functionSignature));
     }
     Map.Entry<Integer, FunctionSignature> bestMatchEntry = functionMatchQueue.peek();
-    if (FunctionSignature.NOT_MATCH.equals(bestMatchEntry.getKey())) {
+    if (FunctionSignature.NOT_MATCH.equals(bestMatchEntry.getKey())
+    && !unresolvedSignature.getFunctionName().equals(BuiltinFunctionName.CONCAT.getName())) {
       throw new ExpressionEvaluationException(
           String.format("%s function expected %s, but get %s", functionName,
               formatFunctions(functionBundle.keySet()),

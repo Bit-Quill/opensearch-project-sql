@@ -9,12 +9,14 @@ package org.opensearch.sql.expression.function;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
@@ -213,6 +215,55 @@ public class FunctionDSL {
   }
 
   /**
+   * Varargs Function Implementation.
+   *
+   * @param function   {@link ExprValue} based varargs function.
+   * @param returnType return type.
+   * @param argsType   argument type.
+   * @return Varargs Function Implementation.
+   */
+  public static SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
+      SerializableVarargsFunction<ExprValue, ExprValue> function,
+      ExprType returnType,
+      ExprType argsType,
+      boolean withVarargs) {
+
+    return functionName -> {
+      AtomicInteger argsCount = new AtomicInteger(0);
+      FunctionBuilder functionBuilder =
+              (functionProperties, arguments) -> new FunctionExpression(functionName, arguments) {
+                @Override
+                public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
+                  argsCount.set(arguments.size());
+                  ExprValue[] args = arguments.stream()
+                          .map(arg -> arg.valueOf(valueEnv))
+                          .collect(Collectors.toList())
+                          .toArray(new ExprValue[arguments.size()]);
+
+                  return function.apply(args);
+                }
+
+                @Override
+                public ExprType type() {
+                  return returnType;
+                }
+
+                @Override
+                public String toString() {
+                  return String.format("%s(%s)", functionName, arguments.stream()
+                          .map(Object::toString)
+                          .collect(Collectors.joining(", ")));
+                }
+              };
+      ExprCoreType[] argsTypes = new ExprCoreType[argsCount.get()];
+      Arrays.fill(argsTypes, argsType);
+      FunctionSignature functionSignature =
+              new FunctionSignature(functionName, List.of(argsTypes));
+      return Pair.of(functionSignature, functionBuilder);
+    };
+  }
+
+  /**
    * Binary Function Implementation.
    *
    * @param function   {@link ExprValue} based unary function.
@@ -324,12 +375,28 @@ public class FunctionDSL {
   }
 
   /**
+   * Wrapper the varargs ExprValue function with default NULL and MISSING handling.
+   */
+  public SerializableVarargsFunction<ExprValue, ExprValue> nullMissingHandling(
+          SerializableVarargsFunction<ExprValue, ExprValue> function, boolean withVarargs) {
+    return (strings) -> {
+      if (strings.length == 0) {
+        return ExprValueUtils.missingValue();
+      } else if (Arrays.stream(strings).anyMatch(ExprValue::isNull)) {
+        return ExprValueUtils.nullValue();
+      } else {
+        return function.apply(strings);
+      }
+    };
+  }
+
+  /**
    * Wrapper the unary ExprValue function that is aware of FunctionProperties,
    * with default NULL and MISSING handling.
    */
   public static SerializableBiFunction<FunctionProperties, ExprValue, ExprValue>
         nullMissingHandlingWithProperties(
-      SerializableBiFunction<FunctionProperties, ExprValue, ExprValue>  implementation) {
+      SerializableBiFunction<FunctionProperties, ExprValue, ExprValue> implementation) {
     return (functionProperties, v1) -> {
       if (v1.isMissing()) {
         return ExprValueUtils.missingValue();
