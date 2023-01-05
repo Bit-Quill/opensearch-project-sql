@@ -51,7 +51,7 @@ public class DefaultFunctionResolver implements FunctionResolver {
     }
     Map.Entry<Integer, FunctionSignature> bestMatchEntry = functionMatchQueue.peek();
     if (FunctionSignature.NOT_MATCH.equals(bestMatchEntry.getKey())
-    && !unresolvedSignature.getFunctionName().equals(BuiltinFunctionName.CONCAT.getName())) {
+            && !isConcatFunction(unresolvedSignature)) {
       throw new ExpressionEvaluationException(
           String.format("%s function expected %s, but get %s", functionName,
               formatFunctions(functionBundle.keySet()),
@@ -66,5 +66,10 @@ public class DefaultFunctionResolver implements FunctionResolver {
   private String formatFunctions(Set<FunctionSignature> functionSignatures) {
     return functionSignatures.stream().map(FunctionSignature::formatTypes)
         .collect(Collectors.joining(",", "{", "}"));
+  }
+
+  private boolean isConcatFunction(FunctionSignature signature) {
+    return signature.getFunctionName().equals(BuiltinFunctionName.CONCAT.getName())
+            && signature.getParamTypeList().size() > 1;
   }
 }
