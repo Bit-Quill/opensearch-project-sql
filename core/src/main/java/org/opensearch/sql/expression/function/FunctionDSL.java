@@ -380,7 +380,7 @@ public class FunctionDSL {
   public SerializableVarargsFunction<ExprValue, ExprValue> nullMissingHandling(
           SerializableVarargsFunction<ExprValue, ExprValue> function, boolean withVarargs) {
     return (strings) -> {
-      if (strings.length == 0) {
+      if (Arrays.stream(strings).anyMatch(ExprValue::isMissing)) {
         return ExprValueUtils.missingValue();
       } else if (Arrays.stream(strings).anyMatch(ExprValue::isNull)) {
         return ExprValueUtils.nullValue();
