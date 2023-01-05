@@ -1361,7 +1361,7 @@ Description
 
 Usage: day(date) extracts the day of the month for date, in the range 1 to 31.
 
-Argument type: STRING/DATE/DATETIME/TIMESTAMP
+Argument type: STRING/DATE/DATETIME/TIME/TIMESTAMP
 
 Return type: INTEGER
 
@@ -1409,7 +1409,7 @@ Description
 
 Usage: dayofmonth(date) extracts the day of the month for date, in the range 1 to 31.
 
-Argument type: STRING/DATE/DATETIME/TIMESTAMP
+Argument type: STRING/DATE/DATETIME/TIME/TIMESTAMP
 
 Return type: INTEGER
 

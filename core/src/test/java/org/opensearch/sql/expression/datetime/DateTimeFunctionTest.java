@@ -508,10 +508,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         //incorrect format
         () -> assertThrows(
             SemanticCheckException.class, () -> testInvalidDayOfMonth("asdfasdfasdf"))
-        );
-
-
-
+    );
   }
 
   @Test

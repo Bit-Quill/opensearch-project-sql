@@ -340,8 +340,9 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver dayOfMonth(BuiltinFunctionName name) {
     return define(name.getName(),
-        implWithProperties(nullMissingHandlingWithProperties((functionProperties, arg) -> DateTimeFunction.dayOfMonthToday(
-            functionProperties.getQueryStartClock())), INTEGER, TIME),
+        implWithProperties(nullMissingHandlingWithProperties(
+            (functionProperties, arg) -> DateTimeFunction.dayOfMonthToday(
+                functionProperties.getQueryStartClock())), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, STRING),
