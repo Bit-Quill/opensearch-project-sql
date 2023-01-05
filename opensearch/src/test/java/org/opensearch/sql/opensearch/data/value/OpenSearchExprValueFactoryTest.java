@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.opensearch.data.value;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -375,6 +376,29 @@ class OpenSearchExprValueFactoryTest {
     assertEquals(
         "Unsupported type: TEST_TYPE for value: 1.",
         exception.getMessage());
+  }
+
+  @Test
+  // aggregation adds info about new columns to the factory,
+  // it is accepted without overwriting existing data.
+  public void factoryMappingsAreExtendableWithoutOverWrite()
+      throws NoSuchFieldException, IllegalAccessException {
+    var factory = new OpenSearchExprValueFactory(Map.of("value", OpenSearchDataType.of(INTEGER)));
+    factory.extendTypeMapping(Map.of(
+        "value", OpenSearchDataType.of(DOUBLE),
+        "agg", OpenSearchDataType.of(DATE)));
+    // extract private field for testing purposes
+    var field = factory.getClass().getDeclaredField("typeMapping");
+    field.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    var mapping = (Map<String, OpenSearchDataType>)field.get(factory);
+    assertAll(
+        () -> assertEquals(2, mapping.size()),
+        () -> assertTrue(mapping.containsKey("value")),
+        () -> assertTrue(mapping.containsKey("agg")),
+        () -> assertEquals(OpenSearchDataType.of(INTEGER), mapping.get("value")),
+        () -> assertEquals(OpenSearchDataType.of(DATE), mapping.get("agg"))
+    );
   }
 
   public Map<String, ExprValue> tupleValue(String jsonString) {

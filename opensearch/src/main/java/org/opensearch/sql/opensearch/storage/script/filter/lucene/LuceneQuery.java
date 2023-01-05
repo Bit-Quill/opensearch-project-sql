@@ -222,21 +222,4 @@ public abstract class LuceneQuery {
     throw new UnsupportedOperationException(
         "Subclass doesn't implement this and build method either");
   }
-
-  /**
-   * Convert multi-field text field name to its inner keyword field. The limitation and assumption
-   * is that the keyword field name is always "keyword" which is true by default.
-   *
-   * @param fieldName   field name
-   * @param fieldType   field type
-   * @return            keyword field name for multi-field, otherwise original field name returned
-   */
-  protected String convertTextToKeyword(String fieldName, ExprType fieldType) {
-    if (fieldType instanceof OpenSearchTextType
-        && ((OpenSearchTextType) fieldType).getFields().size() > 0) {
-      return fieldName + ".keyword";
-    }
-    return fieldName;
-  }
-
 }

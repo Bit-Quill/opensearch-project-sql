@@ -164,7 +164,7 @@ public class OpenSearchExprValueFactory {
     ExprType type = fieldType.get();
     if (type.equals(OpenSearchDataType.of(OpenSearchDataType.Type.Object)) || type == STRUCT) {
       return parseStruct(content, field);
-    } else if (type.equals(OpenSearchDataType.of(OpenSearchDataType.Type.Nested)) || type == ARRAY) {
+    } else if (type.equals(OpenSearchDataType.of(OpenSearchDataType.Type.Nested))) {
       return parseArray(content, field);
     } else {
       if (typeActionMap.containsKey(type)) {

@@ -14,6 +14,7 @@ import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
@@ -22,6 +23,7 @@ import static org.opensearch.sql.expression.DSL.literal;
 import static org.opensearch.sql.expression.DSL.named;
 import static org.opensearch.sql.expression.DSL.ref;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.Type.Binary;
+import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.Type.Keyword;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.Type.Text;
 import static org.opensearch.sql.opensearch.utils.Utils.indexScan;
 import static org.opensearch.sql.opensearch.utils.Utils.indexScanAgg;
@@ -134,6 +136,25 @@ class OpenSearchIndexTest {
             hasEntry("id2", ExprCoreType.SHORT),
             hasEntry("blob", (ExprType) OpenSearchDataType.of(Binary))
         ));
+  }
+
+  @Test
+  void checkCacheUsedForFieldMappings() {
+    lenient().when(client.getIndexMappings("test")).thenReturn(
+        ImmutableMap.of("test", new IndexMapping(ImmutableMap.of("name", "keyword"))));
+
+    OpenSearchIndex index = new OpenSearchIndex(client, settings, "test");
+    assertThat(index.getFieldTypes(), allOf(
+        aMapWithSize(1),
+        hasEntry("name", STRING)));
+
+    //Change mocked response, but `getFieldTypes` should return cached value
+    lenient().when(client.getIndexMappings("test")).thenReturn(
+        ImmutableMap.of("test", new IndexMapping(ImmutableMap.of("name", "text"))));
+
+    assertThat(index.getFieldTypes(), allOf(
+        aMapWithSize(1),
+        hasEntry("name", STRING)));
   }
 
   @Test

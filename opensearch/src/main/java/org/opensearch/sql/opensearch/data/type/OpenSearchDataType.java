@@ -21,12 +21,7 @@ import org.opensearch.sql.data.type.ExprType;
  * The extension of ExprType in OpenSearch.
  */
 @EqualsAndHashCode
-public class OpenSearchDataType implements ExprType, Comparable<OpenSearchDataType>, Serializable {
-
-  @Override
-  public int compareTo(OpenSearchDataType o) {
-    return equals(o) ? 0 : 1;
-  }
+public class OpenSearchDataType implements ExprType, Serializable {
 
   public enum Type {
     Text("text"),
@@ -96,6 +91,7 @@ public class OpenSearchDataType implements ExprType, Comparable<OpenSearchDataTy
       case Binary: return new OpenSearchBinaryType();
       case Ip: return new OpenSearchIpType();
       default:
+        throw new IllegalArgumentException(type.toString());
     }
     var res = new OpenSearchDataType(type);
     res.exprCoreType = exprCoreType;
@@ -129,25 +125,11 @@ public class OpenSearchDataType implements ExprType, Comparable<OpenSearchDataTy
   @EqualsAndHashCode.Exclude
   Map<String, OpenSearchDataType> fields = new HashMap<>();
 
-
-  /**
-   * Date formats stored in index mapping. Applicable for {@link Type#Date} only.
-   */
-  @Getter
-  @EqualsAndHashCode.Exclude
-  private List<String> formats;
-
-  public void setFormats(String formats) {
-    if (formats == null || formats.isEmpty()) {
-      this.formats = List.of();
-    } else {
-      this.formats = Arrays.stream(formats.split("\\|\\|"))
-          .map(String::trim).collect(Collectors.toList());
-    }
-  }
-
   @Override
   public String typeName() {
+    if (type == null) {
+      return exprCoreType.typeName();
+    }
     return type.toString().toLowerCase();
   }
 
@@ -164,7 +146,6 @@ public class OpenSearchDataType implements ExprType, Comparable<OpenSearchDataTy
     var copy = type != null ? of(type) : new OpenSearchDataType(exprCoreType);
     copy.fields = fields; //TODO do we need to clone object?
     copy.exprCoreType = exprCoreType;
-    copy.formats = formats;
     return copy;
   }
 
