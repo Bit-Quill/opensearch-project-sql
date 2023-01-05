@@ -430,43 +430,45 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(8), eval(expression));
   }
 
-  @Test
-  public void dayOfWeek() {
-    when(nullRef.type()).thenReturn(DATE);
-    when(missingRef.type()).thenReturn(DATE);
-    assertEquals(nullValue(), eval(DSL.dayofweek(functionProperties, nullRef)));
-    assertEquals(missingValue(), eval(DSL.dayofweek(functionProperties, missingRef)));
-
-    FunctionExpression expression = DSL.dayofweek(
-        functionProperties,
-        DSL.literal(new ExprDateValue("2020-08-07")));
-    assertEquals(INTEGER, expression.type());
-    assertEquals("dayofweek(DATE '2020-08-07')", expression.toString());
-    assertEquals(integerValue(6), eval(expression));
-
-    expression = DSL.dayofweek(
-        functionProperties,
-        DSL.literal(new ExprDateValue("2020-08-09")));
-    assertEquals(INTEGER, expression.type());
-    assertEquals("dayofweek(DATE '2020-08-09')", expression.toString());
-    assertEquals(integerValue(1), eval(expression));
-
-    expression = DSL.dayofweek(
-        functionProperties,
-        DSL.literal("2020-08-09"));
-    assertEquals(INTEGER, expression.type());
-    assertEquals("dayofweek(\"2020-08-09\")", expression.toString());
-    assertEquals(integerValue(1), eval(expression));
-
-    expression = DSL.dayofweek(
-        functionProperties,
-        DSL.literal("2020-08-09 01:02:03"));
-    assertEquals(INTEGER, expression.type());
-    assertEquals("dayofweek(\"2020-08-09 01:02:03\")", expression.toString());
-    assertEquals(integerValue(1), eval(expression));
+  private void dayOfWeekQuery(
+      FunctionExpression dateExpression,
+      int dayOfWeek,
+      String testExpr) {
+    assertEquals(INTEGER, dateExpression.type());
+    assertEquals(integerValue(dayOfWeek), eval(dateExpression));
+    assertEquals(testExpr, dateExpression.toString());
   }
 
-  private void testDayOfWeekWithUnderscores(
+  @Test
+  public void dayOfWeek() {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
+    FunctionExpression expression1 = DSL.dayofweek(
+        functionProperties,
+        DSL.literal(new ExprDateValue("2020-08-07")));
+    FunctionExpression expression2 = DSL.dayofweek(
+        functionProperties,
+        DSL.literal(new ExprDateValue("2020-08-09")));
+    FunctionExpression expression3 = DSL.dayofweek(
+        functionProperties,
+        DSL.literal("2020-08-09"));
+    FunctionExpression expression4 = DSL.dayofweek(
+        functionProperties,
+        DSL.literal("2020-08-09 01:02:03"));
+
+    assertAll(
+        () -> dayOfWeekQuery(expression1, 6, "dayofweek(DATE '2020-08-07')"),
+
+        () -> dayOfWeekQuery(expression2, 1, "dayofweek(DATE '2020-08-09')"),
+
+        () -> dayOfWeekQuery(expression3, 1, "dayofweek(\"2020-08-09\")"),
+
+        () -> dayOfWeekQuery(expression4, 1, "dayofweek(\"2020-08-09 01:02:03\")")
+    );
+  }
+
+  private void dayOfWeekWithUnderscoresQuery(
       FunctionExpression dateExpression,
       int dayOfWeek,
       String testExpr) {
@@ -494,13 +496,14 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         DSL.literal("2020-08-09 01:02:03"));
 
     assertAll(
-        () -> testDayOfWeekWithUnderscores(expression1, 6, "day_of_week(DATE '2020-08-07')"),
+        () -> dayOfWeekWithUnderscoresQuery(expression1, 6, "day_of_week(DATE '2020-08-07')"),
 
-        () -> testDayOfWeekWithUnderscores(expression2, 1, "day_of_week(DATE '2020-08-09')"),
+        () -> dayOfWeekWithUnderscoresQuery(expression2, 1, "day_of_week(DATE '2020-08-09')"),
 
-        () -> testDayOfWeekWithUnderscores(expression3, 1, "day_of_week(\"2020-08-09\")"),
+        () -> dayOfWeekWithUnderscoresQuery(expression3, 1, "day_of_week(\"2020-08-09\")"),
 
-        () -> testDayOfWeekWithUnderscores(expression4, 1, "day_of_week(\"2020-08-09 01:02:03\")")
+        () -> dayOfWeekWithUnderscoresQuery(
+            expression4, 1, "day_of_week(\"2020-08-09 01:02:03\")")
     );
   }
 
@@ -511,11 +514,14 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     FunctionExpression expression = DSL.day_of_week(
         functionProperties, DSL.literal(new ExprTimeValue("12:23:34")));
 
-    assertEquals(INTEGER, eval(expression).type());
-    assertEquals((LocalDate.now(
-            functionProperties.getQueryStartClock()).getDayOfWeek().getValue() % 7) + 1,
-        eval(expression).integerValue());
-    assertEquals("day_of_week(TIME '12:23:34')", expression.toString());
+    assertAll(
+        () -> assertEquals(INTEGER, eval(expression).type()),
+        () -> assertEquals((
+            LocalDate.now(
+                functionProperties.getQueryStartClock()).getDayOfWeek().getValue() % 7) + 1,
+            eval(expression).integerValue()),
+        () -> assertEquals("day_of_week(TIME '12:23:34')", expression.toString())
+    );
   }
 
   private void testInvalidDayOfWeek(String date) {
@@ -529,24 +535,23 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
-    //Feb. 29 of a leap year
-    testDayOfWeekWithUnderscores(DSL.day_of_week(
-        functionProperties,
-        DSL.literal("2020-02-29")), 7, "day_of_week(\"2020-02-29\")");
-
-    //day after Feb. 29 of a leap year
-    testDayOfWeekWithUnderscores(DSL.day_of_week(
-        functionProperties,
-        DSL.literal("2020-03-01")), 1, "day_of_week(\"2020-03-01\")");
-
-    //Feb. 28 of a non-leap year
-    testDayOfWeekWithUnderscores(DSL.day_of_week(
-        functionProperties,
-        DSL.literal("2021-02-28")), 1, "day_of_week(\"2021-02-28\")");
-
-    //Feb. 29 of a non-leap year
-    assertThrows(SemanticCheckException.class, () ->  testInvalidDayOfWeek("2021-02-29"));
-
+    assertAll(
+        //Feb. 29 of a leap year
+        () -> dayOfWeekWithUnderscoresQuery(DSL.day_of_week(
+            functionProperties,
+            DSL.literal("2020-02-29")), 7, "day_of_week(\"2020-02-29\")"),
+        //day after Feb. 29 of a leap year
+        () -> dayOfWeekWithUnderscoresQuery(DSL.day_of_week(
+            functionProperties,
+            DSL.literal("2020-03-01")), 1, "day_of_week(\"2020-03-01\")"),
+        //Feb. 28 of a non-leap year
+        () -> dayOfWeekWithUnderscoresQuery(DSL.day_of_week(
+            functionProperties,
+            DSL.literal("2021-02-28")), 1, "day_of_week(\"2021-02-28\")"),
+        //Feb. 29 of a non-leap year
+        () -> assertThrows(
+            SemanticCheckException.class, () ->  testInvalidDayOfWeek("2021-02-29"))
+    );
   }
 
   @Test
@@ -556,14 +561,19 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(nullValue(), eval(DSL.day_of_week(functionProperties, nullRef)));
     assertEquals(missingValue(), eval(DSL.day_of_week(functionProperties, missingRef)));
 
-    //40th day of the month
-    assertThrows(SemanticCheckException.class, () ->  testInvalidDayOfWeek("2021-02-40"));
+    assertAll(
+        //40th day of the month
+        () -> assertThrows(SemanticCheckException.class,
+            () ->  testInvalidDayOfWeek("2021-02-40")),
 
-    //13th month of the year
-    assertThrows(SemanticCheckException.class, () ->  testInvalidDayOfWeek("2021-13-29"));
+        //13th month of the year
+        () -> assertThrows(SemanticCheckException.class,
+            () ->  testInvalidDayOfWeek("2021-13-29")),
 
-    //incorrect format
-    assertThrows(SemanticCheckException.class, () ->  testInvalidDayOfWeek("asdfasdf"));
+        //incorrect format
+        () -> assertThrows(SemanticCheckException.class,
+            () ->  testInvalidDayOfWeek("asdfasdf"))
+    );
   }
 
   @Test

@@ -353,8 +353,9 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver dayOfWeek(FunctionName name) {
     return define(name,
-        implWithProperties(nullMissingHandlingWithProperties((functionProperties, arg) -> DateTimeFunction.dayOfWeekToday(
-            functionProperties.getQueryStartClock())), INTEGER, TIME),
+        implWithProperties(nullMissingHandlingWithProperties(
+            (functionProperties, arg) -> DateTimeFunction.dayOfWeekToday(
+                functionProperties.getQueryStartClock())), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, TIMESTAMP),
