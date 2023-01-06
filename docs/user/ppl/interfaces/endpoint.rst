@@ -36,11 +36,11 @@ PPL query::
       "schema": [
         {
           "name": "firstname",
-          "type": "string"
+          "type": "text"
         },
         {
           "name": "lastname",
-          "type": "string"
+          "type": "text"
         }
       ],
       "datarows": [
