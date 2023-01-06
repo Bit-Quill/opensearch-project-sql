@@ -776,7 +776,7 @@ class AstBuilderTest {
         project(relation("test"),
             alias("field.subfield",
                 nested(AstDSL.qualifiedName("field", "subfield")))),
-        buildAST("SELECT concat(nested(field.subfield), nested(field.subfield)) FROM test")
+        buildAST("SELECT nested(field.subfield) FROM test")
     );
   }
 
