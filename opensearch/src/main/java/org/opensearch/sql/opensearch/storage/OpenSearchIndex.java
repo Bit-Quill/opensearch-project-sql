@@ -94,7 +94,7 @@ public class OpenSearchIndex implements Table {
     return OpenSearchDataType.traverseAndFlatten(cachedFieldTypes).entrySet().stream()
         .collect(
             LinkedHashMap::new,
-            (map, item) -> map.put(item.getKey(), item.getValue()),
+            (map, item) -> map.put(item.getKey(), item.getValue().getExprType()),
             Map::putAll);
   }
 

@@ -192,7 +192,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
     Map<String, OpenSearchDataType> result = new LinkedHashMap<>();
     for (var entry : tree.entrySet()) {
       result.put(entry.getKey(), entry.getValue().cloneEmpty());
-      result.putAll(//(Map<String, OpenSearchDataType>)
+      result.putAll(
           traverseAndFlatten(entry.getValue().properties)
               .entrySet().stream()
               .collect(
