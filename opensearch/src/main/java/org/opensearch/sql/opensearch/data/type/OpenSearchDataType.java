@@ -113,8 +113,6 @@ public class OpenSearchDataType implements ExprType, Serializable {
       case GeoPoint: return new OpenSearchGeoPointType();
       case Binary: return new OpenSearchBinaryType();
       case Ip: return new OpenSearchIpType();
-      default:
-        throw new IllegalArgumentException(type.toString());
     }
     var res = new OpenSearchDataType(type);
     res.exprCoreType = exprCoreType;

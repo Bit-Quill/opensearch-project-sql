@@ -47,7 +47,7 @@ public class DataTypeIT extends PPLIntegTestCase {
     verifySchema(result,
         schema("boolean_value", "boolean"),
         schema("keyword_value", "string"),
-        schema("text_value", "string"),
+        schema("text_value", "text"),
         schema("binary_value", "binary"),
         schema("date_value", "timestamp"),
         schema("ip_value", "ip"),
