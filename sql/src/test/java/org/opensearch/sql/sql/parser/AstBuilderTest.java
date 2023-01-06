@@ -29,6 +29,7 @@ import static org.opensearch.sql.ast.dsl.AstDSL.relationSubquery;
 import static org.opensearch.sql.ast.dsl.AstDSL.sort;
 import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.values;
+import static org.opensearch.sql.ast.dsl.AstDSL.nested;
 import static org.opensearch.sql.utils.SystemIndexUtils.TABLE_INFO;
 import static org.opensearch.sql.utils.SystemIndexUtils.mappingTable;
 
@@ -774,8 +775,8 @@ class AstBuilderTest {
     assertEquals(
         project(relation("test"),
             alias("field.subfield",
-                qualifiedName("field.subfield"))),
-        buildAST("SELECT nested(\"field.subfield\") FROM test")
+                nested(AstDSL.qualifiedName("field", "subfield")))),
+        buildAST("SELECT concat(nested(field.subfield), nested(field.subfield)) FROM test")
     );
   }
 

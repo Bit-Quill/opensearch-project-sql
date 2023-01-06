@@ -197,6 +197,11 @@ public class AstBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedPlan> {
     String name = StringUtils.unquoteIdentifier(getTextInQuery(ctx.expression(), query));
     UnresolvedExpression expr = visitAstExpression(ctx.expression());
 
+    // Nested function call in SELECT should have the argument as the alias as per legacy behaviour
+    if (name.toLowerCase().contains("nested(") && !name.toLowerCase().contains("\"nested(")) {
+      name = StringUtils.getAliasWithNested(name);
+    }
+
     if (ctx.alias() == null) {
       return new Alias(name, expr);
     } else {

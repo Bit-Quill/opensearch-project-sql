@@ -31,7 +31,6 @@ public class NestedIT extends SQLIntegTestCase {
   @Test
   public void nested_column_name_test() {
     String fieldArg = "message.info";
-
     String query = "SELECT nested(" + fieldArg + ") FROM " + TEST_INDEX_NESTED_TYPE;
     JSONObject result = executeJdbcRequest(query);
     verifyColumn(result, schema(fieldArg, "keyword"));
@@ -41,7 +40,6 @@ public class NestedIT extends SQLIntegTestCase {
   public void nested_alias_test() {
     String fieldArg = "message.info";
     String alias = "INFO";
-
     String query = "SELECT nested(" + fieldArg + ") AS " + alias + " FROM " + TEST_INDEX_NESTED_TYPE;
     JSONObject result = executeJdbcRequest(query);
     verifyColumn(result, schema(fieldArg, alias, "keyword"));

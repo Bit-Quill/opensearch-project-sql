@@ -108,6 +108,18 @@ public class StringUtils {
     return String.format(Locale.ROOT, format, args);
   }
 
+  public static String getAliasWithNested(String name) {
+    String[] split = name.split("nested\\(");
+    String alias = split[0];
+
+    for (int i = 1; i < split.length ; i ++) {
+      alias = alias.concat(split[i].substring(0, split[i].indexOf(")")).
+          concat(split[i].substring(split[i].indexOf(")") + 1)));
+    }
+
+    return alias;
+  }
+
   private static boolean isQuoted(String text, String mark) {
     return !Strings.isNullOrEmpty(text) && text.startsWith(mark) && text.endsWith(mark);
   }
