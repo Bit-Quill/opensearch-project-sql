@@ -92,8 +92,10 @@ public class OpenSearchIndex implements Table {
       cachedFieldTypes = new OpenSearchDescribeIndexRequest(client, indexName).getFieldTypes();
     }
     return OpenSearchDataType.traverseAndFlatten(cachedFieldTypes).entrySet().stream()
-        .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getExprType(),
-            (x, y) -> y, LinkedHashMap::new));
+        .collect(
+            LinkedHashMap::new,
+            (map, item) -> map.put(item.getKey(), item.getValue()),
+            Map::putAll);
   }
 
   /**
