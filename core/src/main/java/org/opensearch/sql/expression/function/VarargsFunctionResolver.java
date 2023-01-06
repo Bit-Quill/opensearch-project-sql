@@ -25,7 +25,7 @@ import org.opensearch.sql.exception.ExpressionEvaluationException;
  */
 @Builder
 @RequiredArgsConstructor
-public class DefaultFunctionResolver implements FunctionResolver {
+public class VarargsFunctionResolver implements FunctionResolver {
   @Getter
   private final FunctionName functionName;
   @Singular("functionBundle")
@@ -42,20 +42,20 @@ public class DefaultFunctionResolver implements FunctionResolver {
   @Override
   public Pair<FunctionSignature, FunctionBuilder> resolve(FunctionSignature unresolvedSignature) {
     PriorityQueue<Map.Entry<Integer, FunctionSignature>> functionMatchQueue = new PriorityQueue<>(
-        Map.Entry.comparingByKey());
+            Map.Entry.comparingByKey());
 
     for (FunctionSignature functionSignature : functionBundle.keySet()) {
       functionMatchQueue.add(
-          new AbstractMap.SimpleEntry<>(unresolvedSignature.match(functionSignature),
-              functionSignature));
+              new AbstractMap.SimpleEntry<>(unresolvedSignature.match(functionSignature),
+                      functionSignature));
     }
     Map.Entry<Integer, FunctionSignature> bestMatchEntry = functionMatchQueue.peek();
-    if (FunctionSignature.NOT_MATCH.equals(bestMatchEntry.getKey())) {
+    if (unresolvedSignature.getParamTypeList().size() < 2) {
       throw new ExpressionEvaluationException(
-          String.format("%s function expected %s, but get %s", functionName,
-              formatFunctions(functionBundle.keySet()),
-              unresolvedSignature.formatTypes()
-          ));
+              String.format("%s function expected %s, but get %s", functionName,
+                      formatFunctions(functionBundle.keySet()),
+                      unresolvedSignature.formatTypes()
+              ));
     } else {
       FunctionSignature resolvedSignature = bestMatchEntry.getValue();
       return Pair.of(resolvedSignature, functionBundle.get(resolvedSignature));
@@ -64,6 +64,6 @@ public class DefaultFunctionResolver implements FunctionResolver {
 
   private String formatFunctions(Set<FunctionSignature> functionSignatures) {
     return functionSignatures.stream().map(FunctionSignature::formatTypes)
-        .collect(Collectors.joining(",", "{", "}"));
+            .collect(Collectors.joining(",", "{", "}"));
   }
 }
