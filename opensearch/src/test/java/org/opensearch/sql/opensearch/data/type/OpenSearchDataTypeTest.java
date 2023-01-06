@@ -27,8 +27,8 @@ import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.Type.Keyword;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.Type.Text;
 
-import org.junit.Assume;
-import org.junit.jupiter.api.Assumptions;
+import java.util.Map;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -37,9 +37,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
-
-import java.util.Map;
-import java.util.stream.Stream;
 
 class OpenSearchDataTypeTest {
 
@@ -102,7 +99,7 @@ class OpenSearchDataTypeTest {
     );
   }
 
-  @ParameterizedTest(name="{1}")
+  @ParameterizedTest(name = "{1}")
   @MethodSource("getTestDataWithType")
   public void ofType(OpenSearchDataType.Type mappingType, String name, ExprType dataType) {
     var type = OpenSearchDataType.of(mappingType);
@@ -113,7 +110,7 @@ class OpenSearchDataTypeTest {
     );
   }
 
-  @ParameterizedTest(name="{0}")
+  @ParameterizedTest(name = "{0}")
   @EnumSource(ExprCoreType.class)
   public void ofExprCoreType(ExprCoreType coreType) {
     assumeFalse(coreType == UNKNOWN);
@@ -125,7 +122,7 @@ class OpenSearchDataTypeTest {
     );
   }
 
-  @ParameterizedTest(name="{0}")
+  @ParameterizedTest(name = "{0}")
   @EnumSource(ExprCoreType.class)
   public void ofOpenSearchDataTypeFromExprCoreType(ExprCoreType coreType) {
     var type = OpenSearchDataType.of(coreType);
@@ -133,7 +130,7 @@ class OpenSearchDataTypeTest {
     assertEquals(type, derivedType);
   }
 
-  @ParameterizedTest(name="{0}")
+  @ParameterizedTest(name = "{0}")
   @EnumSource(OpenSearchDataType.Type.class)
   public void ofOpenSearchDataTypeFromMappingType(OpenSearchDataType.Type mappingType) {
     var type = OpenSearchDataType.of(mappingType);

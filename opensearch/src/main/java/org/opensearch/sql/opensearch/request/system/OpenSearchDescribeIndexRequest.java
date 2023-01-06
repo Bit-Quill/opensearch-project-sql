@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
@@ -66,7 +65,8 @@ public class OpenSearchDescribeIndexRequest implements OpenSearchSystemRequest {
     List<ExprValue> results = new ArrayList<>();
     Map<String, String> meta = client.meta();
     int pos = 0;
-    for (Map.Entry<String, OpenSearchDataType> entry : OpenSearchDataType.traverseAndFlatten(getFieldTypes()).entrySet()) {
+    for (Map.Entry<String, OpenSearchDataType> entry
+        : OpenSearchDataType.traverseAndFlatten(getFieldTypes()).entrySet()) {
       results.add(
           row(entry.getKey(), entry.getValue().legacyTypeName().toLowerCase(), pos++,
               clusterName(meta)));

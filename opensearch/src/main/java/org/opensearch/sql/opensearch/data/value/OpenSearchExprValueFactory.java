@@ -62,7 +62,11 @@ public class OpenSearchExprValueFactory {
    */
   private final Map<String, OpenSearchDataType> typeMapping;
 
-  // Called from aggregation: AggregationQueryBuilder::buildTypeMapping
+  /**
+   * Extend existing mapping by new data without overwrite.
+   * Called from aggregation only {@link AggregationQueryBuilder#buildTypeMapping}.
+   * @param typeMapping A data type mapping produced by aggregation.
+   */
   public void extendTypeMapping(Map<String, OpenSearchDataType> typeMapping) {
     for (var field : typeMapping.keySet()) {
       // Prevent overwriting, because aggregation engine may be not aware
@@ -170,11 +174,6 @@ public class OpenSearchExprValueFactory {
       if (typeActionMap.containsKey(type)) {
         return typeActionMap.get(type).apply(content);
       } else {
-        /*
-        System.err.println(String.format(
-                "\u001B[31mUnsupported type: %s for value: %s.\u001B[0m", type.typeName(), content.objectValue()));
-        return new ExprStringValue(content.objectValue().toString());
-         */
         throw new IllegalStateException(
             String.format(
                 "Unsupported type: %s for value: %s.", type.typeName(), content.objectValue()));

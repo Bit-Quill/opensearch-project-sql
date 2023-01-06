@@ -72,6 +72,7 @@ class OpenSearchDescribeIndexRequestTest {
     final Map<String, OpenSearchDataType> fieldTypes =
         new OpenSearchDescribeIndexRequest(client, "index").getFieldTypes();
     assertEquals(1, fieldTypes.size());
-    assertThat(fieldTypes, hasEntry("name", OpenSearchDataType.of(OpenSearchDataType.Type.Keyword)));
+    assertThat(fieldTypes,
+        hasEntry("name", OpenSearchDataType.of(OpenSearchDataType.Type.Keyword)));
   }
 }

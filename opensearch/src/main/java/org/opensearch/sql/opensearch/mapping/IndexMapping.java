@@ -6,16 +6,9 @@
 
 package org.opensearch.sql.opensearch.mapping;
 
-import static java.util.Collections.emptyMap;
-
-import com.google.common.collect.ImmutableMap;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.lang3.EnumUtils;
@@ -34,6 +27,10 @@ public class IndexMapping {
   private final Map<String, OpenSearchDataType> fieldMappings;
 
   // TODO remove, used in tests only
+  /**
+   * A constructor for testing purposes only.
+   * @param fieldMappings Mapping info in format field name - field OpenSearch type.
+   */
   public IndexMapping(Map<String, String> fieldMappings) {
     this.fieldMappings = fieldMappings.entrySet().stream()
         .filter(e -> EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.Type.class, e.getValue()))
@@ -79,23 +76,24 @@ public class IndexMapping {
     }
     if (mappingInfo != null) {
       mappingInfo.forEach((k, v) -> {
-          var innerMap = (Map<String, Object>)v;
-          // TODO: confirm that only `object` mappings can omit `type` field.
-          var type = ((String) innerMap.getOrDefault("type", "object")).replace("_", "");
-          if (!EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.Type.class, type)) {
-            // unknown type, e.g. `alias`
-            // TODO resolve alias reference
-            return;
-          }
-          var value = OpenSearchDataType.of(EnumUtils.getEnumIgnoreCase(OpenSearchDataType.Type.class, type));
-          // TODO read formats for date type
-          if (innerMap.containsKey("properties")) {
-            value.getProperties().putAll(parseMapping(innerMap));
-          } else if (innerMap.containsKey("fields")) {
-            value.getFields().putAll(parseMapping(innerMap));
-          }
-          result.put(k, value);
-        });
+        var innerMap = (Map<String, Object>)v;
+        // TODO: confirm that only `object` mappings can omit `type` field.
+        var type = ((String) innerMap.getOrDefault("type", "object")).replace("_", "");
+        if (!EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.Type.class, type)) {
+          // unknown type, e.g. `alias`
+          // TODO resolve alias reference
+          return;
+        }
+        var value = OpenSearchDataType.of(
+            EnumUtils.getEnumIgnoreCase(OpenSearchDataType.Type.class, type));
+        // TODO read formats for date type
+        if (innerMap.containsKey("properties")) {
+          value.getProperties().putAll(parseMapping(innerMap));
+        } else if (innerMap.containsKey("fields")) {
+          value.getFields().putAll(parseMapping(innerMap));
+        }
+        result.put(k, value);
+      });
     }
     return result;
   }

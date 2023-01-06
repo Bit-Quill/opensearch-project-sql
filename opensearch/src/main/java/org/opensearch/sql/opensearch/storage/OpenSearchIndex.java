@@ -80,6 +80,11 @@ public class OpenSearchIndex implements Table {
    *  Need to either handle field name conflicts
    *   or lazy evaluate when query engine pulls field type.
    */
+  /**
+   * Get simplified parsed mapping info. Unlike {@link #getFieldOpenSearchTypes()}
+   * it returns a flattened map.
+   * @return A map between field names and matching `ExprCoreType`s.
+   */
   @Override
   public Map<String, ExprType> getFieldTypes() {
     if (cachedFieldTypes == null) {
@@ -89,6 +94,10 @@ public class OpenSearchIndex implements Table {
         .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getExprType()));
   }
 
+  /**
+   * Get parsed mapping info.
+   * @return A complete map between field names and their types.
+   */
   public Map<String, OpenSearchDataType> getFieldOpenSearchTypes() {
     if (cachedFieldTypes == null) {
       cachedFieldTypes = new OpenSearchDescribeIndexRequest(client, indexName).getFieldTypes();

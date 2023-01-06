@@ -6,14 +6,12 @@
 
 package org.opensearch.sql.opensearch.data.type;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 
@@ -23,6 +21,9 @@ import org.opensearch.sql.data.type.ExprType;
 @EqualsAndHashCode
 public class OpenSearchDataType implements ExprType, Serializable {
 
+  /**
+   * The mapping (OpenSearch engine) type.
+   */
   public enum Type {
     Text("text"),
     Keyword("keyword"),
@@ -60,7 +61,11 @@ public class OpenSearchDataType implements ExprType, Serializable {
   // resolved ExprCoreType
   protected ExprCoreType exprCoreType;
 
-  // Need to avoid returning `UNKNOWN` for `OpenSearch*Type`s, e.g. for IP
+  /**
+   * Get a simplified type {@link ExprCoreType} if possible.
+   * To avoid returning `UNKNOWN` for `OpenSearch*Type`s, e.g. for IP, returns itself.
+   * @return An {@link ExprType}.
+   */
   public ExprType getExprType() {
     if (exprCoreType != ExprCoreType.UNKNOWN) {
       return exprCoreType;
@@ -68,25 +73,43 @@ public class OpenSearchDataType implements ExprType, Serializable {
     return this;
   }
 
+  /**
+   * A constructor function which builds proper `OpenSearchDataType` for given mapping `Type`.
+   * @param type A mapping type.
+   * @return An instance or inheritor of `OpenSearchDataType`.
+   */
   public static OpenSearchDataType of(Type type) {
     ExprCoreType exprCoreType = ExprCoreType.UNKNOWN;
     switch (type) {
       // TODO update these 2 below #1038 https://github.com/opensearch-project/sql/issues/1038
       case Text: return new OpenSearchTextType();
-      case Keyword: exprCoreType = ExprCoreType.STRING; break;
-      case Byte: exprCoreType = ExprCoreType.BYTE; break;
-      case Short: exprCoreType = ExprCoreType.SHORT; break;
-      case Integer: exprCoreType = ExprCoreType.INTEGER; break;
-      case Long: exprCoreType = ExprCoreType.LONG; break;
-      case HalfFloat:
-      case Float: exprCoreType = ExprCoreType.FLOAT; break;
-      case ScaledFloat:
-      case Double: exprCoreType = ExprCoreType.DOUBLE; break;
-      case Boolean: exprCoreType = ExprCoreType.BOOLEAN; break;
+      case Keyword: exprCoreType = ExprCoreType.STRING;
+        break;
+      case Byte: exprCoreType = ExprCoreType.BYTE;
+        break;
+      case Short: exprCoreType = ExprCoreType.SHORT;
+        break;
+      case Integer: exprCoreType = ExprCoreType.INTEGER;
+        break;
+      case Long: exprCoreType = ExprCoreType.LONG;
+        break;
+      case HalfFloat: exprCoreType = ExprCoreType.FLOAT;
+        break;
+      case Float: exprCoreType = ExprCoreType.FLOAT;
+        break;
+      case ScaledFloat: exprCoreType = ExprCoreType.DOUBLE;
+        break;
+      case Double: exprCoreType = ExprCoreType.DOUBLE;
+        break;
+      case Boolean: exprCoreType = ExprCoreType.BOOLEAN;
+        break;
       // TODO: check formats, it could allow TIME or DATE only
-      case Date: exprCoreType = ExprCoreType.TIMESTAMP; break;
-      case Object: exprCoreType = ExprCoreType.STRUCT; break;
-      case Nested: exprCoreType = ExprCoreType.ARRAY; break;
+      case Date: exprCoreType = ExprCoreType.TIMESTAMP;
+        break;
+      case Object: exprCoreType = ExprCoreType.STRUCT;
+        break;
+      case Nested: exprCoreType = ExprCoreType.ARRAY;
+        break;
       case GeoPoint: return new OpenSearchGeoPointType();
       case Binary: return new OpenSearchBinaryType();
       case Ip: return new OpenSearchIpType();
@@ -102,6 +125,11 @@ public class OpenSearchDataType implements ExprType, Serializable {
     this.type = type;
   }
 
+  /**
+   * A constructor function which builds proper `OpenSearchDataType` for given {@link ExprType}.
+   * @param type A type.
+   * @return An instance of `OpenSearchDataType`.
+   */
   public static OpenSearchDataType of(ExprType type) {
     if (type instanceof OpenSearchDataType) {
       return (OpenSearchDataType) type;
@@ -113,7 +141,8 @@ public class OpenSearchDataType implements ExprType, Serializable {
     this.exprCoreType = type;
   }
 
-  protected OpenSearchDataType() { }
+  protected OpenSearchDataType() {
+  }
 
   // object has properties
   @Getter
@@ -139,8 +168,8 @@ public class OpenSearchDataType implements ExprType, Serializable {
   }
 
   /**
-   * Clone type object without {@link #properties} - without info nested about nested object types.
-   * @return A clone.
+   * Clone type object without {@link #properties} - without info about nested object types.
+   * @return A cloned object.
    */
   protected OpenSearchDataType cloneEmpty() {
     var copy = type != null ? of(type) : new OpenSearchDataType(exprCoreType);
@@ -149,6 +178,14 @@ public class OpenSearchDataType implements ExprType, Serializable {
     return copy;
   }
 
+  /**
+   * Flattens mapping tree into a single layer list of objects (pairs of name-types actually),
+   * which don't have nested types.
+   * See {@link OpenSearchDataTypeTest#traverseAndFlatten() test} for example.
+   * @param tree A list of `OpenSearchDataType`s - map between field name and its type.
+   * @return A list of all `OpenSearchDataType`s from given map on the same nesting level (1).
+   *         Nested object names are prefixed by names of their host.
+   */
   public static Map<String, OpenSearchDataType> traverseAndFlatten(
       Map<String, OpenSearchDataType> tree) {
     Map<String, OpenSearchDataType> result = new HashMap<>();
