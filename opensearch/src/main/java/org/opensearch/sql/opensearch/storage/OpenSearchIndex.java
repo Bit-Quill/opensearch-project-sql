@@ -7,7 +7,6 @@
 package org.opensearch.sql.opensearch.storage;
 
 import com.google.common.annotations.VisibleForTesting;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
