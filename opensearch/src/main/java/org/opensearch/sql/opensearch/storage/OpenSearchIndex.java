@@ -7,6 +7,8 @@
 package org.opensearch.sql.opensearch.storage;
 
 import com.google.common.annotations.VisibleForTesting;
+
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -91,7 +93,8 @@ public class OpenSearchIndex implements Table {
       cachedFieldTypes = new OpenSearchDescribeIndexRequest(client, indexName).getFieldTypes();
     }
     return OpenSearchDataType.traverseAndFlatten(cachedFieldTypes).entrySet().stream()
-        .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getExprType()));
+        .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getExprType(),
+            (x, y) -> y, LinkedHashMap::new));
   }
 
   /**

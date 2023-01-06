@@ -7,7 +7,7 @@
 package org.opensearch.sql.opensearch.data.type;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
@@ -148,12 +148,12 @@ public class OpenSearchDataType implements ExprType, Serializable {
   // object has properties
   @Getter
   @EqualsAndHashCode.Exclude
-  Map<String, OpenSearchDataType> properties = new HashMap<>();
+  Map<String, OpenSearchDataType> properties = new LinkedHashMap<>();
 
   // text could have fields
   @Getter
   @EqualsAndHashCode.Exclude
-  Map<String, OpenSearchDataType> fields = new HashMap<>();
+  Map<String, OpenSearchDataType> fields = new LinkedHashMap<>();
 
   @Override
   public String typeName() {
@@ -189,15 +189,15 @@ public class OpenSearchDataType implements ExprType, Serializable {
    */
   public static Map<String, OpenSearchDataType> traverseAndFlatten(
       Map<String, OpenSearchDataType> tree) {
-    Map<String, OpenSearchDataType> result = new HashMap<>();
+    Map<String, OpenSearchDataType> result = new LinkedHashMap<>();
     for (var entry : tree.entrySet()) {
       result.put(entry.getKey(), entry.getValue().cloneEmpty());
-      result.putAll(
+      result.putAll((Map<String, OpenSearchDataType>)
           traverseAndFlatten(entry.getValue().properties)
               .entrySet().stream()
               .collect(Collectors.toMap(
                   e -> String.format("%s.%s", entry.getKey(), e.getKey()),
-                  e -> e.getValue())));
+                  e -> e.getValue(), (x, y) -> y, LinkedHashMap::new)));
     }
     return result;
   }
