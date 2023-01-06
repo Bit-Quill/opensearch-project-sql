@@ -24,6 +24,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
+import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.Type.Invalid;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.Type.Keyword;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.Type.Text;
 
@@ -133,9 +134,16 @@ class OpenSearchDataTypeTest {
   @ParameterizedTest(name = "{0}")
   @EnumSource(OpenSearchDataType.Type.class)
   public void ofOpenSearchDataTypeFromMappingType(OpenSearchDataType.Type mappingType) {
+    assumeFalse(mappingType == Invalid);
     var type = OpenSearchDataType.of(mappingType);
     var derivedType = OpenSearchDataType.of(type);
     assertEquals(type, derivedType);
+  }
+
+  @Test
+  // Test and type added for coverage only
+  public void ofNullMappingType() {
+    assertThrows(IllegalArgumentException.class, () -> OpenSearchDataType.of(Invalid));
   }
 
   @Test

@@ -25,6 +25,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
    * The mapping (OpenSearch engine) type.
    */
   public enum Type {
+    Invalid(null),
     Text("text"),
     Keyword("keyword"),
     Ip("ip"),
@@ -113,6 +114,8 @@ public class OpenSearchDataType implements ExprType, Serializable {
       case GeoPoint: return new OpenSearchGeoPointType();
       case Binary: return new OpenSearchBinaryType();
       case Ip: return new OpenSearchIpType();
+      default:
+        throw new IllegalArgumentException(type.toString());
     }
     var res = new OpenSearchDataType(type);
     res.exprCoreType = exprCoreType;
