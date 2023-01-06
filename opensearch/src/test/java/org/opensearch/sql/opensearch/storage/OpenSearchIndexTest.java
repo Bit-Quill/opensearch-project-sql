@@ -122,19 +122,19 @@ class OpenSearchIndexTest {
         fieldTypes,
         allOf(
             aMapWithSize(13),
-            hasEntry("name", OpenSearchDataType.of(ExprCoreType.STRING)),
-            hasEntry("address", OpenSearchDataType.of(Text)),
-            hasEntry("age", OpenSearchDataType.of(ExprCoreType.INTEGER)),
-            hasEntry("account_number", OpenSearchDataType.of(ExprCoreType.LONG)),
-            hasEntry("balance1", OpenSearchDataType.of(ExprCoreType.FLOAT)),
-            hasEntry("balance2", OpenSearchDataType.of(ExprCoreType.DOUBLE)),
-            hasEntry("gender", OpenSearchDataType.of(ExprCoreType.BOOLEAN)),
-            hasEntry("family", OpenSearchDataType.of(ExprCoreType.ARRAY)),
-            hasEntry("employer", OpenSearchDataType.of(ExprCoreType.STRUCT)),
-            hasEntry("birthday", OpenSearchDataType.of(ExprCoreType.TIMESTAMP)),
-            hasEntry("id1", OpenSearchDataType.of(ExprCoreType.BYTE)),
-            hasEntry("id2", OpenSearchDataType.of(ExprCoreType.SHORT)),
-            hasEntry("blob", OpenSearchDataType.of(Binary))
+            hasEntry("name", ExprCoreType.STRING),
+            hasEntry("address", (ExprType) OpenSearchDataType.of(Text)),
+            hasEntry("age", ExprCoreType.INTEGER),
+            hasEntry("account_number", ExprCoreType.LONG),
+            hasEntry("balance1", ExprCoreType.FLOAT),
+            hasEntry("balance2", ExprCoreType.DOUBLE),
+            hasEntry("gender", ExprCoreType.BOOLEAN),
+            hasEntry("family", ExprCoreType.ARRAY),
+            hasEntry("employer", ExprCoreType.STRUCT),
+            hasEntry("birthday", ExprCoreType.TIMESTAMP),
+            hasEntry("id1", ExprCoreType.BYTE),
+            hasEntry("id2", ExprCoreType.SHORT),
+            hasEntry("blob", (ExprType) OpenSearchDataType.of(Binary))
         ));
   }
 
@@ -146,7 +146,7 @@ class OpenSearchIndexTest {
     OpenSearchIndex index = new OpenSearchIndex(client, settings, "test");
     assertThat(index.getFieldTypes(), allOf(
         aMapWithSize(1),
-        hasEntry("name", OpenSearchDataType.of(ExprCoreType.STRING))));
+        hasEntry("name", STRING)));
 
     //Change mocked response, but `getFieldTypes` should return cached value
     lenient().when(client.getIndexMappings("test")).thenReturn(
@@ -154,7 +154,7 @@ class OpenSearchIndexTest {
 
     assertThat(index.getFieldTypes(), allOf(
         aMapWithSize(1),
-        hasEntry("name", OpenSearchDataType.of(ExprCoreType.STRING))));
+        hasEntry("name", STRING)));
   }
 
   @Test
