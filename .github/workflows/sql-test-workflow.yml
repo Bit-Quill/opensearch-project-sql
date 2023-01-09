@@ -93,3 +93,16 @@ jobs:
           protocol/build/reports/**
           legacy/build/reports/**
           plugin/build/reports/**
+
+    - name: Test Summary
+      uses: test-summary/action@v2
+      with:
+        paths: integ-test/build/reports/**.xml
+      if: always()
+
+    - name: Upload test summary
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-summary
+        path: test-summary.md
+      if: always()
