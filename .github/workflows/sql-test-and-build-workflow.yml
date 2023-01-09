@@ -87,7 +87,7 @@ jobs:
     - name: Test Summary
       uses: test-summary/action@v2
       with:
-        paths: integ-test/build/reports/**.xml
+        paths: integ-test/build/test-results/integTest/**.xml
       if: always()
 
     - name: Upload test summary
