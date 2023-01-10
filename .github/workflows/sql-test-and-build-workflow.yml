@@ -56,7 +56,7 @@ jobs:
       uses: test-summary/action@v2
       with:
         output: legacy-test-summary.md
-        paths: test-folder/legacy/
+        paths: test-folder/legacy/*.xml
       if: always()
 
     - name: Upload legacy test summary
@@ -70,7 +70,7 @@ jobs:
       uses: test-summary/action@v2
       with:
         output: sql-test-summary1.md
-        paths: test-folder/sql1/
+        paths: test-folder/sql1/*.xml
       if: always()
 
     - name: Upload SQL test summary 1
@@ -84,7 +84,7 @@ jobs:
       uses: test-summary/action@v2
       with:
         output: sql-test-summary2.md
-        paths: test-folder/sql2/
+        paths: test-folder/sql2/*.xml
       if: always()
 
     - name: Upload SQL test summary 2
@@ -98,7 +98,7 @@ jobs:
       uses: test-summary/action@v2
       with:
         output: ppl-test-summary.md
-        paths: test-folder/ppl/
+        paths: test-folder/ppl/*.xml
       if: always()
 
     - name: Upload PPL test summary
