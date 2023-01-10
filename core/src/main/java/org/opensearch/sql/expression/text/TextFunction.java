@@ -144,11 +144,9 @@ public class TextFunction {
   }
 
   /**
-   * TODO: https://github.com/opendistro-for-elasticsearch/sql/issues/710
-   *  Extend to accept variable argument amounts.
    * Concatenates a list of Strings.
    * Supports following signatures:
-   * (STRING, STRING) -> STRING
+   * (STRING, STRING, ...., STRING) -> STRING
    */
   private VarargsFunctionResolver concat() {
     return defineVarargsFunction(BuiltinFunctionName.CONCAT.getName(),
