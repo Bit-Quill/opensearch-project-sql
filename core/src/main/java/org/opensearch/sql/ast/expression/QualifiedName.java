@@ -123,5 +123,7 @@ public class QualifiedName extends UnresolvedExpression {
     return nodeVisitor.visitQualifiedName(this, context);
   }
 
-  public Boolean isMetadataField() { return this.isMetadataField; }
+  public Boolean isMetadataField() {
+    return this.isMetadataField;
+  }
 }

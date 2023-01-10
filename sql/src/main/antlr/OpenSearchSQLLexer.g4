@@ -472,7 +472,7 @@ fragment HEX_DIGIT:                 [0-9A-F];
 fragment DEC_DIGIT:                 [0-9];
 fragment BIT_STRING_L:              'B' '\'' [01]+ '\'';
 
-// Identifiers cannot start with a single '_' since this an OpebSearch reserved
+// Identifiers cannot start with a single '_' since this an OpenSearch reserved
 // metadata field.  Two underscores (or more) is acceptable, such as '__field'.
 fragment ID_LITERAL:                ([_][_]|[@*A-Z])+?[*A-Z_\-0-9]*;
 

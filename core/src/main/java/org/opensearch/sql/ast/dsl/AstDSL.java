@@ -60,7 +60,6 @@ import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.ast.tree.TableFunction;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.ast.tree.Values;
-import org.opensearch.sql.expression.function.BuiltinFunctionName;
 
 /**
  * Class of static methods to create specific node instances.
@@ -140,7 +139,11 @@ public class AstDSL {
   }
 
   public static QualifiedName qualifiedName(String... parts) {
-    return new QualifiedName(Arrays.asList(parts));
+    return new QualifiedName(Arrays.asList(parts), Boolean.FALSE);
+  }
+
+  public static QualifiedName qualifiedNameWithMetadata(String... parts) {
+    return new QualifiedName(Arrays.asList(parts), Boolean.TRUE);
   }
 
   public static UnresolvedExpression equalTo(
