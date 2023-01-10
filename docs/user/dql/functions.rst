@@ -2614,9 +2614,9 @@ CONCAT
 Description
 >>>>>>>>>>>
 
-Usage: CONCAT(str1, str2) returns str1 and str strings concatenated together.
+Usage: CONCAT(str1, str2, ...., str_n) adds two or more strings together.
 
-Argument type: STRING, STRING
+Argument type: STRING, STRING, ...., STRING
 
 Return type: STRING
 
