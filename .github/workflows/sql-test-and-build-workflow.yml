@@ -37,12 +37,14 @@ jobs:
         java-version: ${{ matrix.entry.java }}
 
     - name: Build with Gradle
-      run: ./gradlew --continue integ-test:integTest --tests "org.opensearch.sql.legacy.*"
+      run: ./gradlew --continue integ-test:integTest
 
     - name: Copy test result file
       run: |
         mkdir test-folder
         cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.legacy.*.xml test-folder
+        cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.sql.*.xml test-folder
+        cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.ppl.*.xml test-folder
       if: always()
 
     - name: Legacy Test Summary
@@ -52,9 +54,37 @@ jobs:
         paths: test-folder/TEST-org.opensearch.sql.legacy.*.xml
       if: always()
 
-    - name: Upload test summary
+    - name: Upload legacy test summary
       uses: actions/upload-artifact@v3
       with:
         name: legacy-test-summary
         path: legacy-test-summary.md
+      if: always()
+
+    - name: SQL Test Summary
+      uses: test-summary/action@v2
+      with:
+        output: legacy-test-summary.md
+        paths: test-folder/TEST-org.opensearch.sql.sql.*.xml
+      if: always()
+
+    - name: Upload SQL test summary
+      uses: actions/upload-artifact@v3
+      with:
+        name: sql-test-summary
+        path: sql-test-summary.md
+      if: always()
+
+    - name: PPL Test Summary
+      uses: test-summary/action@v2
+      with:
+        output: ppl-test-summary.md
+        paths: test-folder/TEST-org.opensearch.sql.ppl.*.xml
+      if: always()
+
+    - name: Upload PPL test summary
+      uses: actions/upload-artifact@v3
+      with:
+        name: ppl-test-summary
+        path: ppl-test-summary.md
       if: always()
