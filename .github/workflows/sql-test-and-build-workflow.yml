@@ -42,9 +42,10 @@ jobs:
     - name: Copy test result file
       run: |
         mkdir test-folder
-        cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.legacy.*.xml test-folder
-        cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.sql.*.xml test-folder
-        cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.ppl.*.xml test-folder
+        cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.legacy.*.xml test-folder/legacy
+        cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.sql.[A-M]*.xml test-folder/sql1
+        cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.sql.[N-Z]*.xml test-folder/sql2
+        cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.ppl.*.xml test-folder/ppl
       if: always()
 
     - name: Legacy Test Summary
@@ -61,18 +62,32 @@ jobs:
         path: legacy-test-summary.md
       if: always()
 
-    - name: SQL Test Summary
+    - name: SQL Test Summary 1
       uses: test-summary/action@v2
       with:
-        output: legacy-test-summary.md
-        paths: test-folder/TEST-org.opensearch.sql.sql.*.xml
+        output: legacy-test-summary1.md
+        paths: test-folder/TEST-org.opensearch.sql.sql.[A-M]*.xml
       if: always()
 
-    - name: Upload SQL test summary
+    - name: Upload SQL test summary 1
       uses: actions/upload-artifact@v3
       with:
-        name: sql-test-summary
-        path: sql-test-summary.md
+        name: sql-test-summary1
+        path: sql-test-summary1.md
+      if: always()
+
+    - name: SQL Test Summary 2
+      uses: test-summary/action@v2
+      with:
+        output: legacy-test-summary2.md
+        paths: test-folder/TEST-org.opensearch.sql.sql.[N-Z]*.xml
+      if: always()
+
+    - name: Upload SQL test summary 2
+      uses: actions/upload-artifact@v3
+      with:
+        name: sql-test-summary2
+        path: sql-test-summary2.md
       if: always()
 
     - name: PPL Test Summary

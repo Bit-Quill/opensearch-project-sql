@@ -163,7 +163,7 @@ public class RestSqlAction extends BaseRestHandler {
                             }
                             LOG.info("[{}] Request {} is not supported in the new engine",
                                 QueryContext.getRequestId(), newSqlRequest);
-                            throw new SQLFeatureDisabledException("Query is unsupported in ");
+                            throw new SQLFeatureDisabledException("Query is unsupported in the new engine");
                         } catch (Exception e) {
                             logAndPublishMetrics(e);
                             reportError(restChannel, e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
