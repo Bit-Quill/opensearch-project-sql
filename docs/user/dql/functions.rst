@@ -2622,13 +2622,13 @@ Return type: STRING
 
 Example::
 
-    os> SELECT CONCAT('hello', 'world')
+    os> SELECT CONCAT('hello', 'world'), CONCAT('hello ', 'whole ', 'world', '!');
     fetched rows / total rows = 1/1
-    +----------------------------+
-    | CONCAT('hello', 'world')   |
-    |----------------------------|
-    | helloworld                 |
-    +----------------------------+
+    +----------------------------+--------------------------------------------+
+    | CONCAT('hello', 'world')   | CONCAT('hello ', 'whole ', 'world', '!')   |
+    |----------------------------+--------------------------------------------|
+    | helloworld                 | hello whole world!                         |
+    +----------------------------+--------------------------------------------+
 
 
 CONCAT_WS

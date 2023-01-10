@@ -22,13 +22,13 @@ Return type: STRING
 
 Example::
 
-    os> source=people | eval `CONCAT('hello', 'world')` = CONCAT('hello', 'world') | fields `CONCAT('hello', 'world')`
+    os> source=people | eval `CONCAT('hello', 'world')` = CONCAT('hello', 'world'), `CONCAT('hello ', 'whole ', 'world', '!')` = CONCAT('hello ', 'whole ', 'world', '!') | fields `CONCAT('hello', 'world')`, `CONCAT('hello ', 'whole ', 'world', '!')`
     fetched rows / total rows = 1/1
-    +----------------------------+
-    | CONCAT('hello', 'world')   |
-    |----------------------------|
-    | helloworld                 |
-    +----------------------------+
+    +----------------------------+--------------------------------------------+
+    | CONCAT('hello', 'world')   | CONCAT('hello ', 'whole ', 'world', '!')   |
+    |----------------------------+--------------------------------------------|
+    | helloworld                 | hello whole world!                         |
+    +----------------------------+--------------------------------------------+
 
 
 CONCAT_WS
