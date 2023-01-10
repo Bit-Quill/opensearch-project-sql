@@ -1952,6 +1952,31 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(dft.getFormatted(), eval(expr).stringValue());
   }
 
+  private Stream<Arguments> getTestDataForTimeFormat() {
+    return Stream.of(
+        Arguments.of(
+            DSL.literal("1998-01-31 13:14:15.012345"),
+            "%f %H %h %I %i %p %r %S %s %T",
+            "012345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15")
+    );
+  }
+
+  private void timeFormatQuery(LiteralExpression arg,
+                               LiteralExpression format,
+                               String expectedResult ) {
+    FunctionExpression expr = DSL.time_format(arg, format);
+    assertEquals(STRING, expr.type());
+    assertEquals(expectedResult, eval(expr).stringValue());
+  }
+
+  @ParameterizedTest(name="{0}{1}")
+  @MethodSource("getTestDataForTimeFormat")
+  public void testTimeFormat(LiteralExpression arg,
+                             LiteralExpression format,
+                             String expectedResult ) {
+    timeFormatQuery(arg, format, expectedResult);
+  }
+
   private ExprValue eval(Expression expression) {
     return expression.valueOf(env);
   }
