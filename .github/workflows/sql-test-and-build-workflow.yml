@@ -37,13 +37,7 @@ jobs:
         java-version: ${{ matrix.entry.java }}
 
     - name: Build with Gradle
-      run: |
-        if [[ ! -e /home/runner ]]; then
-          useradd -m -g root -s /bin/bash runner
-          chmod -R g+rwx /root
-          chmod -R 777 .
-        fi
-        su runner -m -c './gradlew --continue integ-test:integTest --tests "org.opensearch.sql.legacy.*"'
+      run: ./gradlew --continue integ-test:integTest --tests "org.opensearch.sql.legacy.*"
 
     - name: Copy test result file
       run: |
