@@ -37,18 +37,23 @@ jobs:
         java-version: ${{ matrix.entry.java }}
 
     - name: Build with Gradle
-      run: ./gradlew --continue integ-test:integTest --tests "org.opensearch.sql.sql.QueryIT.*"
+      run: |
+        if [[ ! -e /home/runner ]]; then
+          useradd -m -g root -s /bin/bash runner
+          chmod -R g+rwx /root
+          chmod -R 777 .
+        fi
+        su runner -m -c './gradlew --continue integ-test:integTest --tests "org.opensearch.sql.legacy.*"'
 
-
-    - name: Test Summary
-      uses: test-summary/action@v2
-      with:
-        paths: integ-test/build/test-results/integTest/**.xml
+    - name: Copy test result file
+      run: |
+        mkdir test-folder
+        cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.legacy.*.xml test-folder
       if: always()
 
-    - name: Upload test summary
-      uses: actions/upload-artifact@v3
+    - name: Legacy Test Summary
+      uses: test-summary/action@v2
       with:
-        name: test-summary
-        path: test-summary.md
+        output: legacy-test-summary.md
+        paths: test-folder/TEST-org.opensearch.sql.legacy.*.xml
       if: always()
