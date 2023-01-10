@@ -51,3 +51,10 @@ jobs:
         output: legacy-test-summary.md
         paths: test-folder/TEST-org.opensearch.sql.legacy.*.xml
       if: always()
+
+    - name: Upload test summary
+      uses: actions/upload-artifact@v3
+      with:
+        name: legacy-test-summary
+        path: legacy-test-summary.md
+      if: always()
