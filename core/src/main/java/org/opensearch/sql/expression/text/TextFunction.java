@@ -13,6 +13,8 @@ import static org.opensearch.sql.expression.function.FunctionDSL.defineVarargsFu
 import static org.opensearch.sql.expression.function.FunctionDSL.impl;
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 import org.opensearch.sql.data.model.ExprIntegerValue;
 import org.opensearch.sql.data.model.ExprStringValue;
@@ -24,10 +26,6 @@ import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.function.SerializableBiFunction;
 import org.opensearch.sql.expression.function.SerializableTriFunction;
 import org.opensearch.sql.expression.function.VarargsFunctionResolver;
-
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 
 /**
  * The definition of text functions.

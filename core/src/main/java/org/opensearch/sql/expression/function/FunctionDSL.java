@@ -42,19 +42,6 @@ public class FunctionDSL {
   }
 
   /**
-   * Define varargs function with implementation.
-   *
-   * @param functionName function name.
-   * @param functions    a list of function implementation.
-   * @return VarargsFunctionResolver.
-   */
-  public static VarargsFunctionResolver defineVarargsFunction(FunctionName functionName,
-               SerializableFunction<FunctionName, Pair<FunctionSignature,
-                FunctionBuilder>>... functions) {
-    return defineVarargsFunction(functionName, List.of(functions));
-  }
-
-  /**
    * Define overloaded function with implementation.
    *
    * @param functionName function name.
@@ -80,18 +67,32 @@ public class FunctionDSL {
    * @param functions    a list of function implementation.
    * @return VarargsFunctionResolver.
    */
-  public static VarargsFunctionResolver defineVarargsFunction(FunctionName functionName, List<
-      SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>> functions) {
+  public static VarargsFunctionResolver defineVarargsFunction(FunctionName functionName,
+          SerializableFunction<FunctionName,
+                  Pair<FunctionSignature, FunctionBuilder>>... functions) {
+    return defineVarargsFunction(functionName, List.of(functions));
+  }
 
-    VarargsFunctionResolver.VarargsFunctionResolverBuilder builder = VarargsFunctionResolver.builder();
+  /**
+   * Define varargs function with implementation.
+   *
+   * @param functionName function name.
+   * @param functions    a list of function implementation.
+   * @return VarargsFunctionResolver.
+   */
+  public static VarargsFunctionResolver defineVarargsFunction(FunctionName functionName, List<
+          SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>> functions) {
+
+    VarargsFunctionResolver.VarargsFunctionResolverBuilder builder =
+            VarargsFunctionResolver.builder();
     builder.functionName(functionName);
-    for (SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>> func : functions) {
+    for (SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>> func
+            : functions) {
       Pair<FunctionSignature, FunctionBuilder> functionBuilder = func.apply(functionName);
       builder.functionBundle(functionBuilder.getKey(), functionBuilder.getValue());
     }
     return builder.build();
   }
-
 
   /**
    * Implementation of no args function that uses FunctionProperties.
