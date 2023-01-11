@@ -145,7 +145,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
   protected OpenSearchDataType() {
   }
 
-  // object has properties
+  // object and nested types have properties - info about embedded types
   @Getter
   @EqualsAndHashCode.Exclude
   Map<String, OpenSearchDataType> properties = new LinkedHashMap<>();
@@ -157,7 +157,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
 
   @Override
   public String typeName() {
-    if (exprCoreType != ExprCoreType.UNKNOWN || type == null) {
+    if (type == null) {
       return exprCoreType.typeName();
     }
     return type.toString().toLowerCase();

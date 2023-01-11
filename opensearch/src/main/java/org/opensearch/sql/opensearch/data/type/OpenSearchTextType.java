@@ -12,6 +12,10 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import org.opensearch.sql.data.type.ExprType;
 
+/**
+ * The type of a binary value. See
+ * <a href="https://opensearch.org/docs/latest/opensearch/supported-field-types/text/">doc</a>
+ */
 @EqualsAndHashCode(callSuper = false)
 public class OpenSearchTextType extends OpenSearchDataType {
 
