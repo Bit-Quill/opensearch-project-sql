@@ -157,7 +157,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
 
   @Override
   public String typeName() {
-    if (type == null) {
+    if (exprCoreType != ExprCoreType.UNKNOWN || type == null) {
       return exprCoreType.typeName();
     }
     return type.toString().toLowerCase();

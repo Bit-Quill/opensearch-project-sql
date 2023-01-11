@@ -169,9 +169,9 @@ class OpenSearchExprValueFactoryTest {
     assertEquals(new OpenSearchExprTextValue("text"),
                  constructFromObject("textV", "text"));
 
-    assertEquals(new OpenSearchExprTextKeywordValue("text"),
+    assertEquals(new OpenSearchExprTextValue("text"),
                  tupleValue("{\"textKeywordV\":\"text\"}").get("textKeywordV"));
-    assertEquals(new OpenSearchExprTextKeywordValue("text"),
+    assertEquals(new OpenSearchExprTextValue("text"),
                  constructFromObject("textKeywordV", "text"));
   }
 
