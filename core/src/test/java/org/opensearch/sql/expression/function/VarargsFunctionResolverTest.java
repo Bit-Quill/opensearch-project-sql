@@ -13,6 +13,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -70,8 +71,8 @@ class VarargsFunctionResolverTest {
   @Test
   void resolve_function_not_match() {
     when(functionSignature.match(notMatchFS)).thenReturn(WideningTypeRule.IMPOSSIBLE_WIDENING);
-    // accepts 2 or more arguments, but passing one
-    when(functionSignature.getParamTypeList()).thenReturn(ImmutableList.of(STRING));
+    // accepts 1 or more arguments
+    when(functionSignature.getParamTypeList()).thenReturn(Collections.emptyList());
     VarargsFunctionResolver resolver = new VarargsFunctionResolver(functionName,
         ImmutableMap.of(notMatchFS, notMatchBuilder));
 

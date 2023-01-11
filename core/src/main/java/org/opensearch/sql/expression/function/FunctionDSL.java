@@ -249,6 +249,7 @@ public class FunctionDSL {
 
   /**
    * Varargs Function Implementation.
+   * This implementation considers 1...n args of the same type.
    *
    * @param function   {@link ExprValue} based varargs function.
    * @param returnType return type.

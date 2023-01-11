@@ -50,7 +50,7 @@ public class VarargsFunctionResolver implements FunctionResolver {
                       functionSignature));
     }
     Map.Entry<Integer, FunctionSignature> bestMatchEntry = functionMatchQueue.peek();
-    if (unresolvedSignature.getParamTypeList().size() < 2) {
+    if (unresolvedSignature.getParamTypeList().isEmpty()) {
       throw new ExpressionEvaluationException(
               String.format("%s function expected %s, but get %s", functionName,
                       formatFunctions(functionBundle.keySet()),
