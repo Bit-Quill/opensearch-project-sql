@@ -111,15 +111,15 @@ jobs:
     - name: Compile Results
       run: |
         touch test-summary.md
-        echo "### Legacy Test Results\n" > test-summary.md
+        echo -e "### Legacy Test Results\n" > test-summary.md
         head -c 112 legacy-test-summary.md | sed 's/>.*//' >> test-summary.md
-        echo "> \n\n### SQL.[A-M] Test Results\n" >> test-summary.md
+        echo -e "> \n\n### SQL.[A-M] Test Results\n" >> test-summary.md
         head -c 112 sql-test-summary1.md | sed 's/>.*//' >> test-summary.md
-        echo "> \n\n### SQL.[N-Z] Test Results\n" >> test-summary.md
+        echo -e "> \n\n### SQL.[N-Z] Test Results\n" >> test-summary.md
         head -c 112 sql-test-summary2.md | sed 's/>.*//' >> test-summary.md
-        echo "> \n\n### PPL Test Results\n" >> test-summary.md
+        echo -e "> \n\n### PPL Test Results\n" >> test-summary.md
         head -c 112 ppl-test-summary.md | sed 's/>.*//' >> test-summary.md
-        echo ">" >> test-summary.md
+        echo -e ">" >> test-summary.md
       if: always()
 
     - name: Upload Compiled Results
