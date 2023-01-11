@@ -119,6 +119,7 @@ jobs:
         head -c 112 sql-test-summary2.md >> test-summary.md
         echo "\n### PPL Test Results\n" >> test-summary.md
         head -c 112 ppl-test-summary.md >> test-summary.md
+      if: always()
 
     - name: Upload Compiled Results
       uses: actions/upload-artifact@v3
