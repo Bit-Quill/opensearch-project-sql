@@ -112,13 +112,13 @@ jobs:
       run: |
         touch test-summary.md
         echo -e "### Legacy Test Results\n" > test-summary.md
-        head -c 150 legacy-test-summary.md | cut -d'>' -f1 >> test-summary.md
+        head -c 150 legacy-test-summary.md | sed 's/>.*//' >> test-summary.md
         echo -e "> \n\n### SQL.[A-M] Test Results\n" >> test-summary.md
-        head -c 150 sql-test-summary1.md | cut -d'>' -f1 >> test-summary.md
+        head -c 150 sql-test-summary1.md | sed 's/>.*//' >> test-summary.md
         echo -e "> \n\n### SQL.[N-Z] Test Results\n" >> test-summary.md
-        head -c 150 sql-test-summary2.md | cut -d'>' -f1 >> test-summary.md
+        head -c 150 sql-test-summary2.md | sed 's/>.*//' >> test-summary.md
         echo -e "> \n\n### PPL Test Results\n" >> test-summary.md
-        head -c 150 ppl-test-summary.md | cut -d'>' -f1 >> test-summary.md
+        head -c 150 ppl-test-summary.md | sed 's/>.*//' >> test-summary.md
         echo -e ">" >> test-summary.md
       if: always()
 
