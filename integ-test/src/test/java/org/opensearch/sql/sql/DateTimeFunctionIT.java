@@ -1185,6 +1185,27 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifyDataRows(result, rows("10:59:59"));
   }
 
+  void verifyTimeFormat(String time, String type, String format, String formatted) throws IOException {
+    String query = String.format("time_format(%s('%s'), '%s')", type, time, format);
+    JSONObject result = executeQuery("select " + query);
+    verifySchema(result, schema(query, null, "keyword"));
+    verifyDataRows(result, rows(formatted));
+
+    query = String.format("time_format('%s', '%s')", time, format);
+    result = executeQuery("select " + query);
+    verifySchema(result, schema(query, time, "keyword"));
+    verifyDataRows(result, rows(formatted));
+  }
+
+  @Test
+  public void testTimeFormat() throws IOException {
+    //TODO: Add more test formats
+    String timestamp = "1998-01-31 13:14:15.012345";
+    String timestampFormat = "%f %H %h %I %i %p %r %S %s %T";
+    String timestampFormatted = "012345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15";
+    verifyTimeFormat(timestamp, "timestamp", timestampFormat, timestampFormatted);
+  }
+
   protected JSONObject executeQuery(String query) throws IOException {
     Request request = new Request("POST", QUERY_API_ENDPOINT);
     request.setJsonEntity(String.format(Locale.ROOT, "{\n" + "  \"query\": \"%s\"\n" + "}", query));
