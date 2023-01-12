@@ -826,6 +826,10 @@ public class DSL {
     return compile(functionProperties, BuiltinFunctionName.CURRENT_DATE, args);
   }
 
+  public static FunctionExpression time_format(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.TIME_FORMAT, expressions);
+  }
+
   public static FunctionExpression utc_date(FunctionProperties functionProperties,
                                                 Expression... args) {
     return compile(functionProperties, BuiltinFunctionName.UTC_DATE, args);

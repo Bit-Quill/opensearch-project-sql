@@ -6,6 +6,7 @@
 package org.opensearch.sql.expression.datetime;
 
 import com.google.common.collect.ImmutableMap;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -33,7 +34,7 @@ class DateTimeFormatterUtil {
     String getFormat(LocalDateTime date);
   }
 
-  private static final Map<String, DateTimeFormatHandler> HANDLERS =
+  private static final Map<String, DateTimeFormatHandler> DATE_HANDLERS =
       ImmutableMap.<String, DateTimeFormatHandler>builder()
       .put("%a", (date) -> "EEE") // %a => EEE - Abbreviated weekday name (Sun..Sat)
       .put("%b", (date) -> "LLL") // %b => LLL - Abbreviated month name (Jan..Dec)
@@ -78,6 +79,22 @@ class DateTimeFormatterUtil {
           String.format("'%d'", CalendarLookup.getYearNumber(3, date.toLocalDate())))
       .build();
 
+  private static final Map<String, DateTimeFormatHandler> TIME_HANDLERS =
+      ImmutableMap.<String, DateTimeFormatHandler>builder()
+          .put("%H", (date) -> "HH") // %H => HH - (00..23)
+          .put("%h", (date) -> "hh") // %h => hh - (01..12)
+          .put("%I", (date) -> "hh") // %I => hh - (01..12)
+          .put("%i", (date) -> "mm") // %i => mm - Minutes, numeric (00..59)
+          .put("%p", (date) -> "a") // %p => a - AM or PM
+          .put("%r", (date) -> "hh:mm:ss a") // %r => hh:mm:ss a - hh:mm:ss followed by AM or PM
+          .put("%S", (date) -> "ss") // %S => ss - Seconds (00..59)
+          .put("%s", (date) -> "ss") // %s => ss - Seconds (00..59)
+          .put("%T", (date) -> "HH:mm:ss") // %T => HH:mm:ss
+          // The following are not directly supported by DateTimeFormatter.
+          .put("%f", (date) -> // %f - Microseconds
+              String.format("'%d'", (date.getNano() / 1000)))
+          .build();
+
   private static final Pattern pattern = Pattern.compile("%.");
   private static final Pattern CHARACTERS_WITH_NO_MOD_LITERAL_BEHIND_PATTERN
           = Pattern.compile("(?<!%)[a-zA-Z&&[^aydmshiHIMYDSEL]]+");
@@ -106,7 +123,7 @@ class DateTimeFormatterUtil {
     final StringBuffer format = new StringBuffer();
     while (matcher.find()) {
       matcher.appendReplacement(format,
-          HANDLERS.getOrDefault(matcher.group(), (d) ->
+          DATE_HANDLERS.getOrDefault(matcher.group(), (d) ->
               String.format("'%s'", matcher.group().replaceFirst(MOD_LITERAL, "")))
               .getFormat(date));
     }
@@ -116,6 +133,41 @@ class DateTimeFormatterUtil {
     // 'AM'/'PM' instead of 'a.m.'/'p.m.'
     // 'Sat' instead of 'Sat.' etc
     return new ExprStringValue(date.format(
+        DateTimeFormatter.ofPattern(format.toString(), Locale.ENGLISH)));
+  }
+
+  /**
+   * Format the date using the date format String.
+   * @param timeExpr the date ExprValue of Date/Datetime/Timestamp/String type.
+   * @param formatExpr the format ExprValue of String type.
+   * @return Date formatted using format and returned as a String.
+   */
+  static ExprValue getFormattedTime(ExprValue timeExpr, ExprValue formatExpr) {
+    //TODO: Clean up implementation
+    //TODO Copy behaviour. If DATE is provided, return midnight.
+    final LocalDateTime time = LocalDateTime.of(LocalDate.now(), timeExpr.timeValue());
+    final StringBuffer cleanFormat = new StringBuffer();
+    final Matcher m = CHARACTERS_WITH_NO_MOD_LITERAL_BEHIND_PATTERN
+        .matcher(formatExpr.stringValue());
+    while (m.find()) {
+      m.appendReplacement(cleanFormat,String.format("'%s'", m.group()));
+    }
+    m.appendTail(cleanFormat);
+
+    final Matcher matcher = pattern.matcher(cleanFormat.toString());
+    final StringBuffer format = new StringBuffer();
+    while (matcher.find()) {
+      matcher.appendReplacement(format,
+          TIME_HANDLERS.getOrDefault(matcher.group(), (d) ->
+                  String.format("'%s'", matcher.group().replaceFirst(MOD_LITERAL, "")))
+              .getFormat(time));
+    }
+    matcher.appendTail(format);
+
+    // English Locale matches SQL requirements.
+    // 'AM'/'PM' instead of 'a.m.'/'p.m.'
+    // 'Sat' instead of 'Sat.' etc
+    return new ExprStringValue(time.format(
         DateTimeFormatter.ofPattern(format.toString(), Locale.ENGLISH)));
   }
 

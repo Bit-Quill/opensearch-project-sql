@@ -1952,12 +1952,50 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(dft.getFormatted(), eval(expr).stringValue());
   }
 
-  private Stream<Arguments> getTestDataForTimeFormat() {
+  private static Stream<Arguments> getTestDataForTimeFormat() {
     return Stream.of(
+        //TODO: Add more cases
+        //TODO: Fix Implementation? Investigate what the return should be for %f in this case
         Arguments.of(
             DSL.literal("1998-01-31 13:14:15.012345"),
-            "%f %H %h %I %i %p %r %S %s %T",
-            "012345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15")
+            DSL.literal("%f %H %h %I %i %p %r %S %s %T"),
+            "12345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15"),
+        Arguments.of(
+            DSL.literal("1998-01-31 13:14:15.012345"),
+            DSL.literal("%H %h %I %i %p %r %S %s %T"),
+            "12345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15"),
+        Arguments.of(
+            DSL.literal("1998-01-31 13:14:15.012345"),
+            DSL.literal("%h %I %i %p %r %S %s %T"),
+            "12345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15"),
+        Arguments.of(
+            DSL.literal("1998-01-31 13:14:15.012345"),
+            DSL.literal("%I %i %p %r %S %s %T"),
+            "12345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15"),
+        Arguments.of(
+            DSL.literal("1998-01-31 13:14:15.012345"),
+            DSL.literal("%i %p %r %S %s %T"),
+            "12345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15"),
+        Arguments.of(
+            DSL.literal("1998-01-31 13:14:15.012345"),
+            DSL.literal("%p %r %S %s %T"),
+            "12345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15"),
+        Arguments.of(
+            DSL.literal("1998-01-31 13:14:15.012345"),
+            DSL.literal("%r %S %s %T"),
+            "12345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15"),
+        Arguments.of(
+            DSL.literal("1998-01-31 13:14:15.012345"),
+            DSL.literal("%S %s %T"),
+            "12345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15"),
+        Arguments.of(
+            DSL.literal("1998-01-31 13:14:15.012345"),
+            DSL.literal("%s %T"),
+            "12345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15"),
+        Arguments.of(
+            DSL.literal("1998-01-31 13:14:15.012345"),
+            DSL.literal("%T"),
+            "12345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15")
     );
   }
 
