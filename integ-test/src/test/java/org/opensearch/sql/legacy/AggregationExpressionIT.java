@@ -46,8 +46,6 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
     verifyDataRows(response, rows(60));
   }
 
-  // todo age field should has long type instead of integer type.
-  @Ignore
   @Test
   public void noGroupKeyMaxAddLiteralShouldPass() {
     JSONObject response = executeJdbcRequest(String.format(
@@ -59,7 +57,6 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
     verifyDataRows(response, rows(41));
   }
 
-  @Ignore("skip this test because the old engine returns an integer instead of a double type")
   @Test
   public void noGroupKeyAvgOnIntegerShouldPass() {
     JSONObject response = executeJdbcRequest(String.format(
@@ -103,8 +100,6 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
         rows("f", 60));
   }
 
-  // todo age field should has long type instead of integer type.
-  @Ignore
   @Test
   public void hasGroupKeyMaxAddLiteralShouldPass() {
     JSONObject response = executeJdbcRequest(String.format(
@@ -121,7 +116,6 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
         rows("f", 1));
   }
 
-  @Ignore("Handled by v2 engine which returns 'name': 'Log(MAX(age) + MIN(age))' instead")
   @Test
   public void noGroupKeyLogMaxAddMinShouldPass() {
     JSONObject response = executeJdbcRequest(String.format(
@@ -149,8 +143,6 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
         rows("f", 4.0943445622221d));
   }
 
-  // todo age field should has long type instead of integer type.
-  @Ignore
   @Test
   public void AddLiteralOnGroupKeyShouldPass() {
     JSONObject response = executeJdbcRequest(String.format(
@@ -189,8 +181,6 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
         rows("m", 3.4339872044851463d, 49433));
   }
 
-  // todo max field should has long as type instead of integer type.
-  @Ignore
   @Test
   public void logWithAddLiteralOnGroupKeyAndMaxSubtractLiteralShouldPass() {
     JSONObject response = executeJdbcRequest(String.format(
@@ -213,7 +203,6 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
   /**
    * The date is in JDBC format.
    */
-  @Ignore("skip this test due to inconsistency in type in new engine")
   @Test
   public void groupByDateShouldPass() {
     JSONObject response = executeJdbcRequest(String.format(
@@ -227,10 +216,9 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
         schema("birthdate", null, "date"),
         schema("count", "count", "integer"));
     verifyDataRows(response,
-        rows("2018-06-23 00:00:00.000", 1));
+        rows("2018-06-23 00:00:00", 1));
   }
 
-  @Ignore("skip this test due to inconsistency in type in new engine")
   @Test
   public void groupByDateWithAliasShouldPass() {
     JSONObject response = executeJdbcRequest(String.format(
@@ -244,7 +232,7 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
         schema("birth", "birth", "date"),
         schema("count", "count", "integer"));
     verifyDataRows(response,
-        rows("2018-06-23 00:00:00.000", 1));
+        rows("2018-06-23 00:00:00", 1));
   }
 
   @Test
@@ -255,5 +243,14 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
 
     verifySchema(response, schema("SUM(CAST(male AS INT))", "male_sum", "integer"));
     verifyDataRows(response, rows(4));
+  }
+
+  @Test
+  public void groupByConstantShouldPass() {
+    JSONObject response = executeJdbcRequest(String.format(
+        "select 1 from %s GROUP BY 1", Index.BANK.getName()));
+
+    verifySchema(response, schema("1", null, "integer"));
+    verifyDataRows(response, rows(1));
   }
 }
