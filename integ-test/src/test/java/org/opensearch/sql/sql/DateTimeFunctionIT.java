@@ -1199,7 +1199,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
 
   @Test
   public void testTimeFormat() throws IOException {
-    //TODO: Add more test formats
     String timestamp = "1998-01-31 13:14:15.012345";
     String timestampFormat = "%f %H %h %I %i %p %r %S %s %T";
     String timestampFormatted = "012345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15";

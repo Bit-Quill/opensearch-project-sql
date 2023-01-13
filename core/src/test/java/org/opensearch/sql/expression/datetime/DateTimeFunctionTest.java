@@ -27,7 +27,6 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import com.google.common.collect.ImmutableList;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
@@ -1954,7 +1953,6 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   private static Stream<Arguments> getTestDataForTimeFormat() {
     return Stream.of(
-        //TODO: Add more cases
         Arguments.of(
             DSL.literal("1998-01-31 13:14:15.012345"),
             DSL.literal("%f"),
@@ -2004,21 +2002,50 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   private void timeFormatQuery(LiteralExpression arg,
                                LiteralExpression format,
-                               String expectedResult ) {
+                               String expectedResult) {
     FunctionExpression expr = DSL.time_format(arg, format);
     assertEquals(STRING, expr.type());
     assertEquals(expectedResult, eval(expr).stringValue());
   }
 
-  @ParameterizedTest(name="{0}{1}")
+  @ParameterizedTest(name = "{0}{1}")
   @MethodSource("getTestDataForTimeFormat")
   public void testTimeFormat(LiteralExpression arg,
                              LiteralExpression format,
-                             String expectedResult ) {
+                             String expectedResult) {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
     timeFormatQuery(arg, format, expectedResult);
+  }
+
+  private static Stream<Arguments> getInvalidTestDataForTimeFormat() {
+    return Stream.of(
+        Arguments.of(
+            DSL.literal("asdfasdf"),
+            DSL.literal("%f")),
+        Arguments.of(
+            DSL.literal("12345"),
+            DSL.literal("%h")),
+        Arguments.of(
+            DSL.literal("10:11:61"),
+            DSL.literal("%h")),
+        Arguments.of(
+            DSL.literal("10:61:12"),
+            DSL.literal("%h")),
+        Arguments.of(
+            DSL.literal("61:11:12"),
+            DSL.literal("%h"))
+    );
+  }
+  
+  @ParameterizedTest(name = "{0}{1}")
+  @MethodSource("getInvalidTestDataForTimeFormat")
+  public void testInvalidTimeFormat(LiteralExpression arg, LiteralExpression format) {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+    FunctionExpression expr = DSL.time_format(arg, format);
+    assertThrows(SemanticCheckException.class, () -> eval(expr));
   }
 
   private ExprValue eval(Expression expression) {
