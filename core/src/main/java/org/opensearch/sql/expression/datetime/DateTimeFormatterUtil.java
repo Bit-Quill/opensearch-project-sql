@@ -24,6 +24,8 @@ class DateTimeFormatterUtil {
   private static final int SUFFIX_SPECIAL_START_TH = 11;
   private static final int SUFFIX_SPECIAL_END_TH = 13;
   private static final String SUFFIX_SPECIAL_TH = "th";
+
+  private static final int NANO_SEC_STRING_LENGTH = 6;
   private static final Map<Integer, String> SUFFIX_CONVERTER =
       ImmutableMap.<Integer, String>builder()
       .put(1, "st").put(2, "nd").put(3, "rd").build();
@@ -92,8 +94,18 @@ class DateTimeFormatterUtil {
           .put("%T", (date) -> "HH:mm:ss") // %T => HH:mm:ss
           // The following are not directly supported by DateTimeFormatter.
           .put("%f", (date) -> // %f - Microseconds
-              String.format("'%d'", (date.getNano() / 1000)))
+              String.format("'%s'", formatNanoseconds((date.getNano() / 1000))))
           .build();
+
+  private static String formatNanoseconds(int nanosecondsVal) {
+    String nanoseconds = String.format("%d", nanosecondsVal);
+    StringBuilder builder = new StringBuilder();
+    while (builder.length() < (NANO_SEC_STRING_LENGTH - nanoseconds.length())) {
+      builder.append('0');
+    }
+    builder.append(nanoseconds);
+    return builder.toString();
+  }
 
   private static final Pattern pattern = Pattern.compile("%.");
   private static final Pattern CHARACTERS_WITH_NO_MOD_LITERAL_BEHIND_PATTERN
@@ -104,16 +116,17 @@ class DateTimeFormatterUtil {
   }
 
   /**
-   * Format the date using the date format String.
-   * @param dateExpr the date ExprValue of Date/Datetime/Timestamp/String type.
-   * @param formatExpr the format ExprValue of String type.
-   * @return Date formatted using format and returned as a String.
+   * Helper function to format a DATETIME according to a provided handler and matcher.
+   * @param m A matcher generated using a format expression
+   * @param handler Map of character patterns to their associated datetime format
+   * @param datetime The datetime argument being formatted
+   * @return A formatted string expression
    */
-  static ExprValue getFormattedDate(ExprValue dateExpr, ExprValue formatExpr) {
-    final LocalDateTime date = dateExpr.datetimeValue();
+  static ExprValue getFormattedString(Matcher m,
+                                      Map<String, DateTimeFormatHandler> handler,
+                                      LocalDateTime datetime) {
     final StringBuffer cleanFormat = new StringBuffer();
-    final Matcher m = CHARACTERS_WITH_NO_MOD_LITERAL_BEHIND_PATTERN
-            .matcher(formatExpr.stringValue());
+
     while (m.find()) {
       m.appendReplacement(cleanFormat,String.format("'%s'", m.group()));
     }
@@ -123,17 +136,31 @@ class DateTimeFormatterUtil {
     final StringBuffer format = new StringBuffer();
     while (matcher.find()) {
       matcher.appendReplacement(format,
-          DATE_HANDLERS.getOrDefault(matcher.group(), (d) ->
-              String.format("'%s'", matcher.group().replaceFirst(MOD_LITERAL, "")))
-              .getFormat(date));
+          handler.getOrDefault(matcher.group(), (d) ->
+                  String.format("'%s'", matcher.group().replaceFirst(MOD_LITERAL, "")))
+              .getFormat(datetime));
     }
     matcher.appendTail(format);
 
     // English Locale matches SQL requirements.
     // 'AM'/'PM' instead of 'a.m.'/'p.m.'
     // 'Sat' instead of 'Sat.' etc
-    return new ExprStringValue(date.format(
+    return new ExprStringValue(datetime.format(
         DateTimeFormatter.ofPattern(format.toString(), Locale.ENGLISH)));
+  }
+
+  /**
+   * Format the date using the date format String.
+   * @param dateExpr the date ExprValue of Date/Datetime/Timestamp/String type.
+   * @param formatExpr the format ExprValue of String type.
+   * @return Date formatted using format and returned as a String.
+   */
+  static ExprValue getFormattedDate(ExprValue dateExpr, ExprValue formatExpr) {
+    final LocalDateTime date = dateExpr.datetimeValue();
+    final Matcher m = CHARACTERS_WITH_NO_MOD_LITERAL_BEHIND_PATTERN
+            .matcher(formatExpr.stringValue());
+
+    return getFormattedString(m, DATE_HANDLERS, date);
   }
 
   /**
@@ -143,32 +170,11 @@ class DateTimeFormatterUtil {
    * @return Date formatted using format and returned as a String.
    */
   static ExprValue getFormattedTime(ExprValue timeExpr, ExprValue formatExpr) {
-    //TODO: Clean up implementation
-    //TODO Copy behaviour. If DATE is provided, return midnight.
     final LocalDateTime time = LocalDateTime.of(LocalDate.now(), timeExpr.timeValue());
-    final StringBuffer cleanFormat = new StringBuffer();
     final Matcher m = CHARACTERS_WITH_NO_MOD_LITERAL_BEHIND_PATTERN
         .matcher(formatExpr.stringValue());
-    while (m.find()) {
-      m.appendReplacement(cleanFormat,String.format("'%s'", m.group()));
-    }
-    m.appendTail(cleanFormat);
 
-    final Matcher matcher = pattern.matcher(cleanFormat.toString());
-    final StringBuffer format = new StringBuffer();
-    while (matcher.find()) {
-      matcher.appendReplacement(format,
-          TIME_HANDLERS.getOrDefault(matcher.group(), (d) ->
-                  String.format("'%s'", matcher.group().replaceFirst(MOD_LITERAL, "")))
-              .getFormat(time));
-    }
-    matcher.appendTail(format);
-
-    // English Locale matches SQL requirements.
-    // 'AM'/'PM' instead of 'a.m.'/'p.m.'
-    // 'Sat' instead of 'Sat.' etc
-    return new ExprStringValue(time.format(
-        DateTimeFormatter.ofPattern(format.toString(), Locale.ENGLISH)));
+    return getFormattedString(m, TIME_HANDLERS, time);
   }
 
   /**
