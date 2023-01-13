@@ -1193,7 +1193,7 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
 
     query = String.format("time_format('%s', '%s')", time, format);
     result = executeQuery("select " + query);
-    verifySchema(result, schema(query, time, "keyword"));
+    verifySchema(result, schema(query, null, "keyword"));
     verifyDataRows(result, rows(formatted));
   }
 
