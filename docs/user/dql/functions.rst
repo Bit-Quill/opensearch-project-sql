@@ -2275,6 +2275,56 @@ Example::
     | 13:49:00           | 13:49:00        | 13:49:00                                 | 13:49:00                      |
     +--------------------+-----------------+------------------------------------------+-------------------------------+
 
+TIME_FORMAT
+-----------
+
+Description
+>>>>>>>>>>>
+
+Usage: time_format(time, format) formats the time argument using the specifiers in the format argument.
+
+.. list-table:: The following table describes the available specifier arguments.
+   :widths: 20 80
+   :header-rows: 1
+
+   * - Specifier
+     - Description
+   * - %f
+     - Microseconds (000000..999999)
+   * - %H
+     - Hour (00..23)
+   * - %h
+     - Hour (01..12)
+   * - %I
+     - Hour (01..12)
+   * - %i
+     - Minutes, numeric (00..59)
+   * - %p
+     - AM or PM
+   * - %r
+     - Time, 12-hour (hh:mm:ss followed by AM or PM)
+   * - %S
+     - Seconds (00..59)
+   * - %s
+     - Seconds (00..59)
+   * - %T
+     - Time, 24-hour (hh:mm:ss)
+
+
+Argument type: STRING/DATE/DATETIME/TIME/TIMESTAMP
+
+Return type: STRING
+
+Example::
+
+    os> SELECT TIME_FORMAT('1998-01-31 13:14:15.012345', '%f %H %h %I %i %p %r %S %s %T')
+    fetched rows / total rows = 1/1
+    +--------------------------------------------------------------------------------+
+    | TIME_FORMAT('1998-01-31 13:14:15.012345', '%f %H %h %I %i %p %r %S %s %T')     |
+    |--------------------------------------------------------------------------------|
+    | '012345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15'                             |
+    +--------------------------------------------------------------------------------+
+
 
 TIME_TO_SEC
 -----------
