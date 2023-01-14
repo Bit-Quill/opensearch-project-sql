@@ -24,6 +24,7 @@ import org.opensearch.rest.RestStatus;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.common.utils.QueryContext;
+import org.opensearch.sql.exception.UnsupportedV2NestedException;
 import org.opensearch.sql.executor.ExecutionEngine.ExplainResponse;
 import org.opensearch.sql.legacy.metrics.MetricName;
 import org.opensearch.sql.legacy.metrics.Metrics;
@@ -126,7 +127,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
 
       @Override
       public void onFailure(Exception e) {
-        if (e instanceof SyntaxCheckException) {
+        if (e instanceof SyntaxCheckException || e instanceof UnsupportedV2NestedException) {
           fallBackHandler.accept(channel, e);
         } else {
           next.onFailure(e);

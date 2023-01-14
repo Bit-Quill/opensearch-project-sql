@@ -15,8 +15,10 @@ import lombok.Getter;
 import org.opensearch.sql.analysis.symbol.Namespace;
 import org.opensearch.sql.analysis.symbol.Symbol;
 import org.opensearch.sql.analysis.symbol.SymbolTable;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.SemanticCheckException;
+import org.opensearch.sql.exception.UnsupportedV2NestedException;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.env.Environment;
@@ -48,6 +50,12 @@ public class TypeEnvironment implements Environment<Symbol, ExprType> {
   @Override
   public ExprType resolve(Symbol symbol) {
     for (TypeEnvironment cur = this; cur != null; cur = cur.parent) {
+      if (!cur.symbolTable.lookup(symbol).isEmpty()
+          && cur.symbolTable.lookup(symbol).get().equals(ExprCoreType.ARRAY)) {
+        throw new UnsupportedV2NestedException(
+            String.format("can't resolve %s type in the new engine", symbol));
+      }
+
       Optional<ExprType> typeOptional = cur.symbolTable.lookup(symbol);
       if (typeOptional.isPresent()) {
         return typeOptional.get();
