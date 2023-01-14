@@ -264,9 +264,9 @@ class FilterQueryBuilderTest {
 
   @Test
   void should_use_keyword_for_multi_field_in_equality_expression() {
-    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.Type.Text);
+    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
     textWithKeywordType.getFields().put("keyword",
-        OpenSearchDataType.of(OpenSearchDataType.Type.Keyword));
+        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
     assertJsonEquals(
         "{\n"
             + "  \"term\" : {\n"
@@ -283,9 +283,9 @@ class FilterQueryBuilderTest {
 
   @Test
   void should_use_keyword_for_multi_field_in_like_expression() {
-    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.Type.Text);
+    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
     textWithKeywordType.getFields().put("keyword",
-        OpenSearchDataType.of(OpenSearchDataType.Type.Keyword));
+        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
     assertJsonEquals(
         "{\n"
             + "  \"wildcard\" : {\n"

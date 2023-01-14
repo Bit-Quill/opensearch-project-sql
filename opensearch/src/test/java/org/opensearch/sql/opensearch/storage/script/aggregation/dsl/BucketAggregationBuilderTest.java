@@ -70,9 +70,9 @@ class BucketAggregationBuilderTest {
 
   @Test
   void should_build_bucket_with_keyword_field() {
-    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.Type.Text);
+    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
     textWithKeywordType.getFields().put("keyword",
-        OpenSearchDataType.of(OpenSearchDataType.Type.Keyword));
+        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
     assertEquals(
         "{\n"
             + "  \"terms\" : {\n"

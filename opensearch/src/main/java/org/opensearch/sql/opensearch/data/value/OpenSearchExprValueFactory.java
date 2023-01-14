@@ -6,7 +6,6 @@
 
 package org.opensearch.sql.opensearch.data.value;
 
-import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
@@ -28,7 +27,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.logging.log4j.LogManager;
 import org.opensearch.common.time.DateFormatters;
 import org.opensearch.sql.data.model.ExprBooleanValue;
 import org.opensearch.sql.data.model.ExprByteValue;
@@ -87,23 +85,23 @@ public class OpenSearchExprValueFactory {
 
   private final Map<ExprType, Function<Content, ExprValue>> typeActionMap =
       new ImmutableMap.Builder<ExprType, Function<Content, ExprValue>>()
-          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Integer),
+          .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Integer),
               c -> new ExprIntegerValue(c.intValue()))
-          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Long),
+          .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Long),
               c -> new ExprLongValue(c.longValue()))
-          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Short),
+          .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Short),
               c -> new ExprShortValue(c.shortValue()))
-          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Byte),
+          .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Byte),
               c -> new ExprByteValue(c.byteValue()))
-          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Float),
+          .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Float),
               c -> new ExprFloatValue(c.floatValue()))
-          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Double),
+          .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Double),
               c -> new ExprDoubleValue(c.doubleValue()))
-          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Text),
+          .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Text),
               c -> new OpenSearchExprTextValue(c.stringValue()))
-          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Keyword),
+          .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword),
               c -> new ExprStringValue(c.stringValue()))
-          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Boolean),
+          .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Boolean),
               c -> ExprBooleanValue.of(c.booleanValue()))
           .put(OpenSearchDataType.of(TIMESTAMP), this::parseTimestamp)
           .put(OpenSearchDataType.of(DATE),
@@ -112,12 +110,12 @@ public class OpenSearchExprValueFactory {
               c -> new ExprTimeValue(parseTimestamp(c).timeValue().toString()))
           .put(OpenSearchDataType.of(DATETIME),
               c -> new ExprDatetimeValue(parseTimestamp(c).datetimeValue()))
-          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Ip),
+          .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Ip),
               c -> new OpenSearchExprIpValue(c.stringValue()))
-          .put(OpenSearchDataType.of(OpenSearchDataType.Type.GeoPoint),
+          .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.GeoPoint),
               c -> new OpenSearchExprGeoPointValue(c.geoValue().getLeft(),
                   c.geoValue().getRight()))
-          .put(OpenSearchDataType.of(OpenSearchDataType.Type.Binary),
+          .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Binary),
               c -> new OpenSearchExprBinaryValue(c.stringValue()))
           .build();
 
@@ -166,9 +164,10 @@ public class OpenSearchExprValueFactory {
     }
 
     ExprType type = fieldType.get();
-    if (type.equals(OpenSearchDataType.of(OpenSearchDataType.Type.Object)) || type == STRUCT) {
+    if (type.equals(OpenSearchDataType.of(OpenSearchDataType.MappingType.Object))
+          || type == STRUCT) {
       return parseStruct(content, field);
-    } else if (type.equals(OpenSearchDataType.of(OpenSearchDataType.Type.Nested))) {
+    } else if (type.equals(OpenSearchDataType.of(OpenSearchDataType.MappingType.Nested))) {
       return parseArray(content, field);
     } else {
       if (typeActionMap.containsKey(type)) {

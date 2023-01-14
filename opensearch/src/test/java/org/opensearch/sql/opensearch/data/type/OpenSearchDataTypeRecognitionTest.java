@@ -52,8 +52,8 @@ public class OpenSearchDataTypeRecognitionTest {
 
     @Override
     public ExprType type() {
-      var type = OpenSearchDataType.of(OpenSearchDataType.Type.Text);
-      type.getFields().put("words", OpenSearchDataType.of(OpenSearchDataType.Type.Keyword));
+      var type = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
+      type.getFields().put("words", OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
       return type;
     }
   }

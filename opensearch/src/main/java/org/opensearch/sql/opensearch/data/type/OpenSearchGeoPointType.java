@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
 public class OpenSearchGeoPointType extends OpenSearchDataType {
 
   public OpenSearchGeoPointType() {
-    super(Type.GeoPoint);
+    super(MappingType.GeoPoint);
     exprCoreType = UNKNOWN;
   }
 }

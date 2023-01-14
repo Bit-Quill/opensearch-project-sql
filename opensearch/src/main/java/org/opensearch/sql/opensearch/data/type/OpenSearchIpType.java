@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
 public class OpenSearchIpType extends OpenSearchDataType {
 
   public OpenSearchIpType() {
-    super(Type.Ip);
+    super(MappingType.Ip);
     exprCoreType = UNKNOWN;
   }
 }

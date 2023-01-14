@@ -9,6 +9,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import java.util.List;
+import java.util.Map;
 import lombok.EqualsAndHashCode;
 import org.opensearch.sql.data.type.ExprType;
 
@@ -20,8 +21,13 @@ import org.opensearch.sql.data.type.ExprType;
 public class OpenSearchTextType extends OpenSearchDataType {
 
   public OpenSearchTextType() {
-    super(Type.Text);
+    super(MappingType.Text);
     exprCoreType = UNKNOWN;
+  }
+
+  public OpenSearchTextType(Map<String, OpenSearchDataType> fields) {
+    this();
+    this.fields = fields;
   }
 
   @Override

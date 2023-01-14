@@ -9,7 +9,6 @@ package org.opensearch.sql.opensearch.data.type;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.opensearch.sql.data.type.ExprCoreType;
@@ -24,7 +23,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
   /**
    * The mapping (OpenSearch engine) type.
    */
-  public enum Type {
+  public enum MappingType {
     Invalid(null),
     Text("text"),
     Keyword("keyword"),
@@ -47,7 +46,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
 
     private String name;
 
-    Type(String name) {
+    MappingType(String name) {
       this.name = name;
     }
 
@@ -57,7 +56,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
   }
 
   @EqualsAndHashCode.Exclude
-  protected Type type;
+  protected MappingType mappingType;
 
   // resolved ExprCoreType
   protected ExprCoreType exprCoreType;
@@ -76,12 +75,12 @@ public class OpenSearchDataType implements ExprType, Serializable {
 
   /**
    * A constructor function which builds proper `OpenSearchDataType` for given mapping `Type`.
-   * @param type A mapping type.
+   * @param mappingType A mapping type.
    * @return An instance or inheritor of `OpenSearchDataType`.
    */
-  public static OpenSearchDataType of(Type type) {
+  public static OpenSearchDataType of(MappingType mappingType) {
     ExprCoreType exprCoreType = ExprCoreType.UNKNOWN;
-    switch (type) {
+    switch (mappingType) {
       // TODO update these 2 below #1038 https://github.com/opensearch-project/sql/issues/1038
       case Text: return new OpenSearchTextType();
       case Keyword: exprCoreType = ExprCoreType.STRING;
@@ -115,15 +114,15 @@ public class OpenSearchDataType implements ExprType, Serializable {
       case Binary: return new OpenSearchBinaryType();
       case Ip: return new OpenSearchIpType();
       default:
-        throw new IllegalArgumentException(type.toString());
+        throw new IllegalArgumentException(mappingType.toString());
     }
-    var res = new OpenSearchDataType(type);
+    var res = new OpenSearchDataType(mappingType);
     res.exprCoreType = exprCoreType;
     return res;
   }
 
-  protected OpenSearchDataType(Type type) {
-    this.type = type;
+  protected OpenSearchDataType(MappingType mappingType) {
+    this.mappingType = mappingType;
   }
 
   /**
@@ -157,10 +156,10 @@ public class OpenSearchDataType implements ExprType, Serializable {
 
   @Override
   public String typeName() {
-    if (type == null) {
+    if (mappingType == null) {
       return exprCoreType.typeName();
     }
-    return type.toString().toLowerCase();
+    return mappingType.toString().toLowerCase();
   }
 
   @Override
@@ -173,7 +172,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
    * @return A cloned object.
    */
   protected OpenSearchDataType cloneEmpty() {
-    var copy = type != null ? of(type) : new OpenSearchDataType(exprCoreType);
+    var copy = mappingType != null ? of(mappingType) : new OpenSearchDataType(exprCoreType);
     copy.fields = fields; //TODO do we need to clone object?
     copy.exprCoreType = exprCoreType;
     return copy;
@@ -203,5 +202,24 @@ public class OpenSearchDataType implements ExprType, Serializable {
                   Map::putAll));
     }
     return result;
+  }
+
+  /**
+   * Resolve type of identified from parsed mapping tree.
+   * @param tree Parsed mapping tree (not flattened).
+   * @param id An identifier.
+   * @return Resolved OpenSearchDataType or null if not found.
+   */
+  public static OpenSearchDataType resolve(Map<String, OpenSearchDataType> tree, String id) {
+    for (var item : tree.entrySet()) {
+      if (item.getKey().equals(id)) {
+        return item.getValue();
+      }
+      OpenSearchDataType result = resolve(item.getValue().getProperties(), id);
+      if (result != null) {
+        return result;
+      }
+    }
+    return null;
   }
 }

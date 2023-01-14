@@ -40,13 +40,14 @@ class JdbcResponseFormatterTest {
 
   @Test
   void format_response() {
-    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.Type.Text);
+    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
     textWithKeywordType.getFields().put("keyword",
-        OpenSearchDataType.of(OpenSearchDataType.Type.Keyword));
+        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
     QueryResult response = new QueryResult(
         new Schema(ImmutableList.of(
             new Column("name", "name", STRING),
-            new Column("address1", "address1", OpenSearchDataType.of(OpenSearchDataType.Type.Text)),
+            new Column("address1", "address1",
+                OpenSearchDataType.of(OpenSearchDataType.MappingType.Text)),
             new Column("address2", "address2", textWithKeywordType),
             new Column("location", "location", STRUCT),
             new Column("employer", "employer", ARRAY),

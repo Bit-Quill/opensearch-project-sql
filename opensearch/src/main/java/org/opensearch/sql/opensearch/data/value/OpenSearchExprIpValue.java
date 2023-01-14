@@ -6,14 +6,11 @@
 
 package org.opensearch.sql.opensearch.data.value;
 
-import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.Type.Ip;
-
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.data.model.AbstractExprValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
-import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchIpType;
 
 /**

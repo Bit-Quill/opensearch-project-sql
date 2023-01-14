@@ -153,9 +153,9 @@ class AggregationQueryBuilderTest {
 
   @Test
   void should_build_composite_aggregation_for_field_reference_of_keyword() {
-    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.Type.Text);
+    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
     textWithKeywordType.getFields().put("keyword",
-        OpenSearchDataType.of(OpenSearchDataType.Type.Keyword));
+        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
     assertEquals(format(
         "{%n"
             + "  \"composite_buckets\" : {%n"

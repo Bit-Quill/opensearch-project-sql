@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
 public class OpenSearchBinaryType extends OpenSearchDataType {
 
   public OpenSearchBinaryType() {
-    super(Type.Binary);
+    super(MappingType.Binary);
     exprCoreType = UNKNOWN;
   }
 }

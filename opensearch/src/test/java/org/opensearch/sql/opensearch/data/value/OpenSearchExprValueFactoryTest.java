@@ -55,8 +55,8 @@ import org.opensearch.sql.opensearch.data.utils.OpenSearchJsonContent;
 
 class OpenSearchExprValueFactoryTest {
   private static OpenSearchDataType getTextWithKeyword() {
-    var type = OpenSearchDataType.of(OpenSearchDataType.Type.Text);
-    type.getFields().put("words", OpenSearchDataType.of(OpenSearchDataType.Type.Keyword));
+    var type = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
+    type.getFields().put("words", OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
     return type;
   }
 
@@ -80,11 +80,11 @@ class OpenSearchExprValueFactoryTest {
           .put("arrayV", OpenSearchDataType.of(ARRAY))
           .put("arrayV.info", OpenSearchDataType.of(STRING))
           .put("arrayV.author", OpenSearchDataType.of(STRING))
-          .put("textV", OpenSearchDataType.of(OpenSearchDataType.Type.Text))
+          .put("textV", OpenSearchDataType.of(OpenSearchDataType.MappingType.Text))
           .put("textKeywordV", getTextWithKeyword())
-          .put("ipV", OpenSearchDataType.of(OpenSearchDataType.Type.Ip))
-          .put("geoV", OpenSearchDataType.of(OpenSearchDataType.Type.GeoPoint))
-          .put("binaryV", OpenSearchDataType.of(OpenSearchDataType.Type.Binary))
+          .put("ipV", OpenSearchDataType.of(OpenSearchDataType.MappingType.Ip))
+          .put("geoV", OpenSearchDataType.of(OpenSearchDataType.MappingType.GeoPoint))
+          .put("binaryV", OpenSearchDataType.of(OpenSearchDataType.MappingType.Binary))
           .build();
 
   private final OpenSearchExprValueFactory exprValueFactory =
@@ -415,7 +415,7 @@ class OpenSearchExprValueFactoryTest {
   private static class TestType extends OpenSearchDataType {
 
     public TestType() {
-      type = null;
+      mappingType = null;
     }
 
     @Override

@@ -27,19 +27,19 @@ public class ScriptUtilsTest {
         () -> assertEquals("field", ScriptUtils.convertTextToKeyword("field",
             OpenSearchDataType.of(STRING))),
         () -> assertEquals("field", ScriptUtils.convertTextToKeyword("field",
-            OpenSearchDataType.of(OpenSearchDataType.Type.GeoPoint))),
+            OpenSearchDataType.of(OpenSearchDataType.MappingType.GeoPoint))),
         () -> assertEquals("field", ScriptUtils.convertTextToKeyword("field",
-            OpenSearchDataType.of(OpenSearchDataType.Type.Keyword))),
+            OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword))),
         () -> assertEquals("field", ScriptUtils.convertTextToKeyword("field",
-            OpenSearchDataType.of(OpenSearchDataType.Type.Integer)))
+            OpenSearchDataType.of(OpenSearchDataType.MappingType.Integer)))
     );
   }
 
   @Test
   void non_text_types_with_nested_objects_arent_converted() {
-    var objectType = OpenSearchDataType.of(OpenSearchDataType.Type.Object);
+    var objectType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Object);
     objectType.getProperties().put("subfield", OpenSearchDataType.of(STRING));
-    var arrayType = OpenSearchDataType.of(OpenSearchDataType.Type.Nested);
+    var arrayType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Nested);
     objectType.getProperties().put("subfield", OpenSearchDataType.of(STRING));
     assertAll(
         () -> assertEquals("field", ScriptUtils.convertTextToKeyword("field", objectType)),
@@ -50,14 +50,14 @@ public class ScriptUtilsTest {
   @Test
   void text_type_without_fields_isnt_converted() {
     assertEquals("field", ScriptUtils.convertTextToKeyword("field",
-        OpenSearchDataType.of(OpenSearchDataType.Type.Text)));
+        OpenSearchDataType.of(OpenSearchDataType.MappingType.Text)));
   }
 
   @Test
   void text_type_with_fields_is_converted() {
-    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.Type.Text);
+    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
     textWithKeywordType.getFields().put("keyword",
-        OpenSearchDataType.of(OpenSearchDataType.Type.Keyword));
+        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
     assertEquals("field.keyword", ScriptUtils.convertTextToKeyword("field", textWithKeywordType));
   }
 }
