@@ -154,7 +154,7 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitBinaryArithmetic(BinaryArithmeticContext ctx) {
     return new Function(
-        ctx.binaryOperator.getText(),
+        ctx.binaryOperator().getText(),
         Arrays.asList(visit(ctx.left), visit(ctx.right))
     );
   }
