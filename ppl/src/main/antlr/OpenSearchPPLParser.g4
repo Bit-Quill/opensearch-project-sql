@@ -269,10 +269,10 @@ comparisonExpression
 
 valueExpression
     : left=valueExpression
-        binaryOperator//=(STAR | DIVIDE | MODULE)
+        binaryOperator=(STAR | DIVIDE | MODULE)
             right=valueExpression                                   #binaryArithmetic
     | left=valueExpression
-        binaryOperator//=(PLUS | MINUS)
+        binaryOperator=(PLUS | MINUS)
             right=valueExpression                                   #binaryArithmetic
     | primaryExpression                                             #valueExpressionDefault
     | positionFunction                                              #positionFunctionCall
@@ -595,14 +595,6 @@ comparisonOperator
     | GREATER
     | NOT_GREATER
     | REGEXP
-    ;
-
-binaryOperator
-    : PLUS
-    | MINUS
-    | STAR
-    | DIVIDE
-    | MODULE
     ;
 
 singleFieldRelevanceFunctionName
