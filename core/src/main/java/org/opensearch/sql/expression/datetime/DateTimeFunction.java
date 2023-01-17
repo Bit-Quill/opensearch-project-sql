@@ -31,9 +31,9 @@ import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_SHORT_Y
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_STRICT_WITH_TZ;
+import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
 import static org.opensearch.sql.utils.DateTimeUtils.extractDate;
 import static org.opensearch.sql.utils.DateTimeUtils.extractDateTime;
-import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -112,6 +112,7 @@ public class DateTimeFunction {
     repository.register(datediff());
     repository.register(datetime());
     repository.register(date_add());
+    repository.register(date_format());
     repository.register(date_sub());
     repository.register(day());
     repository.register(dayName());
@@ -149,11 +150,10 @@ public class DateTimeFunction {
     repository.register(time_to_sec());
     repository.register(timediff());
     repository.register(timestamp());
+    repository.register(to_days());
     repository.register(utc_date());
     repository.register(utc_time());
     repository.register(utc_timestamp());
-    repository.register(date_format());
-    repository.register(to_days());
     repository.register(unix_timestamp());
     repository.register(week(BuiltinFunctionName.WEEK));
     repository.register(week(BuiltinFunctionName.WEEK_OF_YEAR));

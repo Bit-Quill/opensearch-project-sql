@@ -52,11 +52,18 @@ public class MathematicalFunction {
    */
   public static void register(BuiltinFunctionRepository repository) {
     repository.register(abs());
+    repository.register(acos());
+    repository.register(asin());
+    repository.register(atan());
+    repository.register(atan2());
     repository.register(cbrt());
     repository.register(ceil());
     repository.register(ceiling());
     repository.register(conv());
+    repository.register(cos());
+    repository.register(cot());
     repository.register(crc32());
+    repository.register(degrees());
     repository.register(euler());
     repository.register(exp());
     repository.register(floor());
@@ -65,24 +72,17 @@ public class MathematicalFunction {
     repository.register(log10());
     repository.register(log2());
     repository.register(mod());
+    repository.register(pi());
     repository.register(pow());
     repository.register(power());
+    repository.register(radians());
+    repository.register(rand());
     repository.register(round());
     repository.register(sign());
-    repository.register(sqrt());
-    repository.register(truncate());
-    repository.register(pi());
-    repository.register(rand());
-    repository.register(acos());
-    repository.register(asin());
-    repository.register(atan());
-    repository.register(atan2());
-    repository.register(cos());
-    repository.register(cot());
-    repository.register(degrees());
-    repository.register(radians());
     repository.register(sin());
+    repository.register(sqrt());
     repository.register(tan());
+    repository.register(truncate());
   }
 
   /**
