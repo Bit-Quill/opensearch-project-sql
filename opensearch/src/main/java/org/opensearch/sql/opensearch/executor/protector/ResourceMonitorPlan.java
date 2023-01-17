@@ -20,7 +20,7 @@ import org.opensearch.sql.planner.physical.PhysicalPlanNodeVisitor;
  */
 @ToString
 @RequiredArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 public class ResourceMonitorPlan extends PhysicalPlan {
 
   /**
