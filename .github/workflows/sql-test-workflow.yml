@@ -30,24 +30,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: ${{ matrix.entry.java }}
-
-      - name: Build with Gradle
-        run: ./gradlew --continue integ-test:integTest
-
-      - name: Compile all xml files
-        run: awk '/</' *.xml > results.xml
-        if: always()
-
       - name: Test Summary
         uses: test-summary/action@v2
         with:
           paths: |
-            integ-test/build/test-results/integTest/results.xml
+            results.xml
         if: always()
 
       - name: Upload test summary
