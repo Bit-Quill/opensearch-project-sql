@@ -38,8 +38,7 @@ jobs:
 
     - name: Include only results in xml files
       run: |
-        sed -i '2d' results/*.xml
-        echo "</testsuite>" | tee -a *.xml
+        sed -i '2d' results/*.xml && echo "</testsuite>" | tee -a results/*.xml
       if: always()
 
     - name: Test Summary
