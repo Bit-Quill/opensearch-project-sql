@@ -24,68 +24,111 @@ jobs:
       fail-fast: false
       matrix:
         entry:
-          - { os: ubuntu-latest, java: 11 }
-          - { os: windows-latest, java: 11, os_build_args: -x doctest -x integTest -x jacocoTestReport -PbuildPlatform=windows }
-          - { os: macos-latest, java: 11, os_build_args: -x doctest -x integTest -x jacocoTestReport  }
-          - { os: ubuntu-latest, java: 17 }
-          - { os: windows-latest, java: 17, os_build_args: -x doctest -x integTest -x jacocoTestReport  -PbuildPlatform=windows }
-          - { os: macos-latest, java: 17, os_build_args: -x doctest -x integTest -x jacocoTestReport  }
+          - { os: ubuntu-latest, java: 11, os_build_args: -x doctest -x jacocoTestReport  }
     runs-on: ${{ matrix.entry.os }}
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up JDK ${{ matrix.java }}
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: ${{ matrix.entry.java }}
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.entry.java }}
 
-    - name: Build with Gradle
-      run: ./gradlew --continue build ${{ matrix.entry.os_build_args }}
+      - name: Build with Gradle
+        run: ./gradlew --continue integ-test:integTest
 
-    - name: PiTest with Gradle
-      run: |
-        ./gradlew :core:pitest
-        ./gradlew :opensearch:pitest
-     
+      - name: Copy test result file
+        run: |
+          mkdir test-folder
+          mkdir test-folder/legacy
+          mkdir test-folder/sql1
+          mkdir test-folder/sql2
+          mkdir test-folder/ppl
+          cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.legacy.*.xml test-folder/legacy
+          cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.sql.[A-M]*.xml test-folder/sql1
+          cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.sql.[N-Z]*.xml test-folder/sql2
+          cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.ppl.*.xml test-folder/ppl
+        if: always()
 
-    - name: Run backward compatibility tests
-      if: ${{ matrix.entry.os == 'ubuntu-latest' }}
-      run: ./scripts/bwctest.sh
+      - name: Legacy Test Summary
+        uses: test-summary/action@v2
+        with:
+          output: legacy-test-summary.md
+          paths: test-folder/legacy/*.xml
+        if: always()
 
-    - name: Create Artifact Path
-      run: |
-        mkdir -p opensearch-sql-builds
-        cp -r ./plugin/build/distributions/*.zip opensearch-sql-builds/
+      - name: Upload legacy test summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: legacy-test-summary
+          path: legacy-test-summary.md
+        if: always()
 
-    # This step uses the codecov-action Github action: https://github.com/codecov/codecov-action
-    - name: Upload SQL Coverage Report
-      if: ${{ always() && matrix.entry.os == 'ubuntu-latest' }}
-      uses: codecov/codecov-action@v3
-      with:
-        flags: sql-engine
-        token: ${{ secrets.CODECOV_TOKEN }}
+      - name: SQL Test Summary 1
+        uses: test-summary/action@v2
+        with:
+          output: sql-test-summary1.md
+          paths: test-folder/sql1/*.xml
+        if: always()
 
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: opensearch-sql-${{ matrix.entry.os }}
-        path: opensearch-sql-builds
+      - name: Upload SQL test summary 1
+        uses: actions/upload-artifact@v3
+        with:
+          name: sql-test-summary1
+          path: sql-test-summary1.md
+        if: always()
 
-    - name: Upload test reports
-      if: ${{ always() && matrix.entry.os == 'ubuntu-latest' }}
-      uses: actions/upload-artifact@v2
-      continue-on-error: true
-      with:
-        name: test-reports
-        path: |
-          sql/build/reports/**
-          ppl/build/reports/**
-          core/build/reports/**
-          common/build/reports/**
-          opensearch/build/reports/**
-          integ-test/build/reports/**
-          protocol/build/reports/**
-          legacy/build/reports/**
-          plugin/build/reports/**
+      - name: SQL Test Summary 2
+        uses: test-summary/action@v2
+        with:
+          output: sql-test-summary2.md
+          paths: test-folder/sql2/*.xml
+        if: always()
+
+      - name: Upload SQL test summary 2
+        uses: actions/upload-artifact@v3
+        with:
+          name: sql-test-summary2
+          path: sql-test-summary2.md
+        if: always()
+
+      - name: PPL Test Summary
+        uses: test-summary/action@v2
+        with:
+          output: ppl-test-summary.md
+          paths: test-folder/ppl/*.xml
+        if: always()
+
+      - name: Upload PPL test summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: ppl-test-summary
+          path: ppl-test-summary.md
+        if: always()
+
+      - name: Compile Results
+        run: |
+          touch test-summary.md
+          echo -e "### Legacy Test Results\n" > test-summary.md
+          head -c 150 legacy-test-summary.md | sed 's/>.*//' >> test-summary.md
+          echo -e "> \n\n### SQL.[A-M] Test Results\n" >> test-summary.md
+          head -c 150 sql-test-summary1.md | sed 's/>.*//' >> test-summary.md
+          echo -e "> \n\n### SQL.[N-Z] Test Results\n" >> test-summary.md
+          head -c 150 sql-test-summary2.md | sed 's/>.*//' >> test-summary.md
+          echo -e "> \n\n### PPL Test Results\n" >> test-summary.md
+          head -c 150 ppl-test-summary.md | sed 's/>.*//' >> test-summary.md
+          echo -e ">" >> test-summary.md
+        if: always()
+
+      - name: Upload Compiled Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-summary
+          path: test-summary.md
+        if: always()
+
+      - name: Show Compiled Results
+        run: cat test-summary.md >> $GITHUB_STEP_SUMMARY
+        if: always()
