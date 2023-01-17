@@ -57,3 +57,10 @@ jobs:
         name: test-summary
         path: test-summary.md
       if: always()
+
+    - name: Upload xml file
+      uses: actions/upload-artifact@v3
+      with:
+        output: QueryIT.xml
+        path: integ-test/build/test-results/integTest/TEST-org.opensearch.sql.sql.QueryIT.xml
+      if: always()
