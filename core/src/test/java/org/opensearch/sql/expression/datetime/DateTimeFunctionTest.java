@@ -2142,6 +2142,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         Arguments.of("%j"),
         Arguments.of("%M"),
         Arguments.of("%W"),
+        Arguments.of("%D"),
         Arguments.of("%w"),
         Arguments.of("%U"),
         Arguments.of("%u"),
