@@ -41,7 +41,7 @@ jobs:
 
       - name: Include only results in xml files
         run: |
-          sed -i '2!d' integ-test/build/test-results/integTest/*.xml && echo "</testsuite>" | tee -a integ-test/build/test-results/integTest/*.xml
+          sed -i '1,2!d' integ-test/build/test-results/integTest/*.xml && echo "</testsuite>" | tee -a integ-test/build/test-results/integTest/*.xml
         if: always()
 
       - name: Test Summary
