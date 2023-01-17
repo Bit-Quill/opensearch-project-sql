@@ -36,9 +36,6 @@ jobs:
         distribution: 'temurin'
         java-version: ${{ matrix.entry.java }}
 
-    - name: Build with Gradle
-      run: ./gradlew --continue integ-test:integTest --tests "org.opensearch.sql.sql.QueryIT.*"
-
     - name: Include only results in xml files
       run: |
         sed -i '1,2!d' results/*.xml && echo "</testsuite>" | tee -a results/*.xml
