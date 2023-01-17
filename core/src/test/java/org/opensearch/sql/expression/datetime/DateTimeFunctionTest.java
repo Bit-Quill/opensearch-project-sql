@@ -43,6 +43,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprLongValue;
+import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
@@ -2053,6 +2054,14 @@ class DateTimeFunctionTest extends ExpressionTestBase {
             "14"),
         Arguments.of(
             DSL.literal("1998-01-31 13:14:15.012345"),
+            DSL.literal("%k"),
+            "13"),
+        Arguments.of(
+            DSL.literal("1998-01-31 13:14:15.012345"),
+            DSL.literal("%l"),
+            "1"),
+        Arguments.of(
+            DSL.literal("1998-01-31 13:14:15.012345"),
             DSL.literal("%p"),
             "PM"),
         Arguments.of(
@@ -2073,8 +2082,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
             "13:14:15"),
         Arguments.of(
             DSL.literal("1998-01-31 13:14:15.012345"),
-            DSL.literal("%f %H %h %I %i %p %r %S %s %T"),
-            "012345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15")
+            DSL.literal("%f %H %h %I %i %k %l %p %r %S %s %T"),
+            "012345 13 01 01 14 13 1 PM 01:14:15 PM 15 15 13:14:15")
     );
   }
 
@@ -2124,6 +2133,48 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
     FunctionExpression expr = DSL.time_format(functionProperties, arg, format);
     assertThrows(SemanticCheckException.class, () -> eval(expr));
+  }
+
+  private static Stream<Arguments> getInvalidTimeFormatHandlers() {
+    return Stream.of(
+        Arguments.of("%a"),
+        Arguments.of("%b"),
+        Arguments.of("%j"),
+        Arguments.of("%M"),
+        Arguments.of("%W"),
+        Arguments.of("%w"),
+        Arguments.of("%U"),
+        Arguments.of("%u"),
+        Arguments.of("%V"),
+        Arguments.of("%v"),
+        Arguments.of("%X"),
+        Arguments.of("%x")
+    );
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("getInvalidTimeFormatHandlers")
+  public void testTimeFormatWithInvalidHandlers(String handler) {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+    FunctionExpression expr = DSL.time_format(
+        functionProperties,
+        DSL.literal("12:23:34"),
+        DSL.literal(handler));
+    assertEquals(ExprNullValue.of(), eval(expr));
+  }
+
+  @Test
+  public void testTimeFormatWithDateHandlers() {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+    FunctionExpression expr = DSL.time_format(
+        functionProperties,
+        DSL.literal(new ExprDateValue("2023-01-17")),
+        DSL.literal("%c %d %e %m %Y %y"));
+    assertEquals(
+        "0 00 0 00 0000 00",
+        eval(expr).stringValue());
   }
 
   private ExprValue eval(Expression expression) {
