@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.AggregationIT" tests="11" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:07" hostname="Unused26-MacBook.local" time="1.211">
+  <properties/>
+  <testcase name="testPushDownAggregationOnAllValuesAndOnNotNullReturnsSameResult" classname="org.opensearch.sql.sql.AggregationIT" time="0.734"/>
+  <testcase name="testPushDownAggregationOnNullValues" classname="org.opensearch.sql.sql.AggregationIT" time="0.043"/>
+  <testcase name="testPushDownAggregationOnMissingValues" classname="org.opensearch.sql.sql.AggregationIT" time="0.038"/>
+  <testcase name="testFilteredAggregateNotPushDown" classname="org.opensearch.sql.sql.AggregationIT" time="0.037"/>
+  <testcase name="testInMemoryAggregationOnNullValuesReturnsNull" classname="org.opensearch.sql.sql.AggregationIT" time="0.051"/>
+  <testcase name="testPushDownAndInMemoryAggregationReturnTheSameResult" classname="org.opensearch.sql.sql.AggregationIT" time="0.08"/>
+  <testcase name="testInMemoryAggregationOnAllValuesAndOnNotNullReturnsSameResult" classname="org.opensearch.sql.sql.AggregationIT" time="0.065"/>
+  <testcase name="testInMemoryAggregationOnNullValues" classname="org.opensearch.sql.sql.AggregationIT" time="0.045"/>
+  <testcase name="testPushDownAggregationOnNullValuesReturnsNull" classname="org.opensearch.sql.sql.AggregationIT" time="0.036"/>
+  <testcase name="testInMemoryAggregationOnMissingValues" classname="org.opensearch.sql.sql.AggregationIT" time="0.035"/>
+  <testcase name="testFilteredAggregatePushDown" classname="org.opensearch.sql.sql.AggregationIT" time="0.04"/>
+  <system-out><![CDATA[[2023-01-17T19:13:07,467][INFO ][o.o.s.s.AggregationIT    ] [testPushDownAggregationOnAllValuesAndOnNotNullReturnsSameResult] before test
+[2023-01-17T19:13:07,470][INFO ][o.o.s.s.AggregationIT    ] [testPushDownAggregationOnAllValuesAndOnNotNullReturnsSameResult] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T19:13:08,198][INFO ][o.o.s.s.AggregationIT    ] [testPushDownAggregationOnAllValuesAndOnNotNullReturnsSameResult] after test
+[2023-01-17T19:13:08,204][INFO ][o.o.s.s.AggregationIT    ] [testPushDownAggregationOnNullValues] before test
+[2023-01-17T19:13:08,241][INFO ][o.o.s.s.AggregationIT    ] [testPushDownAggregationOnNullValues] after test
+[2023-01-17T19:13:08,247][INFO ][o.o.s.s.AggregationIT    ] [testPushDownAggregationOnMissingValues] before test
+[2023-01-17T19:13:08,280][INFO ][o.o.s.s.AggregationIT    ] [testPushDownAggregationOnMissingValues] after test
+[2023-01-17T19:13:08,286][INFO ][o.o.s.s.AggregationIT    ] [testFilteredAggregateNotPushDown] before test
+[2023-01-17T19:13:08,318][INFO ][o.o.s.s.AggregationIT    ] [testFilteredAggregateNotPushDown] after test
+[2023-01-17T19:13:08,329][INFO ][o.o.s.s.AggregationIT    ] [testInMemoryAggregationOnNullValuesReturnsNull] before test
+[2023-01-17T19:13:08,370][INFO ][o.o.s.s.AggregationIT    ] [testInMemoryAggregationOnNullValuesReturnsNull] after test
+[2023-01-17T19:13:08,376][INFO ][o.o.s.s.AggregationIT    ] [testPushDownAndInMemoryAggregationReturnTheSameResult] before test
+[2023-01-17T19:13:08,450][INFO ][o.o.s.s.AggregationIT    ] [testPushDownAndInMemoryAggregationReturnTheSameResult] after test
+[2023-01-17T19:13:08,459][INFO ][o.o.s.s.AggregationIT    ] [testInMemoryAggregationOnAllValuesAndOnNotNullReturnsSameResult] before test
+[2023-01-17T19:13:08,516][INFO ][o.o.s.s.AggregationIT    ] [testInMemoryAggregationOnAllValuesAndOnNotNullReturnsSameResult] after test
+[2023-01-17T19:13:08,527][INFO ][o.o.s.s.AggregationIT    ] [testInMemoryAggregationOnNullValues] before test
+[2023-01-17T19:13:08,562][INFO ][o.o.s.s.AggregationIT    ] [testInMemoryAggregationOnNullValues] after test
+[2023-01-17T19:13:08,569][INFO ][o.o.s.s.AggregationIT    ] [testPushDownAggregationOnNullValuesReturnsNull] before test
+[2023-01-17T19:13:08,598][INFO ][o.o.s.s.AggregationIT    ] [testPushDownAggregationOnNullValuesReturnsNull] after test
+[2023-01-17T19:13:08,605][INFO ][o.o.s.s.AggregationIT    ] [testInMemoryAggregationOnMissingValues] before test
+[2023-01-17T19:13:08,633][INFO ][o.o.s.s.AggregationIT    ] [testInMemoryAggregationOnMissingValues] after test
+[2023-01-17T19:13:08,643][INFO ][o.o.s.s.AggregationIT    ] [testFilteredAggregatePushDown] before test
+[2023-01-17T19:13:08,674][INFO ][o.o.s.s.AggregationIT    ] [testFilteredAggregatePushDown] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

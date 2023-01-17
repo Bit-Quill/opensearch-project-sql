@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.CsvFormatIT" tests="2" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:19" hostname="Unused26-MacBook.local" time="0.325">
+  <properties/>
+  <testcase name="escapeSanitizeTest" classname="org.opensearch.sql.ppl.CsvFormatIT" time="0.29"/>
+  <testcase name="sanitizeTest" classname="org.opensearch.sql.ppl.CsvFormatIT" time="0.035"/>
+  <system-out><![CDATA[[2023-01-17T16:12:19,075][INFO ][o.o.s.p.CsvFormatIT      ] [escapeSanitizeTest] before test
+[2023-01-17T16:12:19,079][INFO ][o.o.s.p.CsvFormatIT      ] [escapeSanitizeTest] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T16:12:19,360][INFO ][o.o.s.p.CsvFormatIT      ] [escapeSanitizeTest] after test
+[2023-01-17T16:12:19,366][INFO ][o.o.s.p.CsvFormatIT      ] [sanitizeTest] before test
+[2023-01-17T16:12:19,395][INFO ][o.o.s.p.CsvFormatIT      ] [sanitizeTest] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

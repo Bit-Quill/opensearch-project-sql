@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.StatsCommandIT" tests="17" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:56" hostname="Unused26-MacBook.local" time="1.647">
+  <properties/>
+  <testcase name="testStatsAvg" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.843"/>
+  <testcase name="testStatsTimeSpan" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.049"/>
+  <testcase name="testStatsMin" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.032"/>
+  <testcase name="testStatsMax" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.041"/>
+  <testcase name="testStatsDistinctCount" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.058"/>
+  <testcase name="testGroupByNullValue" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.042"/>
+  <testcase name="testStatsCountAll" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.033"/>
+  <testcase name="testStatsAliasedSpan" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.034"/>
+  <testcase name="testStatsNestedDoubleValue" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.058"/>
+  <testcase name="testStatsBySpan" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.035"/>
+  <testcase name="testStatsNested" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.046"/>
+  <testcase name="testStatsWhere" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.071"/>
+  <testcase name="testMultipleAggregationFunction" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.084"/>
+  <testcase name="testStatsCount" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.053"/>
+  <testcase name="testStatsWithMissing" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.06"/>
+  <testcase name="testStatsWithNull" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.057"/>
+  <testcase name="testStatsSum" classname="org.opensearch.sql.ppl.StatsCommandIT" time="0.044"/>
+  <system-out><![CDATA[[2023-01-17T23:12:56,934][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsAvg] before test
+[2023-01-17T23:12:56,943][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsAvg] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T23:12:57,767][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsAvg] after test
+[2023-01-17T23:12:57,775][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsTimeSpan] before test
+[2023-01-17T23:12:57,818][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsTimeSpan] after test
+[2023-01-17T23:12:57,824][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsMin] before test
+[2023-01-17T23:12:57,850][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsMin] after test
+[2023-01-17T23:12:57,863][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsMax] before test
+[2023-01-17T23:12:57,892][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsMax] after test
+[2023-01-17T23:12:57,898][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsDistinctCount] before test
+[2023-01-17T23:12:57,950][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsDistinctCount] after test
+[2023-01-17T23:12:57,957][INFO ][o.o.s.p.StatsCommandIT   ] [testGroupByNullValue] before test
+[2023-01-17T23:12:57,991][INFO ][o.o.s.p.StatsCommandIT   ] [testGroupByNullValue] after test
+[2023-01-17T23:12:57,998][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsCountAll] before test
+[2023-01-17T23:12:58,024][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsCountAll] after test
+[2023-01-17T23:12:58,031][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsAliasedSpan] before test
+[2023-01-17T23:12:58,058][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsAliasedSpan] after test
+[2023-01-17T23:12:58,065][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsNestedDoubleValue] before test
+[2023-01-17T23:12:58,117][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsNestedDoubleValue] after test
+[2023-01-17T23:12:58,124][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsBySpan] before test
+[2023-01-17T23:12:58,153][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsBySpan] after test
+[2023-01-17T23:12:58,160][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsNested] before test
+[2023-01-17T23:12:58,200][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsNested] after test
+[2023-01-17T23:12:58,206][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsWhere] before test
+[2023-01-17T23:12:58,272][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsWhere] after test
+[2023-01-17T23:12:58,278][INFO ][o.o.s.p.StatsCommandIT   ] [testMultipleAggregationFunction] before test
+[2023-01-17T23:12:58,356][INFO ][o.o.s.p.StatsCommandIT   ] [testMultipleAggregationFunction] after test
+[2023-01-17T23:12:58,362][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsCount] before test
+[2023-01-17T23:12:58,409][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsCount] after test
+[2023-01-17T23:12:58,416][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsWithMissing] before test
+[2023-01-17T23:12:58,469][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsWithMissing] after test
+[2023-01-17T23:12:58,478][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsWithNull] before test
+[2023-01-17T23:12:58,527][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsWithNull] after test
+[2023-01-17T23:12:58,534][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsSum] before test
+[2023-01-17T23:12:58,571][INFO ][o.o.s.p.StatsCommandIT   ] [testStatsSum] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

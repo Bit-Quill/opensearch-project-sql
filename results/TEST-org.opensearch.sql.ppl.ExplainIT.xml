@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.ExplainIT" tests="4" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:27" hostname="Unused26-MacBook.local" time="0.667">
+  <properties/>
+  <testcase name="testFilterAndAggPushDownExplain" classname="org.opensearch.sql.ppl.ExplainIT" time="0.535"/>
+  <testcase name="testFilterPushDownExplain" classname="org.opensearch.sql.ppl.ExplainIT" time="0.034"/>
+  <testcase name="testExplain" classname="org.opensearch.sql.ppl.ExplainIT" time="0.06"/>
+  <testcase name="testSortPushDownExplain" classname="org.opensearch.sql.ppl.ExplainIT" time="0.037"/>
+  <system-out><![CDATA[[0005-01-17T11:12:27,193][INFO ][o.o.s.p.ExplainIT        ] [testFilterAndAggPushDownExplain] before test
+[0005-01-17T11:12:27,208][INFO ][o.o.s.p.ExplainIT        ] [testFilterAndAggPushDownExplain] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[0005-01-17T11:12:27,724][INFO ][o.o.s.p.ExplainIT        ] [testFilterAndAggPushDownExplain] after test
+[0005-01-17T11:12:27,730][INFO ][o.o.s.p.ExplainIT        ] [testFilterPushDownExplain] before test
+[0005-01-17T11:12:27,758][INFO ][o.o.s.p.ExplainIT        ] [testFilterPushDownExplain] after test
+[0005-01-17T11:12:27,764][INFO ][o.o.s.p.ExplainIT        ] [testExplain] before test
+[0005-01-17T11:12:27,819][INFO ][o.o.s.p.ExplainIT        ] [testExplain] after test
+[0005-01-17T11:12:27,825][INFO ][o.o.s.p.ExplainIT        ] [testSortPushDownExplain] before test
+[0005-01-17T11:12:27,856][INFO ][o.o.s.p.ExplainIT        ] [testSortPushDownExplain] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

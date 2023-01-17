@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.RareCommandIT" tests="2" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:48" hostname="Unused26-MacBook.local" time="0.605">
+  <properties/>
+  <testcase name="testRareWithGroup" classname="org.opensearch.sql.ppl.RareCommandIT" time="0.51"/>
+  <testcase name="testRareWithoutGroup" classname="org.opensearch.sql.ppl.RareCommandIT" time="0.095"/>
+  <system-out><![CDATA[[2023-01-17T15:12:48,384][INFO ][o.o.s.p.RareCommandIT    ] [testRareWithGroup] before test
+[2023-01-17T15:12:48,387][INFO ][o.o.s.p.RareCommandIT    ] [testRareWithGroup] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T15:12:48,890][INFO ][o.o.s.p.RareCommandIT    ] [testRareWithGroup] after test
+[2023-01-17T15:12:48,896][INFO ][o.o.s.p.RareCommandIT    ] [testRareWithoutGroup] before test
+[2023-01-17T15:12:48,985][INFO ][o.o.s.p.RareCommandIT    ] [testRareWithoutGroup] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

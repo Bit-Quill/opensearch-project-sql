@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.ParseCommandIT" tests="3" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:43" hostname="Unused26-MacBook.local" time="0.358">
+  <properties/>
+  <testcase name="testParseCommandWithOtherRunTimeFields" classname="org.opensearch.sql.ppl.ParseCommandIT" time="0.295"/>
+  <testcase name="testParseCommandReplaceOriginalField" classname="org.opensearch.sql.ppl.ParseCommandIT" time="0.032"/>
+  <testcase name="testParseCommand" classname="org.opensearch.sql.ppl.ParseCommandIT" time="0.031"/>
+  <system-out><![CDATA[[2023-01-17T07:12:43,864][INFO ][o.o.s.p.ParseCommandIT   ] [testParseCommandWithOtherRunTimeFields] before test
+[2023-01-17T07:12:43,867][INFO ][o.o.s.p.ParseCommandIT   ] [testParseCommandWithOtherRunTimeFields] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T07:12:44,154][INFO ][o.o.s.p.ParseCommandIT   ] [testParseCommandWithOtherRunTimeFields] after test
+[2023-01-17T07:12:44,160][INFO ][o.o.s.p.ParseCommandIT   ] [testParseCommandReplaceOriginalField] before test
+[2023-01-17T07:12:44,187][INFO ][o.o.s.p.ParseCommandIT   ] [testParseCommandReplaceOriginalField] after test
+[2023-01-17T07:12:44,193][INFO ][o.o.s.p.ParseCommandIT   ] [testParseCommand] before test
+[2023-01-17T07:12:44,218][INFO ][o.o.s.p.ParseCommandIT   ] [testParseCommand] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

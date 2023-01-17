@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.WindowFunctionIT" tests="5" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:43" hostname="Unused26-MacBook.local" time="0.745">
+  <properties/>
+  <testcase name="testOrderByNullLast" classname="org.opensearch.sql.sql.WindowFunctionIT" time="0.605"/>
+  <testcase name="testDistinctCountOverNull" classname="org.opensearch.sql.sql.WindowFunctionIT" time="0.038"/>
+  <testcase name="testDistinctCountOver" classname="org.opensearch.sql.sql.WindowFunctionIT" time="0.037"/>
+  <testcase name="testOrderByNullFirst" classname="org.opensearch.sql.sql.WindowFunctionIT" time="0.031"/>
+  <testcase name="testDistinctCountPartition" classname="org.opensearch.sql.sql.WindowFunctionIT" time="0.034"/>
+  <system-out><![CDATA[[2023-01-17T22:13:43,040][INFO ][o.o.s.s.WindowFunctionIT ] [testOrderByNullLast] before test
+[2023-01-17T22:13:43,044][INFO ][o.o.s.s.WindowFunctionIT ] [testOrderByNullLast] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T22:13:43,638][INFO ][o.o.s.s.WindowFunctionIT ] [testOrderByNullLast] after test
+[2023-01-17T22:13:43,647][INFO ][o.o.s.s.WindowFunctionIT ] [testDistinctCountOverNull] before test
+[2023-01-17T22:13:43,676][INFO ][o.o.s.s.WindowFunctionIT ] [testDistinctCountOverNull] after test
+[2023-01-17T22:13:43,684][INFO ][o.o.s.s.WindowFunctionIT ] [testDistinctCountOver] before test
+[2023-01-17T22:13:43,713][INFO ][o.o.s.s.WindowFunctionIT ] [testDistinctCountOver] after test
+[2023-01-17T22:13:43,720][INFO ][o.o.s.s.WindowFunctionIT ] [testOrderByNullFirst] before test
+[2023-01-17T22:13:43,744][INFO ][o.o.s.s.WindowFunctionIT ] [testOrderByNullFirst] after test
+[2023-01-17T22:13:43,751][INFO ][o.o.s.s.WindowFunctionIT ] [testDistinctCountPartition] before test
+[2023-01-17T22:13:43,778][INFO ][o.o.s.s.WindowFunctionIT ] [testDistinctCountPartition] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

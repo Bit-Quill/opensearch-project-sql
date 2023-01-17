@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.legacy.ShowIT" tests="4" skipped="0" failures="4" errors="0" timestamp="2023-01-17T16:12:05" hostname="Unused26-MacBook.local" time="0.819">
+  <properties/>
+  <testcase name="showIndexMatchExact" classname="org.opensearch.sql.legacy.ShowIT" time="0.722">
+    <failure message="org.opensearch.client.ResponseException: method [POST], host [http://127.0.0.1:49776], URI [/_plugins/_sql?format=json], status line [HTTP/1.1 400 Bad Request]&#10;{&#10;  &quot;error&quot;: {&#10;    &quot;reason&quot;: &quot;Invalid SQL query&quot;,&#10;    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,&#10;    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;&#10;  },&#10;  &quot;status&quot;: 400&#10;}" type="org.opensearch.client.ResponseException">org.opensearch.client.ResponseException: method [POST], host [http://127.0.0.1:49776], URI [/_plugins/_sql?format=json], status line [HTTP/1.1 400 Bad Request]
+{
+  &quot;error&quot;: {
+    &quot;reason&quot;: &quot;Invalid SQL query&quot;,
+    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,
+    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;
+  },
+  &quot;status&quot;: 400
+}
+	at __randomizedtesting.SeedInfo.seed([B058E8962C1F801C:A6FF6739BB3462BF]:0)
+	at app//org.opensearch.client.RestClient.convertResponse(RestClient.java:384)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:354)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:329)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:327)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:322)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:310)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeQuery(SQLIntegTestCase.java:293)
+	at app//org.opensearch.sql.legacy.ShowIT.showIndexTest(ShowIT.java:57)
+	at app//org.opensearch.sql.legacy.ShowIT.showIndexMatchExact(ShowIT.java:50)
+	at java.base@17.0.4.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base@17.0.4.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base@17.0.4.1/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base@17.0.4.1/java.lang.reflect.Method.invoke(Method.java:568)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner.invoke(RandomizedRunner.java:1750)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$8.evaluate(RandomizedRunner.java:938)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$9.evaluate(RandomizedRunner.java:974)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$10.evaluate(RandomizedRunner.java:988)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//org.apache.lucene.tests.util.TestRuleSetupTeardownChained$1.evaluate(TestRuleSetupTeardownChained.java:48)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//org.apache.lucene.tests.util.TestRuleThreadAndTestName$1.evaluate(TestRuleThreadAndTestName.java:45)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at app//org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl.forkTimeoutingTask(ThreadLeakControl.java:817)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$3.evaluate(ThreadLeakControl.java:468)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner.runSingleTest(RandomizedRunner.java:947)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$5.evaluate(RandomizedRunner.java:832)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$6.evaluate(RandomizedRunner.java:883)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$7.evaluate(RandomizedRunner.java:894)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.apache.lucene.tests.util.TestRuleStoreClassName$1.evaluate(TestRuleStoreClassName.java:38)
+	at app//com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at app//com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.apache.lucene.tests.util.TestRuleAssertionsRequired$1.evaluate(TestRuleAssertionsRequired.java:53)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreTestSuites$1.evaluate(TestRuleIgnoreTestSuites.java:47)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at java.base@17.0.4.1/java.lang.Thread.run(Thread.java:833)
+</failure>
+  </testcase>
+  <testcase name="showIndexMatchPrefix" classname="org.opensearch.sql.legacy.ShowIT" time="0.035">
+    <failure message="org.opensearch.client.ResponseException: method [POST], host [http://[::1]:49775], URI [/_plugins/_sql?format=json], status line [HTTP/1.1 400 Bad Request]&#10;{&#10;  &quot;error&quot;: {&#10;    &quot;reason&quot;: &quot;Invalid SQL query&quot;,&#10;    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,&#10;    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;&#10;  },&#10;  &quot;status&quot;: 400&#10;}" type="org.opensearch.client.ResponseException">org.opensearch.client.ResponseException: method [POST], host [http://[::1]:49775], URI [/_plugins/_sql?format=json], status line [HTTP/1.1 400 Bad Request]
+{
+  &quot;error&quot;: {
+    &quot;reason&quot;: &quot;Invalid SQL query&quot;,
+    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,
+    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;
+  },
+  &quot;status&quot;: 400
+}
+	at __randomizedtesting.SeedInfo.seed([B058E8962C1F801C:A484DCB84FFA9029]:0)
+	at app//org.opensearch.client.RestClient.convertResponse(RestClient.java:384)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:354)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:329)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:327)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:322)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:310)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeQuery(SQLIntegTestCase.java:293)
+	at app//org.opensearch.sql.legacy.ShowIT.showIndexTest(ShowIT.java:57)
+	at app//org.opensearch.sql.legacy.ShowIT.showIndexMatchPrefix(ShowIT.java:38)
+	at java.base@17.0.4.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base@17.0.4.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base@17.0.4.1/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base@17.0.4.1/java.lang.reflect.Method.invoke(Method.java:568)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner.invoke(RandomizedRunner.java:1750)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$8.evaluate(RandomizedRunner.java:938)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$9.evaluate(RandomizedRunner.java:974)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$10.evaluate(RandomizedRunner.java:988)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//org.apache.lucene.tests.util.TestRuleSetupTeardownChained$1.evaluate(TestRuleSetupTeardownChained.java:48)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//org.apache.lucene.tests.util.TestRuleThreadAndTestName$1.evaluate(TestRuleThreadAndTestName.java:45)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at app//org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl.forkTimeoutingTask(ThreadLeakControl.java:817)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$3.evaluate(ThreadLeakControl.java:468)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner.runSingleTest(RandomizedRunner.java:947)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$5.evaluate(RandomizedRunner.java:832)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$6.evaluate(RandomizedRunner.java:883)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$7.evaluate(RandomizedRunner.java:894)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.apache.lucene.tests.util.TestRuleStoreClassName$1.evaluate(TestRuleStoreClassName.java:38)
+	at app//com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at app//com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.apache.lucene.tests.util.TestRuleAssertionsRequired$1.evaluate(TestRuleAssertionsRequired.java:53)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreTestSuites$1.evaluate(TestRuleIgnoreTestSuites.java:47)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at java.base@17.0.4.1/java.lang.Thread.run(Thread.java:833)
+</failure>
+  </testcase>
+  <testcase name="showAllMatchAll" classname="org.opensearch.sql.legacy.ShowIT" time="0.03">
+    <failure message="org.opensearch.client.ResponseException: method [POST], host [http://127.0.0.1:49776], URI [/_plugins/_sql?format=json], status line [HTTP/1.1 400 Bad Request]&#10;{&#10;  &quot;error&quot;: {&#10;    &quot;reason&quot;: &quot;Invalid SQL query&quot;,&#10;    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,&#10;    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;&#10;  },&#10;  &quot;status&quot;: 400&#10;}" type="org.opensearch.client.ResponseException">org.opensearch.client.ResponseException: method [POST], host [http://127.0.0.1:49776], URI [/_plugins/_sql?format=json], status line [HTTP/1.1 400 Bad Request]
+{
+  &quot;error&quot;: {
+    &quot;reason&quot;: &quot;Invalid SQL query&quot;,
+    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,
+    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;
+  },
+  &quot;status&quot;: 400
+}
+	at __randomizedtesting.SeedInfo.seed([B058E8962C1F801C:9C95B274130A4FAA]:0)
+	at app//org.opensearch.client.RestClient.convertResponse(RestClient.java:384)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:354)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:329)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:327)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:322)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:310)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeQuery(SQLIntegTestCase.java:293)
+	at app//org.opensearch.sql.legacy.ShowIT.showIndexTest(ShowIT.java:57)
+	at app//org.opensearch.sql.legacy.ShowIT.showAllMatchAll(ShowIT.java:32)
+	at java.base@17.0.4.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base@17.0.4.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base@17.0.4.1/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base@17.0.4.1/java.lang.reflect.Method.invoke(Method.java:568)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner.invoke(RandomizedRunner.java:1750)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$8.evaluate(RandomizedRunner.java:938)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$9.evaluate(RandomizedRunner.java:974)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$10.evaluate(RandomizedRunner.java:988)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//org.apache.lucene.tests.util.TestRuleSetupTeardownChained$1.evaluate(TestRuleSetupTeardownChained.java:48)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//org.apache.lucene.tests.util.TestRuleThreadAndTestName$1.evaluate(TestRuleThreadAndTestName.java:45)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at app//org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl.forkTimeoutingTask(ThreadLeakControl.java:817)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$3.evaluate(ThreadLeakControl.java:468)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner.runSingleTest(RandomizedRunner.java:947)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$5.evaluate(RandomizedRunner.java:832)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$6.evaluate(RandomizedRunner.java:883)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$7.evaluate(RandomizedRunner.java:894)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.apache.lucene.tests.util.TestRuleStoreClassName$1.evaluate(TestRuleStoreClassName.java:38)
+	at app//com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at app//com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.apache.lucene.tests.util.TestRuleAssertionsRequired$1.evaluate(TestRuleAssertionsRequired.java:53)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreTestSuites$1.evaluate(TestRuleIgnoreTestSuites.java:47)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at java.base@17.0.4.1/java.lang.Thread.run(Thread.java:833)
+</failure>
+  </testcase>
+  <testcase name="showIndexMatchSuffix" classname="org.opensearch.sql.legacy.ShowIT" time="0.032">
+    <failure message="org.opensearch.client.ResponseException: method [POST], host [http://[::1]:49775], URI [/_plugins/_sql?format=json], status line [HTTP/1.1 400 Bad Request]&#10;{&#10;  &quot;error&quot;: {&#10;    &quot;reason&quot;: &quot;Invalid SQL query&quot;,&#10;    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,&#10;    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;&#10;  },&#10;  &quot;status&quot;: 400&#10;}" type="org.opensearch.client.ResponseException">org.opensearch.client.ResponseException: method [POST], host [http://[::1]:49775], URI [/_plugins/_sql?format=json], status line [HTTP/1.1 400 Bad Request]
+{
+  &quot;error&quot;: {
+    &quot;reason&quot;: &quot;Invalid SQL query&quot;,
+    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,
+    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;
+  },
+  &quot;status&quot;: 400
+}
+	at __randomizedtesting.SeedInfo.seed([B058E8962C1F801C:D46FE1AD8A9D09A5]:0)
+	at app//org.opensearch.client.RestClient.convertResponse(RestClient.java:384)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:354)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:329)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:327)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:322)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:310)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeQuery(SQLIntegTestCase.java:293)
+	at app//org.opensearch.sql.legacy.ShowIT.showIndexTest(ShowIT.java:57)
+	at app//org.opensearch.sql.legacy.ShowIT.showIndexMatchSuffix(ShowIT.java:44)
+	at java.base@17.0.4.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base@17.0.4.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base@17.0.4.1/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base@17.0.4.1/java.lang.reflect.Method.invoke(Method.java:568)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner.invoke(RandomizedRunner.java:1750)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$8.evaluate(RandomizedRunner.java:938)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$9.evaluate(RandomizedRunner.java:974)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$10.evaluate(RandomizedRunner.java:988)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//org.apache.lucene.tests.util.TestRuleSetupTeardownChained$1.evaluate(TestRuleSetupTeardownChained.java:48)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//org.apache.lucene.tests.util.TestRuleThreadAndTestName$1.evaluate(TestRuleThreadAndTestName.java:45)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at app//org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl.forkTimeoutingTask(ThreadLeakControl.java:817)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$3.evaluate(ThreadLeakControl.java:468)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner.runSingleTest(RandomizedRunner.java:947)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$5.evaluate(RandomizedRunner.java:832)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$6.evaluate(RandomizedRunner.java:883)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$7.evaluate(RandomizedRunner.java:894)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.apache.lucene.tests.util.TestRuleStoreClassName$1.evaluate(TestRuleStoreClassName.java:38)
+	at app//com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at app//com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.apache.lucene.tests.util.TestRuleAssertionsRequired$1.evaluate(TestRuleAssertionsRequired.java:53)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreTestSuites$1.evaluate(TestRuleIgnoreTestSuites.java:47)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at java.base@17.0.4.1/java.lang.Thread.run(Thread.java:833)
+</failure>
+  </testcase>
+  <system-out><![CDATA[[2023-01-18T05:12:05,092][INFO ][o.o.s.l.ShowIT           ] [showIndexMatchExact] before test
+[2023-01-18T05:12:05,096][INFO ][o.o.s.l.ShowIT           ] [showIndexMatchExact] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-18T05:12:05,809][INFO ][o.o.s.l.ShowIT           ] [showIndexMatchExact] after test
+[2023-01-18T05:12:05,816][INFO ][o.o.s.l.ShowIT           ] [showIndexMatchPrefix] before test
+[2023-01-18T05:12:05,845][INFO ][o.o.s.l.ShowIT           ] [showIndexMatchPrefix] after test
+[2023-01-18T05:12:05,851][INFO ][o.o.s.l.ShowIT           ] [showAllMatchAll] before test
+[2023-01-18T05:12:05,875][INFO ][o.o.s.l.ShowIT           ] [showAllMatchAll] after test
+[2023-01-18T05:12:05,881][INFO ][o.o.s.l.ShowIT           ] [showIndexMatchSuffix] before test
+[2023-01-18T05:12:05,907][INFO ][o.o.s.l.ShowIT           ] [showIndexMatchSuffix] after test
+]]></system-out>
+  <system-err><![CDATA[REPRODUCE WITH: ./gradlew ':integ-test:integTest' --tests "org.opensearch.sql.legacy.ShowIT.showIndexMatchExact" -Dtests.seed=B058E8962C1F801C -Dtests.security.manager=false -Dtests.locale=el-CY -Dtests.timezone=Pacific/Apia -Druntime.java=17
+REPRODUCE WITH: ./gradlew ':integ-test:integTest' --tests "org.opensearch.sql.legacy.ShowIT.showIndexMatchPrefix" -Dtests.seed=B058E8962C1F801C -Dtests.security.manager=false -Dtests.locale=el-CY -Dtests.timezone=Pacific/Apia -Druntime.java=17
+REPRODUCE WITH: ./gradlew ':integ-test:integTest' --tests "org.opensearch.sql.legacy.ShowIT.showAllMatchAll" -Dtests.seed=B058E8962C1F801C -Dtests.security.manager=false -Dtests.locale=el-CY -Dtests.timezone=Pacific/Apia -Druntime.java=17
+REPRODUCE WITH: ./gradlew ':integ-test:integTest' --tests "org.opensearch.sql.legacy.ShowIT.showIndexMatchSuffix" -Dtests.seed=B058E8962C1F801C -Dtests.security.manager=false -Dtests.locale=el-CY -Dtests.timezone=Pacific/Apia -Druntime.java=17
+NOTE: leaving temporary files on disk at: /Users/guiang/Documents/GitHub/opensearch-project-sql/integ-test/build/testrun/integTest/temp/org.opensearch.sql.legacy.ShowIT_B058E8962C1F801C-001
+NOTE: test params are: codec=Asserting(Lucene95): {}, docValues:{}, maxPointsInLeafNode=551, maxMBSortInHeap=7.2165748178027105, sim=Asserting(RandomSimilarity(queryNorm=false): {}), locale=el-CY, timezone=Pacific/Apia
+NOTE: Mac OS X 13.0 x86_64/Amazon.com Inc. 17.0.4.1 (64-bit)/cpus=10,threads=1,free=384328864,total=536870912
+NOTE: All tests run in this JVM: [AggregationIT, CsvFormatResponseIT, CursorIT, DateFormatIT, DateFunctionsIT, DeleteIT, HashJoinIT, HavingIT, JSONRequestIT, JdbcTestIT, JoinAliasWriterRuleIT, JoinIT, MathFunctionsIT, MetaDataQueriesIT, MethodQueryIT, MultiQueryIT, NestedFieldQueryIT, ObjectFieldSelectIT, PluginIT, PreparedStatementIT, PrettyFormatResponseIT, QueryFunctionsIT, QueryIT, SQLFunctionsIT, ShowIT]
+]]></system-err>
+</testsuite>

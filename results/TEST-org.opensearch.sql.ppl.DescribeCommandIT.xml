@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.DescribeCommandIT" tests="4" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:25" hostname="Unused26-MacBook.local" time="1.087">
+  <properties/>
+  <testcase name="testDescribeCommandWithPrometheusCatalog" classname="org.opensearch.sql.ppl.DescribeCommandIT" time="0.376"/>
+  <testcase name="testDescribeFilterFields" classname="org.opensearch.sql.ppl.DescribeCommandIT" time="0.039"/>
+  <testcase name="testDescribeAllFields" classname="org.opensearch.sql.ppl.DescribeCommandIT" time="0.062"/>
+  <testcase name="testDescribeWithSpecialIndexName" classname="org.opensearch.sql.ppl.DescribeCommandIT" time="0.608"/>
+  <system-out><![CDATA[[2023-01-18T03:12:25,876][INFO ][o.o.s.p.DescribeCommandIT] [testDescribeCommandWithPrometheusCatalog] before test
+[2023-01-18T03:12:25,880][INFO ][o.o.s.p.DescribeCommandIT] [testDescribeCommandWithPrometheusCatalog] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-18T03:12:26,249][INFO ][o.o.s.p.DescribeCommandIT] [testDescribeCommandWithPrometheusCatalog] after test
+[2023-01-18T03:12:26,255][INFO ][o.o.s.p.DescribeCommandIT] [testDescribeFilterFields] before test
+[2023-01-18T03:12:26,289][INFO ][o.o.s.p.DescribeCommandIT] [testDescribeFilterFields] after test
+[2023-01-18T03:12:26,295][INFO ][o.o.s.p.DescribeCommandIT] [testDescribeAllFields] before test
+[2023-01-18T03:12:26,351][INFO ][o.o.s.p.DescribeCommandIT] [testDescribeAllFields] after test
+[2023-01-18T03:12:26,357][INFO ][o.o.s.p.DescribeCommandIT] [testDescribeWithSpecialIndexName] before test
+[2023-01-18T03:12:26,959][INFO ][o.o.s.p.DescribeCommandIT] [testDescribeWithSpecialIndexName] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.DataTypeIT" tests="3" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:19" hostname="Unused26-MacBook.local" time="0.664">
+  <properties/>
+  <testcase name="test_numeric_data_types" classname="org.opensearch.sql.ppl.DataTypeIT" time="0.577"/>
+  <testcase name="test_nonnumeric_data_types" classname="org.opensearch.sql.ppl.DataTypeIT" time="0.047"/>
+  <testcase name="test_long_integer_data_type" classname="org.opensearch.sql.ppl.DataTypeIT" time="0.039"/>
+  <system-out><![CDATA[[2023-01-17T08:12:19,541][INFO ][o.o.s.p.DataTypeIT       ] [test_numeric_data_types] before test
+[2023-01-17T08:12:19,543][INFO ][o.o.s.p.DataTypeIT       ] [test_numeric_data_types] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T08:12:20,114][INFO ][o.o.s.p.DataTypeIT       ] [test_numeric_data_types] after test
+[2023-01-17T08:12:20,120][INFO ][o.o.s.p.DataTypeIT       ] [test_nonnumeric_data_types] before test
+[2023-01-17T08:12:20,162][INFO ][o.o.s.p.DataTypeIT       ] [test_nonnumeric_data_types] after test
+[2023-01-17T08:12:20,168][INFO ][o.o.s.p.DataTypeIT       ] [test_long_integer_data_type] before test
+[2023-01-17T08:12:20,201][INFO ][o.o.s.p.DataTypeIT       ] [test_long_integer_data_type] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

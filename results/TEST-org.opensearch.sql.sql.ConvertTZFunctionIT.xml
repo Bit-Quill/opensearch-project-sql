@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.ConvertTZFunctionIT" tests="17" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:08" hostname="Unused26-MacBook.local" time="0.751">
+  <properties/>
+  <testcase name="inRangeNegativeZeroToPositiveZero" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.299"/>
+  <testcase name="nullField2InvalidInput" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.029"/>
+  <testcase name="nullDateTimeInvalidDateValueApril" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.03"/>
+  <testcase name="inRangeZeroToPositive" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.029"/>
+  <testcase name="inRangeTwentyFourHourTimeOffset" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.027"/>
+  <testcase name="inRangeFifteenMinuteTimeZones" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.029"/>
+  <testcase name="inRangeSameTimeZone" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.027"/>
+  <testcase name="inRangeNegativeToPositive" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.026"/>
+  <testcase name="nullDateTimeInvalidDateValueMonth" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.028"/>
+  <testcase name="inRangePositiveToPositive" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.027"/>
+  <testcase name="nullDateTimeInvalidDateValueFebruary" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.029"/>
+  <testcase name="nullField2Under" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.027"/>
+  <testcase name="inRangeMinOnPoint" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.029"/>
+  <testcase name="inRangeRandomTimes" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.027"/>
+  <testcase name="nullField3InvalidInput" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.029"/>
+  <testcase name="nullField3Over" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.028"/>
+  <testcase name="nullDateTimeInvalidInput" classname="org.opensearch.sql.sql.ConvertTZFunctionIT" time="0.028"/>
+  <system-out><![CDATA[[2023-01-17T10:13:08,890][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeNegativeZeroToPositiveZero] before test
+[2023-01-17T10:13:08,891][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeNegativeZeroToPositiveZero] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T10:13:09,184][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeNegativeZeroToPositiveZero] after test
+[2023-01-17T10:13:09,191][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullField2InvalidInput] before test
+[2023-01-17T10:13:09,214][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullField2InvalidInput] after test
+[2023-01-17T10:13:09,220][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullDateTimeInvalidDateValueApril] before test
+[2023-01-17T10:13:09,244][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullDateTimeInvalidDateValueApril] after test
+[2023-01-17T10:13:09,250][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeZeroToPositive] before test
+[2023-01-17T10:13:09,273][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeZeroToPositive] after test
+[2023-01-17T10:13:09,279][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeTwentyFourHourTimeOffset] before test
+[2023-01-17T10:13:09,300][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeTwentyFourHourTimeOffset] after test
+[2023-01-17T10:13:09,307][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeFifteenMinuteTimeZones] before test
+[2023-01-17T10:13:09,329][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeFifteenMinuteTimeZones] after test
+[2023-01-17T10:13:09,335][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeSameTimeZone] before test
+[2023-01-17T10:13:09,357][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeSameTimeZone] after test
+[2023-01-17T10:13:09,363][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeNegativeToPositive] before test
+[2023-01-17T10:13:09,384][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeNegativeToPositive] after test
+[2023-01-17T10:13:09,390][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullDateTimeInvalidDateValueMonth] before test
+[2023-01-17T10:13:09,411][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullDateTimeInvalidDateValueMonth] after test
+[2023-01-17T10:13:09,418][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangePositiveToPositive] before test
+[2023-01-17T10:13:09,438][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangePositiveToPositive] after test
+[2023-01-17T10:13:09,444][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullDateTimeInvalidDateValueFebruary] before test
+[2023-01-17T10:13:09,467][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullDateTimeInvalidDateValueFebruary] after test
+[2023-01-17T10:13:09,473][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullField2Under] before test
+[2023-01-17T10:13:09,495][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullField2Under] after test
+[2023-01-17T10:13:09,501][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeMinOnPoint] before test
+[2023-01-17T10:13:09,524][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeMinOnPoint] after test
+[2023-01-17T10:13:09,530][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeRandomTimes] before test
+[2023-01-17T10:13:09,552][INFO ][o.o.s.s.ConvertTZFunctionIT] [inRangeRandomTimes] after test
+[2023-01-17T10:13:09,558][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullField3InvalidInput] before test
+[2023-01-17T10:13:09,581][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullField3InvalidInput] after test
+[2023-01-17T10:13:09,587][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullField3Over] before test
+[2023-01-17T10:13:09,609][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullField3Over] after test
+[2023-01-17T10:13:09,615][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullDateTimeInvalidInput] before test
+[2023-01-17T10:13:09,636][INFO ][o.o.s.s.ConvertTZFunctionIT] [nullDateTimeInvalidInput] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

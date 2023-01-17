@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.LikeQueryIT" tests="8" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:31" hostname="Unused26-MacBook.local" time="0.577">
+  <properties/>
+  <testcase name="test_like_on_text_field_with_greater_than_one_word" classname="org.opensearch.sql.ppl.LikeQueryIT" time="0.297"/>
+  <testcase name="test_like_on_text_keyword_field_with_one_word" classname="org.opensearch.sql.ppl.LikeQueryIT" time="0.051"/>
+  <testcase name="test_like_with_escaped_percent" classname="org.opensearch.sql.ppl.LikeQueryIT" time="0.04"/>
+  <testcase name="test_like_on_text_keyword_field_with_greater_than_one_word" classname="org.opensearch.sql.ppl.LikeQueryIT" time="0.057"/>
+  <testcase name="test_convert_field_text_to_keyword" classname="org.opensearch.sql.ppl.LikeQueryIT" time="0.03"/>
+  <testcase name="test_like_on_text_field_with_one_word" classname="org.opensearch.sql.ppl.LikeQueryIT" time="0.032"/>
+  <testcase name="test_like_in_where_with_escaped_underscore" classname="org.opensearch.sql.ppl.LikeQueryIT" time="0.031"/>
+  <testcase name="test_like_with_percent" classname="org.opensearch.sql.ppl.LikeQueryIT" time="0.037"/>
+  <system-out><![CDATA[[2023-01-17T11:12:31,295][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_on_text_field_with_greater_than_one_word] before test
+[2023-01-17T11:12:31,296][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_on_text_field_with_greater_than_one_word] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T11:12:31,588][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_on_text_field_with_greater_than_one_word] after test
+[2023-01-17T11:12:31,594][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_on_text_keyword_field_with_one_word] before test
+[2023-01-17T11:12:31,640][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_on_text_keyword_field_with_one_word] after test
+[2023-01-17T11:12:31,646][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_with_escaped_percent] before test
+[2023-01-17T11:12:31,680][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_with_escaped_percent] after test
+[2023-01-17T11:12:31,686][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_on_text_keyword_field_with_greater_than_one_word] before test
+[2023-01-17T11:12:31,738][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_on_text_keyword_field_with_greater_than_one_word] after test
+[2023-01-17T11:12:31,743][INFO ][o.o.s.p.LikeQueryIT      ] [test_convert_field_text_to_keyword] before test
+[2023-01-17T11:12:31,768][INFO ][o.o.s.p.LikeQueryIT      ] [test_convert_field_text_to_keyword] after test
+[2023-01-17T11:12:31,774][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_on_text_field_with_one_word] before test
+[2023-01-17T11:12:31,800][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_on_text_field_with_one_word] after test
+[2023-01-17T11:12:31,805][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_in_where_with_escaped_underscore] before test
+[2023-01-17T11:12:31,831][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_in_where_with_escaped_underscore] after test
+[2023-01-17T11:12:31,837][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_with_percent] before test
+[2023-01-17T11:12:31,869][INFO ][o.o.s.p.LikeQueryIT      ] [test_like_with_percent] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

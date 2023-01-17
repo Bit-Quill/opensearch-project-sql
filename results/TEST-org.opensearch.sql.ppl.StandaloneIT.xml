@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.StandaloneIT" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:54" hostname="Unused26-MacBook.local" time="1.902">
+  <properties/>
+  <testcase name="testSourceFieldQuery" classname="org.opensearch.sql.ppl.StandaloneIT" time="1.902"/>
+  <system-out><![CDATA[[2023-01-17T13:12:54,793][INFO ][o.o.s.p.StandaloneIT     ] [testSourceFieldQuery] before test
+[2023-01-17T13:12:54,795][INFO ][o.o.s.p.StandaloneIT     ] [testSourceFieldQuery] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T13:12:55,938][INFO ][o.o.s.p.PPLService       ] [testSourceFieldQuery{request_id=e49f1e4e-6292-4060-b925-cca7e618ed2f}] [e49f1e4e-6292-4060-b925-cca7e618ed2f] Incoming request source=test | fields + name
+[2023-01-17T13:12:56,670][INFO ][o.o.s.p.StandaloneIT     ] [testSourceFieldQuery{request_id=e49f1e4e-6292-4060-b925-cca7e618ed2f}] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

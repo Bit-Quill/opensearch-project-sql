@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.ConditionalIT" tests="12" skipped="0" failures="2" errors="0" timestamp="2023-01-17T16:12:08" hostname="Unused26-MacBook.local" time="1.195">
+  <properties/>
+  <testcase name="ifnullWithMissingInputTest" classname="org.opensearch.sql.sql.ConditionalIT" time="0.695"/>
+  <testcase name="isnullWithMathExpr" classname="org.opensearch.sql.sql.ConditionalIT" time="0.031">
+    <failure message="org.opensearch.client.ResponseException: method [POST], host [http://127.0.0.1:49776], URI [/_plugins/_sql?format=json], status line [HTTP/1.1 400 Bad Request]&#10;{&#10;  &quot;error&quot;: {&#10;    &quot;reason&quot;: &quot;Invalid SQL query&quot;,&#10;    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,&#10;    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;&#10;  },&#10;  &quot;status&quot;: 400&#10;}" type="org.opensearch.client.ResponseException">org.opensearch.client.ResponseException: method [POST], host [http://127.0.0.1:49776], URI [/_plugins/_sql?format=json], status line [HTTP/1.1 400 Bad Request]
+{
+  &quot;error&quot;: {
+    &quot;reason&quot;: &quot;Invalid SQL query&quot;,
+    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,
+    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;
+  },
+  &quot;status&quot;: 400
+}
+	at __randomizedtesting.SeedInfo.seed([B058E8962C1F801C:3A0A1045089EB021]:0)
+	at app//org.opensearch.client.RestClient.convertResponse(RestClient.java:384)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:354)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:329)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:327)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:322)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:310)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeQuery(SQLIntegTestCase.java:293)
+	at app//org.opensearch.sql.sql.ConditionalIT.isnullWithMathExpr(ConditionalIT.java:172)
+	at java.base@17.0.4.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base@17.0.4.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base@17.0.4.1/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base@17.0.4.1/java.lang.reflect.Method.invoke(Method.java:568)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner.invoke(RandomizedRunner.java:1750)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$8.evaluate(RandomizedRunner.java:938)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$9.evaluate(RandomizedRunner.java:974)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$10.evaluate(RandomizedRunner.java:988)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//org.apache.lucene.tests.util.TestRuleSetupTeardownChained$1.evaluate(TestRuleSetupTeardownChained.java:48)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//org.apache.lucene.tests.util.TestRuleThreadAndTestName$1.evaluate(TestRuleThreadAndTestName.java:45)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at app//org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl.forkTimeoutingTask(ThreadLeakControl.java:817)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$3.evaluate(ThreadLeakControl.java:468)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner.runSingleTest(RandomizedRunner.java:947)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$5.evaluate(RandomizedRunner.java:832)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$6.evaluate(RandomizedRunner.java:883)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$7.evaluate(RandomizedRunner.java:894)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.apache.lucene.tests.util.TestRuleStoreClassName$1.evaluate(TestRuleStoreClassName.java:38)
+	at app//com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at app//com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.apache.lucene.tests.util.TestRuleAssertionsRequired$1.evaluate(TestRuleAssertionsRequired.java:53)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreTestSuites$1.evaluate(TestRuleIgnoreTestSuites.java:47)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at java.base@17.0.4.1/java.lang.Thread.run(Thread.java:833)
+</failure>
+  </testcase>
+  <testcase name="isnullShouldPassJDBC" classname="org.opensearch.sql.sql.ConditionalIT" time="0.051"/>
+  <testcase name="nullifShouldPassJDBC" classname="org.opensearch.sql.sql.ConditionalIT" time="0.049"/>
+  <testcase name="ifnullWithNullInputTest" classname="org.opensearch.sql.sql.ConditionalIT" time="0.05"/>
+  <testcase name="isnullWithNullInputTest" classname="org.opensearch.sql.sql.ConditionalIT" time="0.054"/>
+  <testcase name="nullifWithNullInputTest" classname="org.opensearch.sql.sql.ConditionalIT" time="0.045"/>
+  <testcase name="ifWithTrueAndFalseCondition" classname="org.opensearch.sql.sql.ConditionalIT" time="0.034"/>
+  <testcase name="nullifWithNotNullInputTestOne" classname="org.opensearch.sql.sql.ConditionalIT" time="0.032"/>
+  <testcase name="isnullWithNotNullInputTest" classname="org.opensearch.sql.sql.ConditionalIT" time="0.031">
+    <failure message="org.opensearch.client.ResponseException: method [POST], host [http://127.0.0.1:49776], URI [/_plugins/_sql?format=json], status line [HTTP/1.1 400 Bad Request]&#10;{&#10;  &quot;error&quot;: {&#10;    &quot;reason&quot;: &quot;Invalid SQL query&quot;,&#10;    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,&#10;    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;&#10;  },&#10;  &quot;status&quot;: 400&#10;}" type="org.opensearch.client.ResponseException">org.opensearch.client.ResponseException: method [POST], host [http://127.0.0.1:49776], URI [/_plugins/_sql?format=json], status line [HTTP/1.1 400 Bad Request]
+{
+  &quot;error&quot;: {
+    &quot;reason&quot;: &quot;Invalid SQL query&quot;,
+    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,
+    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;
+  },
+  &quot;status&quot;: 400
+}
+	at __randomizedtesting.SeedInfo.seed([B058E8962C1F801C:22F8F39515FB4BAC]:0)
+	at app//org.opensearch.client.RestClient.convertResponse(RestClient.java:384)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:354)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:329)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:327)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:322)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeRequest(SQLIntegTestCase.java:310)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeQuery(SQLIntegTestCase.java:293)
+	at app//org.opensearch.sql.sql.ConditionalIT.isnullWithNotNullInputTest(ConditionalIT.java:144)
+	at java.base@17.0.4.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base@17.0.4.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base@17.0.4.1/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base@17.0.4.1/java.lang.reflect.Method.invoke(Method.java:568)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner.invoke(RandomizedRunner.java:1750)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$8.evaluate(RandomizedRunner.java:938)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$9.evaluate(RandomizedRunner.java:974)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$10.evaluate(RandomizedRunner.java:988)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//org.apache.lucene.tests.util.TestRuleSetupTeardownChained$1.evaluate(TestRuleSetupTeardownChained.java:48)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//org.apache.lucene.tests.util.TestRuleThreadAndTestName$1.evaluate(TestRuleThreadAndTestName.java:45)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at app//org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl.forkTimeoutingTask(ThreadLeakControl.java:817)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$3.evaluate(ThreadLeakControl.java:468)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner.runSingleTest(RandomizedRunner.java:947)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$5.evaluate(RandomizedRunner.java:832)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$6.evaluate(RandomizedRunner.java:883)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$7.evaluate(RandomizedRunner.java:894)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.apache.lucene.tests.util.TestRuleStoreClassName$1.evaluate(TestRuleStoreClassName.java:38)
+	at app//com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at app//com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.apache.lucene.tests.util.TestRuleAssertionsRequired$1.evaluate(TestRuleAssertionsRequired.java:53)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreTestSuites$1.evaluate(TestRuleIgnoreTestSuites.java:47)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at java.base@17.0.4.1/java.lang.Thread.run(Thread.java:833)
+</failure>
+  </testcase>
+  <testcase name="ifnullShouldPassJDBC" classname="org.opensearch.sql.sql.ConditionalIT" time="0.065"/>
+  <testcase name="ifShouldPassJDBC" classname="org.opensearch.sql.sql.ConditionalIT" time="0.057"/>
+  <system-out><![CDATA[[2023-01-18T03:12:08,710][INFO ][o.o.s.s.ConditionalIT    ] [ifnullWithMissingInputTest] before test
+[2023-01-18T03:12:08,714][INFO ][o.o.s.s.ConditionalIT    ] [ifnullWithMissingInputTest] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-18T03:12:09,400][INFO ][o.o.s.s.ConditionalIT    ] [ifnullWithMissingInputTest] after test
+[2023-01-18T03:12:09,406][INFO ][o.o.s.s.ConditionalIT    ] [isnullWithMathExpr] before test
+[2023-01-18T03:12:09,431][INFO ][o.o.s.s.ConditionalIT    ] [isnullWithMathExpr] after test
+[2023-01-18T03:12:09,437][INFO ][o.o.s.s.ConditionalIT    ] [isnullShouldPassJDBC] before test
+[2023-01-18T03:12:09,483][INFO ][o.o.s.s.ConditionalIT    ] [isnullShouldPassJDBC] after test
+[2023-01-18T03:12:09,488][INFO ][o.o.s.s.ConditionalIT    ] [nullifShouldPassJDBC] before test
+[2023-01-18T03:12:09,531][INFO ][o.o.s.s.ConditionalIT    ] [nullifShouldPassJDBC] after test
+[2023-01-18T03:12:09,537][INFO ][o.o.s.s.ConditionalIT    ] [ifnullWithNullInputTest] before test
+[2023-01-18T03:12:09,581][INFO ][o.o.s.s.ConditionalIT    ] [ifnullWithNullInputTest] after test
+[2023-01-18T03:12:09,587][INFO ][o.o.s.s.ConditionalIT    ] [isnullWithNullInputTest] before test
+[2023-01-18T03:12:09,636][INFO ][o.o.s.s.ConditionalIT    ] [isnullWithNullInputTest] after test
+[2023-01-18T03:12:09,641][INFO ][o.o.s.s.ConditionalIT    ] [nullifWithNullInputTest] before test
+[2023-01-18T03:12:09,681][INFO ][o.o.s.s.ConditionalIT    ] [nullifWithNullInputTest] after test
+[2023-01-18T03:12:09,687][INFO ][o.o.s.s.ConditionalIT    ] [ifWithTrueAndFalseCondition] before test
+[2023-01-18T03:12:09,716][INFO ][o.o.s.s.ConditionalIT    ] [ifWithTrueAndFalseCondition] after test
+[2023-01-18T03:12:09,721][INFO ][o.o.s.s.ConditionalIT    ] [nullifWithNotNullInputTestOne] before test
+[2023-01-18T03:12:09,747][INFO ][o.o.s.s.ConditionalIT    ] [nullifWithNotNullInputTestOne] after test
+[2023-01-18T03:12:09,753][INFO ][o.o.s.s.ConditionalIT    ] [isnullWithNotNullInputTest] before test
+[2023-01-18T03:12:09,778][INFO ][o.o.s.s.ConditionalIT    ] [isnullWithNotNullInputTest] after test
+[2023-01-18T03:12:09,784][INFO ][o.o.s.s.ConditionalIT    ] [ifnullShouldPassJDBC] before test
+[2023-01-18T03:12:09,843][INFO ][o.o.s.s.ConditionalIT    ] [ifnullShouldPassJDBC] after test
+[2023-01-18T03:12:09,849][INFO ][o.o.s.s.ConditionalIT    ] [ifShouldPassJDBC] before test
+[2023-01-18T03:12:09,901][INFO ][o.o.s.s.ConditionalIT    ] [ifShouldPassJDBC] after test
+]]></system-out>
+  <system-err><![CDATA[REPRODUCE WITH: ./gradlew ':integ-test:integTest' --tests "org.opensearch.sql.sql.ConditionalIT.isnullWithMathExpr" -Dtests.seed=B058E8962C1F801C -Dtests.security.manager=false -Dtests.locale=zh-CN -Dtests.timezone=Australia/ACT -Druntime.java=17
+REPRODUCE WITH: ./gradlew ':integ-test:integTest' --tests "org.opensearch.sql.sql.ConditionalIT.isnullWithNotNullInputTest" -Dtests.seed=B058E8962C1F801C -Dtests.security.manager=false -Dtests.locale=zh-CN -Dtests.timezone=Australia/ACT -Druntime.java=17
+NOTE: leaving temporary files on disk at: /Users/guiang/Documents/GitHub/opensearch-project-sql/integ-test/build/testrun/integTest/temp/org.opensearch.sql.sql.ConditionalIT_B058E8962C1F801C-001
+NOTE: test params are: codec=Asserting(Lucene95): {}, docValues:{}, maxPointsInLeafNode=1007, maxMBSortInHeap=7.973709634897164, sim=Asserting(RandomSimilarity(queryNorm=false): {}), locale=zh-CN, timezone=Australia/ACT
+NOTE: Mac OS X 13.0 x86_64/Amazon.com Inc. 17.0.4.1 (64-bit)/cpus=10,threads=1,free=383919712,total=536870912
+NOTE: All tests run in this JVM: [AggregationIT, CsvFormatResponseIT, CursorIT, DateFormatIT, DateFunctionsIT, DeleteIT, HashJoinIT, HavingIT, JSONRequestIT, JdbcTestIT, JoinAliasWriterRuleIT, JoinIT, MathFunctionsIT, MetaDataQueriesIT, MethodQueryIT, MultiQueryIT, NestedFieldQueryIT, ObjectFieldSelectIT, PluginIT, PreparedStatementIT, PrettyFormatResponseIT, QueryFunctionsIT, QueryIT, SQLFunctionsIT, ShowIT, SourceFieldIT, SubqueryIT, ConditionalIT]
+]]></system-err>
+</testsuite>

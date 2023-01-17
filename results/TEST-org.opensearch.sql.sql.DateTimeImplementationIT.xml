@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.DateTimeImplementationIT" tests="15" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:14" hostname="Unused26-MacBook.local" time="0.897">
+  <properties/>
+  <testcase name="inRangeZeroToPositive" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.478"/>
+  <testcase name="inRangeZeroNoToTZ" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.043"/>
+  <testcase name="inRangeTwentyHourOffset" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.036"/>
+  <testcase name="nullField3Under" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.026"/>
+  <testcase name="inRangeYearChange" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.026"/>
+  <testcase name="inRangeZeroNoTZ" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.026"/>
+  <testcase name="inRangeZeroToStringTZ" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.027"/>
+  <testcase name="inRangeJustInRangeNegative" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.028"/>
+  <testcase name="inRangeNegativeToPositive" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.032"/>
+  <testcase name="inRangeZeroDayConvert" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.027"/>
+  <testcase name="nullField1Over" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.028"/>
+  <testcase name="nullDateTimeInvalidDateValueFebruary" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.028"/>
+  <testcase name="nullDateTimeInvalidDateValueApril" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.026"/>
+  <testcase name="inRangeJustInRangePositive" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.031"/>
+  <testcase name="nullDateTimeInvalidDateValueMonth" classname="org.opensearch.sql.sql.DateTimeImplementationIT" time="0.027"/>
+  <system-out><![CDATA[[2023-01-17T17:13:14,974][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeZeroToPositive] before test
+[2023-01-17T17:13:14,981][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeZeroToPositive] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T17:13:15,430][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeZeroToPositive] after test
+[2023-01-17T17:13:15,468][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeZeroNoToTZ] before test
+[2023-01-17T17:13:15,496][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeZeroNoToTZ] after test
+[2023-01-17T17:13:15,502][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeTwentyHourOffset] before test
+[2023-01-17T17:13:15,532][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeTwentyHourOffset] after test
+[2023-01-17T17:13:15,538][INFO ][o.o.s.s.DateTimeImplementationIT] [nullField3Under] before test
+[2023-01-17T17:13:15,559][INFO ][o.o.s.s.DateTimeImplementationIT] [nullField3Under] after test
+[2023-01-17T17:13:15,565][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeYearChange] before test
+[2023-01-17T17:13:15,585][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeYearChange] after test
+[2023-01-17T17:13:15,591][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeZeroNoTZ] before test
+[2023-01-17T17:13:15,611][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeZeroNoTZ] after test
+[2023-01-17T17:13:15,617][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeZeroToStringTZ] before test
+[2023-01-17T17:13:15,638][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeZeroToStringTZ] after test
+[2023-01-17T17:13:15,645][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeJustInRangeNegative] before test
+[2023-01-17T17:13:15,666][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeJustInRangeNegative] after test
+[2023-01-17T17:13:15,678][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeNegativeToPositive] before test
+[2023-01-17T17:13:15,699][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeNegativeToPositive] after test
+[2023-01-17T17:13:15,705][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeZeroDayConvert] before test
+[2023-01-17T17:13:15,727][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeZeroDayConvert] after test
+[2023-01-17T17:13:15,733][INFO ][o.o.s.s.DateTimeImplementationIT] [nullField1Over] before test
+[2023-01-17T17:13:15,755][INFO ][o.o.s.s.DateTimeImplementationIT] [nullField1Over] after test
+[2023-01-17T17:13:15,761][INFO ][o.o.s.s.DateTimeImplementationIT] [nullDateTimeInvalidDateValueFebruary] before test
+[2023-01-17T17:13:15,782][INFO ][o.o.s.s.DateTimeImplementationIT] [nullDateTimeInvalidDateValueFebruary] after test
+[2023-01-17T17:13:15,788][INFO ][o.o.s.s.DateTimeImplementationIT] [nullDateTimeInvalidDateValueApril] before test
+[2023-01-17T17:13:15,809][INFO ][o.o.s.s.DateTimeImplementationIT] [nullDateTimeInvalidDateValueApril] after test
+[2023-01-17T17:13:15,815][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeJustInRangePositive] before test
+[2023-01-17T17:13:15,839][INFO ][o.o.s.s.DateTimeImplementationIT] [inRangeJustInRangePositive] after test
+[2023-01-17T17:13:15,845][INFO ][o.o.s.s.DateTimeImplementationIT] [nullDateTimeInvalidDateValueMonth] before test
+[2023-01-17T17:13:15,867][INFO ][o.o.s.s.DateTimeImplementationIT] [nullDateTimeInvalidDateValueMonth] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

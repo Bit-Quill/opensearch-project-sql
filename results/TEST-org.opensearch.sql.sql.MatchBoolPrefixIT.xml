@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.MatchBoolPrefixIT" tests="3" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:21" hostname="Unused26-MacBook.local" time="0.41">
+  <properties/>
+  <testcase name="query_matches_test" classname="org.opensearch.sql.sql.MatchBoolPrefixIT" time="0.341"/>
+  <testcase name="no_matches_test" classname="org.opensearch.sql.sql.MatchBoolPrefixIT" time="0.03"/>
+  <testcase name="additional_parameters_test" classname="org.opensearch.sql.sql.MatchBoolPrefixIT" time="0.039"/>
+  <system-out><![CDATA[[2023-01-17T13:13:21,248][INFO ][o.o.s.s.MatchBoolPrefixIT] [query_matches_test] before test
+[2023-01-17T13:13:21,251][INFO ][o.o.s.s.MatchBoolPrefixIT] [query_matches_test] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T13:13:21,585][INFO ][o.o.s.s.MatchBoolPrefixIT] [query_matches_test] after test
+[2023-01-17T13:13:21,591][INFO ][o.o.s.s.MatchBoolPrefixIT] [no_matches_test] before test
+[2023-01-17T13:13:21,615][INFO ][o.o.s.s.MatchBoolPrefixIT] [no_matches_test] after test
+[2023-01-17T13:13:21,624][INFO ][o.o.s.s.MatchBoolPrefixIT] [additional_parameters_test] before test
+[2023-01-17T13:13:21,655][INFO ][o.o.s.s.MatchBoolPrefixIT] [additional_parameters_test] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

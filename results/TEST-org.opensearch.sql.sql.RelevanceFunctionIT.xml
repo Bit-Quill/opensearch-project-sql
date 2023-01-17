@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.RelevanceFunctionIT" tests="6" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:30" hostname="Unused26-MacBook.local" time="0.672">
+  <properties/>
+  <testcase name="verify_flags_in_simple_query_string" classname="org.opensearch.sql.sql.RelevanceFunctionIT" time="0.441"/>
+  <testcase name="verify_operator_in_match" classname="org.opensearch.sql.sql.RelevanceFunctionIT" time="0.045"/>
+  <testcase name="verify_default_operator_in_simple_query_string" classname="org.opensearch.sql.sql.RelevanceFunctionIT" time="0.044"/>
+  <testcase name="verify_default_operator_in_query_string" classname="org.opensearch.sql.sql.RelevanceFunctionIT" time="0.047"/>
+  <testcase name="verify_escape_in_query_string" classname="org.opensearch.sql.sql.RelevanceFunctionIT" time="0.046"/>
+  <testcase name="verify_default_operator_in_multi_match" classname="org.opensearch.sql.sql.RelevanceFunctionIT" time="0.046"/>
+  <system-out><![CDATA[[2023-01-17T16:13:30,336][INFO ][o.o.s.s.RelevanceFunctionIT] [verify_flags_in_simple_query_string] before test
+[2023-01-17T16:13:30,340][INFO ][o.o.s.s.RelevanceFunctionIT] [verify_flags_in_simple_query_string] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T16:13:30,774][INFO ][o.o.s.s.RelevanceFunctionIT] [verify_flags_in_simple_query_string] after test
+[2023-01-17T16:13:30,780][INFO ][o.o.s.s.RelevanceFunctionIT] [verify_operator_in_match] before test
+[2023-01-17T16:13:30,820][INFO ][o.o.s.s.RelevanceFunctionIT] [verify_operator_in_match] after test
+[2023-01-17T16:13:30,826][INFO ][o.o.s.s.RelevanceFunctionIT] [verify_default_operator_in_simple_query_string] before test
+[2023-01-17T16:13:30,865][INFO ][o.o.s.s.RelevanceFunctionIT] [verify_default_operator_in_simple_query_string] after test
+[2023-01-17T16:13:30,871][INFO ][o.o.s.s.RelevanceFunctionIT] [verify_default_operator_in_query_string] before test
+[2023-01-17T16:13:30,912][INFO ][o.o.s.s.RelevanceFunctionIT] [verify_default_operator_in_query_string] after test
+[2023-01-17T16:13:30,918][INFO ][o.o.s.s.RelevanceFunctionIT] [verify_escape_in_query_string] before test
+[2023-01-17T16:13:30,959][INFO ][o.o.s.s.RelevanceFunctionIT] [verify_escape_in_query_string] after test
+[2023-01-17T16:13:30,965][INFO ][o.o.s.s.RelevanceFunctionIT] [verify_default_operator_in_multi_match] before test
+[2023-01-17T16:13:31,005][INFO ][o.o.s.s.RelevanceFunctionIT] [verify_default_operator_in_multi_match] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

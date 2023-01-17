@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.QueryStringIT" tests="4" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:28" hostname="Unused26-MacBook.local" time="0.566">
+  <properties/>
+  <testcase name="all_params_test" classname="org.opensearch.sql.sql.QueryStringIT" time="0.438"/>
+  <testcase name="mandatory_params_test" classname="org.opensearch.sql.sql.QueryStringIT" time="0.031"/>
+  <testcase name="all_fields_test" classname="org.opensearch.sql.sql.QueryStringIT" time="0.037"/>
+  <testcase name="wildcard_test" classname="org.opensearch.sql.sql.QueryStringIT" time="0.06"/>
+  <system-out><![CDATA[[2023-01-17T13:13:28,713][INFO ][o.o.s.s.QueryStringIT    ] [all_params_test] before test
+[2023-01-17T13:13:28,714][INFO ][o.o.s.s.QueryStringIT    ] [all_params_test] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T13:13:29,147][INFO ][o.o.s.s.QueryStringIT    ] [all_params_test] after test
+[2023-01-17T13:13:29,153][INFO ][o.o.s.s.QueryStringIT    ] [mandatory_params_test] before test
+[2023-01-17T13:13:29,178][INFO ][o.o.s.s.QueryStringIT    ] [mandatory_params_test] after test
+[2023-01-17T13:13:29,184][INFO ][o.o.s.s.QueryStringIT    ] [all_fields_test] before test
+[2023-01-17T13:13:29,215][INFO ][o.o.s.s.QueryStringIT    ] [all_fields_test] after test
+[2023-01-17T13:13:29,221][INFO ][o.o.s.s.QueryStringIT    ] [wildcard_test] before test
+[2023-01-17T13:13:29,275][INFO ][o.o.s.s.QueryStringIT    ] [wildcard_test] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.SearchCommandIT" tests="4" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:51" hostname="Unused26-MacBook.local" time="0.974">
+  <properties/>
+  <testcase name="testSearchCommandWithLogicalExpression" classname="org.opensearch.sql.ppl.SearchCommandIT" time="0.525"/>
+  <testcase name="testSearchCommandWithSpecialIndexName" classname="org.opensearch.sql.ppl.SearchCommandIT" time="0.371"/>
+  <testcase name="testSearchAllFields" classname="org.opensearch.sql.ppl.SearchCommandIT" time="0.034"/>
+  <testcase name="testSearchCommandWithoutSearchKeyword" classname="org.opensearch.sql.ppl.SearchCommandIT" time="0.044"/>
+  <system-out><![CDATA[[2023-01-17T17:12:51,157][INFO ][o.o.s.p.SearchCommandIT  ] [testSearchCommandWithLogicalExpression] before test
+[2023-01-17T17:12:51,158][INFO ][o.o.s.p.SearchCommandIT  ] [testSearchCommandWithLogicalExpression] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T17:12:51,678][INFO ][o.o.s.p.SearchCommandIT  ] [testSearchCommandWithLogicalExpression] after test
+[2023-01-17T17:12:51,684][INFO ][o.o.s.p.SearchCommandIT  ] [testSearchCommandWithSpecialIndexName] before test
+[2023-01-17T17:12:52,049][INFO ][o.o.s.p.SearchCommandIT  ] [testSearchCommandWithSpecialIndexName] after test
+[2023-01-17T17:12:52,055][INFO ][o.o.s.p.SearchCommandIT  ] [testSearchAllFields] before test
+[2023-01-17T17:12:52,083][INFO ][o.o.s.p.SearchCommandIT  ] [testSearchAllFields] after test
+[2023-01-17T17:12:52,089][INFO ][o.o.s.p.SearchCommandIT  ] [testSearchCommandWithoutSearchKeyword] before test
+[2023-01-17T17:12:52,127][INFO ][o.o.s.p.SearchCommandIT  ] [testSearchCommandWithoutSearchKeyword] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

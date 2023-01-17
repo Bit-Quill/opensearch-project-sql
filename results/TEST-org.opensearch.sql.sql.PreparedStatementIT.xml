@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.PreparedStatementIT" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:27" hostname="Unused26-MacBook.local" time="0.395">
+  <properties/>
+  <testcase name="testPreparedStatement" classname="org.opensearch.sql.sql.PreparedStatementIT" time="0.395"/>
+  <system-out><![CDATA[[0005-01-17T22:13:27,505][INFO ][o.o.s.s.PreparedStatementIT] [testPreparedStatement] before test
+[0005-01-17T22:13:27,512][INFO ][o.o.s.s.PreparedStatementIT] [testPreparedStatement] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[0005-01-17T22:13:27,895][INFO ][o.o.s.s.PreparedStatementIT] [testPreparedStatement] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

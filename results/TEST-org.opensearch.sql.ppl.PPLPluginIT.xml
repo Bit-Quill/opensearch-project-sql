@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.PPLPluginIT" tests="3" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:42" hostname="Unused26-MacBook.local" time="0.845">
+  <properties/>
+  <testcase name="testQueryEndpointShouldOK" classname="org.opensearch.sql.ppl.PPLPluginIT" time="0.661"/>
+  <testcase name="testQueryEndpointShouldFail" classname="org.opensearch.sql.ppl.PPLPluginIT" time="0.064"/>
+  <testcase name="sqlEnableSettingsTest" classname="org.opensearch.sql.ppl.PPLPluginIT" time="0.119"/>
+  <system-out><![CDATA[[2023-01-17T11:12:42,865][INFO ][o.o.s.p.PPLPluginIT      ] [testQueryEndpointShouldOK] before test
+[2023-01-17T11:12:42,867][INFO ][o.o.s.p.PPLPluginIT      ] [testQueryEndpointShouldOK] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T11:12:43,523][INFO ][o.o.s.p.PPLPluginIT      ] [testQueryEndpointShouldOK] after test
+[2023-01-17T11:12:43,529][INFO ][o.o.s.p.PPLPluginIT      ] [testQueryEndpointShouldFail] before test
+[2023-01-17T11:12:43,573][INFO ][o.o.s.p.PPLPluginIT      ] [testQueryEndpointShouldFail] after test
+[2023-01-17T11:12:43,593][INFO ][o.o.s.p.PPLPluginIT      ] [sqlEnableSettingsTest] before test
+[2023-01-17T11:12:43,707][INFO ][o.o.s.p.PPLPluginIT      ] [sqlEnableSettingsTest] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

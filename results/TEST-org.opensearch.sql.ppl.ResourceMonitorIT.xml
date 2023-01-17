@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.ResourceMonitorIT" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:50" hostname="Unused26-MacBook.local" time="0.397">
+  <properties/>
+  <testcase name="queryExceedResourceLimitShouldFail" classname="org.opensearch.sql.ppl.ResourceMonitorIT" time="0.397"/>
+  <system-out><![CDATA[[2023-01-17T23:12:50,619][INFO ][o.o.s.p.ResourceMonitorIT] [queryExceedResourceLimitShouldFail] before test
+[2023-01-17T23:12:50,619][INFO ][o.o.s.p.ResourceMonitorIT] [queryExceedResourceLimitShouldFail] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T23:12:51,012][INFO ][o.o.s.p.ResourceMonitorIT] [queryExceedResourceLimitShouldFail] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

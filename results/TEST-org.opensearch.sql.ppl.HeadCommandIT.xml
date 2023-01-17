@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.HeadCommandIT" tests="6" skipped="2" failures="0" errors="0" timestamp="2023-01-17T16:12:29" hostname="Unused26-MacBook.local" time="0.905">
+  <properties/>
+  <testcase name="testHeadWithNumberLargerThanMaxResultWindow" classname="org.opensearch.sql.ppl.HeadCommandIT" time="0.594"/>
+  <testcase name="testHeadWithNumberLargerThanQuerySizeLimit" classname="org.opensearch.sql.ppl.HeadCommandIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="testHeadWithNumber" classname="org.opensearch.sql.ppl.HeadCommandIT" time="0.11"/>
+  <testcase name="testHeadWithLargeNumber" classname="org.opensearch.sql.ppl.HeadCommandIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="testHeadWithNumberAndFrom" classname="org.opensearch.sql.ppl.HeadCommandIT" time="0.101"/>
+  <testcase name="testHead" classname="org.opensearch.sql.ppl.HeadCommandIT" time="0.099"/>
+  <system-out><![CDATA[[2023-01-17T09:12:29,219][INFO ][o.o.s.p.HeadCommandIT    ] [testHeadWithNumberLargerThanMaxResultWindow] before test
+[2023-01-17T09:12:29,220][INFO ][o.o.s.p.HeadCommandIT    ] [testHeadWithNumberLargerThanMaxResultWindow] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T09:12:29,808][INFO ][o.o.s.p.HeadCommandIT    ] [testHeadWithNumberLargerThanMaxResultWindow] after test
+[2023-01-17T09:12:29,813][INFO ][o.o.s.p.HeadCommandIT    ] [testHeadWithNumber] before test
+[2023-01-17T09:12:29,918][INFO ][o.o.s.p.HeadCommandIT    ] [testHeadWithNumber] after test
+[2023-01-17T09:12:29,924][INFO ][o.o.s.p.HeadCommandIT    ] [testHeadWithNumberAndFrom] before test
+[2023-01-17T09:12:30,020][INFO ][o.o.s.p.HeadCommandIT    ] [testHeadWithNumberAndFrom] after test
+[2023-01-17T09:12:30,026][INFO ][o.o.s.p.HeadCommandIT    ] [testHead] before test
+[2023-01-17T09:12:30,120][INFO ][o.o.s.p.HeadCommandIT    ] [testHead] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

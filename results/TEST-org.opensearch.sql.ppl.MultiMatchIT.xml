@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.MultiMatchIT" tests="3" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:39" hostname="Unused26-MacBook.local" time="0.672">
+  <properties/>
+  <testcase name="test_wildcard_multi_match" classname="org.opensearch.sql.ppl.MultiMatchIT" time="0.572"/>
+  <testcase name="test_multi_match_all_params" classname="org.opensearch.sql.ppl.MultiMatchIT" time="0.055"/>
+  <testcase name="test_multi_match" classname="org.opensearch.sql.ppl.MultiMatchIT" time="0.044"/>
+  <system-out><![CDATA[[2023-01-17T17:12:39,641][INFO ][o.o.s.p.MultiMatchIT     ] [test_wildcard_multi_match] before test
+[2023-01-17T17:12:39,642][INFO ][o.o.s.p.MultiMatchIT     ] [test_wildcard_multi_match] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T17:12:40,209][INFO ][o.o.s.p.MultiMatchIT     ] [test_wildcard_multi_match] after test
+[2023-01-17T17:12:40,215][INFO ][o.o.s.p.MultiMatchIT     ] [test_multi_match_all_params] before test
+[2023-01-17T17:12:40,265][INFO ][o.o.s.p.MultiMatchIT     ] [test_multi_match_all_params] after test
+[2023-01-17T17:12:40,271][INFO ][o.o.s.p.MultiMatchIT     ] [test_multi_match] before test
+[2023-01-17T17:12:40,309][INFO ][o.o.s.p.MultiMatchIT     ] [test_multi_match] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

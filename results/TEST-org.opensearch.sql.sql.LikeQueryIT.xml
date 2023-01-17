@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.LikeQueryIT" tests="11" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:20" hostname="Unused26-MacBook.local" time="0.622">
+  <properties/>
+  <testcase name="test_like_in_where_with_escaped_underscore" classname="org.opensearch.sql.sql.LikeQueryIT" time="0.291"/>
+  <testcase name="test_like_on_text_field_with_one_word" classname="org.opensearch.sql.sql.LikeQueryIT" time="0.032"/>
+  <testcase name="test_like_on_text_field_with_greater_than_one_word" classname="org.opensearch.sql.sql.LikeQueryIT" time="0.029"/>
+  <testcase name="test_convert_field_text_to_keyword" classname="org.opensearch.sql.sql.LikeQueryIT" time="0.029"/>
+  <testcase name="test_like_in_where_with_escaped_percent" classname="org.opensearch.sql.sql.LikeQueryIT" time="0.033"/>
+  <testcase name="test_like_on_text_keyword_field_with_one_word" classname="org.opensearch.sql.sql.LikeQueryIT" time="0.033"/>
+  <testcase name="test_like_in_select_with_escaped_percent" classname="org.opensearch.sql.sql.LikeQueryIT" time="0.031"/>
+  <testcase name="test_like_in_where" classname="org.opensearch.sql.sql.LikeQueryIT" time="0.03"/>
+  <testcase name="test_like_on_text_keyword_field_with_greater_than_one_word" classname="org.opensearch.sql.sql.LikeQueryIT" time="0.044"/>
+  <testcase name="test_like_in_select_with_escaped_underscore" classname="org.opensearch.sql.sql.LikeQueryIT" time="0.037"/>
+  <testcase name="test_like_in_select" classname="org.opensearch.sql.sql.LikeQueryIT" time="0.029"/>
+  <system-out><![CDATA[[2023-01-17T22:43:20,518][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_in_where_with_escaped_underscore] before test
+[2023-01-17T22:43:20,521][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_in_where_with_escaped_underscore] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T22:43:20,805][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_in_where_with_escaped_underscore] after test
+[2023-01-17T22:43:20,811][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_on_text_field_with_one_word] before test
+[2023-01-17T22:43:20,837][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_on_text_field_with_one_word] after test
+[2023-01-17T22:43:20,843][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_on_text_field_with_greater_than_one_word] before test
+[2023-01-17T22:43:20,866][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_on_text_field_with_greater_than_one_word] after test
+[2023-01-17T22:43:20,872][INFO ][o.o.s.s.LikeQueryIT      ] [test_convert_field_text_to_keyword] before test
+[2023-01-17T22:43:20,895][INFO ][o.o.s.s.LikeQueryIT      ] [test_convert_field_text_to_keyword] after test
+[2023-01-17T22:43:20,901][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_in_where_with_escaped_percent] before test
+[2023-01-17T22:43:20,928][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_in_where_with_escaped_percent] after test
+[2023-01-17T22:43:20,934][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_on_text_keyword_field_with_one_word] before test
+[2023-01-17T22:43:20,961][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_on_text_keyword_field_with_one_word] after test
+[2023-01-17T22:43:20,967][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_in_select_with_escaped_percent] before test
+[2023-01-17T22:43:20,993][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_in_select_with_escaped_percent] after test
+[2023-01-17T22:43:20,999][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_in_where] before test
+[2023-01-17T22:43:21,024][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_in_where] after test
+[2023-01-17T22:43:21,030][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_on_text_keyword_field_with_greater_than_one_word] before test
+[2023-01-17T22:43:21,069][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_on_text_keyword_field_with_greater_than_one_word] after test
+[2023-01-17T22:43:21,082][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_in_select_with_escaped_underscore] before test
+[2023-01-17T22:43:21,106][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_in_select_with_escaped_underscore] after test
+[2023-01-17T22:43:21,113][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_in_select] before test
+[2023-01-17T22:43:21,135][INFO ][o.o.s.s.LikeQueryIT      ] [test_like_in_select] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

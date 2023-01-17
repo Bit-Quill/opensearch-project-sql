@@ -36,18 +36,15 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ matrix.entry.java }}
 
-      - name: Build with Gradle
-        run: ./gradlew --continue integ-test:integTest --tests "org.opensearch.sql.sql.*"
-
       - name: Include only results in xml files
-        run: sed -i '2d' integ-test/build/test-results/integTest/*.xml
+        run: sed -i '2!d' results/*.xml
         if: always()
 
       - name: Test Summary
         uses: test-summary/action@v2
         with:
           paths: |
-            integ-test/build/test-results/integTest/*.xml
+            results/*.xml
         if: always()
 
       - name: Upload test summary

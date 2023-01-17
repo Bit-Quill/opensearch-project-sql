@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.TextFunctionIT" tests="15" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:40" hostname="Unused26-MacBook.local" time="0.812">
+  <properties/>
+  <testcase name="testRight" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.125"/>
+  <testcase name="testReverse" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.069"/>
+  <testcase name="testLength" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.038"/>
+  <testcase name="testUpper" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.049"/>
+  <testcase name="testLower" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.036"/>
+  <testcase name="testRegexp" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.047"/>
+  <testcase name="testRtrim" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.06"/>
+  <testcase name="testConcat" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.047"/>
+  <testcase name="testLeft" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.046"/>
+  <testcase name="testLtrim" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.046"/>
+  <testcase name="testTrim" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.054"/>
+  <testcase name="testSubstr" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.042"/>
+  <testcase name="testStrcmp" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.037"/>
+  <testcase name="testConcat_ws" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.053"/>
+  <testcase name="testSubstring" classname="org.opensearch.sql.sql.TextFunctionIT" time="0.061"/>
+  <system-out><![CDATA[[2023-01-17T10:13:40,496][INFO ][o.o.s.s.TextFunctionIT   ] [testRight] before test
+[2023-01-17T10:13:40,500][INFO ][o.o.s.s.TextFunctionIT   ] [testRight] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T10:13:40,612][INFO ][o.o.s.s.TextFunctionIT   ] [testRight] after test
+[2023-01-17T10:13:40,620][INFO ][o.o.s.s.TextFunctionIT   ] [testReverse] before test
+[2023-01-17T10:13:40,682][INFO ][o.o.s.s.TextFunctionIT   ] [testReverse] after test
+[2023-01-17T10:13:40,689][INFO ][o.o.s.s.TextFunctionIT   ] [testLength] before test
+[2023-01-17T10:13:40,720][INFO ][o.o.s.s.TextFunctionIT   ] [testLength] after test
+[2023-01-17T10:13:40,728][INFO ][o.o.s.s.TextFunctionIT   ] [testUpper] before test
+[2023-01-17T10:13:40,769][INFO ][o.o.s.s.TextFunctionIT   ] [testUpper] after test
+[2023-01-17T10:13:40,776][INFO ][o.o.s.s.TextFunctionIT   ] [testLower] before test
+[2023-01-17T10:13:40,805][INFO ][o.o.s.s.TextFunctionIT   ] [testLower] after test
+[2023-01-17T10:13:40,812][INFO ][o.o.s.s.TextFunctionIT   ] [testRegexp] before test
+[2023-01-17T10:13:40,851][INFO ][o.o.s.s.TextFunctionIT   ] [testRegexp] after test
+[2023-01-17T10:13:40,859][INFO ][o.o.s.s.TextFunctionIT   ] [testRtrim] before test
+[2023-01-17T10:13:40,912][INFO ][o.o.s.s.TextFunctionIT   ] [testRtrim] after test
+[2023-01-17T10:13:40,919][INFO ][o.o.s.s.TextFunctionIT   ] [testConcat] before test
+[2023-01-17T10:13:40,959][INFO ][o.o.s.s.TextFunctionIT   ] [testConcat] after test
+[2023-01-17T10:13:40,966][INFO ][o.o.s.s.TextFunctionIT   ] [testLeft] before test
+[2023-01-17T10:13:41,005][INFO ][o.o.s.s.TextFunctionIT   ] [testLeft] after test
+[2023-01-17T10:13:41,012][INFO ][o.o.s.s.TextFunctionIT   ] [testLtrim] before test
+[2023-01-17T10:13:41,051][INFO ][o.o.s.s.TextFunctionIT   ] [testLtrim] after test
+[2023-01-17T10:13:41,057][INFO ][o.o.s.s.TextFunctionIT   ] [testTrim] before test
+[2023-01-17T10:13:41,105][INFO ][o.o.s.s.TextFunctionIT   ] [testTrim] after test
+[2023-01-17T10:13:41,112][INFO ][o.o.s.s.TextFunctionIT   ] [testSubstr] before test
+[2023-01-17T10:13:41,147][INFO ][o.o.s.s.TextFunctionIT   ] [testSubstr] after test
+[2023-01-17T10:13:41,154][INFO ][o.o.s.s.TextFunctionIT   ] [testStrcmp] before test
+[2023-01-17T10:13:41,184][INFO ][o.o.s.s.TextFunctionIT   ] [testStrcmp] after test
+[2023-01-17T10:13:41,190][INFO ][o.o.s.s.TextFunctionIT   ] [testConcat_ws] before test
+[2023-01-17T10:13:41,237][INFO ][o.o.s.s.TextFunctionIT   ] [testConcat_ws] after test
+[2023-01-17T10:13:41,243][INFO ][o.o.s.s.TextFunctionIT   ] [testSubstring] before test
+[2023-01-17T10:13:41,298][INFO ][o.o.s.s.TextFunctionIT   ] [testSubstring] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

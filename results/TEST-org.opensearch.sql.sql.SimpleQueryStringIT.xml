@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.SimpleQueryStringIT" tests="3" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:38" hostname="Unused26-MacBook.local" time="0.83">
+  <properties/>
+  <testcase name="verify_wildcard_test" classname="org.opensearch.sql.sql.SimpleQueryStringIT" time="0.743"/>
+  <testcase name="test_mandatory_params" classname="org.opensearch.sql.sql.SimpleQueryStringIT" time="0.044"/>
+  <testcase name="test_all_params" classname="org.opensearch.sql.sql.SimpleQueryStringIT" time="0.042"/>
+  <system-out><![CDATA[[2023-01-18T03:13:38,499][INFO ][o.o.s.s.SimpleQueryStringIT] [verify_wildcard_test] before test
+[2023-01-18T03:13:38,519][INFO ][o.o.s.s.SimpleQueryStringIT] [verify_wildcard_test] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-18T03:13:39,228][INFO ][o.o.s.s.SimpleQueryStringIT] [verify_wildcard_test] after test
+[2023-01-18T03:13:39,238][INFO ][o.o.s.s.SimpleQueryStringIT] [test_mandatory_params] before test
+[2023-01-18T03:13:39,274][INFO ][o.o.s.s.SimpleQueryStringIT] [test_mandatory_params] after test
+[2023-01-18T03:13:39,282][INFO ][o.o.s.s.SimpleQueryStringIT] [test_all_params] before test
+[2023-01-18T03:13:39,317][INFO ][o.o.s.s.SimpleQueryStringIT] [test_all_params] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.WildcardQueryIT" tests="18" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:41" hostname="Unused26-MacBook.local" time="1.35">
+  <properties/>
+  <testcase name="test_wildcard_query_on_text_field_with_one_word" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.414"/>
+  <testcase name="test_wildcard_query_on_text_keyword_field_with_greater_than_one_word" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.033"/>
+  <testcase name="test_wildcard_query_on_text_keyword_field_with_one_word" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.045"/>
+  <testcase name="test_wildcard_query_on_text_field_with_greater_than_one_word" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.035"/>
+  <testcase name="test_escaping_wildcard_percent_in_text" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.041"/>
+  <testcase name="test_backslash_wildcard" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.051"/>
+  <testcase name="test_double_escaped_wildcard_underscore" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.036"/>
+  <testcase name="all_params_test" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.054"/>
+  <testcase name="test_double_escaped_wildcard_percent" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.056"/>
+  <testcase name="test_wildcard_query_sql_wildcard_underscore_conversion" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.059"/>
+  <testcase name="test_wildcard_query_sql_wildcard_percent_conversion" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.052"/>
+  <testcase name="test_escaping_wildcard_underscore_in_the_beginning_of_text" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.033"/>
+  <testcase name="test_escaping_wildcard_underscore_in_text" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.051"/>
+  <testcase name="test_escaping_wildcard_underscore_in_the_end_of_text" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.045"/>
+  <testcase name="test_wildcard_query_question_mark_function" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.047"/>
+  <testcase name="test_escaping_wildcard_percent_in_the_beginning_of_text" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.109"/>
+  <testcase name="test_wildcard_query_asterisk_function" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.117"/>
+  <testcase name="test_escaping_wildcard_percent_in_the_end_of_text" classname="org.opensearch.sql.sql.WildcardQueryIT" time="0.067"/>
+  <system-out><![CDATA[[2023-01-17T18:13:41,421][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_on_text_field_with_one_word] before test
+[2023-01-17T18:13:41,423][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_on_text_field_with_one_word] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T18:13:41,829][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_on_text_field_with_one_word] after test
+[2023-01-17T18:13:41,836][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_on_text_keyword_field_with_greater_than_one_word] before test
+[2023-01-17T18:13:41,862][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_on_text_keyword_field_with_greater_than_one_word] after test
+[2023-01-17T18:13:41,869][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_on_text_keyword_field_with_one_word] before test
+[2023-01-17T18:13:41,908][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_on_text_keyword_field_with_one_word] after test
+[2023-01-17T18:13:41,915][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_on_text_field_with_greater_than_one_word] before test
+[2023-01-17T18:13:41,943][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_on_text_field_with_greater_than_one_word] after test
+[2023-01-17T18:13:41,949][INFO ][o.o.s.s.WildcardQueryIT  ] [test_escaping_wildcard_percent_in_text] before test
+[2023-01-17T18:13:41,984][INFO ][o.o.s.s.WildcardQueryIT  ] [test_escaping_wildcard_percent_in_text] after test
+[2023-01-17T18:13:41,991][INFO ][o.o.s.s.WildcardQueryIT  ] [test_backslash_wildcard] before test
+[2023-01-17T18:13:42,036][INFO ][o.o.s.s.WildcardQueryIT  ] [test_backslash_wildcard] after test
+[2023-01-17T18:13:42,043][INFO ][o.o.s.s.WildcardQueryIT  ] [test_double_escaped_wildcard_underscore] before test
+[2023-01-17T18:13:42,072][INFO ][o.o.s.s.WildcardQueryIT  ] [test_double_escaped_wildcard_underscore] after test
+[2023-01-17T18:13:42,086][INFO ][o.o.s.s.WildcardQueryIT  ] [all_params_test] before test
+[2023-01-17T18:13:42,126][INFO ][o.o.s.s.WildcardQueryIT  ] [all_params_test] after test
+[2023-01-17T18:13:42,143][INFO ][o.o.s.s.WildcardQueryIT  ] [test_double_escaped_wildcard_percent] before test
+[2023-01-17T18:13:42,182][INFO ][o.o.s.s.WildcardQueryIT  ] [test_double_escaped_wildcard_percent] after test
+[2023-01-17T18:13:42,190][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_sql_wildcard_underscore_conversion] before test
+[2023-01-17T18:13:42,242][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_sql_wildcard_underscore_conversion] after test
+[2023-01-17T18:13:42,250][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_sql_wildcard_percent_conversion] before test
+[2023-01-17T18:13:42,294][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_sql_wildcard_percent_conversion] after test
+[2023-01-17T18:13:42,301][INFO ][o.o.s.s.WildcardQueryIT  ] [test_escaping_wildcard_underscore_in_the_beginning_of_text] before test
+[2023-01-17T18:13:42,328][INFO ][o.o.s.s.WildcardQueryIT  ] [test_escaping_wildcard_underscore_in_the_beginning_of_text] after test
+[2023-01-17T18:13:42,334][INFO ][o.o.s.s.WildcardQueryIT  ] [test_escaping_wildcard_underscore_in_text] before test
+[2023-01-17T18:13:42,379][INFO ][o.o.s.s.WildcardQueryIT  ] [test_escaping_wildcard_underscore_in_text] after test
+[2023-01-17T18:13:42,386][INFO ][o.o.s.s.WildcardQueryIT  ] [test_escaping_wildcard_underscore_in_the_end_of_text] before test
+[2023-01-17T18:13:42,424][INFO ][o.o.s.s.WildcardQueryIT  ] [test_escaping_wildcard_underscore_in_the_end_of_text] after test
+[2023-01-17T18:13:42,431][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_question_mark_function] before test
+[2023-01-17T18:13:42,471][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_question_mark_function] after test
+[2023-01-17T18:13:42,489][INFO ][o.o.s.s.WildcardQueryIT  ] [test_escaping_wildcard_percent_in_the_beginning_of_text] before test
+[2023-01-17T18:13:42,580][INFO ][o.o.s.s.WildcardQueryIT  ] [test_escaping_wildcard_percent_in_the_beginning_of_text] after test
+[2023-01-17T18:13:42,587][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_asterisk_function] before test
+[2023-01-17T18:13:42,697][INFO ][o.o.s.s.WildcardQueryIT  ] [test_wildcard_query_asterisk_function] after test
+[2023-01-17T18:13:42,704][INFO ][o.o.s.s.WildcardQueryIT  ] [test_escaping_wildcard_percent_in_the_end_of_text] before test
+[2023-01-17T18:13:42,764][INFO ][o.o.s.s.WildcardQueryIT  ] [test_escaping_wildcard_percent_in_the_end_of_text] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

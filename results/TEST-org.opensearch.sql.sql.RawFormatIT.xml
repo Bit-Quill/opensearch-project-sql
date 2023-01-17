@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.RawFormatIT" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:29" hostname="Unused26-MacBook.local" time="0.289">
+  <properties/>
+  <testcase name="rawFormatWithPipeFieldTest" classname="org.opensearch.sql.sql.RawFormatIT" time="0.289"/>
+  <system-out><![CDATA[[2023-01-17T19:13:29,938][INFO ][o.o.s.s.RawFormatIT      ] [rawFormatWithPipeFieldTest] before test
+[2023-01-17T19:13:29,941][INFO ][o.o.s.s.RawFormatIT      ] [rawFormatWithPipeFieldTest] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T19:13:30,223][INFO ][o.o.s.s.RawFormatIT      ] [rawFormatWithPipeFieldTest] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.MatchIT" tests="13" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:21" hostname="Unused26-MacBook.local" time="0.885">
+  <properties/>
+  <testcase name="match_in_where" classname="org.opensearch.sql.sql.MatchIT" time="0.42"/>
+  <testcase name="match_query_in_where" classname="org.opensearch.sql.sql.MatchIT" time="0.035"/>
+  <testcase name="matchquery_in_having" classname="org.opensearch.sql.sql.MatchIT" time="0.034"/>
+  <testcase name="match_query_alternate_syntax" classname="org.opensearch.sql.sql.MatchIT" time="0.03"/>
+  <testcase name="match_alternate_syntaxes_return_the_same_results" classname="org.opensearch.sql.sql.MatchIT" time="0.053"/>
+  <testcase name="missing_backtick_field_test" classname="org.opensearch.sql.sql.MatchIT" time="0.053"/>
+  <testcase name="missing_field_test" classname="org.opensearch.sql.sql.MatchIT" time="0.031"/>
+  <testcase name="matchquery_alternate_syntax" classname="org.opensearch.sql.sql.MatchIT" time="0.03"/>
+  <testcase name="match_in_having" classname="org.opensearch.sql.sql.MatchIT" time="0.041"/>
+  <testcase name="match_query_in_having" classname="org.opensearch.sql.sql.MatchIT" time="0.034"/>
+  <testcase name="match_aliases_return_the_same_results" classname="org.opensearch.sql.sql.MatchIT" time="0.063"/>
+  <testcase name="matchquery_in_where" classname="org.opensearch.sql.sql.MatchIT" time="0.029"/>
+  <testcase name="missing_quoted_field_test" classname="org.opensearch.sql.sql.MatchIT" time="0.028"/>
+  <system-out><![CDATA[[2023-01-17T19:13:21,783][INFO ][o.o.s.s.MatchIT          ] [match_in_where] before test
+[2023-01-17T19:13:21,787][INFO ][o.o.s.s.MatchIT          ] [match_in_where] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T19:13:22,199][INFO ][o.o.s.s.MatchIT          ] [match_in_where] after test
+[2023-01-17T19:13:22,205][INFO ][o.o.s.s.MatchIT          ] [match_query_in_where] before test
+[2023-01-17T19:13:22,235][INFO ][o.o.s.s.MatchIT          ] [match_query_in_where] after test
+[2023-01-17T19:13:22,241][INFO ][o.o.s.s.MatchIT          ] [matchquery_in_having] before test
+[2023-01-17T19:13:22,270][INFO ][o.o.s.s.MatchIT          ] [matchquery_in_having] after test
+[2023-01-17T19:13:22,276][INFO ][o.o.s.s.MatchIT          ] [match_query_alternate_syntax] before test
+[2023-01-17T19:13:22,300][INFO ][o.o.s.s.MatchIT          ] [match_query_alternate_syntax] after test
+[2023-01-17T19:13:22,307][INFO ][o.o.s.s.MatchIT          ] [match_alternate_syntaxes_return_the_same_results] before test
+[2023-01-17T19:13:22,354][INFO ][o.o.s.s.MatchIT          ] [match_alternate_syntaxes_return_the_same_results] after test
+[2023-01-17T19:13:22,360][INFO ][o.o.s.s.MatchIT          ] [missing_backtick_field_test] before test
+[2023-01-17T19:13:22,408][INFO ][o.o.s.s.MatchIT          ] [missing_backtick_field_test] after test
+[2023-01-17T19:13:22,414][INFO ][o.o.s.s.MatchIT          ] [missing_field_test] before test
+[2023-01-17T19:13:22,439][INFO ][o.o.s.s.MatchIT          ] [missing_field_test] after test
+[2023-01-17T19:13:22,445][INFO ][o.o.s.s.MatchIT          ] [matchquery_alternate_syntax] before test
+[2023-01-17T19:13:22,469][INFO ][o.o.s.s.MatchIT          ] [matchquery_alternate_syntax] after test
+[2023-01-17T19:13:22,475][INFO ][o.o.s.s.MatchIT          ] [match_in_having] before test
+[2023-01-17T19:13:22,510][INFO ][o.o.s.s.MatchIT          ] [match_in_having] after test
+[2023-01-17T19:13:22,517][INFO ][o.o.s.s.MatchIT          ] [match_query_in_having] before test
+[2023-01-17T19:13:22,544][INFO ][o.o.s.s.MatchIT          ] [match_query_in_having] after test
+[2023-01-17T19:13:22,550][INFO ][o.o.s.s.MatchIT          ] [match_aliases_return_the_same_results] before test
+[2023-01-17T19:13:22,607][INFO ][o.o.s.s.MatchIT          ] [match_aliases_return_the_same_results] after test
+[2023-01-17T19:13:22,614][INFO ][o.o.s.s.MatchIT          ] [matchquery_in_where] before test
+[2023-01-17T19:13:22,636][INFO ][o.o.s.s.MatchIT          ] [matchquery_in_where] after test
+[2023-01-17T19:13:22,642][INFO ][o.o.s.s.MatchIT          ] [missing_quoted_field_test] before test
+[2023-01-17T19:13:22,665][INFO ][o.o.s.s.MatchIT          ] [missing_quoted_field_test] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.RenameCommandIT" tests="3" skipped="1" failures="0" errors="0" timestamp="2023-01-17T16:12:50" hostname="Unused26-MacBook.local" time="0.439">
+  <properties/>
+  <testcase name="testRenameWildcardFields" classname="org.opensearch.sql.ppl.RenameCommandIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="testRenameOneField" classname="org.opensearch.sql.ppl.RenameCommandIT" time="0.395"/>
+  <testcase name="testRenameMultiField" classname="org.opensearch.sql.ppl.RenameCommandIT" time="0.044"/>
+  <system-out><![CDATA[[2023-01-17T13:12:50,068][INFO ][o.o.s.p.RenameCommandIT  ] [testRenameOneField] before test
+[2023-01-17T13:12:50,069][INFO ][o.o.s.p.RenameCommandIT  ] [testRenameOneField] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T13:12:50,458][INFO ][o.o.s.p.RenameCommandIT  ] [testRenameOneField] after test
+[2023-01-17T13:12:50,464][INFO ][o.o.s.p.RenameCommandIT  ] [testRenameMultiField] before test
+[2023-01-17T13:12:50,502][INFO ][o.o.s.p.RenameCommandIT  ] [testRenameMultiField] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

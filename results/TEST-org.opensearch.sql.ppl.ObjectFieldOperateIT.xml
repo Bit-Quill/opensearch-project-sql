@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.ObjectFieldOperateIT" tests="4" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:40" hostname="Unused26-MacBook.local" time="0.479">
+  <properties/>
+  <testcase name="group_object_field_in_stats" classname="org.opensearch.sql.ppl.ObjectFieldOperateIT" time="0.355"/>
+  <testcase name="select_object_field" classname="org.opensearch.sql.ppl.ObjectFieldOperateIT" time="0.038"/>
+  <testcase name="compare_object_field_in_where" classname="org.opensearch.sql.ppl.ObjectFieldOperateIT" time="0.051"/>
+  <testcase name="sort_by_object_field" classname="org.opensearch.sql.ppl.ObjectFieldOperateIT" time="0.034"/>
+  <system-out><![CDATA[[2023-01-17T20:12:40,446][INFO ][o.o.s.p.ObjectFieldOperateIT] [group_object_field_in_stats] before test
+[2023-01-17T20:12:40,448][INFO ][o.o.s.p.ObjectFieldOperateIT] [group_object_field_in_stats] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T20:12:40,796][INFO ][o.o.s.p.ObjectFieldOperateIT] [group_object_field_in_stats] after test
+[2023-01-17T20:12:40,803][INFO ][o.o.s.p.ObjectFieldOperateIT] [select_object_field] before test
+[2023-01-17T20:12:40,835][INFO ][o.o.s.p.ObjectFieldOperateIT] [select_object_field] after test
+[2023-01-17T20:12:40,841][INFO ][o.o.s.p.ObjectFieldOperateIT] [compare_object_field_in_where] before test
+[2023-01-17T20:12:40,886][INFO ][o.o.s.p.ObjectFieldOperateIT] [compare_object_field_in_where] after test
+[2023-01-17T20:12:40,892][INFO ][o.o.s.p.ObjectFieldOperateIT] [sort_by_object_field] before test
+[2023-01-17T20:12:40,921][INFO ][o.o.s.p.ObjectFieldOperateIT] [sort_by_object_field] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

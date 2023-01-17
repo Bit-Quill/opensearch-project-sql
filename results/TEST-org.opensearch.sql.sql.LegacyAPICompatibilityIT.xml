@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.LegacyAPICompatibilityIT" tests="8" skipped="0" failures="1" errors="0" timestamp="2023-01-17T16:12:10" hostname="Unused26-MacBook.local" time="0.792">
+  <properties/>
+  <testcase name="legacySettingNewEndpoint" classname="org.opensearch.sql.sql.LegacyAPICompatibilityIT" time="0.478"/>
+  <testcase name="newSettingsLegacyEndpoint" classname="org.opensearch.sql.sql.LegacyAPICompatibilityIT" time="0.067"/>
+  <testcase name="query" classname="org.opensearch.sql.sql.LegacyAPICompatibilityIT" time="0.032"/>
+  <testcase name="newSettingNewEndpoint" classname="org.opensearch.sql.sql.LegacyAPICompatibilityIT" time="0.059"/>
+  <testcase name="closeCursor" classname="org.opensearch.sql.sql.LegacyAPICompatibilityIT" time="0.036">
+    <failure message="org.opensearch.client.ResponseException: method [POST], host [http://[::1]:49775], URI [/_plugins/_sql?format=jdbc], status line [HTTP/1.1 400 Bad Request]&#10;{&#10;  &quot;error&quot;: {&#10;    &quot;reason&quot;: &quot;Invalid SQL query&quot;,&#10;    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,&#10;    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;&#10;  },&#10;  &quot;status&quot;: 400&#10;}" type="org.opensearch.client.ResponseException">org.opensearch.client.ResponseException: method [POST], host [http://[::1]:49775], URI [/_plugins/_sql?format=jdbc], status line [HTTP/1.1 400 Bad Request]
+{
+  &quot;error&quot;: {
+    &quot;reason&quot;: &quot;Invalid SQL query&quot;,
+    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,
+    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;
+  },
+  &quot;status&quot;: 400
+}
+	at __randomizedtesting.SeedInfo.seed([B058E8962C1F801C:C0984FF67FF29256]:0)
+	at app//org.opensearch.client.RestClient.convertResponse(RestClient.java:384)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:354)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:329)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeFetchQuery(SQLIntegTestCase.java:255)
+	at app//org.opensearch.sql.sql.LegacyAPICompatibilityIT.closeCursor(LegacyAPICompatibilityIT.java:61)
+	at java.base@17.0.4.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base@17.0.4.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base@17.0.4.1/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base@17.0.4.1/java.lang.reflect.Method.invoke(Method.java:568)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner.invoke(RandomizedRunner.java:1750)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$8.evaluate(RandomizedRunner.java:938)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$9.evaluate(RandomizedRunner.java:974)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$10.evaluate(RandomizedRunner.java:988)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//org.apache.lucene.tests.util.TestRuleSetupTeardownChained$1.evaluate(TestRuleSetupTeardownChained.java:48)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//org.apache.lucene.tests.util.TestRuleThreadAndTestName$1.evaluate(TestRuleThreadAndTestName.java:45)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at app//org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl.forkTimeoutingTask(ThreadLeakControl.java:817)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$3.evaluate(ThreadLeakControl.java:468)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner.runSingleTest(RandomizedRunner.java:947)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$5.evaluate(RandomizedRunner.java:832)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$6.evaluate(RandomizedRunner.java:883)
+	at app//com.carrotsearch.randomizedtesting.RandomizedRunner$7.evaluate(RandomizedRunner.java:894)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.apache.lucene.tests.util.TestRuleStoreClassName$1.evaluate(TestRuleStoreClassName.java:38)
+	at app//com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at app//com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//org.apache.lucene.tests.util.TestRuleAssertionsRequired$1.evaluate(TestRuleAssertionsRequired.java:53)
+	at app//org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at app//org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at app//org.apache.lucene.tests.util.TestRuleIgnoreTestSuites$1.evaluate(TestRuleIgnoreTestSuites.java:47)
+	at app//org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at app//com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at app//com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at java.base@17.0.4.1/java.lang.Thread.run(Thread.java:833)
+</failure>
+  </testcase>
+  <testcase name="legacySettingsLegacyEndpoint" classname="org.opensearch.sql.sql.LegacyAPICompatibilityIT" time="0.055"/>
+  <testcase name="explain" classname="org.opensearch.sql.sql.LegacyAPICompatibilityIT" time="0.031"/>
+  <testcase name="stats" classname="org.opensearch.sql.sql.LegacyAPICompatibilityIT" time="0.033"/>
+  <system-out><![CDATA[[2023-01-18T02:42:10,058][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [legacySettingNewEndpoint] before test
+[2023-01-18T02:42:10,059][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [legacySettingNewEndpoint] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-18T02:42:10,531][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [legacySettingNewEndpoint] after test
+[2023-01-18T02:42:10,537][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [newSettingsLegacyEndpoint] before test
+[2023-01-18T02:42:10,599][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [newSettingsLegacyEndpoint] after test
+[2023-01-18T02:42:10,604][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [query] before test
+[2023-01-18T02:42:10,631][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [query] after test
+[2023-01-18T02:42:10,637][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [newSettingNewEndpoint] before test
+[2023-01-18T02:42:10,691][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [newSettingNewEndpoint] after test
+[2023-01-18T02:42:10,696][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [closeCursor] before test
+[2023-01-18T02:42:10,726][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [closeCursor] after test
+[2023-01-18T02:42:10,732][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [legacySettingsLegacyEndpoint] before test
+[2023-01-18T02:42:10,782][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [legacySettingsLegacyEndpoint] after test
+[2023-01-18T02:42:10,787][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [explain] before test
+[2023-01-18T02:42:10,812][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [explain] after test
+[2023-01-18T02:42:10,818][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [stats] before test
+[2023-01-18T02:42:10,846][INFO ][o.o.s.s.LegacyAPICompatibilityIT] [stats] after test
+]]></system-out>
+  <system-err><![CDATA[REPRODUCE WITH: ./gradlew ':integ-test:integTest' --tests "org.opensearch.sql.sql.LegacyAPICompatibilityIT.closeCursor" -Dtests.seed=B058E8962C1F801C -Dtests.security.manager=false -Dtests.locale=sl -Dtests.timezone=Australia/Broken_Hill -Druntime.java=17
+NOTE: leaving temporary files on disk at: /Users/guiang/Documents/GitHub/opensearch-project-sql/integ-test/build/testrun/integTest/temp/org.opensearch.sql.sql.LegacyAPICompatibilityIT_B058E8962C1F801C-001
+NOTE: test params are: codec=Asserting(Lucene95): {}, docValues:{}, maxPointsInLeafNode=473, maxMBSortInHeap=5.085456835267281, sim=Asserting(RandomSimilarity(queryNorm=true): {}), locale=sl, timezone=Australia/Broken_Hill
+NOTE: Mac OS X 13.0 x86_64/Amazon.com Inc. 17.0.4.1 (64-bit)/cpus=10,threads=1,free=384387128,total=536870912
+NOTE: All tests run in this JVM: [AggregationIT, CsvFormatResponseIT, CursorIT, DateFormatIT, DateFunctionsIT, DeleteIT, HashJoinIT, HavingIT, JSONRequestIT, JdbcTestIT, JoinAliasWriterRuleIT, JoinIT, MathFunctionsIT, MetaDataQueriesIT, MethodQueryIT, MultiQueryIT, NestedFieldQueryIT, ObjectFieldSelectIT, PluginIT, PreparedStatementIT, PrettyFormatResponseIT, QueryFunctionsIT, QueryIT, SQLFunctionsIT, ShowIT, SourceFieldIT, SubqueryIT, ConditionalIT, LegacyAPICompatibilityIT]
+]]></system-err>
+</testsuite>

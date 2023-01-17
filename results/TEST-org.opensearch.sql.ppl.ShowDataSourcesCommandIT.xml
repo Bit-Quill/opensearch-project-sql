@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.ShowDataSourcesCommandIT" tests="2" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:53" hostname="Unused26-MacBook.local" time="0.095">
+  <properties/>
+  <testcase name="testShowDataSourcesCommands" classname="org.opensearch.sql.ppl.ShowDataSourcesCommandIT" time="0.067"/>
+  <testcase name="testShowDataSourcesCommandsWithWhereClause" classname="org.opensearch.sql.ppl.ShowDataSourcesCommandIT" time="0.028"/>
+  <system-out><![CDATA[[2023-01-17T10:12:53,033][INFO ][o.o.s.p.ShowDataSourcesCommandIT] [testShowDataSourcesCommands] before test
+[2023-01-17T10:12:53,035][INFO ][o.o.s.p.ShowDataSourcesCommandIT] [testShowDataSourcesCommands] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T10:12:53,096][INFO ][o.o.s.p.ShowDataSourcesCommandIT] [testShowDataSourcesCommands] after test
+[2023-01-17T10:12:53,102][INFO ][o.o.s.p.ShowDataSourcesCommandIT] [testShowDataSourcesCommandsWithWhereClause] before test
+[2023-01-17T10:12:53,124][INFO ][o.o.s.p.ShowDataSourcesCommandIT] [testShowDataSourcesCommandsWithWhereClause] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

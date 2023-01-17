@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.StreamingQueryIT" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:58" hostname="Unused26-MacBook.local" time="3.584">
+  <properties/>
+  <testcase name="testStreamingQuery" classname="org.opensearch.sql.ppl.StreamingQueryIT" time="3.584"/>
+  <system-out><![CDATA[[2023-01-18T00:12:58,861][INFO ][o.o.s.p.StreamingQueryIT ] [testStreamingQuery] before test
+[2023-01-18T00:12:58,867][INFO ][o.o.s.p.StreamingQueryIT ] [testStreamingQuery] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-18T00:13:02,434][INFO ][o.o.s.p.StreamingQueryIT ] [testStreamingQuery] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

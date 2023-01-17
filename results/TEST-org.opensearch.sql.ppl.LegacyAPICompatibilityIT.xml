@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.LegacyAPICompatibilityIT" tests="5" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:30" hostname="Unused26-MacBook.local" time="0.63">
+  <properties/>
+  <testcase name="stats" classname="org.opensearch.sql.ppl.LegacyAPICompatibilityIT" time="0.405"/>
+  <testcase name="legacySettingNewEndpoint" classname="org.opensearch.sql.ppl.LegacyAPICompatibilityIT" time="0.063"/>
+  <testcase name="explain" classname="org.opensearch.sql.ppl.LegacyAPICompatibilityIT" time="0.031"/>
+  <testcase name="query" classname="org.opensearch.sql.ppl.LegacyAPICompatibilityIT" time="0.075"/>
+  <testcase name="newSettingNewEndpoint" classname="org.opensearch.sql.ppl.LegacyAPICompatibilityIT" time="0.054"/>
+  <system-out><![CDATA[[2023-01-18T00:57:30,507][INFO ][o.o.s.p.LegacyAPICompatibilityIT] [stats] before test
+[2023-01-18T00:57:30,509][INFO ][o.o.s.p.LegacyAPICompatibilityIT] [stats] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-18T00:57:30,907][INFO ][o.o.s.p.LegacyAPICompatibilityIT] [stats] after test
+[2023-01-18T00:57:30,912][INFO ][o.o.s.p.LegacyAPICompatibilityIT] [legacySettingNewEndpoint] before test
+[2023-01-18T00:57:30,970][INFO ][o.o.s.p.LegacyAPICompatibilityIT] [legacySettingNewEndpoint] after test
+[2023-01-18T00:57:30,976][INFO ][o.o.s.p.LegacyAPICompatibilityIT] [explain] before test
+[2023-01-18T00:57:31,002][INFO ][o.o.s.p.LegacyAPICompatibilityIT] [explain] after test
+[2023-01-18T00:57:31,008][INFO ][o.o.s.p.LegacyAPICompatibilityIT] [query] before test
+[2023-01-18T00:57:31,077][INFO ][o.o.s.p.LegacyAPICompatibilityIT] [query] after test
+[2023-01-18T00:57:31,083][INFO ][o.o.s.p.LegacyAPICompatibilityIT] [newSettingNewEndpoint] before test
+[2023-01-18T00:57:31,132][INFO ][o.o.s.p.LegacyAPICompatibilityIT] [newSettingNewEndpoint] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

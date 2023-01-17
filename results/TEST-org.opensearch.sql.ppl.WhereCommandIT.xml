@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.WhereCommandIT" tests="7" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:05" hostname="Unused26-MacBook.local" time="1.16">
+  <properties/>
+  <testcase name="testIsNotNullFunction" classname="org.opensearch.sql.ppl.WhereCommandIT" time="0.927"/>
+  <testcase name="testIsNullFunction" classname="org.opensearch.sql.ppl.WhereCommandIT" time="0.036"/>
+  <testcase name="testWhereWithLogicalExpr" classname="org.opensearch.sql.ppl.WhereCommandIT" time="0.04"/>
+  <testcase name="testWhereEquivalentSortCommand" classname="org.opensearch.sql.ppl.WhereCommandIT" time="0.045"/>
+  <testcase name="testWhereWithMultiLogicalExpr" classname="org.opensearch.sql.ppl.WhereCommandIT" time="0.035"/>
+  <testcase name="testMultipleWhereCommands" classname="org.opensearch.sql.ppl.WhereCommandIT" time="0.031"/>
+  <testcase name="testLikeFunction" classname="org.opensearch.sql.ppl.WhereCommandIT" time="0.044"/>
+  <system-out><![CDATA[[2023-01-17T16:13:05,435][INFO ][o.o.s.p.WhereCommandIT   ] [testIsNotNullFunction] before test
+[2023-01-17T16:13:05,437][INFO ][o.o.s.p.WhereCommandIT   ] [testIsNotNullFunction] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T16:13:06,357][INFO ][o.o.s.p.WhereCommandIT   ] [testIsNotNullFunction] after test
+[2023-01-17T16:13:06,364][INFO ][o.o.s.p.WhereCommandIT   ] [testIsNullFunction] before test
+[2023-01-17T16:13:06,393][INFO ][o.o.s.p.WhereCommandIT   ] [testIsNullFunction] after test
+[2023-01-17T16:13:06,400][INFO ][o.o.s.p.WhereCommandIT   ] [testWhereWithLogicalExpr] before test
+[2023-01-17T16:13:06,434][INFO ][o.o.s.p.WhereCommandIT   ] [testWhereWithLogicalExpr] after test
+[2023-01-17T16:13:06,440][INFO ][o.o.s.p.WhereCommandIT   ] [testWhereEquivalentSortCommand] before test
+[2023-01-17T16:13:06,480][INFO ][o.o.s.p.WhereCommandIT   ] [testWhereEquivalentSortCommand] after test
+[2023-01-17T16:13:06,485][INFO ][o.o.s.p.WhereCommandIT   ] [testWhereWithMultiLogicalExpr] before test
+[2023-01-17T16:13:06,514][INFO ][o.o.s.p.WhereCommandIT   ] [testWhereWithMultiLogicalExpr] after test
+[2023-01-17T16:13:06,521][INFO ][o.o.s.p.WhereCommandIT   ] [testMultipleWhereCommands] before test
+[2023-01-17T16:13:06,546][INFO ][o.o.s.p.WhereCommandIT   ] [testMultipleWhereCommands] after test
+[2023-01-17T16:13:06,552][INFO ][o.o.s.p.WhereCommandIT   ] [testLikeFunction] before test
+[2023-01-17T16:13:06,591][INFO ][o.o.s.p.WhereCommandIT   ] [testLikeFunction] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.IdentifierIT" tests="5" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:16" hostname="Unused26-MacBook.local" time="2.622">
+  <properties/>
+  <testcase name="testSpecialIndexNames" classname="org.opensearch.sql.sql.IdentifierIT" time="0.557"/>
+  <testcase name="testMultipleQueriesWithSpecialIndexNames" classname="org.opensearch.sql.sql.IdentifierIT" time="0.508"/>
+  <testcase name="testIndexNames" classname="org.opensearch.sql.sql.IdentifierIT" time="0.477"/>
+  <testcase name="testSpecialFieldName" classname="org.opensearch.sql.sql.IdentifierIT" time="0.274"/>
+  <testcase name="testQuotedIndexNames" classname="org.opensearch.sql.sql.IdentifierIT" time="0.806"/>
+  <system-out><![CDATA[[2023-01-17T10:13:16,973][INFO ][o.o.s.s.IdentifierIT     ] [testSpecialIndexNames] before test
+[2023-01-17T10:13:16,979][INFO ][o.o.s.s.IdentifierIT     ] [testSpecialIndexNames] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T10:13:17,525][INFO ][o.o.s.s.IdentifierIT     ] [testSpecialIndexNames] after test
+[2023-01-17T10:13:17,532][INFO ][o.o.s.s.IdentifierIT     ] [testMultipleQueriesWithSpecialIndexNames] before test
+[2023-01-17T10:13:18,034][INFO ][o.o.s.s.IdentifierIT     ] [testMultipleQueriesWithSpecialIndexNames] after test
+[2023-01-17T10:13:18,040][INFO ][o.o.s.s.IdentifierIT     ] [testIndexNames] before test
+[2023-01-17T10:13:18,510][INFO ][o.o.s.s.IdentifierIT     ] [testIndexNames] after test
+[2023-01-17T10:13:18,517][INFO ][o.o.s.s.IdentifierIT     ] [testSpecialFieldName] before test
+[2023-01-17T10:13:18,784][INFO ][o.o.s.s.IdentifierIT     ] [testSpecialFieldName] after test
+[2023-01-17T10:13:18,791][INFO ][o.o.s.s.IdentifierIT     ] [testQuotedIndexNames] before test
+[2023-01-17T10:13:19,591][INFO ][o.o.s.s.IdentifierIT     ] [testQuotedIndexNames] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

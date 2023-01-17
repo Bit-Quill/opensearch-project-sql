@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.RelevanceFunctionIT" tests="7" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:49" hostname="Unused26-MacBook.local" time="0.843">
+  <properties/>
+  <testcase name="test_wildcard_simple_query_string" classname="org.opensearch.sql.ppl.RelevanceFunctionIT" time="0.486"/>
+  <testcase name="verify_default_operator_in_multi_match" classname="org.opensearch.sql.ppl.RelevanceFunctionIT" time="0.053"/>
+  <testcase name="verify_flags_in_simple_query_string" classname="org.opensearch.sql.ppl.RelevanceFunctionIT" time="0.09"/>
+  <testcase name="verify_escape_in_query_string" classname="org.opensearch.sql.ppl.RelevanceFunctionIT" time="0.049"/>
+  <testcase name="verify_operator_in_match" classname="org.opensearch.sql.ppl.RelevanceFunctionIT" time="0.048"/>
+  <testcase name="verify_default_operator_in_simple_query_string" classname="org.opensearch.sql.ppl.RelevanceFunctionIT" time="0.055"/>
+  <testcase name="verify_default_operator_in_query_string" classname="org.opensearch.sql.ppl.RelevanceFunctionIT" time="0.059"/>
+  <system-out><![CDATA[[2023-01-17T16:12:49,104][INFO ][o.o.s.p.RelevanceFunctionIT] [test_wildcard_simple_query_string] before test
+[2023-01-17T16:12:49,105][INFO ][o.o.s.p.RelevanceFunctionIT] [test_wildcard_simple_query_string] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T16:12:49,586][INFO ][o.o.s.p.RelevanceFunctionIT] [test_wildcard_simple_query_string] after test
+[2023-01-17T16:12:49,592][INFO ][o.o.s.p.RelevanceFunctionIT] [verify_default_operator_in_multi_match] before test
+[2023-01-17T16:12:49,639][INFO ][o.o.s.p.RelevanceFunctionIT] [verify_default_operator_in_multi_match] after test
+[2023-01-17T16:12:49,646][INFO ][o.o.s.p.RelevanceFunctionIT] [verify_flags_in_simple_query_string] before test
+[2023-01-17T16:12:49,730][INFO ][o.o.s.p.RelevanceFunctionIT] [verify_flags_in_simple_query_string] after test
+[2023-01-17T16:12:49,736][INFO ][o.o.s.p.RelevanceFunctionIT] [verify_escape_in_query_string] before test
+[2023-01-17T16:12:49,779][INFO ][o.o.s.p.RelevanceFunctionIT] [verify_escape_in_query_string] after test
+[2023-01-17T16:12:49,786][INFO ][o.o.s.p.RelevanceFunctionIT] [verify_operator_in_match] before test
+[2023-01-17T16:12:49,828][INFO ][o.o.s.p.RelevanceFunctionIT] [verify_operator_in_match] after test
+[2023-01-17T16:12:49,834][INFO ][o.o.s.p.RelevanceFunctionIT] [verify_default_operator_in_simple_query_string] before test
+[2023-01-17T16:12:49,883][INFO ][o.o.s.p.RelevanceFunctionIT] [verify_default_operator_in_simple_query_string] after test
+[2023-01-17T16:12:49,890][INFO ][o.o.s.p.RelevanceFunctionIT] [verify_default_operator_in_query_string] before test
+[2023-01-17T16:12:49,944][INFO ][o.o.s.p.RelevanceFunctionIT] [verify_default_operator_in_query_string] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

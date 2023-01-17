@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.QueryAnalysisIT" tests="14" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:45" hostname="Unused26-MacBook.local" time="1.734">
+  <properties/>
+  <testcase name="queryWithIncorrectCommandShouldFailSyntaxCheck" classname="org.opensearch.sql.ppl.QueryAnalysisIT" time="0.595"/>
+  <testcase name="evalCommandShouldPassSemanticCheck" classname="org.opensearch.sql.ppl.QueryAnalysisIT" time="0.311"/>
+  <testcase name="statsCommandShouldPassSemanticCheck" classname="org.opensearch.sql.ppl.QueryAnalysisIT" time="0.108"/>
+  <testcase name="dedupCommandShouldPassSemanticCheck" classname="org.opensearch.sql.ppl.QueryAnalysisIT" time="0.072"/>
+  <testcase name="searchCommandShouldPassSemanticCheck" classname="org.opensearch.sql.ppl.QueryAnalysisIT" time="0.053"/>
+  <testcase name="renameCommandShouldPassSemanticCheck" classname="org.opensearch.sql.ppl.QueryAnalysisIT" time="0.082"/>
+  <testcase name="queryShouldBeCaseInsensitiveInKeywords" classname="org.opensearch.sql.ppl.QueryAnalysisIT" time="0.061"/>
+  <testcase name="unsupportedAggregationFunctionShouldFailSyntaxCheck" classname="org.opensearch.sql.ppl.QueryAnalysisIT" time="0.038"/>
+  <testcase name="queryNotStartingWithSearchCommandShouldFailSyntaxCheck" classname="org.opensearch.sql.ppl.QueryAnalysisIT" time="0.03"/>
+  <testcase name="queryWithIncorrectKeywordsShouldFailSyntaxCheck" classname="org.opensearch.sql.ppl.QueryAnalysisIT" time="0.038"/>
+  <testcase name="whereCommandShouldPassSemanticCheck" classname="org.opensearch.sql.ppl.QueryAnalysisIT" time="0.095"/>
+  <testcase name="nonexistentFieldShouldFailSemanticCheck" classname="org.opensearch.sql.ppl.QueryAnalysisIT" time="0.078"/>
+  <testcase name="sortCommandShouldPassSemanticCheck" classname="org.opensearch.sql.ppl.QueryAnalysisIT" time="0.122"/>
+  <testcase name="fieldsCommandShouldPassSemanticCheck" classname="org.opensearch.sql.ppl.QueryAnalysisIT" time="0.046"/>
+  <system-out><![CDATA[[2023-01-17T12:12:45,503][INFO ][o.o.s.p.QueryAnalysisIT  ] [queryWithIncorrectCommandShouldFailSyntaxCheck] before test
+[2023-01-17T12:12:45,507][INFO ][o.o.s.p.QueryAnalysisIT  ] [queryWithIncorrectCommandShouldFailSyntaxCheck] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T12:12:46,093][INFO ][o.o.s.p.QueryAnalysisIT  ] [queryWithIncorrectCommandShouldFailSyntaxCheck] after test
+[2023-01-17T12:12:46,100][INFO ][o.o.s.p.QueryAnalysisIT  ] [evalCommandShouldPassSemanticCheck] before test
+[2023-01-17T12:12:46,405][INFO ][o.o.s.p.QueryAnalysisIT  ] [evalCommandShouldPassSemanticCheck] after test
+[2023-01-17T12:12:46,412][INFO ][o.o.s.p.QueryAnalysisIT  ] [statsCommandShouldPassSemanticCheck] before test
+[2023-01-17T12:12:46,513][INFO ][o.o.s.p.QueryAnalysisIT  ] [statsCommandShouldPassSemanticCheck] after test
+[2023-01-17T12:12:46,519][INFO ][o.o.s.p.QueryAnalysisIT  ] [dedupCommandShouldPassSemanticCheck] before test
+[2023-01-17T12:12:46,586][INFO ][o.o.s.p.QueryAnalysisIT  ] [dedupCommandShouldPassSemanticCheck] after test
+[2023-01-17T12:12:46,592][INFO ][o.o.s.p.QueryAnalysisIT  ] [searchCommandShouldPassSemanticCheck] before test
+[2023-01-17T12:12:46,638][INFO ][o.o.s.p.QueryAnalysisIT  ] [searchCommandShouldPassSemanticCheck] after test
+[2023-01-17T12:12:46,645][INFO ][o.o.s.p.QueryAnalysisIT  ] [renameCommandShouldPassSemanticCheck] before test
+[2023-01-17T12:12:46,720][INFO ][o.o.s.p.QueryAnalysisIT  ] [renameCommandShouldPassSemanticCheck] after test
+[2023-01-17T12:12:46,726][INFO ][o.o.s.p.QueryAnalysisIT  ] [queryShouldBeCaseInsensitiveInKeywords] before test
+[2023-01-17T12:12:46,782][INFO ][o.o.s.p.QueryAnalysisIT  ] [queryShouldBeCaseInsensitiveInKeywords] after test
+[2023-01-17T12:12:46,788][INFO ][o.o.s.p.QueryAnalysisIT  ] [unsupportedAggregationFunctionShouldFailSyntaxCheck] before test
+[2023-01-17T12:12:46,821][INFO ][o.o.s.p.QueryAnalysisIT  ] [unsupportedAggregationFunctionShouldFailSyntaxCheck] after test
+[2023-01-17T12:12:46,827][INFO ][o.o.s.p.QueryAnalysisIT  ] [queryNotStartingWithSearchCommandShouldFailSyntaxCheck] before test
+[2023-01-17T12:12:46,852][INFO ][o.o.s.p.QueryAnalysisIT  ] [queryNotStartingWithSearchCommandShouldFailSyntaxCheck] after test
+[2023-01-17T12:12:46,858][INFO ][o.o.s.p.QueryAnalysisIT  ] [queryWithIncorrectKeywordsShouldFailSyntaxCheck] before test
+[2023-01-17T12:12:46,891][INFO ][o.o.s.p.QueryAnalysisIT  ] [queryWithIncorrectKeywordsShouldFailSyntaxCheck] after test
+[2023-01-17T12:12:46,897][INFO ][o.o.s.p.QueryAnalysisIT  ] [whereCommandShouldPassSemanticCheck] before test
+[2023-01-17T12:12:46,987][INFO ][o.o.s.p.QueryAnalysisIT  ] [whereCommandShouldPassSemanticCheck] after test
+[2023-01-17T12:12:46,993][INFO ][o.o.s.p.QueryAnalysisIT  ] [nonexistentFieldShouldFailSemanticCheck] before test
+[2023-01-17T12:12:47,065][INFO ][o.o.s.p.QueryAnalysisIT  ] [nonexistentFieldShouldFailSemanticCheck] after test
+[2023-01-17T12:12:47,071][INFO ][o.o.s.p.QueryAnalysisIT  ] [sortCommandShouldPassSemanticCheck] before test
+[2023-01-17T12:12:47,187][INFO ][o.o.s.p.QueryAnalysisIT  ] [sortCommandShouldPassSemanticCheck] after test
+[2023-01-17T12:12:47,193][INFO ][o.o.s.p.QueryAnalysisIT  ] [fieldsCommandShouldPassSemanticCheck] before test
+[2023-01-17T12:12:47,232][INFO ][o.o.s.p.QueryAnalysisIT  ] [fieldsCommandShouldPassSemanticCheck] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.PositionFunctionIT" tests="6" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:44" hostname="Unused26-MacBook.local" time="0.485">
+  <properties/>
+  <testcase name="test_position_function_with_nulls" classname="org.opensearch.sql.ppl.PositionFunctionIT" time="0.29"/>
+  <testcase name="test_position_function_with_string_literals" classname="org.opensearch.sql.ppl.PositionFunctionIT" time="0.038"/>
+  <testcase name="test_position_function_with_function_as_arg" classname="org.opensearch.sql.ppl.PositionFunctionIT" time="0.035"/>
+  <testcase name="test_position_function_with_fields_only" classname="org.opensearch.sql.ppl.PositionFunctionIT" time="0.034"/>
+  <testcase name="test_position_function_with_function_in_where_clause" classname="org.opensearch.sql.ppl.PositionFunctionIT" time="0.043"/>
+  <testcase name="test_position_function" classname="org.opensearch.sql.ppl.PositionFunctionIT" time="0.04"/>
+  <system-out><![CDATA[[2023-01-17T11:12:44,336][INFO ][o.o.s.p.PositionFunctionIT] [test_position_function_with_nulls] before test
+[2023-01-17T11:12:44,339][INFO ][o.o.s.p.PositionFunctionIT] [test_position_function_with_nulls] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T11:12:44,622][INFO ][o.o.s.p.PositionFunctionIT] [test_position_function_with_nulls] after test
+[2023-01-17T11:12:44,628][INFO ][o.o.s.p.PositionFunctionIT] [test_position_function_with_string_literals] before test
+[2023-01-17T11:12:44,661][INFO ][o.o.s.p.PositionFunctionIT] [test_position_function_with_string_literals] after test
+[2023-01-17T11:12:44,667][INFO ][o.o.s.p.PositionFunctionIT] [test_position_function_with_function_as_arg] before test
+[2023-01-17T11:12:44,697][INFO ][o.o.s.p.PositionFunctionIT] [test_position_function_with_function_as_arg] after test
+[2023-01-17T11:12:44,703][INFO ][o.o.s.p.PositionFunctionIT] [test_position_function_with_fields_only] before test
+[2023-01-17T11:12:44,732][INFO ][o.o.s.p.PositionFunctionIT] [test_position_function_with_fields_only] after test
+[2023-01-17T11:12:44,738][INFO ][o.o.s.p.PositionFunctionIT] [test_position_function_with_function_in_where_clause] before test
+[2023-01-17T11:12:44,776][INFO ][o.o.s.p.PositionFunctionIT] [test_position_function_with_function_in_where_clause] after test
+[2023-01-17T11:12:44,782][INFO ][o.o.s.p.PositionFunctionIT] [test_position_function] before test
+[2023-01-17T11:12:44,817][INFO ][o.o.s.p.PositionFunctionIT] [test_position_function] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

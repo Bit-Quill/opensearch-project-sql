@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.SystemFunctionIT" tests="2" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:39" hostname="Unused26-MacBook.local" time="0.688">
+  <properties/>
+  <testcase name="typeof_opensearch_types" classname="org.opensearch.sql.sql.SystemFunctionIT" time="0.591"/>
+  <testcase name="typeof_sql_types" classname="org.opensearch.sql.sql.SystemFunctionIT" time="0.091"/>
+  <system-out><![CDATA[[2023-01-17T10:13:39,448][INFO ][o.o.s.s.SystemFunctionIT ] [typeof_opensearch_types] before test
+[2023-01-17T10:13:39,450][INFO ][o.o.s.s.SystemFunctionIT ] [typeof_opensearch_types] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T10:13:40,017][INFO ][o.o.s.s.SystemFunctionIT ] [typeof_opensearch_types] after test
+[2023-01-17T10:13:40,062][INFO ][o.o.s.s.SystemFunctionIT ] [typeof_sql_types] before test
+[2023-01-17T10:13:40,132][INFO ][o.o.s.s.SystemFunctionIT ] [typeof_sql_types] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

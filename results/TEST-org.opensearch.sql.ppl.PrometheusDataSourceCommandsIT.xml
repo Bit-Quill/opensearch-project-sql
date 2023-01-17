@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.PrometheusDataSourceCommandsIT" tests="8" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:44" hostname="Unused26-MacBook.local" time="0.445">
+  <properties/>
+  <testcase name="testMetricCountAggregationCommand" classname="org.opensearch.sql.ppl.PrometheusDataSourceCommandsIT" time="0.119"/>
+  <testcase name="testMetricSumAggregationCommand" classname="org.opensearch.sql.ppl.PrometheusDataSourceCommandsIT" time="0.04"/>
+  <testcase name="testSourceMetricCommand" classname="org.opensearch.sql.ppl.PrometheusDataSourceCommandsIT" time="0.032"/>
+  <testcase name="testMetricMinAggregationCommand" classname="org.opensearch.sql.ppl.PrometheusDataSourceCommandsIT" time="0.039"/>
+  <testcase name="testMetricAvgAggregationCommand" classname="org.opensearch.sql.ppl.PrometheusDataSourceCommandsIT" time="0.043"/>
+  <testcase name="testMetricMaxAggregationCommand" classname="org.opensearch.sql.ppl.PrometheusDataSourceCommandsIT" time="0.035"/>
+  <testcase name="testMetricAvgAggregationCommandWithAlias" classname="org.opensearch.sql.ppl.PrometheusDataSourceCommandsIT" time="0.054"/>
+  <testcase name="testSourceMetricCommandWithTimestamp" classname="org.opensearch.sql.ppl.PrometheusDataSourceCommandsIT" time="0.082"/>
+  <system-out><![CDATA[[2023-01-17T05:12:44,929][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testMetricCountAggregationCommand] before test
+[2023-01-17T05:12:44,933][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testMetricCountAggregationCommand] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T05:12:45,044][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testMetricCountAggregationCommand] after test
+[2023-01-17T05:12:45,050][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testMetricSumAggregationCommand] before test
+[2023-01-17T05:12:45,085][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testMetricSumAggregationCommand] after test
+[2023-01-17T05:12:45,091][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testSourceMetricCommand] before test
+[2023-01-17T05:12:45,117][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testSourceMetricCommand] after test
+[2023-01-17T05:12:45,122][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testMetricMinAggregationCommand] before test
+[2023-01-17T05:12:45,156][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testMetricMinAggregationCommand] after test
+[2023-01-17T05:12:45,162][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testMetricAvgAggregationCommand] before test
+[2023-01-17T05:12:45,199][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testMetricAvgAggregationCommand] after test
+[2023-01-17T05:12:45,205][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testMetricMaxAggregationCommand] before test
+[2023-01-17T05:12:45,233][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testMetricMaxAggregationCommand] after test
+[2023-01-17T05:12:45,239][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testMetricAvgAggregationCommandWithAlias] before test
+[2023-01-17T05:12:45,288][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testMetricAvgAggregationCommandWithAlias] after test
+[2023-01-17T05:12:45,294][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testSourceMetricCommandWithTimestamp] before test
+[2023-01-17T05:12:45,369][INFO ][o.o.s.p.PrometheusDataSourceCommandsIT] [testSourceMetricCommandWithTimestamp] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

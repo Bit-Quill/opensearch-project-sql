@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.legacy.OrdinalAliasRewriterIT" tests="11" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:13" hostname="Unused26-MacBook.local" time="1.174">
+  <properties/>
+  <testcase name="selectFieldiWithBacticksAndTableAliasOrderByOrdinalAndNull" classname="org.opensearch.sql.legacy.OrdinalAliasRewriterIT" time="0.445"/>
+  <testcase name="selectFieldiWithBacticksOrderByOrdinal" classname="org.opensearch.sql.legacy.OrdinalAliasRewriterIT" time="0.057"/>
+  <testcase name="selectFieldiWithBacticksGroupByOrdinal" classname="org.opensearch.sql.legacy.OrdinalAliasRewriterIT" time="0.057"/>
+  <testcase name="explainSelectFieldiWithBacticksAndTableAliasGroupByOrdinal" classname="org.opensearch.sql.legacy.OrdinalAliasRewriterIT" time="0.046"/>
+  <testcase name="selectFieldiWithBacticksAndTableAliasOrderByOrdinal" classname="org.opensearch.sql.legacy.OrdinalAliasRewriterIT" time="0.049"/>
+  <testcase name="simpleOrderByOrdinal" classname="org.opensearch.sql.legacy.OrdinalAliasRewriterIT" time="0.05"/>
+  <testcase name="multipleGroupByOrdinal" classname="org.opensearch.sql.legacy.OrdinalAliasRewriterIT" time="0.079"/>
+  <testcase name="selectFieldiWithBacticksAndTableAliasGroupByOrdinal" classname="org.opensearch.sql.legacy.OrdinalAliasRewriterIT" time="0.125"/>
+  <testcase name="simpleGroupByOrdinal" classname="org.opensearch.sql.legacy.OrdinalAliasRewriterIT" time="0.094"/>
+  <testcase name="multipleOrderByOrdinal" classname="org.opensearch.sql.legacy.OrdinalAliasRewriterIT" time="0.109"/>
+  <testcase name="explainSelectFieldiWithBacticksAndTableAliasOrderByOrdinal" classname="org.opensearch.sql.legacy.OrdinalAliasRewriterIT" time="0.059"/>
+  <system-out><![CDATA[[2023-01-17T13:12:13,080][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [selectFieldiWithBacticksAndTableAliasOrderByOrdinalAndNull] before test
+[2023-01-17T13:12:13,084][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [selectFieldiWithBacticksAndTableAliasOrderByOrdinalAndNull] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T13:12:13,519][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [selectFieldiWithBacticksAndTableAliasOrderByOrdinalAndNull] after test
+[2023-01-17T13:12:13,525][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [selectFieldiWithBacticksOrderByOrdinal] before test
+[2023-01-17T13:12:13,577][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [selectFieldiWithBacticksOrderByOrdinal] after test
+[2023-01-17T13:12:13,583][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [selectFieldiWithBacticksGroupByOrdinal] before test
+[2023-01-17T13:12:13,634][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [selectFieldiWithBacticksGroupByOrdinal] after test
+[2023-01-17T13:12:13,640][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [explainSelectFieldiWithBacticksAndTableAliasGroupByOrdinal] before test
+[2023-01-17T13:12:13,681][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [explainSelectFieldiWithBacticksAndTableAliasGroupByOrdinal] after test
+[2023-01-17T13:12:13,686][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [selectFieldiWithBacticksAndTableAliasOrderByOrdinal] before test
+[2023-01-17T13:12:13,730][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [selectFieldiWithBacticksAndTableAliasOrderByOrdinal] after test
+[2023-01-17T13:12:13,735][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [simpleOrderByOrdinal] before test
+[2023-01-17T13:12:13,781][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [simpleOrderByOrdinal] after test
+[2023-01-17T13:12:13,786][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [multipleGroupByOrdinal] before test
+[2023-01-17T13:12:13,860][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [multipleGroupByOrdinal] after test
+[2023-01-17T13:12:13,866][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [selectFieldiWithBacticksAndTableAliasGroupByOrdinal] before test
+[2023-01-17T13:12:13,985][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [selectFieldiWithBacticksAndTableAliasGroupByOrdinal] after test
+[2023-01-17T13:12:13,992][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [simpleGroupByOrdinal] before test
+[2023-01-17T13:12:14,079][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [simpleGroupByOrdinal] after test
+[2023-01-17T13:12:14,087][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [multipleOrderByOrdinal] before test
+[2023-01-17T13:12:14,189][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [multipleOrderByOrdinal] after test
+[2023-01-17T13:12:14,195][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [explainSelectFieldiWithBacticksAndTableAliasOrderByOrdinal] before test
+[2023-01-17T13:12:14,248][INFO ][o.o.s.l.OrdinalAliasRewriterIT] [explainSelectFieldiWithBacticksAndTableAliasOrderByOrdinal] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

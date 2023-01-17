@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.legacy.JdbcTestIT" tests="12" skipped="4" failures="2" errors="0" timestamp="2023-01-17T16:11:19" hostname="Unused26-MacBook.local" time="4.414">
+  <properties/>
+  <testcase name="ipTypeShouldPassJdbcFormatter" classname="org.opensearch.sql.legacy.JdbcTestIT" time="3.558"/>
+  <testcase name="testDateTimeInQuery" classname="org.opensearch.sql.legacy.JdbcTestIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="stringOperatorNameCaseInsensitiveTest" classname="org.opensearch.sql.legacy.JdbcTestIT" time="0.051"/>
+  <testcase name="testPercentilesQuery" classname="org.opensearch.sql.legacy.JdbcTestIT" time="0.04">
+    <failure message="java.lang.RuntimeException: org.opensearch.client.ResponseException: method [POST], host [http://127.0.0.1:49776], URI [/_plugins/_sql?format=jdbc], status line [HTTP/1.1 400 Bad Request]&#10;{&#10;  &quot;error&quot;: {&#10;    &quot;reason&quot;: &quot;Invalid SQL query&quot;,&#10;    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,&#10;    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;&#10;  },&#10;  &quot;status&quot;: 400&#10;}" type="java.lang.RuntimeException">java.lang.RuntimeException: org.opensearch.client.ResponseException: method [POST], host [http://127.0.0.1:49776], URI [/_plugins/_sql?format=jdbc], status line [HTTP/1.1 400 Bad Request]
+{
+  &quot;error&quot;: {
+    &quot;reason&quot;: &quot;Invalid SQL query&quot;,
+    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,
+    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;
+  },
+  &quot;status&quot;: 400
+}
+	at __randomizedtesting.SeedInfo.seed([B058E8962C1F801C:7E6BFB0B6CBCF502]:0)
+	at org.opensearch.sql.legacy.SQLIntegTestCase.executeQuery(SQLIntegTestCase.java:239)
+	at org.opensearch.sql.legacy.SQLIntegTestCase.executeJdbcRequest(SQLIntegTestCase.java:244)
+	at org.opensearch.sql.legacy.JdbcTestIT.testPercentilesQuery(JdbcTestIT.java:30)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner.invoke(RandomizedRunner.java:1750)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner$8.evaluate(RandomizedRunner.java:938)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner$9.evaluate(RandomizedRunner.java:974)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner$10.evaluate(RandomizedRunner.java:988)
+	at com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.apache.lucene.tests.util.TestRuleSetupTeardownChained$1.evaluate(TestRuleSetupTeardownChained.java:48)
+	at org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at org.apache.lucene.tests.util.TestRuleThreadAndTestName$1.evaluate(TestRuleThreadAndTestName.java:45)
+	at org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at com.carrotsearch.randomizedtesting.ThreadLeakControl.forkTimeoutingTask(ThreadLeakControl.java:817)
+	at com.carrotsearch.randomizedtesting.ThreadLeakControl$3.evaluate(ThreadLeakControl.java:468)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner.runSingleTest(RandomizedRunner.java:947)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner$5.evaluate(RandomizedRunner.java:832)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner$6.evaluate(RandomizedRunner.java:883)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner$7.evaluate(RandomizedRunner.java:894)
+	at org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at org.apache.lucene.tests.util.TestRuleStoreClassName$1.evaluate(TestRuleStoreClassName.java:38)
+	at com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at org.apache.lucene.tests.util.TestRuleAssertionsRequired$1.evaluate(TestRuleAssertionsRequired.java:53)
+	at org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at org.apache.lucene.tests.util.TestRuleIgnoreTestSuites$1.evaluate(TestRuleIgnoreTestSuites.java:47)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Caused by: org.opensearch.client.ResponseException: method [POST], host [http://127.0.0.1:49776], URI [/_plugins/_sql?format=jdbc], status line [HTTP/1.1 400 Bad Request]
+{
+  &quot;error&quot;: {
+    &quot;reason&quot;: &quot;Invalid SQL query&quot;,
+    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,
+    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;
+  },
+  &quot;status&quot;: 400
+}
+	at app//org.opensearch.client.RestClient.convertResponse(RestClient.java:384)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:354)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:329)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeQuery(SQLIntegTestCase.java:233)
+	... 42 more
+</failure>
+  </testcase>
+  <testcase name="numberOperatorNameCaseInsensitiveTest" classname="org.opensearch.sql.legacy.JdbcTestIT" time="0.105"/>
+  <testcase name="testGroupByInQuery" classname="org.opensearch.sql.legacy.JdbcTestIT" time="0.392"/>
+  <testcase name="trigFunctionNameCaseInsensitiveTest" classname="org.opensearch.sql.legacy.JdbcTestIT" time="0.059"/>
+  <testcase name="functionWithAliasShouldHaveAliasAsNameInSchema" classname="org.opensearch.sql.legacy.JdbcTestIT" time="0.001">
+    <skipped/>
+  </testcase>
+  <testcase name="testSlowQuery" classname="org.opensearch.sql.legacy.JdbcTestIT" time="0.112">
+    <failure message="java.lang.RuntimeException: org.opensearch.client.ResponseException: method [POST], host [http://[::1]:49775], URI [/_plugins/_sql?format=jdbc], status line [HTTP/1.1 400 Bad Request]&#10;{&#10;  &quot;error&quot;: {&#10;    &quot;reason&quot;: &quot;Invalid SQL query&quot;,&#10;    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,&#10;    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;&#10;  },&#10;  &quot;status&quot;: 400&#10;}" type="java.lang.RuntimeException">java.lang.RuntimeException: org.opensearch.client.ResponseException: method [POST], host [http://[::1]:49775], URI [/_plugins/_sql?format=jdbc], status line [HTTP/1.1 400 Bad Request]
+{
+  &quot;error&quot;: {
+    &quot;reason&quot;: &quot;Invalid SQL query&quot;,
+    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,
+    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;
+  },
+  &quot;status&quot;: 400
+}
+	at __randomizedtesting.SeedInfo.seed([B058E8962C1F801C:A85CC38BE792EA60]:0)
+	at org.opensearch.sql.legacy.SQLIntegTestCase.executeQuery(SQLIntegTestCase.java:239)
+	at org.opensearch.sql.legacy.SQLIntegTestCase.executeJdbcRequest(SQLIntegTestCase.java:244)
+	at org.opensearch.sql.legacy.JdbcTestIT.testSlowQuery(JdbcTestIT.java:50)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner.invoke(RandomizedRunner.java:1750)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner$8.evaluate(RandomizedRunner.java:938)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner$9.evaluate(RandomizedRunner.java:974)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner$10.evaluate(RandomizedRunner.java:988)
+	at com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.apache.lucene.tests.util.TestRuleSetupTeardownChained$1.evaluate(TestRuleSetupTeardownChained.java:48)
+	at org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at org.apache.lucene.tests.util.TestRuleThreadAndTestName$1.evaluate(TestRuleThreadAndTestName.java:45)
+	at org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at com.carrotsearch.randomizedtesting.ThreadLeakControl.forkTimeoutingTask(ThreadLeakControl.java:817)
+	at com.carrotsearch.randomizedtesting.ThreadLeakControl$3.evaluate(ThreadLeakControl.java:468)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner.runSingleTest(RandomizedRunner.java:947)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner$5.evaluate(RandomizedRunner.java:832)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner$6.evaluate(RandomizedRunner.java:883)
+	at com.carrotsearch.randomizedtesting.RandomizedRunner$7.evaluate(RandomizedRunner.java:894)
+	at org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at org.apache.lucene.tests.util.TestRuleStoreClassName$1.evaluate(TestRuleStoreClassName.java:38)
+	at com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at com.carrotsearch.randomizedtesting.rules.NoShadowingOrOverridesOnMethodsRule$1.evaluate(NoShadowingOrOverridesOnMethodsRule.java:40)
+	at com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at org.apache.lucene.tests.util.TestRuleAssertionsRequired$1.evaluate(TestRuleAssertionsRequired.java:53)
+	at org.apache.lucene.tests.util.AbstractBeforeAfterRule$1.evaluate(AbstractBeforeAfterRule.java:43)
+	at org.apache.lucene.tests.util.TestRuleMarkFailure$1.evaluate(TestRuleMarkFailure.java:44)
+	at org.apache.lucene.tests.util.TestRuleIgnoreAfterMaxFailures$1.evaluate(TestRuleIgnoreAfterMaxFailures.java:60)
+	at org.apache.lucene.tests.util.TestRuleIgnoreTestSuites$1.evaluate(TestRuleIgnoreTestSuites.java:47)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at com.carrotsearch.randomizedtesting.rules.StatementAdapter.evaluate(StatementAdapter.java:36)
+	at com.carrotsearch.randomizedtesting.ThreadLeakControl$StatementRunner.run(ThreadLeakControl.java:368)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Caused by: org.opensearch.client.ResponseException: method [POST], host [http://[::1]:49775], URI [/_plugins/_sql?format=jdbc], status line [HTTP/1.1 400 Bad Request]
+{
+  &quot;error&quot;: {
+    &quot;reason&quot;: &quot;Invalid SQL query&quot;,
+    &quot;details&quot;: &quot;Query is unsupported in the new engine&quot;,
+    &quot;type&quot;: &quot;SQLFeatureDisabledException&quot;
+  },
+  &quot;status&quot;: 400
+}
+	at app//org.opensearch.client.RestClient.convertResponse(RestClient.java:384)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:354)
+	at app//org.opensearch.client.RestClient.performRequest(RestClient.java:329)
+	at app//org.opensearch.sql.legacy.SQLIntegTestCase.executeQuery(SQLIntegTestCase.java:233)
+	... 42 more
+</failure>
+  </testcase>
+  <testcase name="testDivisionInQuery" classname="org.opensearch.sql.legacy.JdbcTestIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="functionWithoutAliasShouldHaveEntireFunctionAsNameInSchema" classname="org.opensearch.sql.legacy.JdbcTestIT" time="0.093"/>
+  <testcase name="dateFunctionNameCaseInsensitiveTest" classname="org.opensearch.sql.legacy.JdbcTestIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <system-out><![CDATA[[2023-01-18T02:11:19,054][INFO ][o.o.s.l.JdbcTestIT       ] [ipTypeShouldPassJdbcFormatter] before test
+[2023-01-18T02:11:19,056][INFO ][o.o.s.l.JdbcTestIT       ] [ipTypeShouldPassJdbcFormatter] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-18T02:11:22,608][INFO ][o.o.s.l.JdbcTestIT       ] [ipTypeShouldPassJdbcFormatter] after test
+[2023-01-18T02:11:22,613][INFO ][o.o.s.l.JdbcTestIT       ] [stringOperatorNameCaseInsensitiveTest] before test
+[2023-01-18T02:11:22,660][INFO ][o.o.s.l.JdbcTestIT       ] [stringOperatorNameCaseInsensitiveTest] after test
+[2023-01-18T02:11:22,665][INFO ][o.o.s.l.JdbcTestIT       ] [testPercentilesQuery] before test
+[2023-01-18T02:11:22,696][INFO ][o.o.s.l.JdbcTestIT       ] [testPercentilesQuery] after test
+[2023-01-18T02:11:22,706][INFO ][o.o.s.l.JdbcTestIT       ] [numberOperatorNameCaseInsensitiveTest] before test
+[2023-01-18T02:11:22,806][INFO ][o.o.s.l.JdbcTestIT       ] [numberOperatorNameCaseInsensitiveTest] after test
+[2023-01-18T02:11:22,812][INFO ][o.o.s.l.JdbcTestIT       ] [testGroupByInQuery] before test
+[2023-01-18T02:11:23,199][INFO ][o.o.s.l.JdbcTestIT       ] [testGroupByInQuery] after test
+[2023-01-18T02:11:23,204][INFO ][o.o.s.l.JdbcTestIT       ] [trigFunctionNameCaseInsensitiveTest] before test
+[2023-01-18T02:11:23,258][INFO ][o.o.s.l.JdbcTestIT       ] [trigFunctionNameCaseInsensitiveTest] after test
+[2023-01-18T02:11:23,263][INFO ][o.o.s.l.JdbcTestIT       ] [testSlowQuery] before test
+[2023-01-18T02:11:23,369][INFO ][o.o.s.l.JdbcTestIT       ] [testSlowQuery] after test
+[2023-01-18T02:11:23,376][INFO ][o.o.s.l.JdbcTestIT       ] [functionWithoutAliasShouldHaveEntireFunctionAsNameInSchema] before test
+[2023-01-18T02:11:23,463][INFO ][o.o.s.l.JdbcTestIT       ] [functionWithoutAliasShouldHaveEntireFunctionAsNameInSchema] after test
+]]></system-out>
+  <system-err><![CDATA[REPRODUCE WITH: ./gradlew ':integ-test:integTest' --tests "org.opensearch.sql.legacy.JdbcTestIT.testPercentilesQuery" -Dtests.seed=B058E8962C1F801C -Dtests.security.manager=false -Dtests.locale=nb -Dtests.timezone=Pacific/Port_Moresby -Druntime.java=17
+REPRODUCE WITH: ./gradlew ':integ-test:integTest' --tests "org.opensearch.sql.legacy.JdbcTestIT.testSlowQuery" -Dtests.seed=B058E8962C1F801C -Dtests.security.manager=false -Dtests.locale=nb -Dtests.timezone=Pacific/Port_Moresby -Druntime.java=17
+NOTE: leaving temporary files on disk at: /Users/guiang/Documents/GitHub/opensearch-project-sql/integ-test/build/testrun/integTest/temp/org.opensearch.sql.legacy.JdbcTestIT_B058E8962C1F801C-001
+NOTE: test params are: codec=Lucene95, sim=Asserting(RandomSimilarity(queryNorm=false): {}), locale=nb, timezone=Pacific/Port_Moresby
+NOTE: Mac OS X 13.0 x86_64/Amazon.com Inc. 17.0.4.1 (64-bit)/cpus=10,threads=1,free=399473808,total=536870912
+NOTE: All tests run in this JVM: [AggregationIT, CsvFormatResponseIT, CursorIT, DateFormatIT, DateFunctionsIT, DeleteIT, HashJoinIT, HavingIT, JSONRequestIT, JdbcTestIT]
+]]></system-err>
+</testsuite>

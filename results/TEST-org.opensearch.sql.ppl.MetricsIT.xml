@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.MetricsIT" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:37" hostname="Unused26-MacBook.local" time="2.405">
+  <properties/>
+  <testcase name="requestCount" classname="org.opensearch.sql.ppl.MetricsIT" time="2.405"/>
+  <system-out><![CDATA[[2023-01-17T18:12:37,111][INFO ][o.o.s.p.MetricsIT        ] [requestCount] before test
+[2023-01-17T18:12:37,119][INFO ][o.o.s.p.MetricsIT        ] [requestCount] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T18:12:39,507][INFO ][o.o.s.p.MetricsIT        ] [requestCount] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

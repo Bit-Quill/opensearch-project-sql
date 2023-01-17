@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.MatchPhrasePrefixIT" tests="8" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:33" hostname="Unused26-MacBook.local" time="1.022">
+  <properties/>
+  <testcase name="analyzer_standard" classname="org.opensearch.sql.ppl.MatchPhrasePrefixIT" time="0.707"/>
+  <testcase name="slop_is_2" classname="org.opensearch.sql.ppl.MatchPhrasePrefixIT" time="0.078"/>
+  <testcase name="slop_is_3" classname="org.opensearch.sql.ppl.MatchPhrasePrefixIT" time="0.046"/>
+  <testcase name="required_parameters" classname="org.opensearch.sql.ppl.MatchPhrasePrefixIT" time="0.033"/>
+  <testcase name="all_optional_parameters" classname="org.opensearch.sql.ppl.MatchPhrasePrefixIT" time="0.035"/>
+  <testcase name="max_expansions_is_3" classname="org.opensearch.sql.ppl.MatchPhrasePrefixIT" time="0.043"/>
+  <testcase name="analyzer_english" classname="org.opensearch.sql.ppl.MatchPhrasePrefixIT" time="0.032"/>
+  <testcase name="zero_term_query_all" classname="org.opensearch.sql.ppl.MatchPhrasePrefixIT" time="0.045"/>
+  <system-out><![CDATA[[2023-01-17T13:12:33,454][INFO ][o.o.s.p.MatchPhrasePrefixIT] [analyzer_standard] before test
+[2023-01-17T13:12:33,455][INFO ][o.o.s.p.MatchPhrasePrefixIT] [analyzer_standard] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T13:12:34,158][INFO ][o.o.s.p.MatchPhrasePrefixIT] [analyzer_standard] after test
+[2023-01-17T13:12:34,164][INFO ][o.o.s.p.MatchPhrasePrefixIT] [slop_is_2] before test
+[2023-01-17T13:12:34,237][INFO ][o.o.s.p.MatchPhrasePrefixIT] [slop_is_2] after test
+[2023-01-17T13:12:34,242][INFO ][o.o.s.p.MatchPhrasePrefixIT] [slop_is_3] before test
+[2023-01-17T13:12:34,283][INFO ][o.o.s.p.MatchPhrasePrefixIT] [slop_is_3] after test
+[2023-01-17T13:12:34,288][INFO ][o.o.s.p.MatchPhrasePrefixIT] [required_parameters] before test
+[2023-01-17T13:12:34,316][INFO ][o.o.s.p.MatchPhrasePrefixIT] [required_parameters] after test
+[2023-01-17T13:12:34,323][INFO ][o.o.s.p.MatchPhrasePrefixIT] [all_optional_parameters] before test
+[2023-01-17T13:12:34,352][INFO ][o.o.s.p.MatchPhrasePrefixIT] [all_optional_parameters] after test
+[2023-01-17T13:12:34,358][INFO ][o.o.s.p.MatchPhrasePrefixIT] [max_expansions_is_3] before test
+[2023-01-17T13:12:34,395][INFO ][o.o.s.p.MatchPhrasePrefixIT] [max_expansions_is_3] after test
+[2023-01-17T13:12:34,401][INFO ][o.o.s.p.MatchPhrasePrefixIT] [analyzer_english] before test
+[2023-01-17T13:12:34,427][INFO ][o.o.s.p.MatchPhrasePrefixIT] [analyzer_english] after test
+[2023-01-17T13:12:34,433][INFO ][o.o.s.p.MatchPhrasePrefixIT] [zero_term_query_all] before test
+[2023-01-17T13:12:34,472][INFO ][o.o.s.p.MatchPhrasePrefixIT] [zero_term_query_all] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

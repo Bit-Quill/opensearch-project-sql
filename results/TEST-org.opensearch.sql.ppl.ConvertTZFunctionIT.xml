@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.ConvertTZFunctionIT" tests="14" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:18" hostname="Unused26-MacBook.local" time="0.882">
+  <properties/>
+  <testcase name="inRangeZeroToZero" classname="org.opensearch.sql.ppl.ConvertTZFunctionIT" time="0.463"/>
+  <testcase name="inRangeNegativeToPositive" classname="org.opensearch.sql.ppl.ConvertTZFunctionIT" time="0.037"/>
+  <testcase name="nullFromGarbageInput1" classname="org.opensearch.sql.ppl.ConvertTZFunctionIT" time="0.036"/>
+  <testcase name="inRangeFifteenMinuteTZ" classname="org.opensearch.sql.ppl.ConvertTZFunctionIT" time="0.034"/>
+  <testcase name="nullDateTimeInvalidDateValueMonth" classname="org.opensearch.sql.ppl.ConvertTZFunctionIT" time="0.035"/>
+  <testcase name="nullDateTimeInvalidDateValueFebruary" classname="org.opensearch.sql.ppl.ConvertTZFunctionIT" time="0.033"/>
+  <testcase name="inRangeZeroToPositive" classname="org.opensearch.sql.ppl.ConvertTZFunctionIT" time="0.032"/>
+  <testcase name="nullFromGarbageInput2" classname="org.opensearch.sql.ppl.ConvertTZFunctionIT" time="0.03"/>
+  <testcase name="inRangeTwentyFourHourChange" classname="org.opensearch.sql.ppl.ConvertTZFunctionIT" time="0.029"/>
+  <testcase name="nullDateTimeInvalidDateValueApril" classname="org.opensearch.sql.ppl.ConvertTZFunctionIT" time="0.031"/>
+  <testcase name="nullToFieldOver" classname="org.opensearch.sql.ppl.ConvertTZFunctionIT" time="0.029"/>
+  <testcase name="inRangePositiveToPositive" classname="org.opensearch.sql.ppl.ConvertTZFunctionIT" time="0.028"/>
+  <testcase name="nullFromFieldUnder" classname="org.opensearch.sql.ppl.ConvertTZFunctionIT" time="0.03"/>
+  <testcase name="inRangeNoTZChange" classname="org.opensearch.sql.ppl.ConvertTZFunctionIT" time="0.028"/>
+  <system-out><![CDATA[[2023-01-17T19:12:18,080][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangeZeroToZero] before test
+[2023-01-17T19:12:18,082][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangeZeroToZero] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T19:12:18,538][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangeZeroToZero] after test
+[2023-01-17T19:12:18,545][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangeNegativeToPositive] before test
+[2023-01-17T19:12:18,576][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangeNegativeToPositive] after test
+[2023-01-17T19:12:18,582][INFO ][o.o.s.p.ConvertTZFunctionIT] [nullFromGarbageInput1] before test
+[2023-01-17T19:12:18,612][INFO ][o.o.s.p.ConvertTZFunctionIT] [nullFromGarbageInput1] after test
+[2023-01-17T19:12:18,618][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangeFifteenMinuteTZ] before test
+[2023-01-17T19:12:18,646][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangeFifteenMinuteTZ] after test
+[2023-01-17T19:12:18,652][INFO ][o.o.s.p.ConvertTZFunctionIT] [nullDateTimeInvalidDateValueMonth] before test
+[2023-01-17T19:12:18,682][INFO ][o.o.s.p.ConvertTZFunctionIT] [nullDateTimeInvalidDateValueMonth] after test
+[2023-01-17T19:12:18,687][INFO ][o.o.s.p.ConvertTZFunctionIT] [nullDateTimeInvalidDateValueFebruary] before test
+[2023-01-17T19:12:18,715][INFO ][o.o.s.p.ConvertTZFunctionIT] [nullDateTimeInvalidDateValueFebruary] after test
+[2023-01-17T19:12:18,721][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangeZeroToPositive] before test
+[2023-01-17T19:12:18,748][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangeZeroToPositive] after test
+[2023-01-17T19:12:18,753][INFO ][o.o.s.p.ConvertTZFunctionIT] [nullFromGarbageInput2] before test
+[2023-01-17T19:12:18,778][INFO ][o.o.s.p.ConvertTZFunctionIT] [nullFromGarbageInput2] after test
+[2023-01-17T19:12:18,784][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangeTwentyFourHourChange] before test
+[2023-01-17T19:12:18,808][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangeTwentyFourHourChange] after test
+[2023-01-17T19:12:18,814][INFO ][o.o.s.p.ConvertTZFunctionIT] [nullDateTimeInvalidDateValueApril] before test
+[2023-01-17T19:12:18,840][INFO ][o.o.s.p.ConvertTZFunctionIT] [nullDateTimeInvalidDateValueApril] after test
+[2023-01-17T19:12:18,845][INFO ][o.o.s.p.ConvertTZFunctionIT] [nullToFieldOver] before test
+[2023-01-17T19:12:18,870][INFO ][o.o.s.p.ConvertTZFunctionIT] [nullToFieldOver] after test
+[2023-01-17T19:12:18,875][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangePositiveToPositive] before test
+[2023-01-17T19:12:18,898][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangePositiveToPositive] after test
+[2023-01-17T19:12:18,904][INFO ][o.o.s.p.ConvertTZFunctionIT] [nullFromFieldUnder] before test
+[2023-01-17T19:12:18,929][INFO ][o.o.s.p.ConvertTZFunctionIT] [nullFromFieldUnder] after test
+[2023-01-17T19:12:18,934][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangeNoTZChange] before test
+[2023-01-17T19:12:18,958][INFO ][o.o.s.p.ConvertTZFunctionIT] [inRangeNoTZChange] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

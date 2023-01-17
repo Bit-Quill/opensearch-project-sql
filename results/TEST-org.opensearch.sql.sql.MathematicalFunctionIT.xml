@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.MathematicalFunctionIT" tests="11" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:13:24" hostname="Unused26-MacBook.local" time="0.788">
+  <properties/>
+  <testcase name="testMod" classname="org.opensearch.sql.sql.MathematicalFunctionIT" time="0.268"/>
+  <testcase name="testRound" classname="org.opensearch.sql.sql.MathematicalFunctionIT" time="0.092"/>
+  <testcase name="testPI" classname="org.opensearch.sql.sql.MathematicalFunctionIT" time="0.039"/>
+  <testcase name="testAtan" classname="org.opensearch.sql.sql.MathematicalFunctionIT" time="0.03"/>
+  <testcase name="testE" classname="org.opensearch.sql.sql.MathematicalFunctionIT" time="0.027"/>
+  <testcase name="testTruncate" classname="org.opensearch.sql.sql.MathematicalFunctionIT" time="0.113"/>
+  <testcase name="testCeil" classname="org.opensearch.sql.sql.MathematicalFunctionIT" time="0.046"/>
+  <testcase name="testCrc32" classname="org.opensearch.sql.sql.MathematicalFunctionIT" time="0.027"/>
+  <testcase name="testSign" classname="org.opensearch.sql.sql.MathematicalFunctionIT" time="0.055"/>
+  <testcase name="testConv" classname="org.opensearch.sql.sql.MathematicalFunctionIT" time="0.039"/>
+  <testcase name="testCbrt" classname="org.opensearch.sql.sql.MathematicalFunctionIT" time="0.046"/>
+  <system-out><![CDATA[[2023-01-17T22:13:24,197][INFO ][o.o.s.s.MathematicalFunctionIT] [testMod] before test
+[2023-01-17T22:13:24,199][INFO ][o.o.s.s.MathematicalFunctionIT] [testMod] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T22:13:24,462][INFO ][o.o.s.s.MathematicalFunctionIT] [testMod] after test
+[2023-01-17T22:13:24,468][INFO ][o.o.s.s.MathematicalFunctionIT] [testRound] before test
+[2023-01-17T22:13:24,554][INFO ][o.o.s.s.MathematicalFunctionIT] [testRound] after test
+[2023-01-17T22:13:24,561][INFO ][o.o.s.s.MathematicalFunctionIT] [testPI] before test
+[2023-01-17T22:13:24,593][INFO ][o.o.s.s.MathematicalFunctionIT] [testPI] after test
+[2023-01-17T22:13:24,600][INFO ][o.o.s.s.MathematicalFunctionIT] [testAtan] before test
+[2023-01-17T22:13:24,624][INFO ][o.o.s.s.MathematicalFunctionIT] [testAtan] after test
+[2023-01-17T22:13:24,630][INFO ][o.o.s.s.MathematicalFunctionIT] [testE] before test
+[2023-01-17T22:13:24,651][INFO ][o.o.s.s.MathematicalFunctionIT] [testE] after test
+[2023-01-17T22:13:24,659][INFO ][o.o.s.s.MathematicalFunctionIT] [testTruncate] before test
+[2023-01-17T22:13:24,765][INFO ][o.o.s.s.MathematicalFunctionIT] [testTruncate] after test
+[2023-01-17T22:13:24,772][INFO ][o.o.s.s.MathematicalFunctionIT] [testCeil] before test
+[2023-01-17T22:13:24,812][INFO ][o.o.s.s.MathematicalFunctionIT] [testCeil] after test
+[2023-01-17T22:13:24,818][INFO ][o.o.s.s.MathematicalFunctionIT] [testCrc32] before test
+[2023-01-17T22:13:24,841][INFO ][o.o.s.s.MathematicalFunctionIT] [testCrc32] after test
+[2023-01-17T22:13:24,846][INFO ][o.o.s.s.MathematicalFunctionIT] [testSign] before test
+[2023-01-17T22:13:24,896][INFO ][o.o.s.s.MathematicalFunctionIT] [testSign] after test
+[2023-01-17T22:13:24,903][INFO ][o.o.s.s.MathematicalFunctionIT] [testConv] before test
+[2023-01-17T22:13:24,934][INFO ][o.o.s.s.MathematicalFunctionIT] [testConv] after test
+[2023-01-17T22:13:24,942][INFO ][o.o.s.s.MathematicalFunctionIT] [testCbrt] before test
+[2023-01-17T22:13:24,982][INFO ][o.o.s.s.MathematicalFunctionIT] [testCbrt] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

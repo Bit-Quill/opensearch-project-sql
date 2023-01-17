@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.legacy.AggregationExpressionIT" tests="15" skipped="8" failures="0" errors="0" timestamp="2023-01-17T16:12:11" hostname="Unused26-MacBook.local" time="0.951">
+  <properties/>
+  <testcase name="logWithAddLiteralOnGroupKeyAndMaxSubtractLiteralShouldPass" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="hasGroupKeyMaxAddMinShouldPass" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.689"/>
+  <testcase name="groupByDateWithAliasShouldPass" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="noGroupKeySingleFuncOverAggWithoutAliasShouldPass" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.044"/>
+  <testcase name="hasGroupKeyAvgOnIntegerShouldPass" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.038"/>
+  <testcase name="hasGroupKeyMaxAddLiteralShouldPass" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="logWithAddLiteralOnGroupKeyShouldPass" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.042"/>
+  <testcase name="AddLiteralOnGroupKeyShouldPass" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="groupByDateShouldPass" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="hasGroupKeyLogMaxAddMinShouldPass" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.039"/>
+  <testcase name="noGroupKeyMaxAddMinShouldPass" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.034"/>
+  <testcase name="noGroupKeyLogMaxAddMinShouldPass" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="noGroupKeyAvgOnIntegerShouldPass" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="aggregateCastStatementShouldNotReturnZero" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.061"/>
+  <testcase name="noGroupKeyMaxAddLiteralShouldPass" classname="org.opensearch.sql.legacy.AggregationExpressionIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <system-out><![CDATA[[2023-01-17T11:12:11,432][INFO ][o.o.s.l.AggregationExpressionIT] [hasGroupKeyMaxAddMinShouldPass] before test
+[2023-01-17T11:12:11,435][INFO ][o.o.s.l.AggregationExpressionIT] [hasGroupKeyMaxAddMinShouldPass] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T11:12:12,116][INFO ][o.o.s.l.AggregationExpressionIT] [hasGroupKeyMaxAddMinShouldPass] after test
+[2023-01-17T11:12:12,122][INFO ][o.o.s.l.AggregationExpressionIT] [noGroupKeySingleFuncOverAggWithoutAliasShouldPass] before test
+[2023-01-17T11:12:12,161][INFO ][o.o.s.l.AggregationExpressionIT] [noGroupKeySingleFuncOverAggWithoutAliasShouldPass] after test
+[2023-01-17T11:12:12,167][INFO ][o.o.s.l.AggregationExpressionIT] [hasGroupKeyAvgOnIntegerShouldPass] before test
+[2023-01-17T11:12:12,200][INFO ][o.o.s.l.AggregationExpressionIT] [hasGroupKeyAvgOnIntegerShouldPass] after test
+[2023-01-17T11:12:12,206][INFO ][o.o.s.l.AggregationExpressionIT] [logWithAddLiteralOnGroupKeyShouldPass] before test
+[2023-01-17T11:12:12,243][INFO ][o.o.s.l.AggregationExpressionIT] [logWithAddLiteralOnGroupKeyShouldPass] after test
+[2023-01-17T11:12:12,249][INFO ][o.o.s.l.AggregationExpressionIT] [hasGroupKeyLogMaxAddMinShouldPass] before test
+[2023-01-17T11:12:12,283][INFO ][o.o.s.l.AggregationExpressionIT] [hasGroupKeyLogMaxAddMinShouldPass] after test
+[2023-01-17T11:12:12,289][INFO ][o.o.s.l.AggregationExpressionIT] [noGroupKeyMaxAddMinShouldPass] before test
+[2023-01-17T11:12:12,318][INFO ][o.o.s.l.AggregationExpressionIT] [noGroupKeyMaxAddMinShouldPass] after test
+[2023-01-17T11:12:12,324][INFO ][o.o.s.l.AggregationExpressionIT] [aggregateCastStatementShouldNotReturnZero] before test
+[2023-01-17T11:12:12,379][INFO ][o.o.s.l.AggregationExpressionIT] [aggregateCastStatementShouldNotReturnZero] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

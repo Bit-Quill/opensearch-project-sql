@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.FieldsCommandIT" tests="4" skipped="1" failures="0" errors="0" timestamp="2023-01-17T16:12:27" hostname="Unused26-MacBook.local" time="1.073">
+  <properties/>
+  <testcase name="testFieldsWithMultiFields" classname="org.opensearch.sql.ppl.FieldsCommandIT" time="0.979"/>
+  <testcase name="testFieldsWithOneField" classname="org.opensearch.sql.ppl.FieldsCommandIT" time="0.05"/>
+  <testcase name="testFieldsWildCard" classname="org.opensearch.sql.ppl.FieldsCommandIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="testSelectDateTypeField" classname="org.opensearch.sql.ppl.FieldsCommandIT" time="0.044"/>
+  <system-out><![CDATA[[2023-01-17T17:12:27,979][INFO ][o.o.s.p.FieldsCommandIT  ] [testFieldsWithMultiFields] before test
+[2023-01-17T17:12:27,983][INFO ][o.o.s.p.FieldsCommandIT  ] [testFieldsWithMultiFields] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T17:12:28,954][INFO ][o.o.s.p.FieldsCommandIT  ] [testFieldsWithMultiFields] after test
+[2023-01-17T17:12:28,959][INFO ][o.o.s.p.FieldsCommandIT  ] [testFieldsWithOneField] before test
+[2023-01-17T17:12:29,004][INFO ][o.o.s.p.FieldsCommandIT  ] [testFieldsWithOneField] after test
+[2023-01-17T17:12:29,010][INFO ][o.o.s.p.FieldsCommandIT  ] [testSelectDateTypeField] before test
+[2023-01-17T17:12:29,048][INFO ][o.o.s.p.FieldsCommandIT  ] [testSelectDateTypeField] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

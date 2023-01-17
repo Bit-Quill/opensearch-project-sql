@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.DedupCommandIT" tests="4" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:25" hostname="Unused26-MacBook.local" time="0.619">
+  <properties/>
+  <testcase name="testConsecutiveDedup" classname="org.opensearch.sql.ppl.DedupCommandIT" time="0.516"/>
+  <testcase name="testDedup" classname="org.opensearch.sql.ppl.DedupCommandIT" time="0.032"/>
+  <testcase name="testAllowMoreDuplicates" classname="org.opensearch.sql.ppl.DedupCommandIT" time="0.032"/>
+  <testcase name="testKeepEmptyDedup" classname="org.opensearch.sql.ppl.DedupCommandIT" time="0.038"/>
+  <system-out><![CDATA[[2023-01-17T11:12:25,099][INFO ][o.o.s.p.DedupCommandIT   ] [testConsecutiveDedup] before test
+[2023-01-17T11:12:25,102][INFO ][o.o.s.p.DedupCommandIT   ] [testConsecutiveDedup] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T11:12:25,608][INFO ][o.o.s.p.DedupCommandIT   ] [testConsecutiveDedup] after test
+[2023-01-17T11:12:25,614][INFO ][o.o.s.p.DedupCommandIT   ] [testDedup] before test
+[2023-01-17T11:12:25,640][INFO ][o.o.s.p.DedupCommandIT   ] [testDedup] after test
+[2023-01-17T11:12:25,646][INFO ][o.o.s.p.DedupCommandIT   ] [testAllowMoreDuplicates] before test
+[2023-01-17T11:12:25,672][INFO ][o.o.s.p.DedupCommandIT   ] [testAllowMoreDuplicates] after test
+[2023-01-17T11:12:25,678][INFO ][o.o.s.p.DedupCommandIT   ] [testKeepEmptyDedup] before test
+[2023-01-17T11:12:25,710][INFO ][o.o.s.p.DedupCommandIT   ] [testKeepEmptyDedup] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.legacy.TypeInformationIT" tests="13" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:14" hostname="Unused26-MacBook.local" time="3.4">
+  <properties/>
+  <testcase name="testDayOfWeekWithKeywordReturnsText" classname="org.opensearch.sql.legacy.TypeInformationIT" time="2.921"/>
+  <testcase name="testLowerWithTextFieldReturnsText" classname="org.opensearch.sql.legacy.TypeInformationIT" time="0.059"/>
+  <testcase name="testRadiansWithLongFieldReturnsDouble" classname="org.opensearch.sql.legacy.TypeInformationIT" time="0.033"/>
+  <testcase name="testLengthWithGroupByExpr" classname="org.opensearch.sql.legacy.TypeInformationIT" time="0.058"/>
+  <testcase name="testAddWithIntReturnsInt" classname="org.opensearch.sql.legacy.TypeInformationIT" time="0.035"/>
+  <testcase name="testSubtractLongWithLongReturnsLong" classname="org.opensearch.sql.legacy.TypeInformationIT" time="0.032"/>
+  <testcase name="testUpperWithStringFieldReturnsString" classname="org.opensearch.sql.legacy.TypeInformationIT" time="0.048"/>
+  <testcase name="testPiReturnsDouble" classname="org.opensearch.sql.legacy.TypeInformationIT" time="0.035"/>
+  <testcase name="testCeilWithLongFieldReturnsLong" classname="org.opensearch.sql.legacy.TypeInformationIT" time="0.035"/>
+  <testcase name="testLengthWithTextFieldReturnsInt" classname="org.opensearch.sql.legacy.TypeInformationIT" time="0.039"/>
+  <testcase name="testAbsWithIntFieldReturnsInt" classname="org.opensearch.sql.legacy.TypeInformationIT" time="0.032"/>
+  <testcase name="testSinWithLongFieldReturnsDouble" classname="org.opensearch.sql.legacy.TypeInformationIT" time="0.035"/>
+  <testcase name="testYearWithKeywordReturnsText" classname="org.opensearch.sql.legacy.TypeInformationIT" time="0.035"/>
+  <system-out><![CDATA[[2023-01-17T12:12:14,464][INFO ][o.o.s.l.TypeInformationIT] [testDayOfWeekWithKeywordReturnsText] before test
+[2023-01-17T12:12:14,467][INFO ][o.o.s.l.TypeInformationIT] [testDayOfWeekWithKeywordReturnsText] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T12:12:17,379][INFO ][o.o.s.l.TypeInformationIT] [testDayOfWeekWithKeywordReturnsText] after test
+[2023-01-17T12:12:17,386][INFO ][o.o.s.l.TypeInformationIT] [testLowerWithTextFieldReturnsText] before test
+[2023-01-17T12:12:17,439][INFO ][o.o.s.l.TypeInformationIT] [testLowerWithTextFieldReturnsText] after test
+[2023-01-17T12:12:17,445][INFO ][o.o.s.l.TypeInformationIT] [testRadiansWithLongFieldReturnsDouble] before test
+[2023-01-17T12:12:17,472][INFO ][o.o.s.l.TypeInformationIT] [testRadiansWithLongFieldReturnsDouble] after test
+[2023-01-17T12:12:17,478][INFO ][o.o.s.l.TypeInformationIT] [testLengthWithGroupByExpr] before test
+[2023-01-17T12:12:17,530][INFO ][o.o.s.l.TypeInformationIT] [testLengthWithGroupByExpr] after test
+[2023-01-17T12:12:17,536][INFO ][o.o.s.l.TypeInformationIT] [testAddWithIntReturnsInt] before test
+[2023-01-17T12:12:17,566][INFO ][o.o.s.l.TypeInformationIT] [testAddWithIntReturnsInt] after test
+[2023-01-17T12:12:17,571][INFO ][o.o.s.l.TypeInformationIT] [testSubtractLongWithLongReturnsLong] before test
+[2023-01-17T12:12:17,598][INFO ][o.o.s.l.TypeInformationIT] [testSubtractLongWithLongReturnsLong] after test
+[2023-01-17T12:12:17,604][INFO ][o.o.s.l.TypeInformationIT] [testUpperWithStringFieldReturnsString] before test
+[2023-01-17T12:12:17,646][INFO ][o.o.s.l.TypeInformationIT] [testUpperWithStringFieldReturnsString] after test
+[2023-01-17T12:12:17,651][INFO ][o.o.s.l.TypeInformationIT] [testPiReturnsDouble] before test
+[2023-01-17T12:12:17,681][INFO ][o.o.s.l.TypeInformationIT] [testPiReturnsDouble] after test
+[2023-01-17T12:12:17,687][INFO ][o.o.s.l.TypeInformationIT] [testCeilWithLongFieldReturnsLong] before test
+[2023-01-17T12:12:17,716][INFO ][o.o.s.l.TypeInformationIT] [testCeilWithLongFieldReturnsLong] after test
+[2023-01-17T12:12:17,722][INFO ][o.o.s.l.TypeInformationIT] [testLengthWithTextFieldReturnsInt] before test
+[2023-01-17T12:12:17,756][INFO ][o.o.s.l.TypeInformationIT] [testLengthWithTextFieldReturnsInt] after test
+[2023-01-17T12:12:17,761][INFO ][o.o.s.l.TypeInformationIT] [testAbsWithIntFieldReturnsInt] before test
+[2023-01-17T12:12:17,788][INFO ][o.o.s.l.TypeInformationIT] [testAbsWithIntFieldReturnsInt] after test
+[2023-01-17T12:12:17,794][INFO ][o.o.s.l.TypeInformationIT] [testSinWithLongFieldReturnsDouble] before test
+[2023-01-17T12:12:17,824][INFO ][o.o.s.l.TypeInformationIT] [testSinWithLongFieldReturnsDouble] after test
+[2023-01-17T12:12:17,830][INFO ][o.o.s.l.TypeInformationIT] [testYearWithKeywordReturnsText] before test
+[2023-01-17T12:12:17,859][INFO ][o.o.s.l.TypeInformationIT] [testYearWithKeywordReturnsText] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

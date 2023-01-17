@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.InformationSchemaCommandIT" tests="2" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:30" hostname="Unused26-MacBook.local" time="0.179">
+  <properties/>
+  <testcase name="testSearchTablesFromPrometheusCatalog" classname="org.opensearch.sql.ppl.InformationSchemaCommandIT" time="0.133"/>
+  <testcase name="testTablesFromPrometheusCatalog" classname="org.opensearch.sql.ppl.InformationSchemaCommandIT" time="0.046"/>
+  <system-out><![CDATA[[2023-01-17T11:12:30,243][INFO ][o.o.s.p.InformationSchemaCommandIT] [testSearchTablesFromPrometheusCatalog] before test
+[2023-01-17T11:12:30,248][INFO ][o.o.s.p.InformationSchemaCommandIT] [testSearchTablesFromPrometheusCatalog] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T11:12:30,370][ERROR][o.o.s.p.InformationSchemaCommandIT] [testSearchTablesFromPrometheusCatalog] {"schema":[{"name":"TABLE_CATALOG","type":"string"},{"name":"TABLE_SCHEMA","type":"string"},{"name":"TABLE_NAME","type":"string"},{"name":"TABLE_TYPE","type":"string"},{"name":"UNIT","type":"string"},{"name":"REMARKS","type":"string"}],"total":6,"datarows":[["my_prometheus","default","prometheus_http_requests_total","counter","","Counter of HTTP requests."],["my_prometheus","default","promhttp_metric_handler_requests_in_flight","gauge","","Current number of scrapes being served."],["my_prometheus","default","prometheus_http_request_duration_seconds","histogram","","Histogram of latencies for HTTP requests."],["my_prometheus","default","prometheus_sd_http_failures_total","counter","","Number of HTTP service discovery refresh failures."],["my_prometheus","default","promhttp_metric_handler_requests_total","counter","","Total number of scrapes by HTTP status code."],["my_prometheus","default","prometheus_http_response_size_bytes","histogram","","Histogram of response size for HTTP requests."]],"size":6}
+[2023-01-17T11:12:30,372][INFO ][o.o.s.p.InformationSchemaCommandIT] [testSearchTablesFromPrometheusCatalog] after test
+[2023-01-17T11:12:30,378][INFO ][o.o.s.p.InformationSchemaCommandIT] [testTablesFromPrometheusCatalog] before test
+[2023-01-17T11:12:30,417][ERROR][o.o.s.p.InformationSchemaCommandIT] [testTablesFromPrometheusCatalog] {"schema":[{"name":"TABLE_CATALOG","type":"string"},{"name":"TABLE_SCHEMA","type":"string"},{"name":"TABLE_NAME","type":"string"},{"name":"TABLE_TYPE","type":"string"},{"name":"UNIT","type":"string"},{"name":"REMARKS","type":"string"}],"total":1,"datarows":[["my_prometheus","default","prometheus_http_requests_total","counter","","Counter of HTTP requests."]],"size":1}
+[2023-01-17T11:12:30,418][INFO ][o.o.s.p.InformationSchemaCommandIT] [testTablesFromPrometheusCatalog] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

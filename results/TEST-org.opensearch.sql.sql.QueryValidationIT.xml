@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.sql.QueryValidationIT" tests="4" skipped="1" failures="0" errors="0" timestamp="2023-01-17T16:13:29" hostname="Unused26-MacBook.local" time="0.436">
+  <properties/>
+  <testcase name="testNonAggregatedSelectColumnMissingInGroupByClause" classname="org.opensearch.sql.sql.QueryValidationIT" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="testNonAggregatedSelectColumnPresentWithoutGroupByClause" classname="org.opensearch.sql.sql.QueryValidationIT" time="0.375"/>
+  <testcase name="aggregationFunctionInSelectGroupByMultipleFields" classname="org.opensearch.sql.sql.QueryValidationIT" time="0.03"/>
+  <testcase name="testQueryFieldWithKeyword" classname="org.opensearch.sql.sql.QueryValidationIT" time="0.029"/>
+  <system-out><![CDATA[[2023-01-17T12:13:29,392][INFO ][o.o.s.s.QueryValidationIT] [testNonAggregatedSelectColumnPresentWithoutGroupByClause] before test
+[2023-01-17T12:13:29,393][INFO ][o.o.s.s.QueryValidationIT] [testNonAggregatedSelectColumnPresentWithoutGroupByClause] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T12:13:29,762][INFO ][o.o.s.s.QueryValidationIT] [testNonAggregatedSelectColumnPresentWithoutGroupByClause] after test
+[2023-01-17T12:13:29,769][INFO ][o.o.s.s.QueryValidationIT] [aggregationFunctionInSelectGroupByMultipleFields] before test
+[2023-01-17T12:13:29,793][INFO ][o.o.s.s.QueryValidationIT] [aggregationFunctionInSelectGroupByMultipleFields] after test
+[2023-01-17T12:13:29,800][INFO ][o.o.s.s.QueryValidationIT] [testQueryFieldWithKeyword] before test
+[2023-01-17T12:13:29,823][INFO ][o.o.s.s.QueryValidationIT] [testQueryFieldWithKeyword] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

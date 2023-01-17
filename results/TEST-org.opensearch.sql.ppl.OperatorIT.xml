@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.opensearch.sql.ppl.OperatorIT" tests="21" skipped="0" failures="0" errors="0" timestamp="2023-01-17T16:12:41" hostname="Unused26-MacBook.local" time="1.551">
+  <properties/>
+  <testcase name="testArithmeticOperatorWithNullValue" classname="org.opensearch.sql.ppl.OperatorIT" time="0.509"/>
+  <testcase name="testBinaryPredicateWithNullValue" classname="org.opensearch.sql.ppl.OperatorIT" time="0.04"/>
+  <testcase name="testLessOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.034"/>
+  <testcase name="testNotEqualOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.065"/>
+  <testcase name="testDivideOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.04"/>
+  <testcase name="testAndOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.05"/>
+  <testcase name="testGreaterOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.033"/>
+  <testcase name="testXorOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.067"/>
+  <testcase name="testEqualOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.052"/>
+  <testcase name="testSubtractOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.048"/>
+  <testcase name="testAddOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.035"/>
+  <testcase name="testMultiplyOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.034"/>
+  <testcase name="testArithmeticOperatorWithMissingValue" classname="org.opensearch.sql.ppl.OperatorIT" time="0.033"/>
+  <testcase name="testLteOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.051"/>
+  <testcase name="testNotOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.049"/>
+  <testcase name="testMultipleArithmeticOperators" classname="org.opensearch.sql.ppl.OperatorIT" time="0.052"/>
+  <testcase name="testOrOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.063"/>
+  <testcase name="testLikeFunction" classname="org.opensearch.sql.ppl.OperatorIT" time="0.084"/>
+  <testcase name="testBinaryPredicateWithMissingValue" classname="org.opensearch.sql.ppl.OperatorIT" time="0.064"/>
+  <testcase name="testModuleOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.082"/>
+  <testcase name="testGteOperator" classname="org.opensearch.sql.ppl.OperatorIT" time="0.06"/>
+  <system-out><![CDATA[[2023-01-17T17:12:41,054][INFO ][o.o.s.p.OperatorIT       ] [testArithmeticOperatorWithNullValue] before test
+[2023-01-17T17:12:41,055][INFO ][o.o.s.p.OperatorIT       ] [testArithmeticOperatorWithNullValue] initializing REST clients against [http://[::1]:49775, http://127.0.0.1:49776]
+[2023-01-17T17:12:41,560][INFO ][o.o.s.p.OperatorIT       ] [testArithmeticOperatorWithNullValue] after test
+[2023-01-17T17:12:41,566][INFO ][o.o.s.p.OperatorIT       ] [testBinaryPredicateWithNullValue] before test
+[2023-01-17T17:12:41,600][INFO ][o.o.s.p.OperatorIT       ] [testBinaryPredicateWithNullValue] after test
+[2023-01-17T17:12:41,606][INFO ][o.o.s.p.OperatorIT       ] [testLessOperator] before test
+[2023-01-17T17:12:41,633][INFO ][o.o.s.p.OperatorIT       ] [testLessOperator] after test
+[2023-01-17T17:12:41,639][INFO ][o.o.s.p.OperatorIT       ] [testNotEqualOperator] before test
+[2023-01-17T17:12:41,699][INFO ][o.o.s.p.OperatorIT       ] [testNotEqualOperator] after test
+[2023-01-17T17:12:41,705][INFO ][o.o.s.p.OperatorIT       ] [testDivideOperator] before test
+[2023-01-17T17:12:41,740][INFO ][o.o.s.p.OperatorIT       ] [testDivideOperator] after test
+[2023-01-17T17:12:41,746][INFO ][o.o.s.p.OperatorIT       ] [testAndOperator] before test
+[2023-01-17T17:12:41,790][INFO ][o.o.s.p.OperatorIT       ] [testAndOperator] after test
+[2023-01-17T17:12:41,797][INFO ][o.o.s.p.OperatorIT       ] [testGreaterOperator] before test
+[2023-01-17T17:12:41,823][INFO ][o.o.s.p.OperatorIT       ] [testGreaterOperator] after test
+[2023-01-17T17:12:41,829][INFO ][o.o.s.p.OperatorIT       ] [testXorOperator] before test
+[2023-01-17T17:12:41,891][INFO ][o.o.s.p.OperatorIT       ] [testXorOperator] after test
+[2023-01-17T17:12:41,897][INFO ][o.o.s.p.OperatorIT       ] [testEqualOperator] before test
+[2023-01-17T17:12:41,943][INFO ][o.o.s.p.OperatorIT       ] [testEqualOperator] after test
+[2023-01-17T17:12:41,950][INFO ][o.o.s.p.OperatorIT       ] [testSubtractOperator] before test
+[2023-01-17T17:12:41,991][INFO ][o.o.s.p.OperatorIT       ] [testSubtractOperator] after test
+[2023-01-17T17:12:41,998][INFO ][o.o.s.p.OperatorIT       ] [testAddOperator] before test
+[2023-01-17T17:12:42,027][INFO ][o.o.s.p.OperatorIT       ] [testAddOperator] after test
+[2023-01-17T17:12:42,033][INFO ][o.o.s.p.OperatorIT       ] [testMultiplyOperator] before test
+[2023-01-17T17:12:42,061][INFO ][o.o.s.p.OperatorIT       ] [testMultiplyOperator] after test
+[2023-01-17T17:12:42,067][INFO ][o.o.s.p.OperatorIT       ] [testArithmeticOperatorWithMissingValue] before test
+[2023-01-17T17:12:42,095][INFO ][o.o.s.p.OperatorIT       ] [testArithmeticOperatorWithMissingValue] after test
+[2023-01-17T17:12:42,101][INFO ][o.o.s.p.OperatorIT       ] [testLteOperator] before test
+[2023-01-17T17:12:42,147][INFO ][o.o.s.p.OperatorIT       ] [testLteOperator] after test
+[2023-01-17T17:12:42,153][INFO ][o.o.s.p.OperatorIT       ] [testNotOperator] before test
+[2023-01-17T17:12:42,195][INFO ][o.o.s.p.OperatorIT       ] [testNotOperator] after test
+[2023-01-17T17:12:42,202][INFO ][o.o.s.p.OperatorIT       ] [testMultipleArithmeticOperators] before test
+[2023-01-17T17:12:42,248][INFO ][o.o.s.p.OperatorIT       ] [testMultipleArithmeticOperators] after test
+[2023-01-17T17:12:42,254][INFO ][o.o.s.p.OperatorIT       ] [testOrOperator] before test
+[2023-01-17T17:12:42,310][INFO ][o.o.s.p.OperatorIT       ] [testOrOperator] after test
+[2023-01-17T17:12:42,317][INFO ][o.o.s.p.OperatorIT       ] [testLikeFunction] before test
+[2023-01-17T17:12:42,394][INFO ][o.o.s.p.OperatorIT       ] [testLikeFunction] after test
+[2023-01-17T17:12:42,400][INFO ][o.o.s.p.OperatorIT       ] [testBinaryPredicateWithMissingValue] before test
+[2023-01-17T17:12:42,459][INFO ][o.o.s.p.OperatorIT       ] [testBinaryPredicateWithMissingValue] after test
+[2023-01-17T17:12:42,465][INFO ][o.o.s.p.OperatorIT       ] [testModuleOperator] before test
+[2023-01-17T17:12:42,541][INFO ][o.o.s.p.OperatorIT       ] [testModuleOperator] after test
+[2023-01-17T17:12:42,548][INFO ][o.o.s.p.OperatorIT       ] [testGteOperator] before test
+[2023-01-17T17:12:42,602][INFO ][o.o.s.p.OperatorIT       ] [testGteOperator] after test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
