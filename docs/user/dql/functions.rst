@@ -99,10 +99,6 @@ Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: DOUBLE
 
-Specifications:
-
-1. ABS(NUMBER T) -> T
-
 Example::
 
     os> SELECT ABS(0), ABS(10), ABS(-10), ABS(12.34567), ABS(-12.34567)
@@ -112,7 +108,6 @@ Example::
     |----------+-----------+------------+-----------------+------------------|
     | 0        | 10        | 10         | 12.34567        | 12.34567         |
     +----------+-----------+------------+-----------------+------------------+
-
 
 
 ACOS
@@ -144,9 +139,25 @@ ADD
 Description
 >>>>>>>>>>>
 
-Specifications:
+`add(a, b)` is equal to `a + b`.
 
-1. ADD(NUMBER T, NUMBER) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type map:
+
+(INTEGER/LONG, INTEGER/LONG) -> LONG
+(FLOAT/DOUBLE, INTEGER/LONG/FLOAT/DOUBLE) -> DOUBLE
+(INTEGER/LONG/FLOAT/DOUBLE, FLOAT/DOUBLE) -> DOUBLE
+
+Example::
+
+    os> select add(2, 3), add(3, 2), add(pi(), e()) from account2;
+    fetched rows / total rows = 1/1
+    +-------------+-------------+-------------------+
+    | add(2, 3)   | add(3, 2)   | add(pi(), e())    |
+    |-------------+-------------+-------------------|
+    | 5           | 5           | 5.859874482048838 |
+    +-------------+-------------+-------------------+
 
 
 ASIN
@@ -298,8 +309,6 @@ Example::
     +-----------+------------------+-------------------+
 
 
-
-
 CONV
 ----
 
@@ -321,6 +330,7 @@ Example::
     |----------------------+----------------------+-------------------+---------------------|
     | c                    | 44                   | 1100              | 15                  |
     +----------------------+----------------------+-------------------+---------------------+
+
 
 COS
 ---
@@ -351,9 +361,21 @@ COSH
 Description
 >>>>>>>>>>>
 
-Specifications:
+Returns the hyperbolic cosine of a value.
 
-1. COSH(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    os> select cosh(0), cosh(1), cosh(pi()) from account2;
+    fetched rows / total rows = 1/1
+    +-----------+-------------------+--------------------+
+    | cosh(0)   | cosh(1)           | cosh(pi())         |
+    |-----------+-------------------+--------------------|
+    | 1         | 1.543080634815244 | 11.591953275521519 |
+    +-----------+-------------------+--------------------+
 
 
 COT
@@ -431,9 +453,25 @@ DIVIDE
 Description
 >>>>>>>>>>>
 
-Specifications:
+`divide(a, b)` is equal to `a / b`.
 
-1. DIVIDE(NUMBER T, NUMBER) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type map:
+
+(INTEGER/LONG, INTEGER/LONG) -> LONG
+(FLOAT/DOUBLE, INTEGER/LONG/FLOAT/DOUBLE) -> DOUBLE
+(INTEGER/LONG/FLOAT/DOUBLE, FLOAT/DOUBLE) -> DOUBLE
+
+Example::
+
+    os> select divide(2, 3), divide(3, 2), divide(3.0, 2), divide(pi(), e()) from books;
+    fetched rows / total rows = 1/1
+    +----------------+----------------+------------------+---------------------+
+    | divide(2, 3)   | divide(3, 2)   | divide(3.0, 2)   | divide(pi(), e())   |
+    |----------------+----------------+------------------+---------------------|
+    | 0              | 1              | 1.5              | 1.1557273497909217  |
+    +----------------+----------------+------------------+---------------------+
 
 
 E
@@ -463,13 +501,11 @@ EXP
 Description
 >>>>>>>>>>>
 
-Usage: EXP() returns Euler's number raised to the specified number
+Usage: EXP() returns Euler's number raised to the specified number.
+
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: DOUBLE
-
-Specifications:
-
-1. EXP(NUMBER T) -> T
 
 Example::
 
@@ -482,16 +518,31 @@ Example::
     +------------------+
 
 
-
 EXPM1
 -----
 
 Description
 >>>>>>>>>>>
 
-Specifications:
+EXPM1(X) return Euler's number raised to the specified number minus one according to the formula: 
 
-1. EXPM1(NUMBER T) -> T
+.. math:: e^{X} - 1
+
+See also `EXP`_.
+
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    os> select expm1(1) + 1 as `e()`, expm1(0) from account2;
+    fetched rows / total rows = 1/1
+    +-------------------+------------+
+    | e()               | expm1(0)   |
+    |-------------------+------------|
+    | 2.718281828459045 | 0          |
+    +-------------------+------------+
 
 
 FLOOR
@@ -541,23 +592,21 @@ LN
 Description
 >>>>>>>>>>>
 
+Returns the natural logarithm of X; that is, the base-e logarithm of X. If X is NULL or less than or equal to 0, the function returns NULL.
+
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: DOUBLE
 
-Specifications:
-
-1. LN(NUMBER T) -> T
-
 Example::
 
-    os> SELECT ABS(0), ABS(10), ABS(-10), ABS(12.34567), ABS(-12.34567)
+    os> select LN(1), LN(e()), LN(10), LN(12.34567);
     fetched rows / total rows = 1/1
-    +----------+-----------+------------+-----------------+------------------+
-    | ABS(0)   | ABS(10)   | ABS(-10)   | ABS(12.34567)   | ABS(-12.34567)   |
-    |----------+-----------+------------+-----------------+------------------|
-    | 0        | 10        | 10         | 12.34567        | 12.34567         |
-    +----------+-----------+------------+-----------------+------------------+
+    +---------+-----------+-------------------+--------------------+
+    | LN(1)   | LN(e())   | LN(10)            | LN(12.34567)       |
+    |---------+-----------+-------------------+--------------------|
+    | 0.0     | 1.0       | 2.302585092994046 | 2.5133053943094317 |
+    +---------+-----------+-------------------+--------------------+
 
 
 LOG
@@ -566,10 +615,24 @@ LOG
 Description
 >>>>>>>>>>>
 
-Specifications:
+If called with one parameter, this function returns the natural logarithm of X (see `LN`_). If called with two parameters, this function returns the logarithm of X to the base B.
+The inverse of this function (when called with a single argument) is the `EXP`_ function.
+If X is NULL or less than or equal to 0, or if B is NULL or less than or equal to 1, then NULL is returned.
 
-1. LOG(NUMBER T) -> DOUBLE
-2. LOG(NUMBER T, NUMBER) -> DOUBLE
+Argument 1 type: INTEGER/LONG/FLOAT/DOUBLE
+Argument 2 type (optional): INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    os> select LOG(1), LOG(e()), LOG(2, 65536), LOG(10, 10000);
+    fetched rows / total rows = 1/1
+    +----------+------------+-----------------+------------------+
+    | LOG(1)   | LOG(e())   | LOG(2, 65536)   | LOG(10, 10000)   |
+    |----------+------------+-----------------+------------------|
+    | 0.0      | 1.0        | 16.0            | 4.0              |
+    +----------+------------+-----------------+------------------+
 
 
 LOG2
@@ -578,9 +641,21 @@ LOG2
 Description
 >>>>>>>>>>>
 
-Specifications:
+Returns the base-2 logarithm of X. If X is NULL or less than or equal to 0, the function returns NULL. LOG2(X) is useful for finding out how many bits a number requires for storage and equal to LOG(2, X).
 
-1. LOG2(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    os> select LOG2(1), LOG2(8), LOG2(65536), LOG2(8.8245);
+    fetched rows / total rows = 1/1
+    +-----------+-----------+---------------+--------------------+
+    | LOG2(1)   | LOG2(8)   | LOG2(65536)   | LOG2(8.8245)       |
+    |-----------+-----------+---------------+--------------------|
+    | 0.0       | 3.0       | 16.0          | 3.1415145369723745 |
+    +-----------+-----------+---------------+--------------------+
 
 
 LOG10
@@ -589,9 +664,21 @@ LOG10
 Description
 >>>>>>>>>>>
 
-Specifications:
+Returns the base-10 logarithm of X. If X is NULL or less than or equal to 0, the function returns NULL. LOG10(X) is equal to LOG(10, X).
 
-1. LOG10(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    os> select LOG10(1), LOG10(8), LOG10(1000), LOG10(8.8245);
+    fetched rows / total rows = 1/1
+    +------------+--------------------+---------------+--------------------+
+    | LOG10(1)   | LOG10(8)           | LOG10(1000)   | LOG10(8.8245)      |
+    |------------+--------------------+---------------+--------------------|
+    | 0.0        | 0.9030899869919435 | 3.0           | 0.9456901074431278 |
+    +------------+--------------------+---------------+--------------------+
 
 
 MOD
@@ -600,11 +687,17 @@ MOD
 Description
 >>>>>>>>>>>
 
-Usage: MOD(n, m) calculates the remainder of the number n divided by m.
+Usage: MOD(n, m) calculates the remainder of the number n divided by m. If m equals to 0, then returns NULL.
 
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
-Return type: Wider type between types of n and m if m is nonzero value. If m equals to 0, then returns NULL.
+Return type map:
+
+(INTEGER/LONG, INTEGER/LONG) -> LONG
+(FLOAT/DOUBLE, INTEGER/LONG/FLOAT/DOUBLE) -> DOUBLE
+(INTEGER/LONG/FLOAT/DOUBLE, FLOAT/DOUBLE) -> DOUBLE
+
+Alias: `modulus`
 
 Example::
 
@@ -623,9 +716,26 @@ MULTIPLY
 Description
 >>>>>>>>>>>
 
-Specifications:
+MULTIPLY(a, b) calculates multiplication of `a` and `b`.
 
-1. MULTIPLY(NUMBER T, NUMBER) -> NUMBER
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type map:
+
+(INTEGER/LONG, INTEGER/LONG) -> LONG
+(FLOAT/DOUBLE, INTEGER/LONG/FLOAT/DOUBLE) -> DOUBLE
+(INTEGER/LONG/FLOAT/DOUBLE, FLOAT/DOUBLE) -> DOUBLE
+
+Example::
+
+    os> select multiply(2, 3), multiply(2.2, 3.3) from account2;
+    fetched rows / total rows = 1/1
+    +------------------+----------------------+
+    | multiply(2, 3)   | multiply(2.2, 3.3)   |
+    |------------------+----------------------|
+    | 6                | 7.26                 |
+    +------------------+----------------------+
+
 
 PI
 --
@@ -750,9 +860,24 @@ RINT
 Description
 >>>>>>>>>>>
 
-Specifications:
+Returns the DOUBLE value that is closest in value to the argument and is equal to a mathematical integer. If two DOUBLE values that are mathematical integers are equally close, the result is the integer value that is even.
+Special cases:
+* If the argument value is already equal to a mathematical integer, then the result is the same as the argument.
+* If the argument is NaN or an infinity or positive zero or negative zero, then the result is the same as the argument.
 
-1. RINT(NUMBER T) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    os> select rint(2.49), rint(2.51) from account2;
+    fetched rows / total rows = 1/1
+    +--------------+--------------+
+    | rint(2.49)   | rint(2.51)   |
+    |--------------+--------------|
+    | 2            | 3            |
+    +--------------+--------------+
 
 
 ROUND
@@ -761,14 +886,12 @@ ROUND
 Description
 >>>>>>>>>>>
 
-Usage: ROUND(x, d) rounds the argument x to d decimal places, d defaults to 0 if not specified
+Usage: ROUND(x, d) rounds the argument x to d decimal places, d defaults to 0 if not specified.
 
-Argument type: INTEGER/LONG/FLOAT/DOUBLE
+Argument 1 type: INTEGER/LONG/FLOAT/DOUBLE
+Argument 2 type (optional): INTEGER
 
-Return type map:
-
-(INTEGER/LONG [,INTEGER]) -> LONG
-(FLOAT/DOUBLE [,INTEGER]) -> LONG
+Return type: LONG
 
 Example::
 
@@ -807,12 +930,7 @@ Example::
 SIGNUM
 ------
 
-Description
->>>>>>>>>>>
-
-Specifications:
-
-1. SIGNUM(NUMBER T) -> T
+Alias to `SIGN`_.
 
 
 SIN
@@ -829,13 +947,13 @@ Return type: DOUBLE
 
 Example::
 
-    os> SELECT SIN(0)
+    os> select sin(0), sin(1), sin(pi()), abs(sin(pi())) < 0.0001;
     fetched rows / total rows = 1/1
-    +----------+
-    | SIN(0)   |
-    |----------|
-    | 0.0      |
-    +----------+
+    +----------+--------------------+------------------------+---------------------------+
+    | sin(0)   | sin(1)             | sin(pi())              | abs(sin(pi())) < 0.0001   |
+    |----------+--------------------+------------------------+---------------------------|
+    | 0.0      | 0.8414709848078965 | 1.2246467991473532e-16 | True                      |
+    +----------+--------------------+------------------------+---------------------------+
 
 
 SINH
@@ -844,9 +962,21 @@ SINH
 Description
 >>>>>>>>>>>
 
-Specifications:
+Returns the hyperbolic sine of a value.
 
-1. SINH(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    os> select sinh(0), sinh(1), sinh(pi()) from account2;
+    fetched rows / total rows = 1/1
+    +-----------+--------------------+--------------------+
+    | sinh(0)   | sinh(1)            | sinh(pi())         |
+    |-----------+--------------------+--------------------|
+    | 0         | 1.1752011936438014 | 11.548739357257748 |
+    +-----------+--------------------+--------------------+
 
 
 SQRT
@@ -898,16 +1028,31 @@ Example::
     +----------------------------+----------------------------+
 
 
-
 SUBTRACT
 --------
 
 Description
 >>>>>>>>>>>
 
-Specifications:
+`subtract(a, b)` is equal to `a - b`.
 
-1. SUBTRACT(NUMBER T, NUMBER) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type map:
+
+(INTEGER/LONG, INTEGER/LONG) -> LONG
+(FLOAT/DOUBLE, INTEGER/LONG/FLOAT/DOUBLE) -> DOUBLE
+(INTEGER/LONG/FLOAT/DOUBLE, FLOAT/DOUBLE) -> DOUBLE
+
+Example::
+
+    os> select subtract(2, 3), subtract(pi(), e()) from account2;
+    fetched rows / total rows = 1/1
+    +------------------+-----------------------+
+    | subtract(2, 3)   | subtract(pi(), e())   |
+    |------------------+-----------------------|
+    | -1               | 0.423310825130748     |
+    +------------------+-----------------------+
 
 
 TAN
@@ -956,7 +1101,6 @@ Example::
     |----------------------+-----------------------+-------------------|
     | 56.7                 | 50                    | 56                |
     +----------------------+-----------------------+-------------------+
-
 
 
 Date and Time Functions
@@ -1374,6 +1518,7 @@ Example::
     | 2008-02-10 02:00:00                     |
     +-----------------------------------------+
 
+
 DATE_ADD
 --------
 
@@ -1626,6 +1771,7 @@ Example::
     | 26                               |
     +----------------------------------+
 
+
 DAY_OF_MONTH
 ------------
 
@@ -1649,6 +1795,7 @@ Example::
     |------------------------------|
     | 26                           |
     +------------------------------+
+
 
 DAYOFWEEK
 ---------
@@ -1717,7 +1864,7 @@ Example::
 
 
 DAY_OF_YEAR
----------
+-----------
 
 Description
 >>>>>>>>>>>
@@ -1754,7 +1901,6 @@ Example::
     |-------------------------------------------------|
     | 239                                             |
     +-------------------------------------------------+
-
 
 
 FROM_DAYS
@@ -1839,6 +1985,7 @@ Example::
     |--------------------+---------------------------|
     | 1                  | 1                         |
     +--------------------+---------------------------+
+
 
 LOCALTIMESTAMP
 --------------
@@ -1990,8 +2137,9 @@ Example::
     | 2                          | 2                                  |
     +----------------------------+------------------------------------+
 
+
 MINUTE_OF_DAY
-------
+-------------
 
 Description
 >>>>>>>>>>>
@@ -2021,7 +2169,7 @@ Description
 
 Usage: month(date) returns the month for date, in the range 1 to 12 for January to December. The dates with value 0 such as '0000-00-00' or '2008-00-00' are invalid.
 If an argument of type `TIME` is given, the function will use the current date.
-The function `month_of_year`_ is also provided as an alias.
+The function `month_of_year` is also provided as an alias.
 
 Argument type: STRING/DATE/DATETIME/TIME/TIMESTAMP
 
@@ -2170,7 +2318,7 @@ Description
 >>>>>>>>>>>
 
 Usage: second(time) returns the second for time, in the range 0 to 59.
-The function `second_of_minute`_ is provided as an alias
+The function `second_of_minute` is provided as an alias
 
 Argument type: STRING/TIME/DATETIME/TIMESTAMP
 
@@ -2531,6 +2679,7 @@ Example::
     | 2022-10-03 17:54:28 |
     +---------------------+
 
+
 WEEK
 ----
 
@@ -2596,8 +2745,9 @@ Example::
     | 7                          | 8                             |
     +----------------------------+-------------------------------+
 
+
 WEEK_OF_YEAR
-----
+------------
 
 Description
 >>>>>>>>>>>
@@ -2741,10 +2891,6 @@ LENGTH
 Description
 >>>>>>>>>>>
 
-Specifications:
-
-1. LENGTH(STRING) -> INTEGER
-
 Usage: length(str) returns length of string measured in bytes.
 
 Argument type: STRING
@@ -2835,7 +2981,7 @@ Example::
 
 
 POSITION
-------
+--------
 
 Description
 >>>>>>>>>>>
@@ -3019,29 +3165,16 @@ Example::
     | HELLOWORLD            | HELLOWORLD            |
     +-----------------------+-----------------------+
 
+
+
 Conditional Functions
 =====================
-
-IF
---
-
-Description
->>>>>>>>>>>
-
-Specifications:
-
-1. IF(BOOLEAN, ES_TYPE, ES_TYPE) -> ES_TYPE
-
 
 IFNULL
 ------
 
 Description
 >>>>>>>>>>>
-
-Specifications:
-
-1. IFNULL(ES_TYPE, ES_TYPE) -> ES_TYPE
 
 Usage: return parameter2 if parameter1 is null, otherwise return parameter1
 
@@ -3086,10 +3219,6 @@ NULLIF
 Description
 >>>>>>>>>>>
 
-Specifications:
-
-1. NULLIF(ES_TYPE, ES_TYPE) -> ES_TYPE
-
 Usage: return null if two parameters are same, otherwise return parameer1
 
 Argument type: Any
@@ -3113,10 +3242,6 @@ ISNULL
 Description
 >>>>>>>>>>>
 
-Specifications:
-
-1. ISNULL(ES_TYPE) -> INTEGER
-
 Usage: return true if parameter is null, otherwise return false
 
 Argument type: Any
@@ -3133,21 +3258,20 @@ Example::
     | True          | False         |
     +---------------+---------------+
 
+
 IF
-------
+--
 
 Description
 >>>>>>>>>>>
-
-Specifications:
-
-1. IF(condition, ES_TYPE1, ES_TYPE2) -> ES_TYPE1 or ES_TYPE2
 
 Usage: if first parameter is true, return second parameter, otherwise return third one.
 
 Argument type: condition as BOOLEAN, second and third can by any type
 
-Return type: Any (NOTE : if parameters #2 and #3 has different type, you will fail semantic check"
+Return type: Any
+
+NOTE : if parameters #2 and #3 has different type, you will fail semantic check
 
 Example::
 
@@ -3166,6 +3290,7 @@ Example::
     |-------------------------------|
     | 100                           |
     +-------------------------------+
+
 
 CASE
 ----
@@ -3297,7 +3422,7 @@ Another example to show how to set custom values for the optional parameters::
 
 
 MATCHQUERY
------
+----------
 
 Description
 >>>>>>>>>>>
@@ -3335,8 +3460,9 @@ Another example to show how to set custom values for the optional parameters::
     | Hattie      |
     +-------------+
 
+
 MATCH_QUERY
------
+-----------
 
 Description
 >>>>>>>>>>>
@@ -3431,8 +3557,9 @@ The match_phrase function also supports an alternative syntax::
     | Hattie      |
     +-------------+
 
+
 MATCH_BOOL_PREFIX
------
+-----------------
 
 Description
 >>>>>>>>>>>
@@ -3472,8 +3599,9 @@ Another example to show how to set custom values for the optional parameters::
     | Hattie      | 671 Bristol Street |
     +-------------+--------------------+
 
+
 MATCH_PHRASE_PREFIX
-------------
+-------------------
 
 Description
 >>>>>>>>>>>
@@ -3590,6 +3718,7 @@ The multi_match function also supports an alternative syntax::
     |-------------|
     | Hattie      |
     +-------------+
+
 
 SIMPLE_QUERY_STRING
 -------------------
@@ -3766,8 +3895,9 @@ Another example to show how to set custom values for the optional parameters::
     | 1    | The House at Pooh Corner | Alan Alexander Milne |
     +------+--------------------------+----------------------+
 
+
 HIGHLIGHT
-------------
+---------
 
 Description
 >>>>>>>>>>>
@@ -3791,8 +3921,9 @@ Example searching for field Tags::
     | [Winnie-the-<em>Pooh</em>]                   |
     +----------------------------------------------+
 
+
 WILDCARD_QUERY
-------------
+--------------
 
 Description
 >>>>>>>>>>>
@@ -3844,6 +3975,7 @@ Another example to show how to set custom values for the optional parameters::
     | tEsT wIlDcArD sensitive cases             |
     +-------------------------------------------+
 
+
 System Functions
 ================
 
@@ -3868,5 +4000,4 @@ Example::
     |----------------+---------------+-----------------+------------------|
     | DATE           | INTEGER       | DATETIME        | STRUCT           |
     +----------------+---------------+-----------------+------------------+
-
 
