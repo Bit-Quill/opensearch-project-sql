@@ -127,24 +127,42 @@ Example::
 CEIL
 ----
 
+An alias for `CEILING`_ function.
+
+
+CEILING
+-------
+
 Description
 >>>>>>>>>>>
 
-Usage: ceil(x) return the smallest integer value this is greater or equal to x.
+Usage: CEILING(T) takes the ceiling of value T.
+
+Note: `CEIL`_ and CEILING functions have the same implementation & functionality
+
+Limitation: CEILING only works as expected when IEEE 754 double type displays decimal when stored.
 
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
-Return type: INTEGER
+Return type: LONG
 
 Example::
 
-    os> source=people | eval `CEIL(2.75)` = CEIL(2.75) | fields `CEIL(2.75)`
+    os> source=people | eval `CEILING(0)` = CEILING(0), `CEILING(50.00005)` = CEILING(50.00005), `CEILING(-50.00005)` = CEILING(-50.00005) | fields `CEILING(0)`, `CEILING(50.00005)`, `CEILING(-50.00005)`
     fetched rows / total rows = 1/1
-    +--------------+
-    | CEIL(2.75)   |
-    |--------------|
-    | 3            |
-    +--------------+
+    +--------------+---------------------+----------------------+
+    | CEILING(0)   | CEILING(50.00005)   | CEILING(-50.00005)   |
+    |--------------+---------------------+----------------------|
+    | 0            | 51                  | -50                  |
+    +--------------+---------------------+----------------------+
+
+    os> source=people | eval `CEILING(3147483647.12345)` = CEILING(3147483647.12345), `CEILING(113147483647.12345)` = CEILING(113147483647.12345), `CEILING(3147483647.00001)` = CEILING(3147483647.00001) | fields `CEILING(3147483647.12345)`, `CEILING(113147483647.12345)`, `CEILING(3147483647.00001)`
+    fetched rows / total rows = 1/1
+    +-----------------------------+-------------------------------+-----------------------------+
+    | CEILING(3147483647.12345)   | CEILING(113147483647.12345)   | CEILING(3147483647.00001)   |
+    |-----------------------------+-------------------------------+-----------------------------|
+    | 3147483648                  | 113147483648                  | 3147483648                  |
+    +-----------------------------+-------------------------------+-----------------------------+
 
 
 CONV
@@ -310,22 +328,39 @@ FLOOR
 Description
 >>>>>>>>>>>
 
-Usage: floor(x) return the largest integer value this is smaller or equal to x.
+Usage: FLOOR(T) takes the floor of value T.
 
-Argument type: INTEGER/LONG/FLOAT/DOUBLE
+Limitation: FLOOR only works as expected when IEEE 754 double type displays decimal when stored.
 
-Return type: INTEGER
+Argument type: a: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: LONG
 
 Example::
 
-    os> source=people | eval `FLOOR(2.75)` = FLOOR(2.75) | fields `FLOOR(2.75)`
+    os> source=people | eval `FLOOR(0)` = FLOOR(0), `FLOOR(50.00005)` = FLOOR(50.00005), `FLOOR(-50.00005)` = FLOOR(-50.00005) | fields `FLOOR(0)`, `FLOOR(50.00005)`, `FLOOR(-50.00005)`
     fetched rows / total rows = 1/1
-    +---------------+
-    | FLOOR(2.75)   |
-    |---------------|
-    | 2             |
-    +---------------+
+    +------------+-------------------+--------------------+
+    | FLOOR(0)   | FLOOR(50.00005)   | FLOOR(-50.00005)   |
+    |------------+-------------------+--------------------|
+    | 0          | 50                | -51                |
+    +------------+-------------------+--------------------+
 
+    os> source=people | eval `FLOOR(3147483647.12345)` = FLOOR(3147483647.12345), `FLOOR(113147483647.12345)` = FLOOR(113147483647.12345), `FLOOR(3147483647.00001)` = FLOOR(3147483647.00001) | fields `FLOOR(3147483647.12345)`, `FLOOR(113147483647.12345)`, `FLOOR(3147483647.00001)`
+    fetched rows / total rows = 1/1
+    +---------------------------+-----------------------------+---------------------------+
+    | FLOOR(3147483647.12345)   | FLOOR(113147483647.12345)   | FLOOR(3147483647.00001)   |
+    |---------------------------+-----------------------------+---------------------------|
+    | 3147483647                | 113147483647                | 3147483647                |
+    +---------------------------+-----------------------------+---------------------------+
+
+    os> source=people | eval `FLOOR(282474973688888.022)` = FLOOR(282474973688888.022), `FLOOR(9223372036854775807.022)` = FLOOR(9223372036854775807.022), `FLOOR(9223372036854775807.0000001)` = FLOOR(9223372036854775807.0000001) | fields `FLOOR(282474973688888.022)`, `FLOOR(9223372036854775807.022)`, `FLOOR(9223372036854775807.0000001)`
+    fetched rows / total rows = 1/1
+    +------------------------------+----------------------------------+--------------------------------------+
+    | FLOOR(282474973688888.022)   | FLOOR(9223372036854775807.022)   | FLOOR(9223372036854775807.0000001)   |
+    |------------------------------+----------------------------------+--------------------------------------|
+    | 282474973688888              | 9223372036854775807              | 9223372036854775807                  |
+    +------------------------------+----------------------------------+--------------------------------------+
 
 LN
 --
@@ -662,3 +697,27 @@ Example::
     | 2.0       | 2.1          |
     +-----------+--------------+
 
+CBRT
+----
+
+Description
+>>>>>>>>>>>
+
+Usage: Calculates the cube root of a number
+
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type DOUBLE:
+
+INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+
+Example::
+
+    opensearchsql> source=location | eval `CBRT(8)` = CBRT(8), `CBRT(9.261)` = CBRT(9.261), `CBRT(-27)` = CBRT(-27) | fields `CBRT(8)`, `CBRT(9.261)`, `CBRT(-27)`;
+    fetched rows / total rows = 2/2
+    +-----------+---------------+-------------+
+    | CBRT(8)   | CBRT(9.261)   | CBRT(-27)   |
+    |-----------+---------------+-------------|
+    | 2.0       | 2.1           | -3.0        |
+    | 2.0       | 2.1           | -3.0        |
+    +-----------+---------------+-------------+

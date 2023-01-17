@@ -36,6 +36,7 @@ public class TestsConstants {
       TEST_INDEX + "_nested_type_with_quotes";
   public final static String TEST_INDEX_EMPLOYEE_NESTED = TEST_INDEX + "_employee_nested";
   public final static String TEST_INDEX_JOIN_TYPE = TEST_INDEX + "_join_type";
+  public final static String TEST_INDEX_UNEXPANDED_OBJECT = TEST_INDEX + "_unexpanded_object";
   public final static String TEST_INDEX_BANK = TEST_INDEX + "_bank";
   public final static String TEST_INDEX_BANK_TWO = TEST_INDEX_BANK + "_two";
   public final static String TEST_INDEX_BANK_WITH_NULL_VALUES =
@@ -53,6 +54,7 @@ public class TestsConstants {
   public final static String TEST_INDEX_BEER = TEST_INDEX + "_beer";
   public final static String TEST_INDEX_NULL_MISSING = TEST_INDEX + "_null_missing";
   public final static String TEST_INDEX_CALCS = TEST_INDEX + "_calcs";
+  public final static String TEST_INDEX_WILDCARD = TEST_INDEX + "_wildcard";
 
   public final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
   public final static String TS_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";

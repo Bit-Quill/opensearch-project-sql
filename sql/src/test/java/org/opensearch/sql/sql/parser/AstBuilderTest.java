@@ -14,7 +14,6 @@ import static org.opensearch.sql.ast.dsl.AstDSL.aggregate;
 import static org.opensearch.sql.ast.dsl.AstDSL.alias;
 import static org.opensearch.sql.ast.dsl.AstDSL.argument;
 import static org.opensearch.sql.ast.dsl.AstDSL.booleanLiteral;
-import static org.opensearch.sql.ast.dsl.AstDSL.constantFunction;
 import static org.opensearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.field;
 import static org.opensearch.sql.ast.dsl.AstDSL.filter;
@@ -50,12 +49,7 @@ import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.sql.antlr.SQLSyntaxParser;
 
-class AstBuilderTest {
-
-  /**
-   * SQL syntax parser that helps prepare parse tree as AstBuilder input.
-   */
-  private final SQLSyntaxParser parser = new SQLSyntaxParser();
+class AstBuilderTest extends AstBuilderTestBase {
 
   @Test
   public void can_build_select_literals() {
@@ -525,6 +519,27 @@ class AstBuilderTest {
   }
 
   @Test
+  public void can_build_from_subquery_with_backquoted_alias() {
+    assertEquals(
+        project(
+            relationSubquery(
+                project(
+                    relation("test"),
+                    alias("firstname", qualifiedName("firstname"), "firstName")),
+                "a"),
+            alias("a.firstName", qualifiedName("a", "firstName"))
+        ),
+        buildAST(
+            "SELECT a.firstName "
+                + "FROM ( "
+                + " SELECT `firstname` AS `firstName` "
+                + " FROM `test` "
+                + ") AS `a`"
+        )
+    );
+  }
+
+  @Test
   public void can_build_show_all_tables() {
     assertEquals(
         project(
@@ -552,10 +567,6 @@ class AstBuilderTest {
     );
   }
 
-  /**
-   * Todo, ideally the identifier (%) couldn't be used in LIKE operator, only the string literal
-   * is allowed.
-   */
   @Test
   public void show_compatible_with_old_engine_syntax() {
     assertEquals(
@@ -566,18 +577,7 @@ class AstBuilderTest {
             ),
             AllFields.of()
         ),
-        buildAST("SHOW TABLES LIKE %")
-    );
-  }
-
-  @Test
-  public void describe_compatible_with_old_engine_syntax() {
-    assertEquals(
-        project(
-            relation(mappingTable("a_c%")),
-            AllFields.of()
-        ),
-        buildAST("DESCRIBE TABLES LIKE a_c%")
+        buildAST("SHOW TABLES LIKE '%'")
     );
   }
 
@@ -603,24 +603,6 @@ class AstBuilderTest {
             AllFields.of()
         ),
         buildAST("DESCRIBE TABLES LIKE 'a_c%' COLUMNS LIKE 'name%'")
-    );
-  }
-
-  /**
-   * Todo, ideally the identifier (%) couldn't be used in LIKE operator, only the string literal
-   * is allowed.
-   */
-  @Test
-  public void describe_and_column_compatible_with_old_engine_syntax() {
-    assertEquals(
-        project(
-            filter(
-                relation(mappingTable("a_c%")),
-                function("like", qualifiedName("COLUMN_NAME"), stringLiteral("name%"))
-            ),
-            AllFields.of()
-        ),
-        buildAST("DESCRIBE TABLES LIKE a_c% COLUMNS LIKE name%")
     );
   }
 
@@ -679,60 +661,6 @@ class AstBuilderTest {
         buildAST("SELECT name FROM test LIMIT 5, 10"));
   }
 
-  private static Stream<Arguments> nowLikeFunctionsData() {
-    return Stream.of(
-        Arguments.of("now", false, false, true),
-        Arguments.of("current_timestamp", false, false, true),
-        Arguments.of("localtimestamp", false, false, true),
-        Arguments.of("localtime", false, false, true),
-        Arguments.of("sysdate", true, false, false),
-        Arguments.of("curtime", false, false, true),
-        Arguments.of("current_time", false, false, true),
-        Arguments.of("curdate", false, false, true),
-        Arguments.of("current_date", false, false, true)
-    );
-  }
-
-  @ParameterizedTest(name = "{0}")
-  @MethodSource("nowLikeFunctionsData")
-  public void test_now_like_functions(String name, Boolean hasFsp, Boolean hasShortcut,
-                                      Boolean isConstantFunction) {
-    for (var call : hasShortcut ? List.of(name, name + "()") : List.of(name + "()")) {
-      assertEquals(
-          project(
-              values(emptyList()),
-              alias(call, (isConstantFunction ? constantFunction(name) : function(name)))
-          ),
-          buildAST("SELECT " + call)
-      );
-
-      assertEquals(
-          project(
-              filter(
-                  relation("test"),
-                  function(
-                      "=",
-                      qualifiedName("data"),
-                      (isConstantFunction ? constantFunction(name) : function(name)))
-              ),
-              AllFields.of()
-          ),
-          buildAST("SELECT * FROM test WHERE data = " + call)
-      );
-    }
-
-    // Unfortunately, only real functions (not ConstantFunction) might have `fsp` now.
-    if (hasFsp) {
-      assertEquals(
-          project(
-              values(emptyList()),
-              alias(name + "(0)", function(name, intLiteral(0)))
-          ),
-          buildAST("SELECT " + name + "(0)")
-      );
-    }
-  }
-
   @Test
   public void can_build_qualified_name_highlight() {
     Map<String, Literal> args = new HashMap<>();
@@ -769,8 +697,4 @@ class AstBuilderTest {
     );
   }
 
-  private UnresolvedPlan buildAST(String query) {
-    ParseTree parseTree = parser.parse(query);
-    return parseTree.accept(new AstBuilder(query));
-  }
 }

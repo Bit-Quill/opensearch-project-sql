@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.sql.antlr;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -15,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Stream;
@@ -168,7 +168,10 @@ class SQLSyntaxParserTest {
         Arguments.of("curtime", true, false),
         Arguments.of("current_time", true, true),
         Arguments.of("curdate", false, false),
-        Arguments.of("current_date", false, true)
+        Arguments.of("current_date", false, true),
+        Arguments.of("utc_date", false, true),
+        Arguments.of("utc_time", false, true),
+        Arguments.of("utc_timestamp", false, true)
     );
   }
 
@@ -192,7 +195,72 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void can_parse_hour_functions() {
+    assertNotNull(parser.parse("SELECT hour('2022-11-18 12:23:34')"));
+    assertNotNull(parser.parse("SELECT hour_of_day('12:23:34')"));
+  }
+
+  @Test
+  public void can_parse_week_of_year_functions() {
+    assertNotNull(parser.parse("SELECT week('2022-11-18')"));
+    assertNotNull(parser.parse("SELECT week_of_year('2022-11-18')"));
+  }
+
+  @Test
+  public void can_parse_dayofmonth_functions() {
+    assertNotNull(parser.parse("SELECT dayofmonth('2022-11-18')"));
+    assertNotNull(parser.parse("SELECT day_of_month('2022-11-18')"));
+  }
+    
+  @Test
+  public void can_parse_day_of_week_functions() {
+    assertNotNull(parser.parse("SELECT dayofweek('2022-11-18')"));
+    assertNotNull(parser.parse("SELECT day_of_week('2022-11-18')"));
+  }
+
+  @Test
+  public void can_parse_dayofyear_functions() {
+    assertNotNull(parser.parse("SELECT dayofyear('2022-11-18')"));
+    assertNotNull(parser.parse("SELECT day_of_year('2022-11-18')"));
+  }
+
+  @Test
+  public void can_parse_minute_functions() {
+    assertNotNull(parser.parse("SELECT minute('12:23:34')"));
+    assertNotNull(parser.parse("SELECT minute_of_hour('12:23:34')"));
+
+    assertNotNull(parser.parse("SELECT minute('2022-12-20 12:23:34')"));
+    assertNotNull(parser.parse("SELECT minute_of_hour('2022-12-20 12:23:34')"));
+  }
+
+  @Test
+  public void can_parse_month_of_year_function() {
+    assertNotNull(parser.parse("SELECT month('2022-11-18')"));
+    assertNotNull(parser.parse("SELECT month_of_year('2022-11-18')"));
+
+    assertNotNull(parser.parse("SELECT month(date('2022-11-18'))"));
+    assertNotNull(parser.parse("SELECT month_of_year(date('2022-11-18'))"));
+
+    assertNotNull(parser.parse("SELECT month(datetime('2022-11-18 00:00:00'))"));
+    assertNotNull(parser.parse("SELECT month_of_year(datetime('2022-11-18 00:00:00'))"));
+
+    assertNotNull(parser.parse("SELECT month(timestamp('2022-11-18 00:00:00'))"));
+    assertNotNull(parser.parse("SELECT month_of_year(timestamp('2022-11-18 00:00:00'))"));
+
+  }
+
+  @Test
   public void can_parse_multi_match_relevance_function() {
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE multimatch(\"fields\"=\"field\", query=\"query\")"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE multimatchquery(fields=\"field\", \"query\"=\"query\")"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE multi_match(\"fields\"=\"field\", \"query\"=\"query\")"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE multi_match(\'fields\'=\'field\', \'query\'=\'query\')"));
+    assertNotNull(parser.parse(
+        "SELECT id FROM test WHERE multi_match(fields=\'field\', query=\'query\')"));
     assertNotNull(parser.parse(
         "SELECT id FROM test WHERE multi_match(['address'], 'query')"));
     assertNotNull(parser.parse(
@@ -225,6 +293,14 @@ class SQLSyntaxParserTest {
         "SELECT id FROM test WHERE"
             + " multi_match([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query', analyzer=keyword,"
             + "operator='AND', tie_breaker=0.3, type = \"most_fields\", fuzziness = \"AUTO\")"));
+  }
+
+  @Test
+  public void can_parse_second_functions() {
+    assertNotNull(parser.parse("SELECT second('12:23:34')"));
+    assertNotNull(parser.parse("SELECT second_of_minute('2022-11-18')"));
+    assertNotNull(parser.parse("SELECT second('2022-11-18 12:23:34')"));
+    assertNotNull(parser.parse("SELECT second_of_minute('2022-11-18 12:23:34')"));
   }
 
   @Test
@@ -375,7 +451,31 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse("SELECT * FROM test WHERE match(`column`, \"this is a test\")"));
     assertNotNull(parser.parse("SELECT * FROM test WHERE match(`column`, 'this is a test')"));
     assertNotNull(parser.parse("SELECT * FROM test WHERE match(column, 100500)"));
+  }
 
+  @Test
+  public void can_parse_matchquery_relevance_function() {
+    assertNotNull(parser.parse("SELECT * FROM test WHERE matchquery(column, \"this is a test\")"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE matchquery(column, 'this is a test')"));
+    assertNotNull(parser.parse(
+        "SELECT * FROM test WHERE matchquery(`column`, \"this is a test\")"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE matchquery(`column`, 'this is a test')"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE matchquery(column, 100500)"));
+  }
+
+  @Test
+  public void can_parse_match_query_relevance_function() {
+    assertNotNull(parser.parse(
+        "SELECT * FROM test WHERE match_query(column, \"this is a test\")"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE match_query(column, 'this is a test')"));
+    assertNotNull(parser.parse(
+        "SELECT * FROM test WHERE match_query(`column`, \"this is a test\")"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE match_query(`column`, 'this is a test')"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE match_query(column, 100500)"));
+  }
+
+  @Test
+  public void can_parse_match_phrase_relevance_function() {
     assertNotNull(
             parser.parse("SELECT * FROM test WHERE match_phrase(column, \"this is a test\")"));
     assertNotNull(parser.parse("SELECT * FROM test WHERE match_phrase(column, 'this is a test')"));
@@ -386,11 +486,67 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse("SELECT * FROM test WHERE match_phrase(column, 100500)"));
   }
 
+  @Test
+  public void can_parse_minute_of_day_function() {
+    assertNotNull(parser.parse("SELECT minute_of_day(\"12:23:34\");"));
+    assertNotNull(parser.parse("SELECT minute_of_day('12:23:34');"));;
+    assertNotNull(parser.parse("SELECT minute_of_day(\"2022-12-14 12:23:34\");"));;
+    assertNotNull(parser.parse("SELECT minute_of_day('2022-12-14 12:23:34');"));;
+  }
+
+  @Test
+  public void can_parse_wildcard_query_relevance_function() {
+    assertNotNull(
+        parser.parse("SELECT * FROM test WHERE wildcard_query(column, \"this is a test*\")"));
+    assertNotNull(
+        parser.parse("SELECT * FROM test WHERE wildcard_query(column, 'this is a test*')"));
+    assertNotNull(
+        parser.parse("SELECT * FROM test WHERE wildcard_query(`column`, \"this is a test*\")"));
+    assertNotNull(
+        parser.parse("SELECT * FROM test WHERE wildcard_query(`column`, 'this is a test*')"));
+    assertNotNull(
+        parser.parse("SELECT * FROM test WHERE wildcard_query(`column`, 'this is a test*', "
+            + "boost=1.5, case_insensitive=true, rewrite=\"scoring_boolean\")"));
+  }
+
+  @Test
+  public void describe_request_accepts_only_quoted_string_literals() {
+    assertAll(
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("DESCRIBE TABLES LIKE bank")),
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("DESCRIBE TABLES LIKE %bank%")),
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("DESCRIBE TABLES LIKE `bank`")),
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("DESCRIBE TABLES LIKE %bank% COLUMNS LIKE %status%")),
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("DESCRIBE TABLES LIKE 'bank' COLUMNS LIKE status")),
+        () -> assertNotNull(parser.parse("DESCRIBE TABLES LIKE 'bank' COLUMNS LIKE \"status\"")),
+        () -> assertNotNull(parser.parse("DESCRIBE TABLES LIKE \"bank\" COLUMNS LIKE 'status'"))
+    );
+  }
+
+  @Test
+  public void show_request_accepts_only_quoted_string_literals() {
+    assertAll(
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("SHOW TABLES LIKE bank")),
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("SHOW TABLES LIKE %bank%")),
+        () -> assertThrows(SyntaxCheckException.class,
+            () -> parser.parse("SHOW TABLES LIKE `bank`")),
+        () -> assertNotNull(parser.parse("SHOW TABLES LIKE 'bank'")),
+        () -> assertNotNull(parser.parse("SHOW TABLES LIKE \"bank\""))
+    );
+  }
+
   @ParameterizedTest
   @MethodSource({
       "matchPhraseComplexQueries",
       "matchPhraseGeneratedQueries",
       "generateMatchPhraseQueries",
+      "matchPhraseQueryComplexQueries"
   })
   public void canParseComplexMatchPhraseArgsTest(String query) {
     assertNotNull(parser.parse(query));
@@ -417,6 +573,46 @@ class SQLSyntaxParserTest {
               + "prefix_length=34, fuzziness='auto', minimum_should_match='2<-25% 9<-3')",
       "SELECT * FROM t WHERE match_phrase(c, 3, minimum_should_match='2<-25% 9<-3')",
       "SELECT * FROM t WHERE match_phrase(c, 3, operator='AUTO')"
+    );
+  }
+
+  @Test
+  public void canParseMatchQueryAlternateSyntax() {
+    assertNotNull(parser.parse("SELECT * FROM test WHERE Field = matchquery('query')"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE Field = matchquery(\"query\")"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE Field = match_query('query')"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE Field = match_query(\"query\")"));
+  }
+
+  @Test
+  public void canParseMatchPhraseAlternateSyntax() {
+    assertNotNull(parser.parse("SELECT * FROM test WHERE Field = match_phrase('query')"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE Field = match_phrase(\"query\")"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE Field = matchphrase('query')"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE Field = matchphrase(\"query\")"));
+  }
+
+  @Test
+  public void canParseMultiMatchAlternateSyntax() {
+    assertNotNull(parser.parse("SELECT * FROM test WHERE Field = multi_match('query')"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE Field = multi_match(\"query\")"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE Field = multimatch('query')"));
+    assertNotNull(parser.parse("SELECT * FROM test WHERE Field = multimatch(\"query\")"));
+  }
+
+  private static Stream<String> matchPhraseQueryComplexQueries() {
+    return Stream.of(
+        "SELECT * FROM t WHERE matchphrasequery(c, 3)",
+        "SELECT * FROM t WHERE matchphrasequery(c, 3, fuzziness=AUTO)",
+        "SELECT * FROM t WHERE matchphrasequery(c, 3, zero_terms_query=\"all\")",
+        "SELECT * FROM t WHERE matchphrasequery(c, 3, lenient=true)",
+        "SELECT * FROM t WHERE matchphrasequery(c, 3, lenient='true')",
+        "SELECT * FROM t WHERE matchphrasequery(c, 3, operator=xor)",
+        "SELECT * FROM t WHERE matchphrasequery(c, 3, cutoff_frequency=0.04)",
+        "SELECT * FROM t WHERE matchphrasequery(c, 3, cutoff_frequency=0.04, analyzer = english, "
+            + "prefix_length=34, fuzziness='auto', minimum_should_match='2<-25% 9<-3')",
+        "SELECT * FROM t WHERE matchphrasequery(c, 3, minimum_should_match='2<-25% 9<-3')",
+        "SELECT * FROM t WHERE matchphrasequery(c, 3, operator='AUTO')"
     );
   }
 
