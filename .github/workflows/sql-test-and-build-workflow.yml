@@ -28,13 +28,41 @@ jobs:
     runs-on: ${{ matrix.entry.os }}
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up JDK ${{ matrix.java }}
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: ${{ matrix.entry.java }}
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.entry.java }}
 
-    - name: Summary to GH
-      run: cat test-summary.md >> $GITHUB_STEP_SUMMARY
+      - name: Include only results in xml files
+        run: |
+          sed -i '1,2!d' results/*.xml && echo "</testsuite>" | tee -a results/*.xml
+        if: always()
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          output: test-summary.md
+          paths: |
+            results/*.xml
+        if: always()
+
+      - name: Upload test summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-summary
+          path: test-summary.md
+        if: always()
+
+      - name: Upload xml file
+        uses: actions/upload-artifact@v3
+        with:
+          output: QueryIT.xml
+          path: results/TEST-org.opensearch.sql.sql.QueryIT.xml
+        if: always()
+
+      - name: Summary to GH
+        run: cat test-summary.md >> $GITHUB_STEP_SUMMARY
+        if: always()
