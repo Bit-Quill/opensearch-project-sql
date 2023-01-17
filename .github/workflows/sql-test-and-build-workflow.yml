@@ -36,13 +36,16 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ matrix.entry.java }}
 
+      - name: Install xmlstarlet
+        run: |
+          sudo apt-get update
+          sudo apt-get install xmlstarlet
+
       - name: Build with Gradle
         run: ./gradlew --continue integ-test:integTest
 
       - name: Delete failure text in XML files
-        uses: Mudlet/xmlstarlet-action@master
-        with:
-          args: ed --inplace -d '//text()' integ-test/build/test-results/integTest/*.xml
+        run: xmlstarlet ed --inplace -d '//text()' integ-test/build/test-results/integTest/*.xml
         if: always()
 
       - name: Test Summary
