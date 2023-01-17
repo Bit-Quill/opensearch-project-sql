@@ -2283,8 +2283,9 @@ Description
 >>>>>>>>>>>
 
 Usage: time_format(time, format) formats the time argument using the specifiers in the format argument.
-This supports a subset of the string format specifiers available for the `date_format`_ function.
-Using invalid format specifiers supported by `date_format`_ will return 0 or null.
+This supports a subset of the time format specifiers available for the `date_format`_ function.
+Using date format specifiers supported by `date_format`_ will return 0 or null.
+Acceptable format specifiers are listed in the table below.
 If an argument of type DATE is passed in, it is treated as a DATETIME at midnight (i.e., 00:00:00).
 
 .. list-table:: The following table describes the available specifier arguments.
