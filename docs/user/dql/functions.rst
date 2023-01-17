@@ -1351,6 +1351,7 @@ Description
 >>>>>>>>>>>
 
 Usage: date_format(date, format) formats the date argument using the specifiers in the format argument.
+If an argument of type TIME is provided, the local date is used.
 
 .. list-table:: The following table describes the available specifier arguments.
    :widths: 20 80
@@ -1427,13 +1428,13 @@ Usage: date_format(date, format) formats the date argument using the specifiers 
    * - x
      - x, for any smallcase/uppercase alphabet except [aydmshiHIMYDSEL]
 
-Argument type: STRING/DATE/DATETIME/TIMESTAMP, STRING
+Argument type: STRING/DATE/DATETIME/TIME/TIMESTAMP
 
 Return type: STRING
 
 Example::
 
-    >od SELECT DATE_FORMAT('1998-01-31 13:14:15.012345', '%T.%f'), DATE_FORMAT(TIMESTAMP('1998-01-31 13:14:15.012345'), '%Y-%b-%D %r')
+    os> SELECT DATE_FORMAT('1998-01-31 13:14:15.012345', '%T.%f'), DATE_FORMAT(TIMESTAMP('1998-01-31 13:14:15.012345'), '%Y-%b-%D %r')
     fetched rows / total rows = 1/1
     +-----------------------------------------------+----------------------------------------------------------------+
     | DATE('1998-01-31 13:14:15.012345', '%T.%f')   | DATE(TIMESTAMP('1998-01-31 13:14:15.012345'), '%Y-%b-%D %r')   |
@@ -2282,6 +2283,9 @@ Description
 >>>>>>>>>>>
 
 Usage: time_format(time, format) formats the time argument using the specifiers in the format argument.
+This supports a subset of the string format specifiers available for the `date_format`_ function.
+Using invalid format specifiers supported by `date_format`_ will return 0 or null.
+If an argument of type DATE is passed in, it is treated as a DATETIME at midnight (i.e., 00:00:00).
 
 .. list-table:: The following table describes the available specifier arguments.
    :widths: 20 80
