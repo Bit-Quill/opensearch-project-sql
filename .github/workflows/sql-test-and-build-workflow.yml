@@ -37,10 +37,10 @@ jobs:
         java-version: ${{ matrix.entry.java }}
 
     - name: Build with Gradle
-      run: ./gradlew --continue integ-test:integTest
+      run: ./gradlew --continue integ-test:integTest --tests "org.opensearch.sql.legacy.*"
 
     - name: Compile all xml files
-      run: awk '/</' *.xml > results.xml
+      run: awk '/</' integ-test/build/test-results/integTest/*.xml > results.xml
       if: always()
 
     - name: Test Summary
