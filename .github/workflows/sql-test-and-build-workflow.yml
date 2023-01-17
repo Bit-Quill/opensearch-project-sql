@@ -41,6 +41,7 @@ jobs:
 
     - name: Compile all xml files
       run: awk '/</' *.xml > results.xml
+      if: always()
 
     - name: Test Summary
       uses: test-summary/action@v2
