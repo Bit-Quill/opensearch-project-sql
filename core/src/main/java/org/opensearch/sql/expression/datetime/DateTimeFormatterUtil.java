@@ -83,6 +83,9 @@ class DateTimeFormatterUtil {
           String.format("'%d'", CalendarLookup.getYearNumber(3, date.toLocalDate())))
       .build();
 
+  //Handlers for the time_format function.
+  //Some format specifiers return 0 or null to align with MySQL.
+  //https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_time-format
   private static final Map<String, DateTimeFormatHandler> TIME_HANDLERS =
       ImmutableMap.<String, DateTimeFormatHandler>builder()
           .put("%a", (date) -> null) // %a => EEE - Abbreviated weekday name (Sun..Sat)
