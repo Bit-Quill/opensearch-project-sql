@@ -37,104 +37,21 @@ jobs:
         java-version: ${{ matrix.entry.java }}
 
     - name: Build with Gradle
-      run: |
-        if [[ ! -e /home/runner ]]; then
-          useradd -m -g root -s /bin/bash runner
-          chmod -R g+rwx /root
-          chmod -R 777 .
-        fi
-        su runner -m -c './gradlew --continue integ-test:integTest
+      run: ./gradlew --continue integ-test:integTest
 
     - name: Compile all xml files
+      run: awk '/</' *.xml > results.xml
 
+    - name: Test Summary
+      uses: test-summary/action@v2
+      with:
+        paths: |
+          integ-test/build/test-results/integTest/results.xml
+      if: always()
 
-
-#    - name: Copy test result file
-#      run: |
-#        mkdir test-folder
-#        mkdir test-folder/legacy
-#        mkdir test-folder/sql1
-#        mkdir test-folder/sql2
-#        mkdir test-folder/ppl
-#        cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.legacy.*.xml test-folder/legacy
-#        cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.sql.[A-M]*.xml test-folder/sql1
-#        cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.sql.[N-Z]*.xml test-folder/sql2
-#        cp integ-test/build/test-results/integTest/TEST-org.opensearch.sql.ppl.*.xml test-folder/ppl
-#      if: always()
-#
-#    - name: Legacy Test Summary
-#      uses: test-summary/action@v2
-#      with:
-#        output: legacy-test-summary.md
-#        paths: test-folder/legacy/*.xml
-#      if: always()
-#
-#    - name: Upload legacy test summary
-#      uses: actions/upload-artifact@v3
-#      with:
-#        name: legacy-test-summary
-#        path: legacy-test-summary.md
-#      if: always()
-#
-#    - name: SQL Test Summary 1
-#      uses: test-summary/action@v2
-#      with:
-#        output: sql-test-summary1.md
-#        paths: test-folder/sql1/*.xml
-#      if: always()
-#
-#    - name: Upload SQL test summary 1
-#      uses: actions/upload-artifact@v3
-#      with:
-#        name: sql-test-summary1
-#        path: sql-test-summary1.md
-#      if: always()
-#
-#    - name: SQL Test Summary 2
-#      uses: test-summary/action@v2
-#      with:
-#        output: sql-test-summary2.md
-#        paths: test-folder/sql2/*.xml
-#      if: always()
-#
-#    - name: Upload SQL test summary 2
-#      uses: actions/upload-artifact@v3
-#      with:
-#        name: sql-test-summary2
-#        path: sql-test-summary2.md
-#      if: always()
-#
-#    - name: PPL Test Summary
-#      uses: test-summary/action@v2
-#      with:
-#        output: ppl-test-summary.md
-#        paths: test-folder/ppl/*.xml
-#      if: always()
-#
-#    - name: Upload PPL test summary
-#      uses: actions/upload-artifact@v3
-#      with:
-#        name: ppl-test-summary
-#        path: ppl-test-summary.md
-#      if: always()
-#
-#    - name: Compile Results
-#      run: |
-#        touch test-summary.md
-#        echo -e "### Legacy Test Results\n" > test-summary.md
-#        head -c 150 legacy-test-summary.md | sed 's/>.*//' >> test-summary.md
-#        echo -e "> \n\n### SQL.[A-M] Test Results\n" >> test-summary.md
-#        head -c 150 sql-test-summary1.md | sed 's/>.*//' >> test-summary.md
-#        echo -e "> \n\n### SQL.[N-Z] Test Results\n" >> test-summary.md
-#        head -c 150 sql-test-summary2.md | sed 's/>.*//' >> test-summary.md
-#        echo -e "> \n\n### PPL Test Results\n" >> test-summary.md
-#        head -c 150 ppl-test-summary.md | sed 's/>.*//' >> test-summary.md
-#        echo -e ">" >> test-summary.md
-#      if: always()
-#
-#    - name: Upload Compiled Results
-#      uses: actions/upload-artifact@v3
-#      with:
-#        name: test-summary
-#        path: test-summary.md
-#      if: always()
+    - name: Upload test summary
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-summary
+        path: test-summary.md
+      if: always()
