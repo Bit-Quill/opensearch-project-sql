@@ -37,7 +37,9 @@ jobs:
         java-version: ${{ matrix.entry.java }}
 
     - name: Include only results in xml files
-      run: sed -i '2!d' results/*.xml
+      run: |
+        sed -i '2d' results/*.xml
+        echo "</testsuite>" | tee -a *.xml
       if: always()
 
     - name: Test Summary
