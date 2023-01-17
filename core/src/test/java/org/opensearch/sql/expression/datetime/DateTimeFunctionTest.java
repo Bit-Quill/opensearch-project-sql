@@ -2006,7 +2006,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
             functionProperties.getQueryStartClock()).format(
                 DateTimeFormatter.ofPattern("\"MM dd\"")),
         eval(expr).toString()
-        );
+    );
   }
 
   @Test

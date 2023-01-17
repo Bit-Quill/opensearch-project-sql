@@ -66,7 +66,7 @@ class DateTimeFormatterUtil {
       .put("%D", (date) -> // %w - Day of month with English suffix
           String.format("'%d%s'", date.getDayOfMonth(), getSuffix(date.getDayOfMonth())))
       .put("%f", (date) -> // %f - Microseconds
-          String.format("'%d'", (date.getNano() / 1000)))
+          String.format("'%s'", formatNanoseconds((date.getNano() / 1000))))
       .put("%w", (date) -> // %w - Day of week (0 indexed)
           String.format("'%d'", date.getDayOfWeek().getValue()))
       .put("%U", (date) -> // %U Week where Sunday is the first day - WEEK() mode 0
@@ -114,10 +114,14 @@ class DateTimeFormatterUtil {
           .put("%w", (date) -> null)// %w - Day of week (0 indexed)
           .put("%U", (date) -> null)// %U Week where Sunday is the first day - WEEK() mode 0
           .put("%u", (date) -> null)// %u Week where Monday is the first day - WEEK() mode 1
-          .put("%V", (date) -> null)// %V Week where Sunday is the first day - WEEK() mode 2 used with %X
-          .put("%v", (date) -> null)// %v Week where Monday is the first day - WEEK() mode 3 used with %x
-          .put("%X", (date) -> null)// %X Year for week where Sunday is the first day, 4 digits used with %V
-          .put("%x", (date) -> null)// %x Year for week where Monday is the first day, 4 digits used with %v
+          .put("%V", (date) -> null)
+          // %V Week where Sunday is the first day - WEEK() mode 2 used with %X
+          .put("%v", (date) -> null)
+          // %v Week where Monday is the first day - WEEK() mode 3 used with %x
+          .put("%X", (date) -> null)
+          // %X Year for week where Sunday is the first day, 4 digits used with %V
+          .put("%x", (date) -> null)
+          // %x Year for week where Monday is the first day, 4 digits used with %v
           .build();
 
   private static String formatNanoseconds(int nanosecondsVal) {

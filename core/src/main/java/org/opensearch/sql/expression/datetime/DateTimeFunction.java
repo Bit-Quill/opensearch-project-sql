@@ -847,11 +847,12 @@ public class DateTimeFunction {
             STRING, DATE, STRING),
         impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
             STRING, DATETIME, STRING),
-        implWithProperties(nullMissingHandlingWithProperties((functionProperties, time, formatString)
-            -> DateTimeFormatterUtil.getFormattedDateOfToday(
-            formatString,
-            time,
-            functionProperties.getQueryStartClock())), STRING, TIME, STRING),
+        implWithProperties(
+            nullMissingHandlingWithProperties(
+                (functionProperties, time, formatString)
+                    -> DateTimeFormatterUtil.getFormattedDateOfToday(
+                        formatString, time, functionProperties.getQueryStartClock())),
+            STRING, TIME, STRING),
         impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
             STRING, TIMESTAMP, STRING)
     );
