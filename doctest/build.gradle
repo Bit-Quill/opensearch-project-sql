@@ -139,7 +139,7 @@ testClusters {
         }))
         */
         plugin ':opensearch-sql-plugin'
-        testDistribution = 'integ_test'
+        testDistribution = 'archive'
     }
 }
 tasks.register("runRestTestCluster", RunTask) {

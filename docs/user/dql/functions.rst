@@ -151,7 +151,7 @@ Return type map:
 
 Example::
 
-    > select add(2, 3), add(3, 2), add(pi(), e())
+    os> select add(2, 3), add(3, 2), add(pi(), e()) from people;
     fetched rows / total rows = 1/1
     +-------------+-------------+-------------------+
     | add(2, 3)   | add(3, 2)   | add(pi(), e())    |
@@ -369,7 +369,7 @@ Return type: DOUBLE
 
 Example::
 
-    > select cosh(0), cosh(1), cosh(pi())
+    os> select cosh(0), cosh(1), cosh(pi()) from people;
     fetched rows / total rows = 1/1
     +-----------+-------------------+--------------------+
     | cosh(0)   | cosh(1)           | cosh(pi())         |
@@ -465,7 +465,7 @@ Return type map:
 
 Example::
 
-    > select divide(2, 3), divide(3, 2), divide(3.0, 2), divide(pi(), e())
+    os> select divide(2, 3), divide(3, 2), divide(3.0, 2), divide(pi(), e()) from people;
     fetched rows / total rows = 1/1
     +----------------+----------------+------------------+---------------------+
     | divide(2, 3)   | divide(3, 2)   | divide(3.0, 2)   | divide(pi(), e())   |
@@ -536,7 +536,7 @@ Return type: DOUBLE
 
 Example::
 
-    > select expm1(1) + 1 as `e()`, expm1(0)
+    os> select expm1(1) + 1 as `e()`, expm1(0) from people;
     fetched rows / total rows = 1/1
     +-------------------+------------+
     | e()               | expm1(0)   |
@@ -728,7 +728,7 @@ Return type map:
 
 Example::
 
-    > select multiply(2, 3), multiply(2.2, 3.3)
+    os> select multiply(2, 3), multiply(2.2, 3.3) from people;
     fetched rows / total rows = 1/1
     +------------------+----------------------+
     | multiply(2, 3)   | multiply(2.2, 3.3)   |
@@ -871,7 +871,7 @@ Return type: DOUBLE
 
 Example::
 
-    > select rint(2.49), rint(2.51)
+    os> select rint(2.49), rint(2.51) from people;
     fetched rows / total rows = 1/1
     +--------------+--------------+
     | rint(2.49)   | rint(2.51)   |
@@ -970,7 +970,7 @@ Return type: DOUBLE
 
 Example::
 
-    > select sinh(0), sinh(1), sinh(pi())
+    os> select sinh(0), sinh(1), sinh(pi()) from people;
     fetched rows / total rows = 1/1
     +-----------+--------------------+--------------------+
     | sinh(0)   | sinh(1)            | sinh(pi())         |
@@ -1046,7 +1046,7 @@ Return type map:
 
 Example::
 
-    > select subtract(2, 3), subtract(pi(), e())
+    os> select subtract(2, 3), subtract(pi(), e()) from people;
     fetched rows / total rows = 1/1
     +------------------+-----------------------+
     | subtract(2, 3)   | subtract(pi(), e())   |
