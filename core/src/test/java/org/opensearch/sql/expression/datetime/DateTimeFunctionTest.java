@@ -9,6 +9,7 @@ package org.opensearch.sql.expression.datetime;
 import static java.time.temporal.ChronoField.ALIGNED_WEEK_OF_YEAR;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
@@ -42,6 +43,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprLongValue;
+import org.opensearch.sql.data.model.ExprNullValue;
+import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprValue;
@@ -859,6 +862,58 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(DATE, expression.type());
     assertEquals("from_days(730669)", expression.toString());
     assertEquals(new ExprDateValue("2000-07-03"), expression.valueOf(env));
+  }
+
+  private static Stream<Arguments> getTestDataForGetFormat() {
+    return Stream.of(
+        Arguments.of("DATE", "USA", "%m.%d.%Y"),
+        Arguments.of("DATE", "JIS", "%Y-%m-%d"),
+        Arguments.of("DATE", "ISO", "%Y-%m-%d"),
+        Arguments.of("DATE", "EUR", "%d.%m.%Y"),
+        Arguments.of("DATE", "INTERNAL",	"%Y%m%d"),
+        Arguments.of("DATETIME", "USA",	"%Y-%m-%d %H.%i.%s"),
+        Arguments.of("DATETIME", "JIS",	"%Y-%m-%d %H:%i:%s"),
+        Arguments.of("DATETIME", "ISO",	"%Y-%m-%d %H:%i:%s"),
+        Arguments.of("DATETIME", "EUR",	"%Y-%m-%d %H.%i.%s"),
+        Arguments.of("DATETIME", "INTERNAL", "%Y%m%d%H%i%s"),
+        Arguments.of("TIME", "USA",	"%h:%i:%s %p"),
+        Arguments.of("TIME", "JIS",	"%H:%i:%s"),
+        Arguments.of("TIME", "ISO",	"%H:%i:%s"),
+        Arguments.of("TIME", "EUR",	"%H.%i.%s"),
+        Arguments.of("TIME", "INTERNAL",	"%H%i%s")
+    );
+  }
+
+  private void getFormatQuery(LiteralExpression argType,
+                               LiteralExpression namedFormat,
+                               String expectedResult) {
+    FunctionExpression expr = DSL.get_format(argType, namedFormat);
+    assertEquals(STRING, expr.type());
+    assertEquals(expectedResult, eval(expr).stringValue());
+  }
+
+  @ParameterizedTest(name = "{0}{1}")
+  @MethodSource("getTestDataForGetFormat")
+  public void testGetFormat(String arg,
+                             String format,
+                             String expectedResult) {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
+    getFormatQuery(
+        DSL.literal(arg),
+        DSL.literal(new ExprStringValue(format)),
+        expectedResult);
+  }
+
+  @Test
+  public void testGetFormatWithNullFormat() {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+    FunctionExpression expr = DSL.get_format(
+        DSL.literal("DATE"),
+        ExprNullValue.of());
+    assertNull(eval(expr));
   }
 
   @Test

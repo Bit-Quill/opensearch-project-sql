@@ -194,6 +194,32 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse("SELECT id FROM test WHERE " + String.join(" AND ", calls)));
   }
 
+  private static Stream<Arguments> get_format_arguments() {
+    return Stream.of(
+        Arguments.of("GET_FORMAT(DATE,'USA')"),
+        Arguments.of("GET_FORMAT(DATE,'JIS')"),
+        Arguments.of("GET_FORMAT(DATE,'ISO')"),
+        Arguments.of("GET_FORMAT(DATE,'EUR')"),
+        Arguments.of("GET_FORMAT(DATE,'INTERNAL')"),
+        Arguments.of("GET_FORMAT(DATETIME,'USA')"),
+        Arguments.of("GET_FORMAT(DATETIME,'JIS')"),
+        Arguments.of("GET_FORMAT(DATETIME,'ISO')"),
+        Arguments.of("GET_FORMAT(DATETIME,'EUR')"),
+        Arguments.of("GET_FORMAT(DATETIME,'INTERNAL')"),
+        Arguments.of("GET_FORMAT(TIME,'USA')"),
+        Arguments.of("GET_FORMAT(TIME,'JIS')"),
+        Arguments.of("GET_FORMAT(TIME,'ISO')"),
+        Arguments.of("GET_FORMAT(TIME,'EUR')"),
+        Arguments.of("GET_FORMAT(TIME,'INTERNAL')")
+    );
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("get_format_arguments")
+  public void can_parse_get_format_function(String get_format_query) {
+    assertNotNull(parser.parse(get_format_query));
+  }
+
   @Test
   public void can_parse_hour_functions() {
     assertNotNull(parser.parse("SELECT hour('2022-11-18 12:23:34')"));
