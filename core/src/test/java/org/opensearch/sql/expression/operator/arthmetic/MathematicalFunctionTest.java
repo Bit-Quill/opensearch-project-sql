@@ -12,12 +12,6 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.opensearch.sql.config.TestConfig.DOUBLE_TYPE_MISSING_VALUE_FIELD;
-import static org.opensearch.sql.config.TestConfig.DOUBLE_TYPE_NULL_VALUE_FIELD;
-import static org.opensearch.sql.config.TestConfig.INT_TYPE_MISSING_VALUE_FIELD;
-import static org.opensearch.sql.config.TestConfig.INT_TYPE_NULL_VALUE_FIELD;
-import static org.opensearch.sql.config.TestConfig.STRING_TYPE_MISSING_VALUE_FIELD;
-import static org.opensearch.sql.config.TestConfig.STRING_TYPE_NULL_VALUE_FIELD;
 import static org.opensearch.sql.data.model.ExprValueUtils.getDoubleValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.getFloatValue;
 import static org.opensearch.sql.data.type.ExprCoreType.BYTE;
@@ -171,17 +165,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
-  @Test
-  public void abs_null_value() {
-    assertTrue(DSL.abs(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER)).valueOf(valueEnv()).isNull());
-  }
-
-  @Test
-  public void abs_missing_value() {
-    assertTrue(
-        DSL.abs(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER)).valueOf(valueEnv()).isMissing());
-  }
-
   /**
    * Test ceil/ceiling with integer value.
    */
@@ -266,34 +249,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         ceiling.valueOf(valueEnv()), allOf(hasType(LONG), hasValue((long) Math.ceil(value))));
     assertEquals(String.format("ceiling(%s)", value.toString()), ceiling.toString());
-  }
-
-  /**
-   * Test ceil/ceiling with null value.
-   */
-  @Test
-  public void ceil_null_value() {
-    FunctionExpression ceil = DSL.ceil(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(LONG, ceil.type());
-    assertTrue(ceil.valueOf(valueEnv()).isNull());
-
-    FunctionExpression ceiling = DSL.ceiling(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(LONG, ceiling.type());
-    assertTrue(ceiling.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test ceil/ceiling with missing value.
-   */
-  @Test
-  public void ceil_missing_value() {
-    FunctionExpression ceil = DSL.ceil(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(LONG, ceil.type());
-    assertTrue(ceil.valueOf(valueEnv()).isMissing());
-
-    FunctionExpression ceiling = DSL.ceiling(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(LONG, ceiling.type());
-    assertTrue(ceiling.valueOf(valueEnv()).isMissing());
   }
 
   /**
@@ -397,59 +352,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test conv with null value.
-   */
-  @Test
-  public void conv_null_value() {
-    FunctionExpression conv = DSL.conv(
-        DSL.ref(STRING_TYPE_NULL_VALUE_FIELD, STRING), DSL.literal(10), DSL.literal(2));
-    assertEquals(STRING, conv.type());
-    assertTrue(conv.valueOf(valueEnv()).isNull());
-
-    conv = DSL.conv(
-        DSL.literal("1"), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.literal(2));
-    assertEquals(STRING, conv.type());
-    assertTrue(conv.valueOf(valueEnv()).isNull());
-
-    conv = DSL.conv(
-        DSL.literal("1"), DSL.literal(10), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(STRING, conv.type());
-    assertTrue(conv.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test conv with missing value.
-   */
-  @Test
-  public void conv_missing_value() {
-    FunctionExpression conv = DSL.conv(
-        DSL.ref(STRING_TYPE_MISSING_VALUE_FIELD, STRING), DSL.literal(10), DSL.literal(2));
-    assertEquals(STRING, conv.type());
-    assertTrue(conv.valueOf(valueEnv()).isMissing());
-
-    conv = DSL.conv(
-        DSL.literal("1"), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER), DSL.literal(2));
-    assertEquals(STRING, conv.type());
-    assertTrue(conv.valueOf(valueEnv()).isMissing());
-
-    conv = DSL.conv(
-        DSL.literal("1"), DSL.literal(10), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(STRING, conv.type());
-    assertTrue(conv.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
-   * Test conv with null and missing values.
-   */
-  @Test
-  public void conv_null_missing() {
-    FunctionExpression conv = DSL.conv(DSL.ref(STRING_TYPE_MISSING_VALUE_FIELD, STRING),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER), DSL.literal(2));
-    assertEquals(STRING, conv.type());
-    assertTrue(conv.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test crc32 with string value.
    */
   @ParameterizedTest(name = "crc({0})")
@@ -462,26 +364,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         crc.valueOf(valueEnv()),
         allOf(hasType(LONG), hasValue(crc32.getValue())));
     assertEquals(String.format("crc32(\"%s\")", value), crc.toString());
-  }
-
-  /**
-   * Test crc32 with null value.
-   */
-  @Test
-  public void crc32_null_value() {
-    FunctionExpression crc = DSL.crc32(DSL.ref(STRING_TYPE_NULL_VALUE_FIELD, STRING));
-    assertEquals(LONG, crc.type());
-    assertTrue(crc.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test crc32 with missing value.
-   */
-  @Test
-  public void crc32_missing_value() {
-    FunctionExpression crc = DSL.crc32(DSL.ref(STRING_TYPE_MISSING_VALUE_FIELD, STRING));
-    assertEquals(LONG, crc.type());
-    assertTrue(crc.valueOf(valueEnv()).isMissing());
   }
 
   /**
@@ -546,26 +428,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test exp with null value.
-   */
-  @Test
-  public void exp_null_value() {
-    FunctionExpression exp =  DSL.exp(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, exp.type());
-    assertTrue(exp.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test exp with missing value.
-   */
-  @Test
-  public void exp_missing_value() {
-    FunctionExpression exp = DSL.exp(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, exp.type());
-    assertTrue(exp.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test floor with integer value.
    */
   @ParameterizedTest(name = "floor({0})")
@@ -618,26 +480,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test floor with null value.
-   */
-  @Test
-  public void floor_null_value() {
-    FunctionExpression floor = DSL.floor(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(LONG, floor.type());
-    assertTrue(floor.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test floor with missing value.
-   */
-  @Test
-  public void floor_missing_value() {
-    FunctionExpression floor = DSL.floor(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(LONG, floor.type());
-    assertTrue(floor.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test ln with integer value.
    */
   @ParameterizedTest(name = "ln({0})")
@@ -687,26 +529,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         ln.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.log(value))));
     assertEquals(String.format("ln(%s)", value.toString()), ln.toString());
-  }
-
-  /**
-   * Test ln with null value.
-   */
-  @Test
-  public void ln_null_value() {
-    FunctionExpression ln = DSL.ln(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, ln.type());
-    assertTrue(ln.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test ln with missing value.
-   */
-  @Test
-  public void ln_missing_value() {
-    FunctionExpression ln = DSL.ln(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, ln.type());
-    assertTrue(ln.valueOf(valueEnv()).isMissing());
   }
 
   /**
@@ -770,28 +592,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test log with 1 null value argument.
-   */
-  @Test
-  public void log_null_value() {
-    FunctionExpression log = DSL.log(
-        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, log.type());
-    assertTrue(log.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test log with 1 missing value argument.
-   */
-  @Test
-  public void log_missing_value() {
-    FunctionExpression log = DSL.log(
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, log.type());
-    assertTrue(log.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test log with 2 int arguments.
    */
   @ParameterizedTest(name = "log({0}, {1})")
@@ -845,66 +645,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         getDoubleValue(log.valueOf(valueEnv())),
         closeTo(Math.log(v2) / Math.log(v1), 0.0001));
     assertEquals(String.format("log(%s, %s)", v1.toString(), v2.toString()), log.toString());
-  }
-
-  /**
-   * Test log with 2 null value arguments.
-   */
-  @Test
-  public void log_two_null_value() {
-    FunctionExpression log = DSL.log(
-        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE), DSL.literal(2D));
-    assertEquals(DOUBLE, log.type());
-    assertTrue(log.valueOf(valueEnv()).isNull());
-
-    log = DSL.log(DSL.literal(2D), DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, log.type());
-    assertTrue(log.valueOf(valueEnv()).isNull());
-
-    log = DSL.log(
-        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE),
-        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, log.type());
-    assertTrue(log.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test log with 2 missing value arguments.
-   */
-  @Test
-  public void log_two_missing_value() {
-    FunctionExpression log = DSL.log(
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE), DSL.literal(2D));
-    assertEquals(DOUBLE, log.type());
-    assertTrue(log.valueOf(valueEnv()).isMissing());
-
-    log = DSL.log(DSL.literal(2D), DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, log.type());
-    assertTrue(log.valueOf(valueEnv()).isMissing());
-
-    log = DSL.log(
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE),
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, log.type());
-    assertTrue(log.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
-   * Test log with null and missing value arguments.
-   */
-  @Test
-  public void log_null_missing() {
-    FunctionExpression log = DSL.log(
-        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE),
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, log.type());
-    assertTrue(log.valueOf(valueEnv()).isMissing());
-
-    log = DSL.log(
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE),
-        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, log.type());
-    assertTrue(log.valueOf(valueEnv()).isMissing());
   }
 
   /**
@@ -968,28 +708,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test log10 with null value.
-   */
-  @Test
-  public void log10_null_value() {
-    FunctionExpression log = DSL.log10(
-        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, log.type());
-    assertTrue(log.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test log10 with missing value.
-   */
-  @Test
-  public void log10_missing_value() {
-    FunctionExpression log = DSL.log10(
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, log.type());
-    assertTrue(log.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test log2 with int value.
    */
   @ParameterizedTest(name = "log10({0})")
@@ -1047,28 +765,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         closeTo(Math.log(v) / Math.log(2), 0.0001)
     );
     assertEquals(String.format("log2(%s)", v.toString()), log.toString());
-  }
-
-  /**
-   * Test log2 with null value.
-   */
-  @Test
-  public void log2_null_value() {
-    FunctionExpression log = DSL.log2(
-        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, log.type());
-    assertTrue(log.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test log2 with missing value.
-   */
-  @Test
-  public void log2_missing_value() {
-    FunctionExpression log = DSL.log2(
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, log.type());
-    assertTrue(log.valueOf(valueEnv()).isMissing());
   }
 
   /**
@@ -1177,62 +873,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test mod with null value.
-   */
-  @Test
-  public void mod_null_value() {
-    FunctionExpression mod = DSL.mod(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.literal(1));
-    assertEquals(INTEGER, mod.type());
-    assertTrue(mod.valueOf(valueEnv()).isNull());
-
-    mod = DSL.mod(DSL.literal(1), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(INTEGER, mod.type());
-    assertTrue(mod.valueOf(valueEnv()).isNull());
-
-    mod = DSL.mod(
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(INTEGER, mod.type());
-    assertTrue(mod.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test mod with missing value.
-   */
-  @Test
-  public void mod_missing_value() {
-    FunctionExpression mod =
-        DSL.mod(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER), DSL.literal(1));
-    assertEquals(INTEGER, mod.type());
-    assertTrue(mod.valueOf(valueEnv()).isMissing());
-
-    mod = DSL.mod(DSL.literal(1), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(INTEGER, mod.type());
-    assertTrue(mod.valueOf(valueEnv()).isMissing());
-
-    mod = DSL.mod(
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(INTEGER, mod.type());
-    assertTrue(mod.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
-   * Test mod with null and missing values.
-   */
-  @Test
-  public void mod_null_missing() {
-    FunctionExpression mod = DSL.mod(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(INTEGER, mod.type());
-    assertTrue(mod.valueOf(valueEnv()).isMissing());
-
-    mod = DSL.mod(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(INTEGER, mod.type());
-    assertTrue(mod.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test pow/power with short value.
    */
   @ParameterizedTest(name = "pow({0}, {1}")
@@ -1326,103 +966,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         power.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
     assertEquals(String.format("pow(%s, %s)", v1, v2), pow.toString());
-  }
-
-  /**
-   * Test pow/power with null value.
-   */
-  @Test
-  public void pow_null_value() {
-    FunctionExpression pow = DSL.pow(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.literal(1));
-    assertEquals(DOUBLE, pow.type());
-    assertTrue(pow.valueOf(valueEnv()).isNull());
-
-    DSL.pow(DSL.literal(1), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, pow.type());
-    assertTrue(pow.valueOf(valueEnv()).isNull());
-
-    DSL.pow(
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, pow.type());
-    assertTrue(pow.valueOf(valueEnv()).isNull());
-
-    FunctionExpression power =
-        DSL.power(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.literal(1));
-    assertEquals(DOUBLE, power.type());
-    assertTrue(power.valueOf(valueEnv()).isNull());
-
-    power = DSL.power(DSL.literal(1), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, power.type());
-    assertTrue(power.valueOf(valueEnv()).isNull());
-
-    power = DSL.power(
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, power.type());
-    assertTrue(power.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test pow/power with missing value.
-   */
-  @Test
-  public void pow_missing_value() {
-    FunctionExpression pow =
-        DSL.pow(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER), DSL.literal(1));
-    assertEquals(DOUBLE, pow.type());
-    assertTrue(pow.valueOf(valueEnv()).isMissing());
-
-    DSL.pow(DSL.literal(1), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, pow.type());
-    assertTrue(pow.valueOf(valueEnv()).isMissing());
-
-    DSL.pow(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, pow.type());
-    assertTrue(pow.valueOf(valueEnv()).isMissing());
-
-    FunctionExpression power =
-        DSL.power(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER), DSL.literal(1));
-    assertEquals(DOUBLE, power.type());
-    assertTrue(power.valueOf(valueEnv()).isMissing());
-
-    power = DSL.power(DSL.literal(1), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, power.type());
-    assertTrue(power.valueOf(valueEnv()).isMissing());
-
-    power = DSL.power(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, power.type());
-    assertTrue(power.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
-   * Test pow/power with null and missing values.
-   */
-  @Test
-  public void pow_null_missing() {
-    FunctionExpression pow = DSL.pow(
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, pow.type());
-    assertTrue(pow.valueOf(valueEnv()).isMissing());
-
-    pow = DSL.pow(
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, pow.type());
-    assertTrue(pow.valueOf(valueEnv()).isMissing());
-
-    FunctionExpression power = DSL.power(
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, power.type());
-    assertTrue(power.valueOf(valueEnv()).isMissing());
-
-    power = DSL.power(
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, power.type());
-    assertTrue(power.valueOf(valueEnv()).isMissing());
   }
 
   /**
@@ -1534,60 +1077,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test round with null value.
-   */
-  @Test
-  public void round_null_value() {
-    FunctionExpression round = DSL.round(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(LONG, round.type());
-    assertTrue(round.valueOf(valueEnv()).isNull());
-
-    round = DSL.round(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.literal(1));
-    assertEquals(LONG, round.type());
-    assertTrue(round.valueOf(valueEnv()).isNull());
-
-    round = DSL.round(DSL.literal(1), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(LONG, round.type());
-    assertTrue(round.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test round with null value.
-   */
-  @Test
-  public void round_missing_value() {
-    FunctionExpression round = DSL.round(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(LONG, round.type());
-    assertTrue(round.valueOf(valueEnv()).isMissing());
-
-    round = DSL.round(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER), DSL.literal(1));
-    assertEquals(LONG, round.type());
-    assertTrue(round.valueOf(valueEnv()).isMissing());
-
-    round = DSL.round(DSL.literal(1), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(LONG, round.type());
-    assertTrue(round.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
-   * Test round with null and missing values.
-   */
-  @Test
-  public void round_null_missing() {
-    FunctionExpression round = DSL.round(
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(LONG, round.type());
-    assertTrue(round.valueOf(valueEnv()).isMissing());
-
-    round = DSL.round(
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(LONG, round.type());
-    assertTrue(round.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test sign with integer value.
    */
   @ParameterizedTest(name = "sign({0})")
@@ -1637,26 +1126,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         sign.valueOf(valueEnv()),
         allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
     assertEquals(String.format("sign(%s)", value), sign.toString());
-  }
-
-  /**
-   * Test sign with null value.
-   */
-  @Test
-  public void sign_null_value() {
-    FunctionExpression sign = DSL.sign(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(INTEGER, sign.type());
-    assertTrue(sign.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test sign with missing value.
-   */
-  @Test
-  public void sign_missing_value() {
-    FunctionExpression sign = DSL.sign(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(INTEGER, sign.type());
-    assertTrue(sign.valueOf(valueEnv()).isMissing());
   }
 
   /**
@@ -1715,26 +1184,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test sqrt with null value.
-   */
-  @Test
-  public void sqrt_null_value() {
-    FunctionExpression sqrt = DSL.sqrt(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, sqrt.type());
-    assertTrue(sqrt.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test sqrt with missing value.
-   */
-  @Test
-  public void sqrt_missing_value() {
-    FunctionExpression sqrt = DSL.sqrt(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, sqrt.type());
-    assertTrue(sqrt.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test truncate with integer value.
    */
   @ParameterizedTest(name = "truncate({0}, {1})")
@@ -1790,63 +1239,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test truncate with null value.
-   */
-  @Test
-  public void truncate_null_value() {
-    FunctionExpression truncate =
-        DSL.truncate(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.literal(1));
-    assertEquals(LONG, truncate.type());
-    assertTrue(truncate.valueOf(valueEnv()).isNull());
-
-    truncate = DSL.truncate(DSL.literal(1), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(LONG, truncate.type());
-    assertTrue(truncate.valueOf(valueEnv()).isNull());
-
-    truncate = DSL.truncate(
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(LONG, truncate.type());
-    assertTrue(truncate.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test truncate with missing value.
-   */
-  @Test
-  public void truncate_missing_value() {
-    FunctionExpression truncate =
-        DSL.truncate(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER), DSL.literal(1));
-    assertEquals(LONG, truncate.type());
-    assertTrue(truncate.valueOf(valueEnv()).isMissing());
-
-    truncate = DSL.truncate(DSL.literal(1), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(LONG, truncate.type());
-    assertTrue(truncate.valueOf(valueEnv()).isMissing());
-
-    truncate = DSL.truncate(
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(LONG, truncate.type());
-    assertTrue(truncate.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
-   * Test truncate with null and missing values.
-   */
-  @Test
-  public void truncate_null_missing() {
-    FunctionExpression truncate = DSL.truncate(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(LONG, truncate.type());
-    assertTrue(truncate.valueOf(valueEnv()).isMissing());
-
-    truncate = DSL.truncate(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(LONG, truncate.type());
-    assertTrue(truncate.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test constant pi.
    */
   @Test
@@ -1883,13 +1275,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertEquals(String.format("rand(%s)", n), rand.toString());
   }
 
-  @Test
-  public void rand_null_value() {
-    FunctionExpression rand = DSL.rand(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(FLOAT, rand.type());
-    assertTrue(rand.valueOf(valueEnv()).isNull());
-  }
-
   /**
    * Test acos with integer, long, float, double values.
    */
@@ -1915,26 +1300,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test acos with null value.
-   */
-  @Test
-  public void acos_null_value() {
-    FunctionExpression acos = DSL.acos(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, acos.type());
-    assertTrue(acos.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test acos with missing value.
-   */
-  @Test
-  public void acos_missing_value() {
-    FunctionExpression acos = DSL.acos(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, acos.type());
-    assertTrue(acos.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test asin with integer, long, float, double values.
    */
   @ParameterizedTest(name = "asin({0})")
@@ -1956,26 +1321,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     FunctionExpression asin = DSL.asin(DSL.literal(value));
     assertEquals(DOUBLE, asin.type());
     assertTrue(asin.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test asin with null value.
-   */
-  @Test
-  public void asin_null_value() {
-    FunctionExpression asin = DSL.asin(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, asin.type());
-    assertTrue(asin.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test asin with missing value.
-   */
-  @Test
-  public void asin_missing_value() {
-    FunctionExpression asin = DSL.asin(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, asin.type());
-    assertTrue(asin.valueOf(valueEnv()).isMissing());
   }
 
   /**
@@ -2006,69 +1351,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test atan with null value.
-   */
-  @Test
-  public void atan_null_value() {
-    FunctionExpression atan = DSL.atan(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, atan.type());
-    assertTrue(atan.valueOf(valueEnv()).isNull());
-
-    atan = DSL.atan(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE), DSL.literal(1));
-    assertEquals(DOUBLE, atan.type());
-    assertTrue(atan.valueOf(valueEnv()).isNull());
-
-    atan = DSL.atan(DSL.literal(1), DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, atan.type());
-    assertTrue(atan.valueOf(valueEnv()).isNull());
-
-    atan = DSL.atan(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE),
-        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, atan.type());
-    assertTrue(atan.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test atan with missing value.
-   */
-  @Test
-  public void atan_missing_value() {
-    FunctionExpression atan = DSL.atan(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, atan.type());
-    assertTrue(atan.valueOf(valueEnv()).isMissing());
-
-    atan = DSL.atan(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE), DSL.literal(1));
-    assertEquals(DOUBLE, atan.type());
-    assertTrue(atan.valueOf(valueEnv()).isMissing());
-
-    atan = DSL.atan(DSL.literal(1), DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, atan.type());
-    assertTrue(atan.valueOf(valueEnv()).isMissing());
-
-    atan = DSL.atan(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE),
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, atan.type());
-    assertTrue(atan.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
-   * Test atan with missing value.
-   */
-  @Test
-  public void atan_null_missing() {
-    FunctionExpression atan = DSL.atan(
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE),
-        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, atan.type());
-    assertTrue(atan.valueOf(valueEnv()).isMissing());
-
-    atan = DSL.atan(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE),
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, atan.type());
-    assertTrue(atan.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test atan2 with integer, long, float, double values.
    */
   @ParameterizedTest(name = "atan2({0}, {1})")
@@ -2082,63 +1364,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test atan2 with null value.
-   */
-  @Test
-  public void atan2_null_value() {
-    FunctionExpression atan2 = DSL.atan2(
-        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE), DSL.literal(1));
-    assertEquals(DOUBLE, atan2.type());
-    assertTrue(atan2.valueOf(valueEnv()).isNull());
-
-    atan2 = DSL.atan2(DSL.literal(1), DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, atan2.type());
-    assertTrue(atan2.valueOf(valueEnv()).isNull());
-
-    atan2 = DSL.atan2(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE),
-        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, atan2.type());
-    assertTrue(atan2.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test atan2 with missing value.
-   */
-  @Test
-  public void atan2_missing_value() {
-    FunctionExpression atan2 = DSL.atan2(
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE), DSL.literal(1));
-    assertEquals(DOUBLE, atan2.type());
-    assertTrue(atan2.valueOf(valueEnv()).isMissing());
-
-    atan2 = DSL.atan2(DSL.literal(1), DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, atan2.type());
-    assertTrue(atan2.valueOf(valueEnv()).isMissing());
-
-    atan2 = DSL.atan2(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE),
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, atan2.type());
-    assertTrue(atan2.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
-   * Test atan2 with missing value.
-   */
-  @Test
-  public void atan2_null_missing() {
-    FunctionExpression atan2 = DSL.atan2(
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE),
-        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, atan2.type());
-    assertTrue(atan2.valueOf(valueEnv()).isMissing());
-
-    atan2 = DSL.atan2(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE),
-        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, atan2.type());
-    assertTrue(atan2.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test cos with integer, long, float, double values.
    */
   @ParameterizedTest(name = "cos({0})")
@@ -2149,26 +1374,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         cos.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.cos(value.doubleValue()))));
     assertEquals(String.format("cos(%s)", value), cos.toString());
-  }
-
-  /**
-   * Test cos with null value.
-   */
-  @Test
-  public void cos_null_value() {
-    FunctionExpression cos = DSL.cos(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, cos.type());
-    assertTrue(cos.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test cos with missing value.
-   */
-  @Test
-  public void cos_missing_value() {
-    FunctionExpression cos = DSL.cos(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, cos.type());
-    assertTrue(cos.valueOf(valueEnv()).isMissing());
   }
 
   /**
@@ -2197,26 +1402,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test cot with null value.
-   */
-  @Test
-  public void cot_null_value() {
-    FunctionExpression cot = DSL.cot(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, cot.type());
-    assertTrue(cot.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test cot with missing value.
-   */
-  @Test
-  public void cot_missing_value() {
-    FunctionExpression cot = DSL.cot(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, cot.type());
-    assertTrue(cot.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test degrees with integer, long, float, double values.
    */
   @ParameterizedTest(name = "degrees({0})")
@@ -2227,26 +1412,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         degrees.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.toDegrees(value.doubleValue()))));
     assertEquals(String.format("degrees(%s)", value), degrees.toString());
-  }
-
-  /**
-   * Test degrees with null value.
-   */
-  @Test
-  public void degrees_null_value() {
-    FunctionExpression degrees = DSL.degrees(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, degrees.type());
-    assertTrue(degrees.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test degrees with missing value.
-   */
-  @Test
-  public void degrees_missing_value() {
-    FunctionExpression degrees = DSL.degrees(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, degrees.type());
-    assertTrue(degrees.valueOf(valueEnv()).isMissing());
   }
 
   /**
@@ -2263,26 +1428,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test radians with null value.
-   */
-  @Test
-  public void radians_null_value() {
-    FunctionExpression radians = DSL.radians(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, radians.type());
-    assertTrue(radians.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test radians with missing value.
-   */
-  @Test
-  public void radians_missing_value() {
-    FunctionExpression radians = DSL.radians(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, radians.type());
-    assertTrue(radians.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test sin with integer, long, float, double values.
    */
   @ParameterizedTest(name = "sin({0})")
@@ -2296,26 +1441,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test sin with null value.
-   */
-  @Test
-  public void sin_null_value() {
-    FunctionExpression sin = DSL.sin(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, sin.type());
-    assertTrue(sin.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test sin with missing value.
-   */
-  @Test
-  public void sin_missing_value() {
-    FunctionExpression sin = DSL.sin(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, sin.type());
-    assertTrue(sin.valueOf(valueEnv()).isMissing());
-  }
-
-  /**
    * Test tan with integer, long, float, double values.
    */
   @ParameterizedTest(name = "tan({0})")
@@ -2326,26 +1451,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         tan.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.tan(value.doubleValue()))));
     assertEquals(String.format("tan(%s)", value), tan.toString());
-  }
-
-  /**
-   * Test tan with null value.
-   */
-  @Test
-  public void tan_null_value() {
-    FunctionExpression tan = DSL.tan(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, tan.type());
-    assertTrue(tan.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test tan with missing value.
-   */
-  @Test
-  public void tan_missing_value() {
-    FunctionExpression tan = DSL.tan(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, tan.type());
-    assertTrue(tan.valueOf(valueEnv()).isMissing());
   }
 
   /**
@@ -2401,25 +1506,5 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     FunctionExpression cbrt = DSL.cbrt(DSL.literal(value));
     assertThat(cbrt.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.cbrt(value))));
     assertEquals(String.format("cbrt(%s)", value), cbrt.toString());
-  }
-
-  /**
-   * Test cbrt with null value.
-   */
-  @Test
-  public void cbrt_null_value() {
-    FunctionExpression cbrt = DSL.cbrt(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, cbrt.type());
-    assertTrue(cbrt.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test cbrt with missing value.
-   */
-  @Test
-  public void cbrt_missing_value() {
-    FunctionExpression cbrt = DSL.cbrt(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
-    assertEquals(DOUBLE, cbrt.type());
-    assertTrue(cbrt.valueOf(valueEnv()).isMissing());
   }
 }

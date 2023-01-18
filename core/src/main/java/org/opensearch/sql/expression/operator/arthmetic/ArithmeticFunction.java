@@ -12,6 +12,9 @@ import static org.opensearch.sql.data.type.ExprCoreType.FLOAT;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.SHORT;
+import static org.opensearch.sql.expression.function.FunctionDSL.define;
+import static org.opensearch.sql.expression.function.FunctionDSL.impl;
+import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
 import lombok.experimental.UtilityClass;
 import org.opensearch.sql.data.model.ExprByteValue;
@@ -24,7 +27,6 @@ import org.opensearch.sql.data.model.ExprShortValue;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.DefaultFunctionResolver;
-import org.opensearch.sql.expression.function.FunctionDSL;
 
 /**
  * The definition of arithmetic function
@@ -50,160 +52,130 @@ public class ArithmeticFunction {
   }
 
   private static DefaultFunctionResolver add() {
-    return FunctionDSL.define(BuiltinFunctionName.ADD.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprByteValue(v1.byteValue() + v2.byteValue())),
+    return define(BuiltinFunctionName.ADD.getName(),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprByteValue(v1.byteValue() + v2.byteValue())),
             BYTE, BYTE, BYTE),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprShortValue(v1.shortValue() + v2.shortValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprShortValue(v1.shortValue() + v2.shortValue())),
             SHORT, SHORT, SHORT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprIntegerValue(Math.addExact(v1.integerValue(),
-                    v2.integerValue()))),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprIntegerValue(Math.addExact(v1.integerValue(), v2.integerValue()))),
             INTEGER, INTEGER, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprLongValue(Math.addExact(v1.longValue(), v2.longValue()))),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprLongValue(Math.addExact(v1.longValue(), v2.longValue()))),
             LONG, LONG, LONG),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprFloatValue(v1.floatValue() + v2.floatValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprFloatValue(v1.floatValue() + v2.floatValue())),
             FLOAT, FLOAT, FLOAT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprDoubleValue(v1.doubleValue() + v2.doubleValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprDoubleValue(v1.doubleValue() + v2.doubleValue())),
             DOUBLE, DOUBLE, DOUBLE)
     );
   }
 
   private static DefaultFunctionResolver subtract() {
-    return FunctionDSL.define(BuiltinFunctionName.SUBTRACT.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprByteValue(v1.byteValue() - v2.byteValue())),
+    return define(BuiltinFunctionName.SUBTRACT.getName(),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprByteValue(v1.byteValue() - v2.byteValue())),
             BYTE, BYTE, BYTE),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprShortValue(v1.shortValue() - v2.shortValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprShortValue(v1.shortValue() - v2.shortValue())),
             SHORT, SHORT, SHORT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprIntegerValue(Math.subtractExact(v1.integerValue(),
-                    v2.integerValue()))),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprIntegerValue(Math.subtractExact(v1.integerValue(),
+                v2.integerValue()))),
             INTEGER, INTEGER, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprLongValue(Math.subtractExact(v1.longValue(), v2.longValue()))),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprLongValue(Math.subtractExact(v1.longValue(), v2.longValue()))),
             LONG, LONG, LONG),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprFloatValue(v1.floatValue() - v2.floatValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprFloatValue(v1.floatValue() - v2.floatValue())),
             FLOAT, FLOAT, FLOAT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprDoubleValue(v1.doubleValue() - v2.doubleValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprDoubleValue(v1.doubleValue() - v2.doubleValue())),
             DOUBLE, DOUBLE, DOUBLE)
     );
   }
 
   private static DefaultFunctionResolver multiply() {
-    return FunctionDSL.define(BuiltinFunctionName.MULTIPLY.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprByteValue(v1.byteValue() * v2.byteValue())),
+    return define(BuiltinFunctionName.MULTIPLY.getName(),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprByteValue(v1.byteValue() * v2.byteValue())),
             BYTE, BYTE, BYTE),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprShortValue(v1.shortValue() * v2.shortValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprShortValue(v1.shortValue() * v2.shortValue())),
             SHORT, SHORT, SHORT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprIntegerValue(Math.multiplyExact(v1.integerValue(),
-                    v2.integerValue()))),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprIntegerValue(Math.multiplyExact(v1.integerValue(),
+                v2.integerValue()))),
             INTEGER, INTEGER, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprLongValue(Math.multiplyExact(v1.longValue(), v2.longValue()))),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprLongValue(Math.multiplyExact(v1.longValue(), v2.longValue()))),
             LONG, LONG, LONG),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprFloatValue(v1.floatValue() * v2.floatValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprFloatValue(v1.floatValue() * v2.floatValue())),
             FLOAT, FLOAT, FLOAT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprDoubleValue(v1.doubleValue() * v2.doubleValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> new ExprDoubleValue(v1.doubleValue() * v2.doubleValue())),
             DOUBLE, DOUBLE, DOUBLE)
     );
   }
 
   private static DefaultFunctionResolver divide() {
-    return FunctionDSL.define(BuiltinFunctionName.DIVIDE.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprByteValue(v1.byteValue() / v2.byteValue())),
+    return define(BuiltinFunctionName.DIVIDE.getName(),
+        impl(nullMissingHandling(
+            (v1, v2) -> v2.byteValue() == 0 ? ExprNullValue.of() :
+                new ExprByteValue(v1.byteValue() / v2.byteValue())),
             BYTE, BYTE, BYTE),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                    new ExprShortValue(v1.shortValue() / v2.shortValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
+                new ExprShortValue(v1.shortValue() / v2.shortValue())),
             SHORT, SHORT, SHORT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.integerValue() == 0 ? ExprNullValue.of() :
-                    new ExprIntegerValue(v1.integerValue() / v2.integerValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> v2.integerValue() == 0 ? ExprNullValue.of() :
+                new ExprIntegerValue(v1.integerValue() / v2.integerValue())),
             INTEGER, INTEGER, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.longValue() == 0 ? ExprNullValue.of() :
-                    new ExprLongValue(v1.longValue() / v2.longValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> v2.longValue() == 0 ? ExprNullValue.of() :
+                new ExprLongValue(v1.longValue() / v2.longValue())),
             LONG, LONG, LONG),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.floatValue() == 0 ? ExprNullValue.of() :
-                    new ExprFloatValue(v1.floatValue() / v2.floatValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> v2.floatValue() == 0 ? ExprNullValue.of() :
+                new ExprFloatValue(v1.floatValue() / v2.floatValue())),
             FLOAT, FLOAT, FLOAT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.doubleValue() == 0 ? ExprNullValue.of() :
-                    new ExprDoubleValue(v1.doubleValue() / v2.doubleValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> v2.doubleValue() == 0 ? ExprNullValue.of() :
+                new ExprDoubleValue(v1.doubleValue() / v2.doubleValue())),
             DOUBLE, DOUBLE, DOUBLE)
     );
   }
 
-
   private static DefaultFunctionResolver modules() {
-    return FunctionDSL.define(BuiltinFunctionName.MODULES.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprByteValue(v1.byteValue() % v2.byteValue())),
+    return define(BuiltinFunctionName.MODULES.getName(),
+        impl(nullMissingHandling(
+            (v1, v2) -> v2.byteValue() == 0 ? ExprNullValue.of() :
+                new ExprByteValue(v1.byteValue() % v2.byteValue())),
             BYTE, BYTE, BYTE),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                    new ExprShortValue(v1.shortValue() % v2.shortValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
+                new ExprShortValue(v1.shortValue() % v2.shortValue())),
             SHORT, SHORT, SHORT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.integerValue() == 0 ? ExprNullValue.of() :
-                    new ExprIntegerValue(v1.integerValue() % v2.integerValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> v2.integerValue() == 0 ? ExprNullValue.of() :
+                new ExprIntegerValue(v1.integerValue() % v2.integerValue())),
             INTEGER, INTEGER, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.longValue() == 0 ? ExprNullValue.of() :
-                    new ExprLongValue(v1.longValue() % v2.longValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> v2.longValue() == 0 ? ExprNullValue.of() :
+                new ExprLongValue(v1.longValue() % v2.longValue())),
             LONG, LONG, LONG),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.floatValue() == 0 ? ExprNullValue.of() :
-                    new ExprFloatValue(v1.floatValue() % v2.floatValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> v2.floatValue() == 0 ? ExprNullValue.of() :
+                new ExprFloatValue(v1.floatValue() % v2.floatValue())),
             FLOAT, FLOAT, FLOAT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.doubleValue() == 0 ? ExprNullValue.of() :
-                    new ExprDoubleValue(v1.doubleValue() % v2.doubleValue())),
+        impl(nullMissingHandling(
+            (v1, v2) -> v2.doubleValue() == 0 ? ExprNullValue.of() :
+                new ExprDoubleValue(v1.doubleValue() % v2.doubleValue())),
             DOUBLE, DOUBLE, DOUBLE)
     );
   }
