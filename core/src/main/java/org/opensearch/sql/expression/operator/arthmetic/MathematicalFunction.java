@@ -155,11 +155,11 @@ public class MathematicalFunction {
   private static DefaultFunctionResolver crc32() {
     return define(BuiltinFunctionName.CRC32.getName(),
         impl(nullMissingHandling(v -> {
-              CRC32 crc = new CRC32();
-              crc.update(v.stringValue().getBytes());
-              return new ExprLongValue(crc.getValue());
-            }),
-            LONG, STRING)
+          CRC32 crc = new CRC32();
+          crc.update(v.stringValue().getBytes());
+          return new ExprLongValue(crc.getValue());
+        }),
+        LONG, STRING)
     );
   }
 
@@ -506,10 +506,11 @@ public class MathematicalFunction {
         FunctionBuilder>>> builder = new ImmutableList.Builder<>();
 
     for (ExprType type : ExprCoreType.numberTypes()) {
-      builder.add(impl(nullMissingHandling(x -> new ExprDoubleValue(Math.atan(x.doubleValue()))), type,
-          DOUBLE));
+      builder.add(impl(nullMissingHandling(x -> new ExprDoubleValue(Math.atan(x.doubleValue()))),
+          type, DOUBLE));
       builder.add(impl(nullMissingHandling((y, x) -> new ExprDoubleValue(Math.atan2(y.doubleValue(),
-              x.doubleValue()))), DOUBLE, type, type));
+              x.doubleValue()))),
+          DOUBLE, type, type));
     }
 
     return define(BuiltinFunctionName.ATAN.getName(), builder.build());
