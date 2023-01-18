@@ -234,7 +234,15 @@ statsFunction
     ;
 
 statsFunctionName
-    : AVG | COUNT | SUM | MIN | MAX | VAR_SAMP | VAR_POP | STDDEV_SAMP | STDDEV_POP
+    : AVG
+    | COUNT
+    | SUM
+    | MIN
+    | MAX
+    | VAR_SAMP
+    | VAR_POP
+    | STDDEV_SAMP
+    | STDDEV_POP
     ;
 
 takeAggFunction
@@ -555,7 +563,11 @@ dateAndTimeFunctionBase
 /** condition function return boolean value */
 conditionFunctionBase
     : LIKE
-    | IF | ISNULL | ISNOTNULL | IFNULL | NULLIF
+    | IF
+    | ISNULL
+    | ISNOTNULL
+    | IFNULL
+    | NULLIF
     ;
 
 systemFunctionBase
@@ -683,8 +695,23 @@ intervalUnit
     ;
 
 timespanUnit
-    : MS | S | M | H | D | W | Q | Y
-    | MILLISECOND | SECOND | MINUTE | HOUR | DAY | WEEK | MONTH | QUARTER | YEAR
+    : MS
+    | S
+    | M
+    | H
+    | D
+    | W
+    | Q
+    | Y
+    | MILLISECOND
+    | SECOND
+    | MINUTE
+    | HOUR
+    | DAY
+    | WEEK
+    | MONTH
+    | QUARTER
+    | YEAR
     ;
 
 

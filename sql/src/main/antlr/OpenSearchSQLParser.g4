@@ -471,7 +471,7 @@ mathematicalFunctionName
 
 trigonometricFunctionName
     : ACOS
-    |ASIN
+    | ASIN
     | ATAN
     | ATAN2
     | COS
