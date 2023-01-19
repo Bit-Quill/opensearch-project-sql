@@ -6,19 +6,15 @@
 
 package org.opensearch.sql.legacy;
 
-import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.Map;
 import java.util.stream.Collectors;
-import org.hamcrest.Matcher;
+import java.util.stream.Stream;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -31,14 +27,14 @@ public class HavingIT extends SQLIntegTestCase {
           "WHERE age = 30 " +
           "GROUP BY state ";
 
-  private static final Set<Matcher<Object[]>> states1 = rowSet(1, Arrays.asList(
+  private static final Map<Integer, List<String>> states1 = expectedData(1, Arrays.asList(
       "AK", "AR", "CT", "DE", "HI", "IA", "IL", "IN", "LA", "MA", "MD", "MN",
       "MO", "MT", "NC", "ND", "NE", "NH", "NJ", "NV", "SD", "VT", "WV", "WY"
   ));
-  private static final Set<Matcher<Object[]>> states2 =
-      rowSet(2, Arrays.asList("AZ", "DC", "KS", "ME"));
-  private static final Set<Matcher<Object[]>> states3 =
-      rowSet(3, Arrays.asList("AL", "ID", "KY", "OR", "TN"));
+  private static final Map<Integer, List<String>> states2 =
+          expectedData(2, Arrays.asList("AZ", "DC", "KS", "ME"));
+  private static final Map<Integer, List<String>> states3 =
+        expectedData(3, Arrays.asList("AL", "ID", "KY", "OR", "TN"));
 
   @Override
   protected void init() throws Exception {
@@ -46,157 +42,128 @@ public class HavingIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void equalsTo() throws IOException {
-    assertThat(
+  public void equalsTo() {
+    assertEquals(
         query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt = 2"),
-        resultSet(
             states2
-        )
     );
   }
 
   @Test
-  public void lessThanOrEqual() throws IOException {
-    assertThat(
+  public void lessThanOrEqual() {
+    assertEquals(
         query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt <= 2"),
-        resultSet(
-            states1,
-            states2
-        )
+            mergeData(states1, states2)
     );
   }
 
   @Test
-  public void notEqualsTo() throws IOException {
-    assertThat(
+  public void notEqualsTo() {
+    assertEquals(
         query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt <> 2"),
-        resultSet(
-            states1,
-            states3
-        )
+            mergeData(states1, states3)
     );
   }
 
   @Test
-  public void between() throws IOException {
-    assertThat(
+  public void between() {
+    assertEquals(
         query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt BETWEEN 1 AND 2"),
-        resultSet(
-            states1,
-            states2
-        )
+            mergeData(states1, states2)
     );
   }
 
   @Test
-  public void notBetween() throws IOException {
-    assertThat(
+  public void notBetween() {
+    assertEquals(
         query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt NOT BETWEEN 1 AND 2"),
-        resultSet(
             states3
-        )
     );
   }
 
   @Test
-  public void in() throws IOException {
-    assertThat(
+  public void in() {
+    assertEquals(
         query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt IN (2, 3)"),
-        resultSet(
-            states2,
-            states3
-        )
+            mergeData(states3, states2)
     );
   }
 
   @Test
-  public void notIn() throws IOException {
-    assertThat(
+  public void notIn() {
+    assertEquals(
         query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt NOT IN (2, 3)"),
-        resultSet(
             states1
-        )
     );
   }
 
   @Test
-  public void and() throws IOException {
-    assertThat(
+  public void and() {
+    assertEquals(
         query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt >= 1 AND cnt < 3"),
-        resultSet(
-            states1,
-            states2
-        )
+            mergeData(states1, states2)
     );
   }
 
   @Test
-  public void or() throws IOException {
-    assertThat(
+  public void or() {
+    assertEquals(
         query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt = 1 OR cnt = 3"),
-        resultSet(
-            states1,
-            states3
-        )
+            mergeData(states1, states3)
     );
   }
 
   @Test
-  public void not() throws IOException {
-    assertThat(
-        query(SELECT_FROM_WHERE_GROUP_BY + "HAVING NOT cnt >= 2"),
-        resultSet(
+  public void not() {
+    assertEquals(
+        query(SELECT_FROM_WHERE_GROUP_BY + "HAVING NOT cnt >= 2"), 
             states1
-        )
     );
   }
 
   @Test
-  public void notAndOr() throws IOException {
-    assertThat(
+  public void notAndOr() {
+    assertEquals(
         query(SELECT_FROM_WHERE_GROUP_BY + "HAVING NOT (cnt > 0 AND cnt <= 2)"),
-        resultSet(
             states3
-        )
     );
   }
 
-  private Set<Object[]> query(String query) throws IOException {
-    JSONObject response = executeQuery(query);
-    return getResult(response, "state.keyword", "cnt");
+  private Map<Integer, List<String>> query(String query) {
+    JSONObject response = executeJdbcRequest(query);
+    return getResult(response);
   }
 
-  private Set<Object[]> getResult(JSONObject response, String aggName, String aggFunc) {
-
-    String bucketsPath = String.format(Locale.ROOT, "/aggregations/%s/buckets", aggName);
-    JSONArray buckets = (JSONArray) response.query(bucketsPath);
-
-    Set<Object[]> result = new HashSet<>();
-    for (int i = 0; i < buckets.length(); i++) {
-      JSONObject bucket = buckets.getJSONObject(i);
-      result.add(new Object[] {
-          bucket.get("key"),
-          ((JSONObject) bucket.get(aggFunc)).getLong("value")
-      });
+  private Map<Integer, List<String>> getResult(JSONObject response) {
+    Map<Integer, List<String>> result = new HashMap<>();
+    JSONArray datarows = response.getJSONArray("datarows");
+    int key = 0;
+    List<String> values = new ArrayList<>();
+    for (int i = 0; i < datarows.length(); i++) {
+      JSONArray hit = datarows.getJSONArray(i);
+      values.add(hit.getString(0));
+      key = hit.getInt(1);
     }
+    result.put(key, values);
 
     return result;
   }
 
-  @SafeVarargs
-  private final Matcher<Iterable<? extends Object[]>> resultSet(Set<Matcher<Object[]>>... rowSets) {
-    return containsInAnyOrder(Arrays.stream(rowSets)
-        .flatMap(Collection::stream)
-        .collect(Collectors.toList()));
+  private static Map<Integer, List<String>> expectedData(Integer count, List<String> states) {
+    Map<Integer, List<String>> result = new HashMap<>();
+    result.put(count, states);
+    return result;
   }
 
-  private static Set<Matcher<Object[]>> rowSet(long count, List<String> states) {
-    return states.stream()
-        .map(state -> row(state, count))
-        .collect(Collectors.toSet());
-  }
-
-  private static Matcher<Object[]> row(String state, long count) {
-    return arrayContaining(is(state), is(count));
+  private static Map<Integer, List<String>> mergeData(Map<Integer, List<String>> data1,
+                                                      Map<Integer, List<String>> data2) {
+    Map<Integer, List<String>> result = new HashMap<>();
+    List<String> data1Values = data1.entrySet().stream().findFirst().get().getValue();
+    List<String> data2Values = data2.entrySet().stream().findFirst().get().getValue();
+    int dat1Key = data1.keySet().stream().findFirst().get();
+    List<String> mergedData = Stream.concat(data1Values.stream(), data2Values.stream())
+            .sorted().collect(Collectors.toList());
+    result.put(dat1Key, mergedData);
+    return result;
   }
 }

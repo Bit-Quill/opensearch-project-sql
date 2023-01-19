@@ -438,6 +438,16 @@ public abstract class SQLIntegTestCase extends OpenSearchSQLRestTestCase {
     return response.getJSONObject("hits").getJSONObject("total").getInt("value");
   }
 
+  protected int getFieldIndex(JSONObject response, String fieldName) {
+    JSONArray schema = response.getJSONArray("schema");
+    for (int i = 0; i < schema.length(); i++) {
+      if (schema.getJSONObject(i).get("name").equals(fieldName)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   protected JSONObject getSource(JSONObject hit) {
     return hit.getJSONObject("_source");
   }
