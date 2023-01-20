@@ -24,6 +24,9 @@ import org.opensearch.sql.correctness.testset.TestQuerySet;
 import org.opensearch.sql.legacy.RestIntegTestCase;
 import org.opensearch.sql.legacy.utils.StringUtils;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * SQL integration test base class. This is very similar to CorrectnessIT though
  * enforce the success of all tests rather than report failures only.
@@ -77,12 +80,12 @@ public abstract class CorrectnessTestBase extends RestIntegTestCase {
    * Execute the given queries and compare result with other database.
    * The queries will be considered as one test batch.
    */
-  protected void verify(String... queries) {
-    TestReport result = runner.verify(new TestQuerySet(queries));
+  protected void verify(List<String> ignoreDatabases, String... queries) {
+    TestReport result = runner.verify(new TestQuerySet(queries), ignoreDatabases);
     TestSummary summary = result.getSummary();
     Assert.assertEquals(StringUtils.format(
-        "Comparison test failed on queries: %s", new JSONObject(result).toString(2)),
-        0, summary.getFailure());
+                    "Comparison test failed on queries: %s", new JSONObject(result).toString(2)),
+            0, summary.getFailure());
   }
 
   /**

@@ -10,10 +10,9 @@ import static com.google.common.collect.ObjectArrays.concat;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+
+import java.util.*;
+
 import org.opensearch.sql.correctness.report.ErrorTestCase;
 import org.opensearch.sql.correctness.report.FailedTestCase;
 import org.opensearch.sql.correctness.report.SuccessTestCase;
@@ -81,14 +80,18 @@ public class ComparisonTest implements AutoCloseable {
    * @return Test result report
    */
   public TestReport verify(TestQuerySet querySet) {
+    return verify(querySet, Collections.emptyList());
+  }
+
+  public TestReport verify(TestQuerySet querySet, List<String> ignoreDatabases) {
     TestReport report = new TestReport();
     for (String sql : querySet) {
       try {
         DBResult openSearchResult = thisConnection.select(sql);
-        report.addTestCase(compareWithOtherDb(sql, openSearchResult));
+        report.addTestCase(compareWithOtherDb(sql, openSearchResult, ignoreDatabases));
       } catch (Exception e) {
         report.addTestCase(new ErrorTestCase(nextId(), sql,
-            StringUtils.format("%s: %s", e.getClass().getSimpleName(), extractRootCause(e))));
+                StringUtils.format("%s: %s", e.getClass().getSimpleName(), extractRootCause(e))));
       }
     }
     return report;
@@ -119,10 +122,14 @@ public class ComparisonTest implements AutoCloseable {
   /**
    * Execute the query and compare with current result
    */
-  private TestCaseReport compareWithOtherDb(String sql, DBResult openSearchResult) {
+  private TestCaseReport compareWithOtherDb(String sql, DBResult openSearchResult, List<String> ignoreDatabases) {
     List<DBResult> mismatchResults = Lists.newArrayList(openSearchResult);
     StringBuilder reasons = new StringBuilder();
     for (int i = 0; i < otherDbConnections.length; i++) {
+      String otherDbConnectionsDatabaseName = otherDbConnections[i].getDatabaseName();
+      if (ignoreDatabases.stream().anyMatch(ignoreDatabase -> ignoreDatabase.equals(otherDbConnectionsDatabaseName))) {
+        continue;
+      }
       try {
         DBResult otherDbResult = otherDbConnections[i].select(sql);
         if (openSearchResult.equals(otherDbResult)) {
