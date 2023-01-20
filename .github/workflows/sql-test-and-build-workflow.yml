@@ -28,40 +28,40 @@ jobs:
     runs-on: ${{ matrix.entry.os }}
 
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: ${{ matrix.entry.java }}
+    - name: Set up JDK ${{ matrix.java }}
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: ${{ matrix.entry.java }}
 
-      - name: Install xmlstarlet
-        run: |
-          sudo apt-get update
-          sudo apt-get install xmlstarlet
+    - name: Install xmlstarlet
+      run: |
+        sudo apt-get update
+        sudo apt-get install xmlstarlet
 
-      - name: Build with Gradle
-        run: ./gradlew --continue integ-test:integTest
+    - name: Build with Gradle
+      run: ./gradlew --continue integ-test:integTest
 
-      - name: Delete failure text in XML files
-        run: xmlstarlet ed --inplace -d '//text()' integ-test/build/test-results/integTest/*.xml
-        if: always()
+    - name: Delete failure text in XML files
+      run: xmlstarlet ed --inplace -d '//text()' integ-test/build/test-results/integTest/*.xml
+      if: always()
 
-      - name: Test Summary
-        uses: test-summary/action@v2
-        with:
-          output: test-summary.md
-          paths: integ-test/build/test-results/integTest/*.xml
-        if: always()
+    - name: Test Summary
+      uses: test-summary/action@v2
+      with:
+        output: test-summary.md
+        paths: integ-test/build/test-results/integTest/*.xml
+      if: always()
 
-      - name: Upload Compiled Results
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-summary
-          path: test-summary.md
-        if: always()
+    - name: Upload Compiled Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-summary
+        path: test-summary.md
+      if: always()
 
-      - name: Show Compiled Results
-        run: cat test-summary.md >> $GITHUB_STEP_SUMMARY
-        if: always()
+    - name: Show Compiled Results
+      run: cat test-summary.md >> $GITHUB_STEP_SUMMARY
+      if: always()
