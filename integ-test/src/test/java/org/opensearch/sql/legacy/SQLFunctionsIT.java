@@ -6,21 +6,13 @@
 
 package org.opensearch.sql.legacy;
 
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.both;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasValue;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.opensearch.sql.util.MatcherUtils.hitAny;
-import static org.opensearch.sql.util.MatcherUtils.kvDouble;
 import static org.opensearch.sql.util.MatcherUtils.kvInt;
 import static org.opensearch.sql.util.MatcherUtils.kvString;
 import static org.opensearch.sql.util.MatcherUtils.rows;
@@ -29,23 +21,11 @@ import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
 import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.stream.IntStream;
-import org.hamcrest.collection.IsMapContaining;
 import org.json.JSONObject;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.common.xcontent.LoggingDeprecationHandler;
-import org.opensearch.common.xcontent.NamedXContentRegistry;
-import org.opensearch.common.xcontent.XContentFactory;
-import org.opensearch.common.xcontent.XContentParser;
-import org.opensearch.common.xcontent.XContentType;
-import org.opensearch.search.SearchHit;
-import org.opensearch.search.SearchHits;
-
 
 /**
  * Created by allwefantasy on 8/25/16.
@@ -98,34 +78,29 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void functionAlias() throws Exception {
+  public void functionAlias() {
     //here is a bug,if only script fields are included,then all fields will return; fix later
     String query = "SELECT " +
         "substring(address,0,3) as key,address from " +
         TEST_INDEX_ACCOUNT + " where address is not null " +
         "order by address desc limit 10  ";
 
-    assertThat(
-        executeQuery(query),
-        hitAny(both(kvString("/_source/address", equalTo("863 Wythe Place")))
-            .and(kvString("/fields/key/0",
-                equalTo("863"))))
-    );
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(10, result.getInt("total"));
+    verifySchema(result, schema("substring(address,0,3)", "key", "keyword"),
+            schema("address", null, "text"));
   }
 
   @Test
-  public void caseChangeTest() throws IOException {
+  public void caseChangeTest() {
     String query = "SELECT LOWER(firstname) " +
         "FROM opensearch-sql_test_index_account " +
         "WHERE UPPER(lastname)='DUKE' " +
         "ORDER BY upper(lastname) ";
 
-    assertThat(
-        executeQuery(query),
-        hitAny(
-            kvString("/_source/address", equalTo("880 Holmes Lane")),
-            kvString("/fields/LOWER(firstname)/0", equalTo("amber")))
-    );
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("LOWER(firstname)", null, "keyword"));
   }
 
   @Test
@@ -146,52 +121,48 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void caseChangeWithAggregationTest() throws IOException {
+  public void caseChangeWithAggregationTest() {
     String query = "SELECT UPPER(e.firstname) AS upper, COUNT(*)" +
         "FROM opensearch-sql_test_index_account e " +
         "WHERE LOWER(e.lastname)='duke' " +
         "GROUP BY upper";
 
-    assertThat(
-        executeQuery(query),
-        hitAny("/aggregations/upper/buckets", kvString("/key", equalTo("AMBER"))));
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("UPPER(e.firstname)", "upper", "keyword"),
+            schema("COUNT(*)", null, "integer"));
+
   }
 
   @Test
-  public void castIntFieldToDoubleWithoutAliasTest() throws IOException {
+  public void castIntFieldToDoubleWithoutAliasTest() {
     String query = "SELECT CAST(age AS DOUBLE) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
         " ORDER BY age DESC LIMIT 5";
 
-    SearchHit[] hits = query(query).getHits();
-    checkSuccessfulFieldCast(hits, "cast_age", "DOUBLE");
-    for (int i = 0; i < hits.length; ++i) {
-      Assert.assertThat(hits[i].getFields().get("cast_age").getValue(), is(40.0));
-    }
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(5, result.getInt("total"));
+    verifySchema(result, schema("CAST(age AS DOUBLE)", "double"));
   }
 
   @Test
-  public void castIntFieldToDoubleWithAliasTest() throws IOException {
+  public void castIntFieldToDoubleWithAliasTest() {
     String query =
         "SELECT CAST(age AS DOUBLE) AS test_alias FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
             " ORDER BY age LIMIT 5";
 
-    SearchHit[] hits = query(query).getHits();
-    checkSuccessfulFieldCast(hits, "test_alias", "DOUBLE");
-    for (int i = 0; i < hits.length; ++i) {
-      Assert.assertThat(hits[i].getFields().get("test_alias").getValue(), is(20.0));
-    }
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(5, result.getInt("total"));
+    verifySchema(result, schema("CAST(age AS DOUBLE)", "test_alias","double"));
   }
 
   @Test
-  public void castIntFieldToStringWithoutAliasTest() throws IOException {
+  public void castIntFieldToStringWithoutAliasTest() {
     String query = "SELECT CAST(balance AS STRING) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
         " ORDER BY balance LIMIT 1";
 
-    SearchHit[] hits = query(query).getHits();
-    checkSuccessfulFieldCast(hits, "cast_balance", "STRING");
-    for (int i = 0; i < hits.length; ++i) {
-      Assert.assertThat(hits[i].getFields().get("cast_balance").getValue(), is("1011"));
-    }
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("CAST(balance AS STRING)","keyword"));
   }
 
   @Test
@@ -200,12 +171,9 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         TestsConstants.TEST_INDEX_ACCOUNT +
         " ORDER BY cast_string_alias DESC LIMIT 1";
 
-    SearchHit[] hits = query(query).getHits();
-    checkSuccessfulFieldCast(hits, "cast_string_alias", "STRING");
-    for (int i = 0; i < hits.length; ++i) {
-      Assert.assertThat(hits[i].getFields().get("cast_string_alias").getValue(), is("9838"));
-    }
-
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("CAST(balance AS STRING)", "cast_string_alias", "keyword"));
   }
 
   @Test
@@ -235,28 +203,23 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void castIntFieldToDoubleWithoutAliasOrderByTest() throws IOException {
+  public void castIntFieldToDoubleWithoutAliasOrderByTest() {
     String query = "SELECT CAST(age AS DOUBLE) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
         " ORDER BY age LIMIT 1";
 
-    SearchHit[] hits = query(query).getHits();
-    checkSuccessfulFieldCast(hits, "cast_age", "DOUBLE");
-    for (int i = 0; i < hits.length; ++i) {
-      Assert.assertThat(hits[i].getFields().get("cast_age").getValue(), is(20.0));
-    }
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("CAST(age AS DOUBLE)", "double"));
   }
 
   @Test
-  public void castIntFieldToDoubleWithAliasOrderByTest() throws IOException {
+  public void castIntFieldToDoubleWithAliasOrderByTest() {
     String query = "SELECT CAST(age AS DOUBLE) AS alias FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
         " ORDER BY alias DESC LIMIT 1";
 
-    SearchHit[] hits = query(query).getHits();
-    checkSuccessfulFieldCast(hits, "alias", "DOUBLE");
-    for (int i = 0; i < hits.length; ++i) {
-      Assert.assertThat(hits[i].getFields().get("alias").getValue(), is(40.0));
-    }
-
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("CAST(age AS DOUBLE)", "alias", "double"));
   }
 
   @Test
@@ -547,61 +510,58 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void functionLogs() throws Exception {
+  public void functionLogs() {
     String query = "SELECT log10(100) as a, log(1) as b, log(2, 4) as c, log2(8) as d from "
         + TEST_INDEX_ACCOUNT + " limit 1";
 
-    assertThat(
-        executeQuery(query),
-        hitAny(both(kvDouble("/fields/a/0", equalTo(Math.log10(100))))
-            .and(kvDouble("/fields/b/0", equalTo(Math.log(1))))
-            .and(kvDouble("/fields/c/0", closeTo(Math.log(4) / Math.log(2), 0.0001)))
-            .and(kvDouble("/fields/d/0", closeTo(Math.log(8) / Math.log(2), 0.0001))))
-    );
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("log10(100)", "a", "double"),
+            schema("log(1)", "b", "double"),
+            schema("log(2, 4)", "c", "double"),
+            schema("log2(8)", "d", "double"));
   }
 
   @Test
-  public void functionPow() throws Exception {
+  public void functionPow() {
     String query = "SELECT pow(account_number, 2) as key," +
         "abs(age - 60) as new_age from " + TEST_INDEX_ACCOUNT +
         " WHERE firstname = 'Virginia' and lastname='Ayala' limit 1";
 
-    assertThat(
-        executeQuery(query),
-        hitAny(both(kvDouble("/fields/new_age/0", equalTo(21.0)))
-            .and(kvDouble("/fields/key/0", equalTo(625.0))))
-    );
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("pow(account_number, 2)", "key", "double"),
+            schema("abs(age - 60)", "new_age", "long"));
   }
 
   @Test
-  public void operatorSubstring() throws IOException {
-    assertThat(
-        executeQuery(
-            "SELECT substring('sampleName', 1, 4) AS substring FROM " + TEST_INDEX_ACCOUNT),
-        hitAny(kvString("/fields/substring/0", equalTo("samp")))
-    );
+  public void operatorSubstring() {
+    String query1 = "SELECT substring('sampleName', 1, 4) AS substring FROM " + TEST_INDEX_ACCOUNT;
+    String query2 = "SELECT substring('sampleName', 0, 20) AS substring FROM " + TEST_INDEX_ACCOUNT;
 
-    assertThat(
-        executeQuery(
-            "SELECT substring('sampleName', 0, 20) AS substring FROM " + TEST_INDEX_ACCOUNT),
-        hitAny(kvString("/fields/substring/0", equalTo("sampleName")))
-    );
+    JSONObject result1 = executeJdbcRequest(query1);
+    JSONObject result2 = executeJdbcRequest(query2);
+    assertEquals(1000, result1.getInt("total"));
+    assertEquals(1000, result2.getInt("total"));
+    verifySchema(result1, schema("substring('sampleName', 1, 4)",
+                    "substring", "keyword"));
+    verifySchema(result2, schema("substring('sampleName', 0, 20)",
+            "substring", "keyword"));
   }
 
   @Test
-  public void operatorLength() throws IOException {
-    assertThat(
-        executeQuery("SELECT LENGTH(lastname) FROM " + TEST_INDEX_ACCOUNT
-                + " WHERE lastname IS NOT NULL GROUP BY LENGTH(lastname) ORDER BY LENGTH(lastname)",
-            "jdbc"),
-        containsString("\"type\": \"integer\"")
-    );
+  public void operatorLength() {
+    String query1 = "SELECT LENGTH(lastname) FROM " + TEST_INDEX_ACCOUNT
+            + " WHERE lastname IS NOT NULL GROUP BY LENGTH(lastname) ORDER BY LENGTH(lastname)";
+    String query2 = "SELECT LENGTH('sampleName') AS length FROM " + TEST_INDEX_ACCOUNT;
 
-    assertThat(
-        executeQuery("SELECT LENGTH('sampleName') AS length FROM " + TEST_INDEX_ACCOUNT),
-        hitAny(kvInt("/fields/length/0", equalTo(10)))
-    );
-
+    JSONObject result1 = executeJdbcRequest(query1);
+    JSONObject result2 = executeJdbcRequest(query2);
+    assertEquals(10, result1.getInt("total"));
+    assertEquals(1000, result2.getInt("total"));
+    verifySchema(result1, schema("LENGTH(lastname)", "integer"));
+    verifySchema(result2, schema("LENGTH('sampleName')",
+            "length", "integer"));
   }
 
   @Test
@@ -634,19 +594,21 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void rtrim() throws IOException {
-    assertThat(
-        executeQuery("SELECT RTRIM(' sampleName  ') AS rtrim FROM " + TEST_INDEX_ACCOUNT),
-        hitAny(kvString("/fields/rtrim/0", equalTo(" sampleName")))
-    );
+  public void rtrim() {
+    String query = "SELECT RTRIM(' sampleName  ') AS rtrim FROM " + TEST_INDEX_ACCOUNT;
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1000, result.getInt("total"));
+    verifySchema(result, schema("RTRIM(' sampleName  ')", "rtrim", "keyword"));
   }
 
   @Test
-  public void ltrim() throws IOException {
-    assertThat(
-        executeQuery("SELECT LTRIM(' sampleName  ') AS ltrim FROM " + TEST_INDEX_ACCOUNT),
-        hitAny(kvString("/fields/ltrim/0", equalTo("sampleName  ")))
-    );
+  public void ltrim() {
+    String query = "SELECT LTRIM(' sampleName  ') AS ltrim FROM " + TEST_INDEX_ACCOUNT;
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1000, result.getInt("total"));
+    verifySchema(result, schema("LTRIM(' sampleName  ')", "ltrim", "keyword"));
   }
 
   @Ignore("The ASCII function is not implemented in new SQL engine. https://github"
@@ -710,35 +672,42 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void ifFuncWithBinaryComparisonAsConditionTest() throws IOException {
-    assertThat(
-        executeQuery("SELECT IF(2 > 0, 'hello', 'world') AS ifTrue FROM " + TEST_INDEX_ACCOUNT),
-        hitAny(kvString("/fields/ifTrue/0", equalTo("hello")))
-    );
-    assertThat(
-        executeQuery("SELECT IF(2 = 0, 'hello', 'world') AS ifFalse FROM " + TEST_INDEX_ACCOUNT),
-        hitAny(kvString("/fields/ifFalse/0", equalTo("world")))
-    );
+  public void ifFuncWithBinaryComparisonAsConditionTest() {
+    String query1 = "SELECT IF(2 > 0, 'hello', 'world') AS ifTrue FROM " + TEST_INDEX_ACCOUNT;
+    String query2 = "SELECT IF(2 = 0, 'hello', 'world') AS ifFalse FROM " + TEST_INDEX_ACCOUNT;
+
+    JSONObject result1 = executeJdbcRequest(query1);
+    JSONObject result2 = executeJdbcRequest(query2);
+    assertEquals(1000, result1.getInt("total"));
+    assertEquals(1000, result2.getInt("total"));
+    verifySchema(result1, schema("IF(2 > 0, 'hello', 'world')",
+            "ifTrue", "keyword"));
+    verifySchema(result2, schema("IF(2 = 0, 'hello', 'world')",
+            "ifFalse", "keyword"));
   }
 
   @Test
-  public void ifFuncWithBooleanExprInputAsConditionTest() throws IOException {
-    assertThat(
-        executeQuery("SELECT IF(true, 1, 0) AS ifBoolean FROM " + TEST_INDEX_ACCOUNT),
-        hitAny(kvInt("/fields/ifBoolean/0", equalTo(1)))
-    );
+  public void ifFuncWithBooleanExprInputAsConditionTest() {
+    String query = "SELECT IF(true, 1, 0) AS ifBoolean FROM " + TEST_INDEX_ACCOUNT;
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1000, result.getInt("total"));
+    verifySchema(result, schema("IF(true, 1, 0)",
+            "ifBoolean", "integer"));
   }
 
   @Test
-  public void ifFuncWithNullInputAsConditionTest() throws IOException {
-    assertThat(
-        executeQuery("SELECT IF(null, 1, 0) AS ifNull FROM " + TEST_INDEX_ACCOUNT),
-        hitAny(kvInt("/fields/ifNull/0", equalTo(0)))
-    );
+  public void ifFuncWithNullInputAsConditionTest() {
+    String query = "SELECT IF(null, 1, 0) AS ifNull FROM " + TEST_INDEX_ACCOUNT;
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1000, result.getInt("total"));
+    verifySchema(result, schema("IF(null, 1, 0)",
+            "ifNull", "integer"));
   }
 
   @Test
-  public void ifnullShouldPassJDBC() throws IOException {
+  public void ifnullShouldPassJDBC() {
     JSONObject response = executeJdbcRequest(
         "SELECT IFNULL(lastname, 'unknown') AS name FROM " + TEST_INDEX_ACCOUNT
             + " GROUP BY name");
@@ -748,11 +717,13 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void ifnullWithNotNullInputTest() throws IOException {
-    assertThat(
-        executeQuery("SELECT IFNULL('sample', 'IsNull') AS ifnull FROM " + TEST_INDEX_ACCOUNT),
-        hitAny(kvString("/fields/ifnull/0", equalTo("sample")))
-    );
+  public void ifnullWithNotNullInputTest() {
+    String query = "SELECT IFNULL('sample', 'IsNull') AS ifnull FROM " + TEST_INDEX_ACCOUNT;
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1000, result.getInt("total"));
+    verifySchema(result, schema("IFNULL('sample', 'IsNull')",
+            "ifnull", "keyword"));
   }
 
   @Test
@@ -790,11 +761,12 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void isnullWithNullInputTest() throws IOException {
-    assertThat(
-        executeQuery("SELECT ISNULL(null) AS isnull FROM " + TEST_INDEX_ACCOUNT),
-        hitAny(kvInt("/fields/isnull/0", equalTo(1)))
-    );
+  public void isnullWithNullInputTest() {
+    String query = "SELECT ISNULL(null) AS isnull FROM " + TEST_INDEX_ACCOUNT;
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1000, result.getInt("total"));
+    verifySchema(result, schema("ISNULL(null)", "isnull", "boolean"));
   }
 
   @Test
@@ -825,75 +797,47 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void literal() throws Exception {
-    String query = "SELECT 10 " +
-        "from " + TEST_INDEX_ACCOUNT + " limit 1";
-    final SearchHit[] hits = query(query).getHits();
-    assertThat(hits[0].getFields(), hasValue(contains(10)));
+  public void literal() {
+    String query = "SELECT 10 FROM " + TEST_INDEX_ACCOUNT + " limit 1";
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("10", "integer"));
+    verifyDataRows(result, rows(10));
+
   }
 
   @Test
-  public void literalWithDoubleValue() throws Exception {
+  public void literalWithDoubleValue() {
     String query = "SELECT 10.0 " +
         "from " + TEST_INDEX_ACCOUNT + " limit 1";
 
-    final SearchHit[] hits = query(query).getHits();
-    assertThat(hits[0].getFields(), hasValue(contains(10.0)));
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("10.0", "double"));
+    verifyDataRows(result, rows(10.0));
   }
 
   @Test
-  public void literalWithAlias() throws Exception {
+  public void literalWithAlias() {
     String query = "SELECT 10 as key " +
         "from " + TEST_INDEX_ACCOUNT + " limit 1";
-    final SearchHit[] hits = query(query).getHits();
 
-    assertThat(hits.length, is(1));
-    assertThat(hits[0].getFields(), hasEntry(is("key"), contains(10)));
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("10", "key", "integer"));
+    verifyDataRows(result, rows(10));
   }
 
   @Test
-  public void literalMultiField() throws Exception {
+  public void literalMultiField() {
     String query = "SELECT 1, 2 " +
         "from " + TEST_INDEX_ACCOUNT + " limit 1";
-    final SearchHit[] hits = query(query).getHits();
 
-    assertThat(hits.length, is(1));
-    assertThat(hits[0].getFields(), allOf(hasValue(contains(1)), hasValue(contains(2))));
-  }
-
-  private SearchHits query(String query) throws IOException {
-    final String rsp = executeQueryWithStringOutput(query);
-
-    final XContentParser parser = XContentFactory.xContent(XContentType.JSON).createParser(
-        NamedXContentRegistry.EMPTY,
-        LoggingDeprecationHandler.INSTANCE,
-        rsp);
-    return SearchResponse.fromXContent(parser).getHits();
-  }
-
-  private void checkSuccessfulFieldCast(SearchHit[] hits, String field, String castType) {
-    for (int i = 0; i < hits.length; ++i) {
-      Assert.assertThat(hits[i].getFields(), IsMapContaining.hasKey(field));
-      switch (castType) {
-        case "FLOAT":
-          assertTrue(hits[i].getFields().get(field).getValue() instanceof Float);
-          break;
-        case "DOUBLE":
-          assertTrue(hits[i].getFields().get(field).getValue() instanceof Double);
-          break;
-        case "INT":
-          assertTrue(hits[i].getFields().get(field).getValue() instanceof Integer);
-          break;
-        case "STRING":
-          assertTrue(hits[i].getFields().get(field).getValue() instanceof String);
-          break;
-        case "DATETIME":
-          assertTrue(hits[i].getFields().get(field).getValue() instanceof Date);
-          break;
-        case "LONG":
-          assertTrue(hits[i].getFields().get(field).getValue() instanceof Long);
-          break;
-      }
-    }
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("1", "integer"),
+            schema("2", "integer"));
+    verifyDataRows(result, rows(1, 2));
   }
 }
