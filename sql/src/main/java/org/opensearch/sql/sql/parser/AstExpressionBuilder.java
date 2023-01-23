@@ -569,9 +569,14 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
       GetFormatFunctionCallContext ctx) {
     // all the arguments are defaulted to string values
     // to skip environment resolving and function signature resolving
-    return ctx.functionArgs().functionArg().stream()
+    List<UnresolvedExpression> args = ctx.functionArgs().functionArg().stream()
         .map(this::visitFunctionArg)
         .collect(Collectors.toList());
+
+    String arg0 = args.get(0).toString();
+    Literal temp = new Literal(arg0, DataType.STRING);
+    args.set(0, temp);
+    return args;
   }
 
   /**
