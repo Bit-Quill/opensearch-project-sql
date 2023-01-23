@@ -122,6 +122,7 @@ public class DateTimeFunction {
     repository.register(dayOfYear(BuiltinFunctionName.DAY_OF_YEAR));
     repository.register(from_days());
     repository.register(from_unixtime());
+    repository.register(get_format());
     repository.register(hour(BuiltinFunctionName.HOUR));
     repository.register(hour(BuiltinFunctionName.HOUR_OF_DAY));
     repository.register(localtime());
@@ -504,6 +505,12 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprFromUnixTime), DATETIME, DOUBLE),
         impl(nullMissingHandling(DateTimeFunction::exprFromUnixTimeFormat),
             STRING, DOUBLE, STRING));
+  }
+
+  private DefaultFunctionResolver get_format() {
+    return define(BuiltinFunctionName.GET_FORMAT.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprGetFormat), STRING, STRING, STRING)
+    );
   }
 
   /**
@@ -1134,6 +1141,17 @@ public class DateTimeFunction {
       return ExprNullValue.of();
     }
     return DateTimeFormatterUtil.getFormattedDate(value, format);
+  }
+
+  /**
+   * get_format implementation for ExprValue.
+   *
+   * @param type ExprValue of the type.
+   * @param format ExprValue of Time/String type
+   * @return ExprValue..
+   */
+  private ExprValue exprGetFormat(ExprValue type, ExprValue format) {
+    return new ExprStringValue("test");
   }
 
   /**

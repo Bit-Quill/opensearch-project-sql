@@ -309,6 +309,7 @@ functionCall
     | relevanceFunction                                             #relevanceFunctionCall
     | highlightFunction                                             #highlightFunctionCall
     | positionFunction                                              #positionFunctionCall
+    | GET_FORMAT LR_BRACKET functionArgs RR_BRACKET                 #getFormatFunctionCall
     ;
 
 
@@ -318,6 +319,17 @@ highlightFunction
 
 positionFunction
     : POSITION LR_BRACKET functionArg IN functionArg RR_BRACKET
+    ;
+
+//getFormatFunction
+//    : GET_FORMAT LR_BRACKET argumentType=getFormatTypes COMMA functionArgs RR_BRACKET
+//    ;
+
+getFormatTypes
+    :DATETIME
+    |DATE
+    |TIME
+    |TIMESTAMP
     ;
 
 matchQueryAltSyntaxFunction
