@@ -574,8 +574,8 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
         .collect(Collectors.toList());
 
     String arg0 = args.get(0).toString();
-    Literal temp = new Literal(arg0, DataType.STRING);
-    args.set(0, temp);
+    Literal typeAsString = new Literal(arg0, DataType.STRING);
+    args.set(0, typeAsString);
     return args;
   }
 

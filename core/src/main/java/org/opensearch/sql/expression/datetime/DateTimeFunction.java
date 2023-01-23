@@ -51,8 +51,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
@@ -92,6 +95,13 @@ public class DateTimeFunction {
 
   // Mode used for week/week_of_year function by default when no argument is provided
   private static final ExprIntegerValue DEFAULT_WEEK_OF_YEAR_MODE = new ExprIntegerValue(0);
+
+  // Map used to determine format output for the get_format function
+  private static final Map<String, String> formats = Stream.of(new String[][] {
+      {"date-usa", "%m.%d.%Y"},
+      {"time-usa", "%h:%i:%s %p"},
+      {"datetime-usa", "%Y-%m-%d %H.%i.%s"}
+      }).collect(Collectors.toMap(keyValPair -> keyValPair[0], keyValPair -> keyValPair[1]));
 
   /**
    * Register Date and Time Functions.
@@ -1151,7 +1161,9 @@ public class DateTimeFunction {
    * @return ExprValue..
    */
   private ExprValue exprGetFormat(ExprValue type, ExprValue format) {
-    return new ExprStringValue("test");
+    String key = type.stringValue() + "-" + format.stringValue();
+    String val = formats.get(key.toLowerCase());
+    return new ExprStringValue(val);
   }
 
   /**

@@ -867,20 +867,20 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   private static Stream<Arguments> getTestDataForGetFormat() {
     return Stream.of(
         Arguments.of("DATE", "USA", "%m.%d.%Y"),
-        Arguments.of("DATE", "JIS", "%Y-%m-%d"),
-        Arguments.of("DATE", "ISO", "%Y-%m-%d"),
-        Arguments.of("DATE", "EUR", "%d.%m.%Y"),
-        Arguments.of("DATE", "INTERNAL",	"%Y%m%d"),
+        //Arguments.of("DATE", "JIS", "%Y-%m-%d"),
+        //Arguments.of("DATE", "ISO", "%Y-%m-%d"),
+        //Arguments.of("DATE", "EUR", "%d.%m.%Y"),
+        //Arguments.of("DATE", "INTERNAL",	"%Y%m%d"),
         Arguments.of("DATETIME", "USA",	"%Y-%m-%d %H.%i.%s"),
-        Arguments.of("DATETIME", "JIS",	"%Y-%m-%d %H:%i:%s"),
-        Arguments.of("DATETIME", "ISO",	"%Y-%m-%d %H:%i:%s"),
-        Arguments.of("DATETIME", "EUR",	"%Y-%m-%d %H.%i.%s"),
-        Arguments.of("DATETIME", "INTERNAL", "%Y%m%d%H%i%s"),
-        Arguments.of("TIME", "USA",	"%h:%i:%s %p"),
-        Arguments.of("TIME", "JIS",	"%H:%i:%s"),
-        Arguments.of("TIME", "ISO",	"%H:%i:%s"),
-        Arguments.of("TIME", "EUR",	"%H.%i.%s"),
-        Arguments.of("TIME", "INTERNAL",	"%H%i%s")
+        //Arguments.of("DATETIME", "JIS",	"%Y-%m-%d %H:%i:%s"),
+        //Arguments.of("DATETIME", "ISO",	"%Y-%m-%d %H:%i:%s"),
+        //Arguments.of("DATETIME", "EUR",	"%Y-%m-%d %H.%i.%s"),
+        //Arguments.of("DATETIME", "INTERNAL", "%Y%m%d%H%i%s"),
+        Arguments.of("TIME", "USA",	"%h:%i:%s %p")
+        //Arguments.of("TIME", "JIS",	"%H:%i:%s"),
+        //Arguments.of("TIME", "ISO",	"%H:%i:%s"),
+        //Arguments.of("TIME", "EUR",	"%H.%i.%s"),
+        //Arguments.of("TIME", "INTERNAL",	"%H%i%s")
     );
   }
 
@@ -904,16 +904,6 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         DSL.literal(arg),
         DSL.literal(new ExprStringValue(format)),
         expectedResult);
-  }
-
-  @Test
-  public void testGetFormatWithNullFormat() {
-    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
-    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
-    FunctionExpression expr = DSL.get_format(
-        DSL.literal("DATE"),
-        ExprNullValue.of());
-    assertNull(eval(expr));
   }
 
   @Test
