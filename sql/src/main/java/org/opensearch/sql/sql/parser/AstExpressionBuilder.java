@@ -33,6 +33,7 @@ import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.DistinctCo
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.FilterClauseContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.FilteredAggregationFunctionCallContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.FunctionArgContext;
+import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.GetFormatFunctionCallContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.HighlightFunctionCallContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.InPredicateContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.IsNullPredicateContext;
@@ -65,6 +66,8 @@ import static org.opensearch.sql.sql.parser.ParserUtils.createSortOption;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -148,6 +151,13 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
     return buildFunction(ctx.scalarFunctionName().getText(), ctx.functionArgs().functionArg());
+  }
+
+  @Override
+  public UnresolvedExpression visitGetFormatFunctionCall(GetFormatFunctionCallContext ctx) {
+    return new Function(
+        "get_format",
+        getFormatFunctionArguments(ctx));
   }
 
   @Override
@@ -553,6 +563,15 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
         new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));
     fillRelevanceArgs(ctx.relevanceArg(), builder);
     return builder.build();
+  }
+
+  private List<UnresolvedExpression> getFormatFunctionArguments(
+      GetFormatFunctionCallContext ctx) {
+    // all the arguments are defaulted to string values
+    // to skip environment resolving and function signature resolving
+    return ctx.functionArgs().functionArg().stream()
+        .map(this::visitFunctionArg)
+        .collect(Collectors.toList());
   }
 
   /**
