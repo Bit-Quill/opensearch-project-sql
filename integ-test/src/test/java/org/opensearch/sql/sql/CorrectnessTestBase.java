@@ -23,8 +23,6 @@ import org.opensearch.sql.correctness.testset.TestDataSet;
 import org.opensearch.sql.correctness.testset.TestQuerySet;
 import org.opensearch.sql.legacy.RestIntegTestCase;
 import org.opensearch.sql.legacy.utils.StringUtils;
-
-import java.util.Collections;
 import java.util.List;
 
 /**

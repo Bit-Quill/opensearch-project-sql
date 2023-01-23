@@ -35,6 +35,10 @@ public class SQLCorrectnessIT extends CorrectnessTestBase {
   public void runAllTests() throws Exception {
     verifyQueries(EXPR_TEST_DIR, expr -> "SELECT " + expr);
     verifyQueries(QUERY_TEST_DIR, Function.identity());
+    runH2Tests();
+  }
+
+  private void runH2Tests() throws Exception {
     verifyQueries(H2_ONLY_TEST_DIR, expr -> "SELECT " + expr, List.of("SQLite"));
   }
 
@@ -45,6 +49,7 @@ public class SQLCorrectnessIT extends CorrectnessTestBase {
   private void verifyQueries(String[] dirs, Function<String, String> converter) throws Exception {
     verifyQueries(dirs, converter, Collections.emptyList());
   }
+
   @SuppressWarnings("UnstableApiUsage")
   private void verifyQueries(String[] dirs, Function<String, String> converter, List<String> ignoreDatabases) throws Exception {
     for (String dir : dirs) {

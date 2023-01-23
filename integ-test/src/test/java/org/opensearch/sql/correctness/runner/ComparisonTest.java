@@ -10,9 +10,11 @@ import static com.google.common.collect.ObjectArrays.concat;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-
-import java.util.*;
-
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Iterator;
 import org.opensearch.sql.correctness.report.ErrorTestCase;
 import org.opensearch.sql.correctness.report.FailedTestCase;
 import org.opensearch.sql.correctness.report.SuccessTestCase;
