@@ -109,10 +109,10 @@ compileTestJava {
 
 testClusters.all {
     testDistribution = 'archive'
+    plugin ":opensearch-sql-plugin"
 }
 
 testClusters.integTest {
-    plugin ":opensearch-sql-plugin"
     keystore 'plugins.query.federation.datasources.config', new File("$projectDir/src/test/resources/datasource/", 'datasources.json')
 }
 
@@ -148,8 +148,113 @@ task stopPrometheus(type: KillProcessTask) {
 
 stopPrometheus.mustRunAfter startPrometheus
 
+task deleteJdbcDriverRepo {
+    // Delete local clone of the sql-jdbc repo
+    file("sql-jdbc").deleteDir()
+}
+
+task cloneJdbcDriverRepo {
+    doFirst {
+        file("sql-jdbc").deleteDir()
+
+        exec {
+            // clone the sql-jdbc repo locally
+            commandLine 'git', 'clone', System.getProperty('jdbcRepo', 'https://github.com/opensearch-project/sql-jdbc.git')
+        }
+        exec {
+            workingDir 'sql-jdbc'
+            commandLine 'git', 'switch', System.getProperty("jdbcBranch", 'main')
+        }
+        // TODO would fail on windows
+        exec {
+            workingDir 'sql-jdbc'
+            commandLine 'sh', 'gradlew', 'shadowJar'
+        }
+    }
+}
+
+task integJdbcTest(type: RestIntegTestTask) {
+    useJUnitPlatform()
+    dependsOn ':opensearch-sql-plugin:bundlePlugin'
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+    afterTest { desc, result ->
+        logger.quiet "${desc.className}.${desc.name}: ${result.resultType} ${(result.getEndTime() - result.getStartTime())/1000}s"
+    }
+
+    systemProperty 'tests.security.manager', 'false'
+    systemProperty('project.root', project.projectDir.absolutePath)
+
+    systemProperty "https", System.getProperty("https")
+    systemProperty "user", System.getProperty("user")
+    systemProperty "password", System.getProperty("password")
+
+    // Set default query size limit
+    systemProperty 'defaultQuerySizeLimit', '10000'
+
+    // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
+    // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
+    doFirst { systemProperty 'cluster.debug', getDebug() }
+
+    if (System.getProperty("test.debug") != null) {
+        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
+    }
+
+    filter {
+        includeTestsMatching '*.jdbc.*'
+    }
+}
+
+task integDevJdbcTest(type: RestIntegTestTask) {
+    useJUnitPlatform()
+    dependsOn ':opensearch-sql-plugin:bundlePlugin'
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+    afterTest { desc, result ->
+        logger.quiet "${desc.className}.${desc.name}: ${result.resultType} ${(result.getEndTime() - result.getStartTime())/1000}s"
+    }
+
+    if (System.getProperty("jdbcFile") != null) {
+        file("sql-jdbc/build/libs").mkdirs()
+        copy {
+            from System.getProperty("jdbcFile")
+            into "sql-jdbc/build/libs"
+        }
+    } else {
+        dependsOn cloneJdbcDriverRepo
+    }
+    finalizedBy deleteJdbcDriverRepo
+
+    systemProperty 'tests.security.manager', 'false'
+    systemProperty('project.root', project.projectDir.absolutePath)
+
+    systemProperty "https", System.getProperty("https")
+    systemProperty "user", System.getProperty("user")
+    systemProperty "password", System.getProperty("password")
+
+    // Set default query size limit
+    systemProperty 'defaultQuerySizeLimit', '10000'
+
+    // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
+    // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
+    doFirst { systemProperty 'cluster.debug', getDebug() }
+
+    if (System.getProperty("test.debug") != null) {
+        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
+    }
+
+    filter {
+        includeTestsMatching '*.devJdbc.*'
+    }
+}
+
 // Run PPL ITs and new, legacy and comparison SQL ITs with new SQL engine enabled
 integTest {
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
     dependsOn ':opensearch-sql-plugin:bundlePlugin'
     dependsOn startPrometheus
     finalizedBy stopPrometheus
@@ -192,10 +297,17 @@ integTest {
 
     // Skip this IT because all assertions are against explain output
     exclude 'org/opensearch/sql/legacy/OrderIT.class'
+
+    // Exclude JDBC related tests
+    exclude '**/jdbc/**'
+    exclude '**/devJdbc/**'
 }
 
 
 task comparisonTest(type: RestIntegTestTask) {
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
     dependsOn ':opensearch-sql-plugin:bundlePlugin'
 
     systemProperty 'tests.security.manager', 'false'
@@ -213,6 +325,10 @@ task comparisonTest(type: RestIntegTestTask) {
     exclude 'org/opensearch/sql/doctest/**/*IT.class'
     exclude 'org/opensearch/sql/ppl/**/*IT.class'
     exclude 'org/opensearch/sql/legacy/**/*IT.class'
+
+    // Exclude JDBC related tests
+    exclude '**/jdbc/**'
+    exclude '**/devJdbc/**'
 
     // Enable logging output to console
     testLogging.showStandardStreams true
@@ -368,6 +484,9 @@ task "${baseName}#fullRestartClusterTask"(type: StandaloneRestIntegTestTask) {
 
 // A bwc test suite which runs all the bwc tasks combined
 task bwcTestSuite(type: StandaloneRestIntegTestTask) {
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
     exclude '**/*Test*'
     exclude '**/*IT*'
     dependsOn tasks.named("${baseName}#mixedClusterTask")
@@ -379,6 +498,9 @@ def opensearch_tmp_dir = rootProject.file('build/private/es_tmp').absoluteFile
 opensearch_tmp_dir.mkdirs()
 
 task integTestRemote(type: RestIntegTestTask) {
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
     systemProperty 'tests.security.manager', 'false'
@@ -406,4 +528,6 @@ task integTestRemote(type: RestIntegTestTask) {
     exclude 'org/opensearch/sql/legacy/TermQueryExplainIT.class'
     exclude 'org/opensearch/sql/legacy/QueryAnalysisIT.class'
     exclude 'org/opensearch/sql/legacy/OrderIT.class'
+    exclude '**/jdbc/**'
+    exclude '**/devJdbc/**'
 }

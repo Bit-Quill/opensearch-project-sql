@@ -15,17 +15,18 @@ import static org.opensearch.sql.util.TestUtils.getResponseBody;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope;
 import lombok.SneakyThrows;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.opensearch.client.Request;
@@ -38,20 +39,33 @@ import org.opensearch.sql.legacy.SQLIntegTestCase;
 public class CursorIT extends SQLIntegTestCase {
 
   private static Connection connection;
+  private boolean initialized = false;
 
-  @Override
-  protected void init() throws Exception {
-    super.init();
-    loadIndex(Index.BANK);
-    loadIndex(Index.CALCS);
-    loadIndex(Index.ONLINE);
-    loadIndex(Index.ACCOUNT);
+  @BeforeEach
+  @SneakyThrows
+  public void init() {
+    if (!initialized) {
+      initClient();
+      resetQuerySizeLimit();
+      loadIndex(Index.BANK);
+      loadIndex(Index.CALCS);
+      loadIndex(Index.ONLINE);
+      loadIndex(Index.ACCOUNT);
+      initialized = true;
+    }
   }
 
-  @AfterEach
-  @After
+  @BeforeAll
+  @BeforeClass
   @SneakyThrows
-  public void closeConnection() {
+  public static void initConnection() {
+    connection = DriverManager.getConnection(getConnectionString());
+  }
+
+  @AfterAll
+  @AfterClass
+  @SneakyThrows
+  public static void closeConnection() {
     // TODO should we close Statement and ResultSet?
     if (connection != null) {
       connection.close();
@@ -62,11 +76,9 @@ public class CursorIT extends SQLIntegTestCase {
   @Test
   @SneakyThrows
   public void select_all_no_cursor() {
-    connection = DriverManager.getConnection(getConnectionString());
     Statement stmt = connection.createStatement();
 
-    // 22 vs 29 sec
-    for (var table : List.of(TEST_INDEX_CALCS)){//, TEST_INDEX_ONLINE, TEST_INDEX_BANK, TEST_INDEX_ACCOUNT)) {
+    for (var table : List.of(TEST_INDEX_CALCS, TEST_INDEX_ONLINE, TEST_INDEX_BANK, TEST_INDEX_ACCOUNT)) {
       var query = String.format("SELECT * FROM %s", table);
       ResultSet rs = stmt.executeQuery(query);
       int rows = 0;
@@ -75,13 +87,11 @@ public class CursorIT extends SQLIntegTestCase {
       var restResponse = executeRestQuery(query, null);
       assertEquals(rows, restResponse.getInt("total"));
     }
-    connection.close();
   }
 
   @Test
   @SneakyThrows
   public void select_count_all_no_cursor() {
-    connection = DriverManager.getConnection(getConnectionString());
     Statement stmt = connection.createStatement();
 
     for (var table : List.of(TEST_INDEX_CALCS, TEST_INDEX_ONLINE, TEST_INDEX_BANK, TEST_INDEX_ACCOUNT)) {
@@ -93,13 +103,11 @@ public class CursorIT extends SQLIntegTestCase {
       var restResponse = executeRestQuery(query, null);
       assertEquals(rows, restResponse.getInt("total"));
     }
-    connection.close();
   }
 
   @Test
   @SneakyThrows
   public void select_all_small_table_big_cursor() {
-    connection = DriverManager.getConnection(getConnectionString());
     Statement stmt = connection.createStatement();
 
     for (var table : List.of(TEST_INDEX_CALCS, TEST_INDEX_BANK)) {
@@ -112,13 +120,11 @@ public class CursorIT extends SQLIntegTestCase {
       var restResponse = executeRestQuery(query, null);
       assertEquals(rows, restResponse.getInt("total"));
     }
-    connection.close();
   }
 
   @Test
   @SneakyThrows
   public void select_all_small_table_small_cursor() {
-    connection = DriverManager.getConnection(getConnectionString());
     Statement stmt = connection.createStatement();
 
     for (var table : List.of(TEST_INDEX_CALCS, TEST_INDEX_BANK)) {
@@ -131,13 +137,11 @@ public class CursorIT extends SQLIntegTestCase {
       var restResponse = executeRestQuery(query, null);
       assertEquals(rows, restResponse.getInt("total"));
     }
-    connection.close();
   }
 
   @Test
   @SneakyThrows
   public void select_all_big_table_small_cursor() {
-    connection = DriverManager.getConnection(getConnectionString());
     Statement stmt = connection.createStatement();
 
     for (var table : List.of(TEST_INDEX_ONLINE, TEST_INDEX_ACCOUNT)) {
@@ -150,13 +154,11 @@ public class CursorIT extends SQLIntegTestCase {
       var restResponse = executeRestQuery(query, null);
       assertEquals(rows, restResponse.getInt("total"));
     }
-    connection.close();
   }
 
   @Test
   @SneakyThrows
   public void select_all_big_table_big_cursor() {
-    connection = DriverManager.getConnection(getConnectionString());
     Statement stmt = connection.createStatement();
 
     for (var table : List.of(TEST_INDEX_ONLINE, TEST_INDEX_ACCOUNT)) {
@@ -169,14 +171,15 @@ public class CursorIT extends SQLIntegTestCase {
       var restResponse = executeRestQuery(query, null);
       assertEquals(rows, restResponse.getInt("total"));
     }
-    connection.close();
   }
 
   /**
    * Use OpenSearch cluster initialized by OpenSearch Gradle task.
    */
-  private String getConnectionString() {
-    return String.format("jdbc:opensearch://%s", client().getNodes().get(0).getHost());
+  private static String getConnectionString() {
+    // string like "[::1]:46751,127.0.0.1:34403"
+    var clusterUrls = System.getProperty("tests.rest.cluster").split(",");
+    return String.format("jdbc:opensearch://%s", clusterUrls[clusterUrls.length - 1]);
   }
 
   @SneakyThrows
