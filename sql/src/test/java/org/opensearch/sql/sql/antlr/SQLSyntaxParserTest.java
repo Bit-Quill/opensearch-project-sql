@@ -216,8 +216,8 @@ class SQLSyntaxParserTest {
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("get_format_arguments")
-  public void can_parse_get_format_function(String get_format_query) {
-    assertNotNull(parser.parse(String.format("SELECT %s", get_format_query)));
+  public void can_parse_get_format_function(String getFormatQuery) {
+    assertNotNull(parser.parse(String.format("SELECT %s", getFormatQuery)));
   }
 
   @Test

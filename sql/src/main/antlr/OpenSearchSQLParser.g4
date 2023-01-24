@@ -321,17 +321,6 @@ positionFunction
     : POSITION LR_BRACKET functionArg IN functionArg RR_BRACKET
     ;
 
-//getFormatFunction
-//    : GET_FORMAT LR_BRACKET argumentType=getFormatTypes COMMA functionArgs RR_BRACKET
-//    ;
-
-getFormatTypes
-    :DATETIME
-    |DATE
-    |TIME
-    |TIMESTAMP
-    ;
-
 matchQueryAltSyntaxFunction
     : field=relevanceField EQUAL_SYMBOL MATCH_QUERY LR_BRACKET query=relevanceQuery RR_BRACKET
     ;
