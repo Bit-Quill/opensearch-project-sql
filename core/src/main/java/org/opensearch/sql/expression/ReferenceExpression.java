@@ -8,6 +8,7 @@ package org.opensearch.sql.expression;
 
 import static org.opensearch.sql.utils.ExpressionUtils.PATH_SEP;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -15,6 +16,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.env.Environment;
 
@@ -100,6 +103,14 @@ public class ReferenceExpression implements Expression {
   }
 
   private ExprValue resolve(ExprValue value, List<String> paths) {
+    if (value.type().equals(ExprCoreType.ARRAY)){
+      ExprValue result = ExprValueUtils.collectionValue(new ArrayList<>());
+
+      for (ExprValue val: value.collectionValue()){
+        result.collectionValue().add(resolve(val, paths));
+      }
+      return result;
+    }
     final ExprValue wholePathValue = value.keyValue(String.join(PATH_SEP, paths));
     if (!wholePathValue.isMissing() || paths.size() == 1) {
       return wholePathValue;
