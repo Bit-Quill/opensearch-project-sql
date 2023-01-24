@@ -388,11 +388,11 @@ convertedDataType
     ;
 
 evalFunctionName
-    : mathematicalFunctionBase
-    | dateAndTimeFunctionBase
-    | textFunctionBase
+    : mathematicalFunctionName
+    | dateTimeFunctionName
+    | textFunctionName
     | conditionFunctionBase
-    | systemFunctionBase
+    | systemFunctionName
     | positionFunctionName
     ;
 
@@ -469,7 +469,7 @@ relevanceArgValue
     | literalValue
     ;
 
-mathematicalFunctionBase
+mathematicalFunctionName
     : ABS
     | CBRT
     | CEIL
@@ -508,7 +508,7 @@ trigonometricFunctionName
     | TAN
     ;
 
-dateAndTimeFunctionBase
+dateTimeFunctionName
     : ADDDATE
     | ADDTIME
     | CONVERT_TZ
@@ -570,11 +570,11 @@ conditionFunctionBase
     | NULLIF
     ;
 
-systemFunctionBase
+systemFunctionName
     : TYPEOF
     ;
 
-textFunctionBase
+textFunctionName
     : SUBSTR
     | SUBSTRING
     | TRIM
@@ -747,8 +747,8 @@ keywordsCanBeId
     | TIMESTAMP | DATE | TIME
     | FIRST | LAST
     | timespanUnit | SPAN
-    | dateAndTimeFunctionBase
-    | textFunctionBase
-    | mathematicalFunctionBase
+    | dateTimeFunctionName
+    | textFunctionName
+    | mathematicalFunctionName
     | positionFunctionName
     ;
