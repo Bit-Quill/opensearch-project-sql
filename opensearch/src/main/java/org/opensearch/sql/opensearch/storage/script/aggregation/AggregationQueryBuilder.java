@@ -9,6 +9,7 @@ package org.opensearch.sql.opensearch.storage.script.aggregation;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -18,20 +19,27 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.commons.math3.analysis.function.Exp;
 import org.opensearch.search.aggregations.AggregationBuilder;
 import org.opensearch.search.aggregations.AggregationBuilders;
 import org.opensearch.search.aggregations.AggregatorFactories;
 import org.opensearch.search.aggregations.bucket.missing.MissingOrder;
+import org.opensearch.search.aggregations.bucket.nested.NestedAggregationBuilder;
+import org.opensearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.opensearch.search.sort.SortOrder;
+import org.opensearch.sql.ast.dsl.AstDSL;
+import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.tree.Sort;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionNodeVisitor;
 import org.opensearch.sql.expression.NamedExpression;
+import org.opensearch.sql.expression.NestedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.aggregation.NamedAggregator;
 import org.opensearch.sql.opensearch.response.agg.CompositeAggregationParser;
 import org.opensearch.sql.opensearch.response.agg.MetricParser;
+import org.opensearch.sql.opensearch.response.agg.NestedAggregationParser;
 import org.opensearch.sql.opensearch.response.agg.NoBucketAggregationParser;
 import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseParser;
 import org.opensearch.sql.opensearch.storage.script.aggregation.dsl.BucketAggregationBuilder;
@@ -79,11 +87,26 @@ public class AggregationQueryBuilder extends ExpressionNodeVisitor<AggregationBu
     final Pair<AggregatorFactories.Builder, List<MetricParser>> metrics =
         metricBuilder.build(namedAggregatorList);
 
+
     if (groupByList.isEmpty()) {
       // no bucket
       return Pair.of(
           ImmutableList.copyOf(metrics.getLeft().getAggregatorFactories()),
           new NoBucketAggregationParser(metrics.getRight()));
+    } else if(groupByList.get(0).getDelegated() instanceof NestedExpression) {
+      NestedExpression nestedExpr = ((NestedExpression)groupByList.get(0).getDelegated());
+      AggregationBuilder lastAgg = makeGroupAgg(AstDSL.field(nestedExpr.getFieldString()));
+      ((TermsAggregationBuilder) lastAgg).size(200);
+      AggregationBuilder nestedBuilder = AggregationBuilders.nested(getNestedAggName(nestedExpr.getFieldString()), nestedExpr.getPathString());
+      metrics.getLeft().getAggregatorFactories().stream().forEach(e -> lastAgg.subAggregation(e));
+      nestedBuilder.subAggregation(lastAgg);
+
+      Pair<List<AggregationBuilder>, OpenSearchAggregationResponseParser> ret =
+          Pair.of(
+              List.of(nestedBuilder),
+              new NestedAggregationParser(metrics.getRight()));
+
+      return ret;
     } else {
       GroupSortOrder groupSortOrder = new GroupSortOrder(sortList);
       return Pair.of(
@@ -101,6 +124,16 @@ public class AggregationQueryBuilder extends ExpressionNodeVisitor<AggregationBu
                   .size(AGGREGATION_BUCKET_SIZE)),
           new CompositeAggregationParser(metrics.getRight()));
     }
+  }
+
+  public AggregationBuilder makeGroupAgg(Field field) {
+      TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(field.getName()).field(field.getName());
+      return termsBuilder;
+  }
+
+  private String getNestedAggName(String field) {
+    String prefix = field;
+    return prefix + "@NESTED";
   }
 
   /**

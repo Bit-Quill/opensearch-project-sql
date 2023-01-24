@@ -32,8 +32,8 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
 
   @Override
   public LogicalPlan visitNestedFunction(NestedFunction node, AnalysisContext context) {
-    LogicalPlan highlight = node.accept(this, context);
-    return (highlight == null) ? child : highlight;
+    LogicalPlan nested = node.accept(this, context);
+    return (nested == null) ? child : nested;
   }
 
   @Override

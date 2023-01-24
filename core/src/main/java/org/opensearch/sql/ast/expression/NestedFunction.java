@@ -30,6 +30,10 @@ public class NestedFunction extends UnresolvedExpression {
   }
 
   @Override
+  public String toString() {
+    return field.toString();
+  }
+  @Override
   public List<UnresolvedExpression> getChild() {
     return List.of(field);
   }

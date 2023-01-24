@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
@@ -27,7 +28,6 @@ import org.opensearch.sql.expression.function.BuiltinFunctionName;
 public class NestedExpression extends FunctionExpression {
 
   private final Expression field;
-//  private final Expression nestedField;
   private final ExprType type;
 
   /**
@@ -47,11 +47,17 @@ public class NestedExpression extends FunctionExpression {
    */
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-    // This logic needs further work. Thinking we may want to use the nested path to
-    // nested data and further filter in this function based upon field.
     String refName = StringUtils.unquoteText(getField().toString());
     ExprValue value = valueEnv.resolve(DSL.ref(refName, ExprCoreType.STRING));
     return value;
+  }
+
+  public String getFieldString() {
+    return this.field.toString();
+  }
+
+  public String getPathString() {
+    return this.field.toString().split("\\.")[0];
   }
 
   /**
