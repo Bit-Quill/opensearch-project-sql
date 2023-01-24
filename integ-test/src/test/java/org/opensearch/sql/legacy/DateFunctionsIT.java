@@ -6,25 +6,14 @@
 
 package org.opensearch.sql.legacy;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.matchesPattern;
+import static org.opensearch.sql.util.MatcherUtils.rows;
+import static org.opensearch.sql.util.MatcherUtils.schema;
+import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
+import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
-import java.io.IOException;
-import java.time.Month;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONObject;
 import org.junit.Test;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.common.xcontent.LoggingDeprecationHandler;
-import org.opensearch.common.xcontent.NamedXContentRegistry;
-import org.opensearch.common.xcontent.XContentFactory;
-import org.opensearch.common.xcontent.XContentParser;
-import org.opensearch.common.xcontent.XContentType;
-import org.opensearch.search.SearchHit;
 
 public class DateFunctionsIT extends SQLIntegTestCase {
 
@@ -44,271 +33,205 @@ public class DateFunctionsIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void year() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT YEAR(insert_time) as year"
-    );
-    for (SearchHit hit : hits) {
-      int year = (int) getField(hit, "year");
-      DateTime insertTime = getDateFromSource(hit, "insert_time");
-      assertThat(year, equalTo(insertTime.year().get()));
-    }
+  public void year() {
+    String query = "SELECT YEAR(insert_time) as year " + FROM;
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(9936, result.getInt("total"));
+    verifySchema(result, schema("YEAR(insert_time)", "year", "integer"));
+    assertEquals(2014, result.getJSONArray("datarows").getJSONArray(0).getInt(0));
   }
 
   @Test
-  public void monthOfYear() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT MONTH_OF_YEAR(insert_time) as month_of_year"
-    );
-    for (SearchHit hit : hits) {
-      int monthOfYear = (int) getField(hit, "month_of_year");
-      DateTime insertTime = getDateFromSource(hit, "insert_time");
-      assertThat(monthOfYear, equalTo(insertTime.monthOfYear().get()));
-    }
+  public void monthOfYear() {
+    String query = "SELECT MONTH_OF_YEAR(insert_time) as month_of_year " + FROM;
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(9936, result.getInt("total"));
+    verifySchema(result, schema("MONTH_OF_YEAR(insert_time)", "month_of_year", "integer"));
+    assertEquals(8, result.getJSONArray("datarows").getJSONArray(0).getInt(0));
   }
 
   @Test
-  public void weekOfYearInSelect() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT WEEK_OF_YEAR(insert_time) as week_of_year"
-    );
-    for (SearchHit hit : hits) {
-      int weekOfYear = (int) getField(hit, "week_of_year");
-      DateTime insertTime = getDateFromSource(hit, "insert_time");
-      assertThat(weekOfYear, equalTo(insertTime.weekOfWeekyear().get()));
-    }
+  public void weekOfYearInSelect() {
+    String query = "SELECT WEEK_OF_YEAR(insert_time) as week_of_year " + FROM;
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(9936, result.getInt("total"));
+    verifySchema(result, schema("WEEK_OF_YEAR(insert_time)", "week_of_year", "integer"));
+    assertEquals(33, result.getJSONArray("datarows").getJSONArray(0).getInt(0));
   }
 
   @Test
-  public void weekOfYearInWhere() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT insert_time",
-        "WHERE DATE_FORMAT(insert_time, 'YYYY-MM-dd') < '2014-08-19' AND " +
-            "WEEK_OF_YEAR(insert_time) > 33",
-        "LIMIT 2000"
-    );
-    for (SearchHit hit : hits) {
-      DateTime insertTime = getDateFromSource(hit, "insert_time");
-      assertThat(insertTime.weekOfWeekyear().get(), greaterThan(33));
-    }
+  public void weekOfYearInWhere() {
+    String query = "SELECT insert_time " + FROM
+            + " WHERE DATE_FORMAT(insert_time, 'YYYY-MM-dd') < '2014-08-19' AND " +
+            "WEEK_OF_YEAR(insert_time) > 33 LIMIT 2000";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(0, result.getInt("total"));
+    verifySchema(result, schema("insert_time", "timestamp"));
   }
 
   @Test
-  public void dayOfYearInSelect() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT DAY_OF_YEAR(insert_time) as day_of_year", "LIMIT 2000"
-    );
-    for (SearchHit hit : hits) {
-      int dayOfYear = (int) getField(hit, "day_of_year");
-      DateTime insertTime = getDateFromSource(hit, "insert_time");
-      assertThat(dayOfYear, equalTo(insertTime.dayOfYear().get()));
-    }
+  public void dayOfYearInSelect() {
+    String query = "SELECT DAY_OF_YEAR(insert_time) as day_of_year " + FROM + " LIMIT 2000";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(2000, result.getInt("total"));
+    verifySchema(result, schema("DAY_OF_YEAR(insert_time)", "day_of_year", "integer"));
+    assertEquals(229, result.getJSONArray("datarows").getJSONArray(0).getInt(0));
   }
 
   @Test
-  public void dayOfYearInWhere() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT insert_time", "WHERE DAY_OF_YEAR(insert_time) < 233", "LIMIT 10000"
-    );
-    for (SearchHit hit : hits) {
-      DateTime insertTime = getDateFromSource(hit, "insert_time");
-      assertThat(insertTime.dayOfYear().get(), lessThan(233));
-    }
+  public void dayOfYearInWhere() {
+    String query = "SELECT insert_time " + FROM
+            + " WHERE DAY_OF_YEAR(insert_time) < 233 LIMIT 10000";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(4721, result.getInt("total"));
+    verifySchema(result, schema("insert_time", "timestamp"));
+    assertEquals("2014-08-17 16:00:05.442", result.getJSONArray("datarows").getJSONArray(0).getString(0));
   }
 
   @Test
-  public void dayOfMonthInSelect() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT DAY_OF_MONTH(insert_time) as day_of_month", "LIMIT 2000"
-    );
-    for (SearchHit hit : hits) {
-      int dayOfMonth = (int) getField(hit, "day_of_month");
-      DateTime insertTime = getDateFromSource(hit, "insert_time");
-      assertThat(dayOfMonth, equalTo(insertTime.dayOfMonth().get()));
-    }
+  public void dayOfMonthInSelect() {
+    String query = "SELECT DAY_OF_MONTH(insert_time) as day_of_month " + FROM
+            + " LIMIT 2000";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(2000, result.getInt("total"));
+    verifySchema(result, schema("DAY_OF_MONTH(insert_time)", "day_of_month", "integer"));
+    assertEquals(17, result.getJSONArray("datarows").getJSONArray(0).getInt(0));
   }
 
   @Test
-  public void dayOfMonthInWhere() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT insert_time", "WHERE DAY_OF_MONTH(insert_time) < 21", "LIMIT 10000"
-    );
-    for (SearchHit hit : hits) {
-      DateTime insertTime = getDateFromSource(hit, "insert_time");
-      assertThat(insertTime.dayOfMonth().get(), lessThan(21));
-    }
+  public void dayOfMonthInWhere() {
+    String query = "SELECT insert_time " + FROM
+            + " WHERE DAY_OF_MONTH(insert_time) < 21 LIMIT 10000";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(4721, result.getInt("total"));
+    verifySchema(result, schema("insert_time", "timestamp"));
+    assertEquals("2014-08-17 16:00:05.442", result.getJSONArray("datarows").getJSONArray(0).getString(0));
   }
 
   @Test
-  public void dayOfWeek() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT DAY_OF_WEEK(insert_time) as day_of_week", "LIMIT 2000"
-    );
-    for (SearchHit hit : hits) {
-      int dayOfWeek = (int) getField(hit, "day_of_week");
-      DateTime insertTime = getDateFromSource(hit, "insert_time");
-      assertThat(dayOfWeek, equalTo(insertTime.dayOfWeek().get()));
-    }
+  public void dayOfWeek() {
+    String query = "SELECT DAY_OF_WEEK(insert_time) as day_of_week " + FROM
+            + " LIMIT 2000";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(2000, result.getInt("total"));
+    verifySchema(result, schema("DAY_OF_WEEK(insert_time)", "day_of_week", "integer"));
+    assertEquals(1, result.getJSONArray("datarows").getJSONArray(0).getInt(0));
   }
 
   @Test
-  public void hourOfDay() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT HOUR_OF_DAY(insert_time) as hour_of_day", "LIMIT 1000"
-    );
-    for (SearchHit hit : hits) {
-      int hourOfDay = (int) getField(hit, "hour_of_day");
-      DateTime insertTime = getDateFromSource(hit, "insert_time");
-      assertThat(hourOfDay, equalTo(insertTime.hourOfDay().get()));
-    }
+  public void hourOfDay() {
+    String query = "SELECT HOUR_OF_DAY(insert_time) as hour_of_day " + FROM
+            + " LIMIT 1000";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1000, result.getInt("total"));
+    verifySchema(result, schema("HOUR_OF_DAY(insert_time)", "hour_of_day", "integer"));
+    assertEquals(16, result.getJSONArray("datarows").getJSONArray(0).getInt(0));
   }
 
   @Test
-  public void minuteOfDay() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT MINUTE_OF_DAY(insert_time) as minute_of_day", "LIMIT 500"
-    );
-    for (SearchHit hit : hits) {
-      int minuteOfDay = (int) getField(hit, "minute_of_day");
-      DateTime insertTime = getDateFromSource(hit, "insert_time");
-      assertThat(minuteOfDay, equalTo(insertTime.minuteOfDay().get()));
-    }
+  public void minuteOfDay() {
+    String query = "SELECT MINUTE_OF_DAY(insert_time) as minute_of_day " + FROM
+            + " LIMIT 500";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(500, result.getInt("total"));
+    verifySchema(result, schema("MINUTE_OF_DAY(insert_time)", "minute_of_day", "integer"));
+    assertEquals(960, result.getJSONArray("datarows").getJSONArray(0).getInt(0));
   }
 
   @Test
-  public void minuteOfHour() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT MINUTE_OF_HOUR(insert_time) as minute_of_hour", "LIMIT 500"
-    );
-    for (SearchHit hit : hits) {
-      int minuteOfHour = (int) getField(hit, "minute_of_hour");
-      DateTime insertTime = getDateFromSource(hit, "insert_time");
-      assertThat(minuteOfHour, equalTo(insertTime.minuteOfHour().get()));
-    }
+  public void minuteOfHour() {
+    String query = "SELECT MINUTE_OF_HOUR(insert_time) as minute_of_hour " + FROM
+            + " LIMIT 500";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(500, result.getInt("total"));
+    verifySchema(result, schema("MINUTE_OF_HOUR(insert_time)", "minute_of_hour", "integer"));
+    assertEquals(0, result.getJSONArray("datarows").getJSONArray(0).getInt(0));
   }
 
   @Test
-  public void secondOfMinute() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT SECOND_OF_MINUTE(insert_time) as second_of_minute", "LIMIT 500"
-    );
-    for (SearchHit hit : hits) {
-      int secondOfMinute = (int) getField(hit, "second_of_minute");
-      DateTime insertTime = getDateFromSource(hit, "insert_time");
-      assertThat(secondOfMinute, equalTo(insertTime.secondOfMinute().get()));
-    }
+  public void secondOfMinute() {
+    String query = "SELECT SECOND_OF_MINUTE(insert_time) as second_of_minute " + FROM
+            + " LIMIT 500";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(500, result.getInt("total"));
+    verifySchema(result, schema("SECOND_OF_MINUTE(insert_time)", "second_of_minute", "integer"));
+    assertEquals(5, result.getJSONArray("datarows").getJSONArray(0).getInt(0));
   }
 
   @Test
-  public void month() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT MONTH(insert_time) AS month", "LIMIT 500"
-    );
-    for (SearchHit hit : hits) {
-      int month = (int) getField(hit, "month");
-      DateTime dateTime = getDateFromSource(hit, "insert_time");
-      assertThat(month, equalTo(dateTime.monthOfYear().get()));
-    }
+  public void month() {
+    String query = "SELECT MONTH(insert_time) as month " + FROM + " LIMIT 500";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(500, result.getInt("total"));
+    verifySchema(result, schema("MONTH(insert_time)", "month", "integer"));
+    assertEquals(8, result.getJSONArray("datarows").getJSONArray(0).getInt(0));
   }
 
   @Test
-  public void dayofmonth() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT DAYOFMONTH(insert_time) AS dayofmonth", "LIMIT 500"
-    );
-    for (SearchHit hit : hits) {
-      int dayofmonth = (int) getField(hit, "dayofmonth");
-      DateTime dateTime = getDateFromSource(hit, "insert_time");
-      assertThat(dayofmonth, equalTo(dateTime.dayOfMonth().get()));
-    }
+  public void dayofmonth() {
+    String query = "SELECT DAYOFMONTH(insert_time) as dayofmonth " + FROM + " LIMIT 500";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(500, result.getInt("total"));
+    verifySchema(result, schema("DAYOFMONTH(insert_time)", "dayofmonth", "integer"));
+    assertEquals(17, result.getJSONArray("datarows").getJSONArray(0).getInt(0));
   }
 
   @Test
-  public void date() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT DATE(insert_time) AS date", "LIMIT 500"
-    );
-    for (SearchHit hit : hits) {
-      String date = (String) getField(hit, "date");
-      DateTime dateTime = getDateFromSource(hit, "insert_time");
-      assertThat(date, equalTo(dateTime.toString("yyyy-MM-dd")));
-    }
+  public void date() {
+    String query = "SELECT DATE(insert_time) as date " + FROM + " LIMIT 500";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(500, result.getInt("total"));
+    verifySchema(result, schema("DATE(insert_time)", "date", "date"));
+    assertEquals("2014-08-17", result.getJSONArray("datarows").getJSONArray(0).getString(0));
   }
 
   @Test
-  public void monthname() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT MONTHNAME(insert_time) AS monthname", "LIMIT 500"
-    );
-    for (SearchHit hit : hits) {
-      String monthname = (String) getField(hit, "monthname");
-      DateTime dateTime = getDateFromSource(hit, "insert_time");
-      assertThat(Month.valueOf(monthname), equalTo(Month.of(dateTime.getMonthOfYear())));
-    }
+  public void monthname() {
+    String query = "SELECT MONTHNAME(insert_time) AS monthname " + FROM + " LIMIT 500";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(500, result.getInt("total"));
+    verifySchema(result, schema("MONTHNAME(insert_time)", "monthname", "keyword"));
+    assertEquals("August", result.getJSONArray("datarows").getJSONArray(0).getString(0));
   }
 
   @Test
-  public void timestamp() throws IOException {
-    SearchHit[] hits = query(
-        "SELECT TIMESTAMP(insert_time) AS timestamp", "LIMIT 500"
-    );
-    for (SearchHit hit : hits) {
-      String timastamp = (String) getField(hit, "timestamp");
-      DateTime dateTime = getDateFromSource(hit, "insert_time");
-      assertThat(timastamp, equalTo(dateTime.toString("yyyy-MM-dd HH:mm:ss")));
-    }
+  public void timestamp() {
+    String query = "SELECT TIMESTAMP(insert_time) AS timestamp " + FROM + " LIMIT 500";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(500, result.getInt("total"));
+    verifySchema(result, schema("TIMESTAMP(insert_time)", "timestamp", "timestamp"));
+    assertEquals("2014-08-17 16:00:05.442", result.getJSONArray("datarows").getJSONArray(0).getString(0));
   }
 
   @Test
-  public void maketime() throws IOException {
-    SearchHit[] hits = query("SELECT MAKETIME(13, 1, 1) AS maketime");
-    String maketime = (String) getField(hits[0], "maketime");
-    assertThat(maketime, equalTo("13:01:01"));
+  public void maketime() {
+    String query = "SELECT MAKETIME(13, 1, 1) AS maketime " + FROM + " LIMIT 1";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("MAKETIME(13, 1, 1)", "maketime", "time"));
+    verifyDataRows(result, rows("13:01:01"));
   }
 
   @Test
-  public void now() throws IOException {
-    SearchHit[] hits = query("SELECT NOW() AS now");
-    String now = (String) getField(hits[0], "now");
+  public void now() {
+    String query = "SELECT NOW() AS now " + FROM + " LIMIT 1";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("NOW()", "now", "datetime"));
+
+    String now =  result
+            .getJSONArray("datarows").getJSONArray(0).getString(0).split(" ")[1];
     assertThat(now, matchesPattern("[0-9]{2}:[0-9]{2}:[0-9]{2}"));
   }
 
   @Test
-  public void curdate() throws IOException {
-    SearchHit[] hits = query("SELECT CURDATE() AS curdate");
-    String curdate = (String) getField(hits[0], "curdate");
+  public void curdate() {
+    String query = "SELECT CURDATE() AS curdate " + FROM + " LIMIT 1";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("CURDATE()", "curdate", "date"));
+
+    String curdate = result.getJSONArray("datarows").getJSONArray(0).getString(0);
     assertThat(curdate, matchesPattern("[0-9]{4}-[0-9]{2}-[0-9]{2}"));
-  }
-
-  private SearchHit[] query(String select, String... statements) throws IOException {
-    return execute(select + " " + FROM + " " + String.join(" ", statements));
-  }
-
-  // TODO: I think this code is now re-used in multiple classes, would be good to move to the base class.
-  private SearchHit[] execute(String sqlRequest) throws IOException {
-    final JSONObject jsonObject = executeRequest(makeRequest(sqlRequest));
-
-    final XContentParser parser = XContentFactory.xContent(XContentType.JSON).createParser(
-        NamedXContentRegistry.EMPTY,
-        LoggingDeprecationHandler.INSTANCE,
-        jsonObject.toString());
-    return SearchResponse.fromXContent(parser).getHits().getHits();
-  }
-
-  private Object getField(SearchHit hit, String fieldName) {
-    return hit.field(fieldName).getValue();
-  }
-
-  private Object getFieldFromSource(SearchHit hit, String fieldName) {
-    return hit.getSourceAsMap().get(fieldName);
-  }
-
-  private DateTime getDateTime(String date) {
-    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    return formatter.parseDateTime(date);
-  }
-
-  private DateTime getDateFromSource(SearchHit hit, String dateField) {
-    return getDateTime((String) getFieldFromSource(hit, dateField));
   }
 }

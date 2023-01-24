@@ -6,23 +6,19 @@
 
 package org.opensearch.sql.legacy;
 
-import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_PHRASE;
+import static org.opensearch.sql.util.MatcherUtils.rows;
+import static org.opensearch.sql.util.MatcherUtils.schema;
+import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
+import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 import org.json.JSONObject;
@@ -38,7 +34,6 @@ import org.opensearch.sql.legacy.utils.StringUtils;
 
 public class QueryFunctionsIT extends SQLIntegTestCase {
 
-  private static final String SELECT_ALL = "SELECT *";
   private static final String FROM_ACCOUNTS = "FROM " + TEST_INDEX_ACCOUNT;
   private static final String FROM_NESTED = "FROM " + TEST_INDEX_NESTED_TYPE;
   private static final String FROM_PHRASE = "FROM " + TEST_INDEX_PHRASE;
@@ -56,81 +51,63 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void query() throws IOException {
-    assertThat(
-        query(
-            "SELECT state",
-            FROM_ACCOUNTS,
-            "WHERE QUERY('CA')"
-        ),
-        hits(
-            hasValueForFields("CA", "state")
-        )
-    );
+  public void query() {
+    String query = "SELECT state " + FROM_ACCOUNTS + " WHERE QUERY('CA')";
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(17, result.getInt("total"));
+    verifySchema(result, schema("state", "text"));
+    verifyDataRows(result, rows("CA"),
+            rows("CA"), rows("CA"),
+            rows("CA"), rows("CA"),
+            rows("CA"), rows("CA"),
+            rows("CA"), rows("CA"),
+            rows("CA"), rows("CA"),
+            rows("CA"), rows("CA"),
+            rows("CA"), rows("CA"),
+            rows("CA"), rows("CA"));
   }
 
   @Test
-  public void matchQueryRegularField() throws IOException {
-    assertThat(
-        query(
-            "SELECT firstname",
-            FROM_ACCOUNTS,
-            "WHERE MATCH_QUERY(firstname, 'Ayers')"
-        ),
-        hits(
-            hasValueForFields("Ayers", "firstname")
-        )
-    );
+  public void matchQueryRegularField() {
+    String query = "SELECT firstname " + FROM_ACCOUNTS + " WHERE MATCH_QUERY(firstname, 'Ayers')";
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("firstname", "text"));
+    verifyDataRows(result, rows("Ayers"));
   }
 
   @Test
-  public void matchQueryNestedField() throws IOException {
-    SearchHit[] hits =
-        query("SELECT comment.data", FROM_NESTED, "WHERE MATCH_QUERY(NESTED(comment.data), 'aa')")
-            .getHits().getHits();
-    Map<String, Object> source = hits[0].getSourceAsMap();
-    // SearchHits innerHits = hits[0].getInnerHits().get("comment");
-    assertThat(
-        query(
-            "SELECT comment.data",
-            FROM_NESTED,
-            "WHERE MATCH_QUERY(NESTED(comment.data), 'aa')"
-        ),
-        hits(
-            anyOf(hasNestedField("comment", "data", "aa"),
-                hasNestedArrayField("comment", "data", "aa"))
-        )
-    );
+  public void matchQueryNestedField() {
+    String query = "SELECT comment.data " + FROM_NESTED
+            + " WHERE MATCH_QUERY(NESTED(comment.data), 'aa')";
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(3, result.getInt("total"));
+    verifySchema(result, schema("comment.data", "keyword"));
   }
 
   @Test
-  public void scoreQuery() throws IOException {
-    assertThat(
-        query(
-            "SELECT firstname",
-            FROM_ACCOUNTS,
-            "WHERE SCORE(MATCH_QUERY(firstname, 'Ayers'), 10)"
-        ),
-        hits(
-            hasValueForFields("Ayers", "firstname")
-        )
-    );
+  public void scoreQuery() {
+    String query = "SELECT firstname " + FROM_ACCOUNTS
+            + " WHERE SCORE(MATCH_QUERY(firstname, 'Ayers'), 10)";
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("firstname", "text"));
+    verifyDataRows(result, rows("Ayers"));
   }
 
   @Test
-  public void scoreQueryWithNestedField() throws IOException {
-    assertThat(
-        query(
-            "SELECT comment.data",
-            FROM_NESTED,
-            "WHERE SCORE(MATCH_QUERY(NESTED(comment.data), 'ab'), 10)"
-        ),
-        hits(
-            //hasValueForFields("ab", "comment.data")
-            hasNestedField("comment",
-                "data", "ab")
-        )
-    );
+  public void scoreQueryWithNestedField() {
+    String query = "SELECT comment.data " + FROM_NESTED
+            + " WHERE SCORE(MATCH_QUERY(NESTED(comment.data), 'ab'), 10)";
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(2, result.getInt("total"));
+    verifySchema(result, schema("comment.data", "keyword"));
+    verifyDataRows(result, rows("ab"), rows("ab"));
   }
 
   @Test
@@ -148,45 +125,37 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void matchPhraseQuery() throws IOException {
-    assertThat(
-        query(
-            "SELECT phrase",
-            FROM_PHRASE,
-            "WHERE MATCH_PHRASE(phrase, 'brown fox')"
-        ),
-        hits(
-            hasValueForFields("brown fox", "phrase")
-        )
-    );
+  public void matchPhraseQuery() {
+    String query = "SELECT phrase " + FROM_PHRASE + " WHERE MATCH_PHRASE(phrase, 'brown fox')";
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("phrase", "text"));
+    verifyDataRows(result, rows("brown fox"));
   }
 
   @Test
-  public void multiMatchQuerySingleField() throws IOException {
-    assertThat(
-        query(
-            "SELECT firstname",
-            FROM_ACCOUNTS,
-            "WHERE MULTI_MATCH('query'='Ayers', 'fields'='firstname')"
-        ),
-        hits(
-            hasValueForFields("Ayers", "firstname")
-        )
-    );
+  public void multiMatchQuerySingleField() {
+    String query = "SELECT firstname " + FROM_ACCOUNTS
+            + " WHERE MULTI_MATCH('query'='Ayers', 'fields'='firstname')";
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("firstname", "text"));
+    verifyDataRows(result, rows("Ayers"));
   }
 
   @Test
-  public void multiMatchQueryWildcardField() throws IOException {
-    assertThat(
-        query(
-            "SELECT firstname, lastname",
-            FROM_ACCOUNTS,
-            "WHERE MULTI_MATCH('query'='Bradshaw', 'fields'='*name')"
-        ),
-        hits(
-            hasValueForFields("Bradshaw", "firstname", "lastname")
-        )
-    );
+  public void multiMatchQueryWildcardField() {
+    String query = "SELECT firstname, lastname " + FROM_ACCOUNTS
+            + " WHERE MULTI_MATCH('query'='Bradshaw', 'fields'='*name')";
+
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(2, result.getInt("total"));
+    verifySchema(result, schema("firstname", "text"),
+            schema("lastname", "text"));
+    verifyDataRows(result, rows("Kayla", "Bradshaw"),
+            rows("Bradshaw", "Mckenzie"));
   }
 
   @Test
@@ -219,55 +188,9 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
     };
   }
 
-  /**
-   * Create Matchers for each field and its value
-   * Only one of the Matchers need to match (per hit)
-   * <p>
-   * Ex. If a query with wildcard field is made:
-   * multi_match(query="Ayers", fields="*name")
-   * <p>
-   * Then the value "Ayers" can be found in either the firstname or lastname field. Only one of these fields
-   * need to satisfy the query value to be evaluated as correct expected output.
-   *
-   * @param value  The value to match for a field in the sourceMap
-   * @param fields A list of fields to match
-   */
-  @SafeVarargs
-  private final Matcher<SearchHit> hasValueForFields(String value, String... fields) {
-    return anyOf(
-        Arrays.asList(fields).
-            stream().
-            map(field -> kv(field, is(value))).
-            collect(Collectors.toList()));
-  }
-
   private final Matcher<SearchHit> hasFieldWithPrefix(String field, String prefix) {
     return featureValueOf(field, startsWith(prefix),
         hit -> (String) hit.getSourceAsMap().get(field));
-  }
-
-  private final Matcher<SearchHit> hasNestedField(String path, String field, String value) {
-    return featureValueOf(field, is(value),
-        hit -> ((HashMap) hit.getSourceAsMap().get(path)).get(field));
-  }
-
-  private final Matcher<SearchHit> hasNestedArrayField(String path, String field, String value) {
-
-    return new BaseMatcher<SearchHit>() {
-      @Override
-      public void describeTo(Description description) {
-
-      }
-
-      @Override
-      public boolean matches(Object item) {
-
-        SearchHit hit = (SearchHit) item;
-        List<Object> elements =
-            (List<Object>) ((HashMap) hit.getSourceAsMap().get(path)).get(field);
-        return elements.contains(value);
-      }
-    };
   }
 
   private Matcher<SearchHit> kv(String key, Matcher<Object> valMatcher) {
