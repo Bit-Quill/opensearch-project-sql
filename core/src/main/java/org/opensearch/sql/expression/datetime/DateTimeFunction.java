@@ -34,6 +34,7 @@ import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_ST
 import static org.opensearch.sql.utils.DateTimeUtils.extractDate;
 import static org.opensearch.sql.utils.DateTimeUtils.extractDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -54,10 +55,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import com.google.common.collect.ImmutableMap;
 import lombok.experimental.UtilityClass;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
@@ -1165,7 +1162,7 @@ public class DateTimeFunction {
    */
   private ExprValue exprGetFormat(ExprValue type, ExprValue format) {
     String key = type.stringValue() + "-" + format.stringValue();
-    if (formats.containsKey(key)) {
+    if (formats.containsKey(key.toLowerCase())) {
       return new ExprStringValue((formats.get(key.toLowerCase())));
     }
 

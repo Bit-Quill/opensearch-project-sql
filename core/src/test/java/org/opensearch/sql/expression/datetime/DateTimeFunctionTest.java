@@ -894,21 +894,14 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void testGetFormatInvalidType() {
-    FunctionExpression expr = DSL.get_format(
-        DSL.literal("DATETEIM"),
-        DSL.literal("USA"));
-    assertThrows(SemanticCheckException.class, () ->  eval(expr));
-  }
-
-  @Test
   public void testGetFormatInvalidFormat() {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
     FunctionExpression expr = DSL.get_format(
         DSL.literal("DATE"),
         DSL.literal("1SA"));
-    assertEquals("NULL", eval(expr).stringValue());
+    assertEquals(nullValue(), eval(expr));
   }
-
 
   @Test
   public void hour() {

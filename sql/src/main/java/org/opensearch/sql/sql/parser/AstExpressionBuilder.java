@@ -154,7 +154,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitGetFormatFunctionCall(GetFormatFunctionCallContext ctx) {
     return new Function(
-        "get_format",
+        ctx.GET_FORMAT().toString(),
         getFormatFunctionArguments(ctx));
   }
 
@@ -565,11 +565,10 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
   private List<UnresolvedExpression> getFormatFunctionArguments(
       GetFormatFunctionCallContext ctx) {
-    // first argument is defaulted to string values
-    // to skip environment resolving and function signature resolving
-    List<UnresolvedExpression> args = ctx.functionArgs().functionArg().stream()
-        .map(this::visitFunctionArg)
-        .collect(Collectors.toList());
+    List<UnresolvedExpression> args = Arrays.asList(
+        new Literal(ctx.getFormatArgs().getFormatType().getText(), DataType.STRING),
+        visitFunctionArg(ctx.getFormatArgs().functionArg())
+    );
 
     String arg0 = args.get(0).toString();
     Literal typeAsString = new Literal(arg0, DataType.STRING);
