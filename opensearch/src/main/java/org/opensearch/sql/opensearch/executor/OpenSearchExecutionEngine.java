@@ -12,6 +12,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.executor.ExecutionContext;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.Explain;
@@ -46,7 +47,13 @@ public class OpenSearchExecutionEngine implements ExecutionEngine {
             plan.open();
 
             while (plan.hasNext()) {
-              result.add(plan.next());
+              ExprValue nextPlan = plan.next();
+
+              if (nextPlan.type().equals(ExprCoreType.ARRAY))
+                for (ExprValue value: nextPlan.collectionValue())
+                  result.add(value);
+              else
+                result.add(nextPlan);
             }
 
             QueryResponse response = new QueryResponse(physicalPlan.schema(), result);
