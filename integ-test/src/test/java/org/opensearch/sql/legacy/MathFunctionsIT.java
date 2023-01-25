@@ -7,26 +7,15 @@
 package org.opensearch.sql.legacy;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.opensearch.sql.util.MatcherUtils.schema;
 import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
-import java.io.IOException;
-
 import org.json.JSONObject;
 import org.junit.Test;
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.common.xcontent.LoggingDeprecationHandler;
-import org.opensearch.common.xcontent.NamedXContentRegistry;
-import org.opensearch.common.xcontent.XContentFactory;
-import org.opensearch.common.xcontent.XContentParser;
-import org.opensearch.common.xcontent.XContentType;
-import org.opensearch.search.SearchHit;
 
 public class MathFunctionsIT extends SQLIntegTestCase {
 
-  private static final String FROM = "FROM " + TEST_INDEX_ACCOUNT;
 
   @Override
   protected void init() throws Exception {
@@ -40,15 +29,17 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("abs(age - 100)", "abs", "long"));
+    assertEquals(68, result.getJSONArray("datarows").getJSONArray(0).getInt(0));
   }
 
   @Test
-  public void upperCaseFunctionCall() throws IOException {
+  public void upperCaseFunctionCall() {
     String query =
             String.format("SELECT ABS(age - 100) AS abs FROM %s", TEST_INDEX_ACCOUNT);
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("ABS(age - 100)", "abs", "long"));
+    assertEquals(68, result.getJSONArray("datarows").getJSONArray(0).getInt(0));
   }
 
   @Test
@@ -58,6 +49,8 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("E()", "e", "double"));
+    assertEquals(Math.E,
+            result.getJSONArray("datarows").getJSONArray(0).getDouble(0), 0);
   }
 
   @Test
@@ -67,16 +60,19 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("PI()", "pi", "double"));
+    assertEquals(Math.PI,
+            result.getJSONArray("datarows").getJSONArray(0).getDouble(0), 0);
   }
 
   @Test
-  public void expm1Function() throws IOException {
-    // Query is unsupported in the new engine
-    SearchHit[] hits = query(
-        "SELECT EXPM1(2) AS expm1"
-    );
-    double expm1 = (double) getField(hits[0], "expm1");
-    assertThat(expm1, equalTo(Math.expm1(2)));
+  public void expm1Function() {
+    String query =
+            String.format("SELECT EXPM1(2) AS expm1 FROM %s", TEST_INDEX_ACCOUNT);
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1000, result.getInt("total"));
+//    verifySchema(result, schema("EXPM1(2)", "expm1", "double"));
+    assertEquals(Math.expm1(2),
+            result.getJSONArray("datarows").getJSONArray(0).getDouble(0), 0);
   }
 
   @Test
@@ -87,6 +83,9 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("DEGREES(age)", "degrees", "double"),
             schema("age", null, "long"));
+    double age = result.getJSONArray("datarows").getJSONArray(0).getDouble(0);
+    double functionResult = result.getJSONArray("datarows").getJSONArray(0).getDouble(1);
+    assertEquals(Math.toDegrees(age), functionResult, 0);
   }
 
   @Test
@@ -97,6 +96,9 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("RADIANS(age)", "radians", "double"),
             schema("age", null, "long"));
+    double age = result.getJSONArray("datarows").getJSONArray(0).getDouble(0);
+    double functionResult = result.getJSONArray("datarows").getJSONArray(0).getDouble(1);
+    assertEquals(Math.toRadians(age), functionResult, 0);
   }
 
   @Test
@@ -106,6 +108,8 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("SIN(PI())", "sin", "double"));
+    assertEquals(Math.sin(Math.PI),
+            result.getJSONArray("datarows").getJSONArray(0).getDouble(0), 0);
   }
 
   @Test
@@ -118,13 +122,14 @@ public class MathFunctionsIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void sinh() throws IOException {
-    // Query is unsupported in the new engine
-    SearchHit[] hits = query(
-        "SELECT SINH(PI()) as sinh"
-    );
-    double sinh = (double) getField(hits[0], "sinh");
-    assertThat(sinh, equalTo(Math.sinh(Math.PI)));
+  public void sinh() {
+    String query =
+            String.format("SELECT SINH(PI()) as sinh FROM %s", TEST_INDEX_ACCOUNT);
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1000, result.getInt("total"));
+//    verifySchema(result, schema("SINH(PI())", "sinh", "double"));
+    assertEquals(Math.sinh(Math.PI),
+            result.getJSONArray("datarows").getJSONArray(0).getDouble(0), 0);
   }
 
   @Test
@@ -136,6 +141,8 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("POWER(age, 2)", "power", "double"));
+    assertEquals(1024.0,
+            result.getJSONArray("datarows").getJSONArray(0).getDouble(0), 0);
   }
 
   @Test
@@ -147,6 +154,8 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("ATAN2(age, age)", "atan2", "double"));
+    assertEquals(Math.atan2(1, 1),
+            result.getJSONArray("datarows").getJSONArray(0).getDouble(0), 0);
   }
 
   @Test
@@ -156,6 +165,8 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("COT(PI())", "cot", "double"));
+    assertEquals(1 / Math.tan(Math.PI),
+            result.getJSONArray("datarows").getJSONArray(0).getDouble(0), 0.001);
   }
 
   @Test
@@ -165,6 +176,8 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("SIGN(E())", "sign", "integer"));
+    assertEquals(Math.signum(Math.E),
+            result.getJSONArray("datarows").getJSONArray(0).getInt(0), 0);
   }
 
   @Test
@@ -174,6 +187,8 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("LOG(3)", "log", "double"));
+    assertEquals(Math.log(3),
+            result.getJSONArray("datarows").getJSONArray(0).getDouble(0), 0);
   }
 
   @Test
@@ -183,6 +198,8 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("LOG(2, 3)", "log", "double"));
+    assertEquals(Math.log(3) / Math.log(2),
+            result.getJSONArray("datarows").getJSONArray(0).getDouble(0), 0.0001);
   }
 
   @Test
@@ -210,6 +227,8 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("log10(1000)", "log10", "double"));
+    assertEquals(Math.log10(1000),
+            result.getJSONArray("datarows").getJSONArray(0).getDouble(0), 0);
   }
 
   @Test
@@ -219,6 +238,8 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("LN(5)", "ln", "double"));
+    assertEquals(Math.log(5),
+            result.getJSONArray("datarows").getJSONArray(0).getDouble(0), 0);
   }
 
   @Test
@@ -239,20 +260,5 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1000, result.getInt("total"));
     verifySchema(result, schema("RAND()", "rand", "float"));
-  }
-
-  private SearchHit[] query(String select, String... statements) throws IOException {
-    final String response =
-        executeQueryWithStringOutput(select + " " + FROM + " " + String.join(" ", statements));
-
-    final XContentParser parser = XContentFactory.xContent(XContentType.JSON).createParser(
-        NamedXContentRegistry.EMPTY,
-        LoggingDeprecationHandler.INSTANCE,
-        response);
-    return SearchResponse.fromXContent(parser).getHits().getHits();
-  }
-
-  private Object getField(SearchHit hit, String fieldName) {
-    return hit.field(fieldName).getValue();
   }
 }
