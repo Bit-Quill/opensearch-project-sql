@@ -9,7 +9,6 @@ package org.opensearch.sql.expression.datetime;
 import static java.time.temporal.ChronoField.ALIGNED_WEEK_OF_YEAR;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
@@ -43,7 +42,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprLongValue;
-import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
@@ -868,6 +866,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     return Stream.of(
         Arguments.of("DATE", "USA", "%m.%d.%Y"),
         Arguments.of("DATETIME", "USA", "%Y-%m-%d %H.%i.%s"),
+        Arguments.of("TIMESTAMP", "USA", "%Y-%m-%d %H.%i.%s"),
         Arguments.of("TIME", "USA", "%h:%i:%s %p")
     );
   }
@@ -893,6 +892,23 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         DSL.literal(new ExprStringValue(format)),
         expectedResult);
   }
+
+  @Test
+  public void testGetFormatInvalidType() {
+    FunctionExpression expr = DSL.get_format(
+        DSL.literal("DATETEIM"),
+        DSL.literal("USA"));
+    assertThrows(SemanticCheckException.class, () ->  eval(expr));
+  }
+
+  @Test
+  public void testGetFormatInvalidFormat() {
+    FunctionExpression expr = DSL.get_format(
+        DSL.literal("DATE"),
+        DSL.literal("1SA"));
+    assertEquals("NULL", eval(expr).stringValue());
+  }
+
 
   @Test
   public void hour() {

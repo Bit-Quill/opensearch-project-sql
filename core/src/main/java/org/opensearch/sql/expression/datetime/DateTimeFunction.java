@@ -56,6 +56,8 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.google.common.collect.ImmutableMap;
 import lombok.experimental.UtilityClass;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
@@ -97,11 +99,12 @@ public class DateTimeFunction {
   private static final ExprIntegerValue DEFAULT_WEEK_OF_YEAR_MODE = new ExprIntegerValue(0);
 
   // Map used to determine format output for the get_format function
-  private static final Map<String, String> formats = Stream.of(new String[][] {
-      {"date-usa", "%m.%d.%Y"},
-      {"time-usa", "%h:%i:%s %p"},
-      {"datetime-usa", "%Y-%m-%d %H.%i.%s"}
-      }).collect(Collectors.toMap(keyValPair -> keyValPair[0], keyValPair -> keyValPair[1]));
+  private static final Map<String, String> formats = ImmutableMap.<String, String>builder()
+      .put("date-usa", "%m.%d.%Y")
+      .put("time-usa", "%h:%i:%s %p")
+      .put("datetime-usa", "%Y-%m-%d %H.%i.%s")
+      .put("timestamp-usa", "%Y-%m-%d %H.%i.%s")
+      .build();
 
   /**
    * Register Date and Time Functions.
@@ -1162,8 +1165,11 @@ public class DateTimeFunction {
    */
   private ExprValue exprGetFormat(ExprValue type, ExprValue format) {
     String key = type.stringValue() + "-" + format.stringValue();
-    String val = formats.get(key.toLowerCase());
-    return new ExprStringValue(val);
+    if (formats.containsKey(key)) {
+      return new ExprStringValue((formats.get(key.toLowerCase())));
+    }
+
+    return ExprNullValue.of();
   }
 
   /**

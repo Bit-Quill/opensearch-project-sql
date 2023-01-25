@@ -1759,13 +1759,13 @@ Examples::
 GET_FORMAT
 ----------
 
-
 Description
 >>>>>>>>>>>
 
-Usage: Returns a string value containing string format specifiers based on the input arguments
+Usage: Returns a string value containing string format specifiers based on the input arguments.
 
 Argument type: TYPE, STRING
+(Where TYPE can be one of [DATE, TIME, DATETIME, TIMESTAMP])
 
 Examples::
 
