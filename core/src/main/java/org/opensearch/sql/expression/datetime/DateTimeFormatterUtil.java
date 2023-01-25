@@ -27,7 +27,7 @@ class DateTimeFormatterUtil {
   private static final int SUFFIX_SPECIAL_END_TH = 13;
   private static final String SUFFIX_SPECIAL_TH = "th";
 
-  private static final int NANO_SEC_STRING_LENGTH = 6;
+  private static final String NANO_SEC_FORMAT = "'%06d'";
   private static final Map<Integer, String> SUFFIX_CONVERTER =
       ImmutableMap.<Integer, String>builder()
       .put(1, "st").put(2, "nd").put(3, "rd").build();
@@ -66,7 +66,7 @@ class DateTimeFormatterUtil {
       .put("%D", (date) -> // %w - Day of month with English suffix
           String.format("'%d%s'", date.getDayOfMonth(), getSuffix(date.getDayOfMonth())))
       .put("%f", (date) -> // %f - Microseconds
-          String.format("'%s'", formatNanoseconds((date.getNano() / 1000))))
+          String.format(NANO_SEC_FORMAT, (date.getNano() / 1000)))
       .put("%w", (date) -> // %w - Day of week (0 indexed)
           String.format("'%d'", date.getDayOfWeek().getValue()))
       .put("%U", (date) -> // %U Week where Sunday is the first day - WEEK() mode 0
@@ -88,54 +88,39 @@ class DateTimeFormatterUtil {
   //https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_time-format
   private static final Map<String, DateTimeFormatHandler> TIME_HANDLERS =
       ImmutableMap.<String, DateTimeFormatHandler>builder()
-          .put("%a", (date) -> null) // %a => EEE - Abbreviated weekday name (Sun..Sat)
-          .put("%b", (date) -> null) // %b => LLL - Abbreviated month name (Jan..Dec)
-          .put("%c", (date) -> "0") // %c => MM - Month, numeric (0..12)
-          .put("%d", (date) -> "00") // %d => dd - Day of the month, numeric (00..31)
-          .put("%e", (date) -> "0") // %e => d - Day of the month, numeric (0..31)
+          .put("%a", (date) -> null)
+          .put("%b", (date) -> null)
+          .put("%c", (date) -> "0")
+          .put("%d", (date) -> "00")
+          .put("%e", (date) -> "0")
           .put("%H", (date) -> "HH") // %H => HH - (00..23)
           .put("%h", (date) -> "hh") // %h => hh - (01..12)
           .put("%I", (date) -> "hh") // %I => hh - (01..12)
           .put("%i", (date) -> "mm") // %i => mm - Minutes, numeric (00..59)
-          .put("%j", (date) -> null) // %j => DDD - (001..366)
+          .put("%j", (date) -> null)
           .put("%k", (date) -> "H") // %k => H - (0..23)
           .put("%l", (date) -> "h") // %l => h - (1..12)
           .put("%p", (date) -> "a") // %p => a - AM or PM
-          .put("%M", (date) -> null) // %M => LLLL - Month name (January..December)
-          .put("%m", (date) -> "00") // %m => MM - Month, numeric (00..12)
+          .put("%M", (date) -> null)
+          .put("%m", (date) -> "00")
           .put("%r", (date) -> "hh:mm:ss a") // %r => hh:mm:ss a - hh:mm:ss followed by AM or PM
           .put("%S", (date) -> "ss") // %S => ss - Seconds (00..59)
           .put("%s", (date) -> "ss") // %s => ss - Seconds (00..59)
           .put("%T", (date) -> "HH:mm:ss") // %T => HH:mm:ss
-          .put("%W", (date) -> null) // %W => EEEE - Weekday name (Sunday..Saturday)
-          .put("%Y", (date) -> "0000") // %Y => yyyy - Year, numeric, 4 digits
-          .put("%y", (date) -> "00") // %y => yy - Year, numeric, 2 digits
-          // The following are not directly supported by DateTimeFormatter.
-          .put("%D", (date) -> null)// %w - Day of month with English suffix
+          .put("%W", (date) -> null)
+          .put("%Y", (date) -> "0000")
+          .put("%y", (date) -> "00")
+          .put("%D", (date) -> null)
           .put("%f", (date) -> // %f - Microseconds
-              String.format("'%s'", formatNanoseconds((date.getNano() / 1000))))
-          .put("%w", (date) -> null)// %w - Day of week (0 indexed)
-          .put("%U", (date) -> null)// %U Week where Sunday is the first day - WEEK() mode 0
-          .put("%u", (date) -> null)// %u Week where Monday is the first day - WEEK() mode 1
+              String.format(NANO_SEC_FORMAT, (date.getNano() / 1000)))
+          .put("%w", (date) -> null)
+          .put("%U", (date) -> null)
+          .put("%u", (date) -> null)
           .put("%V", (date) -> null)
-          // %V Week where Sunday is the first day - WEEK() mode 2 used with %X
           .put("%v", (date) -> null)
-          // %v Week where Monday is the first day - WEEK() mode 3 used with %x
           .put("%X", (date) -> null)
-          // %X Year for week where Sunday is the first day, 4 digits used with %V
           .put("%x", (date) -> null)
-          // %x Year for week where Monday is the first day, 4 digits used with %v
           .build();
-
-  private static String formatNanoseconds(int nanosecondsVal) {
-    String nanoseconds = String.format("%d", nanosecondsVal);
-    StringBuilder builder = new StringBuilder();
-    while (builder.length() < (NANO_SEC_STRING_LENGTH - nanoseconds.length())) {
-      builder.append('0');
-    }
-    builder.append(nanoseconds);
-    return builder.toString();
-  }
 
   private static final Pattern pattern = Pattern.compile("%.");
   private static final Pattern CHARACTERS_WITH_NO_MOD_LITERAL_BEHIND_PATTERN
@@ -147,15 +132,17 @@ class DateTimeFormatterUtil {
 
   /**
    * Helper function to format a DATETIME according to a provided handler and matcher.
-   * @param m A matcher generated using a format expression
+   * @param formatExpr ExprValue containing the format expression
    * @param handler Map of character patterns to their associated datetime format
    * @param datetime The datetime argument being formatted
    * @return A formatted string expression
    */
-  static ExprValue getFormattedString(Matcher m,
+  static ExprValue getFormattedString(ExprValue formatExpr,
                                       Map<String, DateTimeFormatHandler> handler,
                                       LocalDateTime datetime) {
     final StringBuffer cleanFormat = new StringBuffer();
+    final Matcher m = CHARACTERS_WITH_NO_MOD_LITERAL_BEHIND_PATTERN
+        .matcher(formatExpr.stringValue());
 
     while (m.find()) {
       m.appendReplacement(cleanFormat,String.format("'%s'", m.group()));
@@ -191,18 +178,13 @@ class DateTimeFormatterUtil {
    */
   static ExprValue getFormattedDate(ExprValue dateExpr, ExprValue formatExpr) {
     final LocalDateTime date = dateExpr.datetimeValue();
-    final Matcher m = CHARACTERS_WITH_NO_MOD_LITERAL_BEHIND_PATTERN
-            .matcher(formatExpr.stringValue());
-
-    return getFormattedString(m, DATE_HANDLERS, date);
+    return getFormattedString(formatExpr, DATE_HANDLERS, date);
   }
 
   static ExprValue getFormattedDateOfToday(ExprValue formatExpr, ExprValue time, Clock current) {
     final LocalDateTime date = LocalDateTime.of(LocalDate.now(current), time.timeValue());
-    final Matcher m = CHARACTERS_WITH_NO_MOD_LITERAL_BEHIND_PATTERN
-        .matcher(formatExpr.stringValue());
 
-    return getFormattedString(m, DATE_HANDLERS, date);
+    return getFormattedString(formatExpr, DATE_HANDLERS, date);
   }
 
   /**
@@ -215,10 +197,8 @@ class DateTimeFormatterUtil {
     //Initializes DateTime with LocalDate.now(). This is safe because the date is ignored.
     //The time_format function will only return 0 or null for invalid string format specifiers.
     final LocalDateTime time = LocalDateTime.of(LocalDate.now(), timeExpr.timeValue());
-    final Matcher m = CHARACTERS_WITH_NO_MOD_LITERAL_BEHIND_PATTERN
-        .matcher(formatExpr.stringValue());
 
-    return getFormattedString(m, TIME_HANDLERS, time);
+    return getFormattedString(formatExpr, TIME_HANDLERS, time);
   }
 
   /**

@@ -2037,6 +2037,14 @@ class DateTimeFunctionTest extends ExpressionTestBase {
             DSL.literal("%f"),
             "012345"),
         Arguments.of(
+            DSL.literal("1998-01-31 13:14:15.002345"),
+            DSL.literal("%f"),
+            "002345"),
+        Arguments.of(
+            DSL.literal("1998-01-31 13:14:15.012300"),
+            DSL.literal("%f"),
+            "012300"),
+        Arguments.of(
             DSL.literal("1998-01-31 13:14:15.012345"),
             DSL.literal("%H"),
             "13"),
