@@ -1765,7 +1765,8 @@ Description
 Usage: Returns a string value containing string format specifiers based on the input arguments.
 
 Argument type: TYPE, STRING
-(Where TYPE can be one of [DATE, TIME, DATETIME, TIMESTAMP])
+TYPE must be one of the following tokens: [DATE, TIME, DATETIME, TIMESTAMP].
+STRING must be one of the following tokens: ["USA", "JIS", "ISO", "EUR", "INTERNAL"] (" can be replaced by ').
 
 Examples::
 
