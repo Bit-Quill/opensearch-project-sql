@@ -195,35 +195,29 @@ class SQLSyntaxParserTest {
   }
 
   private static Stream<Arguments> get_format_arguments() {
-    return Stream.of(
-        Arguments.of("GET_FORMAT(DATE,'USA')"),
-        Arguments.of("GET_FORMAT(DATE,'JIS')"),
-        Arguments.of("GET_FORMAT(DATE,'ISO')"),
-        Arguments.of("GET_FORMAT(DATE,'EUR')"),
-        Arguments.of("GET_FORMAT(DATE,'INTERNAL')"),
-        Arguments.of("GET_FORMAT(DATETIME,'USA')"),
-        Arguments.of("GET_FORMAT(DATETIME,'JIS')"),
-        Arguments.of("GET_FORMAT(DATETIME,'ISO')"),
-        Arguments.of("GET_FORMAT(DATETIME,'EUR')"),
-        Arguments.of("GET_FORMAT(DATETIME,'INTERNAL')"),
-        Arguments.of("GET_FORMAT(TIME,'USA')"),
-        Arguments.of("GET_FORMAT(TIME,'JIS')"),
-        Arguments.of("GET_FORMAT(TIME,'ISO')"),
-        Arguments.of("GET_FORMAT(TIME,'EUR')"),
-        Arguments.of("GET_FORMAT(TIME,'INTERNAL')")
-    );
+    Stream.Builder<Arguments> args = Stream.builder();
+    String[] types = {"DATE", "DATETIME", "TIME", "TIMESTAMP"};
+    String[] formats = {"'USA'", "'JIS'", "'ISO'", "'EUR'", "'INTERNAL'"};
+
+    for(String type : types) {
+      for(String format : formats) {
+        args.add(Arguments.of(type, format));
+      }
+    }
+
+    return args.build();
   }
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("get_format_arguments")
-  public void can_parse_get_format_function(String getFormatQuery) {
-    assertNotNull(parser.parse(String.format("SELECT %s", getFormatQuery)));
+  public void can_parse_get_format_function(String type, String format) {
+    assertNotNull(parser.parse(String.format("SELECT GET_FORMAT(%s, %s)", type, format)));
   }
 
   @Test
   public void cannot_parse_get_format_function_with_bad_arg() {
     assertThrows(
-        SyntaxCheckException.class, 
+        SyntaxCheckException.class,
         () -> parser.parse("GET_FORMAT(NONSENSE_ARG,'INTERNAL')"));
   }
 
