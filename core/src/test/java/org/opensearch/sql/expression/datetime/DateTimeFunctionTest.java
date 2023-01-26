@@ -2186,6 +2186,22 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         eval(expr).stringValue());
   }
 
+  @Test
+  public void testTimeFormatAndDateFormatReturnSameResult() {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+    FunctionExpression timeFormatExpr = DSL.time_format(
+        functionProperties,
+        DSL.literal(new ExprDateValue("1998-01-31 13:14:15.012345")),
+        DSL.literal("%f %H %h %I %i %k %l %p %r %S %s %T"));
+    FunctionExpression dateFormatExpr = DSL.date_format(
+        functionProperties,
+        DSL.literal(new ExprDateValue("1998-01-31 13:14:15.012345")),
+        DSL.literal("%f %H %h %I %i %k %l %p %r %S %s %T"));
+
+    assertEquals(eval(dateFormatExpr), eval(timeFormatExpr));
+  }
+
   private ExprValue eval(Expression expression) {
     return expression.valueOf(env);
   }
