@@ -28,6 +28,7 @@ import org.opensearch.sql.planner.DefaultImplementor;
 import org.opensearch.sql.planner.logical.LogicalAD;
 import org.opensearch.sql.planner.logical.LogicalML;
 import org.opensearch.sql.planner.logical.LogicalMLCommons;
+import org.opensearch.sql.planner.logical.LogicalNested;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 import org.opensearch.sql.storage.Table;
@@ -155,7 +156,7 @@ public class OpenSearchIndex implements Table {
 
     @Override
     public PhysicalPlan visitNested(LogicalNested node, OpenSearchIndexScan context) {
-      context.getRequestBuilder().pushDownNested(node.getField().toString());
+//      context.getRequestBuilder().pushDownNested(node.getField().toString());
       return visitChild(node, context);
     }
   }

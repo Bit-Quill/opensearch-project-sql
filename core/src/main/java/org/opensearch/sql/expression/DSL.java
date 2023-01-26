@@ -537,7 +537,7 @@ public class DSL {
   }
 
   public static FunctionExpression nested(Expression... expressions) {
-    return compile(BuiltinFunctionName.NESTED, expressions);
+    return compile(FunctionProperties.None, BuiltinFunctionName.NESTED, expressions);
   }
 
   public static FunctionExpression not(Expression... expressions) {
