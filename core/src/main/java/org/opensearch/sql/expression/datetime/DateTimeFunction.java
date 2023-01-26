@@ -97,6 +97,7 @@ public class DateTimeFunction {
 
   // Map used to determine format output for the get_format function
   private static final Map<String, String> formats = ImmutableMap.<String, String>builder()
+      //TODO: Add support for other formats
       .put("date-usa", "%m.%d.%Y")
       .put("time-usa", "%h:%i:%s %p")
       .put("datetime-usa", "%Y-%m-%d %H.%i.%s")
