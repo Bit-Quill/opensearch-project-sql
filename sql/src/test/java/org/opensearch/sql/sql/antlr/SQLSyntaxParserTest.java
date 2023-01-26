@@ -199,8 +199,8 @@ class SQLSyntaxParserTest {
     String[] types = {"DATE", "DATETIME", "TIME", "TIMESTAMP"};
     String[] formats = {"'USA'", "'JIS'", "'ISO'", "'EUR'", "'INTERNAL'"};
 
-    for(String type : types) {
-      for(String format : formats) {
+    for (String type : types) {
+      for (String format : formats) {
         args.add(Arguments.of(type, format));
       }
     }
