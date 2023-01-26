@@ -1428,7 +1428,7 @@ If an argument of type TIME is provided, the local date is used.
    * - x
      - x, for any smallcase/uppercase alphabet except [aydmshiHIMYDSEL]
 
-Argument type: STRING/DATE/DATETIME/TIME/TIMESTAMP
+Argument type: STRING/DATE/DATETIME/TIME/TIMESTAMP, STRING
 
 Return type: STRING
 
@@ -2316,7 +2316,7 @@ If an argument of type DATE is passed in, it is treated as a DATETIME at midnigh
      - Time, 24-hour (hh:mm:ss)
 
 
-Argument type: STRING/DATE/DATETIME/TIME/TIMESTAMP
+Argument type: STRING/DATE/DATETIME/TIME/TIMESTAMP, STRING
 
 Return type: STRING
 
