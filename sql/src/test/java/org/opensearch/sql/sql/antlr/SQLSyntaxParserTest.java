@@ -221,6 +221,13 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void cannot_parse_get_format_function_with_bad_arg() {
+    assertThrows(
+        SyntaxCheckException.class, 
+        () -> parser.parse("GET_FORMAT(NONSENSE_ARG,'INTERNAL')"));
+  }
+
+  @Test
   public void can_parse_hour_functions() {
     assertNotNull(parser.parse("SELECT hour('2022-11-18 12:23:34')"));
     assertNotNull(parser.parse("SELECT hour_of_day('12:23:34')"));
