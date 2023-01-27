@@ -10,7 +10,7 @@ import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
-import org.opensearch.sql.opensearch.storage.script.ScriptUtils;
+import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 
 /**
  * Lucene query that builds wildcard query.
@@ -19,7 +19,7 @@ public class WildcardQuery extends LuceneQuery {
 
   @Override
   protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
-    fieldName = ScriptUtils.convertTextToKeyword(fieldName, fieldType);
+    fieldName = OpenSearchTextType.convertTextToKeyword(fieldName, fieldType);
     String matchText = convertSqlWildcardToLucene(literal.stringValue());
     return QueryBuilders.wildcardQuery(fieldName, matchText);
   }

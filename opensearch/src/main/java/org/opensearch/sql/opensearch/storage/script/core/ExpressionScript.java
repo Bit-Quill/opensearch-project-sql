@@ -22,7 +22,6 @@ import java.util.function.Supplier;
 import lombok.EqualsAndHashCode;
 import org.opensearch.index.fielddata.ScriptDocValues;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionNodeVisitor;
@@ -30,8 +29,8 @@ import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.env.Environment;
 import org.opensearch.sql.expression.parse.ParseExpression;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
-import org.opensearch.sql.opensearch.storage.script.ScriptUtils;
 
 /**
  * Expression script executor that executes the expression on each document
@@ -128,7 +127,7 @@ public class ExpressionScript {
 
   private Object getDocValue(ReferenceExpression field,
                              Supplier<Map<String, ScriptDocValues<?>>> docProvider) {
-    String fieldName = getDocValueName(field);
+    String fieldName = OpenSearchTextType.convertTextToKeyword(field.getAttr(), expression.type());
     ScriptDocValues<?> docValue = docProvider.get().get(fieldName);
     if (docValue == null || docValue.isEmpty()) {
       return null; // No way to differentiate null and missing from doc value
@@ -139,15 +138,6 @@ public class ExpressionScript {
       return ((ChronoZonedDateTime<?>) value).toInstant();
     }
     return castNumberToFieldType(value, field.type());
-  }
-
-  /**
-   * Text field doesn't have doc value (exception thrown even when you call "get")
-   * Limitation: assume inner field name is always "keyword".
-   */
-  private String getDocValueName(ReferenceExpression field) {
-    String fieldName = field.getAttr();
-    return ScriptUtils.convertTextToKeyword(fieldName, field.type());
   }
 
   /**

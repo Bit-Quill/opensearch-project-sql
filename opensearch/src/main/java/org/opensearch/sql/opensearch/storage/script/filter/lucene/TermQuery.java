@@ -11,7 +11,7 @@ import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
-import org.opensearch.sql.opensearch.storage.script.ScriptUtils;
+import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 
 /**
  * Lucene query that build term query for equality comparison.
@@ -20,7 +20,7 @@ public class TermQuery extends LuceneQuery {
 
   @Override
   protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
-    fieldName = ScriptUtils.convertTextToKeyword(fieldName, fieldType);
+    fieldName = OpenSearchTextType.convertTextToKeyword(fieldName, fieldType);
     return QueryBuilders.termQuery(fieldName, value(literal));
   }
 
