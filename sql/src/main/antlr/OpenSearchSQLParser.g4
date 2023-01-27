@@ -309,11 +309,11 @@ functionCall
     | relevanceFunction                                             #relevanceFunctionCall
     | highlightFunction                                             #highlightFunctionCall
     | positionFunction                                              #positionFunctionCall
-    | GET_FORMAT LR_BRACKET getFormatArgs RR_BRACKET                #getFormatFunctionCall
+    | getFormatFunction                                             #getFormatFunctionCall
     ;
 
-getFormatArgs
-    : getFormatType COMMA functionArg
+getFormatFunction
+    : GET_FORMAT LR_BRACKET getFormatType COMMA functionArg RR_BRACKET
     ;
 
 getFormatType
