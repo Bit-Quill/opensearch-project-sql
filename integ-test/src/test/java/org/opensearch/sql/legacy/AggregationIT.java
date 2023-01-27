@@ -25,13 +25,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -108,7 +104,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
   @Test
   public void avgTest() {
-
     JSONObject result = executeJdbcRequest(String.format("SELECT AVG(age) FROM %s", TEST_INDEX_ACCOUNT));
     assertEquals(1, result.getInt("total"));
     verifySchema(result, schema("AVG(age)", null, "double"));
@@ -117,7 +112,7 @@ public class AggregationIT extends SQLIntegTestCase {
 
   @Test
   public void statsTest() throws IOException {
-    // Query is unsupported in the new engine
+    // "UnsupportedOperationException" returned when using executeJdbcRequest()
     JSONObject result =
         executeQuery(String.format("SELECT STATS(age) FROM %s", TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(1000));
@@ -131,7 +126,7 @@ public class AggregationIT extends SQLIntegTestCase {
   @Test
   public void extendedStatsTest() throws IOException {
 
-    //Query is unsupported in the new engine
+    // "UnsupportedOperationException" returned when using executeJdbcRequest()
     JSONObject result = executeQuery(String.format("SELECT EXTENDED_STATS(age) FROM %s",
         TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(1000));
@@ -152,53 +147,34 @@ public class AggregationIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void percentileTest() throws IOException {
-
-    //Query is unsupported in the new engine
+  public void percentileTest() {
     JSONObject result =
-        executeQuery(String.format("SELECT PERCENTILES(age) FROM %s", TEST_INDEX_ACCOUNT));
-    Assert.assertThat(getTotalHits(result), equalTo(1000));
-    Assert
-        .assertEquals(20.0, getDoubleAggregationValue(result, "PERCENTILES(age)", "values", "1.0"),
-            0.001);
-    Assert
-        .assertEquals(21.0, getDoubleAggregationValue(result, "PERCENTILES(age)", "values", "5.0"),
-            0.001);
-    Assert
-        .assertEquals(25.0, getDoubleAggregationValue(result, "PERCENTILES(age)", "values", "25.0"),
-            0.001);
-    // All percentiles are approximations calculated by t-digest, however, P50 has the widest distribution (not sure why)
-    Assert
-        .assertEquals(30.5, getDoubleAggregationValue(result, "PERCENTILES(age)", "values", "50.0"),
-            0.6);
-    Assert
-        .assertEquals(35.0, getDoubleAggregationValue(result, "PERCENTILES(age)", "values", "75.0"),
-            0.6);
-    Assert
-        .assertEquals(39.0, getDoubleAggregationValue(result, "PERCENTILES(age)", "values", "95.0"),
-            0.6);
-    Assert
-        .assertEquals(40.0, getDoubleAggregationValue(result, "PERCENTILES(age)", "values", "99.0"),
-            0.6);
+        executeJdbcRequest(String.format("SELECT PERCENTILES(age) FROM %s", TEST_INDEX_ACCOUNT));
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("PERCENTILES(age)", null, "double"));
+    JSONObject jsonObject = result.getJSONArray("datarows").getJSONArray(0).getJSONObject(0);
+    assertTrue(jsonObject.keySet().contains("5.0"));
+    assertTrue(jsonObject.keySet().contains("25.0"));
+    assertTrue(jsonObject.keySet().contains("50.0"));
+    assertTrue(jsonObject.keySet().contains("75.0"));
+    assertTrue(jsonObject.keySet().contains("95.0"));
+    assertTrue(jsonObject.keySet().contains("99.0"));
+    assertTrue(jsonObject.keySet().contains("1.0"));
   }
 
   @Test
-  public void percentileTestSpecific() throws IOException {
-
-    //Query is unsupported in the new engine
-    JSONObject result = executeQuery(String.format("SELECT PERCENTILES(age,25.0,75.0) FROM %s",
+  public void percentileTestSpecific() {
+    JSONObject result = executeJdbcRequest(String.format("SELECT PERCENTILES(age,25.0,75.0) FROM %s",
         TEST_INDEX_ACCOUNT));
-
-    Assert.assertThat(getTotalHits(result), equalTo(1000));
-    Assert.assertEquals(25.0,
-        getDoubleAggregationValue(result, "PERCENTILES(age,25.0,75.0)", "values", "25.0"), 0.6);
-    Assert.assertEquals(35.0,
-        getDoubleAggregationValue(result, "PERCENTILES(age,25.0,75.0)", "values", "75.0"), 0.6);
+    assertEquals(1, result.getInt("total"));
+    verifySchema(result, schema("PERCENTILES(age,25.0,75.0)", null, "double"));
+    JSONObject jsonObject = result.getJSONArray("datarows").getJSONArray(0).getJSONObject(0);
+    assertTrue(jsonObject.keySet().contains("25.0"));
+    assertTrue(jsonObject.keySet().contains("75.0"));
   }
 
   @Test
   public void aliasTest() {
-
     JSONObject result = executeJdbcRequest(String.format("SELECT COUNT(*) AS mycount FROM %s",
         TEST_INDEX_ACCOUNT));
     assertEquals(1, result.getInt("total"));
@@ -207,7 +183,7 @@ public class AggregationIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void groupByTest() throws Exception {
+  public void groupByTest() {
     JSONObject result = executeJdbcRequest(String.format("SELECT COUNT(*) FROM %s GROUP BY gender",
         TEST_INDEX_ACCOUNT));
     assertEquals(2, result.getInt("total"));
@@ -309,120 +285,88 @@ public class AggregationIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void multipleGroupByTest() throws Exception {
-
-    // In new Engine: "Query is unsupported in the new engine"
-    JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s GROUP BY gender," +
+  public void multipleGroupByTest() {
+    JSONObject result = executeJdbcRequest(String.format("SELECT gender, COUNT(*) FROM %s GROUP BY gender," +
             " terms('field'='age','size'=200,'alias'='age')",
         TEST_INDEX_ACCOUNT));
-    Assert.assertThat(getTotalHits(result), equalTo(1000));
-    JSONObject gender = getAggregation(result, "gender");
-    Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(2));
+    assertEquals(42, result.getInt("total"));
+    verifyDataRows(result,
+            rows("m", 35), rows("m", 32), rows("m", 31),
+            rows("m", 28), rows("m", 28), rows("m", 27),
+            rows("m", 24), rows("m", 24), rows("m", 24),
+            rows("m", 24), rows("m", 23), rows("m", 23),
+            rows("m", 23), rows("m", 22), rows("m", 22),
+            rows("m", 22), rows("m", 20), rows("m", 19),
+            rows("m", 19), rows("m", 19), rows("m", 18),
 
-    final boolean isMaleFirst = gender.optQuery("/buckets/0/key").equals("m");
-    final int maleBucketId = isMaleFirst ? 0 : 1;
-    final int femaleBucketId = isMaleFirst ? 1 : 0;
-
-    final String maleBucketPrefix = String.format(Locale.ROOT, "/buckets/%d", maleBucketId);
-    final String femaleBucketPrefix = String.format(Locale.ROOT, "/buckets/%d", femaleBucketId);
-
-    final JSONArray mAgeBuckets = (JSONArray) (gender.optQuery(maleBucketPrefix + "/age/buckets"));
-    final JSONArray fAgeBuckets =
-        (JSONArray) (gender.optQuery(femaleBucketPrefix + "/age/buckets"));
-
-    final Set<Integer> expectedAges =
-        IntStream.range(20, 41).boxed().collect(Collectors.toCollection(HashSet::new));
-    Assert.assertThat(mAgeBuckets.length(), equalTo(expectedAges.size()));
-    Assert.assertThat(fAgeBuckets.length(), equalTo(expectedAges.size()));
-
-    final Set<Integer> actualAgesM = new HashSet<>(expectedAges.size());
-    final Set<Integer> actualAgesF = new HashSet<>(expectedAges.size());
-    mAgeBuckets.iterator()
-        .forEachRemaining(json -> actualAgesM.add(((JSONObject) json).getInt("key")));
-    fAgeBuckets.iterator()
-        .forEachRemaining(json -> actualAgesF.add(((JSONObject) json).getInt("key")));
-
-    Assert.assertThat(actualAgesM, equalTo(expectedAges));
-    Assert.assertThat(actualAgesF, equalTo(expectedAges));
+            rows("f", 38), rows("f", 31), rows("f", 30),
+            rows("f", 27), rows("f", 27), rows("f", 26),
+            rows("f", 26), rows("f", 25), rows("f", 24),
+            rows("f", 24), rows("f", 24), rows("f", 23),
+            rows("f", 21), rows("f", 21), rows("f", 21),
+            rows("f", 20), rows("f", 19), rows("f", 19),
+            rows("f", 18), rows("f", 17), rows("f", 12));
   }
 
   @Test
-  public void multipleGroupBysWithSize() throws Exception {
-
-    // In new Engine: "Query is unsupported in the new engine"
-    JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s GROUP BY gender," +
+  public void multipleGroupBysWithSize() {
+    JSONObject result = executeJdbcRequest(String.format("SELECT gender, COUNT(*) FROM %s GROUP BY gender," +
             " terms('alias'='ageAgg','field'='age','size'=3)",
         TEST_INDEX_ACCOUNT));
-    Assert.assertThat(getTotalHits(result), equalTo(1000));
-    JSONObject gender = getAggregation(result, "gender");
-    Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(2));
-
-    final JSONArray mAgeBuckets = (JSONArray) (gender.optQuery("/buckets/0/ageAgg/buckets"));
-    final JSONArray fAgeBuckets = (JSONArray) (gender.optQuery("/buckets/0/ageAgg/buckets"));
-
-    Assert.assertThat(mAgeBuckets.length(), equalTo(3));
-    Assert.assertThat(fAgeBuckets.length(), equalTo(3));
+    assertEquals(6, result.getInt("total"));
+    verifyDataRows(result,
+            rows("m", 35), rows("f", 38),
+            rows("m", 32), rows("f", 31),
+            rows("m", 31), rows("f", 30));
   }
 
   @Test
-  public void termsWithSize() throws Exception {
-
-    // In new Engine: "Query is unsupported in the new engine"
-    JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s GROUP BY terms" +
+  public void termsWithSize() {
+    JSONObject result = executeJdbcRequest(String.format("SELECT COUNT(*) FROM %s GROUP BY terms" +
             "('alias'='ageAgg','field'='age','size'=3)",
         TEST_INDEX_ACCOUNT));
-    Assert.assertThat(getTotalHits(result), equalTo(1000));
-    JSONObject gender = getAggregation(result, "ageAgg");
-    Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(3));
+    assertEquals(3, result.getInt("total"));
+    verifyDataRows(result, rows(61),
+            rows(60), rows(59));
   }
 
   @Test
-  public void termsWithMissing() throws Exception {
-
-    // In new Engine: "Query is unsupported in the new engine"
-    JSONObject result = executeQuery(String.format("SELECT count(*) FROM %s GROUP BY terms" +
+  public void termsWithMissing() {
+    JSONObject result = executeJdbcRequest(String.format("SELECT count(*) FROM %s GROUP BY terms" +
             "('alias'='nick','field'='nickname','missing'='no_nickname')",
         TEST_INDEX_GAME_OF_THRONES));
-    JSONObject nick = getAggregation(result, "nick");
-
-    Optional<JSONObject> noNicknameBucket = Optional.empty();
-    Iterator<Object> iter = nick.getJSONArray("buckets").iterator();
-    while (iter.hasNext()) {
-      JSONObject bucket = (JSONObject) iter.next();
-      if (bucket.getString("key").equals("no_nickname")) {
-        noNicknameBucket = Optional.of(bucket);
-        Assert.assertThat(bucket.getInt("doc_count"), equalTo(6));
-      }
-    }
-    Assert.assertTrue(noNicknameBucket.isPresent());
+    assertEquals(3, result.getInt("total"));
+    verifyDataRows(result, rows(6),
+            rows(1), rows(1));
   }
 
   @Test
-  public void termsWithOrder() throws Exception {
+  public void termsWithOrder() {
 
     final String dog1 = "snoopy";
     final String dog2 = "rex";
 
-    // In new Engine: "Query is unsupported in the new engine"
-    JSONObject result = executeQuery(String.format("SELECT count(*) FROM %s GROUP BY terms" +
+    JSONObject result = executeJdbcRequest(String.format("SELECT dog_name, count(*) FROM %s GROUP BY terms" +
             "('field'='dog_name', 'alias'='dog_name', 'order'='desc')",
         TEST_INDEX_DOG));
-    JSONObject dogName = getAggregation(result, "dog_name");
+    assertEquals(2, result.getInt("total"));
+    verifyDataRows(result,
+            rows(dog1, 1), rows(dog2, 1));
+    assertEquals(dog1, result.getJSONArray("datarows").getJSONArray(0).getString(0));
+    assertEquals(1, result.getJSONArray("datarows").getJSONArray(0).getInt(1));
+    assertEquals(dog2, result.getJSONArray("datarows").getJSONArray(1).getString(0));
+    assertEquals(1, result.getJSONArray("datarows").getJSONArray(1).getInt(1));
 
-    String firstDog = (String) (dogName.optQuery("/buckets/0/key"));
-    String secondDog = (String) (dogName.optQuery("/buckets/1/key"));
-    Assert.assertThat(firstDog, equalTo(dog1));
-    Assert.assertThat(secondDog, equalTo(dog2));
-
-    result = executeQuery(String.format("SELECT count(*) FROM %s GROUP BY terms" +
+    result = executeJdbcRequest(String.format("SELECT dog_name, count(*) FROM %s GROUP BY terms" +
         "('field'='dog_name', 'alias'='dog_name', 'order'='asc')", TEST_INDEX_DOG));
 
-    dogName = getAggregation(result, "dog_name");
-
-    firstDog = (String) (dogName.optQuery("/buckets/0/key"));
-    secondDog = (String) (dogName.optQuery("/buckets/1/key"));
-    Assert.assertThat(firstDog, equalTo(dog2));
-    Assert.assertThat(secondDog, equalTo(dog1));
+    assertEquals(2, result.getInt("total"));
+    verifyDataRows(result,
+            rows(dog1, 1), rows(dog2, 1));
+    assertEquals(dog2, result.getJSONArray("datarows").getJSONArray(0).getString(0));
+    assertEquals(1, result.getJSONArray("datarows").getJSONArray(0).getInt(1));
+    assertEquals(dog1, result.getJSONArray("datarows").getJSONArray(1).getString(0));
+    assertEquals(1, result.getJSONArray("datarows").getJSONArray(1).getInt(1));
   }
 
   @Test
@@ -511,7 +455,8 @@ public class AggregationIT extends SQLIntegTestCase {
   @Test
   public void countGroupByRange() throws IOException {
 
-    // In new Engine: "Query is unsupported in the new engine"
+    // "java.lang.RuntimeException: unsupported aggregation type range"
+    // returned when using executeJdbcRequest()
     JSONObject result = executeQuery(String.format("SELECT COUNT(age) FROM %s" +
         " GROUP BY range(age, 20,25,30,35,40)", TEST_INDEX_ACCOUNT));
     JSONObject ageAgg = getAggregation(result, "range(age,20,25,30,35,40)");
@@ -568,7 +513,7 @@ public class AggregationIT extends SQLIntegTestCase {
   @Test
   public void topHitTest() throws IOException {
 
-    // In new Engine: "Query is unsupported in the new engine"
+    // "UnsupportedOperationException" returned when using executeJdbcRequest()
     String query = String
         .format("select topHits('size'=3,age='desc') from %s group by gender", TEST_INDEX_ACCOUNT);
     JSONObject result = executeQuery(query);
@@ -608,10 +553,10 @@ public class AggregationIT extends SQLIntegTestCase {
   @Test
   public void topHitTest_WithInclude() throws IOException {
 
+    // "UnsupportedOperationException" returned when using executeJdbcRequest()
     String query =
         String.format("select topHits('size'=3,age='desc','include'=age) from %s group by gender",
             TEST_INDEX_ACCOUNT);
-    // In new Engine: "Query is unsupported in the new engine"
     JSONObject result = executeQuery(query);
     JSONObject gender = getAggregation(result, "gender");
     Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(2));
@@ -659,10 +604,10 @@ public class AggregationIT extends SQLIntegTestCase {
   @Test
   public void topHitTest_WithIncludeTwoFields() throws IOException {
 
+    // "UnsupportedOperationException" returned when using executeJdbcRequest()
     String query =
         String.format("select topHits('size'=3,'include'='age,firstname',age='desc') from %s " +
             "group by gender", TEST_INDEX_ACCOUNT);
-    // In new Engine: "Query is unsupported in the new engine"
     JSONObject result = executeQuery(query);
     JSONObject gender = getAggregation(result, "gender");
     Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(2));
@@ -685,9 +630,9 @@ public class AggregationIT extends SQLIntegTestCase {
   @Test
   public void topHitTest_WithExclude() throws IOException {
 
+    // "UnsupportedOperationException" returned when using executeJdbcRequest()
     String query = String.format("select topHits('size'=3,'exclude'='lastname',age='desc') from " +
         "%s group by gender", TEST_INDEX_ACCOUNT);
-    // In new Engine: "Query is unsupported in the new engine"
     JSONObject result = executeQuery(query);
     JSONObject gender = getAggregation(result, "gender");
     Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(2));
@@ -991,9 +936,9 @@ public class AggregationIT extends SQLIntegTestCase {
   @Test
   public void groupByOnNestedFieldWithFilterTest() throws Exception {
 
+    // "SqlFeatureNotImplementedException" returned when using executeJdbcRequest()
     String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info)," +
         "filter('myFilter',message.info = 'a')", TEST_INDEX_NESTED_TYPE);
-    // In new Engine: "Query is unsupported in the new engine"
     JSONObject result = executeQuery(query);
 
     JSONObject aggregation = getAggregation(result, "message.info@NESTED");
@@ -1009,7 +954,7 @@ public class AggregationIT extends SQLIntegTestCase {
   @Test
   public void minOnNestedField() throws Exception {
 
-    // In new Engine: "Query is unsupported in the new engine"
+    // "SqlFeatureNotImplementedException" returned when using executeJdbcRequest()
     String query = String.format("SELECT min(nested(message.dayOfWeek)) as minDays FROM %s",
         TEST_INDEX_NESTED_TYPE);
     JSONObject result = executeQuery(query);
@@ -1020,7 +965,7 @@ public class AggregationIT extends SQLIntegTestCase {
   @Test
   public void sumOnNestedField() throws Exception {
 
-    // In new Engine: "Query is unsupported in the new engine"
+    // "SqlFeatureNotImplementedException" returned when using executeJdbcRequest()
     String query = String.format("SELECT sum(nested(message.dayOfWeek)) as sumDays FROM %s",
         TEST_INDEX_NESTED_TYPE);
     JSONObject result = executeQuery(query);
@@ -1031,7 +976,7 @@ public class AggregationIT extends SQLIntegTestCase {
   @Test
   public void histogramOnNestedField() throws Exception {
 
-    // In new Engine: "Query is unsupported in the new engine"
+    // "java.lang.RuntimeException: unsupported aggregation type nested" returned when using executeJdbcRequest()
     String query = String.format("select count(*) from %s group by histogram" +
             "('field'='message.dayOfWeek','nested'='message','interval'='2' , 'alias' = 'someAlias' )",
         TEST_INDEX_NESTED_TYPE);
@@ -1060,7 +1005,7 @@ public class AggregationIT extends SQLIntegTestCase {
   public void reverseToRootGroupByOnNestedFieldWithFilterTestWithReverseNestedAndEmptyPath()
       throws Exception {
 
-    // In new Engine: "Query is unsupported in the new engine"
+    // "SqlFeatureNotImplementedException" returned when using executeJdbcRequest()
     String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info)," +
             "filter('myFilter',message.info = 'a'),reverse_nested(someField,'')",
         TEST_INDEX_NESTED_TYPE);
@@ -1084,7 +1029,7 @@ public class AggregationIT extends SQLIntegTestCase {
   public void reverseToRootGroupByOnNestedFieldWithFilterTestWithReverseNestedNoPath()
       throws Exception {
 
-    // In new Engine: "Query is unsupported in the new engine"
+    // "SqlFeatureNotImplementedException" returned when using executeJdbcRequest()
     String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info),filter" +
         "('myFilter',message.info = 'a'),reverse_nested(someField)", TEST_INDEX_NESTED_TYPE);
     JSONObject result = executeQuery(query);
@@ -1107,7 +1052,7 @@ public class AggregationIT extends SQLIntegTestCase {
   public void reverseToRootGroupByOnNestedFieldWithFilterTestWithReverseNestedOnHistogram()
       throws Exception {
 
-    // In new Engine: "Query is unsupported in the new engine"
+    // "SqlFeatureNotImplementedException" returned when using executeJdbcRequest()
     String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info)," +
         "filter('myFilter',message.info = 'a'),histogram('field'='myNum','reverse_nested'='','interval'='2', " +
         "'alias' = 'someAlias' )", TEST_INDEX_NESTED_TYPE);
@@ -1142,7 +1087,7 @@ public class AggregationIT extends SQLIntegTestCase {
   public void reverseToRootGroupByOnNestedFieldWithFilterAndSumOnReverseNestedField()
       throws Exception {
 
-    // In new Engine: "Query is unsupported in the new engine"
+    // "SqlFeatureNotImplementedException" returned when using executeJdbcRequest()
     String query = String.format("SELECT sum(reverse_nested(myNum)) bla FROM %s GROUP BY " +
         "nested(message.info),filter('myFilter',message.info = 'a')", TEST_INDEX_NESTED_TYPE);
     JSONObject result = executeQuery(query);
@@ -1162,7 +1107,7 @@ public class AggregationIT extends SQLIntegTestCase {
   public void reverseAnotherNestedGroupByOnNestedFieldWithFilterTestWithReverseNestedNoPath()
       throws Exception {
 
-    // In new Engine: "Query is unsupported in the new engine"
+    // "SqlFeatureNotImplementedException" returned when using executeJdbcRequest()
     String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info)," +
             "filter('myFilter',message.info = 'a'),reverse_nested(comment.data,'~comment')",
         TEST_INDEX_NESTED_TYPE);
@@ -1187,7 +1132,7 @@ public class AggregationIT extends SQLIntegTestCase {
   public void reverseAnotherNestedGroupByOnNestedFieldWithFilterTestWithReverseNestedOnHistogram()
       throws Exception {
 
-    // In new Engine: "Query is unsupported in the new engine"
+    // "SqlFeatureNotImplementedException" returned when using executeJdbcRequest()
     String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info),filter" +
         "('myFilter',message.info = 'a'),histogram('field'='comment.likes','reverse_nested'='~comment'," +
         "'interval'='2' , 'alias' = 'someAlias' )", TEST_INDEX_NESTED_TYPE);
@@ -1221,7 +1166,7 @@ public class AggregationIT extends SQLIntegTestCase {
   public void reverseAnotherNestedGroupByOnNestedFieldWithFilterAndSumOnReverseNestedField()
       throws Exception {
 
-    // In new Engine: "Query is unsupported in the new engine"
+    // "SqlFeatureNotImplementedException" returned when using executeJdbcRequest()
     String query =
         String.format("SELECT sum(reverse_nested(comment.likes,'~comment')) bla FROM %s " +
                 "GROUP BY  nested(message.info),filter('myFilter',message.info = 'a')",
