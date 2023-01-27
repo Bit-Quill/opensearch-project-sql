@@ -66,7 +66,7 @@ public class IndexMapping {
     if (!fieldMappings.containsKey(fieldName)) {
       return null;
     }
-    return fieldMappings.get(fieldName).typeName();
+    return fieldMappings.get(fieldName).legacyTypeName();
   }
 
   @SuppressWarnings("unchecked")

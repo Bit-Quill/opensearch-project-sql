@@ -176,15 +176,20 @@ public class OpenSearchDataType implements ExprType, Serializable {
 
   @Override
   public String typeName() {
-    if (mappingType == null) {
-      return exprCoreType.typeName();
+    // To avoid breaking changes return `string` for `typeName` call (PPL) and `text` for
+    // `legacyTypeName` call (SQL). See more: https://github.com/opensearch-project/sql/issues/1296
+    if (legacyTypeName().equals("text")) {
+      return "string";
     }
-    return mappingType.toString().toLowerCase();
+    return legacyTypeName();
   }
 
   @Override
   public String legacyTypeName() {
-    return typeName();
+    if (mappingType == null) {
+      return exprCoreType.typeName();
+    }
+    return mappingType.toString().toLowerCase();
   }
 
   /**

@@ -45,7 +45,7 @@ public class PPLPluginIT extends PPLIntegTestCase {
     client().performRequest(request);
 
     JSONObject response = executeQuery("search source=a");
-    verifySchema(response, schema("name", null, "text"));
+    verifySchema(response, schema("name", null, "string"));
     verifyDataRows(response, rows("hello"));
   }
 

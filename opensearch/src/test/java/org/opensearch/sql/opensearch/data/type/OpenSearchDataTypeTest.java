@@ -61,10 +61,12 @@ class OpenSearchDataTypeTest {
     assertTrue(textType.isCompatible(textKeywordType));
   }
 
+  // `typeName` and `legacyTypeName` return different things:
+  // https://github.com/opensearch-project/sql/issues/1296
   @Test
   public void testTypeName() {
-    assertEquals("text", textType.typeName());
-    assertEquals("text", textKeywordType.typeName());
+    assertEquals("string", textType.typeName());
+    assertEquals("string", textKeywordType.typeName());
   }
 
   @Test
@@ -106,9 +108,13 @@ class OpenSearchDataTypeTest {
   @MethodSource("getTestDataWithType")
   public void ofType(OpenSearchDataType.MappingType mappingType, String name, ExprType dataType) {
     var type = OpenSearchDataType.of(mappingType);
+    // For serialization of SQL and PPL different functions are used, and it was designed to return
+    // different types. No clue why, but it should be fixed in #1296.
+    var nameForSQL = name;
+    var nameForPPL = name.equals("text") ? "string" : name;
     assertAll(
-        () -> assertEquals(name, type.typeName()),
-        () -> assertEquals(name, type.legacyTypeName()),
+        () -> assertEquals(nameForPPL, type.typeName()),
+        () -> assertEquals(nameForSQL, type.legacyTypeName()),
         () -> assertEquals(dataType, type.getExprType())
     );
   }

@@ -80,7 +80,7 @@ public class StandaloneIT extends PPLIntegTestCase {
             + "  \"schema\": [\n"
             + "    {\n"
             + "      \"name\": \"name\",\n"
-            + "      \"type\": \"text\"\n"
+            + "      \"type\": \"string\"\n"
             + "    }\n"
             + "  ],\n"
             + "  \"datarows\": [\n"
