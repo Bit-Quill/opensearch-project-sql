@@ -47,7 +47,7 @@ public class SystemFunctionsTest {
   void typeof() {
     assertEquals(STRING, dsl.typeof(DSL.literal(1)).type());
 
-    assertEquals("ARRAY", typeofGetValue(new ExprCollectionValue(List.of())));
+    assertEquals("nested", typeofGetValue(new ExprCollectionValue(List.of())));
     assertEquals("BOOLEAN", typeofGetValue(ExprBooleanValue.of(false)));
     assertEquals("BYTE", typeofGetValue(new ExprByteValue(0)));
     assertEquals("DATE", typeofGetValue(new ExprDateValue(LocalDate.now())));
