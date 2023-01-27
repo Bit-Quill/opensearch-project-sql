@@ -163,7 +163,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
   protected OpenSearchDataType() {
   }
 
-  // object and nested types have properties - info about embedded types
+  // For datatypes with properties (example: object and nested types)
   // a read-only collection
   @Getter
   @EqualsAndHashCode.Exclude
@@ -175,6 +175,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
   Map<String, OpenSearchDataType> fields = ImmutableMap.of();
 
   @Override
+  // Called when building TypeEnvironment and when serializing PPL response
   public String typeName() {
     // To avoid breaking changes return `string` for `typeName` call (PPL) and `text` for
     // `legacyTypeName` call (SQL). See more: https://github.com/opensearch-project/sql/issues/1296
@@ -185,6 +186,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
   }
 
   @Override
+  // Called when serializing SQL response
   public String legacyTypeName() {
     if (mappingType == null) {
       return exprCoreType.typeName();

@@ -205,7 +205,7 @@ class OpenSearchDataTypeTest {
   // type.text : Text
   // type.keyword : Keyword
   // ==================
-  // Objects are flattened, but Texts aren't
+  // Objects are flattened by OpenSearch, but Texts aren't
   // TODO Arrays
   @Test
   public void traverseAndFlatten() {
