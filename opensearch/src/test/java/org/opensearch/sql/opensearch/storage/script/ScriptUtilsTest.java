@@ -11,10 +11,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
+import java.util.Map;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class ScriptUtilsTest {
@@ -37,10 +39,10 @@ public class ScriptUtilsTest {
 
   @Test
   void non_text_types_with_nested_objects_arent_converted() {
-    var objectType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Object);
-    objectType.getProperties().put("subfield", OpenSearchDataType.of(STRING));
-    var arrayType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Nested);
-    objectType.getProperties().put("subfield", OpenSearchDataType.of(STRING));
+    var objectType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Object,
+        Map.of("subfield", OpenSearchDataType.of(STRING)), Map.of());
+    var arrayType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Nested,
+        Map.of("subfield", OpenSearchDataType.of(STRING)), Map.of());
     assertAll(
         () -> assertEquals("field", ScriptUtils.convertTextToKeyword("field", objectType)),
         () -> assertEquals("field", ScriptUtils.convertTextToKeyword("field", arrayType))
@@ -55,9 +57,8 @@ public class ScriptUtilsTest {
 
   @Test
   void text_type_with_fields_is_converted() {
-    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
-    textWithKeywordType.getFields().put("keyword",
-        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
+    var textWithKeywordType = new OpenSearchTextType(Map.of("keyword",
+        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword)));
     assertEquals("field.keyword", ScriptUtils.convertTextToKeyword("field", textWithKeywordType));
   }
 }

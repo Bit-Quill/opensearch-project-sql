@@ -7,6 +7,7 @@
 package org.opensearch.sql.opensearch.mapping;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -70,7 +71,7 @@ public class IndexMapping {
 
   @SuppressWarnings("unchecked")
   private Map<String, OpenSearchDataType> parseMapping(Map<String, Object> indexMapping) {
-    Map<String, OpenSearchDataType> result = new HashMap<>();
+    Map<String, OpenSearchDataType> result = new LinkedHashMap<>();
     if (indexMapping != null) {
       indexMapping.forEach((k, v) -> {
         var innerMap = (Map<String, Object>)v;
@@ -81,17 +82,12 @@ public class IndexMapping {
           // TODO resolve alias reference
           return;
         }
-        var value = OpenSearchDataType.of(
-            EnumUtils.getEnumIgnoreCase(OpenSearchDataType.MappingType.class, type));
         // TODO read formats for date type
-        if (innerMap.containsKey("properties")) {
-          value.getProperties().putAll(parseMapping(
-              (Map<String, Object>) innerMap.get("properties")));
-        } else if (innerMap.containsKey("fields")) {
-          value.getFields().putAll(parseMapping(
-              (Map<String, Object>) innerMap.get("fields")));
-        }
-        result.put(k, value);
+        result.put(k, OpenSearchDataType.of(
+            EnumUtils.getEnumIgnoreCase(OpenSearchDataType.MappingType.class, type),
+            parseMapping((Map<String, Object>) innerMap.getOrDefault("properties", null)),
+            parseMapping((Map<String, Object>) innerMap.getOrDefault("fields", null))
+            ));
       });
     }
     return result;

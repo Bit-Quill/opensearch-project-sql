@@ -11,7 +11,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 import lombok.EqualsAndHashCode;
 
 /**
- * The type of a binary value. See
+ * The type of a geo_point value. See
  * <a href="https://opensearch.org/docs/latest/opensearch/supported-field-types/geo-point/">doc</a>
  */
 @EqualsAndHashCode(callSuper = false)

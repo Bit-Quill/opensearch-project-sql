@@ -54,6 +54,7 @@ import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 import org.opensearch.sql.opensearch.storage.serialization.ExpressionSerializer;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -264,9 +265,6 @@ class FilterQueryBuilderTest {
 
   @Test
   void should_use_keyword_for_multi_field_in_equality_expression() {
-    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
-    textWithKeywordType.getFields().put("keyword",
-        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
     assertJsonEquals(
         "{\n"
             + "  \"term\" : {\n"
@@ -278,14 +276,13 @@ class FilterQueryBuilderTest {
             + "}",
         buildQuery(
             dsl.equal(
-                ref("name", textWithKeywordType), literal("John"))));
+                ref("name", new OpenSearchTextType(Map.of("words",
+                    OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword)))),
+                literal("John"))));
   }
 
   @Test
   void should_use_keyword_for_multi_field_in_like_expression() {
-    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
-    textWithKeywordType.getFields().put("keyword",
-        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
     assertJsonEquals(
         "{\n"
             + "  \"wildcard\" : {\n"
@@ -297,7 +294,9 @@ class FilterQueryBuilderTest {
             + "}",
         buildQuery(
             dsl.like(
-                ref("name", textWithKeywordType), literal("John%"))));
+                ref("name", new OpenSearchTextType(Map.of("words",
+                    OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword)))),
+                literal("John%"))));
   }
 
   @Test

@@ -7,6 +7,7 @@ package org.opensearch.sql.opensearch.data.type;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -52,9 +53,8 @@ public class OpenSearchDataTypeRecognitionTest {
 
     @Override
     public ExprType type() {
-      var type = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
-      type.getFields().put("words", OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
-      return type;
+      return new OpenSearchTextType(Map.of("words",
+          OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword)));
     }
   }
 }

@@ -6,9 +6,11 @@
 
 package org.opensearch.sql.opensearch.data.type;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.opensearch.sql.data.type.ExprCoreType;
@@ -121,6 +123,23 @@ public class OpenSearchDataType implements ExprType, Serializable {
     return res;
   }
 
+  /**
+   * A constructor function which builds proper `OpenSearchDataType` for given mapping `Type`.
+   * Designed to be called by the mapping parser only (and tests).
+   * @param mappingType A mapping type.
+   * @param properties Properties to set.
+   * @param fields Fields to set.
+   * @return An instance or inheritor of `OpenSearchDataType`.
+   */
+  public static OpenSearchDataType of(MappingType mappingType,
+                                      Map<String, OpenSearchDataType> properties,
+                                      Map<String, OpenSearchDataType> fields) {
+    var res = of(mappingType);
+    res.properties = ImmutableMap.copyOf(properties);
+    res.fields = ImmutableMap.copyOf(fields);
+    return res;
+  }
+
   protected OpenSearchDataType(MappingType mappingType) {
     this.mappingType = mappingType;
   }
@@ -145,14 +164,15 @@ public class OpenSearchDataType implements ExprType, Serializable {
   }
 
   // object and nested types have properties - info about embedded types
+  // a read-only collection
   @Getter
   @EqualsAndHashCode.Exclude
-  Map<String, OpenSearchDataType> properties = new LinkedHashMap<>();
+  Map<String, OpenSearchDataType> properties = ImmutableMap.of();
 
   // text could have fields
-  @Getter
+  // a read-only collection
   @EqualsAndHashCode.Exclude
-  Map<String, OpenSearchDataType> fields = new LinkedHashMap<>();
+  Map<String, OpenSearchDataType> fields = ImmutableMap.of();
 
   @Override
   public String typeName() {
@@ -188,19 +208,22 @@ public class OpenSearchDataType implements ExprType, Serializable {
    */
   public static Map<String, OpenSearchDataType> traverseAndFlatten(
       Map<String, OpenSearchDataType> tree) {
-    Map<String, OpenSearchDataType> result = new LinkedHashMap<>();
-    for (var entry : tree.entrySet()) {
-      result.put(entry.getKey(), entry.getValue().cloneEmpty());
-      result.putAll(
-          traverseAndFlatten(entry.getValue().properties)
-              .entrySet().stream()
-              .collect(
-                  LinkedHashMap::new,
-                  (map, item) -> map.put(
-                      String.format("%s.%s", entry.getKey(), item.getKey()),
-                      item.getValue()),
-                  Map::putAll));
-    }
+    final Map<String, OpenSearchDataType> result = new LinkedHashMap<>();
+    BiConsumer<Map<String, OpenSearchDataType>, String> visitLevel = new BiConsumer<>() {
+      @Override
+      public void accept(Map<String, OpenSearchDataType> subtree, String prefix) {
+        for (var entry : subtree.entrySet()) {
+          String entryKey = entry.getKey();
+          var nextPrefix = prefix.isEmpty() ? entryKey : String.format("%s.%s", prefix, entryKey);
+          result.put(nextPrefix, entry.getValue().cloneEmpty());
+          var nextSubtree = entry.getValue().getProperties();
+          if (!nextSubtree.isEmpty()) {
+            accept(nextSubtree, nextPrefix);
+          }
+        }
+      }
+    };
+    visitLevel.accept(tree, "");
     return result;
   }
 

@@ -16,6 +16,7 @@ import static org.opensearch.sql.expression.DSL.ref;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +37,7 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.parse.ParseExpression;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 import org.opensearch.sql.opensearch.storage.serialization.ExpressionSerializer;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -70,9 +72,6 @@ class BucketAggregationBuilderTest {
 
   @Test
   void should_build_bucket_with_keyword_field() {
-    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
-    textWithKeywordType.getFields().put("keyword",
-        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
     assertEquals(
         "{\n"
             + "  \"terms\" : {\n"
@@ -84,7 +83,8 @@ class BucketAggregationBuilderTest {
             + "}",
         buildQuery(
             Arrays.asList(
-                asc(named("name", ref("name", textWithKeywordType))))));
+                asc(named("name", ref("name", new OpenSearchTextType(Map.of("words",
+                    OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword)))))))));
   }
 
   @Test

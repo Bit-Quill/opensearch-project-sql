@@ -31,6 +31,7 @@ import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.Mapping
 
 import java.util.Map;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,8 +49,7 @@ class OpenSearchDataTypeTest {
   @BeforeAll
   private static void setUpTypes() {
     textType = OpenSearchDataType.of(Text);
-    textKeywordType = OpenSearchDataType.of(Text);
-    textKeywordType.getFields().put("words", OpenSearchTextType.of(Keyword));
+    textKeywordType = new OpenSearchTextType(Map.of("words", OpenSearchTextType.of(Keyword)));
   }
 
   @Test
@@ -151,14 +151,17 @@ class OpenSearchDataTypeTest {
   @Test
   // cloneEmpty doesn't clone properties, but clones fields and other attributes
   public void cloneEmpty() {
-    var type = new TestType(OpenSearchDataType.MappingType.Object);
-    type.getProperties().put("val", OpenSearchDataType.of(INTEGER));
-    type.getFields().put("words", OpenSearchDataType.of(STRING));
+    var type = new TestType(OpenSearchDataType.MappingType.Object,
+        Map.of("val", OpenSearchDataType.of(INTEGER)),
+        Map.of("words", OpenSearchDataType.of(STRING)));
     var clone = type.cloneEmpty();
+
     assertAll(
         // can compare because `properties` and `fields` are marked as @EqualsAndHashCode.Exclude
         () -> assertEquals(type, clone),
-        () -> assertEquals(type.getFields(), clone.getFields()),
+        // read private field `fields`
+        () -> assertEquals(FieldUtils.readField(type, "fields", true),
+            FieldUtils.readField(clone, "fields", true)),
         () -> assertTrue(clone.getProperties().isEmpty())
     );
   }
@@ -279,31 +282,37 @@ class OpenSearchDataTypeTest {
   }
 
   private Map<String, OpenSearchDataType> getSampleMapping() {
-    var type = OpenSearchDataType.of(OpenSearchDataType.MappingType.Object);
-    var subtype = OpenSearchDataType.of(OpenSearchDataType.MappingType.Object);
-    var subsubtype = OpenSearchDataType.of(OpenSearchDataType.MappingType.Object);
-    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
-    textWithKeywordType.getFields().put("keyword",
-        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
-    subsubtype.getProperties().put("textWithKeywordType", textWithKeywordType);
-    subsubtype.getProperties().put("INTEGER", OpenSearchDataType.of(INTEGER));
-    subtype.getProperties().put("subsubtype", subsubtype);
-    var textWithFieldsType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
-    textWithFieldsType.getFields().put("words",
-        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
-    subtype.getProperties().put("textWithFieldsType", textWithFieldsType);
-    subtype.getProperties().put("geo_point", new OpenSearchGeoPointType());
-    type.getProperties().put("subtype", subtype);
-    type.getProperties().put("keyword",
-            OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
-    type.getProperties().put("text", OpenSearchDataType.of(OpenSearchDataType.MappingType.Text));
+    var textWithKeywordType = new OpenSearchTextType(Map.of("keyword",
+        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword)));
+
+    var subsubsubtypes = Map.of(
+        "textWithKeywordType", textWithKeywordType,
+        "INTEGER", OpenSearchDataType.of(INTEGER));
+
+    var subsubtypes = Map.of(
+        "subsubtype", OpenSearchDataType.of(OpenSearchDataType.MappingType.Object,
+            subsubsubtypes, Map.of()),
+        "textWithFieldsType", OpenSearchDataType.of(OpenSearchDataType.MappingType.Text, Map.of(),
+            Map.of("words", OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword))),
+        "geo_point", new OpenSearchGeoPointType());
+
+    var subtypes = Map.of(
+        "subtype", OpenSearchDataType.of(OpenSearchDataType.MappingType.Object,
+            subsubtypes, Map.of()),
+        "keyword", OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword),
+        "text", OpenSearchDataType.of(OpenSearchDataType.MappingType.Text));
+
+    var type = OpenSearchDataType.of(OpenSearchDataType.MappingType.Object, subtypes, Map.of());
     return Map.of("type", type);
   }
 
   private static class TestType extends OpenSearchDataType {
-    public TestType(MappingType mappingType) {
+    public TestType(MappingType mappingType, Map<String, OpenSearchDataType> properties,
+                    Map<String, OpenSearchDataType> fields) {
       this.exprCoreType = OpenSearchDataType.of(mappingType).exprCoreType;
       this.mappingType = mappingType;
+      this.properties = properties;
+      this.fields = fields;
     }
 
     public OpenSearchDataType cloneEmpty() {

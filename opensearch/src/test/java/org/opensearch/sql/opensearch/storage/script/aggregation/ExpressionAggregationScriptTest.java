@@ -35,6 +35,7 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
@@ -71,13 +72,12 @@ class ExpressionAggregationScriptTest {
 
   @Test
   void can_execute_expression_with_text_keyword_field() {
-    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
-    textWithKeywordType.getFields().put("keyword",
-        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
     assertThat()
         .docValues("name.keyword", "John")
         .evaluate(
-            dsl.equal(ref("name", textWithKeywordType), literal("John")))
+            dsl.equal(ref("name", new OpenSearchTextType(Map.of("words",
+                    OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword)))),
+                literal("John")))
         .shouldMatch(true);
   }
 

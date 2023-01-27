@@ -53,6 +53,7 @@ import org.opensearch.sql.expression.aggregation.CountAggregator;
 import org.opensearch.sql.expression.aggregation.NamedAggregator;
 import org.opensearch.sql.expression.config.ExpressionConfig;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 import org.opensearch.sql.opensearch.storage.serialization.ExpressionSerializer;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -153,9 +154,6 @@ class AggregationQueryBuilderTest {
 
   @Test
   void should_build_composite_aggregation_for_field_reference_of_keyword() {
-    var textWithKeywordType = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
-    textWithKeywordType.getFields().put("keyword",
-        OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
     assertEquals(format(
         "{%n"
             + "  \"composite_buckets\" : {%n"
@@ -184,7 +182,8 @@ class AggregationQueryBuilderTest {
         buildQuery(
             Arrays.asList(
                 named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER))),
-            Arrays.asList(named("name", ref("name", textWithKeywordType)))));
+            Arrays.asList(named("name", ref("name", new OpenSearchTextType(Map.of("words",
+                OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword))))))));
   }
 
   @Test

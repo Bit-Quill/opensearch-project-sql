@@ -51,14 +51,10 @@ import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 import org.opensearch.sql.opensearch.data.utils.OpenSearchJsonContent;
 
 class OpenSearchExprValueFactoryTest {
-  private static OpenSearchDataType getTextWithKeyword() {
-    var type = OpenSearchDataType.of(OpenSearchDataType.MappingType.Text);
-    type.getFields().put("words", OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword));
-    return type;
-  }
 
   private static final Map<String, OpenSearchDataType> MAPPING =
       new ImmutableMap.Builder<String, OpenSearchDataType>()
@@ -81,7 +77,8 @@ class OpenSearchExprValueFactoryTest {
           .put("arrayV.info", OpenSearchDataType.of(STRING))
           .put("arrayV.author", OpenSearchDataType.of(STRING))
           .put("textV", OpenSearchDataType.of(OpenSearchDataType.MappingType.Text))
-          .put("textKeywordV", getTextWithKeyword())
+          .put("textKeywordV", new OpenSearchTextType(Map.of("words",
+              OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword))))
           .put("ipV", OpenSearchDataType.of(OpenSearchDataType.MappingType.Ip))
           .put("geoV", OpenSearchDataType.of(OpenSearchDataType.MappingType.GeoPoint))
           .put("binaryV", OpenSearchDataType.of(OpenSearchDataType.MappingType.Binary))

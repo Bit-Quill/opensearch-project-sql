@@ -140,7 +140,7 @@ class OpenSearchRestClientTest {
         () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.MappingType.Text),
             parsedTypes.get("employer")),
         // `employer` is a `text` with `fields`
-        () -> assertTrue(parsedTypes.get("employer").getFields().size() > 0),
+        () -> assertTrue(((OpenSearchTextType)parsedTypes.get("employer")).getFields().size() > 0),
         () -> assertEquals("nested", indexMapping.getFieldType("projects")),
         () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.MappingType.Nested),
             parsedTypes.get("projects")),
@@ -158,7 +158,8 @@ class OpenSearchRestClientTest {
         () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.MappingType.Text),
             parsedTypes.get("manager.name")),
         // `manager.name` is a `text` with `fields`
-        () -> assertTrue(parsedTypes.get("manager.name").getFields().size() > 0),
+        () -> assertTrue(((OpenSearchTextType)parsedTypes.get("manager.name"))
+                .getFields().size() > 0),
         () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.MappingType.Keyword),
             parsedTypes.get("manager.address")),
         () -> assertEquals(OpenSearchTextType.of(OpenSearchDataType.MappingType.Long),
