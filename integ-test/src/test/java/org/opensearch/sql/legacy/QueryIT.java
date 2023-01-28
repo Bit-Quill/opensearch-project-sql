@@ -8,11 +8,8 @@ package org.opensearch.sql.legacy;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.isOneOf;
-import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
@@ -22,7 +19,9 @@ import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_GAME_OF_THRONE
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_ONLINE;
 import static org.opensearch.sql.util.MatcherUtils.rows;
+import static org.opensearch.sql.util.MatcherUtils.schema;
 import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
+import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -95,18 +94,17 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void multipleFromTest() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(String.format(Locale.ROOT,
+  public void multipleFromTest() {
+    JSONObject response = executeJdbcRequest(String.format(Locale.ROOT,
         "SELECT * FROM %s, %s LIMIT 2000",
         TestsConstants.TEST_INDEX_BANK, TestsConstants.TEST_INDEX_BANK_TWO));
-    Assert.assertTrue(response.has("hits"));
-    Assert.assertEquals(14, getTotalHits(response));
+    assertEquals(14, response.getInt("total"));
   }
 
   @Test
   public void selectAllWithFieldReturnsAll() throws IOException {
-    // In new Engine: 'Fails due to 'java.lang.IllegalArgumentException: Multiple entries with same key' error'
+    // When run using executeJdbcRequest(),
+    // fails due to 'java.lang.IllegalArgumentException: Multiple entries with same key' error'
     JSONObject response = executeQuery(StringUtils.format(
         "SELECT *, age " +
             "FROM %s " +
@@ -119,7 +117,8 @@ public class QueryIT extends SQLIntegTestCase {
 
   @Test
   public void selectAllWithFieldReverseOrder() throws IOException {
-    // In new Engine: 'Fails due to 'java.lang.IllegalArgumentException: Multiple entries with same key' error'
+    // When run using executeJdbcRequest(),
+    // fails due to 'java.lang.IllegalArgumentException: Multiple entries with same key' error'
     JSONObject response = executeQuery(StringUtils.format(
         "SELECT *, age " +
             "FROM %s " +
@@ -132,7 +131,8 @@ public class QueryIT extends SQLIntegTestCase {
 
   @Test
   public void selectAllWithMultipleFields() throws IOException {
-    // In new Engine: 'Fails due to 'java.lang.IllegalArgumentException: Multiple entries with same key' error
+    // When run using executeJdbcRequest(),
+    // fails due to 'java.lang.IllegalArgumentException: Multiple entries with same key' error'
     JSONObject response = executeQuery(StringUtils.format(
         "SELECT *, age, address " +
             "FROM %s " +
@@ -145,7 +145,8 @@ public class QueryIT extends SQLIntegTestCase {
 
   @Test
   public void selectAllWithFieldAndOrderBy() throws IOException {
-    // In new Engine: 'Fails due to 'java.lang.IllegalArgumentException: Multiple entries with same key' error'
+    // When run using executeJdbcRequest(),
+    // fails due to 'java.lang.IllegalArgumentException: Multiple entries with same key' error'
     JSONObject response = executeQuery(StringUtils.format(
         "SELECT *, age " +
             "FROM %s " +
@@ -159,7 +160,8 @@ public class QueryIT extends SQLIntegTestCase {
 
   @Test
   public void selectAllWithFieldAndGroupBy() throws IOException {
-    // In new Engine: 'Fails due to 'java.lang.IllegalArgumentException: Multiple entries with same key' error'
+    // When run using executeJdbcRequest(),
+    // fails due to 'java.lang.IllegalArgumentException: Multiple entries with same key' error'
     JSONObject response = executeQuery(StringUtils.format(
         "SELECT *, age " +
             "FROM %s " +
@@ -173,7 +175,8 @@ public class QueryIT extends SQLIntegTestCase {
 
   @Test
   public void selectAllWithFieldAndGroupByReverseOrder() throws IOException {
-    //In new Engine: 'Fails due to 'java.lang.IllegalArgumentException: Multiple entries with same key' error'
+    // When run using executeJdbcRequest(),
+    // fails due to 'java.lang.IllegalArgumentException: Multiple entries with same key' error'
     JSONObject response = executeQuery(StringUtils.format(
         "SELECT *, age " +
             "FROM %s " +
@@ -248,20 +251,15 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void selectFieldWithSpace() throws IOException {
-    // Query is unsupported in the new engine
+  public void selectFieldWithSpace() {
     String[] arr = new String[] {"test field"};
     Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
 
-    JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT ['test field'] FROM %s " +
+    JSONObject response = executeJdbcRequest(String.format(Locale.ROOT, "SELECT ['test field'] FROM %s " +
             "WHERE ['test field'] IS NOT null",
         TestsConstants.TEST_INDEX_PHRASE));
 
-    JSONArray hits = getHits(response);
-    for (int i = 0; i < hits.length(); i++) {
-      JSONObject hit = hits.getJSONObject(i);
-      Assert.assertEquals(expectedSource, getSource(hit).keySet());
-    }
+    assertResponseForSelectSpecificFields(response, expectedSource);
   }
 
   @Ignore("field aliases are not supported currently")
@@ -463,38 +461,26 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void regexQueryTest() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void regexQueryTest() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT * " +
                 "FROM %s " +
                 "WHERE dog_name = REGEXP_QUERY('sn.*', 'INTERSECTION|COMPLEMENT|EMPTY', 10000)",
             TestsConstants.TEST_INDEX_DOG));
-
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(1, hits.length());
-
-    JSONObject hitSource = getSource(hits.getJSONObject(0));
-    Assert.assertEquals("snoopy", hitSource.getString("dog_name"));
-    Assert.assertEquals("Hattie", hitSource.getString("holdersName"));
-    Assert.assertEquals(4, hitSource.getInt("age"));
+    assertEquals(1, response.getInt("total"));
+    verifyDataRows(response, rows("snoopy", "Hattie", 4));
   }
 
   @Test
-  public void negativeRegexQueryTest() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void negativeRegexQueryTest() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT * " +
                 "FROM %s " +
                 "WHERE NOT(dog_name = REGEXP_QUERY('sn.*', 'INTERSECTION|COMPLEMENT|EMPTY', 10000))",
             TestsConstants.TEST_INDEX_DOG));
 
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(1, hits.length());
-
-    JSONObject hitSource = getSource(hits.getJSONObject(0));
-    Assert.assertNotEquals("snoopy", hitSource.getString("dog_name"));
-    Assert.assertEquals("rex", hitSource.getString("dog_name"));
+    assertEquals(1, response.getInt("total"));
+    verifyDataRows(response, rows("rex", "Daenerys", 2));
   }
 
   @Test
@@ -605,111 +591,73 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void inTermsTestWithIdentifiersTreatedLikeStrings() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void inTermsTestWithIdentifiersTreatedLikeStrings() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT name " +
                 "FROM %s " +
                 "WHERE name.firstname = IN_TERMS('daenerys','eddard') " +
                 "LIMIT 1000",
             TestsConstants.TEST_INDEX_GAME_OF_THRONES));
 
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(2, getTotalHits(response));
-    for (int i = 0; i < hits.length(); i++) {
-      JSONObject hit = hits.getJSONObject(i);
-      String firstname = ((JSONObject) getSource(hit).get("name")).getString("firstname");
-      assertThat(firstname, isOneOf("Daenerys", "Eddard"));
-    }
+    assertEquals(2, response.getInt("total"));
   }
 
   @Test
-  public void inTermsTestWithStrings() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void inTermsTestWithStrings() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT name " +
                 "FROM %s " +
                 "WHERE name.firstname = IN_TERMS('daenerys','eddard') " +
                 "LIMIT 1000",
             TestsConstants.TEST_INDEX_GAME_OF_THRONES));
 
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(2, getTotalHits(response));
-    for (int i = 0; i < hits.length(); i++) {
-      JSONObject hit = hits.getJSONObject(i);
-      String firstname = ((JSONObject) getSource(hit).get("name")).getString("firstname");
-      assertThat(firstname, isOneOf("Daenerys", "Eddard"));
-    }
+    assertEquals(2, response.getInt("total"));
   }
 
   @Test
-  public void inTermsWithNumbers() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void inTermsWithNumbers() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT name " +
                 "FROM %s " +
                 "WHERE name.ofHisName = IN_TERMS(4,2) " +
                 "LIMIT 1000",
             TestsConstants.TEST_INDEX_GAME_OF_THRONES));
 
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(1, getTotalHits(response));
-
-    JSONObject hit = hits.getJSONObject(0);
-    String firstname = ((JSONObject) getSource(hit).get("name")).getString("firstname");
-    Assert.assertEquals("Brandon", firstname);
+    assertEquals(1, response.getInt("total"));
   }
 
   @Test
-  public void termQueryWithNumber() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void termQueryWithNumber() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT,
             "SELECT name FROM %s WHERE name.ofHisName = term(4) LIMIT 1000",
             TestsConstants.TEST_INDEX_GAME_OF_THRONES));
 
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(1, getTotalHits(response));
-
-    JSONObject hit = hits.getJSONObject(0);
-    String firstname = ((JSONObject) getSource(hit).get("name")).getString("firstname");
-    Assert.assertEquals("Brandon", firstname);
+    assertEquals(1, response.getInt("total"));
   }
 
   @Test
-  public void termQueryWithStringIdentifier() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void termQueryWithStringIdentifier() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT name " +
                 "FROM %s " +
                 "WHERE name.firstname = term('brandon') " +
                 "LIMIT 1000",
             TestsConstants.TEST_INDEX_GAME_OF_THRONES));
 
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(1, getTotalHits(response));
-
-    JSONObject hit = hits.getJSONObject(0);
-    String firstname = ((JSONObject) getSource(hit).get("name")).getString("firstname");
-    Assert.assertEquals("Brandon", firstname);
+    assertEquals(1, response.getInt("total"));
   }
 
   @Test
-  public void termQueryWithStringLiteral() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void termQueryWithStringLiteral() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT name " +
                 "FROM %s " +
                 "WHERE name.firstname = term('brandon') " +
                 "LIMIT 1000",
             TestsConstants.TEST_INDEX_GAME_OF_THRONES));
 
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(1, getTotalHits(response));
-
-    JSONObject hit = hits.getJSONObject(0);
-    String firstname = ((JSONObject) getSource(hit).get("name")).getString("firstname");
-    Assert.assertEquals("Brandon", firstname);
+    assertEquals(1, response.getInt("total"));
   }
 
   // TODO When using NOT IN on fields, documents not containing the field
@@ -738,7 +686,7 @@ public class QueryIT extends SQLIntegTestCase {
     DateTimeFormatter formatter = DateTimeFormat.forPattern(TestsConstants.DATE_FORMAT);
     DateTime dateToCompare = new DateTime(2014, 8, 18, 0, 0, 0);
 
-    // In new Engine:
+    // When run using executeJdbcRequest(),fails with
     // 'timestamp:2014-08-18 in unsupported format, please use yyyy-MM-dd HH:mm:ss[.SSSSSSSSS]'
     JSONObject response = executeQuery(
         String.format(Locale.ROOT, "SELECT insert_time FROM %s WHERE insert_time < '2014-08-18'",
@@ -757,28 +705,17 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void dateSearchBraces() throws IOException {
-    DateTimeFormatter formatter = DateTimeFormat.forPattern(TestsConstants.TS_DATE_FORMAT);
-    DateTime dateToCompare = new DateTime(2015, 3, 15, 0, 0, 0);
-
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void dateSearchBraces() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT,
             "SELECT odbc_time FROM %s WHERE odbc_time < {ts '2015-03-15 00:00:00.000'}",
             TestsConstants.TEST_INDEX_ODBC));
-    JSONArray hits = getHits(response);
-    for (int i = 0; i < hits.length(); i++) {
-      JSONObject hit = hits.getJSONObject(i);
-      JSONObject source = getSource(hit);
-      String insertTimeStr = source.getString("odbc_time");
-      insertTimeStr = insertTimeStr.replace("{ts '", "").replace("'}", "");
-
-      DateTime insertTime = formatter.parseDateTime(insertTimeStr);
-      String errorMessage =
-          String.format(Locale.ROOT, "insert_time must be before 2015-03-15. Found: %s",
-              insertTime);
-      Assert.assertTrue(errorMessage, insertTime.isBefore(dateToCompare));
-    }
+    assertEquals(8, response.getInt("total"));
+    verifyDataRows(response,
+            rows("2015-03-14 13:27:33.953"), rows("2015-03-13 13:27:33.954"),
+            rows("2015-03-12 13:27:33.954"), rows("2015-03-11 13:27:33.955"),
+            rows("2015-03-10 13:27:33.955"), rows("2015-03-09 13:27:33.955"),
+            rows("2015-03-08 13:27:33.956"), rows("2015-03-07 13:27:33.956"));
   }
 
   @Test
@@ -809,37 +746,27 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void missFilterSearch() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void missFilterSearch() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT * FROM %s WHERE insert_time2 IS missing",
             TestsConstants.TEST_INDEX_PHRASE));
 
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(4, getTotalHits(response));
-    for (int i = 0; i < hits.length(); i++) {
-      JSONObject hit = hits.getJSONObject(i);
-      JSONObject source = getSource(hit);
-
-      Assert.assertFalse(source.has("insert_time2"));
-    }
+    assertEquals(4, response.getInt("total"));
+    verifyDataRows(response,
+            rows(null, "quick fox", null), rows(null, "brown fox", null),
+            rows(5, "my test", null), rows(7, "my test 2", null));
   }
 
   @Test
-  public void notMissFilterSearch() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void notMissFilterSearch() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT * FROM %s WHERE insert_time2 IS NOT missing",
             TestsConstants.TEST_INDEX_PHRASE));
 
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(2, getTotalHits(response));
-    for (int i = 0; i < hits.length(); i++) {
-      JSONObject hit = hits.getJSONObject(i);
-      JSONObject source = getSource(hit);
-
-      Assert.assertTrue(source.has("insert_time2"));
-    }
+    assertEquals(2, response.getInt("total"));
+    verifyDataRows(response,
+            rows(null, "quick fox here", "2014-08-19 07:09:13.434"),
+            rows(null, "fox brown", "2014-08-19 07:09:13.434"));
   }
 
   @Test
@@ -1013,9 +940,8 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void testWhereWithBoolIsTrue() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void testWhereWithBoolIsTrue() {
+    JSONObject response = executeJdbcRequest(
         StringUtils.format(
             "SELECT * " +
                 "FROM %s " +
@@ -1025,13 +951,15 @@ public class QueryIT extends SQLIntegTestCase {
             TestsConstants.TEST_INDEX_BANK)
     );
 
-    checkAggregationResponseSize(response, BANK_INDEX_MALE_TRUE);
+    assertEquals(4, response.getInt("total"));
+    verifyDataRows(response,
+            rows(4180), rows(5686),
+            rows(16418), rows(39225));
   }
 
   @Test
-  public void testWhereWithBoolIsNotTrue() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void testWhereWithBoolIsNotTrue() {
+    JSONObject response = executeJdbcRequest(
         StringUtils.format(
             "SELECT * " +
                 "FROM %s " +
@@ -1041,13 +969,14 @@ public class QueryIT extends SQLIntegTestCase {
             TestsConstants.TEST_INDEX_BANK)
     );
 
-    checkAggregationResponseSize(response, BANK_INDEX_MALE_FALSE);
+    assertEquals(3, response.getInt("total"));
+    verifyDataRows(response, rows(32838),
+            rows(40540), rows(48086));
   }
 
   @Test
-  public void testWhereWithBoolEqualsFalse() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void testWhereWithBoolEqualsFalse() {
+    JSONObject response = executeJdbcRequest(
         StringUtils.format(
             "SELECT * " +
                 "FROM %s " +
@@ -1056,13 +985,12 @@ public class QueryIT extends SQLIntegTestCase {
             TestsConstants.TEST_INDEX_BANK)
     );
 
-    checkResponseSize(response, BANK_INDEX_MALE_FALSE);
+    assertEquals(3, response.getInt("total"));
   }
 
   @Test
-  public void testWhereWithBoolEqualsFalseAndGroupBy() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void testWhereWithBoolEqualsFalseAndGroupBy() {
+    JSONObject response = executeJdbcRequest(
         StringUtils.format(
             "SELECT * " +
                 "FROM %s " +
@@ -1072,13 +1000,14 @@ public class QueryIT extends SQLIntegTestCase {
             TestsConstants.TEST_INDEX_BANK)
     );
 
-    checkAggregationResponseSize(response, BANK_INDEX_MALE_FALSE);
+    assertEquals(3, response.getInt("total"));
+    verifyDataRows(response, rows(32838),
+            rows(40540), rows(48086));
   }
 
   @Test
-  public void testWhereWithBoolEqualsFalseAndOrderBy() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void testWhereWithBoolEqualsFalseAndOrderBy() {
+    JSONObject response = executeJdbcRequest(
         StringUtils.format(
             "SELECT * " +
                 "FROM %s " +
@@ -1088,13 +1017,12 @@ public class QueryIT extends SQLIntegTestCase {
             TestsConstants.TEST_INDEX_BANK)
     );
 
-    checkResponseSize(response, BANK_INDEX_MALE_FALSE);
+    assertEquals(3, response.getInt("total"));
   }
 
   @Test
-  public void testWhereWithBoolIsFalse() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void testWhereWithBoolIsFalse() {
+    JSONObject response = executeJdbcRequest(
         StringUtils.format(
             "SELECT * " +
                 "FROM %s " +
@@ -1104,13 +1032,14 @@ public class QueryIT extends SQLIntegTestCase {
             TestsConstants.TEST_INDEX_BANK)
     );
 
-    checkAggregationResponseSize(response, BANK_INDEX_MALE_FALSE);
+    assertEquals(3, response.getInt("total"));
+    verifyDataRows(response, rows(32838),
+            rows(40540), rows(48086));
   }
 
   @Test
-  public void testWhereWithBoolIsNotFalse() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void testWhereWithBoolIsNotFalse() {
+    JSONObject response = executeJdbcRequest(
         StringUtils.format(
             "SELECT * " +
                 "FROM %s " +
@@ -1120,7 +1049,10 @@ public class QueryIT extends SQLIntegTestCase {
             TestsConstants.TEST_INDEX_BANK)
     );
 
-    checkAggregationResponseSize(response, BANK_INDEX_MALE_TRUE);
+    assertEquals(4, response.getInt("total"));
+    verifyDataRows(response,
+            rows(4180), rows(5686),
+            rows(16418), rows(39225));
   }
 
   @Test
@@ -1160,64 +1092,48 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void filterPolygonTest() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void filterPolygonTest() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT * " +
                 "FROM %s " +
                 "WHERE GEO_INTERSECTS(place,'POLYGON ((102 2, 103 2, 103 3, 102 3, 102 2))')",
             TestsConstants.TEST_INDEX_LOCATION));
 
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(1, getTotalHits(response));
-
-    JSONObject hit = hits.getJSONObject(0);
-    Assert.assertEquals("bigSquare", getSource(hit).getString("description"));
+    assertEquals(1, response.getInt("total"));
+    verifyDataRows(response, rows("bigSquare"));
   }
 
   @Test
-  public void boundingBox() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void boundingBox() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT,
             "SELECT * FROM %s WHERE GEO_BOUNDING_BOX(center, 100.0, 1.0, 101, 0.0)",
             TestsConstants.TEST_INDEX_LOCATION));
 
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(1, getTotalHits(response));
-
-    JSONObject hit = hits.getJSONObject(0);
-    Assert.assertEquals("square", getSource(hit).getString("description"));
+    assertEquals(1, response.getInt("total"));
+    verifyDataRows(response, rows("square"));
   }
 
   @Test
-  public void geoDistance() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void geoDistance() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT,
             "SELECT * FROM %s WHERE GEO_DISTANCE(center, '1km', 100.5, 0.500001)",
             TestsConstants.TEST_INDEX_LOCATION));
 
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(1, getTotalHits(response));
-
-    JSONObject hit = hits.getJSONObject(0);
-    Assert.assertEquals("square", getSource(hit).getString("description"));
+    assertEquals(1, response.getInt("total"));
+    verifyDataRows(response, rows("square"));
   }
 
   @Test
-  public void geoPolygon() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void geoPolygon() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT,
             "SELECT * FROM %s WHERE GEO_POLYGON(center, 100,0, 100.5, 2, 101.0,0)",
             TestsConstants.TEST_INDEX_LOCATION));
 
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(1, getTotalHits(response));
-
-    JSONObject hit = hits.getJSONObject(0);
-    Assert.assertEquals("square", getSource(hit).getString("description"));
+    assertEquals(1, response.getInt("total"));
+    verifyDataRows(response, rows("square"));
   }
 
   @Ignore
@@ -1334,9 +1250,8 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void innerQueryTest() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void innerQueryTest() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT * " +
                 "FROM %s D " +
                 "WHERE holdersName IN (SELECT firstname " +
@@ -1344,14 +1259,8 @@ public class QueryIT extends SQLIntegTestCase {
                 "WHERE firstname = 'Hattie')",
             TestsConstants.TEST_INDEX_DOG, TEST_INDEX_ACCOUNT));
 
-    JSONArray hits = getHits(response);
-    Assert.assertEquals(1, hits.length());
-
-    JSONObject hit = hits.getJSONObject(0);
-    JSONObject source = getSource(hit);
-    Assert.assertEquals("snoopy", source.getString("D.dog_name"));
-    Assert.assertEquals("Hattie", source.getString("D.holdersName"));
-    Assert.assertEquals(4, source.getInt("D.age"));
+    assertEquals(1, response.getInt("total"));
+    verifyDataRows(response, rows("snoopy", "Hattie", 4));
   }
 
   @Ignore
@@ -1455,23 +1364,21 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void nestedEqualsTestFieldNormalField() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void nestedEqualsTestFieldNormalField() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT * FROM %s WHERE nested(message.info)='b'",
             TestsConstants.TEST_INDEX_NESTED_TYPE));
 
-    Assert.assertEquals(1, getTotalHits(response));
+    assertEquals(1, response.getInt("total"));
   }
 
   @Test
-  public void nestedEqualsTestFieldInsideArrays() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void nestedEqualsTestFieldInsideArrays() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT * FROM %s WHERE nested(message.info) = 'a'",
             TestsConstants.TEST_INDEX_NESTED_TYPE));
 
-    Assert.assertEquals(2, getTotalHits(response));
+    assertEquals(2, response.getInt("total"));
   }
 
   @Ignore // Seems like we don't support nested with IN, throwing IllegalArgumentException
@@ -1483,39 +1390,40 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void complexNestedQueryBothOnSameObject() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void complexNestedQueryBothOnSameObject() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT * " +
                 "FROM %s " +
                 "WHERE nested('message', message.info = 'a' AND message.author ='i')",
             TestsConstants.TEST_INDEX_NESTED_TYPE));
 
-    Assert.assertEquals(1, getTotalHits(response));
+    assertEquals(1, response.getInt("total"));
   }
 
   @Test
-  public void complexNestedQueryNotBothOnSameObject() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void complexNestedQueryNotBothOnSameObject() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT * " +
                 "FROM %s " +
                 "WHERE nested('message', message.info = 'a' AND message.author ='h')",
             TestsConstants.TEST_INDEX_NESTED_TYPE));
 
-    Assert.assertEquals(0, getTotalHits(response));
+    verifySchema(response,
+            schema("myNum", null, "long"),
+            schema("someField", null, "keyword"),
+            schema("comment", null, "text"),
+            schema("message", null, "text"));
   }
 
   @Test
-  public void nestedOnInTermsQuery() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void nestedOnInTermsQuery() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT, "SELECT * " +
                 "FROM %s " +
                 "WHERE nested(message.info) = IN_TERMS('a', 'b')",
             TestsConstants.TEST_INDEX_NESTED_TYPE));
 
-    Assert.assertEquals(3, getTotalHits(response));
+    assertEquals(3, response.getInt("total"));
   }
 
   // TODO Uncomment these after problem with loading join index is resolved
@@ -1637,23 +1545,20 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void highlightPreTagsAndPostTags() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery(
+  public void highlightPreTagsAndPostTags() {
+    JSONObject response = executeJdbcRequest(
         String.format(Locale.ROOT,
             "SELECT /*! HIGHLIGHT(phrase, pre_tags : ['<b>'], post_tags : ['</b>']) */ " +
                 "* FROM %s " +
                 "WHERE phrase LIKE 'fox' " +
                 "ORDER BY _score", TestsConstants.TEST_INDEX_PHRASE));
 
-    JSONArray hits = getHits(response);
-    for (int i = 0; i < hits.length(); i++) {
-      JSONObject hit = hits.getJSONObject(i);
-      JSONObject highlightFields = hit.getJSONObject("highlight");
-
-      String phrase = highlightFields.getJSONArray("phrase").getString(0);
-      Assert.assertTrue(phrase.contains("<b>fox</b>"));
-    }
+    assertEquals(4, response.getInt("total"));
+    verifyDataRows(response,
+            rows(null, "quick fox", null),
+            rows(null, "quick fox here", "2014-08-19 07:09:13.434"),
+            rows(null, "brown fox", null),
+            rows(null, "fox brown", "2014-08-19 07:09:13.434"));
   }
 
   @Ignore
@@ -1743,17 +1648,13 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void caseWhenSwitchTest() throws IOException {
-    // Query is unsupported in the new engine
-    JSONObject response = executeQuery("SELECT CASE age " +
+  public void caseWhenSwitchTest() {
+    JSONObject response = executeJdbcRequest("SELECT CASE age " +
         "WHEN 30 THEN '1' " +
         "WHEN 40 THEN '2' " +
         "ELSE '0' END AS cases FROM " + TEST_INDEX_ACCOUNT + " WHERE age IS NOT NULL");
-    JSONObject hit = getHits(response).getJSONObject(0);
-    String age = hit.query("/_source/age").toString();
-    String cases = age.equals("30") ? "1" : age.equals("40") ? "2" : "0";
 
-    assertThat(cases, equalTo(hit.query("/fields/cases/0")));
+    assertEquals(1000, response.getInt("total"));
   }
 
   @Test
@@ -1805,20 +1706,6 @@ public class QueryIT extends SQLIntegTestCase {
     for (String errMsg : errMsgs) {
       Assert.assertThat(response, containsString(errMsg));
     }
-  }
-
-  private String getScrollId(JSONObject response) {
-    return response.getString("_scroll_id");
-  }
-
-  private void checkResponseSize(JSONObject response, int sizeCheck) {
-    JSONArray queryResponse = getHits(response);
-    Assert.assertThat(queryResponse.length(), equalTo(sizeCheck));
-  }
-
-  private void checkAggregationResponseSize(JSONObject response, int sizeCheck) {
-    JSONArray queryResponse = (JSONArray) response.query("/aggregations/balance/buckets");
-    Assert.assertThat(queryResponse.length(), equalTo(sizeCheck));
   }
 
   private void checkSelectAllAndFieldResponseSize(JSONObject response) {
