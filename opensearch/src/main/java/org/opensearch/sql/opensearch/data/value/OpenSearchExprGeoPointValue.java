@@ -32,7 +32,7 @@ public class OpenSearchExprGeoPointValue extends AbstractExprValue {
 
   @Override
   public ExprType type() {
-    return new OpenSearchGeoPointType();
+    return OpenSearchGeoPointType.getInstance();
   }
 
   @Override

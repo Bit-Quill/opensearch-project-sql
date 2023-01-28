@@ -41,6 +41,6 @@ public class OpenSearchExprBinaryValueTest {
   public void type() {
     OpenSearchExprBinaryValue value =
         new OpenSearchExprBinaryValue("U29tZSBiaW5hcnkgYmxvYg==");
-    assertEquals(new OpenSearchBinaryType(), value.type());
+    assertEquals(OpenSearchBinaryType.getInstance(), value.type());
   }
 }

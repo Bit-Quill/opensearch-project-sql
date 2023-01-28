@@ -9,6 +9,7 @@ package org.opensearch.sql.opensearch.data.type;
 import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 /**
  * The type of an ip value. See
@@ -17,7 +18,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class OpenSearchIpType extends OpenSearchDataType {
 
-  public OpenSearchIpType() {
+  @Getter
+  private static final OpenSearchIpType instance = new OpenSearchIpType();
+
+  private OpenSearchIpType() {
     super(MappingType.Ip);
     exprCoreType = UNKNOWN;
   }

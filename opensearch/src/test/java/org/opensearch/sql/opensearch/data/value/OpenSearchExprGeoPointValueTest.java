@@ -24,7 +24,7 @@ class OpenSearchExprGeoPointValueTest {
 
   @Test
   void type() {
-    assertEquals(new OpenSearchGeoPointType(), geoPointValue.type());
+    assertEquals(OpenSearchGeoPointType.getInstance(), geoPointValue.type());
   }
 
   @Test

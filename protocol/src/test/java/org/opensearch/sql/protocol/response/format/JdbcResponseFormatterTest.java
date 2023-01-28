@@ -45,7 +45,7 @@ class JdbcResponseFormatterTest {
     QueryResult response = new QueryResult(
         new Schema(ImmutableList.of(
             new Column("name", "name", STRING),
-            new Column("address1", "address1", new OpenSearchTextType()),
+            new Column("address1", "address1", OpenSearchTextType.getInstance()),
             new Column("address2", "address2", new OpenSearchTextType(Map.of("words",
                 OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword)))),
             new Column("location", "location", STRUCT),

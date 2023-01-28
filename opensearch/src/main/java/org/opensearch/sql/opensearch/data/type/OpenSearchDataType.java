@@ -8,11 +8,13 @@ package org.opensearch.sql.opensearch.data.type;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 
@@ -76,15 +78,25 @@ public class OpenSearchDataType implements ExprType, Serializable {
   }
 
   /**
+   * Simple instances of OpenSearchDataType are created once during entire SQL engine lifetime
+   * and cached there. This reduces memory usage and increases type comparison.
+   * Note: Types with non-empty fields and properties are not cached.
+   */
+  private static final Map<String, OpenSearchDataType> instances = new HashMap<>();
+
+  /**
    * A constructor function which builds proper `OpenSearchDataType` for given mapping `Type`.
    * @param mappingType A mapping type.
    * @return An instance or inheritor of `OpenSearchDataType`.
    */
   public static OpenSearchDataType of(MappingType mappingType) {
+    if (instances.containsKey(mappingType.toString())) {
+      return instances.get(mappingType.toString());
+    }
     ExprCoreType exprCoreType = ExprCoreType.UNKNOWN;
     switch (mappingType) {
       // TODO update these 2 below #1038 https://github.com/opensearch-project/sql/issues/1038
-      case Text: return new OpenSearchTextType();
+      case Text: return OpenSearchTextType.getInstance();
       case Keyword: exprCoreType = ExprCoreType.STRING;
         break;
       case Byte: exprCoreType = ExprCoreType.BYTE;
@@ -112,14 +124,15 @@ public class OpenSearchDataType implements ExprType, Serializable {
         break;
       case Nested: exprCoreType = ExprCoreType.ARRAY;
         break;
-      case GeoPoint: return new OpenSearchGeoPointType();
-      case Binary: return new OpenSearchBinaryType();
-      case Ip: return new OpenSearchIpType();
+      case GeoPoint: return OpenSearchGeoPointType.getInstance();
+      case Binary: return OpenSearchBinaryType.getInstance();
+      case Ip: return OpenSearchIpType.getInstance();
       default:
         throw new IllegalArgumentException(mappingType.toString());
     }
     var res = new OpenSearchDataType(mappingType);
     res.exprCoreType = exprCoreType;
+    instances.put(mappingType.toString(), res);
     return res;
   }
 
@@ -135,8 +148,12 @@ public class OpenSearchDataType implements ExprType, Serializable {
                                       Map<String, OpenSearchDataType> properties,
                                       Map<String, OpenSearchDataType> fields) {
     var res = of(mappingType);
-    res.properties = ImmutableMap.copyOf(properties);
-    res.fields = ImmutableMap.copyOf(fields);
+    if (!properties.isEmpty() || !fields.isEmpty()) {
+      // Clone to avoid changing the singleton instance.
+      res = res.cloneEmpty();
+      res.properties = ImmutableMap.copyOf(properties);
+      res.fields = ImmutableMap.copyOf(fields);
+    }
     return res;
   }
 
@@ -153,7 +170,12 @@ public class OpenSearchDataType implements ExprType, Serializable {
     if (type instanceof OpenSearchDataType) {
       return (OpenSearchDataType) type;
     }
-    return new OpenSearchDataType((ExprCoreType) type);
+    if (instances.containsKey(type.toString())) {
+      return instances.get(type.toString());
+    }
+    var res = new OpenSearchDataType((ExprCoreType) type);
+    instances.put(type.toString(), res);
+    return res;
   }
 
   protected OpenSearchDataType(ExprCoreType type) {
@@ -198,9 +220,17 @@ public class OpenSearchDataType implements ExprType, Serializable {
    * Clone type object without {@link #properties} - without info about nested object types.
    * @return A cloned object.
    */
+  @SneakyThrows
   protected OpenSearchDataType cloneEmpty() {
-    var copy = mappingType != null ? of(mappingType) : new OpenSearchDataType(exprCoreType);
-    copy.fields = fields; //TODO do we need to clone object?
+    // This trick is required to ensure that the clone has the same type as clonee.
+    // Otherwise, clone of OpenSearchTextType becomes OpenSearchDataType.
+    // An alternate option is to @Override this function in all inheritors.
+    // Requires all derived types to have a default constructor.
+    var ctor = this.getClass().getDeclaredConstructor();
+    ctor.setAccessible(true);
+    var copy = (OpenSearchDataType)ctor.newInstance();
+    copy.mappingType = mappingType;
+    copy.fields = fields;
     copy.exprCoreType = exprCoreType;
     return copy;
   }

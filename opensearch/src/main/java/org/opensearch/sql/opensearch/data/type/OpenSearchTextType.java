@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.opensearch.sql.data.type.ExprType;
 
 /**
@@ -21,7 +22,10 @@ import org.opensearch.sql.data.type.ExprType;
 @EqualsAndHashCode(callSuper = false)
 public class OpenSearchTextType extends OpenSearchDataType {
 
-  public OpenSearchTextType() {
+  @Getter
+  private static final OpenSearchTextType instance = new OpenSearchTextType();
+
+  private OpenSearchTextType() {
     super(MappingType.Text);
     exprCoreType = UNKNOWN;
   }

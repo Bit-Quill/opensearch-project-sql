@@ -9,6 +9,7 @@ package org.opensearch.sql.opensearch.data.type;
 import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 /**
  * The type of a geo_point value. See
@@ -17,7 +18,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class OpenSearchGeoPointType extends OpenSearchDataType {
 
-  public OpenSearchGeoPointType() {
+  @Getter
+  private static final OpenSearchGeoPointType instance = new OpenSearchGeoPointType();
+
+  private OpenSearchGeoPointType() {
     super(MappingType.GeoPoint);
     exprCoreType = UNKNOWN;
   }

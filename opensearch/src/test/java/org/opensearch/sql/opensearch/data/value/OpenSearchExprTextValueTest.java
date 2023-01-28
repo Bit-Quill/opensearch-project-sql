@@ -22,7 +22,7 @@ import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 class OpenSearchExprTextValueTest {
   @Test
   public void type_of_ExprTextValue() {
-    assertEquals(new OpenSearchTextType(), new OpenSearchExprTextValue("A").type());
+    assertEquals(OpenSearchTextType.getInstance(), new OpenSearchExprTextValue("A").type());
   }
 
   @Test

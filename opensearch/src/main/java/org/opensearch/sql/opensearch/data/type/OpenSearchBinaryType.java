@@ -9,6 +9,7 @@ package org.opensearch.sql.opensearch.data.type;
 import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 /**
  * The type of a binary value. See
@@ -17,7 +18,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class OpenSearchBinaryType extends OpenSearchDataType {
 
-  public OpenSearchBinaryType() {
+  @Getter
+  private static final OpenSearchBinaryType instance = new OpenSearchBinaryType();
+
+  private OpenSearchBinaryType() {
     super(MappingType.Binary);
     exprCoreType = UNKNOWN;
   }
