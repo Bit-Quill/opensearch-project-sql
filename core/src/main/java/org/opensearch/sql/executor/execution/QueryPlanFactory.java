@@ -12,6 +12,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.statement.Explain;
@@ -19,8 +20,10 @@ import org.opensearch.sql.ast.statement.Query;
 import org.opensearch.sql.ast.statement.Statement;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.ExecutionEngine;
+import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.executor.QueryId;
 import org.opensearch.sql.executor.QueryService;
+import org.opensearch.sql.legacy.plugin.UnsupportCursorRequestException;
 
 /**
  * QueryExecution Factory.
@@ -37,6 +40,7 @@ public class QueryPlanFactory
    * Query Service.
    */
   private final QueryService queryService;
+  private final PaginatedPlanCache paginatedPlanCache;
 
   /**
    * NO_CONSUMER_RESPONSE_LISTENER should never been called. It is only used as constructor
@@ -69,6 +73,16 @@ public class QueryPlanFactory
     return statement.accept(this, Pair.of(queryListener, explainListener));
   }
 
+  /**
+   * Creates a ContinuePaginatedPlan from a cursor.
+   */
+  public AbstractPlan create(String cursor, ResponseListener<ExecutionEngine.QueryResponse>
+      queryResponseListener) {
+    QueryId queryId = QueryId.queryId();
+    return new ContinuePaginatedPlan(queryId, cursor, queryService, paginatedPlanCache,
+        queryResponseListener);
+  }
+
   @Override
   public AbstractPlan visitQuery(
       Query node,
@@ -79,7 +93,18 @@ public class QueryPlanFactory
     Preconditions.checkArgument(
         context.getLeft().isPresent(), "[BUG] query listener must be not null");
 
-    return new QueryPlan(QueryId.queryId(), node.getPlan(), queryService, context.getLeft().get());
+    if (node.getFetchSize() > 0) {
+      if (paginatedPlanCache.canConvertToCursor(node.getPlan())) {
+        return new PaginatedPlan(QueryId.queryId(), node.getPlan(), node.getFetchSize(),
+            queryService,
+            context.getLeft().get());
+      } else {
+        throw new UnsupportCursorRequestException();
+      }
+    } else {
+      return new QueryPlan(QueryId.queryId(), node.getPlan(), queryService,
+          context.getLeft().get());
+    }
   }
 
   @Override
@@ -97,4 +122,5 @@ public class QueryPlanFactory
         create(node.getStatement(), Optional.of(NO_CONSUMER_RESPONSE_LISTENER), Optional.empty()),
         context.getRight().get());
   }
+
 }

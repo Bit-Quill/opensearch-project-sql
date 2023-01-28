@@ -65,16 +65,22 @@ public class SQLService {
       SQLQueryRequest request,
       Optional<ResponseListener<QueryResponse>> queryListener,
       Optional<ResponseListener<ExplainResponse>> explainListener) {
-    // 1.Parse query and convert parse tree (CST) to abstract syntax tree (AST)
-    ParseTree cst = parser.parse(request.getQuery());
-    Statement statement =
-        cst.accept(
-            new AstStatementBuilder(
-                new AstBuilder(request.getQuery()),
-                AstStatementBuilder.StatementBuilderContext.builder()
-                    .isExplain(request.isExplainRequest())
-                    .build()));
+    if (request.getCursor().isPresent()) {
+      // Handle v2 cursor here -- legacy cursor was handled earlier.
+      return queryExecutionFactory.create(request.getCursor().get(), queryListener.get());
+    } else {
+      // 1.Parse query and convert parse tree (CST) to abstract syntax tree (AST)
+      ParseTree cst = parser.parse(request.getQuery());
+      Statement statement =
+          cst.accept(
+              new AstStatementBuilder(
+                  new AstBuilder(request.getQuery()),
+                  AstStatementBuilder.StatementBuilderContext.builder()
+                      .isExplain(request.isExplainRequest())
+                      .fetchSize(request.getFetchSize())
+                      .build()));
 
-    return queryExecutionFactory.create(statement, queryListener, explainListener);
+      return queryExecutionFactory.create(statement, queryListener, explainListener);
+    }
   }
 }

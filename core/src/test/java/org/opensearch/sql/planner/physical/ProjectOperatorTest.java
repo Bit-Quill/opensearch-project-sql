@@ -10,6 +10,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.mockito.Mockito.when;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
@@ -20,7 +21,13 @@ import static org.opensearch.sql.planner.physical.PhysicalPlanDSL.project;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -34,7 +41,7 @@ import org.opensearch.sql.expression.DSL;
 @ExtendWith(MockitoExtension.class)
 class ProjectOperatorTest extends PhysicalPlanTestBase {
 
-  @Mock
+  @Mock(serializable = true)
   private PhysicalPlan inputPlan;
 
   @Test
@@ -205,5 +212,29 @@ class ProjectOperatorTest extends PhysicalPlanTestBase {
             hasItems(
                 ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "response", "200")),
                 ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST")))));
+  }
+
+  @Test
+  public void project_serialize() throws IOException, ClassNotFoundException {
+    PhysicalPlan plan = project(inputPlan, DSL.named("action", DSL.ref("action", STRING)));
+
+    var os = new ByteArrayOutputStream();
+    var objstream = new ObjectOutputStream(os);
+    objstream.writeObject(plan);
+    objstream.close();
+    os.close();
+    String result = os.toString();
+
+
+    var is = new ByteArrayInputStream(os.toByteArray());
+    var outstream = new ObjectInputStream(is);
+    var newObj = outstream.readObject();
+
+    assertThat(newObj, instanceOf(ProjectOperator.class));
+
+    var newOp = (ProjectOperator) newObj;
+
+    Assertions.assertEquals(1, newOp.getProjectList().size());
+    Assertions.assertEquals("action", newOp.getProjectList().get(0).getName());
   }
 }
