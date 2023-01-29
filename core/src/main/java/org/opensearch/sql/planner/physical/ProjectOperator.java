@@ -8,8 +8,6 @@ package org.opensearch.sql.planner.physical;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +19,6 @@ import lombok.ToString;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
-import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.parse.ParseExpression;
@@ -59,7 +56,6 @@ public class ProjectOperator extends PhysicalPlan {
   public ExprValue next() {
     ExprValue inputValue = input.next();
     ImmutableMap.Builder<String, ExprValue> mapBuilder = new Builder<>();
-    ExprValue result = ExprValueUtils.collectionValue(new ArrayList<>());
 
     // ParseExpression will always override NamedExpression when identifier conflicts
     // TODO needs a better implementation, see https://github.com/opensearch-project/sql/issues/458
@@ -69,16 +65,7 @@ public class ProjectOperator extends PhysicalPlan {
           .filter(parseExpr -> parseExpr.getNameOrAlias().equals(expr.getNameOrAlias()))
           .findFirst();
       if (optionalParseExpression.isEmpty()) {
-        if (exprValue.type().equals(ExprCoreType.ARRAY)) {
-          for (ExprValue exprVal : exprValue.collectionValue()) {
-            mapBuilder.put(expr.getNameOrAlias(), exprVal);
-            result.collectionValue().add(ExprTupleValue.fromExprValueMap(mapBuilder.build()));
-            mapBuilder = new Builder<>();
-          }
-        }
-        else {
-          mapBuilder.put(expr.getNameOrAlias(), exprValue);
-        }
+        mapBuilder.put(expr.getNameOrAlias(), exprValue);
         continue;
       }
 
@@ -98,8 +85,6 @@ public class ProjectOperator extends PhysicalPlan {
         mapBuilder.put(parseExpression.getNameOrAlias(), parsedValue);
       }
     }
-    if (result.collectionValue().size() > 0)
-      return result;
     return ExprTupleValue.fromExprValueMap(mapBuilder.build());
   }
 
