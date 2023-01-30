@@ -159,11 +159,7 @@ task cloneJdbcDriverRepo {
 
         exec {
             // clone the sql-jdbc repo locally
-            commandLine 'git', 'clone', System.getProperty('jdbcRepo', 'https://github.com/opensearch-project/sql-jdbc.git')
-        }
-        exec {
-            workingDir 'sql-jdbc'
-            commandLine 'git', 'switch', System.getProperty("jdbcBranch", 'main')
+            commandLine 'git', 'clone', '--branch', System.getProperty("jdbcBranch", 'main'), System.getProperty('jdbcRepo', 'https://github.com/opensearch-project/sql-jdbc.git')
         }
         // TODO would fail on windows
         exec {
@@ -299,8 +295,8 @@ integTest {
     exclude 'org/opensearch/sql/legacy/OrderIT.class'
 
     // Exclude JDBC related tests
-    exclude '**/jdbc/**'
-    exclude '**/devJdbc/**'
+    exclude 'org/opensearch/sql/jdbc/**'
+    exclude 'org/opensearch/sql/devJdbc/**'
 }
 
 
@@ -327,8 +323,8 @@ task comparisonTest(type: RestIntegTestTask) {
     exclude 'org/opensearch/sql/legacy/**/*IT.class'
 
     // Exclude JDBC related tests
-    exclude '**/jdbc/**'
-    exclude '**/devJdbc/**'
+    exclude 'org/opensearch/sql/jdbc/**'
+    exclude 'org/opensearch/sql/devJdbc/**'
 
     // Enable logging output to console
     testLogging.showStandardStreams true
@@ -528,6 +524,6 @@ task integTestRemote(type: RestIntegTestTask) {
     exclude 'org/opensearch/sql/legacy/TermQueryExplainIT.class'
     exclude 'org/opensearch/sql/legacy/QueryAnalysisIT.class'
     exclude 'org/opensearch/sql/legacy/OrderIT.class'
-    exclude '**/jdbc/**'
-    exclude '**/devJdbc/**'
+    exclude 'org/opensearch/sql/jdbc/**'
+    exclude 'org/opensearch/sql/devJdbc/**'
 }
