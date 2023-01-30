@@ -587,7 +587,15 @@ public abstract class SQLIntegTestCase extends OpenSearchSQLRestTestCase {
         "src/test/resources/calcs.json"),
     MULTI_NESTED(TestsConstants.TEST_INDEX_MULTI_NESTED,
         "multi_nested",
-        getMappingFile("indexDefinitions/multi_nested.json"),
+        getMappingFile("multi_nested.json"),
+        "src/test/resources/multi_nested_objects.json"),
+    NESTED_OBJECT(TestsConstants.TEST_INDEX_NESTED_OBJECT,
+        "nested_object",
+        null,
+        "src/test/resources/nested_objects.json"),
+    MULTI_NESTED_OBJECT(TestsConstants.TEST_INDEX_MULTI_NESTED_OBJECT,
+        "multi_nested_object",
+        null,
         "src/test/resources/multi_nested_objects.json");
 
     private final String name;

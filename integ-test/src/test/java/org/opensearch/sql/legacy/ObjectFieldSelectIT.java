@@ -85,22 +85,6 @@ public class ObjectFieldSelectIT extends SQLIntegTestCase {
     );
   }
 
-  @Test
-  public void testSelectObjectFieldOfArrayValuesItself() {
-    JSONObject response = new JSONObject(query("SELECT accounts FROM %s"));
-
-    // Only the first element of the list of is returned.
-    verifyDataRows(response, rows(new JSONObject("{\"id\": 1}")));
-  }
-
-  @Test
-  public void testSelectObjectFieldOfArrayValuesInnerFields() {
-    JSONObject response = new JSONObject(query("SELECT accounts.id FROM %s"));
-
-    // Only the first element of the list of is returned.
-    verifyDataRows(response, rows(1));
-  }
-
   private String query(String sql) {
     return executeQuery(
         StringUtils.format(sql, TEST_INDEX_DEEP_NESTED),

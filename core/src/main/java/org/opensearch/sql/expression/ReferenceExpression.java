@@ -103,6 +103,8 @@ public class ReferenceExpression implements Expression {
   }
 
   private ExprValue resolve(ExprValue value, List<String> paths) {
+    // This case is to allow returning all values in an array to be in one row
+    // and fixes https://github.com/opensearch-project/sql/issues/1305
     if (value.type().equals(ExprCoreType.ARRAY)){
       ExprValue result = ExprValueUtils.collectionValue(new ArrayList<>());
 
@@ -111,6 +113,7 @@ public class ReferenceExpression implements Expression {
       }
       return result;
     }
+
     final ExprValue wholePathValue = value.keyValue(String.join(PATH_SEP, paths));
     if (!wholePathValue.isMissing() || paths.size() == 1) {
       return wholePathValue;
