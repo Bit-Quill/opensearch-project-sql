@@ -99,6 +99,7 @@ public class QueryPlanFactory
             queryService,
             context.getLeft().get());
       } else {
+        // This should be picked up by the legacy engine.
         throw new UnsupportCursorRequestException();
       }
     } else {
