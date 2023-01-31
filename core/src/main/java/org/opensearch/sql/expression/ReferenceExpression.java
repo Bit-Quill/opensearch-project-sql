@@ -8,15 +8,16 @@ package org.opensearch.sql.expression;
 
 import static org.opensearch.sql.utils.ExpressionUtils.PATH_SEP;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.env.Environment;
@@ -105,12 +106,8 @@ public class ReferenceExpression implements Expression {
   private ExprValue resolve(ExprValue value, List<String> paths) {
     // This case is to allow returning all values in an array to be in one row
     if (value.type().equals(ExprCoreType.ARRAY)){
-      ExprValue result = ExprValueUtils.collectionValue(new ArrayList<>());
-
-      for (ExprValue val: value.collectionValue()){
-        result.collectionValue().add(resolve(val, paths));
-      }
-      return result;
+      return new ExprCollectionValue(value.collectionValue().stream()
+          .map(val -> resolve(val, paths)).collect(Collectors.toList()));
     }
 
     final ExprValue wholePathValue = value.keyValue(String.join(PATH_SEP, paths));
