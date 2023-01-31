@@ -198,7 +198,7 @@ task integJdbcTest(type: RestIntegTestTask) {
     }
 
     filter {
-        includeTestsMatching '*.jdbc.*'
+        includeTestsMatching 'org.opensearch.sql.jdbc.*'
     }
 }
 
@@ -242,7 +242,7 @@ task integDevJdbcTest(type: RestIntegTestTask) {
     }
 
     filter {
-        includeTestsMatching '*.devJdbc.*'
+        includeTestsMatching 'org.opensearch.sql.devJdbc.*'
     }
 }
 
