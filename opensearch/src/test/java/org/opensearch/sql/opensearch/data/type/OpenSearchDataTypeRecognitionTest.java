@@ -34,11 +34,11 @@ public class OpenSearchDataTypeRecognitionTest {
   private static Stream<Arguments> types() {
     // TODO: ARRAY and new types
     return Stream.of(
-        Arguments.of("text", new OpenSearchExprTextValue("A"), "text without fields"),
-        Arguments.of("binary", new OpenSearchExprBinaryValue("A"), "binary"),
-        Arguments.of("ip", new OpenSearchExprIpValue("A"), "ip"),
-        Arguments.of("text", new TestTextWithFieldValue("Hello World"), "text with fields"),
-        Arguments.of("geo_point", new OpenSearchExprGeoPointValue(0d, 0d), "geo point")
+        Arguments.of("TEXT", new OpenSearchExprTextValue("A"), "text without fields"),
+        Arguments.of("BINARY", new OpenSearchExprBinaryValue("A"), "binary"),
+        Arguments.of("IP", new OpenSearchExprIpValue("A"), "ip"),
+        Arguments.of("TEXT", new TestTextWithFieldValue("Hello World"), "text with fields"),
+        Arguments.of("GEO_POINT", new OpenSearchExprGeoPointValue(0d, 0d), "geo point")
     );
   }
 

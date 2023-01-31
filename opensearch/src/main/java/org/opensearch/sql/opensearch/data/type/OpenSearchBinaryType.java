@@ -25,4 +25,9 @@ public class OpenSearchBinaryType extends OpenSearchDataType {
     super(MappingType.Binary);
     exprCoreType = UNKNOWN;
   }
+
+  @Override
+  protected OpenSearchDataType cloneEmpty() {
+    return instance;
+  }
 }

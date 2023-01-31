@@ -25,4 +25,9 @@ public class OpenSearchGeoPointType extends OpenSearchDataType {
     super(MappingType.GeoPoint);
     exprCoreType = UNKNOWN;
   }
+
+  @Override
+  protected OpenSearchDataType cloneEmpty() {
+    return instance;
+  }
 }

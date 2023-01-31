@@ -49,6 +49,11 @@ public class OpenSearchTextType extends OpenSearchDataType {
     return fields;
   }
 
+  @Override
+  protected OpenSearchDataType cloneEmpty() {
+    return new OpenSearchTextType(fields);
+  }
+
   /**
    * Text field doesn't have doc value (exception thrown even when you call "get")
    * Limitation: assume inner field name is always "keyword".

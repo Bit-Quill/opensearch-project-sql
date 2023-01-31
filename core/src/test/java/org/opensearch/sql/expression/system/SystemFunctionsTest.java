@@ -47,7 +47,7 @@ public class SystemFunctionsTest {
   void typeof() {
     assertEquals(STRING, dsl.typeof(DSL.literal(1)).type());
 
-    assertEquals("nested", typeofGetValue(new ExprCollectionValue(List.of())));
+    assertEquals("NESTED", typeofGetValue(new ExprCollectionValue(List.of())));
     assertEquals("BOOLEAN", typeofGetValue(ExprBooleanValue.of(false)));
     assertEquals("BYTE", typeofGetValue(new ExprByteValue(0)));
     assertEquals("DATE", typeofGetValue(new ExprDateValue(LocalDate.now())));
@@ -58,8 +58,8 @@ public class SystemFunctionsTest {
     assertEquals("INTERVAL", typeofGetValue(new ExprIntervalValue(Duration.ofDays(0))));
     assertEquals("LONG", typeofGetValue(new ExprLongValue(0)));
     assertEquals("SHORT", typeofGetValue(new ExprShortValue(0)));
-    assertEquals("STRING", typeofGetValue(new ExprStringValue("")));
-    assertEquals("STRUCT", typeofGetValue(new ExprTupleValue(new LinkedHashMap<>())));
+    assertEquals("KEYWORD", typeofGetValue(new ExprStringValue("")));
+    assertEquals("OBJECT", typeofGetValue(new ExprTupleValue(new LinkedHashMap<>())));
     assertEquals("TIME", typeofGetValue(new ExprTimeValue(LocalTime.now())));
     assertEquals("TIMESTAMP", typeofGetValue(new ExprTimestampValue(Instant.now())));
     assertEquals("UNDEFINED", typeofGetValue(ExprNullValue.of()));

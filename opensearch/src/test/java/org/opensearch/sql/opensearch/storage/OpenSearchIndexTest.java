@@ -22,8 +22,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.expression.DSL.literal;
 import static org.opensearch.sql.expression.DSL.named;
 import static org.opensearch.sql.expression.DSL.ref;
-import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.MappingType.Binary;
-import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.MappingType.Text;
+import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.MappingType;
 import static org.opensearch.sql.opensearch.utils.Utils.indexScan;
 import static org.opensearch.sql.opensearch.utils.Utils.indexScanAgg;
 import static org.opensearch.sql.opensearch.utils.Utils.noProjects;
@@ -42,6 +41,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
@@ -92,28 +92,30 @@ class OpenSearchIndexTest {
   @Mock
   private Table table;
 
+  @Mock
+  private IndexMapping mapping;
+
   @Test
   void getFieldTypes() {
-    when(client.getIndexMappings("test"))
-        .thenReturn(
-            ImmutableMap.of(
-                "test",
-                new IndexMapping(
-                    ImmutableMap.<String, String>builder()
-                        .put("name", "keyword")
-                        .put("address", "text")
-                        .put("age", "integer")
-                        .put("account_number", "long")
-                        .put("balance1", "float")
-                        .put("balance2", "double")
-                        .put("gender", "boolean")
-                        .put("family", "nested")
-                        .put("employer", "object")
-                        .put("birthday", "date")
-                        .put("id1", "byte")
-                        .put("id2", "short")
-                        .put("blob", "binary")
-                        .build())));
+    when(mapping.getFieldMappings()).thenReturn(
+        ImmutableMap.<String, MappingType>builder()
+            .put("name", MappingType.Keyword)
+            .put("address", MappingType.Text)
+            .put("age", MappingType.Integer)
+            .put("account_number", MappingType.Long)
+            .put("balance1", MappingType.Float)
+            .put("balance2", MappingType.Double)
+            .put("gender", MappingType.Boolean)
+            .put("family", MappingType.Nested)
+            .put("employer", MappingType.Object)
+            .put("birthday", MappingType.Date)
+            .put("id1", MappingType.Byte)
+            .put("id2", MappingType.Short)
+            .put("blob", MappingType.Binary)
+            .build().entrySet().stream().collect(Collectors.toMap(
+                e -> e.getKey(), e -> OpenSearchDataType.of(e.getValue())
+            )));
+    when(client.getIndexMappings("test")).thenReturn(ImmutableMap.of("test", mapping));
 
     OpenSearchIndex index = new OpenSearchIndex(client, settings, "test");
     Map<String, ExprType> fieldTypes = index.getFieldTypes();
@@ -122,7 +124,7 @@ class OpenSearchIndexTest {
         allOf(
             aMapWithSize(13),
             hasEntry("name", ExprCoreType.STRING),
-            hasEntry("address", (ExprType) OpenSearchDataType.of(Text)),
+            hasEntry("address", (ExprType) OpenSearchDataType.of(MappingType.Text)),
             hasEntry("age", ExprCoreType.INTEGER),
             hasEntry("account_number", ExprCoreType.LONG),
             hasEntry("balance1", ExprCoreType.FLOAT),
@@ -133,23 +135,24 @@ class OpenSearchIndexTest {
             hasEntry("birthday", ExprCoreType.TIMESTAMP),
             hasEntry("id1", ExprCoreType.BYTE),
             hasEntry("id2", ExprCoreType.SHORT),
-            hasEntry("blob", (ExprType) OpenSearchDataType.of(Binary))
+            hasEntry("blob", (ExprType) OpenSearchDataType.of(MappingType.Binary))
         ));
   }
 
   @Test
   void checkCacheUsedForFieldMappings() {
-    lenient().when(client.getIndexMappings("test")).thenReturn(
-        ImmutableMap.of("test", new IndexMapping(ImmutableMap.of("name", "keyword"))));
+    when(mapping.getFieldMappings()).thenReturn(
+        Map.of("name", OpenSearchDataType.of(MappingType.Keyword)));
+    when(client.getIndexMappings("test")).thenReturn(
+        ImmutableMap.of("test", mapping));
 
     OpenSearchIndex index = new OpenSearchIndex(client, settings, "test");
     assertThat(index.getFieldTypes(), allOf(
         aMapWithSize(1),
         hasEntry("name", STRING)));
 
-    //Change mocked response, but `getFieldTypes` should return cached value
-    lenient().when(client.getIndexMappings("test")).thenReturn(
-        ImmutableMap.of("test", new IndexMapping(ImmutableMap.of("name", "text"))));
+    lenient().when(mapping.getFieldMappings()).thenReturn(
+        Map.of("name", OpenSearchDataType.of(MappingType.Text)));
 
     assertThat(index.getFieldTypes(), allOf(
         aMapWithSize(1),

@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 
@@ -28,30 +27,35 @@ public class OpenSearchDataType implements ExprType, Serializable {
    * The mapping (OpenSearch engine) type.
    */
   public enum MappingType {
-    Invalid(null),
-    Text("text"),
-    Keyword("keyword"),
-    Ip("ip"),
-    GeoPoint("geo_point"),
-    Binary("binary"),
-    Date("date"),
-    Object("object"),
-    Nested("nested"),
-    Byte("byte"),
-    Short("short"),
-    Integer("integer"),
-    Long("long"),
-    Float("float"),
-    HalfFloat("half_float"),
-    ScaledFloat("scaled_float"),
-    Double("double"),
-    Boolean("boolean");
+    Invalid(null, ExprCoreType.UNKNOWN),
+    Text("text", ExprCoreType.UNKNOWN),
+    Keyword("keyword", ExprCoreType.STRING),
+    Ip("ip", ExprCoreType.UNKNOWN),
+    GeoPoint("geo_point", ExprCoreType.UNKNOWN),
+    Binary("binary", ExprCoreType.UNKNOWN),
+    Date("date", ExprCoreType.TIMESTAMP),
+    Object("object", ExprCoreType.STRUCT),
+    Nested("nested", ExprCoreType.ARRAY),
+    Byte("byte", ExprCoreType.BYTE),
+    Short("short", ExprCoreType.SHORT),
+    Integer("integer", ExprCoreType.INTEGER),
+    Long("long", ExprCoreType.LONG),
+    Float("float", ExprCoreType.FLOAT),
+    HalfFloat("half_float", ExprCoreType.FLOAT),
+    ScaledFloat("scaled_float", ExprCoreType.DOUBLE),
+    Double("double", ExprCoreType.DOUBLE),
+    Boolean("boolean", ExprCoreType.BOOLEAN);
     // TODO: ranges, geo shape, point, shape
 
-    private String name;
+    private final String name;
 
-    MappingType(String name) {
+    // Associated `ExprCoreType`
+    @Getter
+    private final ExprCoreType exprCoreType;
+
+    MappingType(String name, ExprCoreType exprCoreType) {
       this.name = name;
+      this.exprCoreType = exprCoreType;
     }
 
     public String toString() {
@@ -93,42 +97,17 @@ public class OpenSearchDataType implements ExprType, Serializable {
     if (instances.containsKey(mappingType.toString())) {
       return instances.get(mappingType.toString());
     }
-    ExprCoreType exprCoreType = ExprCoreType.UNKNOWN;
-    switch (mappingType) {
-      // TODO update these 2 below #1038 https://github.com/opensearch-project/sql/issues/1038
-      case Text: return OpenSearchTextType.getInstance();
-      case Keyword: exprCoreType = ExprCoreType.STRING;
-        break;
-      case Byte: exprCoreType = ExprCoreType.BYTE;
-        break;
-      case Short: exprCoreType = ExprCoreType.SHORT;
-        break;
-      case Integer: exprCoreType = ExprCoreType.INTEGER;
-        break;
-      case Long: exprCoreType = ExprCoreType.LONG;
-        break;
-      case HalfFloat: exprCoreType = ExprCoreType.FLOAT;
-        break;
-      case Float: exprCoreType = ExprCoreType.FLOAT;
-        break;
-      case ScaledFloat: exprCoreType = ExprCoreType.DOUBLE;
-        break;
-      case Double: exprCoreType = ExprCoreType.DOUBLE;
-        break;
-      case Boolean: exprCoreType = ExprCoreType.BOOLEAN;
-        break;
-      // TODO: check formats, it could allow TIME or DATE only
-      case Date: exprCoreType = ExprCoreType.TIMESTAMP;
-        break;
-      case Object: exprCoreType = ExprCoreType.STRUCT;
-        break;
-      case Nested: exprCoreType = ExprCoreType.ARRAY;
-        break;
-      case GeoPoint: return OpenSearchGeoPointType.getInstance();
-      case Binary: return OpenSearchBinaryType.getInstance();
-      case Ip: return OpenSearchIpType.getInstance();
-      default:
-        throw new IllegalArgumentException(mappingType.toString());
+    ExprCoreType exprCoreType = mappingType.getExprCoreType();
+    if (exprCoreType == ExprCoreType.UNKNOWN) {
+      switch (mappingType) {
+        // TODO update these 2 below #1038 https://github.com/opensearch-project/sql/issues/1038
+        case Text: return OpenSearchTextType.getInstance();
+        case GeoPoint: return OpenSearchGeoPointType.getInstance();
+        case Binary: return OpenSearchBinaryType.getInstance();
+        case Ip: return OpenSearchIpType.getInstance();
+        default:
+          throw new IllegalArgumentException(mappingType.toString());
+      }
     }
     var res = new OpenSearchDataType(mappingType);
     res.exprCoreType = exprCoreType;
@@ -201,8 +180,8 @@ public class OpenSearchDataType implements ExprType, Serializable {
   public String typeName() {
     // To avoid breaking changes return `string` for `typeName` call (PPL) and `text` for
     // `legacyTypeName` call (SQL). See more: https://github.com/opensearch-project/sql/issues/1296
-    if (legacyTypeName().equals("text")) {
-      return "string";
+    if (legacyTypeName().equals("TEXT")) {
+      return "STRING";
     }
     return legacyTypeName();
   }
@@ -213,24 +192,17 @@ public class OpenSearchDataType implements ExprType, Serializable {
     if (mappingType == null) {
       return exprCoreType.typeName();
     }
-    return mappingType.toString().toLowerCase();
+    return mappingType.toString().toUpperCase();
   }
 
   /**
    * Clone type object without {@link #properties} - without info about nested object types.
+   * Note: Should be overriden by all derived classes for proper work.
    * @return A cloned object.
    */
-  @SneakyThrows
   protected OpenSearchDataType cloneEmpty() {
-    // This trick is required to ensure that the clone has the same type as clonee.
-    // Otherwise, clone of OpenSearchTextType becomes OpenSearchDataType.
-    // An alternate option is to @Override this function in all inheritors.
-    // Requires all derived types to have a default constructor.
-    var ctor = this.getClass().getDeclaredConstructor();
-    ctor.setAccessible(true);
-    var copy = (OpenSearchDataType)ctor.newInstance();
+    var copy = new OpenSearchDataType();
     copy.mappingType = mappingType;
-    copy.fields = fields;
     copy.exprCoreType = exprCoreType;
     return copy;
   }

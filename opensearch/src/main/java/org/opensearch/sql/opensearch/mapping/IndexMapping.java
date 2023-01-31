@@ -27,20 +27,6 @@ public class IndexMapping {
   @Getter
   private final Map<String, OpenSearchDataType> fieldMappings;
 
-  // TODO remove, used in tests only
-  /**
-   * A constructor for testing purposes only.
-   * @param fieldMappings Mapping info in format field name - field OpenSearch type.
-   */
-  public IndexMapping(Map<String, String> fieldMappings) {
-    this.fieldMappings = fieldMappings.entrySet().stream()
-        .filter(e -> EnumUtils.isValidEnumIgnoreCase(
-            OpenSearchDataType.MappingType.class, e.getValue()))
-        .collect(Collectors.toMap(e -> e.getKey(), e -> OpenSearchDataType.of(
-            EnumUtils.getEnumIgnoreCase(OpenSearchDataType.MappingType.class, e.getValue()))
-        ));
-  }
-
   @SuppressWarnings("unchecked")
   public IndexMapping(MappingMetadata metaData) {
     this.fieldMappings = parseMapping((Map<String, Object>) metaData.getSourceAsMap()
@@ -54,19 +40,6 @@ public class IndexMapping {
    */
   public int size() {
     return fieldMappings.size();
-  }
-
-  /**
-   * Return field type by its name.
-   *
-   * @param fieldName field name
-   * @return field type in string. Or null if not exist.
-   */
-  public String getFieldType(String fieldName) {
-    if (!fieldMappings.containsKey(fieldName)) {
-      return null;
-    }
-    return fieldMappings.get(fieldName).legacyTypeName();
   }
 
   @SuppressWarnings("unchecked")

@@ -31,16 +31,14 @@ class OpenSearchDescribeIndexRequestTest {
   @Mock
   private OpenSearchClient client;
 
+  @Mock
+  private IndexMapping mapping;
+
   @Test
   void testSearch() {
-    when(client.getIndexMappings("index"))
-        .thenReturn(
-            ImmutableMap.of(
-                "test",
-                new IndexMapping(
-                    ImmutableMap.<String, String>builder()
-                        .put("name", "keyword")
-                        .build())));
+    when(mapping.getFieldMappings()).thenReturn(
+        Map.of("name", OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword)));
+    when(client.getIndexMappings("index")).thenReturn(ImmutableMap.of("test", mapping));
 
     final List<ExprValue> results = new OpenSearchDescribeIndexRequest(client, "index").search();
     assertEquals(1, results.size());
@@ -55,24 +53,5 @@ class OpenSearchDescribeIndexRequestTest {
   void testToString() {
     assertEquals("OpenSearchDescribeIndexRequest{indexName='index'}",
         new OpenSearchDescribeIndexRequest(client, "index").toString());
-  }
-
-  @Test
-  void filterOutUnknownType() {
-    when(client.getIndexMappings("index"))
-        .thenReturn(
-            ImmutableMap.of(
-                "test",
-                new IndexMapping(
-                    ImmutableMap.<String, String>builder()
-                        .put("name", "keyword")
-                        .put("@timestamp", "alias")
-                        .build())));
-
-    final Map<String, OpenSearchDataType> fieldTypes =
-        new OpenSearchDescribeIndexRequest(client, "index").getFieldTypes();
-    assertEquals(1, fieldTypes.size());
-    assertThat(fieldTypes,
-        hasEntry("name", OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword)));
   }
 }

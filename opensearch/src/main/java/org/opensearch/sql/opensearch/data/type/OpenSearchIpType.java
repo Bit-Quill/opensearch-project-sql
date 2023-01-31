@@ -25,4 +25,9 @@ public class OpenSearchIpType extends OpenSearchDataType {
     super(MappingType.Ip);
     exprCoreType = UNKNOWN;
   }
+
+  @Override
+  protected OpenSearchDataType cloneEmpty() {
+    return instance;
+  }
 }
