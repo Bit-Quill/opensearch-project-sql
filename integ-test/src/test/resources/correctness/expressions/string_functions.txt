@@ -1,0 +1,16 @@
+ASCII(customer_full_name) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+CONCAT(customer_first_name, customer_last_name) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+CONCAT_WS(customer_first_name, ' ', customer_last_name) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+LOWER(customer_full_name) As COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+UPPER(customer_full_name) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+LEFT(customer_full_name, LENGTH(customer_full_name) - 1) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+RIGHT(customer_full_name, LENGTH(customer_full_name) - 1) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+LTRIM(customer_full_name) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+RTRIM(customer_full_name) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+TRIM(customer_full_name) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+REPLACE(customer_full_name, customer_first_name, email) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+SUBSTR(customer_full_name, 1, LENGTH(customer_full_name) - 1) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+SUBSTRING(customer_full_name, 1, LENGTH(customer_full_name) - 1) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+LENGTH(customer_full_name) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+LOCATE(customer_first_name, customer_full_name) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
+POSITION(customer_last_name IN customer_full_name) AS COLUMN FROM opensearch_dashboards_sample_data_ecommerce
