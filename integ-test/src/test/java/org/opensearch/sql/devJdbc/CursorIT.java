@@ -57,7 +57,7 @@ public class CursorIT extends SQLIntegTestCase {
   @BeforeClass
   @SneakyThrows
   public static void loadDriver() {
-    var buildDir = String.format("%s/sql-jdbc/build/libs", System.getProperty("project.root"));
+    var buildDir = String.format("%s/build/sql-jdbc/build/libs", System.getProperty("project.root"));
     var driverFiles = new File(buildDir).
         listFiles(pathname -> pathname.getAbsolutePath().endsWith(".jar"));
 

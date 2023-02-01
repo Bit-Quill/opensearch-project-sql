@@ -148,24 +148,35 @@ task stopPrometheus(type: KillProcessTask) {
 
 stopPrometheus.mustRunAfter startPrometheus
 
-task deleteJdbcDriverRepo {
-    // Delete local clone of the sql-jdbc repo
-    file("sql-jdbc").deleteDir()
-}
-
 task cloneJdbcDriverRepo {
-    doFirst {
-        file("sql-jdbc").deleteDir()
-
+    if (file("${buildDir}/sql-jdbc").exists()) {
         exec {
+            workingDir "${buildDir}/sql-jdbc"
+            commandLine 'git', 'remote', 'remove', 'origin'
+        }
+        exec {
+            workingDir "${buildDir}/sql-jdbc"
+            commandLine 'git', 'remote', 'add', 'origin', System.getProperty('jdbcRepo', 'https://github.com/opensearch-project/sql-jdbc.git')
+        }
+        exec {
+            workingDir "${buildDir}/sql-jdbc"
+            commandLine 'git', 'fetch', 'origin'
+        }
+        exec {
+            workingDir "${buildDir}/sql-jdbc"
+            commandLine 'git', 'reset', '--hard', 'origin/' + System.getProperty("jdbcBranch", 'main')
+        }
+    } else {
+        exec {
+            workingDir buildDir
             // clone the sql-jdbc repo locally
             commandLine 'git', 'clone', '--branch', System.getProperty("jdbcBranch", 'main'), System.getProperty('jdbcRepo', 'https://github.com/opensearch-project/sql-jdbc.git')
         }
-        // TODO would fail on windows
-        exec {
-            workingDir 'sql-jdbc'
-            commandLine 'sh', 'gradlew', 'shadowJar'
-        }
+    }
+    // TODO would fail on windows
+    exec {
+        workingDir "${buildDir}/sql-jdbc"
+        commandLine 'sh', 'gradlew', 'shadowJar'
     }
 }
 
@@ -213,15 +224,14 @@ task integDevJdbcTest(type: RestIntegTestTask) {
     }
 
     if (System.getProperty("jdbcFile") != null) {
-        file("sql-jdbc/build/libs").mkdirs()
+        file("${buildDir}/sql-jdbc/build/libs").mkdirs()
         copy {
             from System.getProperty("jdbcFile")
-            into "sql-jdbc/build/libs"
+            into "${buildDir}/sql-jdbc/build/libs"
         }
     } else {
         dependsOn cloneJdbcDriverRepo
     }
-    finalizedBy deleteJdbcDriverRepo
 
     systemProperty 'tests.security.manager', 'false'
     systemProperty('project.root', project.projectDir.absolutePath)
