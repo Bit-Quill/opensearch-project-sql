@@ -175,7 +175,6 @@ public class RestSQLQueryAction extends BaseRestHandler {
       @Override
       public void onResponse(QueryResponse response) {
        QueryResult queryResult = new QueryResult(response.getSchema(), response.getResults());
-       queryResult.setIndexName(response.getIndexName());
         sendResponse(channel, OK,
                 formatter.format(queryResult));
       }
