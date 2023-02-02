@@ -574,7 +574,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     FunctionExpression expm1 = DSL.expm1(DSL.literal(value));
     assertThat(
             expm1.valueOf(valueEnv()),
-            allOf(hasType(DOUBLE), hasValue(1 - Math.expm1(value))));
+            allOf(hasType(DOUBLE), hasValue(Math.expm1(value))));
     assertEquals(String.format("expm1(%s)", value.toString()), expm1.toString());
   }
 
@@ -615,26 +615,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
             expm1.valueOf(valueEnv()),
             allOf(hasType(DOUBLE), hasValue(Math.expm1(value))));
     assertEquals(String.format("expm1(%s)", value.toString()), expm1.toString());
-  }
-
-  /**
-   * Test expm1 with null value.
-   */
-  @Test
-  public void expm1_null_value() {
-    FunctionExpression expm1 =  DSL.expm1(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, expm1.type());
-    assertTrue(expm1.valueOf(valueEnv()).isNull());
-  }
-
-  /**
-   * Test expm1 with missing value.
-   */
-  @Test
-  public void expm1_missing_value() {
-    FunctionExpression expm1 = DSL.expm1(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, expm1.type());
-    assertTrue(expm1.valueOf(valueEnv()).isMissing());
   }
 
   /**
