@@ -443,10 +443,21 @@ EXPM1
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: EXPM1(T) returns the exponential of T, minus 1.
 
-1. EXPM1(NUMBER T) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
+Return type: DOUBLE
+
+Example::
+
+    os> SELECT EXPM1(-1), EXPM1(0), EXPM1(1);
+    fetched rows / total rows = 1/1
+    +---------------------+------------+-------------------+
+    | EXPM1(-1)           | EXPM1(0)   | EXPM1(1)          |
+    |---------------------+------------+-------------------|
+    | -0.6321205588285577 | 0.0        | 1.718281828459045 |
+    +---------------------+------------+-------------------+
 
 FLOOR
 -----

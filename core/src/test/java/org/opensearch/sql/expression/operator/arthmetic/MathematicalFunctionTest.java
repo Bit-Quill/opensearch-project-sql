@@ -566,6 +566,77 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
+   * Test expm1 with integer value.
+   */
+  @ParameterizedTest(name = "expm1({0})")
+  @ValueSource(ints = {-2, 2})
+  public void expm1_int_value(Integer value) {
+    FunctionExpression expm1 = DSL.expm1(DSL.literal(value));
+    assertThat(
+            expm1.valueOf(valueEnv()),
+            allOf(hasType(DOUBLE), hasValue(1 - Math.expm1(value))));
+    assertEquals(String.format("expm1(%s)", value.toString()), expm1.toString());
+  }
+
+  /**
+   * Test expm1 with long value.
+   */
+  @ParameterizedTest(name = "expm1({0})")
+  @ValueSource(longs = {-2L, 2L})
+  public void expm1_long_value(Long value) {
+    FunctionExpression expm1 = DSL.expm1(DSL.literal(value));
+    assertThat(
+            expm1.valueOf(valueEnv()),
+            allOf(hasType(DOUBLE), hasValue(Math.expm1(value))));
+    assertEquals(String.format("expm1(%s)", value.toString()), expm1.toString());
+  }
+
+  /**
+   * Test expm1 with float value.
+   */
+  @ParameterizedTest(name = "expm1({0})")
+  @ValueSource(floats = {-2F, 2F})
+  public void expm1_float_value(Float value) {
+    FunctionExpression expm1 = DSL.expm1(DSL.literal(value));
+    assertThat(
+            expm1.valueOf(valueEnv()),
+            allOf(hasType(DOUBLE), hasValue(Math.expm1(value))));
+    assertEquals(String.format("expm1(%s)", value.toString()), expm1.toString());
+  }
+
+  /**
+   * Test expm1 with double value.
+   */
+  @ParameterizedTest(name = "expm1({0})")
+  @ValueSource(doubles = {-2D, 2D})
+  public void expm1_double_value(Double value) {
+    FunctionExpression expm1 = DSL.expm1(DSL.literal(value));
+    assertThat(
+            expm1.valueOf(valueEnv()),
+            allOf(hasType(DOUBLE), hasValue(Math.expm1(value))));
+    assertEquals(String.format("expm1(%s)", value.toString()), expm1.toString());
+  }
+
+  /**
+   * Test expm1 with null value.
+   */
+  @Test
+  public void expm1_null_value() {
+    FunctionExpression expm1 =  DSL.expm1(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, expm1.type());
+    assertTrue(expm1.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test expm1 with missing value.
+   */
+  @Test
+  public void expm1_missing_value() {
+    FunctionExpression expm1 = DSL.expm1(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, expm1.type());
+    assertTrue(expm1.valueOf(valueEnv()).isMissing());
+  }
+  /**
    * Test floor with integer value.
    */
   @ParameterizedTest(name = "floor({0})")

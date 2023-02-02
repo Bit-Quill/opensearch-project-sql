@@ -59,6 +59,7 @@ public class MathematicalFunction {
     repository.register(crc32());
     repository.register(euler());
     repository.register(exp());
+    repository.register(expm1());
     repository.register(floor());
     repository.register(ln());
     repository.register(log());
@@ -186,14 +187,26 @@ public class MathematicalFunction {
   }
 
   /**
-   * Definition of exp(x) function. Calculate exponent function e to the x The supported signature
-   * of exp function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+   * Definition of exp(x) function. Calculate exponent function e to the x
+   * The supported signature of exp function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver exp() {
     return FunctionDSL.define(BuiltinFunctionName.EXP.getName(),
         ExprCoreType.numberTypes().stream()
             .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
                 v -> new ExprDoubleValue(Math.exp(v.doubleValue()))),
+                type, DOUBLE)).collect(Collectors.toList()));
+  }
+
+  /**
+   * Definition of expm1(x) function. Calculate exponent function e to the x, minus 1
+   * The supported signature of exp function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+   */
+  private static DefaultFunctionResolver expm1() {
+    return FunctionDSL.define(BuiltinFunctionName.EXPM1.getName(),
+        ExprCoreType.numberTypes().stream()
+            .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                v -> new ExprDoubleValue(Math.expm1(v.doubleValue()))),
                 type, DOUBLE)).collect(Collectors.toList()));
   }
 
