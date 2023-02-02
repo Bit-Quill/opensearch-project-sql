@@ -12,7 +12,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.executor.ExecutionEngine;
@@ -32,10 +31,6 @@ public class QueryResult implements Iterable<Object[]> {
    * Results which are collection of expression.
    */
   private final Collection<ExprValue> exprValues;
-
-  @Getter
-  @Setter
-  private String indexName;
 
 
   /**
