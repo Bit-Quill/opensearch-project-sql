@@ -22,8 +22,21 @@ public class ErrorFormatter {
               .setPrettyPrinting()
               .disableHtmlEscaping()
               .create());
+
+  private static final Gson PRETTY_PRINT_GSON_WITH_NULLS = AccessController.doPrivileged(
+          (PrivilegedAction<Gson>) () -> new GsonBuilder()
+              .setPrettyPrinting()
+              .disableHtmlEscaping()
+              .serializeNulls()
+              .create());
   private static final Gson GSON = AccessController.doPrivileged(
       (PrivilegedAction<Gson>) () -> new GsonBuilder().disableHtmlEscaping().create());
+
+  private static final Gson GSON_WITH_NULLS = AccessController.doPrivileged(
+      (PrivilegedAction<Gson>) () -> new GsonBuilder()
+              .disableHtmlEscaping()
+              .serializeNulls()
+              .create());
 
   /**
    * Util method to format {@link Throwable} response to JSON string in compact printing.
@@ -37,10 +50,28 @@ public class ErrorFormatter {
   /**
    * Util method to format {@link Throwable} response to JSON string in pretty printing.
    */
-  public static  String prettyFormat(Throwable t) {
+  public static String prettyFormat(Throwable t) {
     JsonError error = new ErrorFormatter.JsonError(t.getClass().getSimpleName(),
         t.getMessage());
     return prettyJsonify(error);
+  }
+
+  /**
+   * Util method to format {@link Throwable} response to JSON string in compact printing.
+   */
+  public static String compactFormatWithNulls(Throwable t) {
+    JsonError error = new ErrorFormatter.JsonError(t.getClass().getSimpleName(),
+        t.getMessage());
+    return compactJsonifyWithNullValues(error);
+  }
+
+  /**
+   * Util method to format {@link Throwable} response to JSON string in pretty printing.
+   */
+  public static String prettyFormatWithNulls(Throwable t) {
+    JsonError error = new ErrorFormatter.JsonError(t.getClass().getSimpleName(),
+        t.getMessage());
+    return prettyJsonifyWithNulls(error);
   }
 
   public static String compactJsonify(Object jsonObject) {
@@ -48,9 +79,19 @@ public class ErrorFormatter {
         (PrivilegedAction<String>) () -> GSON.toJson(jsonObject));
   }
 
+  public static String compactJsonifyWithNullValues(Object jsonObject) {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<String>) () -> GSON_WITH_NULLS.toJson(jsonObject));
+  }
+
   public static String prettyJsonify(Object jsonObject) {
     return AccessController.doPrivileged(
         (PrivilegedAction<String>) () -> PRETTY_PRINT_GSON.toJson(jsonObject));
+  }
+
+  public static String prettyJsonifyWithNulls(Object jsonObject) {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<String>) () -> PRETTY_PRINT_GSON_WITH_NULLS.toJson(jsonObject));
   }
 
   @RequiredArgsConstructor
