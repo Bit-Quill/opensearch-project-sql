@@ -32,7 +32,7 @@ public class DefaultExecutionEngine implements ExecutionEngine {
       while (plan.hasNext()) {
         result.add(plan.next());
       }
-      QueryResponse response = new QueryResponse(new Schema(new ArrayList<>()), new ArrayList<>(), "");
+      QueryResponse response = new QueryResponse(new Schema(new ArrayList<>()), new ArrayList<>());
       listener.onResponse(response);
     } catch (Exception e) {
       listener.onFailure(e);

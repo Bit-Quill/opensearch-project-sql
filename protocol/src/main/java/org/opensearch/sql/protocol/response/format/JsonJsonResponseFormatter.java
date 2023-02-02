@@ -7,13 +7,8 @@
 package org.opensearch.sql.protocol.response.format;
 
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.AGGREGATION_FUNC_MAPPING;
-import static org.opensearch.sql.protocol.response.format.ErrorFormatter.compactJsonifyWithNullValues;
-import static org.opensearch.sql.protocol.response.format.ErrorFormatter.prettyJsonifyWithNulls;
-import static org.opensearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 
 import com.google.gson.annotations.SerializedName;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -55,7 +50,7 @@ public class JsonJsonResponseFormatter extends JsonResponseFormatter<QueryResult
       Map<String, Aggregation> aggregationMap = getAggregations(source);
       aggregations.putAll(aggregationMap);
 
-      Hit hit = new Hit(response.getIndexName(), Integer.toString(id), 1.0, filteredSource,
+      Hit hit = new Hit("unknown", Integer.toString(id), 1.0, filteredSource,
               functions.isEmpty() ? null : functions);
 
       hitList.add(hit);
@@ -69,13 +64,6 @@ public class JsonJsonResponseFormatter extends JsonResponseFormatter<QueryResult
             .hits(hits);
 
     return json.build();
-  }
-
-  @Override
-  protected String jsonify(Object jsonObject) {
-    return AccessController.doPrivileged((PrivilegedAction<String>) () ->
-            (style == PRETTY) ? prettyJsonifyWithNulls(jsonObject)
-                    : compactJsonifyWithNullValues(jsonObject));
   }
 
   private Map<String, Aggregation> getAggregations(Map<String, Object> source) {
