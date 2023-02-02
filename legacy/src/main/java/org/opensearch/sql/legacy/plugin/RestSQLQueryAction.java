@@ -32,6 +32,7 @@ import org.opensearch.sql.protocol.response.QueryResult;
 import org.opensearch.sql.protocol.response.format.CsvResponseFormatter;
 import org.opensearch.sql.protocol.response.format.Format;
 import org.opensearch.sql.protocol.response.format.JdbcResponseFormatter;
+import org.opensearch.sql.protocol.response.format.JsonJsonResponseFormatter;
 import org.opensearch.sql.protocol.response.format.JsonResponseFormatter;
 import org.opensearch.sql.protocol.response.format.RawResponseFormatter;
 import org.opensearch.sql.protocol.response.format.ResponseFormatter;
@@ -165,14 +166,18 @@ public class RestSQLQueryAction extends BaseRestHandler {
       formatter = new CsvResponseFormatter(request.sanitize());
     } else if (format.equals(Format.RAW)) {
       formatter = new RawResponseFormatter();
+    } else if (format.equals(Format.JSON)) {
+      formatter = new JsonJsonResponseFormatter(PRETTY);
     } else {
       formatter = new JdbcResponseFormatter(PRETTY);
     }
-    return new ResponseListener<QueryResponse>() {
+    return new ResponseListener<>() {
       @Override
       public void onResponse(QueryResponse response) {
+       QueryResult queryResult = new QueryResult(response.getSchema(), response.getResults());
+       queryResult.setIndexName(response.getIndexName());
         sendResponse(channel, OK,
-            formatter.format(new QueryResult(response.getSchema(), response.getResults())));
+                formatter.format(queryResult));
       }
 
       @Override
