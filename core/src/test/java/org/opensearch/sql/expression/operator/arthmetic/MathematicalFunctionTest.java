@@ -636,6 +636,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertEquals(DOUBLE, expm1.type());
     assertTrue(expm1.valueOf(valueEnv()).isMissing());
   }
+
   /**
    * Test floor with integer value.
    */
