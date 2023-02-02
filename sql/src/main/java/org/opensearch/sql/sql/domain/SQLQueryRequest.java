@@ -121,8 +121,11 @@ public class SQLQueryRequest {
   }
 
   private boolean isSupportedFormat() {
-    return Strings.isNullOrEmpty(format) || "jdbc".equalsIgnoreCase(format)
-        || "csv".equalsIgnoreCase(format) || "raw".equalsIgnoreCase(format);
+    return Strings.isNullOrEmpty(format)
+            || "jdbc".equalsIgnoreCase(format)
+            || "csv".equalsIgnoreCase(format)
+            || "raw".equalsIgnoreCase(format)
+            || "json".equalsIgnoreCase(format);
   }
 
   private String getFormat(Map<String, String> params) {

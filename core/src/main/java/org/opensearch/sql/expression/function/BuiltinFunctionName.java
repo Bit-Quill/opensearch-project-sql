@@ -258,7 +258,7 @@ public enum BuiltinFunctionName {
     ALL_NATIVE_FUNCTIONS = builder.build();
   }
 
-  private static final Map<String, BuiltinFunctionName> AGGREGATION_FUNC_MAPPING =
+  public static final Map<String, BuiltinFunctionName> AGGREGATION_FUNC_MAPPING =
       new ImmutableMap.Builder<String, BuiltinFunctionName>()
           .put("max", BuiltinFunctionName.MAX)
           .put("min", BuiltinFunctionName.MIN)
