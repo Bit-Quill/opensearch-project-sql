@@ -309,7 +309,7 @@ Usage: exp(x) return e raised to the power of x.
 
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
-Return type: INTEGER
+Return type: DOUBLE
 
 Example::
 
@@ -321,6 +321,27 @@ Example::
     | 7.38905609893065 |
     +------------------+
 
+EXPM1
+-----
+
+Description
+>>>>>>>>>>>
+
+Usage: expm1(x) return e raised to the power of x, minus 1.
+
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    os> source=people | eval `EXPM1(2)` = EXPM1(2) | fields `EXPM1(2)`
+    fetched rows / total rows = 1/1
+    +------------------+
+    | EXPM1(2)         |
+    |------------------|
+    | 6.38905609893065 |
+    +------------------+
 
 FLOOR
 -----

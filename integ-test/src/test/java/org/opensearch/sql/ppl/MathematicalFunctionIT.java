@@ -89,6 +89,18 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
   }
 
   @Test
+  public void testExpm1() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = expm1(age) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifyDataRows(
+        result, rows(Math.expm1(32)), rows(Math.expm1(36)), rows(Math.expm1(28)), rows(Math.expm1(33)),
+        rows(Math.expm1(36)), rows(Math.expm1(39)), rows(Math.expm1(34)));
+  }
+
+  @Test
   public void testFloor() throws IOException {
     JSONObject result =
         executeQuery(
