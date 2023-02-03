@@ -32,7 +32,7 @@ import org.opensearch.sql.protocol.response.QueryResult;
 import org.opensearch.sql.protocol.response.format.CsvResponseFormatter;
 import org.opensearch.sql.protocol.response.format.Format;
 import org.opensearch.sql.protocol.response.format.JdbcResponseFormatter;
-import org.opensearch.sql.protocol.response.format.JsonJsonResponseFormatter;
+import org.opensearch.sql.protocol.response.format.JsonTypeResponseFormatter;
 import org.opensearch.sql.protocol.response.format.JsonResponseFormatter;
 import org.opensearch.sql.protocol.response.format.RawResponseFormatter;
 import org.opensearch.sql.protocol.response.format.ResponseFormatter;
@@ -167,7 +167,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
     } else if (format.equals(Format.RAW)) {
       formatter = new RawResponseFormatter();
     } else if (format.equals(Format.JSON)) {
-      formatter = new JsonJsonResponseFormatter(PRETTY);
+      formatter = new JsonTypeResponseFormatter(PRETTY);
     } else {
       formatter = new JdbcResponseFormatter(PRETTY);
     }
