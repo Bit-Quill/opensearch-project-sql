@@ -22,11 +22,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.Singular;
 import org.opensearch.sql.protocol.response.QueryResult;
 
-public class JsonJsonResponseFormatter extends JsonResponseFormatter<QueryResult> {
+public class JsonTypeResponseFormatter extends JsonResponseFormatter<QueryResult> {
 
   private final Style style;
 
-  public JsonJsonResponseFormatter(Style style) {
+  public JsonTypeResponseFormatter(Style style) {
     super(style);
     this.style = style;
   }
@@ -35,12 +35,11 @@ public class JsonJsonResponseFormatter extends JsonResponseFormatter<QueryResult
   public Object buildJsonObject(QueryResult response) {
     JsonResponse.JsonResponseBuilder json = JsonResponse.builder();
     Total total = new Total(response.size(), "eq");
-    Shards shards = new Shards(1, 1, 0, 0);
+    Shards shards = new Shards(0, 0, 0, 0);
     List<String> columnNames = new LinkedList<>(response.columnNameTypes().keySet());
     List<Hit> hitList = new LinkedList<>();
     Map<String, Aggregation> aggregations = new LinkedHashMap<>();
 
-    int id = 1;
     for (Object[] values : getRows(response)) {
       List<Object> valueList = new LinkedList<>(Arrays.asList(values));
       Map<String, Object> source = combineListsIntoMap(columnNames, valueList);
@@ -50,18 +49,13 @@ public class JsonJsonResponseFormatter extends JsonResponseFormatter<QueryResult
       Map<String, Aggregation> aggregationMap = getAggregations(source);
       aggregations.putAll(aggregationMap);
 
-      Hit hit = new Hit("unknown", Integer.toString(id), 1.0, filteredSource,
-              functions.isEmpty() ? null : functions);
+      Hit hit = new Hit(filteredSource, functions.isEmpty() ? null : functions);
 
       hitList.add(hit);
-      id++;
     }
     Hits hits = new Hits(total, 1.0, hitList, aggregations.isEmpty() ? null : aggregations);
 
-    json.took(0)
-            .timedOut(false)
-            .shards(shards)
-            .hits(hits);
+    json.shards(shards).hits(hits);
 
     return json.build();
   }
@@ -116,9 +110,6 @@ public class JsonJsonResponseFormatter extends JsonResponseFormatter<QueryResult
   @Builder
   @Getter
   public static class JsonResponse {
-    public final int took;
-    @SerializedName("timed_out")
-    public final boolean timedOut;
     @SerializedName("_shards")
     public final Shards shards;
     public final Hits hits;
@@ -138,12 +129,6 @@ public class JsonJsonResponseFormatter extends JsonResponseFormatter<QueryResult
   @RequiredArgsConstructor
   @Getter
   public static class Hit {
-    @SerializedName("_index")
-    public final String index;
-    @SerializedName("_id")
-    public final String id;
-    @SerializedName("_score")
-    public final double score;
     @SerializedName("_source")
     public final Map<String, Object> source;
     public final Map<String, Object> fields;
