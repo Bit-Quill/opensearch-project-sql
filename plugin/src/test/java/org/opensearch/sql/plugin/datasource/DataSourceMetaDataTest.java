@@ -111,11 +111,10 @@ public class DataSourceMetaDataTest {
   }
 
   void verifyAddDataSourceWithMetadata(List<DataSourceMetadata> metadataList) {
-    ArgumentCaptor<DataSourceMetadata> metadataCaptor =
-        ArgumentCaptor.forClass(DataSourceMetadata.class);
+    ArgumentCaptor<DataSourceMetadata[]> metadataCaptor =
+        ArgumentCaptor.forClass(DataSourceMetadata[].class);
     verify(dataSourceService, times(1)).addDataSource(metadataCaptor.capture());
-    List<DataSourceMetadata> actualValues = metadataCaptor.getAllValues();
-    assertEquals(metadataList.size(), actualValues.size());
+    List<DataSourceMetadata> actualValues = List.of(metadataCaptor.getValue());
     assertEquals(metadataList, actualValues);
   }
 
