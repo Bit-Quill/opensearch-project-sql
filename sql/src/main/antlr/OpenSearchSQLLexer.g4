@@ -216,6 +216,7 @@ FROM_UNIXTIME:                      'FROM_UNIXTIME';
 IF:                                 'IF';
 IFNULL:                             'IFNULL';
 ISNULL:                             'ISNULL';
+LAST_DAY:                           'LAST_DAY';
 LENGTH:                             'LENGTH';
 LN:                                 'LN';
 LOCALTIME:                          'LOCALTIME';

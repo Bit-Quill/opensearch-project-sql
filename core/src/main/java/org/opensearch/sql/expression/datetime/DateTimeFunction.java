@@ -124,6 +124,7 @@ public class DateTimeFunction {
     repository.register(from_unixtime());
     repository.register(hour(BuiltinFunctionName.HOUR));
     repository.register(hour(BuiltinFunctionName.HOUR_OF_DAY));
+    repository.register(last_day());
     repository.register(localtime());
     repository.register(localtimestamp());
     repository.register(makedate());
@@ -516,6 +517,18 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprHour), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprHour), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprHour), INTEGER, TIMESTAMP)
+    );
+  }
+
+  private  DefaultFunctionResolver last_day() {
+    return define(BuiltinFunctionName.LAST_DAY.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprLastDay), DATE, STRING),
+        implWithProperties(nullMissingHandlingWithProperties((functionProperties, arg)
+            -> DateTimeFunction.last_day_today(
+            functionProperties.getQueryStartClock())), DATE, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprLastDay), DATE, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprLastDay), DATE, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprLastDay), DATE, TIMESTAMP)
     );
   }
 
@@ -1147,6 +1160,17 @@ public class DateTimeFunction {
         HOURS.between(LocalTime.MIN, time.timeValue()));
   }
 
+  private ExprValue exprLastDay(ExprValue datetime) {
+    LocalDate today = datetime.dateValue();
+    return new ExprIntegerValue(today.getMonth().length(today.isLeapYear())
+    );
+  }
+
+  private ExprValue last_day_today(Clock clock) {
+    LocalDate today = formatNow(clock).toLocalDate();
+    return new ExprIntegerValue(today.getMonth().length(today.isLeapYear())
+    );
+  }
   /**
    * Following MySQL, function receives arguments of type double and rounds them before use.
    * Furthermore:
