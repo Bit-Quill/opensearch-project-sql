@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.opensearch.action.search.SearchRequest;
@@ -146,11 +145,13 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
    * Convert a scroll request to string that can be included in a cursor.
    * @return a string representing the scroll request.
    */
+  @Override
   public String toCursor() {
     if (isScrollStarted()) {
+      // TODO: probably should serialize exprValueFactory here as well.
       return scrollId;
     } else {
-      return "TESTING ONLY";
+      return "";
     }
   }
 }

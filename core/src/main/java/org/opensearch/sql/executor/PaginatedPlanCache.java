@@ -58,14 +58,15 @@ public class PaginatedPlanCache {
     */
   public PhysicalPlan convertToPlan(String cursor) {
     if (cursor.startsWith(CURSOR_PREFIX)) {
-      String sExpression = cursor.substring(CURSOR_PREFIX.length());
+      String expression = cursor.substring(CURSOR_PREFIX.length());
 
-      // TODO Parse sExpression and initialize variables below.
+      // TODO Parse expression and initialize variables below.
       // storageEngine needs to create the TableScanOperator.
       int pageSize = -1;
       int currentPageIndex = -1;
       List<NamedExpression> projectList = List.of();
-      TableScanOperator scan = null;
+      String scanAsString = "";
+      TableScanOperator scan = storageEngine.getTableScan(scanAsString);
 
       return new PaginateOperator(new ProjectOperator(scan, projectList, List.of()),
           pageSize, currentPageIndex);

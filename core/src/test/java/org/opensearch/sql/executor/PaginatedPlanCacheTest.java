@@ -5,10 +5,7 @@
 
 package org.opensearch.sql.executor;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -21,6 +18,7 @@ class PaginatedPlanCacheTest {
   StorageEngine storageEngine;
 
   PaginatedPlanCache planCache;
+
   @BeforeEach
   void setUp() {
     planCache = new PaginatedPlanCache(storageEngine);

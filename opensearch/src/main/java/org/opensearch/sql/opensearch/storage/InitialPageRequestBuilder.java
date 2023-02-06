@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.aggregations.AggregationBuilder;
@@ -25,9 +26,9 @@ import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.request.OpenSearchScrollRequest;
 import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseParser;
 
-public class OpenSearchPagedRequestBuilder {
+public class InitialPageRequestBuilder implements PagedRequestBuilder {
 
-
+  @Getter
   private final OpenSearchRequest.IndexName indexName;
   private final SearchSourceBuilder sourceBuilder;
   private final OpenSearchExprValueFactory exprValueFactory;
@@ -39,8 +40,8 @@ public class OpenSearchPagedRequestBuilder {
    * @param settings other settings
    * @param exprValueFactory value factory
    */
-  public OpenSearchPagedRequestBuilder(OpenSearchRequest.IndexName indexName, Settings settings,
-                                       OpenSearchExprValueFactory exprValueFactory) {
+  public InitialPageRequestBuilder(OpenSearchRequest.IndexName indexName, Settings settings,
+                                   OpenSearchExprValueFactory exprValueFactory) {
     this.indexName = indexName;
     this.sourceBuilder = new SearchSourceBuilder();
     this.exprValueFactory = exprValueFactory;
@@ -50,12 +51,13 @@ public class OpenSearchPagedRequestBuilder {
     sourceBuilder.timeout(DEFAULT_QUERY_TIMEOUT);
   }
 
+  @Override
   public OpenSearchScrollRequest build() {
     return new OpenSearchScrollRequest(indexName, sourceBuilder, exprValueFactory);
   }
 
   public void pushDown(QueryBuilder query) {
-    throw new RuntimeException();
+    throw new UnsupportedOperationException("pushdown of a query is not supported");
   }
 
   public void pushDownAggregation(

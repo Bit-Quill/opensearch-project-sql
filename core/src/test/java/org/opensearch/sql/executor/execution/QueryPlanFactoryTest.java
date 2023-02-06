@@ -47,12 +47,15 @@ class QueryPlanFactoryTest {
   private ExecutionEngine.QueryResponse queryResponse;
 
   @Mock
+  private PaginatedQueryService paginatedQueryService;
+
+  @Mock
   private PaginatedPlanCache paginatedPlanCache;
   private QueryPlanFactory factory;
 
   @BeforeEach
   void init() {
-    factory = new QueryPlanFactory(queryService, paginatedPlanCache);
+    factory = new QueryPlanFactory(queryService, paginatedQueryService, paginatedPlanCache);
   }
 
   @Test

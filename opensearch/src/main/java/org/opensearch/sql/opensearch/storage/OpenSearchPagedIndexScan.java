@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
+import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.request.OpenSearchScrollRequest;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 import org.opensearch.sql.storage.TableScanOperator;
@@ -18,14 +19,14 @@ import org.opensearch.sql.storage.TableScanOperator;
 @ToString(onlyExplicitlyIncluded = true)
 public class OpenSearchPagedIndexScan extends TableScanOperator {
   private final OpenSearchClient client;
-  private final OpenSearchPagedRequestBuilder requestBuilder;
+  private final PagedRequestBuilder requestBuilder;
   @EqualsAndHashCode.Include
   @ToString.Include
-  private OpenSearchScrollRequest request;
+  private OpenSearchRequest request;
   private Iterator<ExprValue> iterator;
 
   public OpenSearchPagedIndexScan(OpenSearchClient client,
-                                  OpenSearchPagedRequestBuilder requestBuilder) {
+                                  PagedRequestBuilder requestBuilder) {
     this.client = client;
     this.requestBuilder = requestBuilder;
   }
@@ -64,6 +65,8 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
 
   @Override
   public String toCursor() {
-    return createSection("OpenSearchPagedIndexScan", request.toCursor());
+    // TODO this assumes exactly one index is scanned.
+    var indexName = requestBuilder.getIndexName().getIndexNames()[0];
+    return createSection("OpenSearchPagedIndexScan", indexName, request.toCursor());
   }
 }
