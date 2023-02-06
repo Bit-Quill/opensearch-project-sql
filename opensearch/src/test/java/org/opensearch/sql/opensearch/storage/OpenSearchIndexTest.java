@@ -23,7 +23,6 @@ import static org.opensearch.sql.expression.DSL.ref;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.OPENSEARCH_TEXT_KEYWORD;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.eval;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.project;
-import static org.opensearch.sql.planner.logical.LogicalPlanDSL.relation;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.remove;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.rename;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.sort;
@@ -160,7 +159,8 @@ class OpenSearchIndexTest {
 
     LogicalPlan plan = index.createScanBuilder();
     Integer maxResultWindow = index.getMaxResultWindow();
-    OpenSearchRequestBuilder builder = new OpenSearchRequestBuilder(indexName, maxResultWindow,
+    OpenSearchRequestBuilder
+        builder = new OpenSearchRequestBuilder(indexName, maxResultWindow,
         settings, exprValueFactory);
     assertEquals(new OpenSearchIndexScan(client, builder), index.implement(plan));
   }
@@ -172,7 +172,8 @@ class OpenSearchIndexTest {
 
     LogicalPlan plan = index.createScanBuilder();
     Integer maxResultWindow = index.getMaxResultWindow();
-    OpenSearchRequestBuilder builder = new OpenSearchRequestBuilder(indexName, maxResultWindow,
+    OpenSearchRequestBuilder
+        builder = new OpenSearchRequestBuilder(indexName, maxResultWindow,
         settings, exprValueFactory);
     assertEquals(
         new OpenSearchIndexScan(client, builder),

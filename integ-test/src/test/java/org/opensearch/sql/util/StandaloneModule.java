@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.opensearch.sql.plugin.config;
+package org.opensearch.sql.util;
 
 import lombok.RequiredArgsConstructor;
-import org.opensearch.client.node.NodeClient;
+import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.common.inject.AbstractModule;
 import org.opensearch.common.inject.Provides;
 import org.opensearch.common.inject.Singleton;
@@ -21,15 +21,13 @@ import org.opensearch.sql.executor.QueryService;
 import org.opensearch.sql.executor.execution.PaginatedQueryService;
 import org.opensearch.sql.executor.execution.QueryPlanFactory;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
+import org.opensearch.sql.monitor.AlwaysHealthyMonitor;
 import org.opensearch.sql.monitor.ResourceMonitor;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
-import org.opensearch.sql.opensearch.client.OpenSearchNodeClient;
+import org.opensearch.sql.opensearch.client.OpenSearchRestClient;
 import org.opensearch.sql.opensearch.executor.OpenSearchExecutionEngine;
-import org.opensearch.sql.opensearch.executor.OpenSearchQueryManager;
 import org.opensearch.sql.opensearch.executor.protector.ExecutionProtector;
 import org.opensearch.sql.opensearch.executor.protector.OpenSearchExecutionProtector;
-import org.opensearch.sql.opensearch.monitor.OpenSearchMemoryHealthy;
-import org.opensearch.sql.opensearch.monitor.OpenSearchResourceMonitor;
 import org.opensearch.sql.opensearch.storage.OpenSearchStorageEngine;
 import org.opensearch.sql.planner.Planner;
 import org.opensearch.sql.planner.optimizer.LogicalPlanOptimizer;
@@ -38,9 +36,16 @@ import org.opensearch.sql.ppl.antlr.PPLSyntaxParser;
 import org.opensearch.sql.sql.SQLService;
 import org.opensearch.sql.sql.antlr.SQLSyntaxParser;
 import org.opensearch.sql.storage.StorageEngine;
+import org.opensearch.sql.util.ExecuteOnCallerThreadQueryManager;
 
 @RequiredArgsConstructor
-public class OpenSearchPluginModule extends AbstractModule {
+public class StandaloneModule extends AbstractModule {
+
+  private final RestHighLevelClient client;
+
+  private final Settings settings;
+
+  private final DataSourceService dataSourceService;
 
   private final BuiltinFunctionRepository functionRepository =
       BuiltinFunctionRepository.getInstance();
@@ -50,12 +55,12 @@ public class OpenSearchPluginModule extends AbstractModule {
   }
 
   @Provides
-  public OpenSearchClient openSearchClient(NodeClient nodeClient) {
-    return new OpenSearchNodeClient(nodeClient);
+  public OpenSearchClient openSearchClient() {
+    return new OpenSearchRestClient(client);
   }
 
   @Provides
-  public StorageEngine storageEngine(OpenSearchClient client, Settings settings) {
+  public StorageEngine storageEngine(OpenSearchClient client) {
     return new OpenSearchStorageEngine(client, settings);
   }
 
@@ -66,8 +71,8 @@ public class OpenSearchPluginModule extends AbstractModule {
   }
 
   @Provides
-  public ResourceMonitor resourceMonitor(Settings settings) {
-    return new OpenSearchResourceMonitor(settings, new OpenSearchMemoryHealthy());
+  public ResourceMonitor resourceMonitor() {
+    return new AlwaysHealthyMonitor();
   }
 
   @Provides
@@ -76,14 +81,9 @@ public class OpenSearchPluginModule extends AbstractModule {
   }
 
   @Provides
-  public PaginatedPlanCache paginatedPlanCache(StorageEngine storageEngine) {
-    return new PaginatedPlanCache(storageEngine);
-  }
-
-  @Provides
   @Singleton
-  public QueryManager queryManager(NodeClient nodeClient) {
-    return new OpenSearchQueryManager(nodeClient);
+  public QueryManager queryManager() {
+    return new ExecuteOnCallerThreadQueryManager();
   }
 
   @Provides
@@ -96,21 +96,35 @@ public class OpenSearchPluginModule extends AbstractModule {
     return new SQLService(new SQLSyntaxParser(), queryManager, queryPlanFactory);
   }
 
-  /**
-   * {@link QueryPlanFactory}.
-   */
   @Provides
-  public QueryPlanFactory queryPlanFactory(DataSourceService dataSourceService,
-      ExecutionEngine executionEngine,
-      PaginatedPlanCache paginatedPlanCache) {
+  public PaginatedPlanCache paginatedPlanCache(StorageEngine storageEngine) {
+    return new PaginatedPlanCache(storageEngine);
+  }
+
+  @Provides
+  public QueryPlanFactory queryPlanFactory(ExecutionEngine executionEngine,
+                                           PaginatedPlanCache paginatedPlanCache,
+                                           QueryService qs,
+                                           PaginatedQueryService pqs) {
+
+    return new QueryPlanFactory(qs, pqs, paginatedPlanCache);
+  }
+
+  @Provides
+  public QueryService querySerivce(ExecutionEngine executionEngine) {
     Analyzer analyzer =
         new Analyzer(
             new ExpressionAnalyzer(functionRepository), dataSourceService, functionRepository);
     Planner planner = new Planner(LogicalPlanOptimizer.create());
-    Planner paginationPlanner = new Planner(LogicalPlanOptimizer.paginationCreate());
-    QueryService queryService = new QueryService(analyzer, executionEngine, planner);
-    PaginatedQueryService paginatedQueryService
-        = new PaginatedQueryService(analyzer, executionEngine, paginationPlanner);
-    return new QueryPlanFactory(queryService, paginatedQueryService, paginatedPlanCache);
+    return new QueryService(analyzer, executionEngine, planner);
+  }
+
+  @Provides
+  public PaginatedQueryService paginatedQueryService(ExecutionEngine executionEngine) {
+    Analyzer analyzer =
+        new Analyzer(
+            new ExpressionAnalyzer(functionRepository), dataSourceService, functionRepository);
+    Planner planner = new Planner(LogicalPlanOptimizer.paginationCreate());
+    return new PaginatedQueryService(analyzer, executionEngine, planner);
   }
 }

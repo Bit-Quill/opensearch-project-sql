@@ -51,10 +51,6 @@ public class OpenSearchExecutionEngine implements ExecutionEngine {
               result.add(plan.next());
             }
 
-
-            //
-            // getContinuation expects hasNext to return false before it is called.
-
             Cursor qc = paginatedPlanCache.convertToCursor(plan);
 
             QueryResponse response = new QueryResponse(physicalPlan.schema(), result, qc);

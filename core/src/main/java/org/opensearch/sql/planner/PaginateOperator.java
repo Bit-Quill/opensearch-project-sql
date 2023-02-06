@@ -72,4 +72,17 @@ public class PaginateOperator extends PhysicalPlan {
     assert input instanceof ProjectOperator;
     return input.schema();
   }
+
+  @Override
+  public String toCursor() {
+    // Save cursor to read the next page.
+    // Could process node.getChild() here with another visitor -- one that saves the
+    // parameters for other physical operators -- ProjectOperator, etc.
+    // cursor format: n:<paginate(next-page, pagesize)>|<child>"
+    String child = getChild().get(0).toCursor();
+
+    var nextPage = getPageIndex() + 1;
+    return createSection("Paginate", Integer.toString(nextPage),
+        Integer.toString(getPageSize()), child);
+  }
 }

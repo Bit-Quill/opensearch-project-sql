@@ -82,7 +82,8 @@ class OpenSearchIndexScanTest {
         employee(2, "Smith", "HR"),
         employee(3, "Allen", "IT")});
 
-    OpenSearchRequestBuilder builder = new OpenSearchRequestBuilder("employees", 10, settings,
+    OpenSearchRequestBuilder
+        builder = new OpenSearchRequestBuilder("employees", 10, settings,
         exprValueFactory);
     try (OpenSearchIndexScan indexScan =
              new OpenSearchIndexScan(client, builder)) {
