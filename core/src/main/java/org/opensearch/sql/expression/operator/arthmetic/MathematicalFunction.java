@@ -87,12 +87,14 @@ public class MathematicalFunction {
   }
 
   /**
-   * Definition of doubleMathFunctionBase(x/y). Base function for math functions with similar format
-   * that just take in a lambda function and return a double.
-   * The supported signature of doubleMathFunctionBase is
-   * (x: FunctionName, y: lambda function) -> DOUBLE
+   * Base function for math functions with similar formats that return DOUBLE.
+   *
+   * @param functionName BuiltinFunctionName of math function.
+   * @param formula lambda function of math formula.
+   * @return DefaultFunctionResolver for math functions.
    */
-  private static DefaultFunctionResolver doubleMathFunctionBase(FunctionName functionName, SerializableFunction<Double, Double> formula) {
+  private static DefaultFunctionResolver doubleMathFunctionBase(
+          FunctionName functionName, SerializableFunction<Double, Double> formula) {
     return FunctionDSL.define(functionName,
         ExprCoreType.numberTypes().stream()
             .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
@@ -278,7 +280,8 @@ public class MathematicalFunction {
    * function is SHORT/INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver log2() {
-    return doubleMathFunctionBase(BuiltinFunctionName.LOG2.getName(), v -> (Math.log(v) / Math.log(2)));
+    return doubleMathFunctionBase(BuiltinFunctionName.LOG2.getName(),
+            v -> (Math.log(v) / Math.log(2)));
   }
 
   /**
