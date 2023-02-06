@@ -86,6 +86,12 @@ public class MathematicalFunction {
     repository.register(tan());
   }
 
+  /**
+   * Definition of doubleMathFunctionBase(x/y). Base function for math functions with similar format
+   * that just take in a lambda function and return a double.
+   * The supported signature of doubleMathFunctionBase is
+   * (x: FunctionName, y: lambda function) -> DOUBLE
+   */
   private static DefaultFunctionResolver doubleMathFunctionBase(FunctionName functionName, SerializableFunction<Double, Double> formula) {
     return FunctionDSL.define(functionName,
         ExprCoreType.numberTypes().stream()
