@@ -40,6 +40,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
+import org.opensearch.sql.data.model.ExprFloatValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
 import org.opensearch.sql.data.model.ExprLongValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
@@ -1175,36 +1176,51 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(4), eval(expression));
   }
 
-  private Stream<Arguments> getTestDataForSecToTime() {
+  private static Stream<Arguments> getTestDataForSecToTime() {
     return Stream.of(
-        Arguments.of("1", "00:00:01"),
-        Arguments.of("2378", "00:39:38"),
-        Arguments.of("6897", "-01:54:57"),
-        Arguments.of("-1", "00:00:01"),
-        Arguments.of("-2378", "00:39:38"),
-        Arguments.of("-6897", "-01:54:57"),
-        Arguments.of("6897.123", "01:54:57.123")
+        Arguments.of(1, "00:00:01"),
+        Arguments.of(2378, "00:39:38"),
+        Arguments.of(6897, "01:54:57")
+        //TODO: Discuss whether negative values should be supported like in MySQL.
+        //...OpenSearch documentation forbids negative time values
+        //...https://opensearch.org/docs/2.4/search-plugins/sql/datatypes/
+        //Arguments.of(-1, "00:00:01"),
+        //Arguments.of(-2378, "00:39:38"),
+        //Arguments.of(-6897, "-01:54:57")
     );
   }
 
-  @ParameterizedTest(name={"0"})
+  @ParameterizedTest(name = "{0}")
   @MethodSource("getTestDataForSecToTime")
-  public void testSecToTime(String seconds, String expected) {
+  public void testSecToTime(int seconds, String expected) {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
     FunctionExpression expr = DSL.sec_to_time(
-        FunctionProperties.None,
         DSL.literal(new ExprIntegerValue(seconds)));
 
     assertEquals(TIME, expr.type());
-    assertEquals(expected, eval(expr).stringValue());
+    assertEquals(new ExprTimeValue(expected), eval(expr));
+  }
+
+  @Test
+  public void testSecToTimeWithDecimal() {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+    FunctionExpression expr = DSL.sec_to_time(
+        DSL.literal(new ExprFloatValue(1.123)));
+
+    assertEquals(TIME, expr.type());
+    assertEquals(new ExprTimeValue("00:00:01.123"), eval(expr));
   }
 
   @Test
   public void testSecToTimeWithNullValue() {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
     FunctionExpression expr = DSL.sec_to_time(
-        FunctionProperties.None,
         DSL.literal(nullValue()));
 
-    assertEquals(nullValue(), eval(expr);
+    assertEquals(nullValue(), eval(expr));
   }
 
   @Test

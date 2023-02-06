@@ -15,6 +15,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
+import static org.opensearch.sql.data.type.ExprCoreType.FLOAT;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.INTERVAL;
 import static org.opensearch.sql.data.type.ExprCoreType.LONG;
@@ -147,6 +148,7 @@ public class DateTimeFunction {
     repository.register(period_add());
     repository.register(period_diff());
     repository.register(quarter());
+    repository.register(sec_to_time());
     repository.register(second(BuiltinFunctionName.SECOND));
     repository.register(second(BuiltinFunctionName.SECOND_OF_MINUTE));
     repository.register(subdate());
@@ -636,6 +638,13 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprQuarter), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprQuarter), INTEGER, TIMESTAMP),
         impl(nullMissingHandling(DateTimeFunction::exprQuarter), INTEGER, STRING)
+    );
+  }
+
+  private DefaultFunctionResolver sec_to_time() {
+    return define(BuiltinFunctionName.SEC_TO_TIME.getName(),
+        impl((nullMissingHandling(DateTimeFunction::exprSecToTime)), TIME, INTEGER),
+        impl((nullMissingHandling(DateTimeFunction::exprSecToTime)), TIME, FLOAT)
     );
   }
 
@@ -1362,6 +1371,30 @@ public class DateTimeFunction {
   private ExprValue exprQuarter(ExprValue date) {
     int month = date.dateValue().getMonthValue();
     return new ExprIntegerValue((month / 3) + ((month % 3) == 0 ? 0 : 1));
+  }
+
+  private double roundToZero(double val) {
+    if (val < 0) {
+      return Math.ceil(val);
+    }
+    return Math.floor(val);
+  }
+
+  private ExprValue exprSecToTime(ExprValue totalSeconds) {
+
+    try{
+      int hours = totalSeconds.integerValue() / 3600;
+      int minutes = (totalSeconds.integerValue() % 3600) / 60;
+      int seconds = totalSeconds.integerValue() % 60;
+      String fraction = String.valueOf(totalSeconds.doubleValue() - roundToZero(totalSeconds.doubleValue()));
+
+      if (fraction == "0")
+        return new ExprTimeValue(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+      return new ExprTimeValue(String.format("%02d:%02d:%02d.%s", hours, minutes, seconds, fraction.substring(2)));
+    } catch (Exception e){
+      return ExprNullValue.of();
+    }
+
   }
 
   /**

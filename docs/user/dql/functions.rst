@@ -2096,6 +2096,28 @@ Example::
     | 3                             |
     +-------------------------------+
 
+SEC_TO_TIME
+-----------
+
+Description
+>>>>>>>>>>>
+
+Usage: sec_to_time(integer) returns the time in HH:mm:ss format.
+
+Argument type: INTEGER
+
+Return type: TIME
+
+Example::
+
+    os> SELECT SEC_TO_TIME(3601)
+    fetched rows / total rows = 1/1
+    +---------------------+
+    | SEC_TO_TIME(3601)   |
+    |---------------------|
+    | 01:00:01            |
+    +---------------------+
+
 
 SECOND
 ------
