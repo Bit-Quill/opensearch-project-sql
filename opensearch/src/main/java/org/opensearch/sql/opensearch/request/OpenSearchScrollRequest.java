@@ -51,6 +51,7 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
    * multi-thread so this state has to be maintained here.
    */
   @Setter
+  @Getter
   private String scrollId;
 
   /** Search request source builder. */
@@ -139,5 +140,17 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
    */
   public void reset() {
     scrollId = null;
+  }
+
+  /**
+   * Convert a scroll request to string that can be included in a cursor.
+   * @return a string representing the scroll request.
+   */
+  public String toCursor() {
+    if (isScrollStarted()) {
+      return scrollId;
+    } else {
+      return "TESTING ONLY";
+    }
   }
 }

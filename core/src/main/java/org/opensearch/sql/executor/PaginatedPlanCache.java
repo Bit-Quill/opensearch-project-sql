@@ -5,7 +5,6 @@
 
 package org.opensearch.sql.executor;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.List;
@@ -23,10 +22,12 @@ import org.opensearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 import org.opensearch.sql.planner.physical.ProjectOperator;
 import org.opensearch.sql.storage.StorageEngine;
 import org.opensearch.sql.storage.Table;
+import org.opensearch.sql.storage.TableScanOperator;
 import org.opensearch.sql.storage.read.TableScanBuilder;
 
 @RequiredArgsConstructor
 public class PaginatedPlanCache {
+  public static final String CURSOR_PREFIX = "n:";
   private final StorageEngine storageEngine;
   public static final PaginatedPlanCache None = new PaginatedPlanCache(null);
 
@@ -40,57 +41,37 @@ public class PaginatedPlanCache {
     private final PaginatedPlanCache cache;
   }
 
-  public static class SerializationVisitor
-      extends PhysicalPlanNodeVisitor<byte[], SeriazationContext> {
-    private static final byte[] NO_CURSOR = new byte[] {};
-
-    @Override
-    public byte[] visitPaginate(PaginateOperator node, SeriazationContext context) {
-      // Save cursor to read the next page.
-      // Could process node.getChild() here with another visitor -- one that saves the
-      // parameters for other physical operators -- ProjectOperator, etc.
-      return String.format("You got it!%d", node.getPageIndex() + 1).getBytes();
-    }
-
-    // Cursor is returned only if physical plan node is PaginateOerator.
-    @Override
-    protected byte[] visitNode(PhysicalPlan node, SeriazationContext context) {
-      return NO_CURSOR;
-    }
-  }
-
   /**
    * Converts a physical plan tree to a cursor. May cache plan related data somewhere.
    */
   public Cursor convertToCursor(PhysicalPlan plan) {
-    var serializer = new SerializationVisitor();
-    var raw = plan.accept(serializer, new SeriazationContext(this));
-    return new Cursor(raw);
+    if (plan instanceof PaginateOperator) {
+      var raw = CURSOR_PREFIX + plan.toCursor();
+      return new Cursor(raw.getBytes());
+    } else {
+      return Cursor.None;
+    }
   }
 
   /**
-    * Convers a cursor to a physical plann tree.
+    * Converts a cursor to a physical plan tree.
     */
   public PhysicalPlan convertToPlan(String cursor) {
-    // TODO HACKY_HACK -- create a plan
-    if (cursor.startsWith("You got it!")) {
-      int pageIndex = Integer.parseInt(cursor.substring("You got it!".length()));
+    if (cursor.startsWith(CURSOR_PREFIX)) {
+      String sExpression = cursor.substring(CURSOR_PREFIX.length());
 
-      Table table = storageEngine.getTable(null, "phrases");
-      TableScanBuilder scanBuilder = table.createScanBuilder();
-      scanBuilder.pushDownOffset(5 * pageIndex);
-      PhysicalPlan scan = scanBuilder.build();
-      var fields = table.getFieldTypes();
-      List<NamedExpression> references =
-          Stream.of("phrase", "test field", "insert_time2")
-              .map(c ->
-                  new NamedExpression(c, new ReferenceExpression(c, List.of(c), fields.get(c))))
-              .collect(Collectors.toList());
+      // TODO Parse sExpression and initialize variables below.
+      // storageEngine needs to create the TableScanOperator.
+      int pageSize = -1;
+      int currentPageIndex = -1;
+      List<NamedExpression> projectList = List.of();
+      TableScanOperator scan = null;
 
-      return new PaginateOperator(new ProjectOperator(scan, references, List.of()), 5, pageIndex);
+      return new PaginateOperator(new ProjectOperator(scan, projectList, List.of()),
+          pageSize, currentPageIndex);
 
     } else {
-      throw new RuntimeException("Unsupported cursor");
+      throw new UnsupportedOperationException("Unsupported cursor");
     }
   }
 }

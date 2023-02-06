@@ -8,6 +8,7 @@ package org.opensearch.sql.planner.physical;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.List;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.planner.PlanNode;
@@ -18,8 +19,10 @@ import org.opensearch.sql.storage.split.Split;
  */
 public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
     Iterator<ExprValue>,
-    AutoCloseable,
-    Serializable {
+    AutoCloseable {
+
+  public static final List<String> FORBIDDEN_CHARS = List.of("(", ")", ",");
+
   /**
    * Accept the {@link PhysicalPlanNodeVisitor}.
    *
@@ -48,4 +51,28 @@ public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
         + "ProjectOperator, instead of %s", toString()));
   }
 
+  public String toCursor() {
+    throw new IllegalStateException(String.format("%s needs to implement ToCursor",
+        this.getClass()));
+  }
+
+  /**
+   * Creates an S-expression that represents a plan node.
+   * @param plan Label for the plan.
+   * @param params List of serialized parameters. Including the child plans.
+   * @return A string that represents the plan called with those parameters.
+   */
+  protected String createSection(String plan, String... params) {
+    if (FORBIDDEN_CHARS.stream().anyMatch(plan::contains)) {
+      var error = String.format("plan key '%s' contains forbidden character",
+          plan);
+      throw new RuntimeException(error);
+    }
+
+    // TODO: check that each param is either a valid s-expression or
+    // does not contain forbidden characters.
+    return "(" + plan + ","
+        + String.join(",", params)
+        + ")";
+  }
 }

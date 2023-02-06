@@ -9,7 +9,6 @@ package org.opensearch.sql.opensearch.request;
 import static org.opensearch.search.sort.FieldSortBuilder.DOC_FIELD_NAME;
 import static org.opensearch.search.sort.SortOrder.ASC;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,7 @@ import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseP
 @EqualsAndHashCode
 @Getter
 @ToString
-public class OpenSearchRequestBuilder implements Serializable {
+public class OpenSearchRequestBuilder {
 
   /**
    * Default query timeout in minutes.
@@ -105,6 +104,7 @@ public class OpenSearchRequestBuilder implements Serializable {
   /**
    * Build DSL request.
    *
+
    * @return query request or scroll request
    */
   public OpenSearchRequest build() {

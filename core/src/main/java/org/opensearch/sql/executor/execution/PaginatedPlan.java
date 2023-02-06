@@ -10,12 +10,11 @@ import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.QueryId;
-import org.opensearch.sql.executor.QueryService;
 
 public class PaginatedPlan extends AbstractPlan {
   final UnresolvedPlan plan;
   final int fetchSize;
-  final QueryService queryService;
+  final PaginatedQueryService queryService;
   final ResponseListener<ExecutionEngine.QueryResponse>
       queryResponseResponseListener;
 
@@ -23,7 +22,7 @@ public class PaginatedPlan extends AbstractPlan {
    * Create an abstract plan that can start paging a query.
    */
   public PaginatedPlan(QueryId queryId, UnresolvedPlan plan, int fetchSize,
-                       QueryService queryService,
+                       PaginatedQueryService queryService,
                        ResponseListener<ExecutionEngine.QueryResponse>
                            queryResponseResponseListener) {
     super(queryId);
@@ -40,6 +39,6 @@ public class PaginatedPlan extends AbstractPlan {
 
   @Override
   public void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener) {
-
+    throw new UnsupportedOperationException("implement PaginatedPlan.explain");
   }
 }

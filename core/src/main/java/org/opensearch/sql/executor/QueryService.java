@@ -70,17 +70,6 @@ public class QueryService {
     }
   }
 
-  /**
-   * Execute a physical plan without analyzing or planning anything.
-   */
-  public void executePlan(PhysicalPlan plan,
-                          ResponseListener<ExecutionEngine.QueryResponse> listener) {
-    try {
-      executionEngine.execute(plan, ExecutionContext.emptyExecutionContext(), listener);
-    } catch (Exception e) {
-      listener.onFailure(e);
-    }
-  }
 
   /**
    * Explain the query in {@link UnresolvedPlan} using {@link ResponseListener} to

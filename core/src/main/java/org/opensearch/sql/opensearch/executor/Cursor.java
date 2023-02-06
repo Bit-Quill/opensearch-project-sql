@@ -23,8 +23,7 @@ public class Cursor {
     this.raw = raw;
   }
 
-  @Override
-  public String toString() {
+  public String asString() {
     return new String(raw);
   }
 }

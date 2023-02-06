@@ -12,7 +12,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.statement.Explain;
@@ -40,6 +39,7 @@ public class QueryPlanFactory
    * Query Service.
    */
   private final QueryService queryService;
+  private final PaginatedQueryService paginatedQueryService;
   private final PaginatedPlanCache paginatedPlanCache;
 
   /**
@@ -79,7 +79,7 @@ public class QueryPlanFactory
   public AbstractPlan create(String cursor, ResponseListener<ExecutionEngine.QueryResponse>
       queryResponseListener) {
     QueryId queryId = QueryId.queryId();
-    return new ContinuePaginatedPlan(queryId, cursor, queryService, paginatedPlanCache,
+    return new ContinuePaginatedPlan(queryId, cursor, paginatedQueryService, paginatedPlanCache,
         queryResponseListener);
   }
 
@@ -96,7 +96,7 @@ public class QueryPlanFactory
     if (node.getFetchSize() > 0) {
       if (paginatedPlanCache.canConvertToCursor(node.getPlan())) {
         return new PaginatedPlan(QueryId.queryId(), node.getPlan(), node.getFetchSize(),
-            queryService,
+            paginatedQueryService,
             context.getLeft().get());
       } else {
         // This should be picked up by the legacy engine.

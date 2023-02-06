@@ -6,7 +6,6 @@
 
 package org.opensearch.sql.opensearch.request;
 
-import java.io.Serializable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.EqualsAndHashCode;
@@ -20,7 +19,7 @@ import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 /**
  * OpenSearch search request.
  */
-public interface OpenSearchRequest extends Serializable {
+public interface OpenSearchRequest {
   /**
    * Apply the search action or scroll action on request based on context.
    *

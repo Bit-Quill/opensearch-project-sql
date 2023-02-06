@@ -10,9 +10,6 @@ import org.opensearch.sql.ast.Node;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.tree.Project;
 import org.opensearch.sql.ast.tree.Relation;
-import org.opensearch.sql.planner.physical.PhysicalPlanNodeVisitor;
-import org.opensearch.sql.planner.physical.ProjectOperator;
-import org.opensearch.sql.storage.TableScanOperator;
 
 /**
  * Use this unresolved plan visitor to check if a plan can be serialized by PaginatedPlanCache.
@@ -42,7 +39,7 @@ public class CanPaginateVisitor extends AbstractNodeVisitor<Boolean, Object> {
   }
 
   @Override
-  public Boolean visit(Node node, Object context) {
+  public Boolean visitChildren(Node node, Object context) {
     return Boolean.FALSE;
   }
 
