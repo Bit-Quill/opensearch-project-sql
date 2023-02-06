@@ -20,8 +20,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Singular;
+import org.opensearch.sql.common.antlr.SyntaxCheckException;
+import org.opensearch.sql.exception.QueryEngineException;
+import org.opensearch.sql.opensearch.response.error.ErrorMessage;
+import org.opensearch.sql.opensearch.response.error.ErrorMessageFactory;
 import org.opensearch.sql.protocol.response.QueryResult;
 
+/**
+ * Response formatter to format response to json format.
+ */
 public class JsonTypeResponseFormatter extends JsonResponseFormatter<QueryResult> {
 
   private final Style style;
@@ -53,11 +60,27 @@ public class JsonTypeResponseFormatter extends JsonResponseFormatter<QueryResult
 
       hitList.add(hit);
     }
-    Hits hits = new Hits(total, 1.0, hitList, aggregations.isEmpty() ? null : aggregations);
+    Hits hits = new Hits(total, hitList, aggregations.isEmpty() ? null : aggregations);
 
     json.shards(shards).hits(hits);
 
     return json.build();
+  }
+
+  @Override
+  public String format(Throwable t) {
+    int status = getStatus(t);
+    ErrorMessage message = ErrorMessageFactory.createErrorMessage(t, status);
+    JdbcResponseFormatter.Error error = new JdbcResponseFormatter.Error(
+            message.getType(),
+            message.getReason(),
+            message.getDetails());
+    return jsonify(new JsonTypeErrorResponse(error, status));
+  }
+
+  private int getStatus(Throwable t) {
+    return (t instanceof SyntaxCheckException
+            || t instanceof QueryEngineException) ? 400 : 503;
   }
 
   private Map<String, Aggregation> getAggregations(Map<String, Object> source) {
@@ -119,8 +142,6 @@ public class JsonTypeResponseFormatter extends JsonResponseFormatter<QueryResult
   @Getter
   public static class Hits {
     public final Total total;
-    @SerializedName("max_score")
-    public final double maxScore;
     @Singular("column")
     public final List<Hit> hits;
     public final Map<String, Aggregation> aggregations;
@@ -156,5 +177,10 @@ public class JsonTypeResponseFormatter extends JsonResponseFormatter<QueryResult
     public final Object value;
   }
 
-
+  @RequiredArgsConstructor
+  @Getter
+  public static class JsonTypeErrorResponse {
+    private final JdbcResponseFormatter.Error error;
+    private final int status;
+  }
 }
