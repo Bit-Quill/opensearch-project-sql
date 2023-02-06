@@ -21,13 +21,16 @@ import org.opensearch.common.inject.ModulesBuilder;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.data.model.ExprBooleanValue;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.datasource.DataSourceService;
 import org.opensearch.sql.datasource.DataSourceServiceImpl;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.executor.execution.PaginatedQueryService;
+import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.NamedExpression;
+import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.legacy.SQLIntegTestCase;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.client.OpenSearchRestClient;
@@ -100,10 +103,12 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
 
     // act 1, asserts in firstResponder
     var t = new OpenSearchIndex(client, defaultSettings(), "test");
-    LogicalPlan p = new LogicalPaginate(1, List.of(new LogicalProject(
-        new LogicalRelation("test", t),
-        List.of(new NamedExpression("count()", new LiteralExpression(ExprBooleanValue.of(true)))),
-        List.of()
+    LogicalPlan p = new LogicalPaginate(1, List.of(
+        new LogicalProject(
+          new LogicalRelation("test", t), List.of(
+                DSL.named("name", DSL.ref("name", ExprCoreType.STRING)),
+                DSL.named("age", DSL.ref("age", ExprCoreType.LONG))),
+                List.of()
     )));
     var firstResponder = new TestResponder();
     paginatedQueryService.executePlan(p, firstResponder);
@@ -113,6 +118,8 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
     PhysicalPlan plan = paginatedPlanCache.convertToPlan(firstResponder.getCursor().asString());
     var secondResponder = new TestResponder();
     paginatedQueryService.executePlan(plan, secondResponder);
+
+    // act 3: confirm that there's no cursor.
   }
 
   private Settings defaultSettings() {

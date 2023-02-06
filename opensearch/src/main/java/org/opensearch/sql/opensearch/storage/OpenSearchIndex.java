@@ -129,7 +129,7 @@ public class OpenSearchIndex implements Table {
 
   @Override
   public TableScanBuilder createPagedScanBuilder() {
-    var requestBuilder = new OpenSearchPagedRequestBuilder(indexName,
+    var requestBuilder = new InitialPageRequestBuilder(indexName,
         settings, new OpenSearchExprValueFactory(getFieldTypes()));
     var indexScan = new OpenSearchPagedIndexScan(client, requestBuilder);
     return new OpenSearchPagedScanBuilder(indexScan);

@@ -99,8 +99,8 @@ public class ProjectOperator extends PhysicalPlan {
   public String toCursor() {
     String child = getChild().get(0).toCursor();
     String namedExpressions = "TODO";
-    String parseExpressions = "TODO";
-    // TODO serialize named expressions and parse expressions
-    return createSection("Project", namedExpressions, parseExpressions, child);
+    // TODO serialize named expressions.
+    // Skipping parsedExpressions for now.
+    return createSection("Project", namedExpressions, child);
   }
 }

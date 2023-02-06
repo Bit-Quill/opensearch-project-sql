@@ -31,4 +31,9 @@ public interface StorageEngine {
   default Collection<FunctionResolver> getFunctions() {
     return Collections.emptyList();
   }
+
+  default TableScanOperator getTableScan(String scanAsString) {
+    String error = String.format("%s.getTableScan needs to be implemented", getClass());
+    throw new UnsupportedOperationException(error);
+  }
 }

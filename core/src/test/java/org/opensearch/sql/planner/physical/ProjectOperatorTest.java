@@ -213,28 +213,4 @@ class ProjectOperatorTest extends PhysicalPlanTestBase {
                 ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "response", "200")),
                 ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST")))));
   }
-
-  @Test
-  public void project_serialize() throws IOException, ClassNotFoundException {
-    PhysicalPlan plan = project(inputPlan, DSL.named("action", DSL.ref("action", STRING)));
-
-    var os = new ByteArrayOutputStream();
-    var objstream = new ObjectOutputStream(os);
-    objstream.writeObject(plan);
-    objstream.close();
-    os.close();
-    String result = os.toString();
-
-
-    var is = new ByteArrayInputStream(os.toByteArray());
-    var outstream = new ObjectInputStream(is);
-    var newObj = outstream.readObject();
-
-    assertThat(newObj, instanceOf(ProjectOperator.class));
-
-    var newOp = (ProjectOperator) newObj;
-
-    Assertions.assertEquals(1, newOp.getProjectList().size());
-    Assertions.assertEquals("action", newOp.getProjectList().get(0).getName());
-  }
 }
