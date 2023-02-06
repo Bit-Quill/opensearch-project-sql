@@ -40,6 +40,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
+import org.opensearch.sql.data.model.ExprIntegerValue;
 import org.opensearch.sql.data.model.ExprLongValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
@@ -52,6 +53,7 @@ import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.env.Environment;
+import org.opensearch.sql.expression.function.FunctionProperties;
 
 @ExtendWith(MockitoExtension.class)
 class DateTimeFunctionTest extends ExpressionTestBase {
@@ -1171,6 +1173,38 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(INTEGER, expression.type());
     assertEquals("quarter(\"2020-12-07 01:02:03\")", expression.toString());
     assertEquals(integerValue(4), eval(expression));
+  }
+
+  private Stream<Arguments> getTestDataForSecToTime() {
+    return Stream.of(
+        Arguments.of("1", "00:00:01"),
+        Arguments.of("2378", "00:39:38"),
+        Arguments.of("6897", "-01:54:57"),
+        Arguments.of("-1", "00:00:01"),
+        Arguments.of("-2378", "00:39:38"),
+        Arguments.of("-6897", "-01:54:57"),
+        Arguments.of("6897.123", "01:54:57.123")
+    );
+  }
+
+  @ParameterizedTest(name={"0"})
+  @MethodSource("getTestDataForSecToTime")
+  public void testSecToTime(String seconds, String expected) {
+    FunctionExpression expr = DSL.sec_to_time(
+        FunctionProperties.None,
+        DSL.literal(new ExprIntegerValue(seconds)));
+
+    assertEquals(TIME, expr.type());
+    assertEquals(expected, eval(expr).stringValue());
+  }
+
+  @Test
+  public void testSecToTimeWithNullValue() {
+    FunctionExpression expr = DSL.sec_to_time(
+        FunctionProperties.None,
+        DSL.literal(nullValue()));
+
+    assertEquals(nullValue(), eval(expr);
   }
 
   @Test
