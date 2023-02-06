@@ -1162,14 +1162,22 @@ public class DateTimeFunction {
 
   private ExprValue exprLastDay(ExprValue datetime) {
     LocalDate today = datetime.dateValue();
-    return new ExprIntegerValue(today.getMonth().length(today.isLeapYear())
-    );
+    LocalDate lastDay = LocalDate.of(
+        today.getYear(),
+        today.getMonth(),
+        today.getMonth().length(today.isLeapYear()));
+
+    return new ExprDateValue(lastDay);
   }
 
   private ExprValue last_day_today(Clock clock) {
     LocalDate today = formatNow(clock).toLocalDate();
-    return new ExprIntegerValue(today.getMonth().length(today.isLeapYear())
-    );
+    LocalDate lastDay = LocalDate.of(
+        today.getYear(),
+        today.getMonth(),
+        today.getMonth().length(today.isLeapYear()));
+
+    return new ExprDateValue(lastDay);
   }
   /**
    * Following MySQL, function receives arguments of type double and rounds them before use.
