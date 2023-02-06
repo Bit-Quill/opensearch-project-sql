@@ -1382,16 +1382,24 @@ public class DateTimeFunction {
 
   private ExprValue exprSecToTime(ExprValue totalSeconds) {
 
-    try{
+    try {
       int hours = totalSeconds.integerValue() / 3600;
       int minutes = (totalSeconds.integerValue() % 3600) / 60;
       int seconds = totalSeconds.integerValue() % 60;
-      String fraction = String.valueOf(totalSeconds.doubleValue() - roundToZero(totalSeconds.doubleValue()));
+      String fraction = String.valueOf(
+          totalSeconds.doubleValue() - roundToZero(totalSeconds.doubleValue()));
 
-      if (fraction == "0")
+      if (fraction == "0") {
         return new ExprTimeValue(String.format("%02d:%02d:%02d", hours, minutes, seconds));
-      return new ExprTimeValue(String.format("%02d:%02d:%02d.%s", hours, minutes, seconds, fraction.substring(2)));
-    } catch (Exception e){
+      }
+
+      return new ExprTimeValue(String.format("%02d:%02d:%02d.%s",
+          hours,
+          minutes,
+          seconds,
+          fraction.substring(2)));
+
+    } catch (Exception e) {
       return ExprNullValue.of();
     }
 

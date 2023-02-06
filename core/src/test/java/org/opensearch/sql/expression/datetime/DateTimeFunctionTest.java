@@ -1182,12 +1182,9 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         Arguments.of(2378, "00:39:38"),
         Arguments.of(6897, "01:54:57")
         //TODO: Discuss whether negative values should be supported like in MySQL.
-        //...OpenSearch documentation forbids negative time values
-        //...https://opensearch.org/docs/2.4/search-plugins/sql/datatypes/
-        //Arguments.of(-1, "00:00:01"),
-        //Arguments.of(-2378, "00:39:38"),
-        //Arguments.of(-6897, "-01:54:57")
-    );
+        //OpenSearch documentation forbids negative time values
+        //https://opensearch.org/docs/2.4/search-plugins/sql/datatypes/
+        );
   }
 
   @ParameterizedTest(name = "{0}")
