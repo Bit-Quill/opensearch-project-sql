@@ -1031,7 +1031,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void testLastDayWithTimeType(){
+  public void testLastDayWithTimeType() {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 

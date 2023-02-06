@@ -1179,6 +1179,7 @@ public class DateTimeFunction {
 
     return new ExprDateValue(lastDay);
   }
+
   /**
    * Following MySQL, function receives arguments of type double and rounds them before use.
    * Furthermore:
