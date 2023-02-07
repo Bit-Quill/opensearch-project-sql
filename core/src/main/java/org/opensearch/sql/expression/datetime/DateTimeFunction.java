@@ -34,6 +34,7 @@ import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_ST
 import static org.opensearch.sql.utils.DateTimeUtils.extractDate;
 import static org.opensearch.sql.utils.DateTimeUtils.extractDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -53,6 +54,7 @@ import java.time.format.TextStyle;
 import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -101,6 +103,30 @@ public class DateTimeFunction {
   // Mode used for week/week_of_year function by default when no argument is provided
   private static final ExprIntegerValue DEFAULT_WEEK_OF_YEAR_MODE = new ExprIntegerValue(0);
 
+  // Map used to determine format output for the extract function
+  private static final Map<String, String> extract_formats =
+      ImmutableMap.<String, String>builder()
+          .put("MICROSECOND", "%f")
+          .put("SECOND", "%s")
+          .put("MINUTE", "%i")
+          .put("HOUR", "%H")
+          .put("DAY", "%d")
+          .put("WEEK", "%V")
+          .put("MONTH", "%m")
+          .put("YEAR", "%X")
+          .put("SECOND_MICROSECOND", "%s%f")
+          .put("MINUTE_MICROSECOND", "%i%s%f")
+          .put("MINUTE_SECOND", "%i%s")
+          .put("HOUR_MICROSECOND", "%H%i%s%f")
+          .put("HOUR_SECOND", "%H%i%s")
+          .put("HOUR_MINUTE", "%H%i")
+          .put("DAY_MICROSECOND", "%d%H%i%s%f")
+          .put("DAY_SECOND", "%d%H%i%s")
+          .put("DAY_MINUTE", "%d%H%i")
+          .put("DAY_HOUR", "%d%H")
+          .put("YEAR_MONTH", "%X%m")
+          .build();
+
   /**
    * Register Date and Time Functions.
    *
@@ -128,6 +154,7 @@ public class DateTimeFunction {
     repository.register(dayOfWeek(BuiltinFunctionName.DAY_OF_WEEK.getName()));
     repository.register(dayOfYear(BuiltinFunctionName.DAYOFYEAR));
     repository.register(dayOfYear(BuiltinFunctionName.DAY_OF_YEAR));
+    repository.register(extract());
     repository.register(from_days());
     repository.register(from_unixtime());
     repository.register(hour(BuiltinFunctionName.HOUR));
@@ -501,6 +528,16 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, TIMESTAMP),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, STRING)
     );
+  }
+
+  private DefaultFunctionResolver extract() {
+    return define(BuiltinFunctionName.EXTRACT.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprExtract), LONG, STRING, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprExtract), LONG, STRING, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprExtract), LONG, STRING, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprExtract), LONG, STRING, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprExtract), LONG, STRING, STRING)
+        );
   }
 
   /**
@@ -1148,6 +1185,24 @@ public class DateTimeFunction {
    */
   private ExprValue exprDayOfYear(ExprValue date) {
     return new ExprIntegerValue(date.dateValue().getDayOfYear());
+  }
+
+  private ExprValue exprExtract(ExprValue part, ExprValue datetime) {
+    String partName = part.stringValue().toUpperCase();
+
+    if(partName == "QUARTER"){
+      return exprQuarter(datetime);
+    }
+
+    if (extract_formats.containsKey(partName)) {
+      long formattedVal = Long.parseLong(DateTimeFormatterUtil.getFormattedDate(
+          datetime,
+          new ExprStringValue(extract_formats.get(partName))).stringValue());
+
+      return new ExprLongValue(formattedVal);
+    }
+
+    return ExprNullValue.of();
   }
 
   /**

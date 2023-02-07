@@ -667,8 +667,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         Arguments.of("SECOND", 12),
         Arguments.of("MINUTE", 11),
         Arguments.of("HOUR", 10),
-        Arguments.of("DAY", 1),
-        Arguments.of("WEEK", 5),
+        Arguments.of("DAY", 11),
+        Arguments.of("WEEK", 6),
         Arguments.of("MONTH", 2),
         Arguments.of("QUARTER", 1),
         Arguments.of("YEAR", 2023),
@@ -678,23 +678,28 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         Arguments.of("HOUR_MICROSECOND", 101112123000L),
         Arguments.of("HOUR_SECOND", 101112),
         Arguments.of("HOUR_MINUTE", 1011),
-        Arguments.of("DAY_MICROSECOND", 1101112123000L),
-        Arguments.of("DAY_SECOND", 1101112),
-        Arguments.of("DAY_MINUTE", 11011),
-        Arguments.of("DAY_HOUR", 110),
+        Arguments.of("DAY_MICROSECOND", 11101112123000L),
+        Arguments.of("DAY_SECOND", 11101112),
+        Arguments.of("DAY_MINUTE", 111011),
+        Arguments.of("DAY_HOUR", 1110),
         Arguments.of("YEAR_MONTH", 202302)
     );
   }
 
-  @ParameterizedTest
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("getTestDataForExtractFunction")
   public void testExtract(String part, long expected) {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
     FunctionExpression expression = DSL.extract(
         DSL.literal(part),
-        DSL.literal(new ExprTimeValue("2023-02-11 10:11:12.123")));
+        DSL.literal(new ExprDatetimeValue("2023-02-11 10:11:12.123")));
 
     assertEquals(LONG, expression.type());
     assertEquals(expected, eval(expression).longValue());
-    assertEquals("extract(%s 2023-02-11 10:11:12.123\")", expression.toString());
+    assertEquals(String.format("extract(\"%s\", DATETIME '2023-02-11 10:11:12.123')", part), expression.toString());
   }
   
   @Test
