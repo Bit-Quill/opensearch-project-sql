@@ -309,8 +309,35 @@ functionCall
     | relevanceFunction                                             #relevanceFunctionCall
     | highlightFunction                                             #highlightFunctionCall
     | positionFunction                                              #positionFunctionCall
+    | extractFunction                                               #extractFunctionCall
     ;
 
+extractFunction
+    : EXTRACT LR_BRACKET part FROM functionArg RR_BRACKET
+    ;
+
+part
+    : MICROSECOND
+    | SECOND
+    | MINUTE
+    | HOUR
+    | DAY
+    | WEEK
+    | MONTH
+    | QUARTER
+    | YEAR
+    | SECOND_MICROSECOND
+    | MINUTE_MICROSECOND
+    | MINUTE_SECOND
+    | HOUR_MICROSECOND
+    | HOUR_SECOND
+    | HOUR_MINUTE
+    | DAY_MICROSECOND
+    | DAY_SECOND
+    | DAY_MINUTE
+    | DAY_HOUR
+    | YEAR_MONTH
+    ;
 
 highlightFunction
     : HIGHLIGHT LR_BRACKET relevanceField (COMMA highlightArg)* RR_BRACKET
