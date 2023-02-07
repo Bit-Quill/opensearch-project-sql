@@ -94,12 +94,13 @@ public class MathematicalFunction {
    * @return DefaultFunctionResolver for math functions.
    */
   private static DefaultFunctionResolver doubleMathFunctionBase(
-          FunctionName functionName, SerializableFunction<Double, Double> formula) {
+          FunctionName functionName, SerializableFunction<Double,
+          Double> formula, ExprCoreType dataType) {
     return FunctionDSL.define(functionName,
         ExprCoreType.numberTypes().stream()
             .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
                     v -> new ExprDoubleValue(formula.apply(v.doubleValue()))),
-                DOUBLE, type)).collect(Collectors.toList()));
+                dataType, type)).collect(Collectors.toList()));
   }
 
   /**
@@ -207,7 +208,7 @@ public class MathematicalFunction {
    * The supported signature of exp function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver exp() {
-    return doubleMathFunctionBase(BuiltinFunctionName.EXP.getName(), v -> Math.exp(v));
+    return doubleMathFunctionBase(BuiltinFunctionName.EXP.getName(), v -> Math.exp(v), DOUBLE);
   }
 
   /**
@@ -215,7 +216,7 @@ public class MathematicalFunction {
    * The supported signature of exp function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver expm1() {
-    return doubleMathFunctionBase(BuiltinFunctionName.EXPM1.getName(), v -> Math.expm1(v));
+    return doubleMathFunctionBase(BuiltinFunctionName.EXPM1.getName(), v -> Math.expm1(v), DOUBLE);
   }
 
   /**
@@ -235,7 +236,7 @@ public class MathematicalFunction {
    * ln function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver ln() {
-    return doubleMathFunctionBase(BuiltinFunctionName.LN.getName(), v -> Math.log(v));
+    return doubleMathFunctionBase(BuiltinFunctionName.LN.getName(), v -> Math.log(v), DOUBLE);
   }
 
   /**
@@ -272,7 +273,7 @@ public class MathematicalFunction {
    * log function is SHORT/INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver log10() {
-    return doubleMathFunctionBase(BuiltinFunctionName.LOG10.getName(), v -> Math.log10(v));
+    return doubleMathFunctionBase(BuiltinFunctionName.LOG10.getName(), v -> Math.log10(v), DOUBLE);
   }
 
   /**
@@ -281,7 +282,7 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver log2() {
     return doubleMathFunctionBase(BuiltinFunctionName.LOG2.getName(),
-            v -> (Math.log(v) / Math.log(2)));
+            v -> (Math.log(v) / Math.log(2)), DOUBLE);
   }
 
   /**
@@ -489,7 +490,7 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver cbrt() {
-    return doubleMathFunctionBase(BuiltinFunctionName.CBRT.getName(), v -> Math.cbrt(v));
+    return doubleMathFunctionBase(BuiltinFunctionName.CBRT.getName(), v -> Math.cbrt(v), DOUBLE);
   }
 
   /**
@@ -612,7 +613,7 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver cos() {
-    return doubleMathFunctionBase(BuiltinFunctionName.COS.getName(), v -> Math.cos(v));
+    return doubleMathFunctionBase(BuiltinFunctionName.COS.getName(), v -> Math.cos(v), DOUBLE);
   }
 
   /**
@@ -643,7 +644,8 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver degrees() {
-    return doubleMathFunctionBase(BuiltinFunctionName.DEGREES.getName(), v -> Math.toDegrees(v));
+    return doubleMathFunctionBase(BuiltinFunctionName.DEGREES.getName(),
+            v -> Math.toDegrees(v), DOUBLE);
   }
 
   /**
@@ -653,7 +655,8 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver radians() {
-    return doubleMathFunctionBase(BuiltinFunctionName.RADIANS.getName(), v -> Math.toRadians(v));
+    return doubleMathFunctionBase(BuiltinFunctionName.RADIANS.getName(),
+            v -> Math.toRadians(v), DOUBLE);
   }
 
   /**
@@ -663,7 +666,7 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver sin() {
-    return doubleMathFunctionBase(BuiltinFunctionName.SIN.getName(), v -> Math.sin(v));
+    return doubleMathFunctionBase(BuiltinFunctionName.SIN.getName(), v -> Math.sin(v), DOUBLE);
   }
 
   /**
@@ -673,6 +676,6 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver tan() {
-    return doubleMathFunctionBase(BuiltinFunctionName.TAN.getName(), v -> Math.tan(v));
+    return doubleMathFunctionBase(BuiltinFunctionName.TAN.getName(), v -> Math.tan(v), DOUBLE);
   }
 }
