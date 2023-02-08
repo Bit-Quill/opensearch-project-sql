@@ -341,8 +341,13 @@ public class DSL {
     return compile(functionProperties, BuiltinFunctionName.DAY_OF_WEEK, expressions);
   }
 
+  public static FunctionExpression extract(FunctionProperties functionProperties,
+                                           Expression... expressions) {
+    return compile(functionProperties, BuiltinFunctionName.EXTRACT, expressions);
+  }
+
   public static FunctionExpression extract(Expression... expressions) {
-    return compile(FunctionProperties.None, BuiltinFunctionName.EXTRACT, expressions);
+    return extract(FunctionProperties.None, expressions);
   }
 
   public static FunctionExpression from_days(Expression... expressions) {

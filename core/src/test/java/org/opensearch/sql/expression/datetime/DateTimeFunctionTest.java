@@ -661,45 +661,88 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     );
   }
 
-  private static Stream<Arguments> getTestDataForExtractFunction() {
+  private static Stream<Arguments> getDatetimeTestDataForExtractFunction() {
+    return Stream.of(
+        Arguments.of("DAY_MICROSECOND", 11101112123000L),
+        Arguments.of("DAY_SECOND", 11101112),
+        Arguments.of("DAY_MINUTE", 111011),
+        Arguments.of("DAY_HOUR", 1110)
+    );
+  }
+
+  private static Stream<Arguments> getTimeTestDataForExtractFunction() {
     return Stream.of(
         Arguments.of("MICROSECOND", 123000),
         Arguments.of("SECOND", 12),
         Arguments.of("MINUTE", 11),
         Arguments.of("HOUR", 10),
-        Arguments.of("DAY", 11),
-        Arguments.of("WEEK", 6),
-        Arguments.of("MONTH", 2),
-        Arguments.of("QUARTER", 1),
-        Arguments.of("YEAR", 2023),
         Arguments.of("SECOND_MICROSECOND", 12123000),
         Arguments.of("MINUTE_MICROSECOND", 1112123000),
         Arguments.of("MINUTE_SECOND", 1112),
         Arguments.of("HOUR_MICROSECOND", 101112123000L),
         Arguments.of("HOUR_SECOND", 101112),
-        Arguments.of("HOUR_MINUTE", 1011),
-        Arguments.of("DAY_MICROSECOND", 11101112123000L),
-        Arguments.of("DAY_SECOND", 11101112),
-        Arguments.of("DAY_MINUTE", 111011),
-        Arguments.of("DAY_HOUR", 1110),
+        Arguments.of("HOUR_MINUTE", 1011)
+    );
+  }
+
+  private static Stream<Arguments> getDateTestDataForExtractFunction() {
+    return Stream.of(
+        Arguments.of("DAY", 11),
+        Arguments.of("WEEK", 6),
+        Arguments.of("MONTH", 2),
+        Arguments.of("QUARTER", 1),
+        Arguments.of("YEAR", 2023),
         Arguments.of("YEAR_MONTH", 202302)
     );
   }
 
-
   @ParameterizedTest(name = "{0}")
-  @MethodSource("getTestDataForExtractFunction")
-  public void testExtract(String part, long expected) {
+  @MethodSource({
+      "getDatetimeTestDataForExtractFunction",
+      "getTimeTestDataForExtractFunction",
+      "getDateTestDataForExtractFunction"})
+  public void testExtractWithDatetime(String part, long expected) {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
-    FunctionExpression expression = DSL.extract(
+    FunctionExpression datetimeExpression = DSL.extract(
         DSL.literal(part),
         DSL.literal(new ExprDatetimeValue("2023-02-11 10:11:12.123")));
 
-    assertEquals(LONG, expression.type());
-    assertEquals(expected, eval(expression).longValue());
-    assertEquals(String.format("extract(\"%s\", DATETIME '2023-02-11 10:11:12.123')", part), expression.toString());
+    assertEquals(LONG, datetimeExpression.type());
+    assertEquals(expected, eval(datetimeExpression).longValue());
+    assertEquals(String.format("extract(\"%s\", DATETIME '2023-02-11 10:11:12.123')", part), datetimeExpression.toString());
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("getDateTestDataForExtractFunction")
+  public void testExtractWithDate(String part, long expected) {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
+    FunctionExpression datetimeExpression = DSL.extract(
+        DSL.literal(part),
+        DSL.literal(new ExprDateValue("2023-02-11")));
+
+    assertEquals(LONG, datetimeExpression.type());
+    assertEquals(expected, eval(datetimeExpression).longValue());
+    assertEquals(String.format("extract(\"%s\", DATE '2023-02-11')", part), datetimeExpression.toString());
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("getTimeTestDataForExtractFunction")
+  public void testExtractWithTime(String part, long expected) {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
+    FunctionExpression datetimeExpression = DSL.extract(
+        functionProperties,
+        DSL.literal(part),
+        DSL.literal(new ExprTimeValue("10:11:12.123")));
+
+    assertEquals(LONG, datetimeExpression.type());
+    assertEquals(expected, eval(datetimeExpression).longValue());
+    assertEquals(String.format("extract(\"%s\", TIME '10:11:12.123')", part), datetimeExpression.toString());
   }
   
   @Test
