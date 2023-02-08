@@ -22,6 +22,7 @@ import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.parse.ParseExpression;
+import org.opensearch.sql.expression.serialization.DefaultExpressionSerializer;
 
 /**
  * Project the fields specified in {@link ProjectOperator#projectList} from input.
@@ -98,9 +99,17 @@ public class ProjectOperator extends PhysicalPlan {
   @Override
   public String toCursor() {
     String child = getChild().get(0).toCursor();
-    String namedExpressions = "TODO";
-    // TODO serialize named expressions.
-    // Skipping parsedExpressions for now.
-    return createSection("Project", namedExpressions, child);
+    var serializer = new DefaultExpressionSerializer();
+    String projects = createSection("projectList",
+        projectList.stream().map(ne -> createSection("named",
+            ne.getName(), ne.getAlias() == null ? "" : ne.getAlias(), serializer.serialize(ne.getDelegated())
+        ))
+        .toArray(String[]::new));
+    String namedExpressions = createSection("namedParseExpressions",
+        namedParseExpressions.stream().map(ne -> createSection("named",
+            ne.getName(), ne.getAlias() == null ? "" : ne.getAlias(), serializer.serialize(ne.getDelegated())
+        ))
+        .toArray(String[]::new));
+    return createSection("Project", namedExpressions, projects, child);
   }
 }
