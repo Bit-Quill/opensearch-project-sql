@@ -32,6 +32,7 @@ import org.opensearch.sql.data.model.ExprLongValue;
 import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprShortValue;
 import org.opensearch.sql.data.model.ExprStringValue;
+import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
@@ -91,16 +92,16 @@ public class MathematicalFunction {
    *
    * @param functionName BuiltinFunctionName of math function.
    * @param formula lambda function of math formula.
+   * @param dataType data type input for the function
    * @return DefaultFunctionResolver for math functions.
    */
-  private static DefaultFunctionResolver doubleMathFunctionBase(
-          FunctionName functionName, SerializableFunction<Double,
-          Double> formula, ExprCoreType dataType) {
+  private static DefaultFunctionResolver baseMathFunction(
+          FunctionName functionName, SerializableFunction<ExprValue,
+          ExprValue> formula, ExprCoreType dataType) {
     return FunctionDSL.define(functionName,
-        ExprCoreType.numberTypes().stream()
-            .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                    v -> new ExprDoubleValue(formula.apply(v.doubleValue()))),
-                dataType, type)).collect(Collectors.toList()));
+        ExprCoreType.numberTypes().stream().map(type -> FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(formula),
+                    dataType, type)).collect(Collectors.toList()));
   }
 
   /**
@@ -198,9 +199,8 @@ public class MathematicalFunction {
    * () -> DOUBLE
    */
   private static DefaultFunctionResolver euler() {
-    return FunctionDSL.define(BuiltinFunctionName.E.getName(),
-        FunctionDSL.impl(() -> new ExprDoubleValue(Math.E), DOUBLE)
-    );
+    return baseMathFunction(BuiltinFunctionName.E.getName(),
+            v -> new ExprDoubleValue(Math.E), DOUBLE);
   }
 
   /**
@@ -208,7 +208,8 @@ public class MathematicalFunction {
    * The supported signature of exp function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver exp() {
-    return doubleMathFunctionBase(BuiltinFunctionName.EXP.getName(), v -> Math.exp(v), DOUBLE);
+    return baseMathFunction(BuiltinFunctionName.EXP.getName(),
+            v -> new ExprDoubleValue(Math.exp(v.doubleValue())), DOUBLE);
   }
 
   /**
@@ -216,7 +217,8 @@ public class MathematicalFunction {
    * The supported signature of exp function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver expm1() {
-    return doubleMathFunctionBase(BuiltinFunctionName.EXPM1.getName(), v -> Math.expm1(v), DOUBLE);
+    return baseMathFunction(BuiltinFunctionName.EXPM1.getName(),
+            v -> new ExprDoubleValue(Math.expm1(v.doubleValue())), DOUBLE);
   }
 
   /**
@@ -236,7 +238,8 @@ public class MathematicalFunction {
    * ln function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver ln() {
-    return doubleMathFunctionBase(BuiltinFunctionName.LN.getName(), v -> Math.log(v), DOUBLE);
+    return baseMathFunction(BuiltinFunctionName.LN.getName(),
+            v -> new ExprDoubleValue(Math.log(v.doubleValue())), DOUBLE);
   }
 
   /**
@@ -273,7 +276,8 @@ public class MathematicalFunction {
    * log function is SHORT/INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver log10() {
-    return doubleMathFunctionBase(BuiltinFunctionName.LOG10.getName(), v -> Math.log10(v), DOUBLE);
+    return baseMathFunction(BuiltinFunctionName.LOG10.getName(),
+            v -> new ExprDoubleValue(Math.log10(v.doubleValue())), DOUBLE);
   }
 
   /**
@@ -281,8 +285,8 @@ public class MathematicalFunction {
    * function is SHORT/INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver log2() {
-    return doubleMathFunctionBase(BuiltinFunctionName.LOG2.getName(),
-            v -> (Math.log(v) / Math.log(2)), DOUBLE);
+    return baseMathFunction(BuiltinFunctionName.LOG2.getName(),
+            v -> new ExprDoubleValue(Math.log(v.doubleValue()) / Math.log(2)), DOUBLE);
   }
 
   /**
@@ -461,11 +465,8 @@ public class MathematicalFunction {
    * SHORT/INTEGER/LONG/FLOAT/DOUBLE -> INTEGER
    */
   private static DefaultFunctionResolver sign() {
-    return FunctionDSL.define(BuiltinFunctionName.SIGN.getName(),
-        ExprCoreType.numberTypes().stream()
-            .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                v -> new ExprIntegerValue(Math.signum(v.doubleValue()))),
-                INTEGER, type)).collect(Collectors.toList()));
+    return baseMathFunction(BuiltinFunctionName.SIGN.getName(),
+            v -> new ExprIntegerValue(Math.signum(v.doubleValue())), INTEGER);
   }
 
   /**
@@ -475,12 +476,9 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver sqrt() {
-    return FunctionDSL.define(BuiltinFunctionName.SQRT.getName(),
-        ExprCoreType.numberTypes().stream()
-            .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                v -> v.doubleValue() < 0 ? ExprNullValue.of() :
-                    new ExprDoubleValue(Math.sqrt(v.doubleValue()))),
-                DOUBLE, type)).collect(Collectors.toList()));
+    return baseMathFunction(BuiltinFunctionName.SQRT.getName(),
+            v -> v.doubleValue() < 0 ? ExprNullValue.of() :
+                    new ExprDoubleValue(Math.sqrt(v.doubleValue())), DOUBLE);
   }
 
   /**
@@ -490,7 +488,8 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver cbrt() {
-    return doubleMathFunctionBase(BuiltinFunctionName.CBRT.getName(), v -> Math.cbrt(v), DOUBLE);
+    return baseMathFunction(BuiltinFunctionName.CBRT.getName(),
+            v -> new ExprDoubleValue(Math.cbrt(v.doubleValue())), DOUBLE);
   }
 
   /**
@@ -613,7 +612,8 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver cos() {
-    return doubleMathFunctionBase(BuiltinFunctionName.COS.getName(), v -> Math.cos(v), DOUBLE);
+    return baseMathFunction(BuiltinFunctionName.COS.getName(),
+            v -> new ExprDoubleValue(Math.cos(v.doubleValue())), DOUBLE);
   }
 
   /**
@@ -644,8 +644,8 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver degrees() {
-    return doubleMathFunctionBase(BuiltinFunctionName.DEGREES.getName(),
-            v -> Math.toDegrees(v), DOUBLE);
+    return baseMathFunction(BuiltinFunctionName.DEGREES.getName(),
+            v -> new ExprDoubleValue(Math.toDegrees(v.doubleValue())), DOUBLE);
   }
 
   /**
@@ -655,8 +655,8 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver radians() {
-    return doubleMathFunctionBase(BuiltinFunctionName.RADIANS.getName(),
-            v -> Math.toRadians(v), DOUBLE);
+    return baseMathFunction(BuiltinFunctionName.RADIANS.getName(),
+            v -> new ExprDoubleValue(Math.toRadians(v.doubleValue())), DOUBLE);
   }
 
   /**
@@ -666,7 +666,8 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver sin() {
-    return doubleMathFunctionBase(BuiltinFunctionName.SIN.getName(), v -> Math.sin(v), DOUBLE);
+    return baseMathFunction(BuiltinFunctionName.SIN.getName(),
+            v -> new ExprDoubleValue(Math.sin(v.doubleValue())), DOUBLE);
   }
 
   /**
@@ -676,6 +677,7 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver tan() {
-    return doubleMathFunctionBase(BuiltinFunctionName.TAN.getName(), v -> Math.tan(v), DOUBLE);
+    return baseMathFunction(BuiltinFunctionName.TAN.getName(),
+            v -> new ExprDoubleValue(Math.tan(v.doubleValue())), DOUBLE);
   }
 }
