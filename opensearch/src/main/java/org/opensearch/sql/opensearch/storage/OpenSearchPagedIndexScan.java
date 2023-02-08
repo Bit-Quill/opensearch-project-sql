@@ -53,7 +53,7 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
     OpenSearchResponse response = client.search(request);
     if (!response.isEmpty()) {
       iterator = response.iterator();
-    }
+    } // TODO else - last page is empty -
   }
 
   @Override

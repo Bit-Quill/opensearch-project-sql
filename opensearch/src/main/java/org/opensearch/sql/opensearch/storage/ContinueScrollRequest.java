@@ -39,7 +39,7 @@ public class ContinueScrollRequest implements OpenSearchRequest {
                                    Function<SearchScrollRequest, SearchResponse> scrollAction) {
     SearchResponse openSearchResponse;
 
-     openSearchResponse = scrollAction.apply(new SearchScrollRequest(initialScrollId));
+    openSearchResponse = scrollAction.apply(new SearchScrollRequest(initialScrollId));
     responseScrollId = openSearchResponse.getScrollId();
 
     return new OpenSearchResponse(openSearchResponse, exprValueFactory);

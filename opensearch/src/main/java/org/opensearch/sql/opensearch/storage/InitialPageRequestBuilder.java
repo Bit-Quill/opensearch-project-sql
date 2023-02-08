@@ -45,7 +45,7 @@ public class InitialPageRequestBuilder implements PagedRequestBuilder {
     this.indexName = indexName;
     this.sourceBuilder = new SearchSourceBuilder();
     this.exprValueFactory = exprValueFactory;
-    this.querySize = settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT);
+    this.querySize = settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT);//TODO fetch_size
     sourceBuilder.from(0);
     sourceBuilder.size(querySize);
     sourceBuilder.timeout(DEFAULT_QUERY_TIMEOUT);
