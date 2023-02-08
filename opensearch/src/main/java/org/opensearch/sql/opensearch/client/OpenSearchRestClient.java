@@ -174,7 +174,7 @@ public class OpenSearchRestClient implements OpenSearchClient {
 
   @Override
   public void cleanup(OpenSearchRequest request) {
-    request.clean(scrollId -> {
+    request.clean(scrollId -> {/*
       try {
         ClearScrollRequest clearRequest = new ClearScrollRequest();
         clearRequest.addScrollId(scrollId);
@@ -182,7 +182,7 @@ public class OpenSearchRestClient implements OpenSearchClient {
       } catch (IOException e) {
         throw new IllegalStateException(
             "Failed to clean up resources for search request " + request, e);
-      }
+      }*/
     });
 
   }

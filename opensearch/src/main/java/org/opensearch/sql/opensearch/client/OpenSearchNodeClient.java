@@ -172,7 +172,7 @@ public class OpenSearchNodeClient implements OpenSearchClient {
 
   @Override
   public void cleanup(OpenSearchRequest request) {
-    request.clean(scrollId -> client.prepareClearScroll().addScrollId(scrollId).get());
+    request.clean(scrollId -> {}/* client.prepareClearScroll().addScrollId(scrollId).get() */);
   }
 
   @Override
