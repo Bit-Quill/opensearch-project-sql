@@ -119,7 +119,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
     return new ResponseListener<T>() {
       @Override
       public void onResponse(T response) {
-        LOG.error("[{}] Request is handled by new SQL query engine",
+        LOG.info("[{}] Request is handled by new SQL query engine",
             QueryContext.getRequestId());
         next.onResponse(response);
       }
@@ -172,7 +172,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
       @Override
       public void onResponse(QueryResponse response) {
         sendResponse(channel, OK,
-            formatter.format(new QueryResult(response.getSchema(), response.getResults())));
+            formatter.format(new QueryResult(response.getSchema(), response.getResults(), response.getCursor())));
       }
 
       @Override

@@ -33,7 +33,7 @@ import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 public class OpenSearchScrollRequest implements OpenSearchRequest {
 
   /** Default scroll context timeout in minutes. */
-  public static final TimeValue DEFAULT_SCROLL_TIMEOUT = TimeValue.timeValueMinutes(1L);
+  public static final TimeValue DEFAULT_SCROLL_TIMEOUT = TimeValue.timeValueMinutes(100L);
 
   /**
    * {@link OpenSearchRequest.IndexName}.
@@ -86,6 +86,7 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
     } else {
       openSearchResponse = searchAction.apply(searchRequest());
     }
+
     setScrollId(openSearchResponse.getScrollId());
 
     return new OpenSearchResponse(openSearchResponse, exprValueFactory);
