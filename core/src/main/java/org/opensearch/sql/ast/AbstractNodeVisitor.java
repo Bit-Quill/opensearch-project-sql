@@ -55,7 +55,7 @@ import org.opensearch.sql.ast.tree.RelationSubquery;
 import org.opensearch.sql.ast.tree.Rename;
 import org.opensearch.sql.ast.tree.Sort;
 import org.opensearch.sql.ast.tree.TableFunction;
-import org.opensearch.sql.ast.tree.Unnested;
+import org.opensearch.sql.ast.tree.Unnest;
 import org.opensearch.sql.ast.tree.Values;
 
 /**
@@ -199,7 +199,7 @@ public abstract class AbstractNodeVisitor<T, C> {
     return visitChildren(node, context);
   }
 
-  public T visitUnnested(Unnested node, C context) {
+  public T visitUnnested(Unnest node, C context) {
     return visitChildren(node, context);
   }
 

@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
-import org.opensearch.sql.ast.tree.Unnested;
+import org.opensearch.sql.ast.tree.Unnest;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParserBaseVisitor;
 import org.opensearch.sql.sql.parser.context.QuerySpecification;
@@ -34,6 +34,6 @@ public class AstUnnestedBuilder extends OpenSearchSQLParserBaseVisitor<Unresolve
   }
 
   private UnresolvedPlan buildUnnested(UnresolvedExpression nestedFunction) {
-    return new Unnested(nestedFunction);
+    return new Unnest(nestedFunction);
   }
 }
