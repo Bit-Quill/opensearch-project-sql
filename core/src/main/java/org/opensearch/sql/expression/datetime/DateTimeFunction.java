@@ -1213,6 +1213,12 @@ public class DateTimeFunction {
         HOURS.between(LocalTime.MIN, time.timeValue()));
   }
 
+  /**
+   * Helper function to retrieve the last day of a month based on a LocalDate argument.
+   *
+   * @param today a LocalDate.
+   * @return a LocalDate associated with the last day of the month for the given input.
+   */
   private LocalDate getLastDay(LocalDate today) {
     return LocalDate.of(
         today.getYear(),
@@ -1220,10 +1226,22 @@ public class DateTimeFunction {
         today.getMonth().length(today.isLeapYear()));
   }
 
+  /**
+   * Returns a DATE for the last day of the month of a given argument.
+   *
+   * @param datetime
+   * @return
+   */
   private ExprValue exprLastDay(ExprValue datetime) {
     return new ExprDateValue(getLastDay(datetime.dateValue()));
   }
 
+  /**
+   * Returns a DATE for the last day of the current month.
+   *
+   * @param clock
+   * @return
+   */
   private ExprValue exprLastDayToday(Clock clock) {
     return new ExprDateValue(getLastDay(formatNow(clock).toLocalDate()));
   }
