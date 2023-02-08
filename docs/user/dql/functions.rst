@@ -2102,9 +2102,10 @@ SEC_TO_TIME
 Description
 >>>>>>>>>>>
 
-Usage: sec_to_time(integer) returns the time in HH:mm:ss format.
+Usage: sec_to_time(number) returns the time in HH:mm:ss format.
+Note that the number passed in must be positive as negative time values are invalid.
 
-Argument type: INTEGER
+Argument type: INTEGER, LONG, DOUBLE, FLOAT
 
 Return type: TIME
 
@@ -2116,6 +2117,22 @@ Example::
     | SEC_TO_TIME(3601)   |
     |---------------------|
     | 01:00:01            |
+    +---------------------+
+
+    os> SELECT sec_to_time(1234.123);
+    fetched rows / total rows = 1/1
+    +-------------------------+
+    | sec_to_time(1234.123)   |
+    |-------------------------|
+    | 00:20:34.123            |
+    +-------------------------+
+
+    os> SELECT sec_to_time(NULL);
+    fetched rows / total rows = 1/1
+    +---------------------+
+    | sec_to_time(NULL)   |
+    |---------------------|
+    | null                |
     +---------------------+
 
 

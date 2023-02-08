@@ -644,7 +644,9 @@ public class DateTimeFunction {
   private DefaultFunctionResolver sec_to_time() {
     return define(BuiltinFunctionName.SEC_TO_TIME.getName(),
         impl((nullMissingHandling(DateTimeFunction::exprSecToTime)), TIME, INTEGER),
-        impl((nullMissingHandling(DateTimeFunction::exprSecToTime)), TIME, FLOAT)
+        impl((nullMissingHandling(DateTimeFunction::exprSecToTime)), TIME, LONG),
+        impl((nullMissingHandling(DateTimeFunction::exprSecToTimeWithNanos)), TIME, DOUBLE),
+        impl((nullMissingHandling(DateTimeFunction::exprSecToTimeWithNanos)), TIME, FLOAT)
     );
   }
 
@@ -1373,36 +1375,32 @@ public class DateTimeFunction {
     return new ExprIntegerValue((month / 3) + ((month % 3) == 0 ? 0 : 1));
   }
 
-  private double roundToZero(double val) {
-    if (val < 0) {
-      return Math.ceil(val);
-    }
-    return Math.floor(val);
+  /**
+   * Returns TIME value of sec_to_time function for an INTEGER or LONG arguments
+   * @param totalSeconds The total number of seconds
+   * @return A TIME value
+   */
+  private ExprValue exprSecToTime(ExprValue totalSeconds) {
+    return new ExprTimeValue(LocalTime.MIN.plus(Duration.ofSeconds(totalSeconds.longValue())));
   }
 
-  private ExprValue exprSecToTime(ExprValue totalSeconds) {
-
-    try {
-      int hours = totalSeconds.integerValue() / 3600;
-      int minutes = (totalSeconds.integerValue() % 3600) / 60;
-      int seconds = totalSeconds.integerValue() % 60;
-      String fraction = String.valueOf(
-          totalSeconds.doubleValue() - roundToZero(totalSeconds.doubleValue()));
-
-      if (fraction == "0") {
-        return new ExprTimeValue(String.format("%02d:%02d:%02d", hours, minutes, seconds));
-      }
-
-      return new ExprTimeValue(String.format("%02d:%02d:%02d.%s",
-          hours,
-          minutes,
-          seconds,
-          fraction.substring(2)));
-
-    } catch (Exception e) {
-      return ExprNullValue.of();
+  private long formatNanos(double nanos) {
+    while (nanos < 99999999) {
+      nanos *= 10;
     }
+    return (long)nanos;
+  }
 
+  /**
+   * Returns TIME value of sec_to_time function for FLOAT or DOUBLE arguments
+   * @param totalSeconds The total number of seconds
+   * @return A TIME value
+   */
+  private ExprValue exprSecToTimeWithNanos(ExprValue totalSeconds) {
+    long nanos = formatNanos(totalSeconds.doubleValue() % 1);
+
+    return new ExprTimeValue(
+        LocalTime.MIN.plus(Duration.ofSeconds(totalSeconds.longValue(), nanos)));
   }
 
   /**
