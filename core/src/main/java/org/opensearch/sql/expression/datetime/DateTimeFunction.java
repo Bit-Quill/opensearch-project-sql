@@ -1376,7 +1376,7 @@ public class DateTimeFunction {
   }
 
   /**
-   * Returns TIME value of sec_to_time function for an INTEGER or LONG arguments
+   * Returns TIME value of sec_to_time function for an INTEGER or LONG arguments.
    * @param totalSeconds The total number of seconds
    * @return A TIME value
    */
@@ -1392,7 +1392,7 @@ public class DateTimeFunction {
   }
 
   /**
-   * Returns TIME value of sec_to_time function for FLOAT or DOUBLE arguments
+   * Returns TIME value of sec_to_time function for FLOAT or DOUBLE arguments.
    * @param totalSeconds The total number of seconds
    * @return A TIME value
    */
