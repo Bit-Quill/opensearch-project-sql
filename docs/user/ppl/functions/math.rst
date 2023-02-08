@@ -321,28 +321,6 @@ Example::
     | 7.38905609893065 |
     +------------------+
 
-EXPM1
------
-
-Description
->>>>>>>>>>>
-
-Usage: expm1(x) return e raised to the power of x, minus 1.
-
-Argument type: INTEGER/LONG/FLOAT/DOUBLE
-
-Return type: DOUBLE
-
-Example::
-
-    os> source=people | eval `EXPM1(-1)` = EXPM1(-1), `EXPM1(0)` = EXPM1(0), `EXPM1(1)` = EXPM1(1), `EXPM1(1.5)` = EXPM1(1.5)
-    fetched rows / total rows = 1/1
-    +---------------------+------------+-------------------+-------------------+
-    | EXPM1(-1)           | EXPM1(0)   | EXPM1(1)          | EXPM1(1.5)        |
-    |---------------------+------------+-------------------+-------------------|
-    | -0.6321205588285577 | 0.0        | 1.718281828459045 | 3.481689070338065 |
-    +---------------------+------------+-------------------+-------------------+
-
 FLOOR
 -----
 

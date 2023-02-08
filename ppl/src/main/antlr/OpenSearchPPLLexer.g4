@@ -208,7 +208,6 @@ CONV:                               'CONV';
 CRC32:                              'CRC32';
 E:                                  'E';
 EXP:                                'EXP';
-EXPM1:                              'EXPM1';
 FLOOR:                              'FLOOR';
 LN:                                 'LN';
 LOG:                                'LOG';
