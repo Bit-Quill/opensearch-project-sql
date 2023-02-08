@@ -443,7 +443,7 @@ EXPM1
 Description
 >>>>>>>>>>>
 
-Usage: EXPM1(T) returns the exponential of T, minus 1.
+Usage: EXPM1(NUMBER T) returns the exponential of T, minus 1.
 
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
