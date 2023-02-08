@@ -22,16 +22,16 @@ import org.opensearch.sql.ast.expression.UnresolvedExpression;
 @Setter
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class Unnested extends UnresolvedPlan {
+public class Unnest extends UnresolvedPlan {
   private final UnresolvedExpression expression;
   private UnresolvedPlan child;
 
-  public Unnested(UnresolvedExpression expression) {
+  public Unnest(UnresolvedExpression expression) {
     this.expression = expression;
   }
 
   @Override
-  public Unnested attach(UnresolvedPlan child) {
+  public Unnest attach(UnresolvedPlan child) {
     this.child = child;
     return this;
   }
