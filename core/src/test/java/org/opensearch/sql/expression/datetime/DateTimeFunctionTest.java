@@ -711,7 +711,9 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
     assertEquals(LONG, datetimeExpression.type());
     assertEquals(expected, eval(datetimeExpression).longValue());
-    assertEquals(String.format("extract(\"%s\", DATETIME '2023-02-11 10:11:12.123')", part), datetimeExpression.toString());
+    assertEquals(
+        String.format("extract(\"%s\", DATETIME '2023-02-11 10:11:12.123')", part),
+        datetimeExpression.toString());
   }
 
   @ParameterizedTest(name = "{0}")
@@ -726,7 +728,9 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
     assertEquals(LONG, datetimeExpression.type());
     assertEquals(expected, eval(datetimeExpression).longValue());
-    assertEquals(String.format("extract(\"%s\", DATE '2023-02-11')", part), datetimeExpression.toString());
+    assertEquals(
+        String.format("extract(\"%s\", DATE '2023-02-11')", part),
+        datetimeExpression.toString());
   }
 
   @ParameterizedTest(name = "{0}")
@@ -742,7 +746,9 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
     assertEquals(LONG, datetimeExpression.type());
     assertEquals(expected, eval(datetimeExpression).longValue());
-    assertEquals(String.format("extract(\"%s\", TIME '10:11:12.123')", part), datetimeExpression.toString());
+    assertEquals(
+        String.format("extract(\"%s\", TIME '10:11:12.123')", part),
+        datetimeExpression.toString());
   }
   
   @Test
