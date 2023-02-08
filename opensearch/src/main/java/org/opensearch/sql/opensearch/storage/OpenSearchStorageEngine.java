@@ -38,10 +38,7 @@ public class OpenSearchStorageEngine implements StorageEngine {
   }
 
   @Override
-  public TableScanOperator getTableScan(String scanAsString) {
-    // TODO extract indexName and scrollId from scanAsString
-    String indexName ="";
-    String scrollId = "";
+  public TableScanOperator getTableScan(String indexName, String scrollId) {
     var index = new OpenSearchIndex(client, settings, indexName);
     var requestBuilder = new SubsequentPageRequestBuilder(
         new OpenSearchRequest.IndexName(indexName),

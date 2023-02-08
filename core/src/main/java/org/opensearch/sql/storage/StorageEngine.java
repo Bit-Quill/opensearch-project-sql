@@ -32,7 +32,7 @@ public interface StorageEngine {
     return Collections.emptyList();
   }
 
-  default TableScanOperator getTableScan(String scanAsString) {
+  default TableScanOperator getTableScan(String indexName, String scrollId) {
     String error = String.format("%s.getTableScan needs to be implemented", getClass());
     throw new UnsupportedOperationException(error);
   }
