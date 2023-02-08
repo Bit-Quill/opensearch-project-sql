@@ -536,7 +536,7 @@ public class DateTimeFunction {
     return define(BuiltinFunctionName.LAST_DAY.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprLastDay), DATE, STRING),
         implWithProperties(nullMissingHandlingWithProperties((functionProperties, arg)
-            -> DateTimeFunction.last_day_today(
+            -> DateTimeFunction.exprLastDayToday(
             functionProperties.getQueryStartClock())), DATE, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprLastDay), DATE, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprLastDay), DATE, DATETIME),
@@ -1213,24 +1213,19 @@ public class DateTimeFunction {
         HOURS.between(LocalTime.MIN, time.timeValue()));
   }
 
-  private ExprValue exprLastDay(ExprValue datetime) {
-    LocalDate today = datetime.dateValue();
-    LocalDate lastDay = LocalDate.of(
+  private LocalDate getLastDay(LocalDate today) {
+    return LocalDate.of(
         today.getYear(),
         today.getMonth(),
         today.getMonth().length(today.isLeapYear()));
-
-    return new ExprDateValue(lastDay);
   }
 
-  private ExprValue last_day_today(Clock clock) {
-    LocalDate today = formatNow(clock).toLocalDate();
-    LocalDate lastDay = LocalDate.of(
-        today.getYear(),
-        today.getMonth(),
-        today.getMonth().length(today.isLeapYear()));
+  private ExprValue exprLastDay(ExprValue datetime) {
+    return new ExprDateValue(getLastDay(datetime.dateValue()));
+  }
 
-    return new ExprDateValue(lastDay);
+  private ExprValue exprLastDayToday(Clock clock) {
+    return new ExprDateValue(getLastDay(formatNow(clock).toLocalDate()));
   }
 
   /**
