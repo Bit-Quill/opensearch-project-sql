@@ -23,7 +23,7 @@ import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.opensearch.storage.OpenSearchIndexScan;
 import org.opensearch.sql.opensearch.storage.script.filter.FilterQueryBuilder;
 import org.opensearch.sql.opensearch.storage.script.sort.SortQueryBuilder;
-import org.opensearch.sql.opensearch.storage.serialization.DefaultExpressionSerializer;
+import org.opensearch.sql.expression.serialization.DefaultExpressionSerializer;
 import org.opensearch.sql.planner.logical.LogicalFilter;
 import org.opensearch.sql.planner.logical.LogicalHighlight;
 import org.opensearch.sql.planner.logical.LogicalLimit;

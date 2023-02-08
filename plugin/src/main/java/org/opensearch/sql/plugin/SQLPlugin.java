@@ -68,7 +68,7 @@ import org.opensearch.sql.opensearch.setting.LegacyOpenDistroSettings;
 import org.opensearch.sql.opensearch.setting.OpenSearchSettings;
 import org.opensearch.sql.opensearch.storage.OpenSearchDataSourceFactory;
 import org.opensearch.sql.opensearch.storage.script.ExpressionScriptEngine;
-import org.opensearch.sql.opensearch.storage.serialization.DefaultExpressionSerializer;
+import org.opensearch.sql.expression.serialization.DefaultExpressionSerializer;
 import org.opensearch.sql.plugin.config.OpenSearchPluginModule;
 import org.opensearch.sql.plugin.datasource.DataSourceSettings;
 import org.opensearch.sql.plugin.rest.RestPPLQueryAction;

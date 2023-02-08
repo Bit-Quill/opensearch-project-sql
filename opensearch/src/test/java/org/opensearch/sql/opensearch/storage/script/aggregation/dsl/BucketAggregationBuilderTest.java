@@ -37,7 +37,7 @@ import org.opensearch.search.sort.SortOrder;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.parse.ParseExpression;
-import org.opensearch.sql.opensearch.storage.serialization.ExpressionSerializer;
+import org.opensearch.sql.expression.serialization.ExpressionSerializer;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
