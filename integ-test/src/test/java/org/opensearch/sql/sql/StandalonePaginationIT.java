@@ -20,7 +20,6 @@ import org.opensearch.common.inject.Injector;
 import org.opensearch.common.inject.ModulesBuilder;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.common.setting.Settings;
-import org.opensearch.sql.data.model.ExprBooleanValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.datasource.DataSourceService;
 import org.opensearch.sql.datasource.DataSourceServiceImpl;
@@ -28,9 +27,6 @@ import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.executor.execution.PaginatedQueryService;
 import org.opensearch.sql.expression.DSL;
-import org.opensearch.sql.expression.LiteralExpression;
-import org.opensearch.sql.expression.NamedExpression;
-import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.legacy.SQLIntegTestCase;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.client.OpenSearchRestClient;
@@ -115,7 +111,7 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
 
     // act 2, asserts in secondResponder
 
-    PhysicalPlan plan = paginatedPlanCache.convertToPlan(firstResponder.getCursor().asString());
+    PhysicalPlan plan = paginatedPlanCache.convertToPlan(firstResponder.getCursor().toString());
     var secondResponder = new TestResponder();
     paginatedQueryService.executePlan(plan, secondResponder);
 
