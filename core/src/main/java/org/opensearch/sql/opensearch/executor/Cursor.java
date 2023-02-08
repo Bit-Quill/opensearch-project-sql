@@ -23,7 +23,7 @@ public class Cursor {
     this.raw = raw;
   }
 
-  public String asString() {
+  public String toString() {
     return new String(raw);
   }
 }
