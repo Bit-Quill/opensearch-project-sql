@@ -177,7 +177,7 @@ public class MathematicalFunction {
 
   /**
    * Definition of crc32(x) function.
-   * Calculate a cyclic redundancy check value and returns a 32-bit unsigned value
+   * Calculate a cyclic redundancy check value and returns a 32-bi t unsigned value
    * The supported signature of crc32 function is
    * STRING -> LONG
    */
@@ -199,8 +199,9 @@ public class MathematicalFunction {
    * () -> DOUBLE
    */
   private static DefaultFunctionResolver euler() {
-    return baseMathFunction(BuiltinFunctionName.E.getName(),
-            v -> new ExprDoubleValue(Math.E), DOUBLE);
+    return FunctionDSL.define(BuiltinFunctionName.E.getName(),
+            FunctionDSL.impl(() -> new ExprDoubleValue(Math.E), DOUBLE)
+    );
   }
 
   /**
