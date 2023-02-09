@@ -317,7 +317,7 @@ nestedFunction
     ;
 
 nestedField
-    : ident DOT ident (DOT ident)*
+    : nestedIdent DOT nestedIdent (DOT nestedIdent)*
     ;
 
 highlightFunction
@@ -619,6 +619,14 @@ qualifiedName
 
 ident
     : DOT? ID
+    | BACKTICK_QUOTE_ID
+    | keywordsCanBeId
+    | scalarFunctionName
+    ;
+
+
+nestedIdent
+    : ID
     | BACKTICK_QUOTE_ID
     | keywordsCanBeId
     | scalarFunctionName

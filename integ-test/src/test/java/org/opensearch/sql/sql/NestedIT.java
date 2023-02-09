@@ -53,7 +53,7 @@ public class NestedIT extends SQLIntegTestCase {
     verifySchema(result,
         schema("nested(message.info)", null, "keyword"),
         schema("nested(comment.data)", null, "keyword"),
-        schema("nested(comment.data)", null, "long"));
+        schema("nested(message.dayOfWeek)", null, "long"));
     verifyDataRows(result,
         rows("a", "ab", 1),
         rows("b", "aa", 2),
