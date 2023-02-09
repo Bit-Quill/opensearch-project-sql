@@ -24,6 +24,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
+import static org.opensearch.sql.utils.DateTimeUtils.extractDateTime;
 
 import com.google.common.collect.ImmutableList;
 import java.time.LocalDate;
@@ -41,6 +42,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprLongValue;
+import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprValue;
@@ -714,6 +716,30 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(
         String.format("extract(\"%s\", DATETIME '2023-02-11 10:11:12.123')", part),
         datetimeExpression.toString());
+  }
+
+
+  @ParameterizedTest
+  @MethodSource("getDateTestDataForExtractFunction")
+  public void testExtractDatePartWithTimeType(String part) {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
+    FunctionExpression datetimeExpression = DSL.extract(
+        functionProperties,
+        DSL.literal(part),
+        DSL.literal(new ExprTimeValue("10:11:12.123")));
+
+    long expected = DateTimeFunction.formatExtractFunction(
+        new ExprStringValue(part),
+        new ExprDatetimeValue(
+            extractDateTime(
+                new ExprDateValue(LocalDate.now(functionProperties.getQueryStartClock())),
+                functionProperties)))
+        .longValue();
+
+    assertEquals(LONG, datetimeExpression.type());
+    assertEquals(expected, eval(datetimeExpression).longValue());
   }
 
   @ParameterizedTest(name = "{0}")

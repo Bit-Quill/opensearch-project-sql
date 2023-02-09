@@ -533,9 +533,8 @@ public class DateTimeFunction {
 
   private DefaultFunctionResolver extract() {
     return define(BuiltinFunctionName.EXTRACT.getName(),
-        implWithProperties(nullMissingHandlingWithProperties((functionProperties, part, time)
-            -> DateTimeFunction.exprExtractForTime(
-                functionProperties, part, time)), LONG, STRING, TIME),
+        implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprExtractForTime),
+            LONG, STRING, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprExtract), LONG, STRING, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprExtract), LONG, STRING, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprExtract), LONG, STRING, TIMESTAMP),
@@ -1191,14 +1190,13 @@ public class DateTimeFunction {
   }
 
   /**
-   * Implements extract function. Returns a LONG formatted according to the 'part' argument.
+   * Obtains a formatted long value for a specified part and datetime for the 'extract' function.
    *
-   * @param part Literal that determines the format of the outputted LONG.
-   * @param datetime The date/datetime to be formatted.
-   * @return A LONG
+   * @param part is an ExprValue which comes from a defined list of accepted values.
+   * @param datetime the date to be formatted as an ExprValue.
+   * @return is a LONG formatted according to the input arguments.
    */
-
-  private ExprValue exprExtract(ExprValue part, ExprValue datetime) {
+  public ExprLongValue formatExtractFunction(ExprValue part, ExprValue datetime) {
     String partName = part.stringValue().toUpperCase();
 
     long formattedVal = Long.parseLong(DateTimeFormatterUtil.getFormattedDate(
@@ -1212,21 +1210,27 @@ public class DateTimeFunction {
    * Implements extract function. Returns a LONG formatted according to the 'part' argument.
    *
    * @param part Literal that determines the format of the outputted LONG.
+   * @param datetime The date/datetime to be formatted.
+   * @return A LONG
+   */
+
+  private ExprValue exprExtract(ExprValue part, ExprValue datetime) {
+    return formatExtractFunction(part, datetime);
+  }
+
+  /**
+   * Implements extract function. Returns a LONG formatted according to the 'part' argument.
+   *
+   * @param part Literal that determines the format of the outputted LONG.
    * @param time The time to be formatted.
    * @return A LONG
    */
-  private ExprValue exprExtractForTime(
-      FunctionProperties functionProperties,
-      ExprValue part,
-      ExprValue time) {
-    String partName = part.stringValue().toUpperCase();
-    LocalDateTime now = extractDateTime(time, functionProperties);
-
-    long formattedVal = Long.parseLong(DateTimeFormatterUtil.getFormattedDate(
-        new ExprDatetimeValue(now),
-        new ExprStringValue(extract_formats.get(partName))).stringValue());
-
-    return new ExprLongValue(formattedVal);
+  private ExprValue exprExtractForTime(FunctionProperties functionProperties,
+                                       ExprValue part,
+                                       ExprValue time) {
+    return formatExtractFunction(
+        part,
+        new ExprDatetimeValue(extractDateTime(time, functionProperties)));
   }
 
   /**
