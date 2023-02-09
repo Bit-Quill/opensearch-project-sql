@@ -2102,8 +2102,10 @@ SEC_TO_TIME
 Description
 >>>>>>>>>>>
 
-Usage: sec_to_time(number) returns the time in HH:mm:ss format.
-Note that the number passed in must be positive as negative time values are invalid.
+Usage: sec_to_time(number) returns the time in HH:mm:ssss[.nnnnnn] format.
+Note that the function returns a time between 00:00:00 and 23:59:59.
+If an input value is too large (greater than 86399), the function will wrap around and begin returning outputs starting from 00:00:00.
+If an input value is too small (less than 0), the function will wrap around and begin returning outputs counting down from 23:59:59.
 
 Argument type: INTEGER, LONG, DOUBLE, FLOAT
 

@@ -40,7 +40,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
-import org.opensearch.sql.data.model.ExprFloatValue;
+import org.opensearch.sql.data.model.ExprDoubleValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
 import org.opensearch.sql.data.model.ExprLongValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
@@ -1180,7 +1180,12 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     return Stream.of(
         Arguments.of(1, "00:00:01"),
         Arguments.of(2378, "00:39:38"),
-        Arguments.of(6897, "01:54:57")
+        Arguments.of(6897, "01:54:57"),
+        Arguments.of(-82800, "01:00:00"),
+        Arguments.of(-169200, "01:00:00"),
+        Arguments.of(3600, "01:00:00"),
+        Arguments.of(90000, "01:00:00"),
+        Arguments.of(176400, "01:00:00")
         );
   }
 
@@ -1196,15 +1201,25 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(new ExprTimeValue(expected), eval(expr));
   }
 
-  @Test
-  public void testSecToTimeWithDecimal() {
+  private static Stream<Arguments> getTestDataForSecToTimeWithDecimal() {
+    return Stream.of(
+        Arguments.of(1.123, "00:00:01.123"),
+        Arguments.of(1.00123, "00:00:01.00123"),
+        Arguments.of(1.001023, "00:00:01.001023"),
+        Arguments.of(3.14, "00:00:03.14"),
+        Arguments.of(1.000000042, "00:00:01.000000042")
+    );
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("getTestDataForSecToTimeWithDecimal")
+  public void testSecToTimeWithDecimal(double arg, String expected) {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
-    FunctionExpression expr = DSL.sec_to_time(
-        DSL.literal(new ExprFloatValue(1.123)));
+    FunctionExpression expr = DSL.sec_to_time(DSL.literal(new ExprDoubleValue(arg)));
 
     assertEquals(TIME, expr.type());
-    assertEquals(new ExprTimeValue("00:00:01.123"), eval(expr));
+    assertEquals(new ExprTimeValue(expected), eval(expr));
   }
 
   @Test
