@@ -1229,8 +1229,8 @@ public class DateTimeFunction {
   /**
    * Returns a DATE for the last day of the month of a given argument.
    *
-   * @param datetime
-   * @return
+   * @param datetime A DATE/DATETIME/TIMESTAMP/STRING ExprValue.
+   * @return An DATE value corresponding to the last day of the month of the given argument.
    */
   private ExprValue exprLastDay(ExprValue datetime) {
     return new ExprDateValue(getLastDay(datetime.dateValue()));
@@ -1239,8 +1239,8 @@ public class DateTimeFunction {
   /**
    * Returns a DATE for the last day of the current month.
    *
-   * @param clock
-   * @return
+   * @param clock The clock for the query start time from functionProperties.
+   * @return An DATE value corresponding to the last day of the month of the given argument.
    */
   private ExprValue exprLastDayToday(Clock clock) {
     return new ExprDateValue(getLastDay(formatNow(clock).toLocalDate()));
