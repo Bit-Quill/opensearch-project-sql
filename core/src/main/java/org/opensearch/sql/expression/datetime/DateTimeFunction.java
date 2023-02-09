@@ -1385,10 +1385,10 @@ public class DateTimeFunction {
   }
 
   private long formatNanos(double nanos) {
-    while (nanos < 99999999) {
-      nanos *= 10;
-    }
-    return (long)nanos;
+    //multiplies decimal portion as [decimal * 10^9]
+    long formattedNanos = (long)((nanos) * Math.pow(10, 9));
+
+    return formattedNanos;
   }
 
   /**
