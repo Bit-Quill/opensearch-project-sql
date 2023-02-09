@@ -204,14 +204,6 @@ public class MathematicalFunction {
     );
   }
 
-  private static DefaultFunctionResolver exp() {
-    return FunctionDSL.define(BuiltinFunctionName.EXP.getName(),
-            ExprCoreType.numberTypes().stream()
-                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                                    v -> new ExprDoubleValue(Math.exp(v.doubleValue()))),
-                            type, DOUBLE)).collect(Collectors.toList()));
-  }
-
   /**
    * Definition of exp(x) function. Calculate exponent function e to the x
    * The supported signature of exp function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
