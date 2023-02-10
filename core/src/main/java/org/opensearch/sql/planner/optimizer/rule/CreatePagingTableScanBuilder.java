@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.opensearch.sql.planner.optimizer;
+package org.opensearch.sql.planner.optimizer.rule;
 
 import static org.opensearch.sql.planner.optimizer.pattern.Patterns.table;
 
@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.logical.LogicalRelation;
+import org.opensearch.sql.planner.optimizer.Rule;
 import org.opensearch.sql.storage.Table;
 import org.opensearch.sql.storage.read.TableScanBuilder;
 
@@ -38,7 +39,8 @@ public class CreatePagingTableScanBuilder
 
   @Override
   public LogicalPlan apply(LogicalRelation plan, Captures captures) {
-    TableScanBuilder scanBuilder = captures.get(capture).createPagedScanBuilder();
+    TableScanBuilder scanBuilder = captures.get(capture)
+        .createPagedScanBuilder(plan.getPageSize());
     // TODO: Remove this after Prometheus refactored to new table scan builder too
     return (scanBuilder == null) ? plan : scanBuilder;
   }

@@ -56,7 +56,7 @@ public interface OpenSearchRequest {
 
   /**
    * OpenSearch Index Name.
-   * Indices are seperated by ",".
+   * Indices are separated by ",".
    */
   @EqualsAndHashCode
   class IndexName {

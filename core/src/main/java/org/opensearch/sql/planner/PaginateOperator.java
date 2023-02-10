@@ -82,7 +82,8 @@ public class PaginateOperator extends PhysicalPlan {
     String child = getChild().get(0).toCursor();
 
     var nextPage = getPageIndex() + 1;
-    return createSection("Paginate", Integer.toString(nextPage),
-        Integer.toString(getPageSize()), child);
+    return child == null || child.isEmpty()
+        ? null : createSection("Paginate", Integer.toString(nextPage),
+            Integer.toString(getPageSize()), child);
   }
 }

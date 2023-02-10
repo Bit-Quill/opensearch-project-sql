@@ -5,7 +5,10 @@
 
 package org.opensearch.sql.opensearch.storage;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
+
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.opensearch.sql.data.model.ExprValue;
@@ -53,7 +56,9 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
     OpenSearchResponse response = client.search(request);
     if (!response.isEmpty()) {
       iterator = response.iterator();
-    } // TODO else - last page is empty -
+    } else {
+      iterator = Collections.emptyIterator();
+    }
   }
 
   @Override
@@ -67,6 +72,8 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
   public String toCursor() {
     // TODO this assumes exactly one index is scanned.
     var indexName = requestBuilder.getIndexName().getIndexNames()[0];
-    return createSection("OpenSearchPagedIndexScan", indexName, request.toCursor());
+    var cursor = request.toCursor();
+    return cursor == null || cursor.isEmpty()
+        ? "" : createSection("OpenSearchPagedIndexScan", indexName, cursor);
   }
 }

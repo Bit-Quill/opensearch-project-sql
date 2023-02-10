@@ -5,27 +5,25 @@
 
 package org.opensearch.sql.executor;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import com.google.common.hash.HashCode;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.expression.NamedExpression;
-import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.serialization.DefaultExpressionSerializer;
 import org.opensearch.sql.opensearch.executor.Cursor;
 import org.opensearch.sql.planner.PaginateOperator;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
-import org.opensearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 import org.opensearch.sql.planner.physical.ProjectOperator;
 import org.opensearch.sql.storage.StorageEngine;
-import org.opensearch.sql.storage.Table;
 import org.opensearch.sql.storage.TableScanOperator;
-import org.opensearch.sql.storage.read.TableScanBuilder;
 
 @RequiredArgsConstructor
 public class PaginatedPlanCache {
@@ -39,7 +37,7 @@ public class PaginatedPlanCache {
 
   @RequiredArgsConstructor
   @Data
-  static class SeriazationContext {
+  static class SerializationContext {
     private final PaginatedPlanCache cache;
   }
 
@@ -48,11 +46,55 @@ public class PaginatedPlanCache {
    */
   public Cursor convertToCursor(PhysicalPlan plan) {
     if (plan instanceof PaginateOperator) {
-      var raw = CURSOR_PREFIX + plan.toCursor();
+      var cursor = plan.toCursor();
+      if (cursor == null || cursor.isEmpty()) {
+        return Cursor.None;
+      }
+      var raw = CURSOR_PREFIX + compress(cursor);
       return new Cursor(raw.getBytes());
     } else {
       return Cursor.None;
     }
+  }
+
+  @SneakyThrows
+  public static String compress(String str) {
+    if (str == null || str.length() == 0) {
+        return null;
+    }
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    GZIPOutputStream gzip = new GZIPOutputStream(out);
+    gzip.write(str.getBytes());
+    gzip.close();
+    return HashCode.fromBytes(out.toByteArray()).toString();
+  }
+
+  @SneakyThrows
+  public static String decompress(String input) {
+    if (input == null || input.length() == 0) {
+        return null;
+    }
+    GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(
+        HashCode.fromString(input).asBytes()));
+    return new String(gzip.readAllBytes());
+  }
+
+  /**
+   * Parse `NamedExpression`s from cursor.
+   * @param listToFill List to fill with data.
+   * @param cursor Cursor to parse.
+   * @return Remaining part of the cursor.
+   */
+  private String parseNamedExpressions(List<NamedExpression> listToFill, String cursor) {
+    var serializer = new DefaultExpressionSerializer();
+    while (!cursor.startsWith(")") && !cursor.startsWith("(")) {
+      listToFill.add((NamedExpression)
+          serializer.deserialize(cursor.substring(0,
+              Math.min(cursor.indexOf(','), cursor.indexOf(')')))));
+      cursor = cursor.substring(cursor.indexOf(',') + 1);
+    }
+    return cursor;
   }
 
   /**
@@ -61,61 +103,47 @@ public class PaginatedPlanCache {
   public PhysicalPlan convertToPlan(String cursor) {
     if (cursor.startsWith(CURSOR_PREFIX)) {
       try {
-        String expression = cursor.substring(CURSOR_PREFIX.length());
-
-        // TODO Parse expression and initialize variables below.
-        // storageEngine needs to create the TableScanOperator.
+        cursor = cursor.substring(CURSOR_PREFIX.length());
+        cursor = decompress(cursor);
 
         // TODO Parse with ANTLR or serialize as JSON/XML
-        if (!expression.startsWith("(Paginate,")) {
+        if (!cursor.startsWith("(Paginate,")) {
           throw new UnsupportedOperationException("Unsupported cursor");
         }
-        expression = expression.substring(expression.indexOf(',') + 1);
-        int currentPageIndex = Integer.parseInt(expression, 0, expression.indexOf(','), 10);
+        cursor = cursor.substring(cursor.indexOf(',') + 1);
+        int currentPageIndex = Integer.parseInt(cursor, 0, cursor.indexOf(','), 10);
 
-        expression = expression.substring(expression.indexOf(',') + 1);
-        int pageSize = Integer.parseInt(expression, 0, expression.indexOf(','), 10);
+        cursor = cursor.substring(cursor.indexOf(',') + 1);
+        int pageSize = Integer.parseInt(cursor, 0, cursor.indexOf(','), 10);
 
-        expression = expression.substring(expression.indexOf(',') + 1);
-        if (!expression.startsWith("(Project,")) {
+        cursor = cursor.substring(cursor.indexOf(',') + 1);
+        if (!cursor.startsWith("(Project,")) {
           throw new UnsupportedOperationException("Unsupported cursor");
         }
-        expression = expression.substring(expression.indexOf(',') + 1);
-        if (!expression.startsWith("(namedParseExpressions,")) {
+        cursor = cursor.substring(cursor.indexOf(',') + 1);
+        if (!cursor.startsWith("(namedParseExpressions,")) {
           throw new UnsupportedOperationException("Unsupported cursor");
         }
-        expression = expression.substring(expression.indexOf(',') + 1);
-        var serializer = new DefaultExpressionSerializer();
-        // TODO parse npe
-        List<NamedExpression> namedParseExpressions = List.of();
 
-        expression = expression.substring(expression.indexOf(',') + 1);
+        cursor = cursor.substring(cursor.indexOf(',') + 1);
+        List<NamedExpression> namedParseExpressions = new ArrayList<>();
+        cursor = parseNamedExpressions(namedParseExpressions, cursor);
+
+        cursor = cursor.substring(cursor.indexOf(',') + 1);
         List<NamedExpression> projectList = new ArrayList<>();
-        if (!expression.startsWith("(projectList,")) {
+        if (!cursor.startsWith("(projectList,")) {
           throw new UnsupportedOperationException("Unsupported cursor");
         }
-        expression = expression.substring(expression.indexOf(',') + 1);
-        while (expression.startsWith("(named,")) {
-          expression = expression.substring(expression.indexOf(',') + 1);
-          var name = expression.substring(0, expression.indexOf(','));
-          expression = expression.substring(expression.indexOf(',') + 1);
-          var alias = expression.substring(0, expression.indexOf(','));
-          if (alias.isEmpty()) {
-            alias = null;
-          }
-          expression = expression.substring(expression.indexOf(',') + 1);
-          projectList.add(new NamedExpression(name,
-              serializer.deserialize(expression.substring(0, expression.indexOf(')'))), alias));
-          expression = expression.substring(expression.indexOf(',') + 1);
-        }
+        cursor = cursor.substring(cursor.indexOf(',') + 1);
+        cursor = parseNamedExpressions(projectList, cursor);
 
-        if (!expression.startsWith("(OpenSearchPagedIndexScan,")) {
+        if (!cursor.startsWith("(OpenSearchPagedIndexScan,")) {
           throw new UnsupportedOperationException("Unsupported cursor");
         }
-        expression = expression.substring(expression.indexOf(',') + 1);
-        var indexName = expression.substring(0, expression.indexOf(','));
-        expression = expression.substring(expression.indexOf(',') + 1);
-        var scrollId = expression.substring(0, expression.indexOf(')'));
+        cursor = cursor.substring(cursor.indexOf(',') + 1);
+        var indexName = cursor.substring(0, cursor.indexOf(','));
+        cursor = cursor.substring(cursor.indexOf(',') + 1);
+        var scrollId = cursor.substring(0, cursor.indexOf(')'));
         TableScanOperator scan = storageEngine.getTableScan(indexName, scrollId);
 
         return new PaginateOperator(new ProjectOperator(scan, projectList, namedParseExpressions),

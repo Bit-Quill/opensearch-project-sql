@@ -52,7 +52,7 @@ public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
   }
 
   public String toCursor() {
-    throw new IllegalStateException(String.format("%s needs to implement ToCursor",
+    throw new IllegalStateException(String.format("%s needs to implement toCursor",
         this.getClass()));
   }
 
