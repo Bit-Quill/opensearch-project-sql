@@ -313,11 +313,17 @@ functionCall
     ;
 
 nestedFunction
-    : NESTED LR_BRACKET nestedField RR_BRACKET
+    : NESTED LR_BRACKET
+    (nestedField | nestedField COMMA nestedPath | nestedPath COMMA expression)
+    RR_BRACKET
     ;
 
 nestedField
     : ID DOT ID (DOT ID)*
+    ;
+
+nestedPath
+    : ID (DOT ID)*
     ;
 
 highlightFunction

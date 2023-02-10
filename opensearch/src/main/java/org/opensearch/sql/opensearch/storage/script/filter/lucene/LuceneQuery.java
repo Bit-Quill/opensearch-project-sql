@@ -10,8 +10,14 @@ import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.OPENSEA
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+
+import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.index.query.NestedQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.index.query.QueryBuilders;
+import org.opensearch.index.query.TermQueryBuilder;
 import org.opensearch.sql.data.model.ExprBooleanValue;
 import org.opensearch.sql.data.model.ExprByteValue;
 import org.opensearch.sql.data.model.ExprDateValue;
@@ -51,7 +57,8 @@ public abstract class LuceneQuery {
    */
   public boolean canSupport(FunctionExpression func) {
     return (func.getArguments().size() == 2)
-        && (func.getArguments().get(0) instanceof ReferenceExpression)
+        && (func.getArguments().get(0) instanceof ReferenceExpression
+        || func.getArguments().get(0) instanceof FunctionExpression)
         && (func.getArguments().get(1) instanceof LiteralExpression
         || literalExpressionWrappedByCast(func))
         || isMultiParameterQuery(func);
@@ -97,6 +104,30 @@ public abstract class LuceneQuery {
     ExprValue literalValue = expr instanceof LiteralExpression ? expr
         .valueOf() : cast((FunctionExpression) expr);
     return doBuild(ref.getAttr(), ref.type(), literalValue);
+  }
+
+  public QueryBuilder build(FunctionExpression func, BiFunction<BoolQueryBuilder, QueryBuilder,
+      QueryBuilder> accumulator) {
+    BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+    if (func.getArguments().get(0) instanceof FunctionExpression) { // Is predicate expression
+      // TODO If function contains conditional we should throw exception.
+      FunctionExpression f = (FunctionExpression) func.getArguments().get(0);
+      ExprValue literalValue = func.getArguments().get(1).valueOf();
+      QueryBuilder ret = doBuildNested(f, literalValue);
+      accumulator.apply(boolQuery, ret);
+    } else { // Syntax: 'WHERE nested(path, conditional)'
+      int conditionalParameterSize = ((FunctionExpression)func.getArguments().get(1)).getArguments().size();
+      QueryBuilder[] queries = new NestedQueryBuilder[conditionalParameterSize];
+      ReferenceExpression path = (ReferenceExpression)func.getArguments().get(0);
+      for (int i = 0; i < queries.length; i++) {
+        FunctionExpression expr = (FunctionExpression) ((FunctionExpression)func.getArguments().get(1)).getArguments().get(i);
+        queries[i] = doBuild(expr, path);
+      }
+      for (QueryBuilder query : queries) {
+        accumulator.apply(boolQuery, query);
+      }
+    }
+    return boolQuery;
   }
 
   private ExprValue cast(FunctionExpression castFunction) {
@@ -220,6 +251,16 @@ public abstract class LuceneQuery {
    * @return            query
    */
   protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
+    throw new UnsupportedOperationException(
+        "Subclass doesn't implement this and build method either");
+  }
+
+  protected QueryBuilder doBuildNested(FunctionExpression fieldName, ExprValue literal) {
+    throw new UnsupportedOperationException(
+        "Subclass doesn't implement this and build method either");
+  }
+
+  protected QueryBuilder doBuild(FunctionExpression predicate, ReferenceExpression path) {
     throw new UnsupportedOperationException(
         "Subclass doesn't implement this and build method either");
   }
