@@ -87,9 +87,11 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
       openSearchResponse = searchAction.apply(searchRequest());
     }
 
-    setScrollId(openSearchResponse.getScrollId());
-
-    return new OpenSearchResponse(openSearchResponse, exprValueFactory);
+    var response = new OpenSearchResponse(openSearchResponse, exprValueFactory);
+    if (!response.isEmpty()) {
+      setScrollId(openSearchResponse.getScrollId());
+    } // else - last empty page, we should ignore the scroll even if it is returned
+    return response;
   }
 
   @Override
