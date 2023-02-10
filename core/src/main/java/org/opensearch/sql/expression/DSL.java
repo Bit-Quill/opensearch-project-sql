@@ -242,6 +242,10 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.TRUNCATE, expressions);
   }
 
+  public static FunctionExpression multiplyFunction(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.MULTIPLYFUNCTION, expressions);
+  }
+
   public static FunctionExpression acos(Expression... expressions) {
     return compile(FunctionProperties.None, BuiltinFunctionName.ACOS, expressions);
   }
