@@ -40,8 +40,12 @@ public class ContinuePaginatedPlan extends AbstractPlan {
 
   @Override
   public void execute() {
-    PhysicalPlan plan = paginatedPlanCache.convertToPlan(cursor);
-    queryService.executePlan(plan, queryResponseListener);
+    try {
+      PhysicalPlan plan = paginatedPlanCache.convertToPlan(cursor);
+      queryService.executePlan(plan, queryResponseListener);
+    } catch (Exception e) {
+      queryResponseListener.onFailure(e);
+    }
   }
 
   @Override
