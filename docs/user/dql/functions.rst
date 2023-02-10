@@ -562,9 +562,22 @@ MULTIPLY
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: MULTIPLY(x, y) calculates the multiplication of x and y
 
-1. MULTIPLY(NUMBER T, NUMBER) -> NUMBER
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: Wider type between types of x and y
+
+Example::
+
+    os> SELECT MULTIPLY(1, 2), MULTIPLY(-2, 1), MULTIPLY(1.5, 2);
+    fetched rows / total rows = 1/1
+    +------------------+-------------------+--------------------+
+    | MULTIPLY(1, 2)   | MULTIPLY(-2, 1)   | MULTIPLY(1.5, 2)   |
+    |------------------+-------------------+--------------------|
+    | 2                | -2                | 3.0                |
+    +------------------+-------------------+--------------------+
+
 
 PI
 --

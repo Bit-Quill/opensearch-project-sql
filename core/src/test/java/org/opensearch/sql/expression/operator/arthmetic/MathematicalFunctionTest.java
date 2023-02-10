@@ -1847,6 +1847,110 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
+   * Test multiply with integer value.
+   */
+  private static Stream<Arguments> intMultiplyTestData() {
+      return Stream.of(
+              Arguments.of(0, 0),
+              Arguments.of(0, -2),
+              Arguments.of(0, 2),
+              Arguments.of(2, -2),
+              Arguments.of(2, 2),
+              Arguments.of(-2, -2),
+              Arguments.of(32768, 2),
+              Arguments.of(-32769, 2)
+      );
+  }
+
+  @ParameterizedTest(name = "multiplyFunction({0}, {1})")
+  @MethodSource("intMultiplyTestData")
+  public void multiply_int_value(int x, int y) {
+    FunctionExpression multiply = DSL.multiplyFunction(DSL.literal(x), DSL.literal(y));
+    assertThat(
+            multiply.valueOf(valueEnv()),
+            allOf(hasType(INTEGER), hasValue(Math.multiplyExact(x, y))));
+    assertEquals(String.format("multiply(%s, %s)", x, y), multiply.toString());
+  }
+
+  /**
+   * Test multiply with long value.
+   */
+  private static Stream<Arguments> longMultiplyTestData() {
+    return Stream.of(
+            Arguments.of(0L, 0L),
+            Arguments.of(0L, -2L),
+            Arguments.of(0L, 2L),
+            Arguments.of(2L, -2L),
+            Arguments.of(2L, 2L),
+            Arguments.of(-2L, -2L),
+            Arguments.of(2147483648L, 2L),
+            Arguments.of(-2147483649L, 2L)
+    );
+  }
+
+  @ParameterizedTest(name = "multiplyFunction({0}, {1})")
+  @MethodSource("longMultiplyTestData")
+  public void multiply_long_value(long x, long y) {
+    FunctionExpression multiply = DSL.multiplyFunction(DSL.literal(x), DSL.literal(y));
+    assertThat(
+            multiply.valueOf(valueEnv()),
+            allOf(hasType(LONG), hasValue(Math.multiplyExact(x, y))));
+    assertEquals(String.format("multiply(%s, %s)", x, y), multiply.toString());
+  }
+
+  /**
+   * Test multiply with float value.
+   */
+  private static Stream<Arguments> floatMultiplyTestData() {
+    return Stream.of(
+            Arguments.of(0F, 0F),
+            Arguments.of(0F, -2.5F),
+            Arguments.of(0F, 2.5F),
+            Arguments.of(2.5F, -2.5F),
+            Arguments.of(2.5F, 2.5F),
+            Arguments.of(-2.5F, -2.5F),
+            Arguments.of(2147483648.5F, 2F),
+            Arguments.of(-2147483649.5F, 2F)
+    );
+  }
+
+  @ParameterizedTest(name = "multiplyFunction({0}, {1})")
+  @MethodSource("floatMultiplyTestData")
+  public void multiply_long_value(float x, float y) {
+    FunctionExpression multiply = DSL.multiplyFunction(DSL.literal(x), DSL.literal(y));
+    assertThat(
+            multiply.valueOf(valueEnv()),
+            allOf(hasType(FLOAT), hasValue(x * y)));
+    assertEquals(String.format("multiply(%s, %s)", x, y), multiply.toString());
+  }
+
+  /**
+   * Test multiply with double value.
+   */
+  private static Stream<Arguments> doubleMultiplyTestData() {
+    return Stream.of(
+            Arguments.of(0D, 0D),
+            Arguments.of(0D, -2.5D),
+            Arguments.of(0D, 2.5D),
+            Arguments.of(2.5D, -2.5D),
+            Arguments.of(2.5D, 2.5D),
+            Arguments.of(-2.5D, -2.5D),
+            Arguments.of(32768.5D, 2D),
+            Arguments.of(-32769.5D, 2D)
+    );
+  }
+
+  @ParameterizedTest(name = "multiplyFunction({0}, {1})")
+  @MethodSource("doubleMultiplyTestData")
+  public void multiply_double_value(double value) {
+    FunctionExpression multiply = DSL.multiplyFunction(DSL.literal(value), DSL.literal(value));
+    assertThat(
+            multiply.valueOf(valueEnv()),
+            allOf(hasType(DOUBLE), hasValue(value * value)));
+    assertEquals(String.format("multiply(%s, %s)", value, value), multiply.toString());
+  }
+
+  /**
    * Test constant pi.
    */
   @Test
