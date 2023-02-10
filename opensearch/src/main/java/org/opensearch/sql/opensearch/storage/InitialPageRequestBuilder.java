@@ -40,15 +40,17 @@ public class InitialPageRequestBuilder implements PagedRequestBuilder {
    * @param settings other settings
    * @param exprValueFactory value factory
    */
-  public InitialPageRequestBuilder(OpenSearchRequest.IndexName indexName, Settings settings,
+  public InitialPageRequestBuilder(OpenSearchRequest.IndexName indexName,
+                                   int pageSize,
+                                   Settings settings,
                                    OpenSearchExprValueFactory exprValueFactory) {
     this.indexName = indexName;
     this.sourceBuilder = new SearchSourceBuilder();
     this.exprValueFactory = exprValueFactory;
-    this.querySize = settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT);//TODO fetch_size
-    sourceBuilder.from(0);
-    sourceBuilder.size(querySize);
-    sourceBuilder.timeout(DEFAULT_QUERY_TIMEOUT);
+    this.querySize = pageSize;
+    sourceBuilder.from(0)
+        .size(querySize)
+        .timeout(DEFAULT_QUERY_TIMEOUT);
   }
 
   @Override

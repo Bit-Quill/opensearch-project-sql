@@ -126,7 +126,6 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
     return new LimitOperator(visitChild(node, context), node.getLimit(), node.getOffset());
   }
 
-
   @Override
   public PhysicalPlan visitPaginate(LogicalPaginate plan, C context) {
     return new PaginateOperator(visitChild(plan, context), plan.getPageSize());
@@ -148,10 +147,8 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
         + "implementing and optimizing logical plan with relation involved");
   }
 
-
   protected PhysicalPlan visitChild(LogicalPlan node, C context) {
     // Logical operators visited here must have a single child
     return node.getChild().get(0).accept(this, context);
   }
-
 }

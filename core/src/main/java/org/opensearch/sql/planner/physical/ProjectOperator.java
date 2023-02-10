@@ -99,17 +99,14 @@ public class ProjectOperator extends PhysicalPlan {
   @Override
   public String toCursor() {
     String child = getChild().get(0).toCursor();
+    if (child == null || child.isEmpty()) {
+      return null;
+    }
     var serializer = new DefaultExpressionSerializer();
     String projects = createSection("projectList",
-        projectList.stream().map(ne -> createSection("named",
-            ne.getName(), ne.getAlias() == null ? "" : ne.getAlias(), serializer.serialize(ne.getDelegated())
-        ))
-        .toArray(String[]::new));
+        projectList.stream().map(serializer::serialize).toArray(String[]::new));
     String namedExpressions = createSection("namedParseExpressions",
-        namedParseExpressions.stream().map(ne -> createSection("named",
-            ne.getName(), ne.getAlias() == null ? "" : ne.getAlias(), serializer.serialize(ne.getDelegated())
-        ))
-        .toArray(String[]::new));
+        namedParseExpressions.stream().map(serializer::serialize).toArray(String[]::new));
     return createSection("Project", namedExpressions, projects, child);
   }
 }

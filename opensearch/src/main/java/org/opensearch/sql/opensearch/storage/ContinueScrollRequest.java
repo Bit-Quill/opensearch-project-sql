@@ -18,6 +18,8 @@ import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 
+import static org.opensearch.sql.opensearch.request.OpenSearchScrollRequest.DEFAULT_SCROLL_TIMEOUT;
+
 public class ContinueScrollRequest implements OpenSearchRequest {
   final String initialScrollId;
 
@@ -39,10 +41,15 @@ public class ContinueScrollRequest implements OpenSearchRequest {
                                    Function<SearchScrollRequest, SearchResponse> scrollAction) {
     SearchResponse openSearchResponse;
 
-    openSearchResponse = scrollAction.apply(new SearchScrollRequest(initialScrollId));
-    responseScrollId = openSearchResponse.getScrollId();
+    openSearchResponse = scrollAction.apply(new SearchScrollRequest(initialScrollId)
+        .scroll(DEFAULT_SCROLL_TIMEOUT));
 
-    return new OpenSearchResponse(openSearchResponse, exprValueFactory);
+    // TODO if terminated_early - something went wrong, e.g. no scroll returned.
+    var response = new OpenSearchResponse(openSearchResponse, exprValueFactory);
+    if (!response.isEmpty()) {
+      responseScrollId = openSearchResponse.getScrollId();
+    } // else - last empty page, we should ignore the scroll even if it is returned
+    return response;
   }
 
   @Override
@@ -56,4 +63,8 @@ public class ContinueScrollRequest implements OpenSearchRequest {
         "SearchSourceBuilder is unavailable for ContinueScrollRequest");
   }
 
+  @Override
+  public String toCursor() {
+    return responseScrollId;
+  }
 }
