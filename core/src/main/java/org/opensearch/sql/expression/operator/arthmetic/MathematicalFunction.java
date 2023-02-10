@@ -92,16 +92,16 @@ public class MathematicalFunction {
    *
    * @param functionName BuiltinFunctionName of math function.
    * @param formula lambda function of math formula.
-   * @param dataType data type input for the function
+   * @param returnType data type return type of the calling function
    * @return DefaultFunctionResolver for math functions.
    */
   private static DefaultFunctionResolver baseMathFunction(
           FunctionName functionName, SerializableFunction<ExprValue,
-          ExprValue> formula, ExprCoreType dataType) {
+          ExprValue> formula, ExprCoreType returnType) {
     return FunctionDSL.define(functionName,
         ExprCoreType.numberTypes().stream().map(type -> FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(formula),
-                    dataType, type)).collect(Collectors.toList()));
+                    returnType, type)).collect(Collectors.toList()));
   }
 
   /**
@@ -200,7 +200,7 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver euler() {
     return FunctionDSL.define(BuiltinFunctionName.E.getName(),
-            FunctionDSL.impl(() -> new ExprDoubleValue(Math.E), DOUBLE)
+        FunctionDSL.impl(() -> new ExprDoubleValue(Math.E), DOUBLE)
     );
   }
 
