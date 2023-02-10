@@ -58,6 +58,7 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
@@ -1384,9 +1385,21 @@ public class DateTimeFunction {
     return new ExprTimeValue(LocalTime.MIN.plus(Duration.ofSeconds(totalSeconds.longValue())));
   }
 
-  private long formatNanos(double nanos) {
-    //multiplies decimal portion as [decimal * 10^9]
-    long formattedNanos = (long)((nanos) * Math.pow(10, 9));
+  /**
+   * Helper function which obtains the decimal portion of the seconds value passed in.
+   * Uses strings to prevent rounding issues with math on floating point numbers
+   *
+   * @param seconds and ExprDoubleValue or ExprFloatValue for the seconds
+   * @return A LONG representing the nanoseconds portion.
+   * Formatted to be used with Duration.ofSeconds();
+   */
+  private long formatNanos(ExprValue seconds) {
+    String nanoStringVal = seconds.doubleValue().toString();
+
+    //Obtains only the decimal part of the seconds ExprVal
+    String fraction = nanoStringVal.substring(nanoStringVal.indexOf(".")+1);
+    fraction = StringUtils.rightPad(fraction, 9, "0");
+    long formattedNanos = Long.valueOf(fraction);
 
     return formattedNanos;
   }
@@ -1397,7 +1410,7 @@ public class DateTimeFunction {
    * @return A TIME value
    */
   private ExprValue exprSecToTimeWithNanos(ExprValue totalSeconds) {
-    long nanos = formatNanos(totalSeconds.doubleValue() % 1);
+    long nanos = formatNanos(totalSeconds);
 
     return new ExprTimeValue(
         LocalTime.MIN.plus(Duration.ofSeconds(totalSeconds.longValue(), nanos)));
