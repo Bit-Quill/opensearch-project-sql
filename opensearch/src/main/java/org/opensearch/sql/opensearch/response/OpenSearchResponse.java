@@ -102,15 +102,13 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
       return Arrays.stream(hits.getHits())
           .map(hit -> {
             ExprValue docData = exprValueFactory.construct(hit.getSourceAsString());
-            Map<String, Object> rowSource = hit.getSourceAsMap();
-            // TODO Move flattening logic to UnnestOperator
-//            List<String> head = docData.tupleValue().keySet().stream().collect(Collectors.toList());
-//            Set<String> newKeys = new HashSet<>(head);
-//            rowSource = flatRow(head, rowSource);
-//            rowSource = flatNestedField(newKeys, rowSource, hit.getInnerHits());
-            docData = ExprValueUtils.tupleValue(rowSource);
             if (hit.getHighlightFields().isEmpty()) {
-              return docData;
+              if (hit.getInnerHits().isEmpty()) {
+                return docData;
+              } else {
+                Map<String, Object> rowSource = hit.getSourceAsMap();
+                return ExprValueUtils.tupleValue(rowSource);
+              }
             } else {
               ImmutableMap.Builder<String, ExprValue> builder = new ImmutableMap.Builder<>();
               builder.putAll(docData.tupleValue());
