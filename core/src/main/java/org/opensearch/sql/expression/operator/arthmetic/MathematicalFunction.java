@@ -32,7 +32,6 @@ import org.opensearch.sql.data.model.ExprLongValue;
 import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprShortValue;
 import org.opensearch.sql.data.model.ExprStringValue;
-import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
@@ -88,46 +87,29 @@ public class MathematicalFunction {
   }
 
   /**
-   * Base function for math functions with similar formats that return DOUBLE.
-   *
-   * @param functionName BuiltinFunctionName of math function.
-   * @param formula lambda function of math formula.
-   * @param dataType data type input for the function
-   * @return DefaultFunctionResolver for math functions.
-   */
-  private static DefaultFunctionResolver baseMathFunction(
-          FunctionName functionName, SerializableFunction<ExprValue,
-          ExprValue> formula, ExprCoreType dataType) {
-    return FunctionDSL.define(functionName,
-        ExprCoreType.numberTypes().stream().map(type -> FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(formula),
-                    dataType, type)).collect(Collectors.toList()));
-  }
-
-  /**
    * Definition of abs() function. The supported signature of abs() function are INT -> INT LONG ->
    * LONG FLOAT -> FLOAT DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver abs() {
     return FunctionDSL.define(BuiltinFunctionName.ABS.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(v -> new ExprByteValue(Math.abs(v.byteValue()))),
-            BYTE, BYTE),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(v -> new ExprShortValue(Math.abs(v.shortValue()))),
-            SHORT, SHORT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(v -> new ExprIntegerValue(Math.abs(v.integerValue()))),
-            INTEGER, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(v -> new ExprLongValue(Math.abs(v.longValue()))),
-            LONG, LONG),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(v -> new ExprFloatValue(Math.abs(v.floatValue()))),
-            FLOAT, FLOAT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(v -> new ExprDoubleValue(Math.abs(v.doubleValue()))),
-            DOUBLE, DOUBLE)
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(v -> new ExprByteValue(Math.abs(v.byteValue()))),
+                    BYTE, BYTE),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(v -> new ExprShortValue(Math.abs(v.shortValue()))),
+                    SHORT, SHORT),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(v -> new ExprIntegerValue(Math.abs(v.integerValue()))),
+                    INTEGER, INTEGER),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(v -> new ExprLongValue(Math.abs(v.longValue()))),
+                    LONG, LONG),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(v -> new ExprFloatValue(Math.abs(v.floatValue()))),
+                    FLOAT, FLOAT),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(v -> new ExprDoubleValue(Math.abs(v.doubleValue()))),
+                    DOUBLE, DOUBLE)
     );
   }
 
@@ -137,17 +119,17 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver ceil() {
     return FunctionDSL.define(BuiltinFunctionName.CEIL.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(v -> new ExprLongValue(Math.ceil(v.doubleValue()))),
-            LONG, DOUBLE)
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(v -> new ExprLongValue(Math.ceil(v.doubleValue()))),
+                    LONG, DOUBLE)
     );
   }
 
   private static DefaultFunctionResolver ceiling() {
     return FunctionDSL.define(BuiltinFunctionName.CEILING.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(v -> new ExprLongValue(Math.ceil(v.doubleValue()))),
-            LONG, DOUBLE)
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(v -> new ExprLongValue(Math.ceil(v.doubleValue()))),
+                    LONG, DOUBLE)
     );
   }
 
@@ -160,18 +142,18 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver conv() {
     return FunctionDSL.define(BuiltinFunctionName.CONV.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling((x, a, b) -> new ExprStringValue(
-                Integer.toString(Integer.parseInt(x.stringValue(), a.integerValue()),
-                    b.integerValue())
-            )),
-            STRING, STRING, INTEGER, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling((x, a, b) -> new ExprStringValue(
-                Integer.toString(Integer.parseInt(x.integerValue().toString(), a.integerValue()),
-                    b.integerValue())
-            )),
-            STRING, INTEGER, INTEGER, INTEGER)
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling((x, a, b) -> new ExprStringValue(
+                            Integer.toString(Integer.parseInt(x.stringValue(), a.integerValue()),
+                                    b.integerValue())
+                    )),
+                    STRING, STRING, INTEGER, INTEGER),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling((x, a, b) -> new ExprStringValue(
+                            Integer.toString(Integer.parseInt(x.integerValue().toString(), a.integerValue()),
+                                    b.integerValue())
+                    )),
+                    STRING, INTEGER, INTEGER, INTEGER)
     );
   }
 
@@ -183,13 +165,13 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver crc32() {
     return FunctionDSL.define(BuiltinFunctionName.CRC32.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(v -> {
-              CRC32 crc = new CRC32();
-              crc.update(v.stringValue().getBytes());
-              return new ExprLongValue(crc.getValue());
-            }),
-            LONG, STRING)
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(v -> {
+                      CRC32 crc = new CRC32();
+                      crc.update(v.stringValue().getBytes());
+                      return new ExprLongValue(crc.getValue());
+                    }),
+                    LONG, STRING)
     );
   }
 
@@ -205,21 +187,27 @@ public class MathematicalFunction {
   }
 
   /**
-   * Definition of exp(x) function. Calculate exponent function e to the x
-   * The supported signature of exp function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+   * Definition of exp(x) function. Calculate exponent function e to the x The supported signature
+   * of exp function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver exp() {
-    return baseMathFunction(BuiltinFunctionName.EXP.getName(),
-            v -> new ExprDoubleValue(Math.exp(v.doubleValue())), DOUBLE);
+    return FunctionDSL.define(BuiltinFunctionName.EXP.getName(),
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> new ExprDoubleValue(Math.exp(v.doubleValue()))),
+                            type, DOUBLE)).collect(Collectors.toList()));
   }
 
   /**
-   * Definition of expm1(x) function. Calculate exponent function e to the x, minus 1
-   * The supported signature of exp function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+   * Definition of expm1(x) function. Calculate exponent function e to the x, minus 1 The supported signature
+   * of expm1 function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver expm1() {
-    return baseMathFunction(BuiltinFunctionName.EXPM1.getName(),
-            v -> new ExprDoubleValue(Math.expm1(v.doubleValue())), DOUBLE);
+    return FunctionDSL.define(BuiltinFunctionName.EXPM1.getName(),
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> new ExprDoubleValue(Math.expm1(v.doubleValue()))),
+                            type, DOUBLE)).collect(Collectors.toList()));
   }
 
   /**
@@ -228,9 +216,9 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver floor() {
     return FunctionDSL.define(BuiltinFunctionName.FLOOR.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(v -> new ExprLongValue(Math.floor(v.doubleValue()))),
-            LONG, DOUBLE)
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(v -> new ExprLongValue(Math.floor(v.doubleValue()))),
+                    LONG, DOUBLE)
     );
   }
 
@@ -239,8 +227,11 @@ public class MathematicalFunction {
    * ln function is INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver ln() {
-    return baseMathFunction(BuiltinFunctionName.LN.getName(),
-            v -> new ExprDoubleValue(Math.log(v.doubleValue())), DOUBLE);
+    return FunctionDSL.define(BuiltinFunctionName.LN.getName(),
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> new ExprDoubleValue(Math.log(v.doubleValue()))),
+                            type, DOUBLE)).collect(Collectors.toList()));
   }
 
   /**
@@ -250,22 +241,22 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver log() {
     ImmutableList.Builder<SerializableFunction<FunctionName, Pair<FunctionSignature,
-        FunctionBuilder>>> builder = new ImmutableList.Builder<>();
+            FunctionBuilder>>> builder = new ImmutableList.Builder<>();
 
     // build unary log(x), SHORT/INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
     for (ExprType type : ExprCoreType.numberTypes()) {
       builder.add(FunctionDSL.impl(FunctionDSL
-              .nullMissingHandling(v -> new ExprDoubleValue(Math.log(v.doubleValue()))),
-          DOUBLE, type));
+                      .nullMissingHandling(v -> new ExprDoubleValue(Math.log(v.doubleValue()))),
+              DOUBLE, type));
     }
 
     // build binary function log(b, x)
     for (ExprType baseType : ExprCoreType.numberTypes()) {
       for (ExprType numberType : ExprCoreType.numberTypes()) {
         builder.add(FunctionDSL.impl(FunctionDSL
-                .nullMissingHandling((b, x) -> new ExprDoubleValue(
-                    Math.log(x.doubleValue()) / Math.log(b.doubleValue()))),
-            DOUBLE, baseType, numberType));
+                        .nullMissingHandling((b, x) -> new ExprDoubleValue(
+                                Math.log(x.doubleValue()) / Math.log(b.doubleValue()))),
+                DOUBLE, baseType, numberType));
       }
     }
     return FunctionDSL.define(BuiltinFunctionName.LOG.getName(), builder.build());
@@ -277,8 +268,11 @@ public class MathematicalFunction {
    * log function is SHORT/INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver log10() {
-    return baseMathFunction(BuiltinFunctionName.LOG10.getName(),
-            v -> new ExprDoubleValue(Math.log10(v.doubleValue())), DOUBLE);
+    return FunctionDSL.define(BuiltinFunctionName.LOG10.getName(),
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> new ExprDoubleValue(Math.log10(v.doubleValue()))),
+                            type, DOUBLE)).collect(Collectors.toList()));
   }
 
   /**
@@ -286,8 +280,11 @@ public class MathematicalFunction {
    * function is SHORT/INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver log2() {
-    return baseMathFunction(BuiltinFunctionName.LOG2.getName(),
-            v -> new ExprDoubleValue(Math.log(v.doubleValue()) / Math.log(2)), DOUBLE);
+    return FunctionDSL.define(BuiltinFunctionName.LOG2.getName(),
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                            v -> new ExprDoubleValue(Math.log(v.doubleValue()) / Math.log(2))), DOUBLE, type))
+                    .collect(Collectors.toList()));
   }
 
   /**
@@ -299,37 +296,37 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver mod() {
     return FunctionDSL.define(BuiltinFunctionName.MOD.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.byteValue() == 0 ? ExprNullValue.of() :
-                    new ExprByteValue(v1.byteValue() % v2.byteValue())),
-            BYTE, BYTE, BYTE),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                    new ExprShortValue(v1.shortValue() % v2.shortValue())),
-            SHORT, SHORT, SHORT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                    new ExprIntegerValue(Math.floorMod(v1.integerValue(),
-                        v2.integerValue()))),
-            INTEGER, INTEGER, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                    new ExprLongValue(Math.floorMod(v1.longValue(), v2.longValue()))),
-            LONG, LONG, LONG),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                    new ExprFloatValue(v1.floatValue() % v2.floatValue())),
-            FLOAT, FLOAT, FLOAT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                    new ExprDoubleValue(v1.doubleValue() % v2.doubleValue())),
-            DOUBLE, DOUBLE, DOUBLE)
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> v2.byteValue() == 0 ? ExprNullValue.of() :
+                                    new ExprByteValue(v1.byteValue() % v2.byteValue())),
+                    BYTE, BYTE, BYTE),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
+                                    new ExprShortValue(v1.shortValue() % v2.shortValue())),
+                    SHORT, SHORT, SHORT),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
+                                    new ExprIntegerValue(Math.floorMod(v1.integerValue(),
+                                            v2.integerValue()))),
+                    INTEGER, INTEGER, INTEGER),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
+                                    new ExprLongValue(Math.floorMod(v1.longValue(), v2.longValue()))),
+                    LONG, LONG, LONG),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
+                                    new ExprFloatValue(v1.floatValue() % v2.floatValue())),
+                    FLOAT, FLOAT, FLOAT),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
+                                    new ExprDoubleValue(v1.doubleValue() % v2.doubleValue())),
+                    DOUBLE, DOUBLE, DOUBLE)
     );
   }
 
@@ -340,7 +337,7 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver pi() {
     return FunctionDSL.define(BuiltinFunctionName.PI.getName(),
-        FunctionDSL.impl(() -> new ExprDoubleValue(Math.PI), DOUBLE)
+            FunctionDSL.impl(() -> new ExprDoubleValue(Math.PI), DOUBLE)
     );
   }
 
@@ -362,28 +359,28 @@ public class MathematicalFunction {
   }
 
   private List<SerializableFunction<FunctionName, Pair<FunctionSignature,
-      FunctionBuilder>>> powerFunctionImpl() {
+          FunctionBuilder>>> powerFunctionImpl() {
     return Arrays.asList(FunctionDSL.impl(
-        FunctionDSL.nullMissingHandling(
-            (v1, v2) -> new ExprDoubleValue(Math.pow(v1.shortValue(), v2.shortValue()))),
-        DOUBLE, SHORT, SHORT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprDoubleValue(Math.pow(v1.integerValue(),
-                    v2.integerValue()))),
-            DOUBLE, INTEGER, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprDoubleValue(Math.pow(v1.longValue(), v2.longValue()))),
-            DOUBLE, LONG, LONG),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprDoubleValue(Math.pow(v1.floatValue(), v2.floatValue()))),
-            DOUBLE, FLOAT, FLOAT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprDoubleValue(Math.pow(v1.doubleValue(), v2.doubleValue()))),
-            DOUBLE, DOUBLE, DOUBLE));
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> new ExprDoubleValue(Math.pow(v1.shortValue(), v2.shortValue()))),
+                    DOUBLE, SHORT, SHORT),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> new ExprDoubleValue(Math.pow(v1.integerValue(),
+                                    v2.integerValue()))),
+                    DOUBLE, INTEGER, INTEGER),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> new ExprDoubleValue(Math.pow(v1.longValue(), v2.longValue()))),
+                    DOUBLE, LONG, LONG),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> new ExprDoubleValue(Math.pow(v1.floatValue(), v2.floatValue()))),
+                    DOUBLE, FLOAT, FLOAT),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> new ExprDoubleValue(Math.pow(v1.doubleValue(), v2.doubleValue()))),
+                    DOUBLE, DOUBLE, DOUBLE));
   }
 
   /**
@@ -397,10 +394,10 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver rand() {
     return FunctionDSL.define(BuiltinFunctionName.RAND.getName(),
-        FunctionDSL.impl(() -> new ExprFloatValue(new Random().nextFloat()), FLOAT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                v -> new ExprFloatValue(new Random(v.integerValue()).nextFloat())), FLOAT, INTEGER)
+            FunctionDSL.impl(() -> new ExprFloatValue(new Random().nextFloat()), FLOAT),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            v -> new ExprFloatValue(new Random(v.integerValue()).nextFloat())), FLOAT, INTEGER)
     );
   }
 
@@ -415,47 +412,47 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver round() {
     return FunctionDSL.define(BuiltinFunctionName.ROUND.getName(),
-        // rand(x)
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                v -> new ExprLongValue((long) Math.round(v.integerValue()))),
-            LONG, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                v -> new ExprLongValue((long) Math.round(v.longValue()))),
-            LONG, LONG),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                v -> new ExprDoubleValue((double) Math.round(v.floatValue()))),
-            DOUBLE, FLOAT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                v -> new ExprDoubleValue(new BigDecimal(v.doubleValue()).setScale(0,
-                    RoundingMode.HALF_UP).doubleValue())),
-            DOUBLE, DOUBLE),
+            // rand(x)
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            v -> new ExprLongValue((long) Math.round(v.integerValue()))),
+                    LONG, INTEGER),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            v -> new ExprLongValue((long) Math.round(v.longValue()))),
+                    LONG, LONG),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            v -> new ExprDoubleValue((double) Math.round(v.floatValue()))),
+                    DOUBLE, FLOAT),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            v -> new ExprDoubleValue(new BigDecimal(v.doubleValue()).setScale(0,
+                                    RoundingMode.HALF_UP).doubleValue())),
+                    DOUBLE, DOUBLE),
 
-        // rand(x, d)
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (x, d) -> new ExprLongValue(
-                    new BigDecimal(x.integerValue()).setScale(d.integerValue(),
-                        RoundingMode.HALF_UP).longValue())),
-            LONG, INTEGER, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (x, d) -> new ExprLongValue(new BigDecimal(x.longValue()).setScale(d.integerValue(),
-                    RoundingMode.HALF_UP).longValue())),
-            LONG, LONG, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (x, d) -> new ExprDoubleValue(new BigDecimal(x.floatValue())
-                    .setScale(d.integerValue(), RoundingMode.HALF_UP).doubleValue())),
-            DOUBLE, FLOAT, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (x, d) -> new ExprDoubleValue(new BigDecimal(x.doubleValue())
-                    .setScale(d.integerValue(), RoundingMode.HALF_UP).doubleValue())),
-            DOUBLE, DOUBLE, INTEGER));
+            // rand(x, d)
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (x, d) -> new ExprLongValue(
+                                    new BigDecimal(x.integerValue()).setScale(d.integerValue(),
+                                            RoundingMode.HALF_UP).longValue())),
+                    LONG, INTEGER, INTEGER),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (x, d) -> new ExprLongValue(new BigDecimal(x.longValue()).setScale(d.integerValue(),
+                                    RoundingMode.HALF_UP).longValue())),
+                    LONG, LONG, INTEGER),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (x, d) -> new ExprDoubleValue(new BigDecimal(x.floatValue())
+                                    .setScale(d.integerValue(), RoundingMode.HALF_UP).doubleValue())),
+                    DOUBLE, FLOAT, INTEGER),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (x, d) -> new ExprDoubleValue(new BigDecimal(x.doubleValue())
+                                    .setScale(d.integerValue(), RoundingMode.HALF_UP).doubleValue())),
+                    DOUBLE, DOUBLE, INTEGER));
   }
 
   /**
@@ -466,8 +463,11 @@ public class MathematicalFunction {
    * SHORT/INTEGER/LONG/FLOAT/DOUBLE -> INTEGER
    */
   private static DefaultFunctionResolver sign() {
-    return baseMathFunction(BuiltinFunctionName.SIGN.getName(),
-            v -> new ExprIntegerValue(Math.signum(v.doubleValue())), INTEGER);
+    return FunctionDSL.define(BuiltinFunctionName.SIGN.getName(),
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> new ExprIntegerValue(Math.signum(v.doubleValue()))),
+                            INTEGER, type)).collect(Collectors.toList()));
   }
 
   /**
@@ -477,9 +477,12 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver sqrt() {
-    return baseMathFunction(BuiltinFunctionName.SQRT.getName(),
-            v -> v.doubleValue() < 0 ? ExprNullValue.of() :
-                    new ExprDoubleValue(Math.sqrt(v.doubleValue())), DOUBLE);
+    return FunctionDSL.define(BuiltinFunctionName.SQRT.getName(),
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> v.doubleValue() < 0 ? ExprNullValue.of() :
+                                            new ExprDoubleValue(Math.sqrt(v.doubleValue()))),
+                            DOUBLE, type)).collect(Collectors.toList()));
   }
 
   /**
@@ -489,8 +492,11 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver cbrt() {
-    return baseMathFunction(BuiltinFunctionName.CBRT.getName(),
-            v -> new ExprDoubleValue(Math.cbrt(v.doubleValue())), DOUBLE);
+    return FunctionDSL.define(BuiltinFunctionName.CBRT.getName(),
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> new ExprDoubleValue(Math.cbrt(v.doubleValue()))),
+                            DOUBLE, type)).collect(Collectors.toList()));
   }
 
   /**
@@ -504,30 +510,30 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver truncate() {
     return FunctionDSL.define(BuiltinFunctionName.TRUNCATE.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (x, y) -> new ExprLongValue(
-                        BigDecimal.valueOf(x.integerValue()).setScale(y.integerValue(),
-                                        RoundingMode.DOWN).longValue())),
-            LONG, INTEGER, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (x, y) -> new ExprLongValue(
-                        BigDecimal.valueOf(x.longValue()).setScale(y.integerValue(),
-                                        RoundingMode.DOWN).longValue())),
-            LONG, LONG, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (x, y) -> new ExprDoubleValue(
-                        BigDecimal.valueOf(x.floatValue()).setScale(y.integerValue(),
-                                        RoundingMode.DOWN).doubleValue())),
-            DOUBLE, FLOAT, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (x, y) -> new ExprDoubleValue(
-                        BigDecimal.valueOf(x.doubleValue()).setScale(y.integerValue(),
-                                        RoundingMode.DOWN).doubleValue())),
-            DOUBLE, DOUBLE, INTEGER));
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (x, y) -> new ExprLongValue(
+                                    BigDecimal.valueOf(x.integerValue()).setScale(y.integerValue(),
+                                            RoundingMode.DOWN).longValue())),
+                    LONG, INTEGER, INTEGER),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (x, y) -> new ExprLongValue(
+                                    BigDecimal.valueOf(x.longValue()).setScale(y.integerValue(),
+                                            RoundingMode.DOWN).longValue())),
+                    LONG, LONG, INTEGER),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (x, y) -> new ExprDoubleValue(
+                                    BigDecimal.valueOf(x.floatValue()).setScale(y.integerValue(),
+                                            RoundingMode.DOWN).doubleValue())),
+                    DOUBLE, FLOAT, INTEGER),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (x, y) -> new ExprDoubleValue(
+                                    BigDecimal.valueOf(x.doubleValue()).setScale(y.integerValue(),
+                                            RoundingMode.DOWN).doubleValue())),
+                    DOUBLE, DOUBLE, INTEGER));
   }
 
   /**
@@ -539,11 +545,11 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver acos() {
     return FunctionDSL.define(BuiltinFunctionName.ACOS.getName(),
-        ExprCoreType.numberTypes().stream()
-            .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                v -> v.doubleValue() < -1 || v.doubleValue() > 1 ? ExprNullValue.of() :
-                    new ExprDoubleValue(Math.acos(v.doubleValue()))),
-                DOUBLE, type)).collect(Collectors.toList()));
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> v.doubleValue() < -1 || v.doubleValue() > 1 ? ExprNullValue.of() :
+                                            new ExprDoubleValue(Math.acos(v.doubleValue()))),
+                            DOUBLE, type)).collect(Collectors.toList()));
   }
 
   /**
@@ -555,11 +561,11 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver asin() {
     return FunctionDSL.define(BuiltinFunctionName.ASIN.getName(),
-        ExprCoreType.numberTypes().stream()
-            .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                v -> v.doubleValue() < -1 || v.doubleValue() > 1 ? ExprNullValue.of() :
-                    new ExprDoubleValue(Math.asin(v.doubleValue()))),
-                DOUBLE, type)).collect(Collectors.toList()));
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> v.doubleValue() < -1 || v.doubleValue() > 1 ? ExprNullValue.of() :
+                                            new ExprDoubleValue(Math.asin(v.doubleValue()))),
+                            DOUBLE, type)).collect(Collectors.toList()));
   }
 
   /**
@@ -572,15 +578,15 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver atan() {
     ImmutableList.Builder<SerializableFunction<FunctionName, Pair<FunctionSignature,
-        FunctionBuilder>>> builder = new ImmutableList.Builder<>();
+            FunctionBuilder>>> builder = new ImmutableList.Builder<>();
 
     for (ExprType type : ExprCoreType.numberTypes()) {
       builder.add(FunctionDSL.impl(FunctionDSL
-              .nullMissingHandling(x -> new ExprDoubleValue(Math.atan(x.doubleValue()))), type,
-          DOUBLE));
+                      .nullMissingHandling(x -> new ExprDoubleValue(Math.atan(x.doubleValue()))), type,
+              DOUBLE));
       builder.add(FunctionDSL.impl(FunctionDSL
-          .nullMissingHandling((y, x) -> new ExprDoubleValue(Math.atan2(y.doubleValue(),
-              x.doubleValue()))), DOUBLE, type, type));
+              .nullMissingHandling((y, x) -> new ExprDoubleValue(Math.atan2(y.doubleValue(),
+                      x.doubleValue()))), DOUBLE, type, type));
     }
 
     return FunctionDSL.define(BuiltinFunctionName.ATAN.getName(), builder.build());
@@ -595,12 +601,12 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver atan2() {
     ImmutableList.Builder<SerializableFunction<FunctionName, Pair<FunctionSignature,
-        FunctionBuilder>>> builder = new ImmutableList.Builder<>();
+            FunctionBuilder>>> builder = new ImmutableList.Builder<>();
 
     for (ExprType type : ExprCoreType.numberTypes()) {
       builder.add(FunctionDSL.impl(FunctionDSL
-          .nullMissingHandling((y, x) -> new ExprDoubleValue(Math.atan2(y.doubleValue(),
-              x.doubleValue()))), DOUBLE, type, type));
+              .nullMissingHandling((y, x) -> new ExprDoubleValue(Math.atan2(y.doubleValue(),
+                      x.doubleValue()))), DOUBLE, type, type));
     }
 
     return FunctionDSL.define(BuiltinFunctionName.ATAN2.getName(), builder.build());
@@ -613,8 +619,11 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver cos() {
-    return baseMathFunction(BuiltinFunctionName.COS.getName(),
-            v -> new ExprDoubleValue(Math.cos(v.doubleValue())), DOUBLE);
+    return FunctionDSL.define(BuiltinFunctionName.COS.getName(),
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> new ExprDoubleValue(Math.cos(v.doubleValue()))),
+                            DOUBLE, type)).collect(Collectors.toList()));
   }
 
   /**
@@ -625,17 +634,17 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver cot() {
     return FunctionDSL.define(BuiltinFunctionName.COT.getName(),
-        ExprCoreType.numberTypes().stream()
-            .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
-                v -> {
-                  Double value = v.doubleValue();
-                  if (value == 0) {
-                    throw new ArithmeticException(
-                        String.format("Out of range value for cot(%s)", value));
-                  }
-                  return new ExprDoubleValue(1 / Math.tan(value));
-                }),
-                DOUBLE, type)).collect(Collectors.toList()));
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> {
+                                      Double value = v.doubleValue();
+                                      if (value == 0) {
+                                        throw new ArithmeticException(
+                                                String.format("Out of range value for cot(%s)", value));
+                                      }
+                                      return new ExprDoubleValue(1 / Math.tan(value));
+                                    }),
+                            DOUBLE, type)).collect(Collectors.toList()));
   }
 
   /**
@@ -645,8 +654,11 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver degrees() {
-    return baseMathFunction(BuiltinFunctionName.DEGREES.getName(),
-            v -> new ExprDoubleValue(Math.toDegrees(v.doubleValue())), DOUBLE);
+    return FunctionDSL.define(BuiltinFunctionName.DEGREES.getName(),
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> new ExprDoubleValue(Math.toDegrees(v.doubleValue()))),
+                            type, DOUBLE)).collect(Collectors.toList()));
   }
 
   /**
@@ -656,8 +668,11 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver radians() {
-    return baseMathFunction(BuiltinFunctionName.RADIANS.getName(),
-            v -> new ExprDoubleValue(Math.toRadians(v.doubleValue())), DOUBLE);
+    return FunctionDSL.define(BuiltinFunctionName.RADIANS.getName(),
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> new ExprDoubleValue(Math.toRadians(v.doubleValue()))),
+                            DOUBLE, type)).collect(Collectors.toList()));
   }
 
   /**
@@ -667,8 +682,11 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver sin() {
-    return baseMathFunction(BuiltinFunctionName.SIN.getName(),
-            v -> new ExprDoubleValue(Math.sin(v.doubleValue())), DOUBLE);
+    return FunctionDSL.define(BuiltinFunctionName.SIN.getName(),
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> new ExprDoubleValue(Math.sin(v.doubleValue()))),
+                            DOUBLE, type)).collect(Collectors.toList()));
   }
 
   /**
@@ -678,7 +696,10 @@ public class MathematicalFunction {
    * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver tan() {
-    return baseMathFunction(BuiltinFunctionName.TAN.getName(),
-            v -> new ExprDoubleValue(Math.tan(v.doubleValue())), DOUBLE);
+    return FunctionDSL.define(BuiltinFunctionName.TAN.getName(),
+            ExprCoreType.numberTypes().stream()
+                    .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+                                    v -> new ExprDoubleValue(Math.tan(v.doubleValue()))),
+                            DOUBLE, type)).collect(Collectors.toList()));
   }
 }
