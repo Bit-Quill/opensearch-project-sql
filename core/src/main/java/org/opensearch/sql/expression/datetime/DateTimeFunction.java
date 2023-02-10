@@ -1387,17 +1387,17 @@ public class DateTimeFunction {
 
   /**
    * Helper function which obtains the decimal portion of the seconds value passed in.
-   * Uses strings to prevent rounding issues with math on floating point numbers
+   * Uses strings to prevent issues with math on floating point numbers.
+   * Return is formatted to be used with Duration.ofSeconds();
    *
    * @param seconds and ExprDoubleValue or ExprFloatValue for the seconds
-   * @return A LONG representing the nanoseconds portion.
-   * Formatted to be used with Duration.ofSeconds();
+   * @return A LONG representing the nanoseconds portion
    */
   private long formatNanos(ExprValue seconds) {
     String nanoStringVal = seconds.doubleValue().toString();
 
     //Obtains only the decimal part of the seconds ExprVal
-    String fraction = nanoStringVal.substring(nanoStringVal.indexOf(".")+1);
+    String fraction = nanoStringVal.substring(nanoStringVal.indexOf(".") + 1);
     fraction = StringUtils.rightPad(fraction, 9, "0");
     long formattedNanos = Long.valueOf(fraction);
 
