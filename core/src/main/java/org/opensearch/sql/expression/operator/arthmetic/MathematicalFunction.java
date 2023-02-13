@@ -540,7 +540,8 @@ public class MathematicalFunction {
                     INTEGER, INTEGER, INTEGER),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (x, y) -> new ExprLongValue(Math.multiplyExact(x.longValue(), y.longValue()))),
+                            (x, y) -> new ExprLongValue(Math.multiplyExact(
+                                    x.longValue(), y.longValue()))),
                     LONG, LONG, LONG),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(

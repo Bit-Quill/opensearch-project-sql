@@ -1847,10 +1847,10 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test multiply with integer value.
+   * Multiply integer test data.
    */
   private static Stream<Arguments> intMultiplyTestData() {
-      return Stream.of(
+    return Stream.of(
               Arguments.of(0, 0),
               Arguments.of(0, -2),
               Arguments.of(0, 2),
@@ -1862,6 +1862,9 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
       );
   }
 
+  /**
+   * Test multiply with integer value.
+   */
   @ParameterizedTest(name = "multiplyFunction({0}, {1})")
   @MethodSource("intMultiplyTestData")
   public void multiply_int_value(int x, int y) {
@@ -1873,7 +1876,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test multiply with long value.
+   * Multiply Long test data.
    */
   private static Stream<Arguments> longMultiplyTestData() {
     return Stream.of(
@@ -1888,6 +1891,9 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     );
   }
 
+  /**
+   * Test multiply with long value.
+   */
   @ParameterizedTest(name = "multiplyFunction({0}, {1})")
   @MethodSource("longMultiplyTestData")
   public void multiply_long_value(long x, long y) {
@@ -1899,7 +1905,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test multiply with float value.
+   * Multiply float test data.
    */
   private static Stream<Arguments> floatMultiplyTestData() {
     return Stream.of(
@@ -1914,9 +1920,12 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     );
   }
 
+  /**
+   * Test multiply with float value.
+   */
   @ParameterizedTest(name = "multiplyFunction({0}, {1})")
   @MethodSource("floatMultiplyTestData")
-  public void multiply_long_value(float x, float y) {
+  public void multiply_float_value(float x, float y) {
     FunctionExpression multiply = DSL.multiplyFunction(DSL.literal(x), DSL.literal(y));
     assertThat(
             multiply.valueOf(valueEnv()),
@@ -1925,7 +1934,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test multiply with double value.
+   * Multiply double test data.
    */
   private static Stream<Arguments> doubleMultiplyTestData() {
     return Stream.of(
@@ -1940,6 +1949,9 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     );
   }
 
+  /**
+   * Test multiply with double value.
+   */
   @ParameterizedTest(name = "multiplyFunction({0}, {1})")
   @MethodSource("doubleMultiplyTestData")
   public void multiply_double_value(double value) {
