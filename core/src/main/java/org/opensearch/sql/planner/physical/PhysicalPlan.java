@@ -6,7 +6,6 @@
 
 package org.opensearch.sql.planner.physical;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import org.opensearch.sql.data.model.ExprValue;
@@ -48,12 +47,12 @@ public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
 
   public ExecutionEngine.Schema schema() {
     throw new IllegalStateException(String.format("[BUG] schema can been only applied to "
-        + "ProjectOperator, instead of %s", toString()));
+        + "ProjectOperator, instead of %s", this.getClass().getSimpleName()));
   }
 
   public String toCursor() {
-    throw new IllegalStateException(String.format("%s needs to implement toCursor",
-        this.getClass()));
+    throw new IllegalStateException(String.format("%s is not compatible with cursor feature",
+        this.getClass().getSimpleName()));
   }
 
   /**
