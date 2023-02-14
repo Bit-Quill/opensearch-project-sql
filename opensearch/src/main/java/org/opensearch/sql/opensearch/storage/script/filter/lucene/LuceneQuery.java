@@ -17,7 +17,6 @@ import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.NestedQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.QueryBuilders;
-import org.opensearch.index.query.TermQueryBuilder;
 import org.opensearch.sql.data.model.ExprBooleanValue;
 import org.opensearch.sql.data.model.ExprByteValue;
 import org.opensearch.sql.data.model.ExprDateValue;
@@ -255,6 +254,7 @@ public abstract class LuceneQuery {
         "Subclass doesn't implement this and build method either");
   }
 
+  // TODO Maybe overload doBuild for override in NestedQuery?
   protected QueryBuilder doBuildNested(FunctionExpression fieldName, ExprValue literal) {
     throw new UnsupportedOperationException(
         "Subclass doesn't implement this and build method either");

@@ -29,7 +29,7 @@ public class TermQuery extends LuceneQuery {
 
   @Override
   protected QueryBuilder doBuildNested(FunctionExpression field, ExprValue literal) {
-    // TODO Can we move this to NestedQuery?
+    // TODO Can we move this to NestedQuery::doBuild()?
     return QueryBuilders.nestedQuery(getNestedPathString((ReferenceExpression) field.getArguments().get(0)),
         doBuild(field.getArguments().get(0).toString(), field.getArguments().get(0).type(), literal), ScoreMode.None);
   }
