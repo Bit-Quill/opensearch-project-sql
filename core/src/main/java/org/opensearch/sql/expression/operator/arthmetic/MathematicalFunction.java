@@ -496,19 +496,26 @@ public class MathematicalFunction {
    * Definition of multiply(x, y) function.
    * Returns the number x multiplied by number y
    * The supported signature of multiply function is
-   * (x: INTEGER/LONG/FLOAT/DOUBLE, y: INTEGER/LONG/FLOAT/DOUBLE)
+   * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
    * -> wider type between types of x and y
    */
   private static DefaultFunctionResolver multiplyFunction() {
     return FunctionDSL.define(BuiltinFunctionName.MULTIPLYFUNCTION.getName(),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (x, y) -> new ExprIntegerValue(Math.multiplyExact(x.integerValue(),
-                                    y.integerValue()))),
+                            (x, y) -> new ExprByteValue((x.byteValue() * y.byteValue()))),
+                    BYTE, BYTE, BYTE),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (x, y) -> new ExprShortValue(x.shortValue() * y.shortValue())),
+                    SHORT, SHORT, SHORT),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (x, y) -> new ExprIntegerValue(x.integerValue() * y.integerValue())),
                     INTEGER, INTEGER, INTEGER),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (x, y) -> new ExprLongValue(Math.multiplyExact(x.longValue(), y.longValue()))),
+                            (x, y) -> new ExprLongValue(x.longValue() * y.longValue())),
                     LONG, LONG, LONG),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
