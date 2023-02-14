@@ -106,26 +106,26 @@ public class DateTimeFunction {
   // Map used to determine format output for the extract function
   private static final Map<String, String> extract_formats =
       ImmutableMap.<String, String>builder()
-          .put("MICROSECOND", "%f")
-          .put("SECOND", "%s")
-          .put("MINUTE", "%i")
-          .put("HOUR", "%H")
-          .put("DAY", "%d")
-          .put("WEEK", "%V")
-          .put("MONTH", "%m")
-          .put("YEAR", "%X")
-          .put("SECOND_MICROSECOND", "%s%f")
-          .put("MINUTE_MICROSECOND", "%i%s%f")
-          .put("MINUTE_SECOND", "%i%s")
-          .put("HOUR_MICROSECOND", "%H%i%s%f")
-          .put("HOUR_SECOND", "%H%i%s")
-          .put("HOUR_MINUTE", "%H%i")
-          .put("DAY_MICROSECOND", "%d%H%i%s%f")
-          .put("DAY_SECOND", "%d%H%i%s")
-          .put("DAY_MINUTE", "%d%H%i")
-          .put("DAY_HOUR", "%d%H")
-          .put("YEAR_MONTH", "%X%m")
-          .put("QUARTER", "%Q")
+          .put("MICROSECOND", "SSSSSS")
+          .put("SECOND", "ss")
+          .put("MINUTE", "mm")
+          .put("HOUR", "HH")
+          .put("DAY", "dd")
+          .put("WEEK", "w")
+          .put("MONTH", "MM")
+          .put("YEAR", "yyyy")
+          .put("SECOND_MICROSECOND", "ssSSSSSS")
+          .put("MINUTE_MICROSECOND", "mmssSSSSSS")
+          .put("MINUTE_SECOND", "mmss")
+          .put("HOUR_MICROSECOND", "HHmmssSSSSSS")
+          .put("HOUR_SECOND", "HHmmss")
+          .put("HOUR_MINUTE", "HHmm")
+          .put("DAY_MICROSECOND", "ddHHmmssSSSSSS")
+          .put("DAY_SECOND", "ddHHmmss")
+          .put("DAY_MINUTE", "ddHHmm")
+          .put("DAY_HOUR", "ddHH")
+          .put("YEAR_MONTH", "yyyyMM")
+          .put("QUARTER", "Q")
           .build();
 
   /**
@@ -1198,12 +1198,11 @@ public class DateTimeFunction {
    */
   public ExprLongValue formatExtractFunction(ExprValue part, ExprValue datetime) {
     String partName = part.stringValue().toUpperCase();
+    LocalDateTime arg = datetime.datetimeValue();
+    String text = arg.format(DateTimeFormatter.ofPattern(
+        extract_formats.get(partName), Locale.ENGLISH));;
 
-    long formattedVal = Long.parseLong(DateTimeFormatterUtil.getFormattedDate(
-        datetime,
-        new ExprStringValue(extract_formats.get(partName))).stringValue());
-
-    return new ExprLongValue(formattedVal);
+    return new ExprLongValue(Long.parseLong(text));
   }
 
   /**
