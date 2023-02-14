@@ -202,6 +202,10 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.MOD, expressions);
   }
 
+  public static FunctionExpression multiplyFunction(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.MULTIPLYFUNCTION, expressions);
+  }
+
   public static FunctionExpression pi(Expression... expressions) {
     return compile(FunctionProperties.None, BuiltinFunctionName.PI, expressions);
   }
@@ -240,10 +244,6 @@ public class DSL {
 
   public static FunctionExpression truncate(Expression... expressions) {
     return compile(FunctionProperties.None, BuiltinFunctionName.TRUNCATE, expressions);
-  }
-
-  public static FunctionExpression multiplyFunction(Expression... expressions) {
-    return compile(FunctionProperties.None, BuiltinFunctionName.MULTIPLYFUNCTION, expressions);
   }
 
   public static FunctionExpression acos(Expression... expressions) {
