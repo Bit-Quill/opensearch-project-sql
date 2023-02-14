@@ -82,10 +82,9 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   private static Stream<Arguments> testLogInvalidDoubleArguments() {
-    Stream.Builder<Arguments> builder = Stream.builder();
-    return builder.add(Arguments.of(0D, -2D))
-        .add(Arguments.of(0D, 2D))
-        .add(Arguments.of(2D, 0D)).build();
+    return Stream.of(Arguments.of(0D, -2D),
+        Arguments.of(0D, 2D),
+        Arguments.of(2D, 0D));
   }
 
   private static Stream<Arguments> trigonometricArguments() {
