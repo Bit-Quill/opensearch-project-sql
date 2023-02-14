@@ -184,6 +184,25 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
+  public void testMultiply() throws IOException {
+    JSONObject result = executeQuery("select multiply(3, 2)");
+    verifySchema(result, schema("multiply(3, 2)", null, "integer"));
+    verifyDataRows(result, rows(3 * 2));
+
+    result = executeQuery("select multiply(2.5, 2)");
+    verifySchema(result, schema("multiply(2.5, 2)", null, "double"));
+    verifyDataRows(result, rows(2.5D * 2));
+
+    result = executeQuery("select multiply(3000000000, 2)");
+    verifySchema(result, schema("multiply(3000000000, 2)", null, "long"));
+    verifyDataRows(result, rows(3000000000L * 2));
+
+    result = executeQuery("select multiply(CAST(1.6 AS FLOAT), 2)");
+    verifySchema(result, schema("multiply(CAST(1.6 AS FLOAT), 2)", null, "float"));
+    verifyDataRows(result, rows(1.6 * 2));
+  }
+
+  @Test
   public void testAtan() throws IOException {
     JSONObject result = executeQuery("select atan(2, 3)");
     verifySchema(result, schema("atan(2, 3)", null, "double"));
