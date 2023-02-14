@@ -33,11 +33,4 @@ public class NestedQuery extends LuceneQuery {
       return literal.value();
     }
   }
-
-  /**
-   *
-   */
-  protected NestedQueryBuilder createBuilder(String field) {
-    return QueryBuilders.nestedQuery(field, matchAllQuery(), ScoreMode.None);
-  }
 }
