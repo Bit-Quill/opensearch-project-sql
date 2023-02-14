@@ -546,11 +546,11 @@ public class MathematicalFunction {
                     BYTE, BYTE, BYTE),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (x, y) -> new ExprShortValue(x.shortValue() * y.shortValue())),
+                            (x, y) -> new ExprShortValue(Math.multiplyExact(x.shortValue(), y.shortValue()))),
                     SHORT, SHORT, SHORT),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (x, y) -> new ExprIntegerValue(x.integerValue() * y.integerValue())),
+                            (x, y) -> new ExprIntegerValue(Math.multiplyExact(x.integerValue(), y.integerValue()))),
                     INTEGER, INTEGER, INTEGER),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
