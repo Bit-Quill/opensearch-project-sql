@@ -31,6 +31,7 @@ import org.opensearch.sql.ast.expression.Between;
 import org.opensearch.sql.ast.expression.Case;
 import org.opensearch.sql.ast.expression.Cast;
 import org.opensearch.sql.ast.expression.Compare;
+import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.EqualTo;
 import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Function;
@@ -211,8 +212,60 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   }
 
   public Expression visitScoreFunction(ScoreFunction node, AnalysisContext context) {
-    Expression relevanceQueryExpr = node.getRelevanceQuery().accept(this, context);
-    return new ScoreExpression(relevanceQueryExpr);
+    // if no function argument
+    if (node.getFuncArgs().isEmpty() || !(node.getFuncArgs().get(0) instanceof Literal)) {
+      return node.getRelevanceQuery().accept(this, context);
+    }
+
+    // note: if an argument exists, and there should only be one, it will be a boost argument
+    Literal boostFunctionArg = (Literal) node.getFuncArgs().get(0);
+    if (!boostFunctionArg.getType().equals(DataType.DOUBLE)) {
+      throw new SemanticCheckException(String.format("Expected boost type '%s' but got '%s'",
+              boostFunctionArg.getType().name(), DataType.DOUBLE.name()));
+    }
+    Double thisBoostValue = ((Double) ((Literal) node.getFuncArgs().get(0)).getValue());
+
+    // update the existing unresolved expression to add a boost argument if it doesn't exist
+    // OR multiply the existing boost argument
+    Function relevanceQueryUnresolvedExpr = (Function)node.getRelevanceQuery();
+    List<UnresolvedExpression> relevanceFuncArgs = relevanceQueryUnresolvedExpr.getFuncArgs();
+
+    boolean doesFunctionContainBoostArgument = false;
+    List<UnresolvedExpression> updatedFuncArgs = new ArrayList<>();
+    for (UnresolvedExpression expr: relevanceFuncArgs) {
+      if (!(expr instanceof UnresolvedArgument)) {
+        continue;
+      }
+      String argumentName = ((UnresolvedArgument) expr).getArgName();
+      if (argumentName.equalsIgnoreCase("boost")) {
+        doesFunctionContainBoostArgument = true;
+        Literal boostArgLiteral = (Literal)((UnresolvedArgument) expr).getValue();
+        Double boostValue = boostArgLiteral.getType() == DataType.STRING
+                ? Double.parseDouble((String)boostArgLiteral.getValue()) * thisBoostValue
+                : thisBoostValue;
+        UnresolvedArgument newBoostArg = new UnresolvedArgument(
+                argumentName,
+                new Literal(boostValue.toString(), DataType.STRING)
+        );
+        updatedFuncArgs.add(newBoostArg);
+      } else {
+        updatedFuncArgs.add(expr);
+      }
+    }
+
+    // since nothing was found, add an argument
+    if (!doesFunctionContainBoostArgument) {
+      UnresolvedArgument newBoostArg = new UnresolvedArgument(
+              "boost", new Literal(thisBoostValue, DataType.STRING));
+      updatedFuncArgs.add(newBoostArg);
+    }
+
+    // create a new function expression with boost argument and resolve it
+    Function updatedRelevanceQueryUnresolvedExpr = new Function(
+            relevanceQueryUnresolvedExpr.getFuncName(),
+            updatedFuncArgs);
+    Expression relevanceQueryExpr = updatedRelevanceQueryUnresolvedExpr.accept(this, context);
+    return relevanceQueryExpr;
   }
 
   @Override
