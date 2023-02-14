@@ -1847,6 +1847,63 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
+   * Multiply byte test data.
+   */
+  private static Stream<Arguments> byteMultiplyTestData() {
+    return Stream.of(
+            Arguments.of((byte) 0, (byte) 0),
+            Arguments.of((byte) 0, (byte) -2),
+            Arguments.of((byte) 0, (byte) 2),
+            Arguments.of((byte) 2, (byte) -2),
+            Arguments.of((byte) 2, (byte) 2),
+            Arguments.of((byte) -2, (byte) -2)
+    );
+  }
+
+  /**
+   * Test multiply with byte value.
+   */
+  @ParameterizedTest(name = "multiplyFunction({0}, {1})")
+  @MethodSource("byteMultiplyTestData")
+  public void multiply_byte_value(byte x, byte y) {
+    FunctionExpression multiply = DSL.multiplyFunction(DSL.literal(x), DSL.literal(y));
+    assertThat(
+            multiply.valueOf(valueEnv()),
+            allOf(hasType(BYTE), hasValue(Integer.valueOf(x * y).byteValue())));
+    assertEquals(String.format("multiply(%s, %s)", x, y), multiply.toString());
+  }
+
+
+  /**
+   * Multiply short test data.
+   */
+  private static Stream<Arguments> shortMultiplyTestData() {
+    return Stream.of(
+            Arguments.of((short) 0, (short) 0),
+            Arguments.of((short) 0, (short) -2),
+            Arguments.of((short) 0, (short) 2),
+            Arguments.of((short) 2, (short) -2),
+            Arguments.of((short) 2, (short) 2),
+            Arguments.of((short) -2, (short) -2),
+            Arguments.of((short) 128, (short) 2),
+            Arguments.of((short) -129, (short) 2)
+    );
+  }
+
+  /**
+   * Test multiply with short value.
+   */
+  @ParameterizedTest(name = "multiplyFunction({0}, {1})")
+  @MethodSource("shortMultiplyTestData")
+  public void multiply_short_value(short x, short y) {
+    FunctionExpression multiply = DSL.multiplyFunction(DSL.literal(x), DSL.literal(y));
+    assertThat(
+            multiply.valueOf(valueEnv()),
+            allOf(hasType(SHORT), hasValue(Integer.valueOf(x * y).shortValue())));
+    assertEquals(String.format("multiply(%s, %s)", x, y), multiply.toString());
+  }
+  
+  /**
    * Multiply integer test data.
    */
   private static Stream<Arguments> intMultiplyTestData() {
@@ -1871,7 +1928,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     FunctionExpression multiply = DSL.multiplyFunction(DSL.literal(x), DSL.literal(y));
     assertThat(
             multiply.valueOf(valueEnv()),
-            allOf(hasType(INTEGER), hasValue(Math.multiplyExact(x, y))));
+            allOf(hasType(INTEGER), hasValue(x * y)));
     assertEquals(String.format("multiply(%s, %s)", x, y), multiply.toString());
   }
 
@@ -1900,7 +1957,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     FunctionExpression multiply = DSL.multiplyFunction(DSL.literal(x), DSL.literal(y));
     assertThat(
             multiply.valueOf(valueEnv()),
-            allOf(hasType(LONG), hasValue(Math.multiplyExact(x, y))));
+            allOf(hasType(LONG), hasValue(x * y)));
     assertEquals(String.format("multiply(%s, %s)", x, y), multiply.toString());
   }
 
@@ -1954,12 +2011,12 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    */
   @ParameterizedTest(name = "multiplyFunction({0}, {1})")
   @MethodSource("doubleMultiplyTestData")
-  public void multiply_double_value(double value) {
-    FunctionExpression multiply = DSL.multiplyFunction(DSL.literal(value), DSL.literal(value));
+  public void multiply_double_value(double x, double y) {
+    FunctionExpression multiply = DSL.multiplyFunction(DSL.literal(x), DSL.literal(y));
     assertThat(
             multiply.valueOf(valueEnv()),
-            allOf(hasType(DOUBLE), hasValue(value * value)));
-    assertEquals(String.format("multiply(%s, %s)", value, value), multiply.toString());
+            allOf(hasType(DOUBLE), hasValue(x * y)));
+    assertEquals(String.format("multiply(%s, %s)", x, y), multiply.toString());
   }
 
   /**

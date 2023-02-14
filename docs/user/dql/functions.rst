@@ -564,7 +564,7 @@ Description
 
 Usage: MULTIPLY(x, y) calculates the multiplication of x and y, alternative grammar to using the * symbol
 
-Argument type: INTEGER/LONG/FLOAT/DOUBLE
+Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: Wider type between types of x and y
 
