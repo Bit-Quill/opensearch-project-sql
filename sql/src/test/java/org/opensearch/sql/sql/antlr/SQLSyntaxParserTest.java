@@ -595,7 +595,7 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse("SELECT sec_to_time(6897)"));
     assertNotNull(parser.parse("SELECT sec_to_time(6897.123)"));
   }
-  
+
   @Test
   public void can_parse_last_day_function() {
     assertNotNull(parser.parse("SELECT last_day(\"2017-06-20\")"));
@@ -607,7 +607,7 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse("SELECT TIMESTAMPADD(MINUTE, 1, '2003-01-02')"));
     assertNotNull(parser.parse("SELECT TIMESTAMPADD(WEEK,1,'2003-01-02')"));
   }
-  
+
   @Test
   public void can_parse_to_seconds_function() {
     assertNotNull(parser.parse("SELECT to_seconds(\"2023-02-20\")"));
@@ -627,6 +627,29 @@ class SQLSyntaxParserTest {
     assertNotNull(
         parser.parse("SELECT * FROM test WHERE wildcard_query(`column`, 'this is a test*', "
             + "boost=1.5, case_insensitive=true, rewrite=\"scoring_boolean\")"));
+  }
+
+  @Test
+  public void can_parse_nested_function() {
+    assertNotNull(
+        parser.parse("SELECT NESTED(FIELD.DAYOFWEEK) FROM TEST"));
+    assertNotNull(
+        parser.parse("SELECT SUM(NESTED(FIELD.SUBFIELD)) FROM TEST"));
+    assertNotNull(
+        parser.parse("SELECT NESTED(FIELD.DAYOFWEEK, PATH) FROM TEST"));
+    assertNotNull(
+        parser.parse("SELECT NESTED(PATH, CONDITION = 'a') FROM TEST"));
+
+  }
+
+  @Test
+  public void can_not_parse_nested_function_without_dot() {
+    assertThrows(SyntaxCheckException.class,
+        () -> parser.parse("SELECT NESTED(MESSAGE1) FROM TEST"));
+    assertThrows(SyntaxCheckException.class,
+        () -> parser.parse("SELECT COUNT(*) FROM TEST GROUP BY NESTED(MESSAGE2)"));
+    assertThrows(SyntaxCheckException.class,
+        () -> parser.parse("SELECT NESTED(PATH, INVALID_CONDITION)"));
   }
 
   @Test

@@ -366,11 +366,17 @@ datetimePart
     ;
 
 nestedFunction
-    : NESTED LR_BRACKET nestedField RR_BRACKET
+    : NESTED LR_BRACKET
+    (nestedField | nestedField COMMA nestedPath | nestedPath COMMA expression)
+    RR_BRACKET
     ;
 
 nestedField
-    : ID DOT ID (DOT ID)*
+    : nestedIdent DOT nestedIdent (DOT nestedIdent)*
+    ;
+
+nestedPath
+    : nestedIdent (DOT nestedIdent)*
     ;
 
 highlightFunction
@@ -685,6 +691,14 @@ qualifiedName
 
 ident
     : DOT? ID
+    | BACKTICK_QUOTE_ID
+    | keywordsCanBeId
+    | scalarFunctionName
+    ;
+
+
+nestedIdent
+    : ID
     | BACKTICK_QUOTE_ID
     | keywordsCanBeId
     | scalarFunctionName
