@@ -71,6 +71,7 @@ import org.opensearch.sql.expression.conditional.cases.WhenClause;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.expression.function.OpenSearchFunctions;
 import org.opensearch.sql.expression.parse.ParseExpression;
 import org.opensearch.sql.expression.span.SpanExpression;
 import org.opensearch.sql.expression.window.aggregation.AggregateWindowFunction;
@@ -212,9 +213,12 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   }
 
   public Expression visitScoreFunction(ScoreFunction node, AnalysisContext context) {
-    // if no function argument
+    // if no function argument given, just accept the relevance query and return
     if (node.getFuncArgs().isEmpty() || !(node.getFuncArgs().get(0) instanceof Literal)) {
-      return node.getRelevanceQuery().accept(this, context);
+      OpenSearchFunctions.OpenSearchFunction relevanceQueryExpr =
+              (OpenSearchFunctions.OpenSearchFunction)node.getRelevanceQuery().accept(this, context);
+      relevanceQueryExpr.setScoreTracked(true);
+      return relevanceQueryExpr;
     }
 
     // note: if an argument exists, and there should only be one, it will be a boost argument
@@ -256,7 +260,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     // since nothing was found, add an argument
     if (!doesFunctionContainBoostArgument) {
       UnresolvedArgument newBoostArg = new UnresolvedArgument(
-              "boost", new Literal(thisBoostValue, DataType.STRING));
+              "boost", new Literal(Double.toString(thisBoostValue), DataType.STRING));
       updatedFuncArgs.add(newBoostArg);
     }
 
@@ -264,7 +268,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     Function updatedRelevanceQueryUnresolvedExpr = new Function(
             relevanceQueryUnresolvedExpr.getFuncName(),
             updatedFuncArgs);
-    Expression relevanceQueryExpr = updatedRelevanceQueryUnresolvedExpr.accept(this, context);
+    OpenSearchFunctions.OpenSearchFunction relevanceQueryExpr =
+            (OpenSearchFunctions.OpenSearchFunction) updatedRelevanceQueryUnresolvedExpr.accept(this, context);
+    relevanceQueryExpr.setScoreTracked(true);
     return relevanceQueryExpr;
   }
 
