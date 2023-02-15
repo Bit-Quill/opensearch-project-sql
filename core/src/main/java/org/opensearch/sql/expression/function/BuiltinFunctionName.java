@@ -35,6 +35,7 @@ public enum BuiltinFunctionName {
   LOG10(FunctionName.of("log10")),
   LOG2(FunctionName.of("log2")),
   MOD(FunctionName.of("mod")),
+  MULTIPLYFUNCTION(FunctionName.of("multiply")),
   PI(FunctionName.of("pi")),
   POW(FunctionName.of("pow")),
   POWER(FunctionName.of("power")),
@@ -44,7 +45,6 @@ public enum BuiltinFunctionName {
   SQRT(FunctionName.of("sqrt")),
   CBRT(FunctionName.of("cbrt")),
   TRUNCATE(FunctionName.of("truncate")),
-  MULTIPLYFUNCTION(FunctionName.of("multiply")),
 
   ACOS(FunctionName.of("acos")),
   ASIN(FunctionName.of("asin")),
