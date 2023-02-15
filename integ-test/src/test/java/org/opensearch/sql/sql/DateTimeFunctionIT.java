@@ -516,7 +516,24 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Test
   public void testLastDay() throws IOException {
     JSONObject result = executeQuery(
-        String.format("SELECT last_day(date0) FROM %s LIMIT 3", TEST_INDEX_CALCS));
+        String.format("SELECT last_day(cast(date0 as date)) FROM %s LIMIT 3",
+            TEST_INDEX_CALCS));
+    verifyDataRows(result,
+        rows("2004-04-30"),
+        rows("1972-07-31"),
+        rows("1975-11-30"));
+
+    result = executeQuery(
+        String.format("SELECT last_day(datetime(cast(date0 AS string))) FROM %s LIMIT 3",
+            TEST_INDEX_CALCS));
+    verifyDataRows(result,
+        rows("2004-04-30"),
+        rows("1972-07-31"),
+        rows("1975-11-30"));
+
+    result = executeQuery(
+        String.format("SELECT last_day(cast(date0 AS timestamp)) FROM %s LIMIT 3",
+            TEST_INDEX_CALCS));
     verifyDataRows(result,
         rows("2004-04-30"),
         rows("1972-07-31"),
