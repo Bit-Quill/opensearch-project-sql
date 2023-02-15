@@ -505,6 +505,10 @@ public abstract class SQLIntegTestCase extends OpenSearchSQLRestTestCase {
         "nestedType",
         getNestedTypeIndexMapping(),
         "src/test/resources/nested_objects.json"),
+    NESTED_WITHOUT_ARRAYS(TestsConstants.TEST_INDEX_NESTED_TYPE_WITHOUT_ARRAYS,
+        "nestedTypeWithoutArrays",
+        getNestedTypeIndexMapping(),
+        "src/test/resources/nested_objects_without_arrays.json"),
     NESTED_WITH_QUOTES(TestsConstants.TEST_INDEX_NESTED_WITH_QUOTES,
         "nestedType",
         getNestedTypeIndexMapping(),
@@ -599,7 +603,7 @@ public abstract class SQLIntegTestCase extends OpenSearchSQLRestTestCase {
         "src/test/resources/datasources.json"),
     MULTI_NESTED(TestsConstants.TEST_INDEX_MULTI_NESTED,
         "multi_nested",
-        getMappingFile("indexDefinitions/multi_nested.json"),
+        getMappingFile("multi_nested.json"),
         "src/test/resources/multi_nested_objects.json");
 
     private final String name;
