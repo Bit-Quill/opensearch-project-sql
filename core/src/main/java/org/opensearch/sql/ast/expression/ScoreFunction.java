@@ -9,12 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.opensearch.sql.ast.AbstractNodeVisitor;
-
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
+import org.opensearch.sql.ast.AbstractNodeVisitor;
 
 /**
  * Expression node of Highlight function.

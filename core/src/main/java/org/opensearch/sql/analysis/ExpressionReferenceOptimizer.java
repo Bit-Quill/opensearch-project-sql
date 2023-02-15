@@ -71,8 +71,12 @@ public class ExpressionReferenceOptimizer
       final List<Expression> args =
           node.getArguments().stream().map(expr -> expr.accept(this, context))
               .collect(Collectors.toList());
-      Expression optimizedFunctionExpression = (Expression) repository.compile(context.getFunctionProperties(),
-          node.getFunctionName(), args);
+      Expression optimizedFunctionExpression = (Expression) repository.compile(
+              context.getFunctionProperties(),
+              node.getFunctionName(),
+              args
+      );
+      // OpenSearch functions can request score_tracked
       if (optimizedFunctionExpression instanceof OpenSearchFunctions.OpenSearchFunction) {
         ((OpenSearchFunctions.OpenSearchFunction) optimizedFunctionExpression).setScoreTracked(
                 ((OpenSearchFunctions.OpenSearchFunction)node).isScoreTracked());

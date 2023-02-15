@@ -63,7 +63,6 @@ import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.NamedArgumentExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
-import org.opensearch.sql.expression.ScoreExpression;
 import org.opensearch.sql.expression.aggregation.AggregationState;
 import org.opensearch.sql.expression.aggregation.Aggregator;
 import org.opensearch.sql.expression.conditional.cases.CaseClause;
@@ -212,11 +211,20 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     return new HighlightExpression(expr);
   }
 
+  /**
+   * visitScoreFunction removes the score function from the AST and replaces it with the child
+   * relevance function node. If the optional boost variable is provided, the boost argument
+   * of the relevance function is combined.
+   * @param node    score function node
+   * @param context analysis context for the query
+   * @return resolved relevance function
+   */
   public Expression visitScoreFunction(ScoreFunction node, AnalysisContext context) {
     // if no function argument given, just accept the relevance query and return
     if (node.getFuncArgs().isEmpty() || !(node.getFuncArgs().get(0) instanceof Literal)) {
       OpenSearchFunctions.OpenSearchFunction relevanceQueryExpr =
-              (OpenSearchFunctions.OpenSearchFunction)node.getRelevanceQuery().accept(this, context);
+              (OpenSearchFunctions.OpenSearchFunction) node
+                      .getRelevanceQuery().accept(this, context);
       relevanceQueryExpr.setScoreTracked(true);
       return relevanceQueryExpr;
     }
@@ -269,7 +277,8 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
             relevanceQueryUnresolvedExpr.getFuncName(),
             updatedFuncArgs);
     OpenSearchFunctions.OpenSearchFunction relevanceQueryExpr =
-            (OpenSearchFunctions.OpenSearchFunction) updatedRelevanceQueryUnresolvedExpr.accept(this, context);
+            (OpenSearchFunctions.OpenSearchFunction) updatedRelevanceQueryUnresolvedExpr
+                    .accept(this, context);
     relevanceQueryExpr.setScoreTracked(true);
     return relevanceQueryExpr;
   }
