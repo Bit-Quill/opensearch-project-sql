@@ -76,7 +76,7 @@ public class ExpressionReferenceOptimizer
               node.getFunctionName(),
               args
       );
-      // OpenSearch functions can request score_tracked
+      // Propagate scoreTracked for OpenSearch functions
       if (optimizedFunctionExpression instanceof OpenSearchFunctions.OpenSearchFunction) {
         ((OpenSearchFunctions.OpenSearchFunction) optimizedFunctionExpression).setScoreTracked(
                 ((OpenSearchFunctions.OpenSearchFunction)node).isScoreTracked());

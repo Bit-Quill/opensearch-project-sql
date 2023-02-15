@@ -13,12 +13,14 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
+import org.opensearch.sql.data.type.ExprCoreType;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)
@@ -30,6 +32,21 @@ public class QualifiedName extends UnresolvedExpression {
   public QualifiedName(String name) {
     this(name, Boolean.FALSE);
   }
+
+  public static final String METADATA_FIELD_ID = "_id";
+  public static final String METADATA_FIELD_INDEX = "_index";
+  public static final String METADATA_FIELD_SCORE = "_score";
+  public static final String METADATA_FIELD_MAXSCORE = "_maxscore";
+  public static final String METADATA_FIELD_SORT = "_sort";
+  public static final java.util.Map<String, ExprCoreType> METADATAFIELD_TYPE_MAP = new HashMap<>(){
+    {
+      put(METADATA_FIELD_ID, ExprCoreType.STRING);
+      put(METADATA_FIELD_INDEX, ExprCoreType.STRING);
+      put(METADATA_FIELD_SCORE, ExprCoreType.FLOAT);
+      put(METADATA_FIELD_MAXSCORE, ExprCoreType.FLOAT);
+      put(METADATA_FIELD_SORT, ExprCoreType.LONG);
+    }
+  };
 
   public QualifiedName(String name, Boolean isMetadataField) {
     this.parts = Collections.singletonList(name);

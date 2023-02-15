@@ -332,6 +332,8 @@ REVERSE_NESTED:                     'REVERSE_NESTED';
 QUERY:                              'QUERY';
 RANGE:                              'RANGE';
 SCORE:                              'SCORE';
+SCOREQUERY:                         'SCOREQUERY';
+SCORE_QUERY:                        'SCORE_QUERY';
 SECOND_OF_MINUTE:                   'SECOND_OF_MINUTE';
 STATS:                              'STATS';
 TERM:                               'TERM';

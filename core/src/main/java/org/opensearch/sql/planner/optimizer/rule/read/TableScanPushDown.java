@@ -74,13 +74,6 @@ public class TableScanPushDown<T extends LogicalPlan> implements Rule<T> {
               scanBuilder()))
           .apply((highlight, scanBuilder) -> scanBuilder.pushDownHighlight(highlight));
 
-
-  public static final Rule<?> PUSH_DOWN_SCORE =
-      match(highlight(scanBuilder())).apply(
-              (highlight, scanBuilder) -> scanBuilder.pushDownHighlight(highlight)
-      );
-
-
   /** Pattern that matches a plan node. */
   private final WithPattern<T> pattern;
 

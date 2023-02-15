@@ -8,6 +8,7 @@ package org.opensearch.sql.analysis;
 
 import static org.opensearch.sql.ast.dsl.AstDSL.and;
 import static org.opensearch.sql.ast.dsl.AstDSL.compare;
+import static org.opensearch.sql.ast.expression.QualifiedName.METADATAFIELD_TYPE_MAP;
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.GTE;
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.LTE;
 
@@ -392,24 +393,17 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     return new NamedArgumentExpression(node.getArgName(), node.getValue().accept(this, context));
   }
 
+  /**
+   * If QualifiedName is actually a reserved metadata field, return the expr type associated
+   * with the metadata field
+   * @param ident   metadata field name
+   * @param context
+   * @return DSL reference
+   */
   private Expression visitMetadata(String ident, AnalysisContext context) {
-    ReferenceExpression ref;
-    switch (ident.toLowerCase()) {
-      case "_index":
-      case "_id":
-        ref = DSL.ref(ident, ExprCoreType.STRING);
-        break;
-      case "_score":
-      case "_maxscore":
-        ref = DSL.ref(ident, ExprCoreType.FLOAT);
-        break;
-      case "_sort":
-        ref = DSL.ref(ident, ExprCoreType.LONG);
-        break;
-      default:
-        throw new SemanticCheckException("invalid metadata field");
-    }
-    return ref;
+    ExprCoreType exprCoreType = Optional.ofNullable(METADATAFIELD_TYPE_MAP.get(ident))
+            .orElseThrow(() -> new SemanticCheckException("invalid metadata field"));
+    return DSL.ref(ident, exprCoreType);
   }
 
   private Expression visitIdentifier(String ident, AnalysisContext context) {
