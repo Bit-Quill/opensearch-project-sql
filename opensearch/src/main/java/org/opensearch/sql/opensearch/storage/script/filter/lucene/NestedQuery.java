@@ -15,8 +15,6 @@ import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 
-import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
-
 public class NestedQuery extends LuceneQuery {
   @Override
   protected QueryBuilder doBuild(FunctionExpression predicate, ReferenceExpression path) {

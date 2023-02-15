@@ -9,6 +9,8 @@ package org.opensearch.sql.opensearch.storage.script.filter.lucene;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.OPENSEARCH_TEXT_KEYWORD;
 
 import com.google.common.collect.ImmutableMap;
+
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -115,13 +117,23 @@ public abstract class LuceneQuery {
       QueryBuilder ret = doBuildNested(f, literalValue);
       accumulator.apply(boolQuery, ret);
     } else { // Syntax: 'WHERE nested(path, conditional)'
+      // TODO need good way to loop through predicates
       int conditionalParameterSize = ((FunctionExpression)func.getArguments().get(1)).getArguments().size();
-      QueryBuilder[] queries = new NestedQueryBuilder[conditionalParameterSize];
+      ArrayList<QueryBuilder> queries = new ArrayList<>();
       ReferenceExpression path = (ReferenceExpression)func.getArguments().get(0);
-      for (int i = 0; i < queries.length; i++) {
-        FunctionExpression expr = (FunctionExpression) ((FunctionExpression)func.getArguments().get(1)).getArguments().get(i);
-        queries[i] = doBuild(expr, path);
+
+      // Conditional with only one predicate.
+      if (((FunctionExpression)func.getArguments().get(1)).getArguments().get(0) instanceof ReferenceExpression
+          && ((FunctionExpression)func.getArguments().get(1)).getArguments().get(1) instanceof LiteralExpression) {
+        queries.add(doBuild((FunctionExpression)func.getArguments().get(1), path));
+      } else {
+        // Multiple predicates. Only enters if more than one predicate.
+        for (int i = 0; i < ((FunctionExpression)func.getArguments().get(1)).getArguments().size(); i++) {
+          FunctionExpression expr = (FunctionExpression) ((FunctionExpression)func.getArguments().get(1)).getArguments().get(i);
+          queries.add(doBuild(expr, path));
+        }
       }
+
       for (QueryBuilder query : queries) {
         accumulator.apply(boolQuery, query);
       }
