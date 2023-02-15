@@ -1203,8 +1203,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   private static Stream<Arguments> getTestDataForSecToTimeWithDecimal() {
     return Stream.of(
+        Arguments.of(1.123, "00:00:01.123"),
+        Arguments.of(1.00123, "00:00:01.00123"),
+        Arguments.of(1.001023, "00:00:01.001023"),
         Arguments.of(1.000000042, "00:00:01.000000042"),
-        Arguments.of(1.001023, "00:00:01.001023")
+        Arguments.of(3.14, "00:00:03.14")
     );
   }
 
