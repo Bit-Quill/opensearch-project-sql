@@ -5,11 +5,11 @@
 
 package org.opensearch.sql.ast.expression;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import java.util.List;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 
 /**
