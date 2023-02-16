@@ -7,6 +7,7 @@
 package org.opensearch.sql.expression.datetime;
 
 import static java.time.temporal.ChronoField.ALIGNED_WEEK_OF_YEAR;
+import static java.time.temporal.ChronoField.YEAR;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -718,28 +719,41 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         datetimeExpression.toString());
   }
 
-
-  @ParameterizedTest
-  @MethodSource("getDateTestDataForExtractFunction")
-  public void testExtractDatePartWithTimeType(String part) {
-    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
-    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+  private void datePartWithTimeArgQuery(String part, long expected) {
+    ExprTimeValue timeValue = new ExprTimeValue("10:11:12.123");
 
     FunctionExpression datetimeExpression = DSL.extract(
         functionProperties,
         DSL.literal(part),
-        DSL.literal(new ExprTimeValue("10:11:12.123")));
-
-    long expected = DateTimeFunction.formatExtractFunction(
-        new ExprStringValue(part),
-        new ExprDatetimeValue(
-            extractDateTime(
-                new ExprDateValue(LocalDate.now(functionProperties.getQueryStartClock())),
-                functionProperties)))
-        .longValue();
+        DSL.literal(timeValue));
 
     assertEquals(LONG, datetimeExpression.type());
-    assertEquals(expected, eval(datetimeExpression).longValue());
+    assertEquals(expected,
+        eval(datetimeExpression).longValue());
+  }
+
+
+  @Test
+  public void testExtractDatePartWithTimeType() {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
+
+    datePartWithTimeArgQuery(
+        "DAY",
+        LocalDate.now(functionProperties.getQueryStartClock()).getDayOfMonth());
+
+    datePartWithTimeArgQuery(
+        "WEEK",
+        LocalDate.now(functionProperties.getQueryStartClock()).get(ALIGNED_WEEK_OF_YEAR));
+
+    datePartWithTimeArgQuery(
+        "MONTH",
+        LocalDate.now(functionProperties.getQueryStartClock()).getMonthValue());
+
+    datePartWithTimeArgQuery(
+        "YEAR",
+        LocalDate.now(functionProperties.getQueryStartClock()).getYear());
   }
 
   @ParameterizedTest(name = "{0}")

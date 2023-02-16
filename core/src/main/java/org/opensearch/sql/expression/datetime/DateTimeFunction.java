@@ -1200,7 +1200,7 @@ public class DateTimeFunction {
     String partName = part.stringValue().toUpperCase();
     LocalDateTime arg = datetime.datetimeValue();
     String text = arg.format(DateTimeFormatter.ofPattern(
-        extract_formats.get(partName), Locale.ENGLISH));;
+        extract_formats.get(partName), Locale.ENGLISH));
 
     return new ExprLongValue(Long.parseLong(text));
   }
@@ -1212,7 +1212,6 @@ public class DateTimeFunction {
    * @param datetime The date/datetime to be formatted.
    * @return A LONG
    */
-
   private ExprValue exprExtract(ExprValue part, ExprValue datetime) {
     return formatExtractFunction(part, datetime);
   }
