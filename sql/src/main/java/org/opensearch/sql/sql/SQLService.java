@@ -67,6 +67,12 @@ public class SQLService {
       Optional<ResponseListener<ExplainResponse>> explainListener) {
     if (request.getCursor().isPresent()) {
       // Handle v2 cursor here -- legacy cursor was handled earlier.
+      if (queryListener.isEmpty() && explainListener.isPresent()) { // explain request
+        explainListener.get().onFailure(new UnsupportedOperationException(
+            "`explain` request for cursor requests is not supported. "
+            + "Use `explain` for the initial query request."));
+      }
+      // non-explain request
       return queryExecutionFactory.create(request.getCursor().get(), queryListener.get());
     } else {
       // 1.Parse query and convert parse tree (CST) to abstract syntax tree (AST)
