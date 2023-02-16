@@ -66,7 +66,9 @@ public class NestedFunctions {
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), STRUCT, STRUCT),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), ARRAY, ARRAY));
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), ARRAY, ARRAY),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), STRING, ARRAY));
   }
 
   private ExprValue nested_returns_val(ExprValue field) {

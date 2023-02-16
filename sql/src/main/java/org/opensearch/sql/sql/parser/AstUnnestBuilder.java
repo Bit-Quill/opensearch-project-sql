@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.sql.parser;
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,7 @@ import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParserBaseVisitor;
 import org.opensearch.sql.sql.parser.context.QuerySpecification;
 
 @RequiredArgsConstructor
-public class AstUnnestedBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedPlan> {
+public class AstUnnestBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedPlan> {
 
   /**
    * Query specification that contains info collected beforehand.
@@ -27,13 +26,13 @@ public class AstUnnestedBuilder extends OpenSearchSQLParserBaseVisitor<Unresolve
   public UnresolvedPlan visit(ParseTree selectClause) {
     for (UnresolvedExpression item : querySpec.getSelectItems()) {
       if (item instanceof Function && ((Function)item).getFuncName().equalsIgnoreCase("nested")) {
-        return buildUnnested(item);
+        return buildUnnest(item);
       }
     }
     return null;
   }
 
-  private UnresolvedPlan buildUnnested(UnresolvedExpression nestedFunction) {
+  private UnresolvedPlan buildUnnest(UnresolvedExpression nestedFunction) {
     return new Unnest(nestedFunction);
   }
 }

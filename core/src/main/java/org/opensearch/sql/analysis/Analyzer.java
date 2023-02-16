@@ -393,7 +393,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
    * Build {@link LogicalNested}.
    */
   @Override
-  public LogicalPlan visitUnnested(Unnest node, AnalysisContext context) {
+  public LogicalPlan visitUnnest(Unnest node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
     Expression expr = expressionAnalyzer.analyze(node.getExpression(), context);
     return new LogicalNested(child, expr);

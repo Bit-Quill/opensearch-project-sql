@@ -199,7 +199,7 @@ public abstract class AbstractNodeVisitor<T, C> {
     return visitChildren(node, context);
   }
 
-  public T visitUnnested(Unnest node, C context) {
+  public T visitUnnest(Unnest node, C context) {
     return visitChildren(node, context);
   }
 
