@@ -13,21 +13,21 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
-import org.opensearch.sql.ast.expression.UnresolvedExpression;
+import org.opensearch.sql.ast.expression.Function;
 
 /**
- * AST node represent Eval operation.
+ * AST node represent Unnest operation.
  */
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class Unnest extends UnresolvedPlan {
-  private final UnresolvedExpression expression;
+  private final Function nested;
   private UnresolvedPlan child;
 
-  public Unnest(UnresolvedExpression expression) {
-    this.expression = expression;
+  public Unnest(Function nested) {
+    this.nested = nested;
   }
 
   @Override

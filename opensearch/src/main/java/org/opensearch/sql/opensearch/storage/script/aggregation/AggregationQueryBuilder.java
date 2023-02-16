@@ -25,22 +25,18 @@ import org.opensearch.search.aggregations.AggregatorFactories;
 import org.opensearch.search.aggregations.bucket.missing.MissingOrder;
 import org.opensearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.opensearch.search.sort.SortOrder;
-import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.Field;
-import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.ast.tree.Sort;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionNodeVisitor;
-import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.aggregation.NamedAggregator;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.response.agg.CompositeAggregationParser;
 import org.opensearch.sql.opensearch.response.agg.MetricParser;
-import org.opensearch.sql.opensearch.response.agg.NestedAggregationParser;
 import org.opensearch.sql.opensearch.response.agg.NoBucketAggregationParser;
 import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseParser;
 import org.opensearch.sql.opensearch.storage.script.aggregation.dsl.BucketAggregationBuilder;
@@ -94,23 +90,6 @@ public class AggregationQueryBuilder extends ExpressionNodeVisitor<AggregationBu
       return Pair.of(
           ImmutableList.copyOf(metrics.getLeft().getAggregatorFactories()),
           new NoBucketAggregationParser(metrics.getRight()));
-    } else if(groupByList.get(0) instanceof NamedExpression) {
-      // Placeholder for POC, only works with query 'SELECT COUNT(*) FROM nested_objects GROUP BY nested(message.info);'
-      // need to make nested aggregation work alongside current 'composite-buckets' aggregations.
-      String nestedName = ((FunctionExpression)groupByList.get(0).getDelegated()).getArguments().get(0).toString();
-      String nestedPath = ((ReferenceExpression)((FunctionExpression)groupByList.get(0).getDelegated()).getArguments().get(0)).getPaths().get(0);
-      AggregationBuilder lastAgg = makeGroupAgg(AstDSL.field(nestedName));
-      ((TermsAggregationBuilder) lastAgg).size(200);
-      AggregationBuilder nestedBuilder = AggregationBuilders.nested(getNestedAggName(nestedName), nestedPath);
-      metrics.getLeft().getAggregatorFactories().stream().forEach(e -> lastAgg.subAggregation(e));
-      nestedBuilder.subAggregation(lastAgg);
-
-      Pair<List<AggregationBuilder>, OpenSearchAggregationResponseParser> ret =
-          Pair.of(
-              List.of(nestedBuilder),
-              new NestedAggregationParser(metrics.getRight()));
-
-      return ret;
     } else {
       GroupSortOrder groupSortOrder = new GroupSortOrder(sortList);
       return Pair.of(

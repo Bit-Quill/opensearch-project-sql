@@ -26,13 +26,13 @@ public class AstUnnestBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedP
   public UnresolvedPlan visit(ParseTree selectClause) {
     for (UnresolvedExpression item : querySpec.getSelectItems()) {
       if (item instanceof Function && ((Function)item).getFuncName().equalsIgnoreCase("nested")) {
-        return buildUnnest(item);
+        return buildUnnest((Function)item);
       }
     }
     return null;
   }
 
-  private UnresolvedPlan buildUnnest(UnresolvedExpression nestedFunction) {
+  private UnresolvedPlan buildUnnest(Function nestedFunction) {
     return new Unnest(nestedFunction);
   }
 }

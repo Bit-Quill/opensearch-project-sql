@@ -7,11 +7,14 @@
 package org.opensearch.sql.expression.nested;
 
 import lombok.experimental.UtilityClass;
+import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.DefaultFunctionResolver;
 import org.opensearch.sql.expression.function.FunctionDSL;
+
+import java.util.List;
 
 import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
 import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
@@ -38,40 +41,51 @@ public class NestedFunctions {
   private static DefaultFunctionResolver nested() {
     return FunctionDSL.define(BuiltinFunctionName.NESTED.getName(),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), BYTE, BYTE),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), BYTE, BYTE),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), SHORT, SHORT),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), SHORT, SHORT),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), INTEGER, INTEGER),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), INTEGER, INTEGER),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), LONG, LONG),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), LONG, LONG),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), FLOAT, FLOAT),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), FLOAT, FLOAT),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), DOUBLE, DOUBLE),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), DOUBLE, DOUBLE),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), STRING, STRING),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), STRING, STRING),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), BOOLEAN, BOOLEAN),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), BOOLEAN, BOOLEAN),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), DATE, DATE),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), DATE, DATE),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), TIME, TIME),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), TIME, TIME),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), DATETIME, DATETIME),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), DATETIME, DATETIME),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), TIMESTAMP, TIMESTAMP),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), TIMESTAMP, TIMESTAMP),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), INTERVAL, INTERVAL),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), INTERVAL, INTERVAL),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), STRUCT, STRUCT),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), STRUCT, STRUCT),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), ARRAY, ARRAY),
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), ARRAY, ARRAY),
         FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(NestedFunctions::nested_returns_val), STRING, ARRAY));
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_single_param), STRING, ARRAY),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_double_param), STRING, STRING, ARRAY),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(NestedFunctions::nested_double_param), STRING, STRING, STRUCT)); // TODO test this with data
   }
 
-  private ExprValue nested_returns_val(ExprValue field) {
+  // impl(return type, field type, path type)
+
+  private ExprValue nested_single_param(ExprValue field) {
+    return field;
+  }
+
+  private ExprValue nested_double_param(ExprValue field, ExprValue path) {
+    // We only care about the field returned.
     return field;
   }
 }
