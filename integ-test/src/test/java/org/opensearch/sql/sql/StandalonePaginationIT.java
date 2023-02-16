@@ -22,6 +22,7 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.opensearch.client.Request;
 import org.opensearch.client.Response;
+import org.opensearch.client.ResponseException;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.common.inject.Injector;
 import org.opensearch.common.inject.ModulesBuilder;
@@ -133,6 +134,7 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
     // act 3: confirm that there's no cursor.
   }
 
+  // Test takes 3+ min due to a big amount of requests issued
   @Test
   @SneakyThrows
   public void test_pagination_blackbox() {
@@ -171,6 +173,25 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
             rows.similar(rowsPaged));
       }
     }
+  }
+
+  @Test
+  @SneakyThrows
+  public void test_explain_not_supported() {
+    var request = new Request("POST", "_plugins/_sql/_explain");
+    // Request should be rejected before index names are resolved
+    request.setJsonEntity("{ \"query\": \"select * from something\", \"fetch_size\": 10 }");
+    var exception = assertThrows(ResponseException.class, () -> client().performRequest(request));
+    var response = new JSONObject(new String(exception.getResponse().getEntity().getContent().readAllBytes()));
+    assertEquals("`explain` feature for paginated requests is not implemented yet.",
+        response.getJSONObject("error").getString("details"));
+
+    // Request should be rejected before cursor parsed
+    request.setJsonEntity("{ \"cursor\" : \"n:0000\" }");
+    exception = assertThrows(ResponseException.class, () -> client().performRequest(request));
+    response = new JSONObject(new String(exception.getResponse().getEntity().getContent().readAllBytes()));
+    assertEquals("`explain` request for cursor requests is not supported. Use `explain` for the initial query request.",
+        response.getJSONObject("error").getString("details"));
   }
 
   private Settings defaultSettings() {
