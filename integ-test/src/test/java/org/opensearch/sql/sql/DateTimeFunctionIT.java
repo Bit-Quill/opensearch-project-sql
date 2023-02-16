@@ -818,6 +818,29 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
+  public void testStrToDate() throws IOException {
+    JSONObject result = executeQuery(String.format(
+        "SELECT str_to_date(CAST(datetime0 AS STRING), \"'%d,%m,%Y'\") FROM %s LIMIT 3",
+        TEST_INDEX_CALCS));
+//    verifySchema(result,
+//        schema("subdate(date('2020-09-16'), 1)", null, "date"));
+    verifyDataRows(result,
+        rows("2004-07-09"),
+        rows("2004-07-26"),
+        rows("2004-08-02"));
+
+    result = executeQuery(String.format(
+        "SELECT str_to_date(CAST(datetime0 AS STRING), \"'%h:%i:%s'\") FROM %s LIMIT 3",
+        TEST_INDEX_CALCS));
+//    verifySchema(result,
+//        schema("subdate(date('2020-09-16'), 1)", null, "date"));
+    verifyDataRows(result,
+        rows("10:17:35"),
+        rows("12:30:34"),
+        rows("07:59:23"));
+  }
+
+  @Test
   public void testSubDateWithDays() throws IOException {
     var result =
         executeQuery("select subdate(date('2020-09-16'), 1)");

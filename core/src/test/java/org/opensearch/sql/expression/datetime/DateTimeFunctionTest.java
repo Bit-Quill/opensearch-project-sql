@@ -1411,6 +1411,71 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     );
   }
 
+  private static Stream<Arguments> getTestDataForStrToDate() {
+    return Stream.of(
+        Arguments.of(
+            "01,5,2013",
+            "%d,%m,%Y",
+            new ExprDatetimeValue("2013-05-01"),
+            DATETIME),
+        Arguments.of(
+            "May 1, 2013",
+            "%M %d,%Y",
+            new ExprDatetimeValue("2013-05-01"),
+            DATETIME),
+        Arguments.of(
+            "a09:30:17",
+            "a%h:%i:%s",
+            new ExprTimeValue("09:30:17"),
+            DATETIME),
+        Arguments.of(
+            "a09:30:17",
+            "%h:%i:%s",
+            ExprNullValue.of(),
+            nullValue()),
+        Arguments.of(
+            "09:30:17a",
+            "%h:%i:%s",
+            new ExprTimeValue("09:30:17"),
+            DATETIME),
+        Arguments.of(
+            "abc",
+            "abc",
+            new ExprDateValue("0000-00-00"),
+            DATE),
+        Arguments.of(
+            "9",
+            "%m",
+            new ExprDateValue("0000-09-00"),
+            DATE),
+        Arguments.of(
+            "9",
+            "%s",
+            new ExprTimeValue("00:00:09"),
+            TIME)
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("getTestDataForStrToDate")
+  public void test_str_to_date_with_datetime(
+      String datetime,
+      String format,
+      ExprValue expectedResult,
+      ExprCoreType expectedType) {
+
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
+    FunctionExpression expression = DSL.str_to_date(
+        DSL.literal(new ExprStringValue(datetime)),
+        DSL.literal(new ExprStringValue(format)));
+
+    assertEquals(expectedType, expression.type());
+    assertEquals(expectedResult, eval(expression));
+  }
+
+
 
   @Test
   public void time_to_sec() {
