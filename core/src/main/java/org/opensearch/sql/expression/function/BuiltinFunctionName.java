@@ -186,6 +186,7 @@ public enum BuiltinFunctionName {
   STDDEV_POP(FunctionName.of("stddev_pop")),
   // take top documents from aggregation bucket.
   TAKE(FunctionName.of("take")),
+  // Not always an aggregation query
   NESTED(FunctionName.of("nested")),
 
   /**

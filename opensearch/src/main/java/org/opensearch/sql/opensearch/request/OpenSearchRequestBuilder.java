@@ -15,8 +15,6 @@ import static org.opensearch.index.query.QueryBuilders.nestedQuery;
 import static org.opensearch.search.sort.FieldSortBuilder.DOC_FIELD_NAME;
 import static org.opensearch.search.sort.SortOrder.ASC;
 
-import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,7 +41,6 @@ import org.opensearch.search.aggregations.AggregationBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.opensearch.search.fetch.subphase.FetchSourceContext;
 import org.opensearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.opensearch.search.sort.FieldSortBuilder;
 import org.opensearch.search.sort.SortBuilder;
 import org.opensearch.search.sort.SortBuilders;
 import org.opensearch.sql.ast.expression.Field;
@@ -152,7 +149,7 @@ public class OpenSearchRequestBuilder {
       if (isBoolFilterQuery(current)) {
         ((BoolQueryBuilder) current).filter(query);
       } else {
-        sourceBuilder.query(boolQuery()
+        sourceBuilder.query(QueryBuilders.boolQuery()
             .filter(current)
             .filter(query));
       }
@@ -258,7 +255,6 @@ public class OpenSearchRequestBuilder {
   }
 
   public void pushDownNested(String field) {
-    //TODO if(is Nested) create field with nested boolean member variable?
     project(List.of(new Field(new QualifiedName(field))));
   }
 

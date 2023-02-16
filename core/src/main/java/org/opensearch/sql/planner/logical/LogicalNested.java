@@ -22,12 +22,12 @@ import org.opensearch.sql.expression.ReferenceExpression;
 @Getter
 @ToString
 public class LogicalNested extends LogicalPlan {
-  private final Expression field;
+  private final FunctionExpression field; //TODO finish me
 
   /**
    * Constructor of LogicalNested.
    */
-  public LogicalNested(LogicalPlan childPlan, Expression field) {
+  public LogicalNested(LogicalPlan childPlan, FunctionExpression field) {
     super(Collections.singletonList(childPlan));
     this.field = field;
   }
@@ -37,8 +37,13 @@ public class LogicalNested extends LogicalPlan {
     return visitor.visitUnnest(this, context);
   }
 
+  public String getNestedFieldString() {
+    // TODO Update member variables to field, path, condition?
+    return this.field.getArguments().get(0).toString();
+  }
+
   @Override
   public String toString() {
-    return ((FunctionExpression)this.field).getArguments().get(0).toString();
-  }
+    return this.field.getArguments().get(0).toString();
+  } // TODO fixme can we delete this?
 }
