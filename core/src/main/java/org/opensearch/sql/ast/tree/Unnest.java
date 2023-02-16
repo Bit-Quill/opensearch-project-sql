@@ -43,6 +43,6 @@ public class Unnest extends UnresolvedPlan {
 
   @Override
   public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-    return nodeVisitor.visitUnnested(this, context);
+    return nodeVisitor.visitUnnest(this, context);
   }
 }

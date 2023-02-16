@@ -69,6 +69,8 @@ import static org.opensearch.sql.sql.parser.ParserUtils.createSortOption;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -156,7 +158,17 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitNestedFunctionCall(NestedFunctionCallContext ctx) {
-    return buildNestedFunction(NESTED.getName().getFunctionName(), List.of(ctx.nestedFunction().nestedField().getText()));
+    List<UnresolvedExpression> args = new ArrayList();
+    if (ctx.nestedFunction().nestedField() != null) {
+      args.add(new QualifiedName(ctx.nestedFunction().nestedField().getText()));
+    }
+    if (ctx.nestedFunction().nestedPath() != null) {
+      args.add(new QualifiedName(ctx.nestedFunction().nestedPath().getText()));
+    }
+    if (ctx.nestedFunction().expression() != null) {
+      args.add(visit(ctx.nestedFunction().expression()));
+    }
+    return new Function(NESTED.getName().getFunctionName(), args);
   }
 
   @Override
