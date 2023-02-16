@@ -639,6 +639,141 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
     );
   }
 
+  @Test void score_function_expression() {
+    assertAnalyzeEqual(
+            DSL.score(
+                    DSL.namedArgument("RelevanceQuery",
+                            DSL.match_phrase_prefix(
+                                    DSL.namedArgument("field", "field_value1"),
+                                    DSL.namedArgument("query", "search query"),
+                                    DSL.namedArgument("slop", "3")
+                            )
+                    )),
+            AstDSL.function("score",
+                    unresolvedArg("RelevanceQuery",
+                            AstDSL.function("match_phrase_prefix",
+                                    unresolvedArg("field", stringLiteral("field_value1")),
+                                    unresolvedArg("query", stringLiteral("search query")),
+                                    unresolvedArg("slop", stringLiteral("3"))
+                            )
+                    )
+            )
+    );
+  }
+
+  @Test void score_function_with_boost() {
+    assertAnalyzeEqual(
+            DSL.score(
+                    DSL.namedArgument("RelevanceQuery",
+                            DSL.match_phrase_prefix(
+                                    DSL.namedArgument("field", "field_value1"),
+                                    DSL.namedArgument("query", "search query"),
+                                    DSL.namedArgument("boost", "3.0")
+                            )),
+                    DSL.namedArgument("boost", "2.0")
+                    ),
+            AstDSL.function("score",
+                    unresolvedArg("RelevanceQuery",
+                            AstDSL.function("match_phrase_prefix",
+                                    unresolvedArg("field", stringLiteral("field_value1")),
+                                    unresolvedArg("query", stringLiteral("search query")),
+                                    unresolvedArg("boost", stringLiteral("3.0"))
+                            )
+                    ),
+                    unresolvedArg("boost", stringLiteral("2.0"))
+            )
+    );
+  }
+
+  @Test void score_query_function_expression() {
+    assertAnalyzeEqual(
+            DSL.score_query(
+                    DSL.namedArgument("RelevanceQuery",
+                            DSL.wildcard_query(
+                                    DSL.namedArgument("field", "field_value1"),
+                                    DSL.namedArgument("query", "search query")
+                            )
+                    )),
+            AstDSL.function("score_query",
+                    unresolvedArg("RelevanceQuery",
+                            AstDSL.function("wildcard_query",
+                                    unresolvedArg("field", stringLiteral("field_value1")),
+                                    unresolvedArg("query", stringLiteral("search query"))
+                            )
+                    )
+            )
+    );
+  }
+
+  @Test void score_query_function_with_boost() {
+    assertAnalyzeEqual(
+            DSL.score_query(
+                    DSL.namedArgument("RelevanceQuery",
+                            DSL.wildcard_query(
+                                    DSL.namedArgument("field", "field_value1"),
+                                    DSL.namedArgument("query", "search query")
+                            )
+                    ),
+                    DSL.namedArgument("boost", "2.0")
+            ),
+            AstDSL.function("score_query",
+                    unresolvedArg("RelevanceQuery",
+                            AstDSL.function("wildcard_query",
+                                    unresolvedArg("field", stringLiteral("field_value1")),
+                                    unresolvedArg("query", stringLiteral("search query"))
+                            )
+                    ),
+                    unresolvedArg("boost", stringLiteral("2.0"))
+            )
+    );
+  }
+
+  @Test void scorequery_function_expression() {
+    assertAnalyzeEqual(
+            DSL.scorequery(
+                    DSL.namedArgument("RelevanceQuery",
+                            DSL.simple_query_string(
+                                    DSL.namedArgument("field", "field_value1"),
+                                    DSL.namedArgument("query", "search query"),
+                                    DSL.namedArgument("slop", "3")
+                            )
+                    )),
+            AstDSL.function("scorequery",
+                    unresolvedArg("RelevanceQuery",
+                            AstDSL.function("simple_query_string",
+                                    unresolvedArg("field", stringLiteral("field_value1")),
+                                    unresolvedArg("query", stringLiteral("search query")),
+                                    unresolvedArg("slop", stringLiteral("3"))
+                            )
+                    )
+            )
+    );
+  }
+
+  @Test void scorequery_function_with_boost() {
+    assertAnalyzeEqual(
+            DSL.scorequery(
+                    DSL.namedArgument("RelevanceQuery",
+                            DSL.simple_query_string(
+                                    DSL.namedArgument("field", "field_value1"),
+                                    DSL.namedArgument("query", "search query"),
+                                    DSL.namedArgument("slop", "3")
+                            )),
+                    DSL.namedArgument("boost", "2.0")
+                    ),
+            AstDSL.function("scorequery",
+                    unresolvedArg("RelevanceQuery",
+                            AstDSL.function("simple_query_string",
+                                    unresolvedArg("field", stringLiteral("field_value1")),
+                                    unresolvedArg("query", stringLiteral("search query")),
+                                    unresolvedArg("slop", stringLiteral("3"))
+                            )
+                    ),
+                    unresolvedArg("boost", stringLiteral("2.0"))
+            )
+    );
+  }
+
   @Test
   public void function_isnt_calculated_on_analyze() {
     assertTrue(analyze(function("now")) instanceof FunctionExpression);

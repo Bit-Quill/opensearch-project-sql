@@ -104,12 +104,15 @@ class OpenSearchIndexScanQueryBuilder extends TableScanBuilder {
   }
 
   private boolean trackScoresFromOpenSearchFunction(Expression condition) {
-    if (condition instanceof OpenSearchFunctions.OpenSearchFunction) {
-      return ((OpenSearchFunctions.OpenSearchFunction) condition).isScoreTracked();
+    if (condition instanceof OpenSearchFunctions.OpenSearchFunction &&
+            ((OpenSearchFunctions.OpenSearchFunction) condition).isScoreTracked()) {
+      return true;
     }
     if (condition instanceof FunctionExpression) {
       for(Expression expr: ((FunctionExpression) condition).getArguments()) {
-        return trackScoresFromOpenSearchFunction(expr);
+        if (trackScoresFromOpenSearchFunction(expr)) {
+          return true;
+        }
       }
     }
     return false;

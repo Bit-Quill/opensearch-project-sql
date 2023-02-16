@@ -38,7 +38,7 @@ public class QualifiedName extends UnresolvedExpression {
   public static final String METADATA_FIELD_SCORE = "_score";
   public static final String METADATA_FIELD_MAXSCORE = "_maxscore";
   public static final String METADATA_FIELD_SORT = "_sort";
-  public static final java.util.Map<String, ExprCoreType> METADATAFIELD_TYPE_MAP = new HashMap<>(){
+  public static final java.util.Map<String, ExprCoreType> METADATAFIELD_TYPE_MAP = new HashMap<>() {
     {
       put(METADATA_FIELD_ID, ExprCoreType.STRING);
       put(METADATA_FIELD_INDEX, ExprCoreType.STRING);

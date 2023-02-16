@@ -232,11 +232,15 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
     // note: if an argument exists, and there should only be one, it will be a boost argument
     Literal boostFunctionArg = (Literal) node.getFuncArgs().get(0);
-    if (!boostFunctionArg.getType().equals(DataType.DOUBLE)) {
+    Double thisBoostValue = 1.0;
+    if (boostFunctionArg.getType().equals(DataType.DOUBLE)) {
+      thisBoostValue = ((Double) boostFunctionArg.getValue());
+    } else if (boostFunctionArg.getType().equals(DataType.DOUBLE)) {
+      thisBoostValue = ((Integer) boostFunctionArg.getValue()).doubleValue();
+    } else {
       throw new SemanticCheckException(String.format("Expected boost type '%s' but got '%s'",
               boostFunctionArg.getType().name(), DataType.DOUBLE.name()));
     }
-    Double thisBoostValue = ((Double) ((Literal) node.getFuncArgs().get(0)).getValue());
 
     // update the existing unresolved expression to add a boost argument if it doesn't exist
     // OR multiply the existing boost argument
@@ -395,9 +399,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   /**
    * If QualifiedName is actually a reserved metadata field, return the expr type associated
-   * with the metadata field
+   * with the metadata field.
    * @param ident   metadata field name
-   * @param context
+   * @param context analysis context
    * @return DSL reference
    */
   private Expression visitMetadata(String ident, AnalysisContext context) {

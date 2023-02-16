@@ -109,7 +109,7 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
                 builder.put("_score", new ExprFloatValue(hit.getScore()));
             }
             if (!Float.isNaN(maxScore)) {
-                builder.put("_maxscore", new ExprLongValue(maxScore));
+                builder.put("_maxscore", new ExprFloatValue(maxScore));
             }
             builder.put("_sort", new ExprLongValue(hit.getSeqNo()));
 
