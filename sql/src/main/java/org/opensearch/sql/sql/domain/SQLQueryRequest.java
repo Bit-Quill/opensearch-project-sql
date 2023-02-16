@@ -65,11 +65,12 @@ public class SQLQueryRequest {
   private boolean sanitize = true;
 
   private String cursor = "";
+
   /**
    * Constructor of SQLQueryRequest that passes request params.
    */
-  public SQLQueryRequest(
-      JSONObject jsonContent, String query, String path, Map<String, String> params, String cursor) {
+  public SQLQueryRequest(JSONObject jsonContent, String query, String path,
+                         Map<String, String> params, String cursor) {
     this.jsonContent = jsonContent;
     this.query = query;
     this.path = path;
@@ -77,7 +78,7 @@ public class SQLQueryRequest {
     this.format = getFormat(params);
     this.sanitize = shouldSanitize(params);
     // TODO hack
-    this.cursor = cursor == null? "" : cursor;
+    this.cursor = cursor == null ? "" : cursor;
   }
 
   /**

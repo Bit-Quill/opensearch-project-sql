@@ -17,8 +17,8 @@ import org.opensearch.search.aggregations.bucket.missing.MissingOrder;
 import org.opensearch.search.sort.SortOrder;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.expression.NamedExpression;
-import org.opensearch.sql.expression.span.SpanExpression;
 import org.opensearch.sql.expression.serialization.ExpressionSerializer;
+import org.opensearch.sql.expression.span.SpanExpression;
 
 /**
  * Bucket Aggregation Builder.

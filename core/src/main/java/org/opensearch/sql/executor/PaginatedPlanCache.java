@@ -57,10 +57,15 @@ public class PaginatedPlanCache {
     }
   }
 
+  /**
+   * Compress serialized query plan.
+   * @param str string representing a query plan
+   * @return str compressed with gzip.
+   */
   @SneakyThrows
   public static String compress(String str) {
     if (str == null || str.length() == 0) {
-        return null;
+      return null;
     }
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -70,10 +75,15 @@ public class PaginatedPlanCache {
     return HashCode.fromBytes(out.toByteArray()).toString();
   }
 
+  /**
+   * Decompresses a query plan that was compress with {@link PaginatedPlanCache.compress}.
+   * @param input compressed query plan
+   * @return seria
+   */
   @SneakyThrows
   public static String decompress(String input) {
     if (input == null || input.length() == 0) {
-        return null;
+      return null;
     }
     GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(
         HashCode.fromString(input).asBytes()));
@@ -111,10 +121,10 @@ public class PaginatedPlanCache {
           throw new UnsupportedOperationException("Unsupported cursor");
         }
         cursor = cursor.substring(cursor.indexOf(',') + 1);
-        int currentPageIndex = Integer.parseInt(cursor, 0, cursor.indexOf(','), 10);
+        final int currentPageIndex = Integer.parseInt(cursor, 0, cursor.indexOf(','), 10);
 
         cursor = cursor.substring(cursor.indexOf(',') + 1);
-        int pageSize = Integer.parseInt(cursor, 0, cursor.indexOf(','), 10);
+        final int pageSize = Integer.parseInt(cursor, 0, cursor.indexOf(','), 10);
 
         cursor = cursor.substring(cursor.indexOf(',') + 1);
         if (!cursor.startsWith("(Project,")) {
