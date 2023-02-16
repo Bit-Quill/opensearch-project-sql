@@ -490,14 +490,18 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Test
   public void testExtractWithDatetime() throws IOException {
     JSONObject datetimeResult = executeQuery(
-        String.format("SELECT extract(DAY_SECOND FROM datetime0) FROM %s LIMIT 1", TEST_INDEX_CALCS));
+        String.format(
+            "SELECT extract(DAY_SECOND FROM datetime(cast(datetime0 AS STRING))) FROM %s LIMIT 1",
+            TEST_INDEX_CALCS));
     verifyDataRows(datetimeResult, rows(9101735));
   }
 
   @Test
   public void testExtractWithTime() throws IOException {
     JSONObject timeResult = executeQuery(
-        String.format("SELECT extract(HOUR_SECOND FROM time0) FROM %s LIMIT 1", TEST_INDEX_CALCS));
+        String.format(
+            "SELECT extract(HOUR_SECOND FROM cast(time0 AS TIME)) FROM %s LIMIT 1",
+            TEST_INDEX_CALCS));
     verifyDataRows(timeResult, rows(210732));
 
   }
@@ -505,7 +509,9 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Test
   public void testExtractWithDate() throws IOException {
     JSONObject dateResult  = executeQuery(
-        String.format("SELECT extract(YEAR_MONTH FROM date0) FROM %s LIMIT 1", TEST_INDEX_CALCS));
+        String.format(
+            "SELECT extract(YEAR_MONTH FROM cast(date0 AS DATE)) FROM %s LIMIT 1",
+            TEST_INDEX_CALCS));
     verifyDataRows(dateResult, rows(200404));
   }
 
