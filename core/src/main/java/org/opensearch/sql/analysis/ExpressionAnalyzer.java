@@ -235,7 +235,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     Double thisBoostValue = 1.0;
     if (boostFunctionArg.getType().equals(DataType.DOUBLE)) {
       thisBoostValue = ((Double) boostFunctionArg.getValue());
-    } else if (boostFunctionArg.getType().equals(DataType.DOUBLE)) {
+    } else if (boostFunctionArg.getType().equals(DataType.INTEGER)) {
       thisBoostValue = ((Integer) boostFunctionArg.getValue()).doubleValue();
     } else {
       throw new SemanticCheckException(String.format("Expected boost type '%s' but got '%s'",

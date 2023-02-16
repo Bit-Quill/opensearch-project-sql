@@ -670,7 +670,7 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
                                     DSL.namedArgument("query", "search query"),
                                     DSL.namedArgument("boost", "3.0")
                             )),
-                    DSL.namedArgument("boost", "2.0")
+                    DSL.namedArgument("boost", "2")
                     ),
             AstDSL.function("score",
                     unresolvedArg("RelevanceQuery",
@@ -680,7 +680,7 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
                                     unresolvedArg("boost", stringLiteral("3.0"))
                             )
                     ),
-                    unresolvedArg("boost", stringLiteral("2.0"))
+                    unresolvedArg("boost", stringLiteral("2"))
             )
     );
   }

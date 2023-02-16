@@ -71,17 +71,22 @@ import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.ParseMethod;
+import org.opensearch.sql.ast.expression.ScoreFunction;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.ast.tree.AD;
 import org.opensearch.sql.ast.tree.Kmeans;
 import org.opensearch.sql.ast.tree.ML;
 import org.opensearch.sql.ast.tree.RareTopN.CommandType;
+import org.opensearch.sql.ast.tree.UnresolvedPlan;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.HighlightExpression;
+import org.opensearch.sql.expression.function.OpenSearchFunctions;
 import org.opensearch.sql.expression.window.WindowDefinition;
 import org.opensearch.sql.planner.logical.LogicalAD;
+import org.opensearch.sql.planner.logical.LogicalFilter;
 import org.opensearch.sql.planner.logical.LogicalMLCommons;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.logical.LogicalPlanDSL;
@@ -212,6 +217,114 @@ class AnalyzerTest extends AnalyzerTestBase {
         AstDSL.filter(
             AstDSL.relation(Arrays.asList("test.1", "test.2")),
             AstDSL.equalTo(AstDSL.field("integer_value"), AstDSL.intLiteral(1))));
+  }
+
+  @Test
+  public void analyze_filter_visit_score_function() {
+    UnresolvedPlan unresolvedPlan = AstDSL.filter(
+        AstDSL.relation("schema"),
+        new ScoreFunction(
+            AstDSL.function("match_phrase_prefix",
+                AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
+                AstDSL.unresolvedArg("query", stringLiteral("search query")),
+                AstDSL.unresolvedArg("boost", stringLiteral("3"))
+            ), List.of())
+    );
+    assertAnalyzeEqual(
+        LogicalPlanDSL.filter(
+            LogicalPlanDSL.relation("schema", table),
+            DSL.match_phrase_prefix(
+                DSL.namedArgument("field", "field_value1"),
+                DSL.namedArgument("query", "search query"),
+                DSL.namedArgument("boost", "3")
+            )
+        ),
+        unresolvedPlan
+    );
+
+    LogicalPlan logicalPlan = analyze(unresolvedPlan);
+    OpenSearchFunctions.OpenSearchFunction relevanceQuery = (OpenSearchFunctions.OpenSearchFunction)((LogicalFilter) logicalPlan).getCondition();
+    assertEquals(true, relevanceQuery.isScoreTracked());
+  }
+
+  @Test
+  public void analyze_filter_visit_score_function_with_double_boost() {
+    UnresolvedPlan unresolvedPlan = AstDSL.filter(
+        AstDSL.relation("schema"),
+        new ScoreFunction(
+            AstDSL.function("match_phrase_prefix",
+                AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
+                AstDSL.unresolvedArg("query", stringLiteral("search query")),
+                AstDSL.unresolvedArg("slop", stringLiteral("3"))
+            ), List.of(new Literal(3.0, DataType.DOUBLE))
+        )
+    );
+
+    assertAnalyzeEqual(
+        LogicalPlanDSL.filter(
+            LogicalPlanDSL.relation("schema", table),
+            DSL.match_phrase_prefix(
+                DSL.namedArgument("field", "field_value1"),
+                DSL.namedArgument("query", "search query"),
+                DSL.namedArgument("slop", "3"),
+                DSL.namedArgument("boost", "3.0")
+            )
+        ),
+        unresolvedPlan
+    );
+
+    LogicalPlan logicalPlan = analyze(unresolvedPlan);
+    OpenSearchFunctions.OpenSearchFunction relevanceQuery = (OpenSearchFunctions.OpenSearchFunction)((LogicalFilter) logicalPlan).getCondition();
+    assertEquals(true, relevanceQuery.isScoreTracked());
+  }
+
+  @Test
+  public void analyze_filter_visit_score_function_with_integer_boost() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.filter(
+            LogicalPlanDSL.relation("schema", table),
+            DSL.match_phrase_prefix(
+                DSL.namedArgument("field", "field_value1"),
+                DSL.namedArgument("query", "search query"),
+                DSL.namedArgument("boost", "9.0")
+            )
+        ),
+        AstDSL.filter(
+            AstDSL.relation("schema"),
+            new ScoreFunction(
+                AstDSL.function("match_phrase_prefix",
+                    AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
+                    AstDSL.unresolvedArg("query", stringLiteral("search query")),
+                    AstDSL.unresolvedArg("boost", stringLiteral("3"))
+                ), List.of(new Literal(3, DataType.INTEGER))
+            )
+        )
+    );
+  }
+
+  @Test
+  public void analyze_filter_visit_score_function_with() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.filter(
+            LogicalPlanDSL.relation("schema", table),
+            DSL.match_phrase_prefix(
+                DSL.namedArgument("field", "field_value1"),
+                DSL.namedArgument("query", "search query"),
+                DSL.namedArgument("slop", "3"),
+                DSL.namedArgument("boost", "3.0")
+            )
+        ),
+        AstDSL.filter(
+            AstDSL.relation("schema"),
+            new ScoreFunction(
+                AstDSL.function("match_phrase_prefix",
+                    AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
+                    AstDSL.unresolvedArg("query", stringLiteral("search query")),
+                    AstDSL.unresolvedArg("slop", stringLiteral("3"))
+                ), List.of(new Literal(3, DataType.INTEGER))
+            )
+        )
+    );
   }
 
   @Test
