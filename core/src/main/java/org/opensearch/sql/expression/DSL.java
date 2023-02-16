@@ -7,6 +7,8 @@
 package org.opensearch.sql.expression;
 
 import java.util.Arrays;
+
+import org.apache.commons.math3.analysis.function.Exp;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.data.model.ExprShortValue;
 import org.opensearch.sql.data.model.ExprValue;
@@ -459,6 +461,10 @@ public class DSL {
 
   public static FunctionExpression module(Expression... expressions) {
     return compile(FunctionProperties.None, BuiltinFunctionName.MODULES, expressions);
+  }
+
+  public static FunctionExpression str_to_date(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.STR_TO_DATE, expressions);
   }
 
   public static FunctionExpression substr(Expression... expressions) {

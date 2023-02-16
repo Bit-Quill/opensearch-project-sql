@@ -1412,6 +1412,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   private static Stream<Arguments> getTestDataForStrToDate() {
+    //TODO: Although not officially listed in docs, MySQL seems to accepts DATE, TIME, DATETIME args, Support these
     return Stream.of(
         Arguments.of(
             "01,5,2013",

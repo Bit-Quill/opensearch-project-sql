@@ -180,6 +180,7 @@ public class DateTimeFunction {
     repository.register(second(BuiltinFunctionName.SECOND_OF_MINUTE));
     repository.register(subdate());
     repository.register(subtime());
+    repository.register(str_to_date());
     repository.register(sysdate());
     repository.register(time());
     repository.register(time_format());
@@ -754,6 +755,21 @@ public class DateTimeFunction {
         implWithProperties(nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
             DATETIME, TIMESTAMP, TIMESTAMP)
     );
+  }
+
+  /**
+   * Extracts a date, time, or datetime from the given string.
+   * It accomplishes this using another string which specifies the input format.
+   */
+  private DefaultFunctionResolver str_to_date() {
+    return define(BuiltinFunctionName.TIME.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprStrToDateForString), DATE, STRING, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprStrToDateForString), DATETIME, STRING, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprStrToDateForString), TIME, STRING, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprStrToDateForDate), DATE, DATE, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprStrToDateForDatetime), DATETIME, DATETIME, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprStrToDateForDatetime), DATETIME, TIMESTAMP, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprStrToDateForTime), TIME, TIME, STRING));
   }
 
   /**
@@ -1545,6 +1561,24 @@ public class DateTimeFunction {
   private ExprValue exprSubTime(FunctionProperties functionProperties,
                                 ExprValue temporal, ExprValue temporalDelta) {
     return exprApplyTime(functionProperties, temporal, temporalDelta, false);
+  }
+
+  private ExprValue exprStrToDateForString(ExprValue dateTimeExpr, ExprValue formatStringExp) {
+    return ExprNullValue.of();
+  }
+
+  private ExprValue exprStrToDateForDate(ExprValue dateTimeExpr, ExprValue formatStringExp) {
+    return ExprNullValue.of();
+  }
+
+  private ExprValue exprStrToDateForTime(ExprValue dateTimeExpr, ExprValue formatStringExp) {
+    return ExprNullValue.of();
+
+  }
+
+  private ExprValue exprStrToDateForDatetime(ExprValue dateTimeExpr, ExprValue formatStringExp) {
+    return ExprNullValue.of();
+
   }
 
   /**
