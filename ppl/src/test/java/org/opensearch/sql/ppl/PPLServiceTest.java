@@ -26,6 +26,7 @@ import org.opensearch.sql.executor.ExecutionEngine.ExplainResponseNode;
 import org.opensearch.sql.executor.ExecutionEngine.QueryResponse;
 import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.executor.QueryService;
+import org.opensearch.sql.executor.execution.PaginatedQueryService;
 import org.opensearch.sql.executor.execution.QueryPlanFactory;
 import org.opensearch.sql.opensearch.executor.Cursor;
 import org.opensearch.sql.ppl.antlr.PPLSyntaxParser;
@@ -46,6 +47,9 @@ public class PPLServiceTest {
   private QueryService queryService;
 
   @Mock
+  private PaginatedQueryService paginatedQueryService;
+
+  @Mock
   private ExecutionEngine.Schema schema;
 
   @Mock
@@ -59,7 +63,7 @@ public class PPLServiceTest {
     queryManager = DefaultQueryManager.defaultQueryManager();
 
     pplService = new PPLService(new PPLSyntaxParser(), queryManager,
-        new QueryPlanFactory(queryService, paginatedPlanCache));
+        new QueryPlanFactory(queryService, paginatedQueryService, paginatedPlanCache));
   }
 
   @After

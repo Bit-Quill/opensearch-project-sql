@@ -39,7 +39,8 @@ public class AstStatementBuilderTest {
         "search source=t a=1",
         new Query(
             project(
-                filter(relation("t"), compare("=", field("a"), intLiteral(1))), AllFields.of()), 0));
+                filter(relation("t"), compare("=", field("a"),
+                    intLiteral(1))), AllFields.of()), 0));
   }
 
   @Test
