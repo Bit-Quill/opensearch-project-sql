@@ -832,7 +832,7 @@ public class AggregationIT extends SQLIntegTestCase {
 
   @Ignore("Aggregation is not supported with JSON format in the new engine")
   @org.junit.Test
-  public void groupByHavingUsingTableNamePrefix throws Exception {
+  public void groupByHavingUsingTableNamePrefixTest() throws Exception {
     JSONObject result = executeQuery(String.format(
         "SELECT opensearch-sql_test_index_account.gender " +
             "FROM %s " +
