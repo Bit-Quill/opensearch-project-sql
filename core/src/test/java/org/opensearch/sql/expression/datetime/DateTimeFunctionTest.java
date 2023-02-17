@@ -1417,12 +1417,12 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         Arguments.of(
             "01,5,2013",
             "%d,%m,%Y",
-            new ExprDatetimeValue("2013-05-01"),
-            DATETIME),
+            new ExprStringValue("2013-05-01"),
+            STRING),
         Arguments.of(
             "May 1, 2013",
             "%M %d,%Y",
-            new ExprDatetimeValue("2013-05-01"),
+            new ExprDatetimeValue("2013-05-01 10:11:12"),
             DATETIME),
         Arguments.of(
             "a09:30:17",
@@ -1442,12 +1442,12 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         Arguments.of(
             "abc",
             "abc",
-            new ExprDateValue("0000-00-00"),
-            DATE),
+            new ExprStringValue("0000-00-00"),
+            STRING),
         Arguments.of(
             "9",
             "%m",
-            new ExprDateValue("0000-09-00"),
+            new ExprStringValue("0000-09-00"),
             DATE),
         Arguments.of(
             "9",

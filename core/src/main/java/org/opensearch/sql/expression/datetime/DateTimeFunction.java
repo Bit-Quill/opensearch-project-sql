@@ -762,7 +762,7 @@ public class DateTimeFunction {
    * It accomplishes this using another string which specifies the input format.
    */
   private DefaultFunctionResolver str_to_date() {
-    return define(BuiltinFunctionName.TIME.getName(),
+    return define(BuiltinFunctionName.STR_TO_DATE.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprStrToDateForString), DATE, STRING, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprStrToDateForString), DATETIME, STRING, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprStrToDateForString), TIME, STRING, STRING),
@@ -1564,20 +1564,23 @@ public class DateTimeFunction {
   }
 
   private ExprValue exprStrToDateForString(ExprValue dateTimeExpr, ExprValue formatStringExp) {
-    return ExprNullValue.of();
+    return DateTimeFormatterUtil.parseStringWithDate(dateTimeExpr, formatStringExp);
   }
 
   private ExprValue exprStrToDateForDate(ExprValue dateTimeExpr, ExprValue formatStringExp) {
-    return ExprNullValue.of();
+        return DateTimeFormatterUtil.parseStringWithDate(dateTimeExpr, formatStringExp);
+
   }
 
   private ExprValue exprStrToDateForTime(ExprValue dateTimeExpr, ExprValue formatStringExp) {
-    return ExprNullValue.of();
+        return DateTimeFormatterUtil.parseStringWithDate(dateTimeExpr, formatStringExp);
+
 
   }
 
   private ExprValue exprStrToDateForDatetime(ExprValue dateTimeExpr, ExprValue formatStringExp) {
-    return ExprNullValue.of();
+        return DateTimeFormatterUtil.parseStringWithDate(dateTimeExpr, formatStringExp);
+
 
   }
 
