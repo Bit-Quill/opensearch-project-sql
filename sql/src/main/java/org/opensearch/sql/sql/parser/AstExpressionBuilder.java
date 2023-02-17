@@ -101,7 +101,9 @@ import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.expression.When;
 import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
+import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.common.utils.StringUtils;
+import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.AlternateMultiMatchQueryContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.AndExpressionContext;
@@ -159,15 +161,29 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitNestedFunctionCall(NestedFunctionCallContext ctx) {
     List<UnresolvedExpression> args = new ArrayList();
+    boolean fieldSet = false;
+    boolean pathSet = false;
+    boolean conditionSet = false;
+
     if (ctx.nestedFunction().nestedField() != null) {
       args.add(new QualifiedName(ctx.nestedFunction().nestedField().getText()));
+      fieldSet = true;
     }
     if (ctx.nestedFunction().nestedPath() != null) {
       args.add(new QualifiedName(ctx.nestedFunction().nestedPath().getText()));
+      pathSet = true;
     }
     if (ctx.nestedFunction().expression() != null) {
       args.add(visit(ctx.nestedFunction().expression()));
+      conditionSet = true;
     }
+
+    // TODO remove me for first PR?
+    if ((fieldSet && conditionSet && pathSet) || (fieldSet && conditionSet)) {
+      throw new SyntaxCheckException(
+          "Invalid parameters for nested function, use syntax: nested(field | field, path | path, condition)");
+    }
+
     return new Function(NESTED.getName().getFunctionName(), args);
   }
 

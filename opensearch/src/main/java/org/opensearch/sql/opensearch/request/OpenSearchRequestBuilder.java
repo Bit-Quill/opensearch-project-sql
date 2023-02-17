@@ -6,9 +6,6 @@
 
 package org.opensearch.sql.opensearch.request;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.index.query.QueryBuilders.nestedQuery;
@@ -43,9 +40,7 @@ import org.opensearch.search.fetch.subphase.FetchSourceContext;
 import org.opensearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.opensearch.search.sort.SortBuilder;
 import org.opensearch.search.sort.SortBuilders;
-import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Literal;
-import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.exception.SemanticCheckException;
@@ -53,6 +48,7 @@ import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseParser;
+import org.opensearch.sql.planner.logical.LogicalNested;
 
 /**
  * OpenSearch search request builder.
@@ -254,32 +250,13 @@ public class OpenSearchRequestBuilder {
     return false;
   }
 
-  public void pushDownNested(String field) {
-    project(List.of(new Field(new QualifiedName(field))));
-  }
+  public void pushDownNested(LogicalNested nested) {
+    initBoolQueryFilterIfNull();
+    List<NestedQueryBuilder> nestedQueries = extractNestedQueries(query());
 
-  public void project(List<Field> fields) {
-    if (isAnyNestedField(fields)) {
-      initBoolQueryFilterIfNull();
-      List<NestedQueryBuilder> nestedQueries = extractNestedQueries(query());
+    // TODO Support multiple fields?
+    buildInnerHit(nested.getField().toString(), findNestedQueryWithSamePath(nestedQueries, nested.getPath().toString()));
 
-      groupFieldNamesByPath(fields).forEach(
-          (path, fieldNames) -> buildInnerHit(fieldNames, findNestedQueryWithSamePath(nestedQueries, path))
-      );
-    }
-  }
-
-  /**
-   * Check via traditional for loop first to avoid lambda performance impact on all queries
-   * even though those without nested field
-   */
-  private boolean isAnyNestedField(List<Field> fields) {
-    for (Field field : fields) {
-      if (field.toString().contains(".")) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private void initBoolQueryFilterIfNull() {
@@ -289,13 +266,6 @@ public class OpenSearchRequestBuilder {
     if (query().filter().isEmpty()) {
       query().filter(boolQuery());
     }
-  }
-
-  private Map<String, List<String>> groupFieldNamesByPath(List<Field> fields) {
-    return fields.stream().
-        filter(Field::isNested).
-        filter(not(Field::isReverseNested)).
-        collect(groupingBy(Field::getNestedPath, mapping(Field::getName, toList())));
   }
 
   /**
@@ -319,9 +289,9 @@ public class OpenSearchRequestBuilder {
     return result;
   }
 
-  private void buildInnerHit(List<String> fieldNames, NestedQueryBuilder query) {
+  private void buildInnerHit(String field, NestedQueryBuilder query) {
     query.innerHit(new InnerHitBuilder().setFetchSourceContext(
-        new FetchSourceContext(true, fieldNames.toArray(new String[0]), null)
+        new FetchSourceContext(true, new String[] {field}, null)
     ));
   }
 

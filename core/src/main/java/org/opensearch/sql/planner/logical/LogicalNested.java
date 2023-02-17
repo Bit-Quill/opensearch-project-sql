@@ -7,43 +7,41 @@ package org.opensearch.sql.planner.logical;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.apache.commons.lang3.tuple.Pair;
-import org.opensearch.sql.ast.expression.Function;
-import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
+
+import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @ToString
 public class LogicalNested extends LogicalPlan {
-  private final FunctionExpression field; //TODO finish me
+  private final ReferenceExpression field;
+  private final ReferenceExpression path;
 
   /**
    * Constructor of LogicalNested.
    */
-  public LogicalNested(LogicalPlan childPlan, FunctionExpression field) {
+  public LogicalNested(LogicalPlan childPlan, List<Expression> nestedArgs) {
     super(Collections.singletonList(childPlan));
-    this.field = field;
+    if (nestedArgs.size() == 2) {
+      field = (ReferenceExpression)nestedArgs.get(0);
+      path = (ReferenceExpression)nestedArgs.get(1);
+    } else {
+      field = (ReferenceExpression)nestedArgs.get(0);
+      path = new ReferenceExpression(generatePathString(field.toString()), STRING);
+    }
+  }
+
+  private String generatePathString(String field) {
+    return field.substring(0, field.lastIndexOf("."));
   }
 
   @Override
   public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
     return visitor.visitUnnest(this, context);
   }
-
-  public String getNestedFieldString() {
-    // TODO Update member variables to field, path, condition?
-    return this.field.getArguments().get(0).toString();
-  }
-
-  @Override
-  public String toString() {
-    return this.field.getArguments().get(0).toString();
-  } // TODO fixme can we delete this?
 }
