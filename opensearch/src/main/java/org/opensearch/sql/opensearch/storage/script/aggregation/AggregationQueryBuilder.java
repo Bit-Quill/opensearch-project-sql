@@ -9,7 +9,6 @@ package org.opensearch.sql.opensearch.storage.script.aggregation;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -81,8 +80,7 @@ public class AggregationQueryBuilder extends ExpressionNodeVisitor<AggregationBu
 
     final Pair<AggregatorFactories.Builder, List<MetricParser>> metrics =
         metricBuilder.build(namedAggregatorList);
-
-
+    
     if (groupByList.isEmpty()) {
       // no bucket
       return Pair.of(
