@@ -913,9 +913,21 @@ SUBTRACT
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: subtract(x, y) calculates x minus y, alternative grammar to using the - symbol.
 
-1. SUBTRACT(NUMBER T, NUMBER) -> T
+Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: Wider type between types of x and y
+
+Example::
+
+    os> SELECT SUBTRACT(2, 1), SUBTRACT(2.5, 3);
+    fetched rows / total rows = 1/1
+    +------------------+--------------------+
+    | SUBTRACT(2, 1)   | MULTIPLY(2.5, 3)   |
+    |------------------+--------------------|
+    | 1                | -0.5               |
+    +------------------+--------------------+
 
 
 TAN
