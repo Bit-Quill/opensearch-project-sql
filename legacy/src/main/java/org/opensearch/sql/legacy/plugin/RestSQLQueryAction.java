@@ -165,10 +165,22 @@ public class RestSQLQueryAction extends BaseRestHandler {
       formatter = new CsvResponseFormatter(request.sanitize());
     } else if (format.equals(Format.RAW)) {
       formatter = new RawResponseFormatter();
+    } else if (format.equals(Format.JSON)) {
+      return new ResponseListener<>() {
+        @Override
+        public void onResponse(QueryResponse response) {
+          sendResponse(channel, OK, response.getRawResponse());
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+          errorHandler.accept(channel, e);
+        }
+      };
     } else {
       formatter = new JdbcResponseFormatter(PRETTY);
     }
-    return new ResponseListener<QueryResponse>() {
+    return new ResponseListener<>() {
       @Override
       public void onResponse(QueryResponse response) {
         sendResponse(channel, OK,
