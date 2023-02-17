@@ -117,8 +117,7 @@ class RemoveOperatorTest extends PhysicalPlanTestBase {
     IllegalStateException exception =
         assertThrows(IllegalStateException.class, () -> plan.schema());
     assertEquals(
-        "[BUG] schema can been only applied to ProjectOperator, "
-            + "instead of RemoveOperator(input=inputPlan, removeList=[response, referer])",
+        "[BUG] schema can been only applied to ProjectOperator, instead of RemoveOperator",
         exception.getMessage());
   }
 }

@@ -11,12 +11,12 @@ import org.junit.jupiter.api.Test;
 class CursorTest {
 
   @Test
-  void EmptyArrayIsNone() {
+  void emptyArrayIsNone() {
     Assertions.assertEquals(Cursor.None, new Cursor(new byte[]{}));
   }
 
   @Test
-  void ToStringIsArrayValue() {
+  void toStringIsArrayValue() {
     String cursorTxt = "This is a test";
     Assertions.assertEquals(cursorTxt, new Cursor(cursorTxt.getBytes()).toString());
   }

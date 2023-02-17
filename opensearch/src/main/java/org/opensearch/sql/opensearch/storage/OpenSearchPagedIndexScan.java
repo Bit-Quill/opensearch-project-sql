@@ -7,14 +7,11 @@ package org.opensearch.sql.opensearch.storage;
 
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
-
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
-import org.opensearch.sql.opensearch.request.OpenSearchScrollRequest;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 import org.opensearch.sql.storage.TableScanOperator;
 

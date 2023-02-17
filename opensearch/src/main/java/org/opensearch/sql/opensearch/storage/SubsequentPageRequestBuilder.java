@@ -5,20 +5,15 @@
 
 package org.opensearch.sql.opensearch.storage;
 
+import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 
+@RequiredArgsConstructor
 public class SubsequentPageRequestBuilder implements PagedRequestBuilder {
-  private OpenSearchRequest.IndexName indexName;
+  final OpenSearchRequest.IndexName indexName;
   final String scrollId;
-  private OpenSearchExprValueFactory exprValueFactory;
-
-  public SubsequentPageRequestBuilder(OpenSearchRequest.IndexName indexName, String scanAsString,
-                                      OpenSearchExprValueFactory exprValueFactory) {
-    this.indexName = indexName;
-    scrollId = scanAsString;
-    this.exprValueFactory = exprValueFactory;
-  }
+  final OpenSearchExprValueFactory exprValueFactory;
 
   @Override
   public OpenSearchRequest build() {

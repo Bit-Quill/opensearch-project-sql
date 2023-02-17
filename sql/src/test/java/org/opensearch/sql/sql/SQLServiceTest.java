@@ -28,6 +28,7 @@ import org.opensearch.sql.executor.ExecutionEngine.ExplainResponse;
 import org.opensearch.sql.executor.ExecutionEngine.ExplainResponseNode;
 import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.executor.QueryService;
+import org.opensearch.sql.executor.execution.PaginatedQueryService;
 import org.opensearch.sql.executor.execution.QueryPlanFactory;
 import org.opensearch.sql.opensearch.executor.Cursor;
 import org.opensearch.sql.sql.antlr.SQLSyntaxParser;
@@ -48,6 +49,9 @@ class SQLServiceTest {
   private QueryService queryService;
 
   @Mock
+  private PaginatedQueryService paginatedQueryService;
+
+  @Mock
   private ExecutionEngine.Schema schema;
 
   @Mock
@@ -57,7 +61,7 @@ class SQLServiceTest {
   public void setUp() {
     queryManager = DefaultQueryManager.defaultQueryManager();
     sqlService = new SQLService(new SQLSyntaxParser(), queryManager,
-        new QueryPlanFactory(queryService, paginatedPlanCache));
+        new QueryPlanFactory(queryService, paginatedQueryService, paginatedPlanCache));
   }
 
   @AfterEach

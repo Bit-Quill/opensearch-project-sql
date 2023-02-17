@@ -10,5 +10,6 @@ import org.opensearch.sql.opensearch.request.OpenSearchScrollRequest;
 
 public interface PagedRequestBuilder {
   OpenSearchRequest build();
+
   OpenSearchRequest.IndexName getIndexName();
 }

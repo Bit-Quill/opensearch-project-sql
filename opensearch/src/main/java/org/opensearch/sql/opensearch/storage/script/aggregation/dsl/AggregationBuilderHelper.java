@@ -17,8 +17,8 @@ import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
-import org.opensearch.sql.opensearch.storage.script.ScriptUtils;
 import org.opensearch.sql.expression.serialization.ExpressionSerializer;
+import org.opensearch.sql.opensearch.storage.script.ScriptUtils;
 
 /**
  * Abstract Aggregation Builder.

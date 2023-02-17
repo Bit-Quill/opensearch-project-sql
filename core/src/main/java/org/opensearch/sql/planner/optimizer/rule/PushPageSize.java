@@ -17,8 +17,6 @@ import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.logical.LogicalRelation;
 import org.opensearch.sql.planner.optimizer.Rule;
 
-import java.util.Objects;
-
 public class PushPageSize
     implements Rule<LogicalPaginate> {
   /** Capture the table inside matched logical paginate operator. */
