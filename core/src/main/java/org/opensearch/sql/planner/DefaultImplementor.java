@@ -98,7 +98,7 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
 
   @Override
   public PhysicalPlan visitUnnest(LogicalNested node, C context) {
-    return new UnnestOperator(visitChild(node, context), node.getField());
+    return new UnnestOperator(visitChild(node, context), node.getField(), node.getPath());
   }
 
   @Override

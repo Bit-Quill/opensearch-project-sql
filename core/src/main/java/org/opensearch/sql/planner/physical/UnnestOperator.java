@@ -12,8 +12,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 
 @ToString
@@ -23,7 +21,9 @@ public class UnnestOperator extends PhysicalPlan {
   @Getter
   private final PhysicalPlan input;
   @Getter
-  private final FunctionExpression field;// TODO fixme, should be ref exp?
+  private final ReferenceExpression field;
+  @Getter
+  private final ReferenceExpression path;
 
   @Override
   public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {

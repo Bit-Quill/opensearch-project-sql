@@ -23,9 +23,7 @@ import org.opensearch.search.aggregations.AggregationBuilder;
 import org.opensearch.search.aggregations.AggregationBuilders;
 import org.opensearch.search.aggregations.AggregatorFactories;
 import org.opensearch.search.aggregations.bucket.missing.MissingOrder;
-import org.opensearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.opensearch.search.sort.SortOrder;
-import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.tree.Sort;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
@@ -107,16 +105,6 @@ public class AggregationQueryBuilder extends ExpressionNodeVisitor<AggregationBu
                   .size(AGGREGATION_BUCKET_SIZE)),
           new CompositeAggregationParser(metrics.getRight()));
     }
-  }
-
-  public AggregationBuilder makeGroupAgg(Field field) {
-      TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(field.getName()).field(field.getName());
-      return termsBuilder;
-  }
-
-  private String getNestedAggName(String field) {
-    String prefix = field;
-    return prefix + "@NESTED";
   }
 
   /**
