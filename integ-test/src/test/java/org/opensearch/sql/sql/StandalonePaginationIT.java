@@ -6,6 +6,7 @@
 package org.opensearch.sql.sql;
 
 import static org.opensearch.sql.datasource.model.DataSourceMetadata.defaultOpenSearchDataSourceMetadata;
+import static org.opensearch.sql.legacy.TestUtils.getResponseBody;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -13,8 +14,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
+import lombok.SneakyThrows;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Test;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.opensearch.client.Request;
+import org.opensearch.client.Response;
+import org.opensearch.client.ResponseException;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.common.inject.Injector;
 import org.opensearch.common.inject.ModulesBuilder;
@@ -42,6 +50,7 @@ import org.opensearch.sql.storage.DataSourceFactory;
 import org.opensearch.sql.util.InternalRestHighLevelClient;
 import org.opensearch.sql.util.StandaloneModule;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class StandalonePaginationIT extends SQLIntegTestCase {
 
   private PaginatedQueryService paginatedQueryService;
@@ -51,7 +60,14 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
   private OpenSearchClient client;
 
   @Override
+  @SneakyThrows
   public void init() {
+    loadIndex(Index.ACCOUNT);
+    loadIndex(Index.ONLINE);
+    loadIndex(Index.BEER);
+    loadIndex(Index.BANK);
+    executeRequest(new Request("PUT", "/empty"));
+
     RestHighLevelClient restClient = new InternalRestHighLevelClient(client());
     client = new OpenSearchRestClient(restClient);
     DataSourceService dataSourceService = new DataSourceServiceImpl(
@@ -69,7 +85,7 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void testPagination() throws IOException {
+  public void test_pagination_whitebox() throws IOException {
     class TestResponder
         implements ResponseListener<ExecutionEngine.QueryResponse> {
       @Getter
@@ -116,6 +132,66 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
     paginatedQueryService.executePlan(plan, secondResponder);
 
     // act 3: confirm that there's no cursor.
+  }
+
+  // Test takes 3+ min due to a big amount of requests issued
+  @Test
+  @SneakyThrows
+  public void test_pagination_blackbox() {
+    var indices = getResponseBody(client().performRequest(new Request("GET", "_cat/indices?h=i")), true).split("\n");
+    for (var index : indices) {
+      var response = executeJdbcRequest(String.format("select * from %s", index));
+      var indexSize = response.getInt("total");
+      var rows = response.getJSONArray("datarows");
+      var schema = response.getJSONArray("schema");
+      for (var pageSize : List.of(1, 5, 10, 100, 1000)) {
+        var testReportPrefix = String.format("index: %s, page size: %d || ", index, pageSize);
+        var rowsPaged = new JSONArray();
+        var rowsReturned = 0;
+        response = new JSONObject(executeFetchQuery(
+            String.format("select * from %s", index), pageSize, "jdbc"));
+        while (response.has("cursor")) {
+          var cursor = response.getString("cursor");
+          assertTrue(testReportPrefix + "Cursor returned from legacy engine",
+              cursor.startsWith("n:"));
+          rowsReturned += response.getInt("total");
+          var datarows = response.getJSONArray("datarows");
+          for (int i = 0; i < datarows.length(); i++) {
+            rowsPaged.put(datarows.get(i));
+          }
+          assertTrue("Paged response schema doesn't match to non-paged",
+              schema.similar(response.getJSONArray("schema")));
+          response = executeCursorQuery(cursor);
+        }
+        assertEquals(testReportPrefix + "Last page is not empty",
+            0, response.getInt("total"));
+        assertEquals(testReportPrefix + "Last page is not empty",
+            0, response.getJSONArray("datarows").length());
+        assertEquals(testReportPrefix + "Paged responses return another row count that non-paged",
+            indexSize, rowsReturned);
+        assertTrue(testReportPrefix + "Paged accumulated result has other rows than non-paged",
+            rows.similar(rowsPaged));
+      }
+    }
+  }
+
+  @Test
+  @SneakyThrows
+  public void test_explain_not_supported() {
+    var request = new Request("POST", "_plugins/_sql/_explain");
+    // Request should be rejected before index names are resolved
+    request.setJsonEntity("{ \"query\": \"select * from something\", \"fetch_size\": 10 }");
+    var exception = assertThrows(ResponseException.class, () -> client().performRequest(request));
+    var response = new JSONObject(new String(exception.getResponse().getEntity().getContent().readAllBytes()));
+    assertEquals("`explain` feature for paginated requests is not implemented yet.",
+        response.getJSONObject("error").getString("details"));
+
+    // Request should be rejected before cursor parsed
+    request.setJsonEntity("{ \"cursor\" : \"n:0000\" }");
+    exception = assertThrows(ResponseException.class, () -> client().performRequest(request));
+    response = new JSONObject(new String(exception.getResponse().getEntity().getContent().readAllBytes()));
+    assertEquals("`explain` request for cursor requests is not supported. Use `explain` for the initial query request.",
+        response.getJSONObject("error").getString("details"));
   }
 
   private Settings defaultSettings() {

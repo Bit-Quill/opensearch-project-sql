@@ -39,6 +39,7 @@ public class PaginatedPlan extends AbstractPlan {
 
   @Override
   public void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener) {
-    throw new UnsupportedOperationException("implement PaginatedPlan.explain");
+    listener.onFailure(new UnsupportedOperationException(
+        "`explain` feature for paginated requests is not implemented yet."));
   }
 }

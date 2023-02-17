@@ -98,7 +98,10 @@ public class PaginatedPlanCache {
    */
   private String parseNamedExpressions(List<NamedExpression> listToFill, String cursor) {
     var serializer = new DefaultExpressionSerializer();
-    while (!cursor.startsWith(")") && !cursor.startsWith("(")) {
+    if (cursor.startsWith(")")) { //empty list
+      return cursor.substring(cursor.indexOf(',') + 1);
+    }
+    while (!cursor.startsWith("(")) {
       listToFill.add((NamedExpression)
           serializer.deserialize(cursor.substring(0,
               Math.min(cursor.indexOf(','), cursor.indexOf(')')))));
@@ -139,7 +142,6 @@ public class PaginatedPlanCache {
         List<NamedExpression> namedParseExpressions = new ArrayList<>();
         cursor = parseNamedExpressions(namedParseExpressions, cursor);
 
-        cursor = cursor.substring(cursor.indexOf(',') + 1);
         List<NamedExpression> projectList = new ArrayList<>();
         if (!cursor.startsWith("(projectList,")) {
           throw new UnsupportedOperationException("Unsupported cursor");
