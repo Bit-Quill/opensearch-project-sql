@@ -763,13 +763,7 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver str_to_date() {
     return define(BuiltinFunctionName.STR_TO_DATE.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprStrToDateForString), DATE, STRING, STRING),
-        impl(nullMissingHandling(DateTimeFunction::exprStrToDateForString), DATETIME, STRING, STRING),
-        impl(nullMissingHandling(DateTimeFunction::exprStrToDateForString), TIME, STRING, STRING),
-        impl(nullMissingHandling(DateTimeFunction::exprStrToDateForDate), DATE, DATE, STRING),
-        impl(nullMissingHandling(DateTimeFunction::exprStrToDateForDatetime), DATETIME, DATETIME, STRING),
-        impl(nullMissingHandling(DateTimeFunction::exprStrToDateForDatetime), DATETIME, TIMESTAMP, STRING),
-        impl(nullMissingHandling(DateTimeFunction::exprStrToDateForTime), TIME, TIME, STRING));
+        impl(nullMissingHandling(DateTimeFunction::exprStrToDate), DATETIME, STRING, STRING));
   }
 
   /**
@@ -1563,25 +1557,8 @@ public class DateTimeFunction {
     return exprApplyTime(functionProperties, temporal, temporalDelta, false);
   }
 
-  private ExprValue exprStrToDateForString(ExprValue dateTimeExpr, ExprValue formatStringExp) {
-    return DateTimeFormatterUtil.parseStringWithDate(dateTimeExpr, formatStringExp);
-  }
-
-  private ExprValue exprStrToDateForDate(ExprValue dateTimeExpr, ExprValue formatStringExp) {
-        return DateTimeFormatterUtil.parseStringWithDate(dateTimeExpr, formatStringExp);
-
-  }
-
-  private ExprValue exprStrToDateForTime(ExprValue dateTimeExpr, ExprValue formatStringExp) {
-        return DateTimeFormatterUtil.parseStringWithDate(dateTimeExpr, formatStringExp);
-
-
-  }
-
-  private ExprValue exprStrToDateForDatetime(ExprValue dateTimeExpr, ExprValue formatStringExp) {
-        return DateTimeFormatterUtil.parseStringWithDate(dateTimeExpr, formatStringExp);
-
-
+  private ExprValue exprStrToDate(ExprValue dateTimeExpr, ExprValue formatStringExp) {
+    return DateTimeFormatterUtil.parseStringWithDateOrTime(dateTimeExpr, formatStringExp);
   }
 
   /**
