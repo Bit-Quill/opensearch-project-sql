@@ -5,17 +5,12 @@
 
 package org.opensearch.sql.executor;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.Node;
 import org.opensearch.sql.ast.expression.AllFields;
-import org.opensearch.sql.ast.tree.Filter;
-import org.opensearch.sql.ast.tree.Limit;
 import org.opensearch.sql.ast.tree.Project;
 import org.opensearch.sql.ast.tree.Relation;
-import org.opensearch.sql.ast.tree.Sort;
-import org.opensearch.sql.ast.tree.Values;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Use this unresolved plan visitor to check if a plan can be serialized by PaginatedPlanCache.
