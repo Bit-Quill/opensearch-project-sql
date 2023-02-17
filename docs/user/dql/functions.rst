@@ -129,10 +129,21 @@ ADD
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: add(x, y) calculates x plus y, alternative grammar to using the + symbol.
 
-1. ADD(NUMBER T, NUMBER) -> T
+Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
+Return type: Wider type between types of x and y
+
+Example::
+
+    os> SELECT ADD(2, 1), ADD(2.5, 3);
+    fetched rows / total rows = 1/1
+    +-------------+---------------+
+    | ADD(2, 1)   | ADD(2.5, 3)   |
+    |-------------+---------------|
+    | 3           | 5.5           |
+    +-------------+---------------+
 
 ASIN
 ----
@@ -400,9 +411,21 @@ DIVIDE
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: divide(x, y) calculates x divided by y, alternative grammar to using the / symbol.
 
-1. DIVIDE(NUMBER T, NUMBER) -> T
+Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: Wider type between types of x and y
+
+Example::
+
+    os> SELECT DIVIDE(10, 2), DIVIDE(7.5, 3);
+    fetched rows / total rows = 1/1
+    +-----------------+------------------+
+    | DIVIDE(10, 2)   | DIVIDE(7.5, 3)   |
+    |-----------------+------------------|
+    | 5               | 2.5              |
+    +-----------------+------------------+
 
 
 E
@@ -566,6 +589,28 @@ Example::
     | 1           | 1.1           |
     +-------------+---------------+
 
+MODULUS
+-------
+
+Description
+>>>>>>>>>>>
+
+Usage: MODULUS(x, y) calculates the remainder of the number x divided by y, alternative grammar to using the % symbol.
+
+Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: Wider type between types of x and y if m is nonzero value. If y equals to 0, then returns NULL.
+
+Example::
+
+    os> SELECT MODULUS(3, 2), MODULUS(3.1, 2)
+    fetched rows / total rows = 1/1
+    +-------------+---------------+
+    | MOD(3, 2)   | MOD(3.1, 2)   |
+    |-------------+---------------|
+    | 1           | 1.1           |
+    +-------------+---------------+
+
 
 MULTIPLY
 --------
@@ -573,7 +618,7 @@ MULTIPLY
 Description
 >>>>>>>>>>>
 
-Usage: MULTIPLY(x, y) calculates the multiplication of x and y, alternative grammar to using the * symbol
+Usage: MULTIPLY(x, y) calculates the multiplication of x and y, alternative grammar to using the * symbol.
 
 Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
@@ -868,9 +913,21 @@ SUBTRACT
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: subtract(x, y) calculates x minus y, alternative grammar to using the - symbol.
 
-1. SUBTRACT(NUMBER T, NUMBER) -> T
+Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: Wider type between types of x and y
+
+Example::
+
+    os> SELECT SUBTRACT(2, 1), SUBTRACT(2.5, 3);
+    fetched rows / total rows = 1/1
+    +------------------+--------------------+
+    | SUBTRACT(2, 1)   | MULTIPLY(2.5, 3)   |
+    |------------------+--------------------|
+    | 1                | -0.5               |
+    +------------------+--------------------+
 
 
 TAN

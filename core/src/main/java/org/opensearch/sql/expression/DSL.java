@@ -202,10 +202,6 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.MOD, expressions);
   }
 
-  public static FunctionExpression multiplyFunction(Expression... expressions) {
-    return compile(FunctionProperties.None, BuiltinFunctionName.MULTIPLYFUNCTION, expressions);
-  }
-
   public static FunctionExpression pi(Expression... expressions) {
     return compile(FunctionProperties.None, BuiltinFunctionName.PI, expressions);
   }
@@ -290,12 +286,24 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.ADD, expressions);
   }
 
+  public static FunctionExpression addFunction(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.ADDFUNCTION, expressions);
+  }
+
   public static FunctionExpression subtract(Expression... expressions) {
     return compile(FunctionProperties.None, BuiltinFunctionName.SUBTRACT, expressions);
   }
 
+  public static FunctionExpression subtractFunction(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.SUBTRACTFUNCTION, expressions);
+  }
+
   public static FunctionExpression multiply(Expression... expressions) {
     return compile(FunctionProperties.None, BuiltinFunctionName.MULTIPLY, expressions);
+  }
+
+  public static FunctionExpression multiplyFunction(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.MULTIPLYFUNCTION, expressions);
   }
 
   public static FunctionExpression convert_tz(Expression... expressions) {
@@ -440,8 +448,16 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.DIVIDE, expressions);
   }
 
-  public static FunctionExpression module(Expression... expressions) {
-    return compile(FunctionProperties.None, BuiltinFunctionName.MODULES, expressions);
+  public static FunctionExpression divideFunction(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.DIVIDEFUNCTION, expressions);
+  }
+
+  public static FunctionExpression modulus(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.MODULUS, expressions);
+  }
+
+  public static FunctionExpression modulusFunction(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.MODULUSFUNCTION, expressions);
   }
 
   public static FunctionExpression substr(Expression... expressions) {

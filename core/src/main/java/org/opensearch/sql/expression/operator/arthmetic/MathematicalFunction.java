@@ -66,8 +66,6 @@ public class MathematicalFunction {
     repository.register(log());
     repository.register(log10());
     repository.register(log2());
-    repository.register(mod());
-    repository.register(multiplyFunction());
     repository.register(pow());
     repository.register(power());
     repository.register(round());
@@ -289,87 +287,6 @@ public class MathematicalFunction {
   private static DefaultFunctionResolver log2() {
     return baseMathFunction(BuiltinFunctionName.LOG2.getName(),
             v -> new ExprDoubleValue(Math.log(v.doubleValue()) / Math.log(2)), DOUBLE);
-  }
-
-  /**
-   * Definition of mod(x, y) function.
-   * Calculate the remainder of x divided by y
-   * The supported signature of mod function is
-   * (x: INTEGER/LONG/FLOAT/DOUBLE, y: INTEGER/LONG/FLOAT/DOUBLE)
-   * -> wider type between types of x and y
-   */
-  private static DefaultFunctionResolver mod() {
-    return FunctionDSL.define(BuiltinFunctionName.MOD.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.byteValue() == 0 ? ExprNullValue.of() :
-                    new ExprByteValue(v1.byteValue() % v2.byteValue())),
-            BYTE, BYTE, BYTE),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                    new ExprShortValue(v1.shortValue() % v2.shortValue())),
-            SHORT, SHORT, SHORT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                    new ExprIntegerValue(Math.floorMod(v1.integerValue(),
-                        v2.integerValue()))),
-            INTEGER, INTEGER, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                    new ExprLongValue(Math.floorMod(v1.longValue(), v2.longValue()))),
-            LONG, LONG, LONG),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                    new ExprFloatValue(v1.floatValue() % v2.floatValue())),
-            FLOAT, FLOAT, FLOAT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                    new ExprDoubleValue(v1.doubleValue() % v2.doubleValue())),
-            DOUBLE, DOUBLE, DOUBLE)
-    );
-  }
-
-  /**
-   * Definition of multiply(x, y) function.
-   * Returns the number x multiplied by number y
-   * The supported signature of multiply function is
-   * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
-   * -> wider type between types of x and y
-   */
-  private static DefaultFunctionResolver multiplyFunction() {
-    return FunctionDSL.define(BuiltinFunctionName.MULTIPLYFUNCTION.getName(),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (x, y) -> new ExprByteValue((x.byteValue() * y.byteValue()))),
-                    BYTE, BYTE, BYTE),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (x, y) -> new ExprShortValue(
-                                    Math.multiplyExact(x.shortValue(), y.shortValue()))),
-                    SHORT, SHORT, SHORT),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (x, y) -> new ExprIntegerValue(
-                                    Math.multiplyExact(x.integerValue(), y.integerValue()))),
-                    INTEGER, INTEGER, INTEGER),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (x, y) -> new ExprLongValue(x.longValue() * y.longValue())),
-                    LONG, LONG, LONG),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (x, y) -> new ExprFloatValue(x.floatValue() * y.floatValue())),
-                    FLOAT, FLOAT, FLOAT),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (x, y) -> new ExprDoubleValue(x.doubleValue() * y.doubleValue())),
-                    DOUBLE, DOUBLE, DOUBLE)
-    );
   }
 
   /**

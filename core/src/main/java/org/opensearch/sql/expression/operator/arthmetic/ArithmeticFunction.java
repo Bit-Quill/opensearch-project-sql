@@ -25,6 +25,7 @@ import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.DefaultFunctionResolver;
 import org.opensearch.sql.expression.function.FunctionDSL;
+import org.opensearch.sql.expression.function.FunctionName;
 
 /**
  * The definition of arithmetic function
@@ -43,14 +44,27 @@ public class ArithmeticFunction {
    */
   public static void register(BuiltinFunctionRepository repository) {
     repository.register(add());
+    repository.register(addFunction());
     repository.register(subtract());
+    repository.register(subtractFunction());
     repository.register(multiply());
+    repository.register(multiplyFunction());
     repository.register(divide());
-    repository.register(modules());
+    repository.register(divideFunction());
+    repository.register(modulus());
+    repository.register(modulusFunction());
+    repository.register(mod());
   }
 
-  private static DefaultFunctionResolver add() {
-    return FunctionDSL.define(BuiltinFunctionName.ADD.getName(),
+  /**
+   * Definition of add(x, y) function.
+   * Returns the number x plus number y
+   * The supported signature of add function is
+   * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
+   * -> wider type between types of x and y
+   */
+  private static DefaultFunctionResolver addBase(FunctionName functionName) {
+    return FunctionDSL.define(functionName,
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1, v2) -> new ExprByteValue(v1.byteValue() + v2.byteValue())),
@@ -79,8 +93,23 @@ public class ArithmeticFunction {
     );
   }
 
-  private static DefaultFunctionResolver subtract() {
-    return FunctionDSL.define(BuiltinFunctionName.SUBTRACT.getName(),
+  private static DefaultFunctionResolver add() {
+    return addBase(BuiltinFunctionName.ADD.getName());
+  }
+
+  private static DefaultFunctionResolver addFunction() {
+    return addBase(BuiltinFunctionName.ADDFUNCTION.getName());
+  }
+
+  /**
+   * Definition of subtract(x, y) function.
+   * Returns the number x minus number y
+   * The supported signature of multiply function is
+   * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
+   * -> wider type between types of x and y
+   */
+  private static DefaultFunctionResolver subtractBase(FunctionName functionName) {
+    return FunctionDSL.define(functionName,
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1, v2) -> new ExprByteValue(v1.byteValue() - v2.byteValue())),
@@ -109,8 +138,23 @@ public class ArithmeticFunction {
     );
   }
 
-  private static DefaultFunctionResolver multiply() {
-    return FunctionDSL.define(BuiltinFunctionName.MULTIPLY.getName(),
+  private static DefaultFunctionResolver subtract() {
+    return subtractBase(BuiltinFunctionName.SUBTRACT.getName());
+  }
+
+  private static DefaultFunctionResolver subtractFunction() {
+    return subtractBase(BuiltinFunctionName.SUBTRACTFUNCTION.getName());
+  }
+
+  /**
+   * Definition of multiply(x, y) function.
+   * Returns the number x multiplied by number y
+   * The supported signature of multiply function is
+   * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
+   * -> wider type between types of x and y
+   */
+  private static DefaultFunctionResolver multiplyBase(FunctionName functionName) {
+    return FunctionDSL.define(functionName,
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1, v2) -> new ExprByteValue(v1.byteValue() * v2.byteValue())),
@@ -139,8 +183,23 @@ public class ArithmeticFunction {
     );
   }
 
-  private static DefaultFunctionResolver divide() {
-    return FunctionDSL.define(BuiltinFunctionName.DIVIDE.getName(),
+  private static DefaultFunctionResolver multiply() {
+    return multiplyBase(BuiltinFunctionName.MULTIPLY.getName());
+  }
+
+  private static DefaultFunctionResolver multiplyFunction() {
+    return multiplyBase(BuiltinFunctionName.MULTIPLYFUNCTION.getName());
+  }
+
+  /**
+   * Definition of divide(x, y) function.
+   * Returns the number x divided by number y
+   * The supported signature of divide function is
+   * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
+   * -> wider type between types of x and y
+   */
+  private static DefaultFunctionResolver divideBase(FunctionName functionName) {
+    return FunctionDSL.define(functionName,
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1, v2) -> new ExprByteValue(v1.byteValue() / v2.byteValue())),
@@ -173,38 +232,64 @@ public class ArithmeticFunction {
     );
   }
 
+  private static DefaultFunctionResolver divide() {
+    return divideBase(BuiltinFunctionName.DIVIDE.getName());
+  }
 
-  private static DefaultFunctionResolver modules() {
-    return FunctionDSL.define(BuiltinFunctionName.MODULES.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprByteValue(v1.byteValue() % v2.byteValue())),
-            BYTE, BYTE, BYTE),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                    new ExprShortValue(v1.shortValue() % v2.shortValue())),
-            SHORT, SHORT, SHORT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.integerValue() == 0 ? ExprNullValue.of() :
-                    new ExprIntegerValue(v1.integerValue() % v2.integerValue())),
-            INTEGER, INTEGER, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.longValue() == 0 ? ExprNullValue.of() :
-                    new ExprLongValue(v1.longValue() % v2.longValue())),
-            LONG, LONG, LONG),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.floatValue() == 0 ? ExprNullValue.of() :
-                    new ExprFloatValue(v1.floatValue() % v2.floatValue())),
-            FLOAT, FLOAT, FLOAT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> v2.doubleValue() == 0 ? ExprNullValue.of() :
-                    new ExprDoubleValue(v1.doubleValue() % v2.doubleValue())),
-            DOUBLE, DOUBLE, DOUBLE)
+  private static DefaultFunctionResolver divideFunction() {
+    return divideBase(BuiltinFunctionName.DIVIDEFUNCTION.getName());
+  }
+
+  /**
+   * Definition of modulus(x, y) function.
+   * Returns the number x modulo by number y
+   * The supported signature of modulus function is
+   * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
+   * -> wider type between types of x and y
+   */
+  private static DefaultFunctionResolver modulusBase(FunctionName functionName) {
+    return FunctionDSL.define(functionName,
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> new ExprByteValue(v1.byteValue() % v2.byteValue())),
+                    BYTE, BYTE, BYTE),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
+                                    new ExprShortValue(v1.shortValue() % v2.shortValue())),
+                    SHORT, SHORT, SHORT),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> v2.integerValue() == 0 ? ExprNullValue.of() :
+                                    new ExprIntegerValue(v1.integerValue() % v2.integerValue())),
+                    INTEGER, INTEGER, INTEGER),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> v2.longValue() == 0 ? ExprNullValue.of() :
+                                    new ExprLongValue(v1.longValue() % v2.longValue())),
+                    LONG, LONG, LONG),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> v2.floatValue() == 0 ? ExprNullValue.of() :
+                                    new ExprFloatValue(v1.floatValue() % v2.floatValue())),
+                    FLOAT, FLOAT, FLOAT),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> v2.doubleValue() == 0 ? ExprNullValue.of() :
+                                    new ExprDoubleValue(v1.doubleValue() % v2.doubleValue())),
+                    DOUBLE, DOUBLE, DOUBLE)
     );
+  }
+
+  private static DefaultFunctionResolver modulus() {
+    return modulusBase(BuiltinFunctionName.MODULUS.getName());
+  }
+
+  private static DefaultFunctionResolver modulusFunction() {
+    return modulusBase(BuiltinFunctionName.MODULUSFUNCTION.getName());
+  }
+
+  private static DefaultFunctionResolver mod() {
+    return modulusBase(BuiltinFunctionName.MOD.getName());
   }
 }

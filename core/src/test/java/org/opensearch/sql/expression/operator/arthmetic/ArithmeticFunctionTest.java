@@ -76,6 +76,18 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
     assertEquals(String.format("+(%s, %s)", op1.toString(), op2.toString()), expression.toString());
   }
 
+  @ParameterizedTest(name = "addFunction({1}, {2})")
+  @MethodSource("arithmeticFunctionArguments")
+  public void addFunction(ExprValue op1, ExprValue op2) {
+    FunctionExpression expression = DSL.addFunction(literal(op1), literal(op2));
+    ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
+    assertEquals(expectedType, expression.type());
+    assertValueEqual(BuiltinFunctionName.ADDFUNCTION,
+            expectedType, op1, op2, expression.valueOf());
+    assertEquals(String.format("add(%s, %s)",
+            op1.toString(), op2.toString()), expression.toString());
+  }
+
   @ParameterizedTest(name = "{0}(int,null)")
   @MethodSource("arithmeticOperatorArguments")
   public void arithmetic_int_null(BuiltinFunctionName builtinFunctionName) {
@@ -153,6 +165,18 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
         expression.toString());
   }
 
+  @ParameterizedTest(name = "subtractFunction({1}, {2})")
+  @MethodSource("arithmeticFunctionArguments")
+  public void subtractFunction(ExprValue op1, ExprValue op2) {
+    FunctionExpression expression = DSL.subtractFunction(literal(op1), literal(op2));
+    ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
+    assertEquals(expectedType, expression.type());
+    assertValueEqual(BuiltinFunctionName.SUBTRACTFUNCTION, expectedType, op1, op2,
+            expression.valueOf());
+    assertEquals(String.format("subtract(%s, %s)", op1.toString(), op2.toString()),
+            expression.toString());
+  }
+
   @ParameterizedTest(name = "multiply({1}, {2})")
   @MethodSource("arithmeticFunctionArguments")
   public void multiply(ExprValue op1, ExprValue op2) {
@@ -163,6 +187,18 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
         expression.valueOf());
     assertEquals(String.format("*(%s, %s)", op1.toString(), op2.toString()),
         expression.toString());
+  }
+
+  @ParameterizedTest(name = "multiplyFunction({1}, {2})")
+  @MethodSource("arithmeticFunctionArguments")
+  public void multiplyFunction(ExprValue op1, ExprValue op2) {
+    FunctionExpression expression = DSL.multiplyFunction(literal(op1), literal(op2));
+    ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
+    assertEquals(expectedType, expression.type());
+    assertValueEqual(BuiltinFunctionName.MULTIPLYFUNCTION, expectedType, op1, op2,
+            expression.valueOf());
+    assertEquals(String.format("multiply(%s, %s)", op1.toString(), op2.toString()),
+            expression.toString());
   }
 
   @ParameterizedTest(name = "divide({1}, {2})")
@@ -182,21 +218,56 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
     assertEquals(String.format("/(%s, 0)", op1.toString()), expression.toString());
   }
 
-  @ParameterizedTest(name = "module({1}, {2})")
+  @ParameterizedTest(name = "divideFunction({1}, {2})")
   @MethodSource("arithmeticFunctionArguments")
-  public void module(ExprValue op1, ExprValue op2) {
-    FunctionExpression expression = DSL.module(literal(op1), literal(op2));
+  public void divideFunction(ExprValue op1, ExprValue op2) {
+    FunctionExpression expression = DSL.divideFunction(literal(op1), literal(op2));
     ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
     assertEquals(expectedType, expression.type());
-    assertValueEqual(BuiltinFunctionName.MODULES, expectedType, op1, op2, expression.valueOf());
+    assertValueEqual(BuiltinFunctionName.DIVIDEFUNCTION,
+            expectedType, op1, op2, expression.valueOf());
+    assertEquals(String.format("divide(%s, %s)", op1.toString(), op2.toString()),
+            expression.toString());
+
+    expression = DSL.divideFunction(literal(op1), literal(new ExprShortValue(0)));
+    expectedType = WideningTypeRule.max(op1.type(), SHORT);
+    assertEquals(expectedType, expression.type());
+    assertTrue(expression.valueOf(valueEnv()).isNull());
+    assertEquals(String.format("divide(%s, 0)", op1.toString()), expression.toString());
+  }
+
+  @ParameterizedTest(name = "modulus({1}, {2})")
+  @MethodSource("arithmeticFunctionArguments")
+  public void modulus(ExprValue op1, ExprValue op2) {
+    FunctionExpression expression = DSL.modulus(literal(op1), literal(op2));
+    ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
+    assertEquals(expectedType, expression.type());
+    assertValueEqual(BuiltinFunctionName.MODULUS, expectedType, op1, op2, expression.valueOf());
     assertEquals(String.format("%%(%s, %s)", op1.toString(), op2.toString()),
         expression.toString());
 
-    expression = DSL.module(literal(op1), literal(new ExprShortValue(0)));
+    expression = DSL.modulus(literal(op1), literal(new ExprShortValue(0)));
     expectedType = WideningTypeRule.max(op1.type(), SHORT);
     assertEquals(expectedType, expression.type());
     assertTrue(expression.valueOf(valueEnv()).isNull());
     assertEquals(String.format("%%(%s, 0)", op1.toString()), expression.toString());
+  }
+
+  @ParameterizedTest(name = "modulusFunction({1}, {2})")
+  @MethodSource("arithmeticFunctionArguments")
+  public void modulusFunction(ExprValue op1, ExprValue op2) {
+    FunctionExpression expression = DSL.modulusFunction(literal(op1), literal(op2));
+    ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
+    assertEquals(expectedType, expression.type());
+    assertValueEqual(BuiltinFunctionName.MODULUS, expectedType, op1, op2, expression.valueOf());
+    assertEquals(String.format("modulus(%s, %s)", op1.toString(), op2.toString()),
+            expression.toString());
+
+    expression = DSL.modulusFunction(literal(op1), literal(new ExprShortValue(0)));
+    expectedType = WideningTypeRule.max(op1.type(), SHORT);
+    assertEquals(expectedType, expression.type());
+    assertTrue(expression.valueOf(valueEnv()).isNull());
+    assertEquals(String.format("modulus(%s, 0)", op1.toString()), expression.toString());
   }
 
   protected void assertValueEqual(BuiltinFunctionName builtinFunctionName, ExprType type,
@@ -210,18 +281,24 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
         Integer vbActual = actual.integerValue();
         switch (builtinFunctionName) {
           case ADD:
+          case ADDFUNCTION:
             assertEquals(vb1 + vb2, vbActual);
             return;
           case SUBTRACT:
+          case SUBTRACTFUNCTION:
             assertEquals(vb1 - vb2, vbActual);
             return;
           case DIVIDE:
+          case DIVIDEFUNCTION:
             assertEquals(vb1 / vb2, vbActual);
             return;
           case MULTIPLY:
+          case MULTIPLYFUNCTION:
             assertEquals(vb1 * vb2, vbActual);
             return;
-          case MODULES:
+          case MODULUS:
+          case MODULUSFUNCTION:
+          case MOD:
             assertEquals(vb1 % vb2, vbActual);
             return;
           default:
@@ -233,18 +310,24 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
         Integer vsActual = actual.integerValue();
         switch (builtinFunctionName) {
           case ADD:
+          case ADDFUNCTION:
             assertEquals(vs1 + vs2, vsActual);
             return;
           case SUBTRACT:
+          case SUBTRACTFUNCTION:
             assertEquals(vs1 - vs2, vsActual);
             return;
           case DIVIDE:
+          case DIVIDEFUNCTION:
             assertEquals(vs1 / vs2, vsActual);
             return;
           case MULTIPLY:
+          case MULTIPLYFUNCTION:
             assertEquals(vs1 * vs2, vsActual);
             return;
-          case MODULES:
+          case MODULUS:
+          case MODULUSFUNCTION:
+          case MOD:
             assertEquals(vs1 % vs2, vsActual);
             return;
           default:
@@ -256,18 +339,24 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
         Integer viActual = ExprValueUtils.getIntegerValue(actual);
         switch (builtinFunctionName) {
           case ADD:
+          case ADDFUNCTION:
             assertEquals(vi1 + vi2, viActual);
             return;
           case SUBTRACT:
+          case SUBTRACTFUNCTION:
             assertEquals(vi1 - vi2, viActual);
             return;
           case DIVIDE:
+          case DIVIDEFUNCTION:
             assertEquals(vi1 / vi2, viActual);
             return;
           case MULTIPLY:
+          case MULTIPLYFUNCTION:
             assertEquals(vi1 * vi2, viActual);
             return;
-          case MODULES:
+          case MODULUS:
+          case MODULUSFUNCTION:
+          case MOD:
             assertEquals(vi1 % vi2, viActual);
             return;
           default:
@@ -279,18 +368,24 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
         Long vlActual = ExprValueUtils.getLongValue(actual);
         switch (builtinFunctionName) {
           case ADD:
+          case ADDFUNCTION:
             assertEquals(vl1 + vl2, vlActual);
             return;
           case SUBTRACT:
+          case SUBTRACTFUNCTION:
             assertEquals(vl1 - vl2, vlActual);
             return;
           case DIVIDE:
+          case DIVIDEFUNCTION:
             assertEquals(vl1 / vl2, vlActual);
             return;
           case MULTIPLY:
+          case MULTIPLYFUNCTION:
             assertEquals(vl1 * vl2, vlActual);
             return;
-          case MODULES:
+          case MODULUS:
+          case MODULUSFUNCTION:
+          case MOD:
             assertEquals(vl1 % vl2, vlActual);
             return;
           default:
@@ -302,18 +397,24 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
         Float vfActual = ExprValueUtils.getFloatValue(actual);
         switch (builtinFunctionName) {
           case ADD:
+          case ADDFUNCTION:
             assertEquals(vf1 + vf2, vfActual);
             return;
           case SUBTRACT:
+          case SUBTRACTFUNCTION:
             assertEquals(vf1 - vf2, vfActual);
             return;
           case DIVIDE:
+          case DIVIDEFUNCTION:
             assertEquals(vf1 / vf2, vfActual);
             return;
           case MULTIPLY:
+          case MULTIPLYFUNCTION:
             assertEquals(vf1 * vf2, vfActual);
             return;
-          case MODULES:
+          case MODULUS:
+          case MODULUSFUNCTION:
+          case MOD:
             assertEquals(vf1 % vf2, vfActual);
             return;
           default:
@@ -325,18 +426,24 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
         Double vdActual = ExprValueUtils.getDoubleValue(actual);
         switch (builtinFunctionName) {
           case ADD:
+          case ADDFUNCTION:
             assertEquals(vd1 + vd2, vdActual);
             return;
           case SUBTRACT:
+          case SUBTRACTFUNCTION:
             assertEquals(vd1 - vd2, vdActual);
             return;
           case DIVIDE:
+          case DIVIDEFUNCTION:
             assertEquals(vd1 / vd2, vdActual);
             return;
           case MULTIPLY:
+          case MULTIPLYFUNCTION:
             assertEquals(vd1 * vd2, vdActual);
             return;
-          case MODULES:
+          case MODULUS:
+          case MODULUSFUNCTION:
+          case MOD:
             assertEquals(vd1 % vd2, vdActual);
             return;
           default:
