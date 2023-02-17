@@ -3839,6 +3839,34 @@ Another example to show how to set custom values for the optional parameters::
     | 1    | The House at Pooh Corner | Alan Alexander Milne |
     +------+--------------------------+----------------------+
 
+SCORE
+------------
+
+Description
+>>>>>>>>>>>
+
+``score(search_expression, boost)``
+``score_query(search_expression, boost)``
+``scorequery(search_expression, boost)``
+
+The score function returns the _score of any documents matching the enclosed relevance-search expression. The SCORE function expects two
+arguments. The first argument is the search expression. The second argument is an optional floating-point number to boost the score (the default value is 1.0).
+Please refer to examples below:
+
+| ``score(query('Tags:taste OR Body:taste', ...), 2.0)``
+
+The `score_query` and `scorequery` functions are alternative syntax to the `score` function.
+
+Example boosting score::
+
+    os> select *, _score from books where score(query('title:Pooh House', default_operator='AND'), 2.0);
+    fetched rows / total rows = 1/1
+    +------+--------------------------+----------------------+-----------+
+    | id   | title                    | author               | _score    |
+    |------+--------------------------+----------------------+-----------|
+    | 1    | The House at Pooh Corner | Alan Alexander Milne | 1.5884793 |
+    +------+--------------------------+----------------------+-----------+
+
 HIGHLIGHT
 ------------
 
