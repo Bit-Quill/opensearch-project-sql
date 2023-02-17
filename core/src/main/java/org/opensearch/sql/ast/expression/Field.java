@@ -19,7 +19,7 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 @EqualsAndHashCode(callSuper = false)
 public class Field extends UnresolvedExpression {
 
-  protected final UnresolvedExpression field;
+  private final UnresolvedExpression field;
 
   private final List<Argument> fieldArgs;
 
