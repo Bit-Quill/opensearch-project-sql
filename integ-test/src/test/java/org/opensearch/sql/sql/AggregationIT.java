@@ -605,11 +605,10 @@ public class AggregationIT extends SQLIntegTestCase {
     verifySome(response.getJSONArray("datarows"), rows("2004-07-20 10:38:09.705"));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
   @org.junit.Test
   public void countTest() throws IOException {
 
-    JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s", TEST_INDEX_ACCOUNT));
+    JSONObject result = super.executeQuery(String.format("SELECT COUNT(*) FROM %s", TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(1000));
     Assert.assertThat(getIntAggregationValue(result, "COUNT(*)", "value"), equalTo(1000));
   }
@@ -623,61 +622,53 @@ public class AggregationIT extends SQLIntegTestCase {
     verifyDataRows(response, rows(2));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Hints are not yet supported in the new engine")
   @org.junit.Test
   public void countWithDocsHintTest() throws Exception {
 
     JSONObject result =
-        executeQuery(String.format("SELECT /*! DOCS_WITH_AGGREGATION(10) */ count(*) from %s",
+        super.executeQuery(String.format("SELECT /*! DOCS_WITH_AGGREGATION(10) */ count(*) from %s",
             TEST_INDEX_ACCOUNT));
     JSONArray hits = (JSONArray) result.query("/hits/hits");
     Assert.assertThat(hits.length(), equalTo(10));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
   @org.junit.Test
   public void sumTest() throws IOException {
 
     JSONObject result =
-        executeQuery(String.format("SELECT SUM(balance) FROM %s", TEST_INDEX_ACCOUNT));
+        super.executeQuery(String.format("SELECT SUM(balance) FROM %s", TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(1000));
     Assert.assertThat(getDoubleAggregationValue(result, "SUM(balance)", "value"),
         equalTo(25714837.0));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
   @org.junit.Test
   public void minTest() throws IOException {
-
-    JSONObject result = executeQuery(String.format("SELECT MIN(age) FROM %s", TEST_INDEX_ACCOUNT));
+    JSONObject result = super.executeQuery(String.format("SELECT MIN(age) FROM %s", TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(1000));
     Assert.assertThat(getDoubleAggregationValue(result, "MIN(age)", "value"), equalTo(20.0));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
   @org.junit.Test
   public void maxTest() throws IOException {
-
-    JSONObject result = executeQuery(String.format("SELECT MAX(age) FROM %s", TEST_INDEX_ACCOUNT));
+    JSONObject result = super.executeQuery(String.format("SELECT MAX(age) FROM %s", TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(1000));
     Assert.assertThat(getDoubleAggregationValue(result, "MAX(age)", "value"), equalTo(40.0));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
   @org.junit.Test
   public void avgTest() throws IOException {
-
-    JSONObject result = executeQuery(String.format("SELECT AVG(age) FROM %s", TEST_INDEX_ACCOUNT));
+    JSONObject result = super.executeQuery(String.format("SELECT AVG(age) FROM %s", TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(1000));
     Assert.assertThat(getDoubleAggregationValue(result, "AVG(age)", "value"), equalTo(30.171));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Stats is not yet supported in the new engine")
   @org.junit.Test
   public void statsTest() throws IOException {
-
     JSONObject result =
-        executeQuery(String.format("SELECT STATS(age) FROM %s", TEST_INDEX_ACCOUNT));
+        super.executeQuery(String.format("SELECT STATS(age) FROM %s", TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(1000));
     Assert.assertThat(getIntAggregationValue(result, "STATS(age)", "count"), equalTo(1000));
     Assert.assertThat(getDoubleAggregationValue(result, "STATS(age)", "min"), equalTo(20.0));
@@ -686,11 +677,10 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertThat(getDoubleAggregationValue(result, "STATS(age)", "sum"), equalTo(30171.0));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Extended_stats is not yet supported in the new engine")
   @org.junit.Test
   public void extendedStatsTest() throws IOException {
-
-    JSONObject result = executeQuery(String.format("SELECT EXTENDED_STATS(age) FROM %s",
+    JSONObject result = super.executeQuery(String.format("SELECT EXTENDED_STATS(age) FROM %s",
         TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(1000));
     Assert
@@ -709,12 +699,11 @@ public class AggregationIT extends SQLIntegTestCase {
         getDoubleAggregationValue(result, "EXTENDED_STATS(age)", "variance"), 0.0001);
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Percentiles is not yet supported in the new engine")
   @org.junit.Test
   public void percentileTest() throws IOException {
-
     JSONObject result =
-        executeQuery(String.format("SELECT PERCENTILES(age) FROM %s", TEST_INDEX_ACCOUNT));
+        super.executeQuery(String.format("SELECT PERCENTILES(age) FROM %s", TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(1000));
     Assert
         .assertEquals(20.0, getDoubleAggregationValue(result, "PERCENTILES(age)", "values", "1.0"),
@@ -740,11 +729,11 @@ public class AggregationIT extends SQLIntegTestCase {
             0.6);
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Percentiles is not yet supported in the new engine")
   @org.junit.Test
   public void percentileTestSpecific() throws IOException {
 
-    JSONObject result = executeQuery(String.format("SELECT PERCENTILES(age,25.0,75.0) FROM %s",
+    JSONObject result = super.executeQuery(String.format("SELECT PERCENTILES(age,25.0,75.0) FROM %s",
         TEST_INDEX_ACCOUNT));
 
     Assert.assertThat(getTotalHits(result), equalTo(1000));
@@ -754,36 +743,35 @@ public class AggregationIT extends SQLIntegTestCase {
         getDoubleAggregationValue(result, "PERCENTILES(age,25.0,75.0)", "values", "75.0"), 0.6);
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Alias is not yet supported with JSON format in the new engine")
   @org.junit.Test
   public void aliasTest() throws IOException {
-
-    JSONObject result = executeQuery(String.format("SELECT COUNT(*) AS mycount FROM %s",
+    JSONObject result = super.executeQuery(String.format("SELECT COUNT(*) AS mycount FROM %s",
         TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(1000));
     Assert.assertThat(getIntAggregationValue(result, "mycount", "value"), equalTo(1000));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Falls back to Legacy because composite_bucket aggregation is used for GROUP BY in the new engine")
   @org.junit.Test
   public void groupByTest() throws Exception {
-    JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s GROUP BY gender",
+    JSONObject result = super.executeQuery(String.format("SELECT COUNT(*) FROM %s GROUP BY gender",
         TEST_INDEX_ACCOUNT));
     assertResultForGroupByTest(result);
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Falls back to Legacy because composite_bucket aggregation is used for GROUP BY in the new engine")
   @org.junit.Test
   public void groupByUsingTableAliasTest() throws Exception {
-    JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s a GROUP BY a.gender",
+    JSONObject result = super.executeQuery(String.format("SELECT COUNT(*) FROM %s a GROUP BY a.gender",
         TEST_INDEX_ACCOUNT));
     assertResultForGroupByTest(result);
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Falls back to Legacy because composite_bucket aggregation is used for GROUP BY in the new engine")
   @org.junit.Test
   public void groupByUsingTableNamePrefixTest() throws Exception {
-    JSONObject result = executeQuery(String.format(
+    JSONObject result = super.executeQuery(String.format(
         "SELECT COUNT(*) FROM %s GROUP BY opensearch-sql_test_index_account.gender",
         TEST_INDEX_ACCOUNT
     ));
@@ -808,10 +796,10 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertThat(gender.query(femaleBucketPrefix + "/COUNT(*)/value"), equalTo(493));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Falls back to Legacy because composite_bucket aggregation is used for GROUP BY in the new engine")
   @org.junit.Test
   public void groupByHavingTest() throws Exception {
-    JSONObject result = executeQuery(String.format(
+    JSONObject result = super.executeQuery(String.format(
         "SELECT gender " +
             "FROM %s " +
             "GROUP BY gender " +
@@ -819,10 +807,10 @@ public class AggregationIT extends SQLIntegTestCase {
     assertResultForGroupByHavingTest(result);
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Falls back to Legacy because composite_bucket aggregation is used for GROUP BY in the new engine")
   @org.junit.Test
   public void groupByHavingUsingTableAliasTest() throws Exception {
-    JSONObject result = executeQuery(String.format(
+    JSONObject result = super.executeQuery(String.format(
         "SELECT a.gender " +
             "FROM %s a " +
             "GROUP BY a.gender " +
@@ -830,10 +818,10 @@ public class AggregationIT extends SQLIntegTestCase {
     assertResultForGroupByHavingTest(result);
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Falls back to Legacy because composite_bucket aggregation is used for GROUP BY in the new engine")
   @org.junit.Test
   public void groupByHavingUsingTableNamePrefixTest() throws Exception {
-    JSONObject result = executeQuery(String.format(
+    JSONObject result = super.executeQuery(String.format(
         "SELECT opensearch-sql_test_index_account.gender " +
             "FROM %s " +
             "GROUP BY opensearch-sql_test_index_account.gender " +
@@ -859,11 +847,11 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertThat(gender.query(femaleBucketPrefix + "/count_0/value"), equalTo(493));
   }
 
-  @Ignore //todo VerificationException: table alias or field name missing
+  //todo VerificationException: table alias or field name missing
+  @Ignore("Falls back to Legacy because composite_bucket aggregation is used for GROUP BY in the new engine")
   @org.junit.Test
   public void groupBySubqueryTest() throws Exception {
-
-    JSONObject result = executeQuery(String.format(
+    JSONObject result = super.executeQuery(String.format(
         "SELECT COUNT(*) FROM %s " +
             "WHERE firstname IN (SELECT firstname FROM %s) " +
             "GROUP BY gender",
@@ -885,11 +873,10 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertThat(gender.query(femaleBucketPrefix + "/COUNT(*)/value"), equalTo(493));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Hints are not yet supported in the new engine")
   @org.junit.Test
   public void postFilterTest() throws Exception {
-
-    JSONObject result = executeQuery(String.format("SELECT /*! POST_FILTER({\\\"term\\\":" +
+    JSONObject result = super.executeQuery(String.format("SELECT /*! POST_FILTER({\\\"term\\\":" +
             "{\\\"gender\\\":\\\"m\\\"}}) */ COUNT(*) FROM %s GROUP BY gender",
         TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(507));
@@ -909,11 +896,10 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertThat(gender.query(femaleBucketPrefix + "/COUNT(*)/value"), equalTo(493));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Terms is not yet supported in the new engine")
   @org.junit.Test
   public void multipleGroupByTest() throws Exception {
-
-    JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s GROUP BY gender," +
+    JSONObject result = super.executeQuery(String.format("SELECT COUNT(*) FROM %s GROUP BY gender," +
             " terms('field'='age','size'=200,'alias'='age')",
         TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(1000));
@@ -947,11 +933,10 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertThat(actualAgesF, equalTo(expectedAges));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Terms is not yet supported in the new engine")
   @org.junit.Test
   public void multipleGroupBysWithSize() throws Exception {
-
-    JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s GROUP BY gender," +
+    JSONObject result = super.executeQuery(String.format("SELECT COUNT(*) FROM %s GROUP BY gender," +
             " terms('alias'='ageAgg','field'='age','size'=3)",
         TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(1000));
@@ -965,11 +950,10 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertThat(fAgeBuckets.length(), equalTo(3));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Terms is not yet supported in the new engine")
   @org.junit.Test
   public void termsWithSize() throws Exception {
-
-    JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s GROUP BY terms" +
+    JSONObject result = super.executeQuery(String.format("SELECT COUNT(*) FROM %s GROUP BY terms" +
             "('alias'='ageAgg','field'='age','size'=3)",
         TEST_INDEX_ACCOUNT));
     Assert.assertThat(getTotalHits(result), equalTo(1000));
@@ -977,11 +961,10 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(3));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Terms is not yet supported in the new engine")
   @org.junit.Test
   public void termsWithMissing() throws Exception {
-
-    JSONObject result = executeQuery(String.format("SELECT count(*) FROM %s GROUP BY terms" +
+    JSONObject result = super.executeQuery(String.format("SELECT count(*) FROM %s GROUP BY terms" +
             "('alias'='nick','field'='nickname','missing'='no_nickname')",
         TEST_INDEX_GAME_OF_THRONES));
     JSONObject nick = getAggregation(result, "nick");
@@ -998,14 +981,13 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertTrue(noNicknameBucket.isPresent());
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Terms is not yet supported in the new engine")
   @org.junit.Test
   public void termsWithOrder() throws Exception {
-
     final String dog1 = "snoopy";
     final String dog2 = "rex";
 
-    JSONObject result = executeQuery(String.format("SELECT count(*) FROM %s GROUP BY terms" +
+    JSONObject result = super.executeQuery(String.format("SELECT count(*) FROM %s GROUP BY terms" +
             "('field'='dog_name', 'alias'='dog_name', 'order'='desc')",
         TEST_INDEX_DOG));
     JSONObject dogName = getAggregation(result, "dog_name");
@@ -1109,11 +1091,10 @@ public class AggregationIT extends SQLIntegTestCase {
         rows(42));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Range is not yet supported in the new engine")
   @org.junit.Test
   public void countGroupByRange() throws IOException {
-
-    JSONObject result = executeQuery(String.format("SELECT COUNT(age) FROM %s" +
+    JSONObject result = super.executeQuery(String.format("SELECT COUNT(age) FROM %s" +
         " GROUP BY range(age, 20,25,30,35,40)", TEST_INDEX_ACCOUNT));
     JSONObject ageAgg = getAggregation(result, "range(age,20,25,30,35,40)");
     JSONArray buckets = ageAgg.getJSONArray("buckets");
@@ -1131,10 +1112,9 @@ public class AggregationIT extends SQLIntegTestCase {
   /**
    * <a>http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-datehistogram-aggregation.html</a>
    */
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Date_histogram is not yet supported in the new engine")
   @org.junit.Test
   public void countGroupByDateTest() throws IOException {
-
     String result =
         explainQuery(String.format("select insert_time from %s group by date_histogram" +
                 "('field'='insert_time','fixed_interval'='1h','format'='yyyy-MM','min_doc_count'=5) ",
@@ -1145,7 +1125,7 @@ public class AggregationIT extends SQLIntegTestCase {
             "\"min_doc_count\":5}"));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Date_histogram is not yet supported in the new engine")
   @org.junit.Test
   public void countGroupByDateTestWithAlias() throws IOException {
     String result =
@@ -1157,24 +1137,13 @@ public class AggregationIT extends SQLIntegTestCase {
             "\"format\":\"yyyy-MM\",\"fixed_interval\":\"1h\""));
   }
 
-//    /**
-//     * <a>http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html</a>
-//     */
-//    @Test
-//    public void countDateRangeTest() throws IOException, SqlParseException, SQLFeatureNotSupportedException {
-//        String result = explainQuery(String.format("select online from %s group by date_range(field='insert_time'," +
-//                "'format'='yyyy-MM-dd' ,'2014-08-18','2014-08-17','now-8d','now-7d','now-6d','now')",
-//                TEST_INDEX_ONLINE));
-//        // TODO: fix the query or fix the code for the query to work
-//    }
-
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("TopHits is not yet supported in the new engine")
   @org.junit.Test
   public void topHitTest() throws IOException {
 
     String query = String
         .format("select topHits('size'=3,age='desc') from %s group by gender", TEST_INDEX_ACCOUNT);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     JSONObject gender = getAggregation(result, "gender");
     Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(2));
 
@@ -1208,14 +1177,14 @@ public class AggregationIT extends SQLIntegTestCase {
         equalTo(3));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Tophits is not yet supported in the new engine")
   @org.junit.Test
   public void topHitTest_WithInclude() throws IOException {
 
     String query =
         String.format("select topHits('size'=3,age='desc','include'=age) from %s group by gender",
             TEST_INDEX_ACCOUNT);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     JSONObject gender = getAggregation(result, "gender");
     Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(2));
 
@@ -1259,14 +1228,14 @@ public class AggregationIT extends SQLIntegTestCase {
     }
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("TopHits is not yet supported in the new engine")
   @org.junit.Test
   public void topHitTest_WithIncludeTwoFields() throws IOException {
 
     String query =
         String.format("select topHits('size'=3,'include'='age,firstname',age='desc') from %s " +
             "group by gender", TEST_INDEX_ACCOUNT);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     JSONObject gender = getAggregation(result, "gender");
     Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(2));
 
@@ -1285,13 +1254,13 @@ public class AggregationIT extends SQLIntegTestCase {
     }
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("TopHits is not yet supported in the new engine")
   @org.junit.Test
   public void topHitTest_WithExclude() throws IOException {
 
     String query = String.format("select topHits('size'=3,'exclude'='lastname',age='desc') from " +
         "%s group by gender", TEST_INDEX_ACCOUNT);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     JSONObject gender = getAggregation(result, "gender");
     Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(2));
 
@@ -1348,13 +1317,13 @@ public class AggregationIT extends SQLIntegTestCase {
     }
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Nested is not yet supported in the new engine")
   @org.junit.Test
   public void groupByOnNestedFieldWithFilterTest() throws Exception {
 
     String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info)," +
         "filter('myFilter',message.info = 'a')", TEST_INDEX_NESTED_TYPE);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
 
     JSONObject aggregation = getAggregation(result, "message.info@NESTED");
     JSONArray buckets = (JSONArray) aggregation.optQuery("/myFilter@FILTER/message.info/buckets");
@@ -1366,36 +1335,36 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertThat(bucket.query("/COUNT(*)/value"), equalTo(2));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Nested is not yet supported in the new engine")
   @org.junit.Test
   public void minOnNestedField() throws Exception {
 
     String query = String.format("SELECT min(nested(message.dayOfWeek)) as minDays FROM %s",
         TEST_INDEX_NESTED_TYPE);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     JSONObject aggregation = getAggregation(result, "message.dayOfWeek@NESTED");
     Assert.assertEquals(1.0, (double) aggregation.query("/minDays/value"), 0.0001);
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Nested is not yet supported in the new engine")
   @org.junit.Test
   public void sumOnNestedField() throws Exception {
 
     String query = String.format("SELECT sum(nested(message.dayOfWeek)) as sumDays FROM %s",
         TEST_INDEX_NESTED_TYPE);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     JSONObject aggregation = getAggregation(result, "message.dayOfWeek@NESTED");
     Assert.assertEquals(19.0, (double) aggregation.query("/sumDays/value"), 0.0001);
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Nested is not yet supported in the new engine")
   @org.junit.Test
   public void histogramOnNestedField() throws Exception {
 
     String query = String.format("select count(*) from %s group by histogram" +
             "('field'='message.dayOfWeek','nested'='message','interval'='2' , 'alias' = 'someAlias' )",
         TEST_INDEX_NESTED_TYPE);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     JSONObject aggregation = getAggregation(result, "message@NESTED");
 
     final Map<Double, Integer> expectedCountsByKey = new HashMap<>();
@@ -1416,7 +1385,7 @@ public class AggregationIT extends SQLIntegTestCase {
     });
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Nested is not yet supported in the new engine")
   @org.junit.Test
   public void reverseToRootGroupByOnNestedFieldWithFilterTestWithReverseNestedAndEmptyPath()
       throws Exception {
@@ -1424,7 +1393,7 @@ public class AggregationIT extends SQLIntegTestCase {
     String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info)," +
             "filter('myFilter',message.info = 'a'),reverse_nested(someField,'')",
         TEST_INDEX_NESTED_TYPE);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     JSONObject aggregation = getAggregation(result, "message.info@NESTED");
 
     JSONArray msgInfoBuckets =
@@ -1440,14 +1409,14 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertThat(someFieldBuckets.query("/0/COUNT(*)/value"), equalTo(2));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Nested is not yet supported in the new engine")
   @org.junit.Test
   public void reverseToRootGroupByOnNestedFieldWithFilterTestWithReverseNestedNoPath()
       throws Exception {
 
     String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info),filter" +
         "('myFilter',message.info = 'a'),reverse_nested(someField)", TEST_INDEX_NESTED_TYPE);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     JSONObject aggregation = getAggregation(result, "message.info@NESTED");
 
     JSONArray msgInfoBuckets =
@@ -1463,7 +1432,7 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertThat(someFieldBuckets.query("/0/COUNT(*)/value"), equalTo(2));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Nested is not yet supported in the new engine")
   @org.junit.Test
   public void reverseToRootGroupByOnNestedFieldWithFilterTestWithReverseNestedOnHistogram()
       throws Exception {
@@ -1471,7 +1440,7 @@ public class AggregationIT extends SQLIntegTestCase {
     String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info)," +
         "filter('myFilter',message.info = 'a'),histogram('field'='myNum','reverse_nested'='','interval'='2', " +
         "'alias' = 'someAlias' )", TEST_INDEX_NESTED_TYPE);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     JSONObject aggregation = getAggregation(result, "message.info@NESTED");
 
     JSONArray msgInfoBuckets =
@@ -1498,14 +1467,14 @@ public class AggregationIT extends SQLIntegTestCase {
     });
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Nested is not yet supported in the new engine")
   @org.junit.Test
   public void reverseToRootGroupByOnNestedFieldWithFilterAndSumOnReverseNestedField()
       throws Exception {
 
     String query = String.format("SELECT sum(reverse_nested(myNum)) bla FROM %s GROUP BY " +
         "nested(message.info),filter('myFilter',message.info = 'a')", TEST_INDEX_NESTED_TYPE);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     JSONObject aggregation = getAggregation(result, "message.info@NESTED");
 
     JSONArray msgInfoBuckets =
@@ -1518,7 +1487,7 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertEquals(5.0, bla.getDouble("value"), 0.000001);
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Nested is not yet supported in the new engine")
   @org.junit.Test
   public void reverseAnotherNestedGroupByOnNestedFieldWithFilterTestWithReverseNestedNoPath()
       throws Exception {
@@ -1526,7 +1495,7 @@ public class AggregationIT extends SQLIntegTestCase {
     String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info)," +
             "filter('myFilter',message.info = 'a'),reverse_nested(comment.data,'~comment')",
         TEST_INDEX_NESTED_TYPE);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     JSONObject aggregation = getAggregation(result, "message.info@NESTED");
 
     JSONArray msgInfoBuckets =
@@ -1543,7 +1512,7 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertThat(commentDataBuckets.query("/0/COUNT(*)/value"), equalTo(2));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Nested is not yet supported in the new engine")
   @org.junit.Test
   public void reverseAnotherNestedGroupByOnNestedFieldWithFilterTestWithReverseNestedOnHistogram()
       throws Exception {
@@ -1551,7 +1520,7 @@ public class AggregationIT extends SQLIntegTestCase {
     String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info),filter" +
         "('myFilter',message.info = 'a'),histogram('field'='comment.likes','reverse_nested'='~comment'," +
         "'interval'='2' , 'alias' = 'someAlias' )", TEST_INDEX_NESTED_TYPE);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     JSONObject aggregation = getAggregation(result, "message.info@NESTED");
 
     JSONArray msgInfoBuckets =
@@ -1577,7 +1546,7 @@ public class AggregationIT extends SQLIntegTestCase {
     });
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Nested is not yet supported in the new engine")
   @org.junit.Test
   public void reverseAnotherNestedGroupByOnNestedFieldWithFilterAndSumOnReverseNestedField()
       throws Exception {
@@ -1586,7 +1555,7 @@ public class AggregationIT extends SQLIntegTestCase {
         String.format("SELECT sum(reverse_nested(comment.likes,'~comment')) bla FROM %s " +
                 "GROUP BY  nested(message.info),filter('myFilter',message.info = 'a')",
             TEST_INDEX_NESTED_TYPE);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     JSONObject aggregation = getAggregation(result, "message.info@NESTED");
 
     JSONArray msgInfoBuckets =
@@ -1601,20 +1570,20 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertEquals(4.0, bla.getDouble("value"), 0.000001);
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+//  //@Ignore("Aggregation is not supported with JSON format in the new engine")
   @org.junit.Test
   public void docsReturnedTestWithoutDocsHint() throws Exception {
     String query = String.format("SELECT count(*) from %s", TEST_INDEX_ACCOUNT);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     Assert.assertThat(getHits(result).length(), equalTo(0));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Hints are not yet supported in the new engine")
   @org.junit.Test
   public void docsReturnedTestWithDocsHint() throws Exception {
     String query = String.format("SELECT /*! DOCS_WITH_AGGREGATION(10) */ count(*) from %s",
         TEST_INDEX_ACCOUNT);
-    JSONObject result = executeQuery(query);
+    JSONObject result = super.executeQuery(query);
     Assert.assertThat(getHits(result).length(), equalTo(10));
   }
 
@@ -1631,7 +1600,7 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertThat(result, containsString("substring(0, 1)"));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Date_histogram is not yet supported in the new engine")
   @org.junit.Test
   public void groupByScriptedDateHistogram() throws Exception {
     String query = String
@@ -1644,7 +1613,7 @@ public class AggregationIT extends SQLIntegTestCase {
     Assert.assertThat(result, containsString("\"script\":{\"source\""));
   }
 
-  @Ignore("Aggregation is not supported with JSON format in the new engine")
+  @Ignore("Histogram is not yet supported in the new engine")
   @org.junit.Test
   public void groupByScriptedHistogram() throws Exception {
     String query = String.format(
@@ -1659,8 +1628,8 @@ public class AggregationIT extends SQLIntegTestCase {
   @org.junit.Test
   public void distinctWithOneField() {
     Assert.assertEquals(
-        executeQuery("SELECT DISTINCT name.lastname FROM " + TEST_INDEX_GAME_OF_THRONES, "jdbc"),
-        executeQuery("SELECT name.lastname FROM " + TEST_INDEX_GAME_OF_THRONES
+        super.executeQuery("SELECT DISTINCT name.lastname FROM " + TEST_INDEX_GAME_OF_THRONES, "jdbc"),
+        super.executeQuery("SELECT name.lastname FROM " + TEST_INDEX_GAME_OF_THRONES
             + " GROUP BY name.lastname", "jdbc")
     );
   }
@@ -1668,8 +1637,8 @@ public class AggregationIT extends SQLIntegTestCase {
   @org.junit.Test
   public void distinctWithMultipleFields() {
     Assert.assertEquals(
-        executeQuery("SELECT DISTINCT age, gender FROM " + TEST_INDEX_ACCOUNT, "jdbc"),
-        executeQuery("SELECT age, gender FROM " + TEST_INDEX_ACCOUNT
+        super.executeQuery("SELECT DISTINCT age, gender FROM " + TEST_INDEX_ACCOUNT, "jdbc"),
+        super.executeQuery("SELECT age, gender FROM " + TEST_INDEX_ACCOUNT
             + " GROUP BY age, gender", "jdbc")
     );
   }
