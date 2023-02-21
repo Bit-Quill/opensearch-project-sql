@@ -1674,7 +1674,7 @@ public class DateTimeFunction {
   private ExprValue exprToSeconds(ExprValue date) {
 
     //Handle special case of year 0000 according to MySQL docs.
-    if (date.stringValue().contains("0000-")) {
+    if (date.toString().contains("0000-")) {
       return handleZeroYear(date);
     }
 
