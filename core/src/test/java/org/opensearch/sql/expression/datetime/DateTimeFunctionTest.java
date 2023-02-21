@@ -1799,6 +1799,44 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(longValue(719527L), eval(expression));
   }
 
+  private static Stream<Arguments> getTestDataForToSeconds() {
+    return Stream.of(
+        Arguments.of(new ExprLongValue(950501), new ExprLongValue(62966505600L)),
+        Arguments.of(new ExprStringValue("2009-11-29"), new ExprLongValue(634266720000L)),
+        Arguments.of(new ExprStringValue("2009-11-29 13:43:32"), new ExprLongValue(63426721412L)),
+        //Arguments.of( NOW(), 63426721458),
+        Arguments.of( new ExprStringValue("0000-00-00"), ExprNullValue.of()),
+        Arguments.of(new ExprStringValue("0000-01-01"), new ExprLongValue(86400L))
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("getTestDataForToSeconds")
+  public void testToSeconds(ExprValue arg, ExprValue expected) {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
+    FunctionExpression expr = DSL.to_seconds(arg);
+    assertEquals(LONG, expr.type());
+    assertEquals(expected, eval(expr));
+  }
+
+  private static Stream<Arguments> getInvalidTestDataForToSeconds() {
+    return Stream.of(
+        Arguments.of(new ExprLongValue(-123L))
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("getInvalidTestDataForToSeconds")
+  public void testToSecondsInvalidArg(ExprValue arg) {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
+    FunctionExpression expr = DSL.to_seconds(arg);
+    assertThrows(SemanticCheckException.class, () -> eval(expr));
+  }
+
   @Test
   public void year() {
     when(nullRef.type()).thenReturn(DATE);
