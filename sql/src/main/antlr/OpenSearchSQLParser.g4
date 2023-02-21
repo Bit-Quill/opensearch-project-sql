@@ -309,6 +309,18 @@ functionCall
     | relevanceFunction                                             #relevanceFunctionCall
     | highlightFunction                                             #highlightFunctionCall
     | positionFunction                                              #positionFunctionCall
+    | getFormatFunction                                             #getFormatFunctionCall
+    ;
+
+getFormatFunction
+    : GET_FORMAT LR_BRACKET getFormatType COMMA functionArg RR_BRACKET
+    ;
+
+getFormatType
+    : DATE
+    | DATETIME
+    | TIME
+    | TIMESTAMP
     ;
 
 
@@ -445,6 +457,7 @@ dateTimeFunctionName
     | FROM_UNIXTIME
     | HOUR
     | HOUR_OF_DAY
+    | LAST_DAY
     | MAKEDATE
     | MAKETIME
     | MICROSECOND
@@ -464,6 +477,7 @@ dateTimeFunctionName
     | SUBTIME
     | SYSDATE
     | TIME
+    | TIME_FORMAT
     | TIME_TO_SEC
     | TIMEDIFF
     | TIMESTAMP
@@ -471,6 +485,7 @@ dateTimeFunctionName
     | UNIX_TIMESTAMP
     | WEEK
     | WEEK_OF_YEAR
+    | WEEKOFYEAR
     | YEAR
     ;
 

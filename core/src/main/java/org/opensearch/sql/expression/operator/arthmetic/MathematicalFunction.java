@@ -239,7 +239,8 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver ln() {
     return baseMathFunction(BuiltinFunctionName.LN.getName(),
-            v -> new ExprDoubleValue(Math.log(v.doubleValue())), DOUBLE);
+        v -> v.doubleValue() <= 0 ? ExprNullValue.of() :
+            new ExprDoubleValue(Math.log(v.doubleValue())), DOUBLE);
   }
 
   /**
@@ -254,7 +255,8 @@ public class MathematicalFunction {
     // build unary log(x), SHORT/INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
     for (ExprType type : ExprCoreType.numberTypes()) {
       builder.add(FunctionDSL.impl(FunctionDSL
-              .nullMissingHandling(v -> new ExprDoubleValue(Math.log(v.doubleValue()))),
+              .nullMissingHandling(v -> v.doubleValue() <= 0 ? ExprNullValue.of() :
+                  new ExprDoubleValue(Math.log(v.doubleValue()))),
           DOUBLE, type));
     }
 
@@ -262,7 +264,8 @@ public class MathematicalFunction {
     for (ExprType baseType : ExprCoreType.numberTypes()) {
       for (ExprType numberType : ExprCoreType.numberTypes()) {
         builder.add(FunctionDSL.impl(FunctionDSL
-                .nullMissingHandling((b, x) -> new ExprDoubleValue(
+                .nullMissingHandling((b, x) -> b.doubleValue() <= 0 || x.doubleValue() <= 0
+                    ? ExprNullValue.of() : new ExprDoubleValue(
                     Math.log(x.doubleValue()) / Math.log(b.doubleValue()))),
             DOUBLE, baseType, numberType));
       }
@@ -277,7 +280,8 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver log10() {
     return baseMathFunction(BuiltinFunctionName.LOG10.getName(),
-            v -> new ExprDoubleValue(Math.log10(v.doubleValue())), DOUBLE);
+        v -> v.doubleValue() <= 0 ? ExprNullValue.of() :
+            new ExprDoubleValue(Math.log10(v.doubleValue())), DOUBLE);
   }
 
   /**
@@ -286,7 +290,8 @@ public class MathematicalFunction {
    */
   private static DefaultFunctionResolver log2() {
     return baseMathFunction(BuiltinFunctionName.LOG2.getName(),
-            v -> new ExprDoubleValue(Math.log(v.doubleValue()) / Math.log(2)), DOUBLE);
+        v -> v.doubleValue() <= 0 ? ExprNullValue.of() :
+            new ExprDoubleValue(Math.log(v.doubleValue()) / Math.log(2)), DOUBLE);
   }
 
   /**
