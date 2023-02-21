@@ -103,6 +103,9 @@ public class DateTimeFunction {
   // Mode used for week/week_of_year function by default when no argument is provided
   private static final ExprIntegerValue DEFAULT_WEEK_OF_YEAR_MODE = new ExprIntegerValue(0);
 
+  //The number of seconds per day
+  private static final long SECONDS_PER_DAY = 86400;
+
   // Map used to determine format output for the get_format function
   private static final Table<String, String, String> formats =
       ImmutableTable.<String, String, String>builder()
@@ -191,6 +194,7 @@ public class DateTimeFunction {
     repository.register(utc_timestamp());
     repository.register(date_format());
     repository.register(to_days());
+    repository.register(to_seconds());
     repository.register(unix_timestamp());
     repository.register(week(BuiltinFunctionName.WEEK));
     repository.register(week(BuiltinFunctionName.WEEKOFYEAR));
@@ -824,6 +828,18 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprToDays), LONG, TIMESTAMP),
         impl(nullMissingHandling(DateTimeFunction::exprToDays), LONG, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprToDays), LONG, DATETIME));
+  }
+
+  /**
+   * TO_SECONDS(STRING/DATE/DATETIME/TIMESTAMP). return the day number of the given date.
+   */
+  private DefaultFunctionResolver to_seconds() {
+    return define(BuiltinFunctionName.TO_SECONDS.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprToSeconds), LONG, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprToSeconds), LONG, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprToSeconds), LONG, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprToSeconds), LONG, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprToSecondsForIntType), LONG, LONG));
   }
 
   private FunctionResolver unix_timestamp() {
@@ -1624,6 +1640,63 @@ public class DateTimeFunction {
    */
   private ExprValue exprToDays(ExprValue date) {
     return new ExprLongValue(date.dateValue().toEpochDay() + DAYS_0000_TO_1970);
+  }
+
+  //Helper function to handle a '0000' year for the 'to_seconds' function according to MySQL.
+  private ExprValue handleZeroYear(ExprValue date) {
+    String dateStringVal = date.stringValue();
+
+    //Handle corner case for date of 0000-00-00 according to MySQL docs.
+    if (dateStringVal.contains("0000-00-00")){
+      return ExprNullValue.of();
+    }
+
+    //1970 used as a placeholder to extract correct seconds value.
+    if(dateStringVal.length() > 10) {
+      return(new ExprLongValue(
+          LocalDateTime.parse(date.stringValue().replace("0000-", "1970-"))
+              .toEpochSecond(ZoneOffset.UTC))
+      );
+    }
+
+    return(new ExprLongValue(
+        LocalDate.parse(date.stringValue().replace("0000-", "1970-"))
+            .toEpochSecond(LocalTime.MAX , ZoneOffset.UTC) + 1)
+    );
+  }
+
+  /**
+   * To_seconds implementation for ExprValue.
+   *
+   * @param date ExprValue of Date/Datetime/Timestamp/String type.
+   * @return ExprValue.
+   */
+  private ExprValue exprToSeconds(ExprValue date) {
+
+    //Handle special case of year 0000 according to MySQL docs.
+    if (date.stringValue().contains("0000-")) {
+      return handleZeroYear(date);
+    }
+
+    return new ExprLongValue(
+        date.datetimeValue().toEpochSecond(ZoneOffset.UTC) + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
+  }
+
+  /**
+   * To_seconds implementation with an integer argument for ExprValue.
+   *
+   * @param date ExprValue of an Integer/Long formatted for a date (e.g., 950501 = 1995-05-01)
+   * @return ExprValue.
+   */
+  private ExprValue exprToSecondsForIntType(ExprValue date) {
+    int day = date.integerValue() % 10;
+    int month = date.integerValue() % 10000 - day;
+    int year = date.integerValue() - month - day;
+
+    LocalDateTime datetime = LocalDateTime.of(1900 + year/10000, month/100, day, 0, 0, 0);
+
+    return new ExprLongValue(
+        datetime.toEpochSecond(ZoneOffset.UTC) + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
   }
 
   /**

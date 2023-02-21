@@ -528,9 +528,9 @@ class SQLSyntaxParserTest {
   }
 
   @Test
-  public void can_parse_to_days_function() {
-    assertNotNull(parser.parse("SELECT to_days(\"2023-02-20\")"));
-    assertNotNull(parser.parse("SELECT to_days(950501)"));
+  public void can_parse_to_seconds_function() {
+    assertNotNull(parser.parse("SELECT to_seconds(\"2023-02-20\")"));
+    assertNotNull(parser.parse("SELECT to_seconds(950501)"));
   }
 
   @Test

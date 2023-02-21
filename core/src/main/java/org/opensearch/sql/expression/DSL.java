@@ -434,6 +434,10 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.TO_DAYS, expressions);
   }
 
+  public static FunctionExpression to_seconds(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.TO_SECONDS, expressions);
+  }
+
   public static FunctionExpression week(
       FunctionProperties functionProperties, Expression... expressions) {
     return compile(functionProperties, BuiltinFunctionName.WEEK, expressions);

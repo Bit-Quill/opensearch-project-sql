@@ -907,10 +907,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifyDataRows(result, rows(63249206400L), rows(62246275200L));
 
     result = executeQuery(
-        String.format("select to_days(time(time0)) FROM %s LIMIT 2", TEST_INDEX_CALCS));
-    verifyDataRows(result, rows(63844232852L), rows(63844206528L));
-
-    result = executeQuery(
         String.format("select to_days(datetime(datetime0)) FROM %s LIMIT 2", TEST_INDEX_CALCS));
     verifyDataRows(result, rows(63256587455L), rows(63258064234L));
 

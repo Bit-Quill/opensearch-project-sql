@@ -26,6 +26,8 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import com.google.common.collect.ImmutableList;
+
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -1802,9 +1804,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   private static Stream<Arguments> getTestDataForToSeconds() {
     return Stream.of(
         Arguments.of(new ExprLongValue(950501), new ExprLongValue(62966505600L)),
-        Arguments.of(new ExprStringValue("2009-11-29"), new ExprLongValue(634266720000L)),
+        Arguments.of(new ExprStringValue("2009-11-29"), new ExprLongValue(63426672000L)),
         Arguments.of(new ExprStringValue("2009-11-29 13:43:32"), new ExprLongValue(63426721412L)),
-        //Arguments.of( NOW(), 63426721458),
         Arguments.of( new ExprStringValue("0000-00-00"), ExprNullValue.of()),
         Arguments.of(new ExprStringValue("0000-01-01"), new ExprLongValue(86400L))
     );
@@ -1816,7 +1817,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
-    FunctionExpression expr = DSL.to_seconds(arg);
+    FunctionExpression expr = DSL.to_seconds(DSL.literal(arg));
     assertEquals(LONG, expr.type());
     assertEquals(expected, eval(expr));
   }
@@ -1833,8 +1834,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
 
-    FunctionExpression expr = DSL.to_seconds(arg);
-    assertThrows(SemanticCheckException.class, () -> eval(expr));
+    FunctionExpression expr = DSL.to_seconds(DSL.literal(arg));
+    assertThrows(DateTimeException.class, () -> eval(expr));
   }
 
   @Test
