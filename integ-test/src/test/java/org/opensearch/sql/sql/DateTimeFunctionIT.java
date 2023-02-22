@@ -820,24 +820,20 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Test
   public void testStrToDate() throws IOException {
     JSONObject result = executeQuery(String.format(
-        "SELECT str_to_date(CAST(datetime0 AS STRING), \"'%d,%m,%Y'\") FROM %s LIMIT 3",
+        "SELECT str_to_date(CAST(date3 AS STRING), \"'%Y-%m-%d'\") FROM %s LIMIT 3",
         TEST_INDEX_CALCS));
-//    verifySchema(result,
-//        schema("subdate(date('2020-09-16'), 1)", null, "date"));
     verifyDataRows(result,
-        rows("2004-07-09"),
-        rows("2004-07-26"),
-        rows("2004-08-02"));
+        rows("1986-03-20"),
+        rows(null),
+        rows("1997-02-02"));
 
     result = executeQuery(String.format(
-        "SELECT str_to_date(CAST(datetime0 AS STRING), \"'%h:%i:%s'\") FROM %s LIMIT 3",
+        "SELECT str_to_date(CAST(time1 AS STRING), \"'%h:%i:%s'\") FROM %s LIMIT 3",
         TEST_INDEX_CALCS));
-//    verifySchema(result,
-//        schema("subdate(date('2020-09-16'), 1)", null, "date"));
     verifyDataRows(result,
-        rows("10:17:35"),
-        rows("12:30:34"),
-        rows("07:59:23"));
+        rows("19:36:22"),
+        rows("02:05:25"),
+        rows("09:33:31"));
   }
 
   @Test
