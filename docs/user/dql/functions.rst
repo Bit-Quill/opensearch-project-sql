@@ -2459,6 +2459,27 @@ Example::
     | 733687                       |
     +------------------------------+
 
+TO_SECONDS
+----------
+
+Description
+>>>>>>>>>>>
+
+Usage: to_seconds(date) returns the seconds number (the number of days since year 0) of the given date. Returns NULL if date is invalid.
+
+Argument type: STRING/DATE/DATETIME/TIME/TIMESTAMP
+
+Return type: LONG
+
+Example::
+
+    os> SELECT TO_SECONDS(DATE '2008-10-07')
+    fetched rows / total rows = 1/1
+    +---------------------------------+
+    | TO_SECONDS(DATE '2008-10-07')   |
+    |---------------------------------|
+    | 63390556800                     |
+    +---------------------------------+
 
 UNIX_TIMESTAMP
 --------------
