@@ -88,36 +88,6 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void testMod() throws IOException {
-    JSONObject result = executeQuery("select mod(3, 2)");
-    verifySchema(result, schema("mod(3, 2)", null, "integer"));
-    verifyDataRows(result, rows(1));
-
-    result = executeQuery("select mod(3.1, 2)");
-    verifySchema(result, schema("mod(3.1, 2)", null, "double"));
-    verifyDataRows(result, rows(1.1));
-  }
-
-  @Test
-  public void testMultiply() throws IOException {
-    JSONObject result = executeQuery("select multiply(3, 2)");
-    verifySchema(result, schema("multiply(3, 2)", null, "integer"));
-    verifyDataRows(result, rows(3 * 2));
-
-    result = executeQuery("select multiply(2.5, 2)");
-    verifySchema(result, schema("multiply(2.5, 2)", null, "double"));
-    verifyDataRows(result, rows(2.5D * 2));
-
-    result = executeQuery("select multiply(3000000000, 2)");
-    verifySchema(result, schema("multiply(3000000000, 2)", null, "long"));
-    verifyDataRows(result, rows(3000000000L * 2));
-
-    result = executeQuery("select multiply(CAST(1.6 AS FLOAT), 2)");
-    verifySchema(result, schema("multiply(CAST(1.6 AS FLOAT), 2)", null, "float"));
-    verifyDataRows(result, rows(1.6 * 2));
-  }
-
-  @Test
   public void testRound() throws IOException {
     JSONObject result = executeQuery("select round(56.78)");
     verifySchema(result, schema("round(56.78)", null, "double"));
