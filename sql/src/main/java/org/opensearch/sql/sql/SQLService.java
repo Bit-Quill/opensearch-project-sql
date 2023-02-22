@@ -6,10 +6,15 @@
 
 package org.opensearch.sql.sql;
 
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.opensearch.sql.ast.expression.Alias;
+import org.opensearch.sql.ast.expression.Function;
+import org.opensearch.sql.ast.statement.Query;
 import org.opensearch.sql.ast.statement.Statement;
+import org.opensearch.sql.ast.tree.Project;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.ExecutionEngine.ExplainResponse;
 import org.opensearch.sql.executor.ExecutionEngine.QueryResponse;
@@ -74,6 +79,17 @@ public class SQLService {
                 AstStatementBuilder.StatementBuilderContext.builder()
                     .isExplain(request.isExplainRequest())
                     .build()));
+
+    // There is no full support for JSON format yet for in memory operations
+    if (request.format().getFormatName().equals("json")) {
+      List projectList = ((Project) ((Query) statement).getPlan()).getProjectList();
+
+      for (var project : projectList) {
+        if (((Alias) project).getDelegated() instanceof Function)
+          throw new UnsupportedOperationException("[%s] is not yet supported with json "
+              + "format because it is not pushed down to the OpenSearch instance");
+      }
+    }
 
     return queryExecutionFactory.create(statement, queryListener, explainListener);
   }
