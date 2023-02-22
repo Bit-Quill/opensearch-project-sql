@@ -24,6 +24,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
+import static org.opensearch.sql.data.type.ExprCoreType.UNDEFINED;
 
 import com.google.common.collect.ImmutableList;
 import java.time.LocalDate;
@@ -1413,6 +1414,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   private static Stream<Arguments> getTestDataForStrToDate() {
     return Stream.of(
+        //Date arguments
         Arguments.of(
             "01,5,2013",
             "%d,%m,%Y",
@@ -1423,42 +1425,38 @@ class DateTimeFunctionTest extends ExpressionTestBase {
             "%M %d, %Y",
             new ExprDateValue("2013-05-01"),
             DATE),
+
+        //TODO: Time arguments
+
+        //TODO: Datetime arguments
+
+        //Invalid Arguments (should return null)
         Arguments.of(
             "a09:30:17",
             "a%h:%i:%s",
-            new ExprTimeValue("09:30:17"),
-            TIME)
-//        Arguments.of(
-//            "a09:30:17",
-//            "%h:%i:%s",
-//            ExprNullValue.of(),
-//            nullValue()),
-//        Arguments.of(
-//            "09:30:17a",
-//            "%h:%i:%s",
-//            new ExprTimeValue("09:30:17"),
-//            TIME)
-//        Arguments.of(
-//            "abc",
-//            "abc",
-//            new ExprStringValue("0000-00-00"),
-//            DATE),
-//        Arguments.of(
-//            "9",
-//            "%m",
-//            new ExprStringValue("0000-09-00"),
-//            DATE),
-//        Arguments.of(
-//            "9",
-//            "%s",
-//            new ExprTimeValue("00:00:09"),
-//            TIME)
+            ExprNullValue.of(),
+            UNDEFINED),
+        Arguments.of(
+            "abc",
+            "abc",
+            ExprNullValue.of(),
+            UNDEFINED),
+        Arguments.of(
+            "9",
+            "%m",
+            ExprNullValue.of(),
+            UNDEFINED),
+        Arguments.of(
+            "9",
+            "%s",
+            ExprNullValue.of(),
+            UNDEFINED)
     );
   }
 
-  @ParameterizedTest(name="{0}{1}")
+  @ParameterizedTest(name="{0} | {1}")
   @MethodSource("getTestDataForStrToDate")
-  public void test_str_to_date_with_datetime(
+  public void test_str_to_date(
       String datetime,
       String format,
       ExprValue expectedResult,

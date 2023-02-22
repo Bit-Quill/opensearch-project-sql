@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -337,41 +338,74 @@ class DateTimeFormatterUtil {
     return ExprCoreType.DATE;
   }
 
+  static private boolean checkValidTemporalAccessor(ExprCoreType type, TemporalAccessor ta) {
+    if (type == ExprCoreType.DATE) {
+      if (!ta.isSupported(ChronoField.YEAR) ||
+          !ta.isSupported(ChronoField.MONTH_OF_YEAR) ||
+          !ta.isSupported(ChronoField.DAY_OF_MONTH)) {
+        return false;
+      }
+    } else if (type == ExprCoreType.DATE) {
+      if (!ta.isSupported(ChronoField.HOUR_OF_DAY) ||
+          !ta.isSupported(ChronoField.MINUTE_OF_HOUR) ||
+          !ta.isSupported(ChronoField.SECOND_OF_MINUTE)) {
+        return false;
+      }
+    } else {
+      if (!ta.isSupported(ChronoField.YEAR) ||
+          !ta.isSupported(ChronoField.MONTH_OF_YEAR) ||
+          !ta.isSupported(ChronoField.DAY_OF_MONTH) ||
+          !ta.isSupported(ChronoField.HOUR_OF_DAY) ||
+          !ta.isSupported(ChronoField.MINUTE_OF_HOUR) ||
+          !ta.isSupported(ChronoField.SECOND_OF_MINUTE)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  static private ExprValue formatStrToDateReturn(TemporalAccessor ta, ExprValue formatExpr) {
+    switch (getReturnType(formatExpr)) {
+      case DATETIME:
+        return (checkValidTemporalAccessor(ExprCoreType.DATETIME, ta)) ?
+            new ExprDatetimeValue(LocalDateTime.from(ta)) : ExprNullValue.of();
+      case TIME:
+        return (checkValidTemporalAccessor(ExprCoreType.TIME, ta)) ?
+            new ExprTimeValue(LocalTime.from(ta)) : ExprNullValue.of();
+      default:
+        return (checkValidTemporalAccessor(ExprCoreType.DATE, ta)) ?
+            new ExprDateValue(LocalDate.from(ta)) : ExprNullValue.of();
+    }
+  }
+
   static ExprValue parseStringWithDateOrTime(ExprValue datetimeStringExpr,
                                        ExprValue formatExpr) {
     StringBuffer cleanFormat = getCleanFormat(formatExpr);
-
+    TemporalAccessor ta;
     final Matcher matcher = pattern.matcher(cleanFormat.toString());
     final StringBuffer format = new StringBuffer();
-    try {
-      while (matcher.find()) {
-        matcher.appendReplacement(format,
-            STR_TO_DATE_HANDLERS.getOrDefault(matcher.group(), () ->
-                    String.format("'%s'", matcher.group().replaceFirst(MOD_LITERAL, "")))
-                .getFormat());
-      }
-    } catch (Exception e) {
-      return ExprNullValue.of();
+
+    while (matcher.find()) {
+      matcher.appendReplacement(format,
+          STR_TO_DATE_HANDLERS.getOrDefault(matcher.group(), () ->
+                  String.format("'%s'", matcher.group().replaceFirst(MOD_LITERAL, "")))
+              .getFormat());
     }
     matcher.appendTail(format);
 
     DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendPattern(format.toString())
         .toFormatter();
 
-    TemporalAccessor ta = formatter.parse(datetimeStringExpr.stringValue());
-
-    switch (getReturnType(formatExpr)) {
-      case DATETIME:
-        LocalDateTime datetime = LocalDateTime.from(ta);
-        return new ExprDatetimeValue(datetime);
-      case TIME:
-        LocalTime time = LocalTime.from(ta);
-        return new ExprTimeValue(time);
-      default:
-        LocalDate date = LocalDate.from(ta);
-        return new ExprDateValue(date);
+    //Return NULL for invalid parse in string to align with MySQL
+    try{
+      ta = formatter.parse(datetimeStringExpr.stringValue());
+    } catch (DateTimeException e) {
+      return ExprNullValue.of();
     }
 
+    //Return correct type according to format string
+    return formatStrToDateReturn(ta, formatExpr);
   }
 
 
