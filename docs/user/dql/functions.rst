@@ -2164,6 +2164,31 @@ Example::
     +--------------------------------------+
 
 
+STR_TO_DATE
+-----------
+
+Description
+>>>>>>>>>>>
+
+Usage: str_to_date(string, string) is used to extract a DATE, TIME, or DATETIME from the first argument string using the formats specified in the second argument string.
+Acceptable string format specifiers are the same as those used in the `DATE_FORMAT`_ function.
+Does return NULL when a statement cannot be parsed due to an invalid pair of arguments, and when 0 is provided for any field.
+
+Argument type: STRING, STRING
+
+Return type: DATE, DATETIME, TIME (dependent on the format string provided as the second argument)
+
+Example::
+
+    OS> SELECT str_to_date("01,5,2013", "%d,%m,%Y");
+    fetched rows / total rows = 1/1
+    +----------------------------------------+
+    | str_to_date("01,5,2013", "%d,%m,%Y")   |
+    |----------------------------------------|
+    | 2013-05-01                             |
+    +----------------------------------------+
+
+
 SUBDATE
 -------
 
