@@ -26,6 +26,7 @@ import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.window.WindowDefinition;
+import org.opensearch.sql.planner.PaginateOperator;
 
 /**
  * Todo, testing purpose, delete later.
@@ -156,6 +157,14 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
             new PhysicalPlanNodeVisitor<Integer, Object>() {};
 
     assertNull(physicalPlanNodeVisitor.visitML(plan, null));
+  }
+
+  @Test
+  public void test_visitPaginate() {
+    PhysicalPlanNodeVisitor physicalPlanNodeVisitor =
+            new PhysicalPlanNodeVisitor<Integer, Object>() {};
+
+    assertNull(physicalPlanNodeVisitor.visitPaginate(new PaginateOperator(plan, 42), null));
   }
 
   public static class PhysicalPlanPrinter extends PhysicalPlanNodeVisitor<String, Integer> {

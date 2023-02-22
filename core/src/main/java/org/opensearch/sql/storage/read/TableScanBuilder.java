@@ -109,6 +109,7 @@ public abstract class TableScanBuilder extends LogicalPlan {
     return visitor.visitTableScanBuilder(this, context);
   }
 
-  public void pushDownOffset(int i) {
+  public boolean pushDownOffset(int i) {
+    return false;
   }
 }
