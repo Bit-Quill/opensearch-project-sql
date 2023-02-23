@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 import static org.opensearch.sql.analysis.DataSourceSchemaIdentifierNameResolver.DEFAULT_DATASOURCE_NAME;
 import static org.opensearch.sql.utils.SystemIndexUtils.TABLE_INFO;
 
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -28,8 +29,6 @@ import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 import org.opensearch.sql.opensearch.storage.scan.OpenSearchPagedIndexScan;
 import org.opensearch.sql.opensearch.storage.system.OpenSearchSystemIndex;
 import org.opensearch.sql.storage.Table;
-
-import java.util.Map;
 
 @ExtendWith(MockitoExtension.class)
 class OpenSearchStorageEngineTest {

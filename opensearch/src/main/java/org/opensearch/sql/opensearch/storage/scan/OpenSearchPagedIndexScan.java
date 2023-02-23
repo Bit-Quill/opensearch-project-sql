@@ -13,8 +13,8 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
-import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 import org.opensearch.sql.opensearch.request.PagedRequestBuilder;
+import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 import org.opensearch.sql.storage.TableScanOperator;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
