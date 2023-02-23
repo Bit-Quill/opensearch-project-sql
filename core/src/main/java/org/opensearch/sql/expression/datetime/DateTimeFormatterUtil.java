@@ -6,8 +6,6 @@
 package org.opensearch.sql.expression.datetime;
 
 import com.google.common.collect.ImmutableMap;
-
-import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -21,8 +19,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.math3.analysis.function.Exp;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprNullValue;
@@ -41,19 +37,6 @@ class DateTimeFormatterUtil {
   private static final String SUFFIX_SPECIAL_TH = "th";
 
   private static final String NANO_SEC_FORMAT = "'%06d'";
-
-  private static final int DEFAULT_YEAR_VAL = 2000;
-
-  private static final int DEFAULT_MONTH_VAL = 1;
-
-  private static final int DEFAULT_DAY_VAL = 1;
-
-  private static final int DEFAULT_HOUR_VAL = 0;
-
-  private static final int DEFAULT_MINUTE_VAL = 0;
-
-  private static final int DEFAULT_SECOND_VAL = 0;
-
 
   private static String[] DATE_SPECIFIERS = {
       "%a", //Abbreviated weekday name (Sun..Sat)
@@ -345,7 +328,7 @@ class DateTimeFormatterUtil {
           !ta.isSupported(ChronoField.DAY_OF_MONTH)) {
         return false;
       }
-    } else if (type == ExprCoreType.DATE) {
+    } else if (type == ExprCoreType.TIME) {
       if (!ta.isSupported(ChronoField.HOUR_OF_DAY) ||
           !ta.isSupported(ChronoField.MINUTE_OF_HOUR) ||
           !ta.isSupported(ChronoField.SECOND_OF_MINUTE)) {
@@ -407,7 +390,6 @@ class DateTimeFormatterUtil {
     //Return correct type according to format string
     return formatStrToDateReturn(ta, formatExpr);
   }
-
 
   /**
    * Returns English suffix of incoming value.

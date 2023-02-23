@@ -27,6 +27,8 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.data.type.ExprCoreType.UNDEFINED;
 
 import com.google.common.collect.ImmutableList;
+
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -1426,9 +1428,17 @@ class DateTimeFunctionTest extends ExpressionTestBase {
             new ExprDateValue("2013-05-01"),
             DATE),
 
-        //TODO: Time arguments
+        Arguments.of(
+            "9,23,11",
+            "%h,%i,%s",
+            new ExprTimeValue("09:23:11"),
+            TIME),
 
-        //TODO: Datetime arguments
+        Arguments.of(
+            "May 1, 2013 - 9,23,11",
+            "%M %d, %Y - %h,%i,%s",
+            new ExprDatetimeValue("2013-05-01 09:23:11"),
+            DATETIME),
 
         //Invalid Arguments (should return null)
         Arguments.of(
