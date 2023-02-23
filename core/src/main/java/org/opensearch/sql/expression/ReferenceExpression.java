@@ -104,11 +104,6 @@ public class ReferenceExpression implements Expression {
   }
 
   private ExprValue resolve(ExprValue value, List<String> paths) {
-    if (value.type().equals(ExprCoreType.ARRAY)){
-      return new ExprCollectionValue(value.collectionValue().stream()
-          .map(val -> resolve(val, paths)).collect(Collectors.toList()));
-    }
-
     final ExprValue wholePathValue = value.keyValue(String.join(PATH_SEP, paths));
     if (!wholePathValue.isMissing() || paths.size() == 1) {
       return wholePathValue;
