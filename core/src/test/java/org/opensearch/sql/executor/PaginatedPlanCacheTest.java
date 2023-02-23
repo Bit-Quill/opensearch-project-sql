@@ -326,7 +326,7 @@ public class PaginatedPlanCacheTest {
   // test added for coverage only
   void compress_throws() {
     var mock = Mockito.mockConstructionWithAnswer(GZIPOutputStream.class, invocation -> null);
-    assertThrows(Throwable.class, () -> PaginatedPlanCache.compress("¯\\_(ツ)_/¯"));
+    assertThrows(Throwable.class, () -> PaginatedPlanCache.compress("\\_(`v`)_/"));
     mock.close();
   }
 

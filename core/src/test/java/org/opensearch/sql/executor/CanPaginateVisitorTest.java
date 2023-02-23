@@ -46,7 +46,6 @@ public class CanPaginateVisitorTest {
     assertFalse(plan.accept(visitor, null));
   }
 
-
   @Test
   // select x
   public void reject_query_without_from() {
@@ -112,12 +111,6 @@ public class CanPaginateVisitorTest {
   @Test
   // select * from y, z
   public void reject_query_with_select_from_multiple_indices() {
-    // TODO
-  }
-
-  @Test
-  // unreal case, added for coverage only
-  public void reject_project_with_multiple_nodes() {
     var plan = mock(Project.class);
     when(plan.getChild()).thenReturn(List.of(AstDSL.relation("dummy"), AstDSL.relation("pummy")));
     when(plan.getProjectList()).thenReturn(List.of(AstDSL.allFields()));
