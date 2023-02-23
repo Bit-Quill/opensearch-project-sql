@@ -1514,19 +1514,19 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     return Stream.of(
         Arguments.of(
             DSL.literal(new ExprDateValue("2020-08-07")),
-            5,
+            4,
             "weekday(DATE '2020-08-07')"),
         Arguments.of(
             DSL.literal(new ExprDateValue("2020-08-09")),
-            0,
+            6,
             "weekday(DATE '2020-08-09')"),
         Arguments.of(
             DSL.literal("2020-08-09"),
-            0,
+            6,
             "weekday(\"2020-08-09\")"),
         Arguments.of(
             DSL.literal("2020-08-09 01:02:03"),
-            0,
+            6,
             "weekday(\"2020-08-09 01:02:03\")")
     );
   }
@@ -1545,7 +1545,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void testDayOfWeekWithTimeType() {
+  public void testWeekdayWithTimeType() {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
     lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
     FunctionExpression expression = DSL.weekday(
@@ -1555,7 +1555,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         () -> assertEquals(INTEGER, eval(expression).type()),
         () -> assertEquals((
                 LocalDate.now(
-                    functionProperties.getQueryStartClock()).getDayOfWeek().getValue() % 7) + 1,
+                    functionProperties.getQueryStartClock()).getDayOfWeek().getValue() % 7),
             eval(expression).integerValue()),
         () -> assertEquals("weekday(TIME '12:23:34')", expression.toString())
     );
