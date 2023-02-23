@@ -4,7 +4,7 @@
  */
 
 
-package org.opensearch.sql.opensearch.storage;
+package org.opensearch.sql.opensearch.storage.scan;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -65,7 +65,7 @@ class OpenSearchIndexScanTest {
 
   @Test
   void queryEmptyResult() {
-    mockResponse();
+    mockResponse(client);
     try (OpenSearchIndexScan indexScan =
              new OpenSearchIndexScan(client, new OpenSearchRequestBuilder("test", 3, settings,
                  exprValueFactory))) {
@@ -77,7 +77,7 @@ class OpenSearchIndexScanTest {
 
   @Test
   void queryAllResultsWithQuery() {
-    mockResponse(new ExprValue[]{
+    mockResponse(client, new ExprValue[]{
         employee(1, "John", "IT"),
         employee(2, "Smith", "HR"),
         employee(3, "Allen", "IT")});
@@ -105,7 +105,7 @@ class OpenSearchIndexScanTest {
 
   @Test
   void queryAllResultsWithScroll() {
-    mockResponse(
+    mockResponse(client,
         new ExprValue[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
         new ExprValue[]{employee(3, "Allen", "IT")});
 
@@ -130,7 +130,7 @@ class OpenSearchIndexScanTest {
 
   @Test
   void querySomeResultsWithQuery() {
-    mockResponse(new ExprValue[]{
+    mockResponse(client, new ExprValue[]{
         employee(1, "John", "IT"),
         employee(2, "Smith", "HR"),
         employee(3, "Allen", "IT"),
@@ -158,7 +158,7 @@ class OpenSearchIndexScanTest {
 
   @Test
   void querySomeResultsWithScroll() {
-    mockResponse(
+    mockResponse(client,
         new ExprValue[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
         new ExprValue[]{employee(3, "Allen", "IT"), employee(4, "Bob", "HR")});
 
@@ -228,7 +228,7 @@ class OpenSearchIndexScanTest {
 
   @Test
   void pushDownHighlightWithRepeatingFields() {
-    mockResponse(
+    mockResponse(client,
         new ExprValue[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
         new ExprValue[]{employee(3, "Allen", "IT"), employee(4, "Bob", "HR")});
 
@@ -300,7 +300,7 @@ class OpenSearchIndexScanTest {
     }
   }
 
-  private void mockResponse(ExprValue[]... searchHitBatches) {
+  public static void mockResponse(OpenSearchClient client, ExprValue[]... searchHitBatches) {
     when(client.search(any()))
         .thenAnswer(
             new Answer<OpenSearchResponse>() {
@@ -324,14 +324,14 @@ class OpenSearchIndexScanTest {
             });
   }
 
-  protected ExprValue employee(int docId, String name, String department) {
+  public static ExprValue employee(int docId, String name, String department) {
     SearchHit hit = new SearchHit(docId);
     hit.sourceRef(
         new BytesArray("{\"name\":\"" + name + "\",\"department\":\"" + department + "\"}"));
     return tupleValue(hit);
   }
 
-  private ExprValue tupleValue(SearchHit hit) {
+  private static ExprValue tupleValue(SearchHit hit) {
     return ExprValueUtils.tupleValue(hit.getSourceAsMap());
   }
 }

@@ -47,6 +47,9 @@ class OpenSearchScrollRequestTest {
 
     request.setScrollId("scroll123");
     assertTrue(request.isScrollStarted());
+
+    request.reset();
+    assertFalse(request.isScrollStarted());
   }
 
   @Test
