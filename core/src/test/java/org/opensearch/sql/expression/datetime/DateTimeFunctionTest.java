@@ -1555,7 +1555,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         () -> assertEquals(INTEGER, eval(expression).type()),
         () -> assertEquals((
                 LocalDate.now(
-                    functionProperties.getQueryStartClock()).getDayOfWeek().getValue() % 7),
+                    functionProperties.getQueryStartClock()).getDayOfWeek().getValue() - 1),
             eval(expression).integerValue()),
         () -> assertEquals("weekday(TIME '12:23:34')", expression.toString())
     );
@@ -1576,15 +1576,15 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         //Feb. 29 of a leap year
         () -> weekdayQuery(DSL.weekday(
             functionProperties,
-            DSL.literal("2020-02-29")), 6, "weekday(\"2020-02-29\")"),
+            DSL.literal("2020-02-29")), 5, "weekday(\"2020-02-29\")"),
         //day after Feb. 29 of a leap year
         () -> weekdayQuery(DSL.weekday(
             functionProperties,
-            DSL.literal("2020-03-01")), 0, "weekday(\"2020-03-01\")"),
+            DSL.literal("2020-03-01")), 6, "weekday(\"2020-03-01\")"),
         //Feb. 28 of a non-leap year
         () -> weekdayQuery(DSL.weekday(
             functionProperties,
-            DSL.literal("2021-02-28")), 0, "weekday(\"2021-02-28\")"),
+            DSL.literal("2021-02-28")), 6, "weekday(\"2021-02-28\")"),
         //Feb. 29 of a non-leap year
         () -> assertThrows(
             SemanticCheckException.class, () ->  testInvalidWeekday("2021-02-29"))
