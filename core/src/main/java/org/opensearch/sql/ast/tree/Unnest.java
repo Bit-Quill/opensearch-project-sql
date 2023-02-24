@@ -7,6 +7,8 @@
 package org.opensearch.sql.ast.tree;
 
 import com.google.common.collect.ImmutableList;
+
+import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,11 +25,15 @@ import org.opensearch.sql.ast.expression.Function;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class Unnest extends UnresolvedPlan {
-  private final Function nested;
+  private List<Function> nested = new ArrayList<>();
   private UnresolvedPlan child;
 
   public Unnest(Function nested) {
-    this.nested = nested;
+    this.nested.add(nested);
+  }
+
+  public void add(Function nested) {
+    this.nested.add(nested);
   }
 
   @Override

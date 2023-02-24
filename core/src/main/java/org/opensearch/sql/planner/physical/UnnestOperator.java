@@ -28,9 +28,8 @@ public class UnnestOperator extends PhysicalPlan {
   @Getter
   private final PhysicalPlan input;
   @Getter
-  private final ReferenceExpression field;
+  private final List<Map<String, ReferenceExpression>> fields;
   @Getter
-  private final ReferenceExpression path; // TODO do we need this?
   List<Map<String, ExprValue>> result = new ArrayList<>();
   private ListIterator<Map<String, ExprValue>> flattenedResult = result.listIterator();
 
@@ -52,13 +51,15 @@ public class UnnestOperator extends PhysicalPlan {
 
   @Override
   public ExprValue next() {
-    if (!flattenedResult.hasNext()) {
-      result.clear();
-      ExprValue inputValue = input.next();
-      flatten(inputValue, result, this.field.toString());
-      flattenedResult = result.listIterator();
-    }
-    return new ExprTupleValue(new LinkedHashMap<>(flattenedResult.next()));
+//    if (!flattenedResult.hasNext()) {
+//      result.clear();
+//      ExprValue inputValue = input.next();
+//      flatten(inputValue, result, this.field.toString());
+//      flattenedResult = result.listIterator();
+//    }
+//    return new ExprTupleValue(new LinkedHashMap<>(flattenedResult.next()));
+    ExprValue inputValue = input.next();
+    return inputValue;
   }
 
 
@@ -129,8 +130,8 @@ public class UnnestOperator extends PhysicalPlan {
       }
     }
 
-    if (found) {
-      ret.add(Map.of(this.field.toString(), (ExprValue) currentObj));
-    }
+//    if (found) {
+//      ret.add(Map.of(this.field.toString(), (ExprValue) currentObj));
+//    }
   }
 }

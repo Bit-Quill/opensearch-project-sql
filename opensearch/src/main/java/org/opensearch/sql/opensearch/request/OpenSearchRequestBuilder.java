@@ -6,6 +6,8 @@
 
 package org.opensearch.sql.opensearch.request;
 
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.index.query.QueryBuilders.nestedQuery;
@@ -253,10 +255,9 @@ public class OpenSearchRequestBuilder {
   public void pushDownNested(LogicalNested nested) {
     initBoolQueryFilterIfNull();
     List<NestedQueryBuilder> nestedQueries = extractNestedQueries(query());
-
-    // TODO Support multiple fields?
-    buildInnerHit(nested.getField().toString(), findNestedQueryWithSamePath(nestedQueries, nested.getPath().toString()));
-
+    groupFieldNamesByPath(nested.getFields()).forEach(
+          (path, fieldNames) -> buildInnerHit(fieldNames, findNestedQueryWithSamePath(nestedQueries, path))
+        );
   }
 
   private void initBoolQueryFilterIfNull() {
@@ -266,6 +267,11 @@ public class OpenSearchRequestBuilder {
     if (query().filter().isEmpty()) {
       query().filter(boolQuery());
     }
+  }
+
+  private Map<String, List<String>> groupFieldNamesByPath(List<Map<String, ReferenceExpression>> fields) {
+    // TODO filter out reverse nested when supported - .filter(not(Field::isReverseNested))
+    return fields.stream().collect(Collectors.groupingBy(LogicalNested::getPathFromMap, mapping(LogicalNested::getFieldFromMap, toList())));
   }
 
   /**
@@ -289,9 +295,9 @@ public class OpenSearchRequestBuilder {
     return result;
   }
 
-  private void buildInnerHit(String field, NestedQueryBuilder query) {
+  private void buildInnerHit(List<String> paths, NestedQueryBuilder query) {
     query.innerHit(new InnerHitBuilder().setFetchSourceContext(
-        new FetchSourceContext(true, new String[] {field}, null)
+        new FetchSourceContext(true, paths.toArray(new String[0]), null)
     ));
   }
 
@@ -323,9 +329,5 @@ public class OpenSearchRequestBuilder {
 
   private BoolQueryBuilder query() {
     return (BoolQueryBuilder) sourceBuilder.query();
-  }
-
-  private <T> Predicate<T> not(Predicate<T> predicate) {
-    return predicate.negate();
   }
 }
