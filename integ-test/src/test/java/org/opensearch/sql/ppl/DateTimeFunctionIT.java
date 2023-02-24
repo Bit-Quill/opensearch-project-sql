@@ -9,6 +9,7 @@ package org.opensearch.sql.ppl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
+import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_CALCS;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DATE;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_PEOPLE2;
 import static org.opensearch.sql.sql.DateTimeFunctionIT.utcDateTimeNow;
@@ -768,6 +769,14 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
         "source=%s | eval f =  year('2020-09-16') | fields f", TEST_INDEX_DATE));
     verifySchema(result, schema("f", null, "integer"));
     verifySome(result.getJSONArray("datarows"), rows(2020));
+  }
+
+  @Test
+  public void testYearweek() throws IOException {
+    JSONObject result = executeQuery(
+        String.format("SELECT yearweek(date0), yearweek(date0, 4) FROM %s", TEST_INDEX_CALCS));
+
+    verifyDataRows(result, rows(189952, 189952), rows(189953, 190001));
   }
 
   void verifyDateFormat(String date, String type, String format, String formatted) throws IOException {
