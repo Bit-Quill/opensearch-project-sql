@@ -137,6 +137,8 @@ Return type: Wider type between types of x and y and fits return value
 
 Synonyms: Addition Symbol (+)
 
+Synonyms: +
+
 Example::
 
     os> SELECT ADD(2, 1), ADD(2.5, 3);
@@ -421,6 +423,8 @@ Return type: Wider type between types of x and y and y and fits return value
 
 Synonyms: Division Symbol (/)
 
+Synonyms: /
+
 Example::
 
     os> SELECT DIVIDE(10, 2), DIVIDE(7.5, 3);
@@ -585,6 +589,8 @@ Return type: Wider type between types of x and y and fits return value if y is n
 
 Synonyms: Modulus Symbol (%), `MODULUS`_
 
+Synonyms: %, MODULUS
+
 Example::
 
     os> SELECT MOD(3, 2), MOD(3.1, 2)
@@ -608,6 +614,8 @@ Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 Return type: Wider type between types of x and y and fits return value if y is nonzero value. If y equals to 0, then returns NULL.
 
 Synonyms: Modulus Symbol (%), `MOD`_
+
+Synonyms: %, MOD
 
 Example::
 
@@ -633,6 +641,8 @@ Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 Return type: Wider type between types of x and y and fits return value if y is nonzero value. If y equals to 0, then returns NULL.
 
 Synonyms: Multiplication Symbol (\*)
+
+Synonyms: *
 
 Example::
 
@@ -930,6 +940,8 @@ Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 Return type: Wider type between types of x and y and y and fits return value
 
 Synonyms: Subtraction Symbol (-)
+
+Synonyms: -
 
 Example::
 
