@@ -407,8 +407,11 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   @Override
   public LogicalPlan visitUnnest(Unnest node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
-    List<Expression> args = node.getNested().getFuncArgs().stream()
-        .map(e -> expressionAnalyzer.analyze(e, context)).collect(Collectors.toList());
+    List<List<Expression>> args = node.getNested().stream()
+        .map(f -> f.getFuncArgs().stream()
+            .map(e -> expressionAnalyzer.analyze(e, context))
+            .collect(Collectors.toList()))
+        .collect(Collectors.toList());
     return new LogicalNested(child, args);
   }
 
