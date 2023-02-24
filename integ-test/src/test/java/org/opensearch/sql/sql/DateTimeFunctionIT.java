@@ -934,7 +934,7 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
 
   @Test
   public void testWeekday() throws IOException {
-    JSONObject result = executeQuery(String.format("SELECT weekday(datetime0) FROM %s LIMIT 3"));
+    JSONObject result = executeQuery(String.format("SELECT weekday(datetime0) FROM %s LIMIT 3", TEST_INDEX_CALCS));
     verifyDataRows(result, rows(3), rows(1), rows(2));
   }
 
