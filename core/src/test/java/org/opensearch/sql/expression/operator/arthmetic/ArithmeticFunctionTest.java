@@ -236,34 +236,34 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
     assertEquals(String.format("divide(%s, 0)", op1.toString()), expression.toString());
   }
 
-  @ParameterizedTest(name = "modulus({1}, {2})")
+  @ParameterizedTest(name = "modulo({1}, {2})")
   @MethodSource("arithmeticFunctionArguments")
-  public void modulus(ExprValue op1, ExprValue op2) {
-    FunctionExpression expression = DSL.modulus(literal(op1), literal(op2));
+  public void modulo(ExprValue op1, ExprValue op2) {
+    FunctionExpression expression = DSL.module(literal(op1), literal(op2));
     ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
     assertEquals(expectedType, expression.type());
-    assertValueEqual(BuiltinFunctionName.MODULUS, expectedType, op1, op2, expression.valueOf());
+    assertValueEqual(BuiltinFunctionName.MODULES, expectedType, op1, op2, expression.valueOf());
     assertEquals(String.format("%%(%s, %s)", op1.toString(), op2.toString()),
         expression.toString());
 
-    expression = DSL.modulus(literal(op1), literal(new ExprShortValue(0)));
+    expression = DSL.module(literal(op1), literal(new ExprShortValue(0)));
     expectedType = WideningTypeRule.max(op1.type(), SHORT);
     assertEquals(expectedType, expression.type());
     assertTrue(expression.valueOf(valueEnv()).isNull());
     assertEquals(String.format("%%(%s, 0)", op1.toString()), expression.toString());
   }
 
-  @ParameterizedTest(name = "modulusFunction({1}, {2})")
+  @ParameterizedTest(name = "modulus({1}, {2})")
   @MethodSource("arithmeticFunctionArguments")
   public void modulusFunction(ExprValue op1, ExprValue op2) {
-    FunctionExpression expression = DSL.modulusFunction(literal(op1), literal(op2));
+    FunctionExpression expression = DSL.modulus(literal(op1), literal(op2));
     ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
     assertEquals(expectedType, expression.type());
     assertValueEqual(BuiltinFunctionName.MODULUS, expectedType, op1, op2, expression.valueOf());
     assertEquals(String.format("modulus(%s, %s)", op1.toString(), op2.toString()),
             expression.toString());
 
-    expression = DSL.modulusFunction(literal(op1), literal(new ExprShortValue(0)));
+    expression = DSL.modulus(literal(op1), literal(new ExprShortValue(0)));
     expectedType = WideningTypeRule.max(op1.type(), SHORT);
     assertEquals(expectedType, expression.type());
     assertTrue(expression.valueOf(valueEnv()).isNull());
@@ -296,8 +296,8 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
           case MULTIPLYFUNCTION:
             assertEquals(vb1 * vb2, vbActual);
             return;
+          case MODULES:
           case MODULUS:
-          case MODULUSFUNCTION:
           case MOD:
             assertEquals(vb1 % vb2, vbActual);
             return;
@@ -325,8 +325,8 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
           case MULTIPLYFUNCTION:
             assertEquals(vs1 * vs2, vsActual);
             return;
+          case MODULES:
           case MODULUS:
-          case MODULUSFUNCTION:
           case MOD:
             assertEquals(vs1 % vs2, vsActual);
             return;
@@ -354,8 +354,8 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
           case MULTIPLYFUNCTION:
             assertEquals(vi1 * vi2, viActual);
             return;
+          case MODULES:
           case MODULUS:
-          case MODULUSFUNCTION:
           case MOD:
             assertEquals(vi1 % vi2, viActual);
             return;
@@ -383,8 +383,8 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
           case MULTIPLYFUNCTION:
             assertEquals(vl1 * vl2, vlActual);
             return;
+          case MODULES:
           case MODULUS:
-          case MODULUSFUNCTION:
           case MOD:
             assertEquals(vl1 % vl2, vlActual);
             return;
@@ -412,8 +412,8 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
           case MULTIPLYFUNCTION:
             assertEquals(vf1 * vf2, vfActual);
             return;
+          case MODULES:
           case MODULUS:
-          case MODULUSFUNCTION:
           case MOD:
             assertEquals(vf1 % vf2, vfActual);
             return;
@@ -441,8 +441,8 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
           case MULTIPLYFUNCTION:
             assertEquals(vd1 * vd2, vdActual);
             return;
-          case MODULUS:
-          case MODULUSFUNCTION:
+          case MODULES:
+          case MODULUS :
           case MOD:
             assertEquals(vd1 % vd2, vdActual);
             return;

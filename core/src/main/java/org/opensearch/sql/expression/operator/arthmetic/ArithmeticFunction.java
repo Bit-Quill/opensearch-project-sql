@@ -51,8 +51,8 @@ public class ArithmeticFunction {
     repository.register(multiplyFunction());
     repository.register(divide());
     repository.register(divideFunction());
+    repository.register(modules());
     repository.register(modulus());
-    repository.register(modulusFunction());
     repository.register(mod());
   }
 
@@ -104,7 +104,7 @@ public class ArithmeticFunction {
   /**
    * Definition of subtract(x, y) function.
    * Returns the number x minus number y
-   * The supported signature of multiply function is
+   * The supported signature of subtract function is
    * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
    * -> wider type between types of x and y
    */
@@ -241,17 +241,18 @@ public class ArithmeticFunction {
   }
 
   /**
-   * Definition of modulus(x, y) function.
+   * Definition of modulo(x, y) function.
    * Returns the number x modulo by number y
-   * The supported signature of modulus function is
+   * The supported signature of modulo function is
    * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
    * -> wider type between types of x and y
    */
-  private static DefaultFunctionResolver modulusBase(FunctionName functionName) {
+  private static DefaultFunctionResolver modulesBase(FunctionName functionName) {
     return FunctionDSL.define(functionName,
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprByteValue(v1.byteValue() % v2.byteValue())),
+                            (v1, v2) -> v2.byteValue() == 0 ? ExprNullValue.of() :
+                                    new ExprByteValue(v1.byteValue() % v2.byteValue())),
                     BYTE, BYTE, BYTE),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
@@ -281,15 +282,15 @@ public class ArithmeticFunction {
     );
   }
 
-  private static DefaultFunctionResolver modulus() {
-    return modulusBase(BuiltinFunctionName.MODULUS.getName());
+  private static DefaultFunctionResolver modules() {
+    return modulesBase(BuiltinFunctionName.MODULES.getName());
   }
 
-  private static DefaultFunctionResolver modulusFunction() {
-    return modulusBase(BuiltinFunctionName.MODULUSFUNCTION.getName());
+  private static DefaultFunctionResolver modulus() {
+    return modulesBase(BuiltinFunctionName.MODULUS.getName());
   }
 
   private static DefaultFunctionResolver mod() {
-    return modulusBase(BuiltinFunctionName.MOD.getName());
+    return modulesBase(BuiltinFunctionName.MOD.getName());
   }
 }

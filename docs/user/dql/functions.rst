@@ -129,11 +129,13 @@ ADD
 Description
 >>>>>>>>>>>
 
-Usage: add(x, y) calculates x plus y, alternative grammar to using the + symbol.
+Usage: add(x, y) calculates x plus y.
 
 Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: Wider type between types of x and y
+
+Synonyms: +
 
 Example::
 
@@ -411,11 +413,13 @@ DIVIDE
 Description
 >>>>>>>>>>>
 
-Usage: divide(x, y) calculates x divided by y, alternative grammar to using the / symbol.
+Usage: divide(x, y) calculates x divided by y.
 
 Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: Wider type between types of x and y
+
+Synonyms: /
 
 Example::
 
@@ -579,6 +583,8 @@ Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: Wider type between types of n and m if m is nonzero value. If m equals to 0, then returns NULL.
 
+Synonyms: %, MODULUS
+
 Example::
 
     os> SELECT MOD(3, 2), MOD(3.1, 2)
@@ -595,11 +601,13 @@ MODULUS
 Description
 >>>>>>>>>>>
 
-Usage: MODULUS(x, y) calculates the remainder of the number x divided by y, alternative grammar to using the % symbol.
+Usage: MODULUS(x, y) calculates the remainder of the number x divided by y.
 
 Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: Wider type between types of x and y if m is nonzero value. If y equals to 0, then returns NULL.
+
+Synonyms: %, MOD
 
 Example::
 
@@ -618,11 +626,13 @@ MULTIPLY
 Description
 >>>>>>>>>>>
 
-Usage: MULTIPLY(x, y) calculates the multiplication of x and y, alternative grammar to using the * symbol.
+Usage: MULTIPLY(x, y) calculates the multiplication of x and y.
 
 Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: Wider type between types of x and y
+
+Synonyms: *
 
 Example::
 
@@ -913,11 +923,13 @@ SUBTRACT
 Description
 >>>>>>>>>>>
 
-Usage: subtract(x, y) calculates x minus y, alternative grammar to using the - symbol.
+Usage: subtract(x, y) calculates x minus y.
 
 Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: Wider type between types of x and y
+
+Synonyms: -
 
 Example::
 

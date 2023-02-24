@@ -477,12 +477,12 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.DIVIDEFUNCTION, expressions);
   }
 
-  public static FunctionExpression modulus(Expression... expressions) {
-    return compile(FunctionProperties.None, BuiltinFunctionName.MODULUS, expressions);
+  public static FunctionExpression module(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.MODULES, expressions);
   }
 
-  public static FunctionExpression modulusFunction(Expression... expressions) {
-    return compile(FunctionProperties.None, BuiltinFunctionName.MODULUSFUNCTION, expressions);
+  public static FunctionExpression modulus(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.MODULUS, expressions);
   }
 
   public static FunctionExpression substr(Expression... expressions) {

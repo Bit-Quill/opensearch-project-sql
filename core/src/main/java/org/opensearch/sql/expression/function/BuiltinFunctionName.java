@@ -34,7 +34,6 @@ public enum BuiltinFunctionName {
   LOG(FunctionName.of("log")),
   LOG10(FunctionName.of("log10")),
   LOG2(FunctionName.of("log2")),
-  MOD(FunctionName.of("mod")),
   PI(FunctionName.of("pi")),
   POW(FunctionName.of("pow")),
   POWER(FunctionName.of("power")),
@@ -139,8 +138,9 @@ public enum BuiltinFunctionName {
   MULTIPLYFUNCTION(FunctionName.of("multiply")),
   DIVIDE(FunctionName.of("/")),
   DIVIDEFUNCTION(FunctionName.of("divide")),
-  MODULUS(FunctionName.of("%")),
-  MODULUSFUNCTION(FunctionName.of("modulus")),
+  MOD(FunctionName.of("mod")),
+  MODULES(FunctionName.of("%")),
+  MODULUS(FunctionName.of("modulus")),
 
   /**
    * Boolean Operators.
