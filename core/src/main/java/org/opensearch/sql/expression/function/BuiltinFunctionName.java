@@ -131,15 +131,15 @@ public enum BuiltinFunctionName {
    */
   ADD(FunctionName.of("+")),
   ADDFUNCTION(FunctionName.of("add")),
-  SUBTRACT(FunctionName.of("-")),
-  SUBTRACTFUNCTION(FunctionName.of("subtract")),
-  MULTIPLY(FunctionName.of("*")),
-  MULTIPLYFUNCTION(FunctionName.of("multiply")),
   DIVIDE(FunctionName.of("/")),
   DIVIDEFUNCTION(FunctionName.of("divide")),
+  MOD(FunctionName.of("mod")),
   MODULUS(FunctionName.of("%")),
   MODULUSFUNCTION(FunctionName.of("modulus")),
-  MOD(FunctionName.of("mod")),
+  MULTIPLY(FunctionName.of("*")),
+  MULTIPLYFUNCTION(FunctionName.of("multiply")),
+  SUBTRACT(FunctionName.of("-")),
+  SUBTRACTFUNCTION(FunctionName.of("subtract")),
 
   /**
    * Boolean Operators.
