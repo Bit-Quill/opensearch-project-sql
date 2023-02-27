@@ -295,54 +295,6 @@ class DateTimeFormatterUtil {
     return getFormattedString(formatExpr, TIME_HANDLERS, time);
   }
 
-  private static DateTimeFormatter buildFormatter(ExprValue formatExpr) {
-
-    //Replace patterns with % for Java DateTimeFormatter
-    StringBuffer cleanFormat = getCleanFormat(formatExpr);
-    final Matcher matcher = pattern.matcher(cleanFormat.toString());
-    final StringBuffer format = new StringBuffer();
-
-    while (matcher.find()) {
-      matcher.appendReplacement(format,
-          STR_TO_DATE_FORMATS.getOrDefault(matcher.group(),
-              String.format("'%s'", matcher.group().replaceFirst(MOD_LITERAL, ""))));
-    }
-    matcher.appendTail(format);
-
-    //Build Formatter with default values based on what inputs are provided.
-    String formatString = formatExpr.stringValue();
-    boolean hasDate = false;
-    boolean hasTime = false;
-    for (String dateSpecifier: DATE_SPECIFIERS) {
-      if (formatString.contains(dateSpecifier)){
-        hasDate = true;
-      }
-    }
-    for (String timeSpecifier: TIME_SPECIFIERS) {
-      if (formatString.contains(timeSpecifier)){
-        hasTime = true;
-      }
-    }
-
-    if (hasDate && hasTime) {
-      return new DateTimeFormatterBuilder()
-          .appendPattern(format.toString()).toFormatter();
-    }
-    if (!hasTime) {
-      return new DateTimeFormatterBuilder().appendPattern(format.toString())
-          .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
-          .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
-          .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
-          .toFormatter();
-    }
-    return new DateTimeFormatterBuilder().appendPattern(format.toString())
-        .parseDefaulting(ChronoField.YEAR, 1)
-        .parseDefaulting(ChronoField.MONTH_OF_YEAR, 1)
-        .parseDefaulting(ChronoField.DAY_OF_MONTH, 1)
-        .toFormatter();
-
-  }
-
   static private boolean canGetDate(TemporalAccessor ta) {
     if (!ta.isSupported(ChronoField.YEAR) ||
         !ta.isSupported(ChronoField.MONTH_OF_YEAR) ||
@@ -368,22 +320,63 @@ class DateTimeFormatterUtil {
     return false;
   }
 
-  static private ExprValue formatStrToDateReturn(TemporalAccessor ta) {
-    if(!isValidTemporalAccessor(ta)) {
-      return  ExprNullValue.of();
+  static private DateTimeFormatterBuilder getBuilderWithDefaultVals(
+      TemporalAccessor taWithMissingFields) {
+
+    DateTimeFormatterBuilder formatterBuilder = new DateTimeFormatterBuilder();
+
+    if (!taWithMissingFields.isSupported(ChronoField.YEAR) ) {
+      formatterBuilder.parseDefaulting(ChronoField.YEAR, 1);
     }
-    return new ExprDatetimeValue(LocalDateTime.from(ta));
+    if (!taWithMissingFields.isSupported(ChronoField.MONTH_OF_YEAR)) {
+      formatterBuilder.parseDefaulting(ChronoField.MONTH_OF_YEAR, 1);
+    }
+    if(!taWithMissingFields.isSupported(ChronoField.DAY_OF_MONTH)) {
+      formatterBuilder.parseDefaulting(ChronoField.DAY_OF_MONTH, 1);
+    }
+    if (!taWithMissingFields.isSupported(ChronoField.HOUR_OF_DAY) ) {
+      formatterBuilder.parseDefaulting(ChronoField.HOUR_OF_DAY, 0);
+    }
+    if (!taWithMissingFields.isSupported(ChronoField.MINUTE_OF_HOUR)) {
+      formatterBuilder.parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0);
+    }
+    if(!taWithMissingFields.isSupported(ChronoField.SECOND_OF_MINUTE)) {
+      formatterBuilder.parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0);
+    }
+
+    return formatterBuilder;
   }
 
   static ExprValue parseStringWithDateOrTime(ExprValue datetimeStringExpr,
                                        ExprValue formatExpr) {
-    TemporalAccessor ta;
-    DateTimeFormatter formatter = buildFormatter(formatExpr);
+
+    //Replace patterns with % for Java DateTimeFormatter
+    StringBuffer cleanFormat = getCleanFormat(formatExpr);
+    final Matcher matcher = pattern.matcher(cleanFormat.toString());
+    final StringBuffer format = new StringBuffer();
+
+    while (matcher.find()) {
+      matcher.appendReplacement(format,
+          STR_TO_DATE_FORMATS.getOrDefault(matcher.group(),
+              String.format("'%s'", matcher.group().replaceFirst(MOD_LITERAL, ""))));
+    }
+    matcher.appendTail(format);
 
     //Return NULL for invalid parse in string to align with MySQL
     try{
-      ta = formatter.parse(datetimeStringExpr.stringValue());
-      return formatStrToDateReturn(ta);
+      //Get Temporal Accessor to initially parse string without default values
+      TemporalAccessor taWithMissingFields = new DateTimeFormatterBuilder()
+          .appendPattern(format.toString()).toFormatter().parse(datetimeStringExpr.stringValue());
+
+      //Return null if temporal accessor is invalid for Date/Time/Datetime
+      if(!isValidTemporalAccessor(taWithMissingFields)) {
+        return  ExprNullValue.of();
+      }
+      //Get Temporal Accessor with default values filled in;
+      TemporalAccessor cleanTA = getBuilderWithDefaultVals(taWithMissingFields)
+          .appendPattern(format.toString()).toFormatter().parse(datetimeStringExpr.stringValue());
+
+      return new ExprDatetimeValue(LocalDateTime.from(cleanTA));
     } catch (DateTimeException e) {
       return ExprNullValue.of();
     }
