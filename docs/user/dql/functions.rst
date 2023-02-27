@@ -137,7 +137,7 @@ Return type: Wider type between types of x and y and fits return value
 
 Synonyms: Addition Symbol (+)
 
-Synonyms: +
+Synonyms: Addition Symbol (+)
 
 Example::
 
@@ -423,7 +423,7 @@ Return type: Wider type between types of x and y and y and fits return value
 
 Synonyms: Division Symbol (/)
 
-Synonyms: /
+Synonyms: Division Symbol (/)
 
 Example::
 
@@ -589,7 +589,7 @@ Return type: Wider type between types of x and y and fits return value if y is n
 
 Synonyms: Modulus Symbol (%), `MODULUS`_
 
-Synonyms: %, MODULUS
+Synonyms: Modulus Symbol (%), `MODULUS`_
 
 Example::
 
@@ -615,7 +615,7 @@ Return type: Wider type between types of x and y and fits return value if y is n
 
 Synonyms: Modulus Symbol (%), `MOD`_
 
-Synonyms: %, MOD
+Synonyms: Modulus Symbol (%), `MOD`_
 
 Example::
 
@@ -642,7 +642,7 @@ Return type: Wider type between types of x and y and fits return value if y is n
 
 Synonyms: Multiplication Symbol (\*)
 
-Synonyms: *
+Synonyms: Multiplication Symbol (\*)
 
 Example::
 
@@ -941,7 +941,7 @@ Return type: Wider type between types of x and y and y and fits return value
 
 Synonyms: Subtraction Symbol (-)
 
-Synonyms: -
+Synonyms: Subtraction Symbol (-)
 
 Example::
 
