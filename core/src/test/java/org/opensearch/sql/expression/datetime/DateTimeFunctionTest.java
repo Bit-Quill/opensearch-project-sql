@@ -1860,12 +1860,12 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         Arguments.of("2019-01-07", 5, 201901),
         Arguments.of("2019-01-07", 6, 201902),
         Arguments.of("2019-01-07", 7, 201901),
-        Arguments.of("2000-01-01", 0, 199552),
-        Arguments.of("2000-01-01", 2, 199552),
-        Arguments.of("1999-12-31", 0, 199552)
+        Arguments.of("2000-01-01", 0, 199952),
+        Arguments.of("2000-01-01", 2, 199952),
+        Arguments.of("1999-12-31", 0, 199952)
     );
   }
-  @ParameterizedTest(name = "{1}{2}")
+  @ParameterizedTest(name = "{0} | {1}")
   @MethodSource("getTestDataForYearweek")
   public void testWeekyear(String date, int mode, int expected) {
     lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
