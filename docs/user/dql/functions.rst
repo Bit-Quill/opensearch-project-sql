@@ -133,7 +133,7 @@ Usage: add(x, y) calculates x plus y.
 
 Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
-Return type: Wider type between types of x and y
+Return type: Wider type between types of x and y and fits return value
 
 Synonyms: Addition Symbol (+)
 
@@ -417,7 +417,7 @@ Usage: divide(x, y) calculates x divided by y.
 
 Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
-Return type: Wider type between types of x and y
+Return type: Wider type between types of x and y and y and fits return value
 
 Synonyms: Division Symbol (/)
 
@@ -577,11 +577,11 @@ MOD
 Description
 >>>>>>>>>>>
 
-Usage: MOD(n, m) calculates the remainder of the number n divided by m.
+Usage: MOD(x, y) calculates the remainder of the number x divided by y.
 
 Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
-Return type: Wider type between types of n and m if m is nonzero value. If m equals to 0, then returns NULL.
+Return type: Wider type between types of x and y and fits return value if y is nonzero value. If y equals to 0, then returns NULL.
 
 Synonyms: Modulus Symbol (%), `MODULUS`_
 
@@ -605,7 +605,7 @@ Usage: MODULUS(x, y) calculates the remainder of the number x divided by y.
 
 Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
-Return type: Wider type between types of x and y if m is nonzero value. If y equals to 0, then returns NULL.
+Return type: Wider type between types of x and y and fits return value if y is nonzero value. If y equals to 0, then returns NULL.
 
 Synonyms: Modulus Symbol (%), `MOD`_
 
@@ -630,7 +630,7 @@ Usage: MULTIPLY(x, y) calculates the multiplication of x and y.
 
 Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
-Return type: Wider type between types of x and y
+Return type: Wider type between types of x and y and fits return value if y is nonzero value. If y equals to 0, then returns NULL.
 
 Synonyms: Multiplication Symbol (\*)
 
@@ -927,7 +927,7 @@ Usage: subtract(x, y) calculates x minus y.
 
 Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
-Return type: Wider type between types of x and y
+Return type: Wider type between types of x and y and y and fits return value
 
 Synonyms: Subtraction Symbol (-)
 

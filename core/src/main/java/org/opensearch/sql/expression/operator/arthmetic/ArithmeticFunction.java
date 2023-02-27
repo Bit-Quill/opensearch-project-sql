@@ -67,25 +67,25 @@ public class ArithmeticFunction {
     return FunctionDSL.define(functionName,
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprByteValue(v1.byteValue() + v2.byteValue())),
-            BYTE, BYTE, BYTE),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
                 (v1, v2) -> new ExprShortValue(v1.shortValue() + v2.shortValue())),
-            SHORT, SHORT, SHORT),
+            BYTE, BYTE, SHORT),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprIntegerValue(Math.addExact(v1.integerValue(),
-                    v2.integerValue()))),
-            INTEGER, INTEGER, INTEGER),
+                (v1, v2) -> new ExprIntegerValue(v1.integerValue() + v2.integerValue())),
+            SHORT, SHORT, INTEGER),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprLongValue(Math.addExact(v1.longValue(),
+                    v2.longValue()))),
+            INTEGER, INTEGER, LONG),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1, v2) -> new ExprLongValue(Math.addExact(v1.longValue(), v2.longValue()))),
             LONG, LONG, LONG),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprFloatValue(v1.floatValue() + v2.floatValue())),
-            FLOAT, FLOAT, FLOAT),
+                (v1, v2) -> new ExprDoubleValue(v1.doubleValue() + v2.doubleValue())),
+            FLOAT, FLOAT, DOUBLE),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1, v2) -> new ExprDoubleValue(v1.doubleValue() + v2.doubleValue())),
@@ -112,18 +112,19 @@ public class ArithmeticFunction {
     return FunctionDSL.define(functionName,
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprByteValue(v1.byteValue() / v2.byteValue())),
-                    BYTE, BYTE, BYTE),
+                            (v1, v2) -> v2.byteValue() == 0 ? ExprNullValue.of() :
+                                    new ExprShortValue(v1.shortValue() / v2.shortValue())),
+                    BYTE, BYTE, SHORT),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                                    new ExprShortValue(v1.shortValue() / v2.shortValue())),
-                    SHORT, SHORT, SHORT),
+                                    new ExprIntegerValue(v1.integerValue() / v2.integerValue())),
+                    SHORT, SHORT, INTEGER),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> v2.integerValue() == 0 ? ExprNullValue.of() :
-                                    new ExprIntegerValue(v1.integerValue() / v2.integerValue())),
-                    INTEGER, INTEGER, INTEGER),
+                                    new ExprLongValue(v1.longValue() / v2.longValue())),
+                    INTEGER, INTEGER, LONG),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> v2.longValue() == 0 ? ExprNullValue.of() :
@@ -132,8 +133,8 @@ public class ArithmeticFunction {
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> v2.floatValue() == 0 ? ExprNullValue.of() :
-                                    new ExprFloatValue(v1.floatValue() / v2.floatValue())),
-                    FLOAT, FLOAT, FLOAT),
+                                    new ExprDoubleValue(v1.doubleValue() / v2.doubleValue())),
+                    FLOAT, FLOAT, DOUBLE),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> v2.doubleValue() == 0 ? ExprNullValue.of() :
@@ -162,18 +163,18 @@ public class ArithmeticFunction {
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> v2.byteValue() == 0 ? ExprNullValue.of() :
-                                    new ExprByteValue(v1.byteValue() % v2.byteValue())),
-                    BYTE, BYTE, BYTE),
+                                    new ExprShortValue(v1.shortValue() % v2.shortValue())),
+                    BYTE, BYTE, SHORT),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                                    new ExprShortValue(v1.shortValue() % v2.shortValue())),
-                    SHORT, SHORT, SHORT),
+                                    new ExprIntegerValue(v1.integerValue() % v2.integerValue())),
+                    SHORT, SHORT, INTEGER),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> v2.integerValue() == 0 ? ExprNullValue.of() :
-                                    new ExprIntegerValue(v1.integerValue() % v2.integerValue())),
-                    INTEGER, INTEGER, INTEGER),
+                                    new ExprLongValue(v1.longValue() % v2.longValue())),
+                    INTEGER, INTEGER, LONG),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> v2.longValue() == 0 ? ExprNullValue.of() :
@@ -182,8 +183,8 @@ public class ArithmeticFunction {
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> v2.floatValue() == 0 ? ExprNullValue.of() :
-                                    new ExprFloatValue(v1.floatValue() % v2.floatValue())),
-                    FLOAT, FLOAT, FLOAT),
+                                    new ExprDoubleValue(v1.doubleValue() % v2.doubleValue())),
+                    FLOAT, FLOAT, DOUBLE),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> v2.doubleValue() == 0 ? ExprNullValue.of() :
@@ -215,25 +216,25 @@ public class ArithmeticFunction {
     return FunctionDSL.define(functionName,
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprByteValue(v1.byteValue() * v2.byteValue())),
-                    BYTE, BYTE, BYTE),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
                             (v1, v2) -> new ExprShortValue(v1.shortValue() * v2.shortValue())),
-                    SHORT, SHORT, SHORT),
+                    BYTE, BYTE, SHORT),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprIntegerValue(Math.multiplyExact(v1.integerValue(),
-                                    v2.integerValue()))),
-                    INTEGER, INTEGER, INTEGER),
+                            (v1, v2) -> new ExprIntegerValue(v1.integerValue() * v2.integerValue())),
+                    SHORT, SHORT, INTEGER),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> new ExprLongValue(Math.multiplyExact(v1.longValue(),
+                                    v2.longValue()))),
+                    INTEGER, INTEGER, LONG),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> new ExprLongValue(Math.multiplyExact(v1.longValue(), v2.longValue()))),
                     LONG, LONG, LONG),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprFloatValue(v1.floatValue() * v2.floatValue())),
-                    FLOAT, FLOAT, FLOAT),
+                            (v1, v2) -> new ExprDoubleValue(v1.doubleValue() * v2.doubleValue())),
+                    FLOAT, FLOAT, DOUBLE),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> new ExprDoubleValue(v1.doubleValue() * v2.doubleValue())),
@@ -260,25 +261,25 @@ public class ArithmeticFunction {
     return FunctionDSL.define(functionName,
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprByteValue(v1.byteValue() - v2.byteValue())),
-                    BYTE, BYTE, BYTE),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
                             (v1, v2) -> new ExprShortValue(v1.shortValue() - v2.shortValue())),
-                    SHORT, SHORT, SHORT),
+                    BYTE, BYTE, SHORT),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprIntegerValue(Math.subtractExact(v1.integerValue(),
-                                    v2.integerValue()))),
-                    INTEGER, INTEGER, INTEGER),
+                            (v1, v2) -> new ExprIntegerValue(v1.integerValue() - v2.integerValue())),
+                    SHORT, SHORT, INTEGER),
+            FunctionDSL.impl(
+                    FunctionDSL.nullMissingHandling(
+                            (v1, v2) -> new ExprLongValue(Math.subtractExact(v1.longValue(),
+                                    v2.longValue()))),
+                    INTEGER, INTEGER, LONG),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> new ExprLongValue(Math.subtractExact(v1.longValue(), v2.longValue()))),
                     LONG, LONG, LONG),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprFloatValue(v1.floatValue() - v2.floatValue())),
-                    FLOAT, FLOAT, FLOAT),
+                            (v1, v2) -> new ExprDoubleValue(v1.doubleValue() - v2.doubleValue())),
+                    FLOAT, FLOAT, DOUBLE),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
                             (v1, v2) -> new ExprDoubleValue(v1.doubleValue() - v2.doubleValue())),
