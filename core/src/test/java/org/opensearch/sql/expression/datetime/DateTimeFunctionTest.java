@@ -1888,24 +1888,27 @@ class DateTimeFunctionTest extends ExpressionTestBase {
             functionProperties,
             DSL.literal(new ExprTimeValue("10:11:12")), DSL.literal(0));
 
-    assertEquals(expected, eval(expression));
+    assertEquals(expected, eval(expression).integerValue());
   }
 
   @Test
   public void testInvalidYearWeek() {
+    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
+    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
+
     assertAll(
-      //test invalid month
-      () -> assertThrows(
-          SemanticCheckException.class,
-          () -> yearweekQuery("2019-13-05 01:02:03", 0, 0)),
-      //test invalid day
-      () -> assertThrows(
-          SemanticCheckException.class,
-          () -> yearweekQuery("2019-01-50 01:02:03", 0, 0)),
-      //test invalid leap year
-      () -> assertThrows(
-          SemanticCheckException.class,
-          () -> yearweekQuery("2019-02-29 01:02:03", 0, 0))
+        //test invalid month
+        () -> assertThrows(
+            SemanticCheckException.class,
+            () -> yearweekQuery("2019-13-05 01:02:03", 0, 0)),
+        //test invalid day
+        () -> assertThrows(
+            SemanticCheckException.class,
+            () -> yearweekQuery("2019-01-50 01:02:03", 0, 0)),
+        //test invalid leap year
+        () -> assertThrows(
+            SemanticCheckException.class,
+            () -> yearweekQuery("2019-02-29 01:02:03", 0, 0))
     );
   }
 

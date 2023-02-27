@@ -771,14 +771,6 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
     verifySome(result.getJSONArray("datarows"), rows(2020));
   }
 
-  @Test
-  public void testYearweek() throws IOException {
-    JSONObject result = executeQuery(
-        String.format("SELECT yearweek(date0), yearweek(date0, 4) FROM %s", TEST_INDEX_CALCS));
-
-    verifyDataRows(result, rows(189952, 189952), rows(189953, 190001));
-  }
-
   void verifyDateFormat(String date, String type, String format, String formatted) throws IOException {
     JSONObject result = executeQuery(String.format(
         "source=%s | eval f =  date_format(%s('%s'), '%s') | fields f",
