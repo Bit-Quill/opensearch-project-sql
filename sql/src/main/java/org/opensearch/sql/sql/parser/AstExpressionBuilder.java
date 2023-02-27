@@ -82,6 +82,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.AggregateFunction;
+import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.And;
 import org.opensearch.sql.ast.expression.Case;
@@ -184,7 +185,8 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
           "Invalid parameters for nested function, use syntax: nested(field | field, path | path, condition)");
     }
 
-    return new Function(NESTED.getName().getFunctionName(), args);
+    return new Alias(ctx.nestedFunction().nestedField().getText(),
+        new Function(NESTED.getName().getFunctionName(), args));
   }
 
   @Override
