@@ -579,7 +579,7 @@ Description
 
 Usage: MOD(n, m) calculates the remainder of the number n divided by m.
 
-Argument type: INTEGER/LONG/FLOAT/DOUBLE
+Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: Wider type between types of n and m if m is nonzero value. If m equals to 0, then returns NULL.
 
