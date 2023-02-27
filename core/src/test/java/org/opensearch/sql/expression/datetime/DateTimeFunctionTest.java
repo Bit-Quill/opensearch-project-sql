@@ -1865,6 +1865,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         Arguments.of("1999-12-31", 0, 199952)
     );
   }
+
   @ParameterizedTest(name = "{0} | {1}")
   @MethodSource("getTestDataForYearweek")
   public void testWeekyear(String date, int mode, int expected) {

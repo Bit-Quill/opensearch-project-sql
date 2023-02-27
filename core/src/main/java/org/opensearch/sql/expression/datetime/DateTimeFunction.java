@@ -1763,15 +1763,33 @@ public class DateTimeFunction {
    * @param mode ExprValue of Integer type.
    */
   private ExprValue exprYearweek(ExprValue date, ExprValue mode) {
+    return new ExprIntegerValue(extractYearweek(date.dateValue(), mode.integerValue()));
+  }
+
+  private int extractYearweek(LocalDate date, int mode) {
+
+    // Special case to rely on a different mode for week 0 of a given year.
+    // Needed to align with MySQL. Due to how modes for this function work.
+    // See description of modes here ...
+    // https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_week
+    if (CalendarLookup.getWeekNumber(mode, date) == 0) {
+      if (mode == 0 || mode == 1) {
+        mode = 2;
+      } else if (mode == 5) {
+        mode = 7;
+      }
+    }
+
     int formatted = Integer.parseInt(
         String.format(
             "%d%02d",
-            CalendarLookup.getYearNumber(mode.integerValue(), date.dateValue()),
-            CalendarLookup.getWeekNumber(mode.integerValue(), date.dateValue())
+            CalendarLookup.getYearNumber(mode, date),
+            CalendarLookup.getWeekNumber(mode, date)
+
         )
     );
 
-    return new ExprIntegerValue(formatted);
+    return formatted;
   }
 
   /**
@@ -1786,15 +1804,8 @@ public class DateTimeFunction {
   }
 
   private ExprValue yearweekToday(ExprValue mode, Clock clock) {
-    int formatted = Integer.parseInt(
-        String.format(
-            "%d%02d",
-            CalendarLookup.getYearNumber(mode.integerValue(), LocalDateTime.now(clock).toLocalDate()),
-            CalendarLookup.getWeekNumber(mode.integerValue(), LocalDateTime.now(clock).toLocalDate())
-        )
-    );
-
-    return new ExprIntegerValue(formatted);
+    return new ExprIntegerValue(
+        extractYearweek(LocalDateTime.now(clock).toLocalDate(), mode.integerValue()));
   }
 
   private ExprValue monthOfYearToday(Clock clock) {
