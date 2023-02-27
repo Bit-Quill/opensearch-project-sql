@@ -7,7 +7,6 @@
 package org.opensearch.sql.expression;
 
 import java.util.Arrays;
-import org.apache.commons.math3.analysis.function.Exp;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.data.model.ExprShortValue;
 import org.opensearch.sql.data.model.ExprValue;

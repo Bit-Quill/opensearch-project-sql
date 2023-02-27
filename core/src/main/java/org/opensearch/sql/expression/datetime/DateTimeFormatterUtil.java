@@ -173,41 +173,41 @@ class DateTimeFormatterUtil {
           .put("%x", (date) -> null)
           .build();
 
-  private static final Map<String, StrToDateHandler> STR_TO_DATE_HANDLERS =
-      ImmutableMap.<String, StrToDateHandler>builder()
-          .put("%a", () -> "EEE") // %a => EEE - Abbreviated weekday name (Sun..Sat)
-          .put("%b", () -> "LLL") // %b => LLL - Abbreviated month name (Jan..Dec)
-          .put("%c", () -> "M") // %c => MM - Month, numeric (0..12)
-          .put("%d", () -> "d") // %d => dd - Day of the month, numeric (00..31)
-          .put("%e", () -> "d") // %e => d - Day of the month, numeric (0..31)
-          .put("%H", () -> "H") // %H => HH - (00..23)
-          .put("%h", () -> "H") // %h => hh - (01..12)
-          .put("%I", () -> "h") // %I => hh - (01..12)
-          .put("%i", () -> "m") // %i => mm - Minutes, numeric (00..59)
-          .put("%j", () -> "DDD") // %j => DDD - (001..366)
-          .put("%k", () -> "H") // %k => H - (0..23)
-          .put("%l", () -> "h") // %l => h - (1..12)
-          .put("%p", () -> "a") // %p => a - AM or PM
-          .put("%M", () -> "LLLL") // %M => LLLL - Month name (January..December)
-          .put("%m", () -> "M") // %m => MM - Month, numeric (00..12)
-          .put("%r", () -> "hh:mm:ss a") // %r => hh:mm:ss a - hh:mm:ss followed by AM or PM
-          .put("%S", () -> "s") // %S => ss - Seconds (00..59)
-          .put("%s", () -> "s") // %s => ss - Seconds (00..59)
-          .put("%T", () -> "HH:mm:ss") // %T => HH:mm:ss
-          .put("%W", () -> "EEEE") // %W => EEEE - Weekday name (Sunday..Saturday)
-          .put("%Y", () -> "y") // %Y => yyyy - Year, numeric, 4 digits
-          .put("%y", () -> "u") // %y => yy - Year, numeric, 2 digits
-          .put("%f", () -> "n") // %f => n - Nanoseconds
+  private static final Map<String, String> STR_TO_DATE_FORMATS =
+      ImmutableMap.<String, String>builder()
+          .put("%a", "EEE") // %a => EEE - Abbreviated weekday name (Sun..Sat)
+          .put("%b", "LLL") // %b => LLL - Abbreviated month name (Jan..Dec)
+          .put("%c", "M") // %c => MM - Month, numeric (0..12)
+          .put("%d", "d") // %d => dd - Day of the month, numeric (00..31)
+          .put("%e", "d") // %e => d - Day of the month, numeric (0..31)
+          .put("%H", "H") // %H => HH - (00..23)
+          .put("%h", "H") // %h => hh - (01..12)
+          .put("%I", "h") // %I => hh - (01..12)
+          .put("%i", "m") // %i => mm - Minutes, numeric (00..59)
+          .put("%j", "DDD") // %j => DDD - (001..366)
+          .put("%k", "H") // %k => H - (0..23)
+          .put("%l", "h") // %l => h - (1..12)
+          .put("%p", "a") // %p => a - AM or PM
+          .put("%M", "LLLL") // %M => LLLL - Month name (January..December)
+          .put("%m", "M") // %m => MM - Month, numeric (00..12)
+          .put("%r", "hh:mm:ss a") // %r => hh:mm:ss a - hh:mm:ss followed by AM or PM
+          .put("%S", "s") // %S => ss - Seconds (00..59)
+          .put("%s", "s") // %s => ss - Seconds (00..59)
+          .put("%T", "HH:mm:ss") // %T => HH:mm:ss
+          .put("%W", "EEEE") // %W => EEEE - Weekday name (Sunday..Saturday)
+          .put("%Y", "y") // %Y => yyyy - Year, numeric, 4 digits
+          .put("%y", "u") // %y => yy - Year, numeric, 2 digits
+          .put("%f", "n") // %f => n - Nanoseconds
           //The following have been implemented but cannot be aligned with
           // MySQL due to the limitations of the DatetimeFormatter
-          .put("%D", () -> "d") // %w - Day of month with English suffix
-          .put("%w", () -> "e") // %w - Day of week (0 indexed)
-          .put("%U", () -> "w") // %U Week where Sunday is the first day - WEEK() mode 0
-          .put("%u", () -> "w") // %u Week where Monday is the first day - WEEK() mode 1
-          .put("%V", () -> "w") // %V Week where Sunday is the first day - WEEK() mode 2 used with %X
-          .put("%v", () -> "w") // %v Week where Monday is the first day - WEEK() mode 3 used with %x
-          .put("%X", () -> "yyyy") // %X Year for week where Sunday is the first day, 4 digits used with %V
-          .put("%x", () -> "yyyy" )// %x Year for week where Monday is the first day, 4 digits used with %v
+          .put("%D", "d") // %w - Day of month with English suffix
+          .put("%w", "e") // %w - Day of week (0 indexed)
+          .put("%U", "w") // %U Week where Sunday is the first day - WEEK() mode 0
+          .put("%u", "w") // %u Week where Monday is the first day - WEEK() mode 1
+          .put("%V", "w") // %V Week where Sunday is the first day - WEEK() mode 2 used with %X
+          .put("%v", "w") // %v Week where Monday is the first day - WEEK() mode 3 used with %x
+          .put("%X", "yyyy") // %X Year for week where Sunday is the first day, 4 digits used with %V
+          .put("%x", "yyyy" )// %x Year for week where Monday is the first day, 4 digits used with %v
           .build();
 
   private static final Pattern pattern = Pattern.compile("%.");
@@ -295,12 +295,24 @@ class DateTimeFormatterUtil {
     return getFormattedString(formatExpr, TIME_HANDLERS, time);
   }
 
-  private static ExprCoreType getReturnType(ExprValue formatStringExpr) {
-    String formatString = formatStringExpr.stringValue();
+  private static DateTimeFormatter buildFormatter(ExprValue formatExpr) {
 
+    //Replace patterns with % for Java DateTimeFormatter
+    StringBuffer cleanFormat = getCleanFormat(formatExpr);
+    final Matcher matcher = pattern.matcher(cleanFormat.toString());
+    final StringBuffer format = new StringBuffer();
+
+    while (matcher.find()) {
+      matcher.appendReplacement(format,
+          STR_TO_DATE_FORMATS.getOrDefault(matcher.group(),
+              String.format("'%s'", matcher.group().replaceFirst(MOD_LITERAL, ""))));
+    }
+    matcher.appendTail(format);
+
+    //Build Formatter with default values based on what inputs are provided.
+    String formatString = formatExpr.stringValue();
     boolean hasDate = false;
     boolean hasTime = false;
-
     for (String dateSpecifier: DATE_SPECIFIERS) {
       if (formatString.contains(dateSpecifier)){
         hasDate = true;
@@ -312,83 +324,69 @@ class DateTimeFormatterUtil {
       }
     }
 
-    if (hasDate && hasTime){
-      return ExprCoreType.DATETIME;
-    } else if (hasTime) {
-      return ExprCoreType.TIME;
+    if (hasDate && hasTime) {
+      return new DateTimeFormatterBuilder()
+          .appendPattern(format.toString()).toFormatter();
     }
+    if (!hasTime) {
+      return new DateTimeFormatterBuilder().appendPattern(format.toString())
+          .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+          .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+          .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+          .toFormatter();
+    }
+    return new DateTimeFormatterBuilder().appendPattern(format.toString())
+        .parseDefaulting(ChronoField.YEAR, 1)
+        .parseDefaulting(ChronoField.MONTH_OF_YEAR, 1)
+        .parseDefaulting(ChronoField.DAY_OF_MONTH, 1)
+        .toFormatter();
 
-    return ExprCoreType.DATE;
   }
 
-  static private boolean checkValidTemporalAccessor(ExprCoreType type, TemporalAccessor ta) {
-    if (type == ExprCoreType.DATE) {
-      if (!ta.isSupported(ChronoField.YEAR) ||
-          !ta.isSupported(ChronoField.MONTH_OF_YEAR) ||
-          !ta.isSupported(ChronoField.DAY_OF_MONTH)) {
-        return false;
-      }
-    } else if (type == ExprCoreType.TIME) {
-      if (!ta.isSupported(ChronoField.HOUR_OF_DAY) ||
-          !ta.isSupported(ChronoField.MINUTE_OF_HOUR) ||
-          !ta.isSupported(ChronoField.SECOND_OF_MINUTE)) {
-        return false;
-      }
-    } else {
-      if (!ta.isSupported(ChronoField.YEAR) ||
-          !ta.isSupported(ChronoField.MONTH_OF_YEAR) ||
-          !ta.isSupported(ChronoField.DAY_OF_MONTH) ||
-          !ta.isSupported(ChronoField.HOUR_OF_DAY) ||
-          !ta.isSupported(ChronoField.MINUTE_OF_HOUR) ||
-          !ta.isSupported(ChronoField.SECOND_OF_MINUTE)) {
-        return false;
-      }
+  static private boolean canGetDate(TemporalAccessor ta) {
+    if (!ta.isSupported(ChronoField.YEAR) ||
+        !ta.isSupported(ChronoField.MONTH_OF_YEAR) ||
+        !ta.isSupported(ChronoField.DAY_OF_MONTH)){
+      return false;
     }
-
     return true;
   }
 
-  static private ExprValue formatStrToDateReturn(TemporalAccessor ta, ExprValue formatExpr) {
-    switch (getReturnType(formatExpr)) {
-      case DATETIME:
-        return (checkValidTemporalAccessor(ExprCoreType.DATETIME, ta)) ?
-            new ExprDatetimeValue(LocalDateTime.from(ta)) : ExprNullValue.of();
-      case TIME:
-        return (checkValidTemporalAccessor(ExprCoreType.TIME, ta)) ?
-            new ExprTimeValue(LocalTime.from(ta)) : ExprNullValue.of();
-      default:
-        return (checkValidTemporalAccessor(ExprCoreType.DATE, ta)) ?
-            new ExprDateValue(LocalDate.from(ta)) : ExprNullValue.of();
+  static private boolean canGetTime(TemporalAccessor ta) {
+    if (!ta.isSupported(ChronoField.HOUR_OF_DAY) ||
+        !ta.isSupported(ChronoField.MINUTE_OF_HOUR) ||
+        !ta.isSupported(ChronoField.SECOND_OF_MINUTE)) {
+      return false;
     }
+    return true;
+  }
+
+  static private boolean isValidTemporalAccessor(TemporalAccessor ta) {
+    if (canGetDate(ta) || canGetTime(ta)) {
+      return true;
+    }
+    return false;
+  }
+
+  static private ExprValue formatStrToDateReturn(TemporalAccessor ta) {
+    if(!isValidTemporalAccessor(ta)) {
+      return  ExprNullValue.of();
+    }
+    return new ExprDatetimeValue(LocalDateTime.from(ta));
   }
 
   static ExprValue parseStringWithDateOrTime(ExprValue datetimeStringExpr,
                                        ExprValue formatExpr) {
-    StringBuffer cleanFormat = getCleanFormat(formatExpr);
     TemporalAccessor ta;
-    final Matcher matcher = pattern.matcher(cleanFormat.toString());
-    final StringBuffer format = new StringBuffer();
-
-    while (matcher.find()) {
-      matcher.appendReplacement(format,
-          STR_TO_DATE_HANDLERS.getOrDefault(matcher.group(), () ->
-                  String.format("'%s'", matcher.group().replaceFirst(MOD_LITERAL, "")))
-              .getFormat());
-    }
-    matcher.appendTail(format);
-
-    DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendPattern(format.toString())
-        .toFormatter();
+    DateTimeFormatter formatter = buildFormatter(formatExpr);
 
     //Return NULL for invalid parse in string to align with MySQL
     try{
       ta = formatter.parse(datetimeStringExpr.stringValue());
+      return formatStrToDateReturn(ta);
     } catch (DateTimeException e) {
       return ExprNullValue.of();
     }
-
-    //Return correct type according to format string
-    return formatStrToDateReturn(ta, formatExpr);
   }
 
   /**
