@@ -68,11 +68,9 @@ public class UnnestOperator extends PhysicalPlan {
     if (!flattenedResult.hasNext()) {
       result.clear();
       ExprValue inputValue = input.next();
-
       for (var field : fields.keySet()) {
         result = flatten(fields.get(field).toString(), inputValue, result);
       }
-
       flattenedResult = result.listIterator();
     }
     return new ExprTupleValue(new LinkedHashMap<>(flattenedResult.next()));
@@ -82,8 +80,7 @@ public class UnnestOperator extends PhysicalPlan {
 
   /**
    * Simplifies the structure of row's source Map by flattening it, making the full path of an object the key
-   * and the Object it refers to the value. This handles the case of regular object since nested objects will not
-   * be in hit.source but rather in hit.innerHits
+   * and the Object it refers to the value.
    * <p>
    * Sample input:
    * keys = ['comments.likes']
@@ -94,42 +91,54 @@ public class UnnestOperator extends PhysicalPlan {
    * Return:
    * flattenedRow = {comment.likes: 2}
    *
-   * @param row
-   * @param ???
-   * @param ???
+   * @param nestedField : Field to query in row
+   * @param row : Row returned from OS
+   * @param prevList : List of previous nested calls
+   * @return : List of nested select items or cartesian product of nested calls
    */
   @SuppressWarnings("unchecked")
-  private List<Map<String, ExprValue>> flatten(String nestedField, ExprValue row, List<Map<String, ExprValue>> current) {
+  private List<Map<String, ExprValue>> flatten(String nestedField, ExprValue row, List<Map<String, ExprValue>> prevList) {
     String[] splitKeys = nestedField.split("\\.");
     List<Map<String, ExprValue>> copy = new ArrayList<>();
-    List<Map<String, ExprValue>> brand_new = new ArrayList<>();
+    List<Map<String, ExprValue>> newList = new ArrayList<>();
 
     ExprValue nestedObj = null;
     for (String splitKey : splitKeys) {
-      nestedObj = flattenObject(nestedField, splitKey, row, copy, nestedObj);
+      nestedObj = getNested(nestedField, splitKey, row, copy, nestedObj);
       if (nestedObj == null) {
         break;
       }
     }
 
-    if (current.size() == 0) {
+    // Only one field in select statement
+    if (prevList.size() == 0) {
       return copy;
     }
 
-    for (Map<String, ExprValue> blah : current) {
-      for (Map<String, ExprValue> hoo : copy) {
-        Map<String, ExprValue> map3 = Stream.of(hoo, blah)
+    // Generate cartesian product
+    for (Map<String, ExprValue> prev_map : prevList) {
+      for (Map<String, ExprValue> new_map : copy) {
+        newList.add(Stream.of(new_map, prev_map)
             .flatMap(map -> map.entrySet().stream())
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
-                Map.Entry::getValue));
-        brand_new.add(map3);
+                Map.Entry::getValue)));
       }
     }
-    return brand_new;
+    return newList;
   }
 
-  private ExprValue flattenObject(String field, String nestedField, ExprValue row, List<Map<String, ExprValue>> ret, ExprValue nestedObj) {
+  /**
+   * Retrieve nested field(s) in row.
+   *
+   * @param field : path for nested field.
+   * @param nestedField : current level to nested field path.
+   * @param row : Row to resolve nested field.
+   * @param ret : List to add nested field to.
+   * @param nestedObj : object at current nested level.
+   * @return : Object at current nested level.
+   */
+  private ExprValue getNested(String field, String nestedField, ExprValue row, List<Map<String, ExprValue>> ret, ExprValue nestedObj) {
     ExprValue currentObj = (nestedObj == null) ? row : nestedObj;
 
     if (currentObj instanceof ExprTupleValue) {
@@ -148,15 +157,17 @@ public class UnnestOperator extends PhysicalPlan {
       ExprValue arrayObj = currentObj;
       for (int x = 0; x < arrayObj.collectionValue().size() ; x++) {
         currentObj = arrayObj.collectionValue().get(x);
-        flattenObject(field, nestedField.substring(nestedField.indexOf(".") + 1), row, ret, currentObj);
+        getNested(field, nestedField.substring(nestedField.indexOf(".") + 1), row, ret, currentObj);
       }
       return null;
     }
 
+    // Return final nested result
     if (StringUtils.substringAfterLast(field, ".").equals(nestedField)) {
       ret.add(Map.of(field, currentObj));
       currentObj = null;
     }
+
     return currentObj;
   }
 }
