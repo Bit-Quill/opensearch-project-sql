@@ -7,15 +7,19 @@ package org.opensearch.sql.planner.physical;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
@@ -51,15 +55,17 @@ public class UnnestOperator extends PhysicalPlan {
 
   @Override
   public ExprValue next() {
-//    if (!flattenedResult.hasNext()) {
-//      result.clear();
-//      ExprValue inputValue = input.next();
-//      flatten(inputValue, result, this.field.toString());
-//      flattenedResult = result.listIterator();
-//    }
-//    return new ExprTupleValue(new LinkedHashMap<>(flattenedResult.next()));
-    ExprValue inputValue = input.next();
-    return inputValue;
+    if (!flattenedResult.hasNext()) {
+      result.clear();
+      ExprValue inputValue = input.next();
+
+      for (var field : fields) {
+        result = flatten(field.get("field").toString(), field.get("field").toString(), inputValue, result);
+      }
+
+      flattenedResult = result.listIterator();
+    }
+    return new ExprTupleValue(new LinkedHashMap<>(flattenedResult.next()));
   }
 
 
@@ -94,44 +100,68 @@ public class UnnestOperator extends PhysicalPlan {
    * flattenedRow = {comment.likes: 2}
    *
    * @param row
-   * @param ret
-   * @param keys
+   * @param ???
+   * @param ???
    */
   @SuppressWarnings("unchecked")
-  private void flatten(ExprValue row, List<Map<String, ExprValue>> ret, String keys) {
-    String[] splitKeys = keys.split("\\.");
-    boolean found = true;
-    Object currentObj = row;
+  private List<Map<String, ExprValue>> flatten(String field, String nestedField, ExprValue row, List<Map<String, ExprValue>> current) {
+    String[] splitKeys = nestedField.split("\\.");
+    List<Map<String, ExprValue>> copy = new ArrayList<>();
+    List<Map<String, ExprValue>> brand_new = new ArrayList<>();
 
+    ExprValue nestedObj = null;
     for (String splitKey : splitKeys) {
-      if (currentObj instanceof ExprTupleValue) {
-          ExprTupleValue currentMap = (ExprTupleValue) currentObj;
-          if (!currentMap.tupleValue().containsKey(splitKey)) {
-            found = false;
-            break;
-          }
-        currentObj = currentMap.tupleValue().get(splitKey);
-      } else if (currentObj instanceof Map) {
-        Map<String, ExprValue> currentMap = (Map<String, ExprValue>)currentObj;
-        if (!currentMap.containsKey(splitKey)) {
-          found = false;
-          break;
-        }
-        currentObj = currentMap.get(splitKey);
-      } else if (currentObj instanceof ExprCollectionValue) {
-        for (int i = 0; i < ((ExprCollectionValue) currentObj).collectionValue().size() ; i++) {
-          ExprValue currentVal = ((ExprCollectionValue) currentObj).collectionValue().get(i);
-          flatten(currentVal, ret, keys.substring(keys.indexOf(".") + 1));
-        } // TODO handle primitive types in arrays?
-        found = false;
-      } else {
-        // TODO what to do for primitive types
-        found = false;
+      nestedObj = flattenObject(field, splitKey, row, copy, nestedObj);
+      if (nestedObj == null) {
+        break;
       }
     }
 
-//    if (found) {
-//      ret.add(Map.of(this.field.toString(), (ExprValue) currentObj));
-//    }
+    if (current.size() == 0) {
+      return copy;
+    }
+
+    for (Map<String, ExprValue> blah : copy) {
+      for (Map<String, ExprValue> hoo : current) {
+        Map<String, ExprValue> map3 = Stream.of(blah, hoo)
+            .flatMap(map -> map.entrySet().stream())
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue));
+        brand_new.add(map3);
+      }
+    }
+    return brand_new;
+  }
+
+  private ExprValue flattenObject(String field, String nestedField, ExprValue row, List<Map<String, ExprValue>> ret, ExprValue nestedObj) {
+    ExprValue currentObj = (nestedObj == null) ? row : nestedObj;
+
+    if (currentObj instanceof ExprTupleValue) {
+      ExprTupleValue currentMap = (ExprTupleValue) currentObj;
+      if (!currentMap.tupleValue().containsKey(nestedField)) {
+        return null;
+      }
+      currentObj = currentMap.tupleValue().get(nestedField);
+    } else if (currentObj instanceof Map) {
+      Map<String, ExprValue> currentMap = (Map<String, ExprValue>)currentObj;
+      if (!currentMap.containsKey(nestedField)) {
+        return null;
+      }
+      currentObj = currentMap.get(nestedField);
+    } else if (currentObj instanceof ExprCollectionValue) {
+      ExprValue arrayObj = currentObj;
+      for (int x = 0; x < arrayObj.collectionValue().size() ; x++) {
+        currentObj = arrayObj.collectionValue().get(x);
+        flattenObject(field, nestedField.substring(nestedField.indexOf(".") + 1), row, ret, currentObj);
+      }
+      return null;
+    }
+
+    if (StringUtils.substringAfterLast(field, ".").equals(nestedField)) {
+      ret.add(Map.of(field, currentObj));
+      currentObj = null;
+    }
+    return currentObj;
   }
 }
