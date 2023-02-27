@@ -7,7 +7,6 @@ package org.opensearch.sql.planner.physical;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -17,7 +16,6 @@ import java.util.stream.Stream;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 import org.opensearch.sql.data.model.ExprCollectionValue;
@@ -27,15 +25,27 @@ import org.opensearch.sql.expression.ReferenceExpression;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-@RequiredArgsConstructor
 public class UnnestOperator extends PhysicalPlan {
   @Getter
   private final PhysicalPlan input;
   @Getter
-  private final List<Map<String, ReferenceExpression>> fields;
+  private final Map<String, ReferenceExpression> fields; // Needs to be a HashMap of (path, field) to match legacy implementation
   @Getter
   List<Map<String, ExprValue>> result = new ArrayList<>();
   private ListIterator<Map<String, ExprValue>> flattenedResult = result.listIterator();
+
+  public UnnestOperator(PhysicalPlan input, List<Map<String, ReferenceExpression>> fields) {
+    this.input = input;
+    this.fields = Stream.of(fields)
+        .flatMap(list -> list.stream())
+        .collect(Collectors.toMap(m -> m.get("path").toString()
+            ,m -> m.get("field")));
+  }
+
+  public UnnestOperator(PhysicalPlan input, Map<String, ReferenceExpression> fields) {
+    this.input = input;
+    this.fields = fields;
+  }
 
   @Override
   public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
@@ -59,8 +69,8 @@ public class UnnestOperator extends PhysicalPlan {
       result.clear();
       ExprValue inputValue = input.next();
 
-      for (var field : fields) {
-        result = flatten(field.get("field").toString(), field.get("field").toString(), inputValue, result);
+      for (var field : fields.keySet()) {
+        result = flatten(fields.get(field).toString(), inputValue, result);
       }
 
       flattenedResult = result.listIterator();
@@ -68,21 +78,6 @@ public class UnnestOperator extends PhysicalPlan {
     return new ExprTupleValue(new LinkedHashMap<>(flattenedResult.next()));
   }
 
-
-  /**
-   * Simplifies the structure of row's source Map by flattening it, making the full path of an object the key
-   * and the Object it refers to the value. This handles the case of regular object since nested objects will not
-   * be in hit.source but rather in hit.innerHits
-   * <p>
-   * Sample input:
-   * keys = ['comments.likes']
-   * row = comments: {
-   * likes: 2
-   * }
-   * <p>
-   * Return:
-   * flattenedRow = {comment.likes: 2}
-   */
 
 
   /**
@@ -104,14 +99,14 @@ public class UnnestOperator extends PhysicalPlan {
    * @param ???
    */
   @SuppressWarnings("unchecked")
-  private List<Map<String, ExprValue>> flatten(String field, String nestedField, ExprValue row, List<Map<String, ExprValue>> current) {
+  private List<Map<String, ExprValue>> flatten(String nestedField, ExprValue row, List<Map<String, ExprValue>> current) {
     String[] splitKeys = nestedField.split("\\.");
     List<Map<String, ExprValue>> copy = new ArrayList<>();
     List<Map<String, ExprValue>> brand_new = new ArrayList<>();
 
     ExprValue nestedObj = null;
     for (String splitKey : splitKeys) {
-      nestedObj = flattenObject(field, splitKey, row, copy, nestedObj);
+      nestedObj = flattenObject(nestedField, splitKey, row, copy, nestedObj);
       if (nestedObj == null) {
         break;
       }
@@ -121,9 +116,9 @@ public class UnnestOperator extends PhysicalPlan {
       return copy;
     }
 
-    for (Map<String, ExprValue> blah : copy) {
-      for (Map<String, ExprValue> hoo : current) {
-        Map<String, ExprValue> map3 = Stream.of(blah, hoo)
+    for (Map<String, ExprValue> blah : current) {
+      for (Map<String, ExprValue> hoo : copy) {
+        Map<String, ExprValue> map3 = Stream.of(hoo, blah)
             .flatMap(map -> map.entrySet().stream())
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
