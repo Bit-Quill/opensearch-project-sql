@@ -135,7 +135,7 @@ Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: Wider type between types of x and y
 
-Synonyms: +
+Synonyms: Addition Symbol (+)
 
 Example::
 
@@ -419,7 +419,7 @@ Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: Wider type between types of x and y
 
-Synonyms: /
+Synonyms: Division Symbol (/)
 
 Example::
 
@@ -583,7 +583,7 @@ Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: Wider type between types of n and m if m is nonzero value. If m equals to 0, then returns NULL.
 
-Synonyms: %, MODULUS
+Synonyms: Modulus Symbol (%), `MODULUS`_
 
 Example::
 
@@ -607,17 +607,17 @@ Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: Wider type between types of x and y if m is nonzero value. If y equals to 0, then returns NULL.
 
-Synonyms: %, MOD
+Synonyms: Modulus Symbol (%), `MOD`_
 
 Example::
 
     os> SELECT MODULUS(3, 2), MODULUS(3.1, 2)
     fetched rows / total rows = 1/1
-    +-------------+---------------+
-    | MOD(3, 2)   | MOD(3.1, 2)   |
-    |-------------+---------------|
-    | 1           | 1.1           |
-    +-------------+---------------+
+    +-----------------+-------------------+
+    | MODULUS(3, 2)   | MODULUS(3.1, 2)   |
+    |-----------------+-------------------|
+    | 1               | 1.1               |
+    +-----------------+-------------------+
 
 
 MULTIPLY
@@ -632,7 +632,7 @@ Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: Wider type between types of x and y
 
-Synonyms: *
+Synonyms: Multiplication Symbol (\*)
 
 Example::
 
@@ -929,14 +929,14 @@ Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: Wider type between types of x and y
 
-Synonyms: -
+Synonyms: Subtraction Symbol (-)
 
 Example::
 
     os> SELECT SUBTRACT(2, 1), SUBTRACT(2.5, 3);
     fetched rows / total rows = 1/1
     +------------------+--------------------+
-    | SUBTRACT(2, 1)   | MULTIPLY(2.5, 3)   |
+    | SUBTRACT(2, 1)   | SUBTRACT(2.5, 3)   |
     |------------------+--------------------|
     | 1                | -0.5               |
     +------------------+--------------------+

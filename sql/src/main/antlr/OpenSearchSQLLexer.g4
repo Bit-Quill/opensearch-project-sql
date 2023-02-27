@@ -388,7 +388,7 @@ MATCH_BOOL_PREFIX:                  'MATCH_BOOL_PREFIX';
 // Operators. Arithmetics
 
 STAR:                               '*';
-DIVISION:                           '/';
+SLASH:                              '/';
 MODULE:                             '%';
 PLUS:                               '+';
 MINUS:                              '-';

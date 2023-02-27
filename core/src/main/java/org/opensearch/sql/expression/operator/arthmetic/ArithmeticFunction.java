@@ -51,8 +51,8 @@ public class ArithmeticFunction {
     repository.register(multiplyFunction());
     repository.register(divide());
     repository.register(divideFunction());
-    repository.register(modules());
     repository.register(modulus());
+    repository.register(modulusFunction());
     repository.register(mod());
   }
 
@@ -282,12 +282,12 @@ public class ArithmeticFunction {
     );
   }
 
-  private static DefaultFunctionResolver modules() {
-    return modulesBase(BuiltinFunctionName.MODULES.getName());
-  }
-
   private static DefaultFunctionResolver modulus() {
     return modulesBase(BuiltinFunctionName.MODULUS.getName());
+  }
+
+  private static DefaultFunctionResolver modulusFunction() {
+    return modulesBase(BuiltinFunctionName.MODULUSFUNCTION.getName());
   }
 
   private static DefaultFunctionResolver mod() {

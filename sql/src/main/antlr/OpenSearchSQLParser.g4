@@ -284,7 +284,7 @@ expressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | LR_BRACKET expression RR_BRACKET                              #nestedExpressionAtom
     | left=expressionAtom
-        mathOperator=(STAR | DIVISION | MODULE)
+        mathOperator=(STAR | SLASH | MODULE)
             right=expressionAtom                                    #mathExpressionAtom
     | left=expressionAtom
         mathOperator=(PLUS | MINUS)

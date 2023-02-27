@@ -43,7 +43,6 @@ public enum BuiltinFunctionName {
   SQRT(FunctionName.of("sqrt")),
   CBRT(FunctionName.of("cbrt")),
   TRUNCATE(FunctionName.of("truncate")),
-  MULTIPLYFUNCTION(FunctionName.of("multiply")),
 
   ACOS(FunctionName.of("acos")),
   ASIN(FunctionName.of("asin")),
@@ -138,9 +137,9 @@ public enum BuiltinFunctionName {
   MULTIPLYFUNCTION(FunctionName.of("multiply")),
   DIVIDE(FunctionName.of("/")),
   DIVIDEFUNCTION(FunctionName.of("divide")),
+  MODULUS(FunctionName.of("%")),
+  MODULUSFUNCTION(FunctionName.of("modulus")),
   MOD(FunctionName.of("mod")),
-  MODULES(FunctionName.of("%")),
-  MODULUS(FunctionName.of("modulus")),
 
   /**
    * Boolean Operators.
