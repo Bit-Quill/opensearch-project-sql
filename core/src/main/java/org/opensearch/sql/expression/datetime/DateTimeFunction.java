@@ -763,7 +763,10 @@ public class DateTimeFunction {
    */
   private DefaultFunctionResolver str_to_date() {
     return define(BuiltinFunctionName.STR_TO_DATE.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprStrToDate), DATETIME, STRING, STRING));
+        implWithProperties(
+            nullMissingHandlingWithProperties((functionProperties, arg, format)
+                -> DateTimeFunction.exprStrToDate(functionProperties, arg, format)),
+            DATETIME, STRING, STRING));
   }
 
   /**
@@ -1557,8 +1560,10 @@ public class DateTimeFunction {
     return exprApplyTime(functionProperties, temporal, temporalDelta, false);
   }
 
-  private ExprValue exprStrToDate(ExprValue dateTimeExpr, ExprValue formatStringExp) {
-    return DateTimeFormatterUtil.parseStringWithDateOrTime(dateTimeExpr, formatStringExp);
+  private ExprValue exprStrToDate(FunctionProperties fp,
+                                  ExprValue dateTimeExpr,
+                                  ExprValue formatStringExp) {
+    return DateTimeFormatterUtil.parseStringWithDateOrTime(fp, dateTimeExpr, formatStringExp);
   }
 
   /**

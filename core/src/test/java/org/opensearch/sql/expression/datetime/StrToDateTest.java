@@ -52,13 +52,6 @@ class StrToDateTest extends ExpressionTestBase {
             "%M %d, %Y",
             new ExprDatetimeValue("2013-05-01 00:00:00"),
             DATETIME),
-
-        Arguments.of(
-            "9,23,11",
-            "%h,%i,%s",
-            new ExprDatetimeValue("2000-01-01 09:23:11"),
-            DATETIME),
-
         Arguments.of(
             "May 1, 2013 - 9,23,11",
             "%M %d, %Y - %h,%i,%s",
@@ -98,6 +91,7 @@ class StrToDateTest extends ExpressionTestBase {
       ExprCoreType expectedType) {
 
     FunctionExpression expression = DSL.str_to_date(
+        functionProperties,
         DSL.literal(new ExprStringValue(datetime)),
         DSL.literal(new ExprStringValue(format)));
 
@@ -105,6 +99,34 @@ class StrToDateTest extends ExpressionTestBase {
 
     assertEquals(expectedType, result.type());
     assertEquals(expectedResult, result);
+  }
+
+  private static LocalDateTime getExpectedTimeResult(int hour, int minute, int seconds) {
+    return LocalDateTime.of(
+        LocalDate.now().getYear(),
+        LocalDate.now().getMonthValue(),
+        LocalDate.now().getDayOfMonth(),
+        hour,
+        minute,
+        seconds
+    );
+  }
+
+  @Test
+  public void test_str_to_date_with_time_type() {
+    final int HOURS = 9;
+    final int MINUTES = 23;
+    final int SECONDS = 11;
+
+    FunctionExpression expression = DSL.str_to_date(
+        functionProperties,
+        DSL.literal(new ExprStringValue(String.format("%d,%d,%d", HOURS, MINUTES, SECONDS))),
+        DSL.literal(new ExprStringValue("%h,%i,%s")));
+
+    ExprValue result = eval(expression);
+
+    assertEquals(DATETIME, result.type());
+    assertEquals(getExpectedTimeResult(HOURS, MINUTES, SECONDS), result.datetimeValue());
   }
 
   @Test
@@ -120,6 +142,7 @@ class StrToDateTest extends ExpressionTestBase {
     String dateFormatResult = eval(dateFormatExpr).stringValue();
 
     FunctionExpression strToDateExpr = DSL.str_to_date(
+        functionProperties,
         DSL.literal(new ExprStringValue(dateFormatResult)),
         DSL.literal(new ExprStringValue(format)));
     LocalDateTime strToDateResult = eval(strToDateExpr).datetimeValue();
@@ -129,8 +152,11 @@ class StrToDateTest extends ExpressionTestBase {
 
   @Test
   public void test_str_to_date_with_time_format() {
+    final int HOURS = 10;
+    final int MINUTES = 11;
+    final int SECONDS = 12;
 
-    LocalTime arg = LocalTime.of(10, 11,12);
+    LocalTime arg = LocalTime.of(HOURS, MINUTES,SECONDS);
     String format = "%h,%i,%s";
 
     FunctionExpression dateFormatExpr = DSL.time_format(
@@ -140,12 +166,13 @@ class StrToDateTest extends ExpressionTestBase {
     String timeFormatResult = eval(dateFormatExpr).stringValue();
 
     FunctionExpression strToDateExpr = DSL.str_to_date(
+        functionProperties,
         DSL.literal(new ExprStringValue(timeFormatResult)),
         DSL.literal(new ExprStringValue(format)));
     LocalDateTime strToDateResult = eval(strToDateExpr).datetimeValue();
 
     assertEquals(
-        LocalDateTime.of(LocalDate.of(1,1,1), arg),
+        getExpectedTimeResult(HOURS, MINUTES, SECONDS),
         strToDateResult);
   }
 

@@ -10,6 +10,7 @@ import java.time.Clock;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
@@ -22,6 +23,7 @@ import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.expression.function.FunctionProperties;
 
 /**
  * This class converts a SQL style DATE_FORMAT format specifier and converts it to a
@@ -301,8 +303,9 @@ class DateTimeFormatterUtil {
     return formatterBuilder;
   }
 
-  static ExprValue parseStringWithDateOrTime(ExprValue datetimeStringExpr,
-                                       ExprValue formatExpr) {
+  static ExprValue parseStringWithDateOrTime(FunctionProperties fp,
+                                             ExprValue datetimeStringExpr,
+                                             ExprValue formatExpr) {
 
     //Replace patterns with % for Java DateTimeFormatter
     StringBuffer cleanFormat = getCleanFormat(formatExpr);
@@ -322,13 +325,12 @@ class DateTimeFormatterUtil {
       //Get Temporal Accessor to initially parse string without default values
       taWithMissingFields = new DateTimeFormatterBuilder()
           .appendPattern(format.toString()).toFormatter().parse(datetimeStringExpr.stringValue());
+
+      if (!isValidTemporalAccessor(taWithMissingFields)) {
+        throw new DateTimeException("Not enough data to build a valid Date, Time, or Datetime.");
+      }
     } catch (DateTimeException e) {
       return ExprNullValue.of();
-    }
-
-    //Return null if temporal accessor is invalid for Date/Time/Datetime
-    if (!isValidTemporalAccessor(taWithMissingFields)) {
-      return  ExprNullValue.of();
     }
 
     int year = taWithMissingFields.isSupported(ChronoField.YEAR) ? taWithMissingFields.get(ChronoField.YEAR) : 2000;
@@ -338,7 +340,18 @@ class DateTimeFormatterUtil {
     int minute = taWithMissingFields.isSupported(ChronoField.MINUTE_OF_HOUR) ? taWithMissingFields.get(ChronoField.MINUTE_OF_HOUR) : 0;
     int second = taWithMissingFields.isSupported(ChronoField.SECOND_OF_MINUTE) ? taWithMissingFields.get(ChronoField.SECOND_OF_MINUTE) : 0;
 
-    return new ExprDatetimeValue(LocalDateTime.of(year, month, day, hour, minute, second));
+    //Fill returned datetime with current date if only Time information was parsed
+    LocalDateTime output;
+    if(!canGetDate(taWithMissingFields) && canGetTime(taWithMissingFields)) {
+      output = LocalDateTime.of(
+          LocalDate.now(fp.getQueryStartClock()),
+          LocalTime.of(hour, minute, second)
+      );
+    } else {
+      output = LocalDateTime.of(year, month, day, hour, minute, second);
+    }
+
+    return new ExprDatetimeValue(output);
   }
 
   /**
