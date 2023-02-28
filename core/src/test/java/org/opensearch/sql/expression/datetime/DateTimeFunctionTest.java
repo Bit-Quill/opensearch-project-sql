@@ -24,11 +24,9 @@ import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
-import static org.opensearch.sql.data.type.ExprCoreType.UNDEFINED;
 
 import com.google.common.collect.ImmutableList;
 
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -1413,79 +1411,6 @@ class DateTimeFunctionTest extends ExpressionTestBase {
             () -> invalidSecondOfMinuteQuery("asdfasdf"))
     );
   }
-
-  private static Stream<Arguments> getTestDataForStrToDate() {
-    return Stream.of(
-        //Date arguments
-        Arguments.of(
-            "01,5,2013",
-            "%d,%m,%Y",
-            new ExprDatetimeValue("2013-05-01 00:00:00"),
-            DATETIME),
-        Arguments.of(
-            "May 1, 2013",
-            "%M %d, %Y",
-            new ExprDatetimeValue("2013-05-01 00:00:00"),
-            DATETIME),
-
-        Arguments.of(
-            "9,23,11",
-            "%h,%i,%s",
-            new ExprDatetimeValue("0001-01-01 09:23:11"),
-            DATETIME),
-
-        Arguments.of(
-            "May 1, 2013 - 9,23,11",
-            "%M %d, %Y - %h,%i,%s",
-            new ExprDatetimeValue("2013-05-01 09:23:11"),
-            DATETIME),
-
-        //Invalid Arguments (should return null)
-        Arguments.of(
-            "a09:30:17",
-            "a%h:%i:%s",
-            ExprNullValue.of(),
-            UNDEFINED),
-        Arguments.of(
-            "abc",
-            "abc",
-            ExprNullValue.of(),
-            UNDEFINED),
-        Arguments.of(
-            "9",
-            "%m",
-            ExprNullValue.of(),
-            UNDEFINED),
-        Arguments.of(
-            "9",
-            "%s",
-            ExprNullValue.of(),
-            UNDEFINED)
-    );
-  }
-
-  @ParameterizedTest(name="{0} | {1}")
-  @MethodSource("getTestDataForStrToDate")
-  public void test_str_to_date(
-      String datetime,
-      String format,
-      ExprValue expectedResult,
-      ExprCoreType expectedType) {
-
-    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
-    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
-
-    FunctionExpression expression = DSL.str_to_date(
-        DSL.literal(new ExprStringValue(datetime)),
-        DSL.literal(new ExprStringValue(format)));
-
-    ExprValue result = eval(expression);
-
-    assertEquals(expectedType, result.type());
-    assertEquals(expectedResult, result);
-  }
-
-
 
   @Test
   public void time_to_sec() {

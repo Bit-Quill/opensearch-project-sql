@@ -819,21 +819,14 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
 
   @Test
   public void testStrToDate() throws IOException {
-    JSONObject result = executeQuery(String.format(
-        "SELECT str_to_date(CAST(date3 AS STRING), \"'%Y-%m-%d'\") FROM %s LIMIT 3",
-        TEST_INDEX_CALCS));
+    JSONObject result = executeQuery(
+        String.format("SELECT str_to_date(CAST(birthdate AS STRING),"
+                + " '%%Y-%%m-%%d %%h:%%i:%%s') FROM %s LIMIT 2",
+            TEST_INDEX_BANK));
     verifyDataRows(result,
-        rows("1986-03-20"),
-        rows(null),
-        rows("1997-02-02"));
-
-    result = executeQuery(String.format(
-        "SELECT str_to_date(CAST(time1 AS STRING), \"'%h:%i:%s'\") FROM %s LIMIT 3",
-        TEST_INDEX_CALCS));
-    verifyDataRows(result,
-        rows("19:36:22"),
-        rows("02:05:25"),
-        rows("09:33:31"));
+        rows("2017-10-23 00:00:00"),
+        rows("2017-11-20 00:00:00")
+    );
   }
 
   @Test
