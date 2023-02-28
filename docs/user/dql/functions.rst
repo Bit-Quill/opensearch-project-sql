@@ -2465,9 +2465,9 @@ TO_SECONDS
 Description
 >>>>>>>>>>>
 
-Usage: to_seconds(date) returns the seconds number (the number of days since year 0) of the given date. Returns NULL if date is invalid.
+Usage: to_seconds(date) returns the number of seconds since the year 0 of the given value. Returns NULL if value is invalid.
 
-Argument type: STRING/DATE/DATETIME/TIME/TIMESTAMP
+Argument type: STRING/LONG/DATE/DATETIME/TIME/TIMESTAMP
 
 Return type: LONG
 

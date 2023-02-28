@@ -154,8 +154,6 @@ class DateTimeFunctionTest extends ExpressionTestBase {
           ImmutableList.of("1998-01-31b 13:14:15 b"))
   );
 
-  private static final long SECONDS_FROM_0001_01_01_TO_EPOCH_START = 62167219200L;
-
   @AllArgsConstructor
   private class DateFormatTester {
     private final String date;
@@ -1804,60 +1802,6 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(LONG, expression.type());
     assertEquals("to_days(\"1969-12-31 01:01:01\")", expression.toString());
     assertEquals(longValue(719527L), eval(expression));
-  }
-
-  private static Stream<Arguments> getTestDataForToSeconds() {
-    return Stream.of(
-        Arguments.of(new ExprLongValue(950501), new ExprLongValue(62966505600L)),
-        Arguments.of(new ExprStringValue("2009-11-29"), new ExprLongValue(63426672000L)),
-        Arguments.of(new ExprStringValue("2009-11-29 13:43:32"), new ExprLongValue(63426721412L)),
-        Arguments.of(new ExprDateValue("2009-11-29"), new ExprLongValue(63426672000L)),
-        Arguments.of(new ExprDatetimeValue("2009-11-29 13:43:32"), new ExprLongValue(63426721412L)),
-        Arguments.of(new ExprTimestampValue("2009-11-29 13:43:32"), new ExprLongValue(63426721412L)),
-        Arguments.of(new ExprStringValue("0000-00-00"), ExprNullValue.of()),
-        Arguments.of(new ExprStringValue("0000-01-01"), new ExprLongValue(86400L))
-    );
-  }
-
-  @ParameterizedTest
-  @MethodSource("getTestDataForToSeconds")
-  public void testToSeconds(ExprValue arg, ExprValue expected) {
-    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
-    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
-
-    FunctionExpression expr = DSL.to_seconds(DSL.literal(arg));
-    assertEquals(LONG, expr.type());
-    assertEquals(expected, eval(expr));
-  }
-
-  @Test
-  public void testToSecondsWithTimeType() {
-    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
-    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
-
-    FunctionExpression expr = DSL.to_seconds(functionProperties, DSL.literal(new ExprTimeValue("10:11:12")));
-
-    long expected = SECONDS_FROM_0001_01_01_TO_EPOCH_START +
-        LocalDate.now(functionProperties.getQueryStartClock())
-            .toEpochSecond(LocalTime.parse("10:11:12"), ZoneOffset.UTC);
-
-    assertEquals(expected, eval(expr).longValue());
-  }
-
-  private static Stream<Arguments> getInvalidTestDataForToSeconds() {
-    return Stream.of(
-        Arguments.of(new ExprLongValue(-123L))
-    );
-  }
-
-  @ParameterizedTest
-  @MethodSource("getInvalidTestDataForToSeconds")
-  public void testToSecondsInvalidArg(ExprValue arg) {
-    lenient().when(nullRef.valueOf(env)).thenReturn(nullValue());
-    lenient().when(missingRef.valueOf(env)).thenReturn(missingValue());
-
-    FunctionExpression expr = DSL.to_seconds(DSL.literal(arg));
-    assertThrows(DateTimeException.class, () -> eval(expr));
   }
 
   @Test

@@ -831,14 +831,11 @@ public class DateTimeFunction {
   }
 
   /**
-   * TO_SECONDS(STRING/DATE/DATETIME/TIMESTAMP). return the day number of the given date.
+   * TO_SECONDS(STRING/DATE/DATETIME/TIMESTAMP/LONG). return the seconds number of the given date.
    */
   private DefaultFunctionResolver to_seconds() {
     return define(BuiltinFunctionName.TO_SECONDS.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprToSeconds), LONG, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprToSeconds), LONG, TIMESTAMP),
-        impl(nullMissingHandling(DateTimeFunction::exprToSeconds), LONG, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprToSeconds), LONG, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprToSecondsForIntType), LONG, LONG));
   }
 
@@ -1642,29 +1639,6 @@ public class DateTimeFunction {
     return new ExprLongValue(date.dateValue().toEpochDay() + DAYS_0000_TO_1970);
   }
 
-  //Helper function to handle a '0000' year for the 'to_seconds' function according to MySQL.
-  private ExprValue handleZeroYear(ExprValue date) {
-    String dateStringVal = date.stringValue();
-
-    //Handle corner case for date of 0000-00-00 according to MySQL docs.
-    if (dateStringVal.contains("0000-00-00")){
-      return ExprNullValue.of();
-    }
-
-    //1970 used as a placeholder to extract correct seconds value.
-    if(dateStringVal.length() > 10) {
-      return(new ExprLongValue(
-          LocalDateTime.parse(date.stringValue().replace("0000-", "1970-"))
-              .toEpochSecond(ZoneOffset.UTC))
-      );
-    }
-
-    return(new ExprLongValue(
-        LocalDate.parse(date.stringValue().replace("0000-", "1970-"))
-            .toEpochSecond(LocalTime.MAX , ZoneOffset.UTC) + 1)
-    );
-  }
-
   /**
    * To_seconds implementation for ExprValue.
    *
@@ -1672,12 +1646,6 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprToSeconds(ExprValue date) {
-
-    //Handle special case of year 0000 according to MySQL docs.
-    if (date.toString().contains("0000-")) {
-      return handleZeroYear(date);
-    }
-
     return new ExprLongValue(
         date.datetimeValue().toEpochSecond(ZoneOffset.UTC) + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
   }
@@ -1685,18 +1653,22 @@ public class DateTimeFunction {
   /**
    * To_seconds implementation with an integer argument for ExprValue.
    *
-   * @param date ExprValue of an Integer/Long formatted for a date (e.g., 950501 = 1995-05-01)
+   * @param dateExpr ExprValue of an Integer/Long formatted for a date (e.g., 950501 = 1995-05-01)
    * @return ExprValue.
    */
-  private ExprValue exprToSecondsForIntType(ExprValue date) {
-    int day = date.integerValue() % 10;
-    int month = date.integerValue() % 10000 - day;
-    int year = date.integerValue() - month - day;
+  private ExprValue exprToSecondsForIntType(ExprValue dateExpr) {
+    try {
+      if(dateExpr.longValue() < 0 || dateExpr.longValue() > 999999) {
+        throw new DateTimeException("Integer argument was out of range");
+      }
 
-    LocalDateTime datetime = LocalDateTime.of(1900 + year/10000, month/100, day, 0, 0, 0);
+      LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()), DATE_FORMATTER_SHORT_YEAR);
+      return new ExprLongValue(
+          date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC) + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
 
-    return new ExprLongValue(
-        datetime.toEpochSecond(ZoneOffset.UTC) + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
+    } catch (DateTimeParseException e) {
+      return null;
+    }
   }
 
   /**
