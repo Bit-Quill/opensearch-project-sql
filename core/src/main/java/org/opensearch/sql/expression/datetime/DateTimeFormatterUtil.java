@@ -204,10 +204,10 @@ class DateTimeFormatterUtil {
           .put("%w", "e") // %w - Day of week (0 indexed)
           .put("%U", "w") // %U Week where Sunday is the first day - WEEK() mode 0
           .put("%u", "w") // %u Week where Monday is the first day - WEEK() mode 1
-          .put("%V", "w") // %V Week where Sunday is the first day - WEEK() mode 2 used with %X
-          .put("%v", "w") // %v Week where Monday is the first day - WEEK() mode 3 used with %x
-          .put("%X", "yyyy") // %X Year for week where Sunday is the first day, 4 digits used with %V
-          .put("%x", "yyyy" )// %x Year for week where Monday is the first day, 4 digits used with %v
+          .put("%V", "w") // %V Week where Sunday is the first day - WEEK() mode 2
+          .put("%v", "w") // %v Week where Monday is the first day - WEEK() mode 3
+          .put("%X", "y") // %X Year for week where Sunday is the first day
+          .put("%x", "y") // %x Year for week where Monday is the first day
           .build();
 
   private static final Pattern pattern = Pattern.compile("%.");
@@ -295,43 +295,43 @@ class DateTimeFormatterUtil {
     return getFormattedString(formatExpr, TIME_HANDLERS, time);
   }
 
-  static private boolean canGetDate(TemporalAccessor ta) {
-    if (!ta.isSupported(ChronoField.YEAR) ||
-        !ta.isSupported(ChronoField.MONTH_OF_YEAR) ||
-        !ta.isSupported(ChronoField.DAY_OF_MONTH)){
+  private static boolean canGetDate(TemporalAccessor ta) {
+    if (!ta.isSupported(ChronoField.YEAR)
+        || !ta.isSupported(ChronoField.MONTH_OF_YEAR)
+        || !ta.isSupported(ChronoField.DAY_OF_MONTH)) {
       return false;
     }
     return true;
   }
 
-  static private boolean canGetTime(TemporalAccessor ta) {
-    if (!ta.isSupported(ChronoField.HOUR_OF_DAY) ||
-        !ta.isSupported(ChronoField.MINUTE_OF_HOUR) ||
-        !ta.isSupported(ChronoField.SECOND_OF_MINUTE)) {
+  private static boolean canGetTime(TemporalAccessor ta) {
+    if (!ta.isSupported(ChronoField.HOUR_OF_DAY)
+        || !ta.isSupported(ChronoField.MINUTE_OF_HOUR)
+        || !ta.isSupported(ChronoField.SECOND_OF_MINUTE)) {
       return false;
     }
     return true;
   }
 
-  static private boolean isValidTemporalAccessor(TemporalAccessor ta) {
+  private static boolean isValidTemporalAccessor(TemporalAccessor ta) {
     if (canGetDate(ta) || canGetTime(ta)) {
       return true;
     }
     return false;
   }
 
-  static private DateTimeFormatterBuilder getBuilderWithDefaultVals(
+  private static DateTimeFormatterBuilder getBuilderWithDefaultVals(
       TemporalAccessor taWithMissingFields) {
 
     DateTimeFormatterBuilder formatterBuilder = new DateTimeFormatterBuilder();
 
-    if (!taWithMissingFields.isSupported(ChronoField.YEAR) ) {
+    if (!taWithMissingFields.isSupported(ChronoField.YEAR)) {
       formatterBuilder.parseDefaulting(ChronoField.YEAR, 1);
     }
     if (!taWithMissingFields.isSupported(ChronoField.MONTH_OF_YEAR)) {
       formatterBuilder.parseDefaulting(ChronoField.MONTH_OF_YEAR, 1);
     }
-    if(!taWithMissingFields.isSupported(ChronoField.DAY_OF_MONTH)) {
+    if (!taWithMissingFields.isSupported(ChronoField.DAY_OF_MONTH)) {
       formatterBuilder.parseDefaulting(ChronoField.DAY_OF_MONTH, 1);
     }
     if (!taWithMissingFields.isSupported(ChronoField.HOUR_OF_DAY) ) {
@@ -340,10 +340,9 @@ class DateTimeFormatterUtil {
     if (!taWithMissingFields.isSupported(ChronoField.MINUTE_OF_HOUR)) {
       formatterBuilder.parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0);
     }
-    if(!taWithMissingFields.isSupported(ChronoField.SECOND_OF_MINUTE)) {
+    if (!taWithMissingFields.isSupported(ChronoField.SECOND_OF_MINUTE)) {
       formatterBuilder.parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0);
     }
-
     return formatterBuilder;
   }
 
@@ -363,13 +362,13 @@ class DateTimeFormatterUtil {
     matcher.appendTail(format);
 
     //Return NULL for invalid parse in string to align with MySQL
-    try{
+    try {
       //Get Temporal Accessor to initially parse string without default values
       TemporalAccessor taWithMissingFields = new DateTimeFormatterBuilder()
           .appendPattern(format.toString()).toFormatter().parse(datetimeStringExpr.stringValue());
 
       //Return null if temporal accessor is invalid for Date/Time/Datetime
-      if(!isValidTemporalAccessor(taWithMissingFields)) {
+      if (!isValidTemporalAccessor(taWithMissingFields)) {
         return  ExprNullValue.of();
       }
       //Get Temporal Accessor with default values filled in;

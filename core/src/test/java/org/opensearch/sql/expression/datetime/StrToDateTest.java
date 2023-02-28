@@ -6,6 +6,14 @@
 
 package org.opensearch.sql.expression.datetime;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
+import static org.opensearch.sql.data.type.ExprCoreType.UNDEFINED;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,15 +32,6 @@ import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.env.Environment;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
-import static org.opensearch.sql.data.type.ExprCoreType.UNDEFINED;
 
 @ExtendWith(MockitoExtension.class)
 class StrToDateTest extends ExpressionTestBase {
@@ -111,7 +110,7 @@ class StrToDateTest extends ExpressionTestBase {
   @Test
   public void test_str_to_date_with_date_format() {
 
-    LocalDateTime arg = LocalDateTime.of(2023, 2, 27, 10, 11 ,12);
+    LocalDateTime arg = LocalDateTime.of(2023, 2, 27, 10, 11,12);
     String format = "%Y,%m,%d %h,%i,%s";
 
     FunctionExpression dateFormatExpr = DSL.date_format(
@@ -120,18 +119,18 @@ class StrToDateTest extends ExpressionTestBase {
         DSL.literal(new ExprStringValue(format)));
     String dateFormatResult = eval(dateFormatExpr).stringValue();
 
-    FunctionExpression StrToDateExpr = DSL.str_to_date(
+    FunctionExpression strToDateExpr = DSL.str_to_date(
         DSL.literal(new ExprStringValue(dateFormatResult)),
         DSL.literal(new ExprStringValue(format)));
-    LocalDateTime StrToDateResult = eval(StrToDateExpr).datetimeValue();
+    LocalDateTime strToDateResult = eval(strToDateExpr).datetimeValue();
 
-    assertEquals(arg, StrToDateResult);
+    assertEquals(arg, strToDateResult);
   }
 
   @Test
   public void test_str_to_date_with_time_format() {
 
-    LocalTime arg = LocalTime.of(10, 11 ,12);
+    LocalTime arg = LocalTime.of(10, 11,12);
     String format = "%h,%i,%s";
 
     FunctionExpression dateFormatExpr = DSL.time_format(
@@ -140,14 +139,14 @@ class StrToDateTest extends ExpressionTestBase {
         DSL.literal(new ExprStringValue(format)));
     String timeFormatResult = eval(dateFormatExpr).stringValue();
 
-    FunctionExpression StrToDateExpr = DSL.str_to_date(
+    FunctionExpression strToDateExpr = DSL.str_to_date(
         DSL.literal(new ExprStringValue(timeFormatResult)),
         DSL.literal(new ExprStringValue(format)));
-    LocalDateTime StrToDateResult = eval(StrToDateExpr).datetimeValue();
+    LocalDateTime strToDateResult = eval(strToDateExpr).datetimeValue();
 
     assertEquals(
         LocalDateTime.of(LocalDate.of(1,1,1), arg),
-        StrToDateResult);
+        strToDateResult);
   }
 
   private ExprValue eval(Expression expression) {
