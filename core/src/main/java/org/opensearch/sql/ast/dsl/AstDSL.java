@@ -58,6 +58,7 @@ import org.opensearch.sql.ast.tree.Rename;
 import org.opensearch.sql.ast.tree.Sort;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.ast.tree.TableFunction;
+import org.opensearch.sql.ast.tree.Unnest;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.ast.tree.Values;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
@@ -74,6 +75,10 @@ public class AstDSL {
 
   public UnresolvedPlan relation(String tableName) {
     return new Relation(qualifiedName(tableName));
+  }
+
+  public UnresolvedPlan unnest(Function func) {
+    return new Unnest(func);
   }
 
   public UnresolvedPlan relation(List<String> tableNames) {

@@ -71,6 +71,7 @@ import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.ParseMethod;
+import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.ast.tree.AD;
 import org.opensearch.sql.ast.tree.Kmeans;
@@ -79,7 +80,9 @@ import org.opensearch.sql.ast.tree.RareTopN.CommandType;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
+import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.HighlightExpression;
+import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.window.WindowDefinition;
 import org.opensearch.sql.planner.logical.LogicalAD;
 import org.opensearch.sql.planner.logical.LogicalMLCommons;
@@ -365,6 +368,27 @@ class AnalyzerTest extends AnalyzerTestBase {
             AstDSL.defaultFieldsArgs(),
             AstDSL.field("integer_value"), // Field not wrapped by Alias
             AstDSL.alias("double_value", AstDSL.field("double_value"))));
+  }
+
+  @Test
+  public void project_nested_field_arg() {
+    List<List<Expression>> args = List.of(List.of(
+        new ReferenceExpression("message.info", STRING),
+        new ReferenceExpression("message", STRING)));
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.nested(LogicalPlanDSL.relation("schema", table), args),
+            DSL.named("message.info",
+                DSL.nested(DSL.ref("message.info", STRING)))
+        ),
+        AstDSL.projectWithArg(
+            AstDSL.unnest(AstDSL.function("nested", qualifiedName("message", "info")))
+                .attach(AstDSL.relation("schema")),
+            AstDSL.defaultFieldsArgs(),
+            AstDSL.alias("message.info",
+                function("nested", qualifiedName("message", "info")), null)
+        )
+    );
   }
 
   @Test
