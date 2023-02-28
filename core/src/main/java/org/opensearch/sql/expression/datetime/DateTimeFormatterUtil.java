@@ -10,7 +10,6 @@ import java.time.Clock;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
@@ -19,13 +18,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprStringValue;
-import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.type.ExprCoreType;
 
 /**
  * This class converts a SQL style DATE_FORMAT format specifier and converts it to a
@@ -38,43 +34,6 @@ class DateTimeFormatterUtil {
 
   private static final String NANO_SEC_FORMAT = "'%06d'";
 
-  private static String[] DATE_SPECIFIERS = {
-      "%a", //Abbreviated weekday name (Sun..Sat)
-      "%b", // Abbreviated month name (Jan..Dec)
-      "%c", // Month, numeric (0..12)
-      "%d", // Day of the month, numeric (00..31)
-      "%e", // Day of the month, numeric (0..31)
-      "%j", // Day of the year, numeric (001..366)
-      "%M", //  Month name (January..December)
-      "%m", //  Month, numeric (00..12)
-      "%W", //  Weekday name (Sunday..Saturday)
-      "%Y", //  Year, numeric, 4 digits
-      "%y", // Year, numeric, 2 digits
-      "%D", // Day of month with English suffix
-      "%w", // Day of week (0 indexed)
-      "%U", // Week where Sunday is the first day - WEEK() mode 0
-      "%u", // Week where Monday is the first day - WEEK() mode 1
-      "%V", // Week where Sunday is the first day - WEEK() mode 2 used with %X
-      "%v", // Week where Monday is the first day - WEEK() mode 3 used with %x
-      "%X", // Year for week where Sunday is the first day, 4 digits used with %V
-      "%x" // Year for week where Monday is the first day, 4 digits used with %v};
-  };
-
-  private static String[] TIME_SPECIFIERS = {
-      "%H", // Hour (00..23)
-      "%h", // Hour (01..12)
-      "%I", // Hour (01..12)
-      "%i", // Minutes, numeric (00..59)
-      "%k", // Hour (0..23)
-      "%l", // hour (1..12)
-      "%p", // AM or PM
-      "%r", // hh:mm:ss followed by AM or PM
-      "%S", // Seconds (00..59)
-      "%s", // Seconds (00..59)
-      "%T", // HH:mm:ss
-      "%f", // Microseconds
-  };
-
   private static final Map<Integer, String> SUFFIX_CONVERTER =
       ImmutableMap.<Integer, String>builder()
       .put(1, "st").put(2, "nd").put(3, "rd").build();
@@ -83,10 +42,6 @@ class DateTimeFormatterUtil {
   // by the DateTimeFormatter class.
   interface DateTimeFormatHandler {
     String getFormat(LocalDateTime date);
-  }
-
-  interface StrToDateHandler {
-    String getFormat();
   }
 
   private static final Map<String, DateTimeFormatHandler> DATE_HANDLERS =
@@ -361,24 +316,29 @@ class DateTimeFormatterUtil {
     }
     matcher.appendTail(format);
 
+    TemporalAccessor taWithMissingFields;
     //Return NULL for invalid parse in string to align with MySQL
     try {
       //Get Temporal Accessor to initially parse string without default values
-      TemporalAccessor taWithMissingFields = new DateTimeFormatterBuilder()
+      taWithMissingFields = new DateTimeFormatterBuilder()
           .appendPattern(format.toString()).toFormatter().parse(datetimeStringExpr.stringValue());
-
-      //Return null if temporal accessor is invalid for Date/Time/Datetime
-      if (!isValidTemporalAccessor(taWithMissingFields)) {
-        return  ExprNullValue.of();
-      }
-      //Get Temporal Accessor with default values filled in;
-      TemporalAccessor cleanTA = getBuilderWithDefaultVals(taWithMissingFields)
-          .appendPattern(format.toString()).toFormatter().parse(datetimeStringExpr.stringValue());
-
-      return new ExprDatetimeValue(LocalDateTime.from(cleanTA));
     } catch (DateTimeException e) {
       return ExprNullValue.of();
     }
+
+    //Return null if temporal accessor is invalid for Date/Time/Datetime
+    if (!isValidTemporalAccessor(taWithMissingFields)) {
+      return  ExprNullValue.of();
+    }
+
+    int year = taWithMissingFields.isSupported(ChronoField.YEAR) ? taWithMissingFields.get(ChronoField.YEAR) : 2000;
+    int month = taWithMissingFields.isSupported(ChronoField.MONTH_OF_YEAR) ? taWithMissingFields.get(ChronoField.MONTH_OF_YEAR) : 1;
+    int day = taWithMissingFields.isSupported(ChronoField.DAY_OF_MONTH) ? taWithMissingFields.get(ChronoField.DAY_OF_MONTH) : 1;
+    int hour = taWithMissingFields.isSupported(ChronoField.HOUR_OF_DAY) ? taWithMissingFields.get(ChronoField.HOUR_OF_DAY) : 0;
+    int minute = taWithMissingFields.isSupported(ChronoField.MINUTE_OF_HOUR) ? taWithMissingFields.get(ChronoField.MINUTE_OF_HOUR) : 0;
+    int second = taWithMissingFields.isSupported(ChronoField.SECOND_OF_MINUTE) ? taWithMissingFields.get(ChronoField.SECOND_OF_MINUTE) : 0;
+
+    return new ExprDatetimeValue(LocalDateTime.of(year, month, day, hour, minute, second));
   }
 
   /**

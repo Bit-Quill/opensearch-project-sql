@@ -56,7 +56,7 @@ class StrToDateTest extends ExpressionTestBase {
         Arguments.of(
             "9,23,11",
             "%h,%i,%s",
-            new ExprDatetimeValue("0001-01-01 09:23:11"),
+            new ExprDatetimeValue("2000-01-01 09:23:11"),
             DATETIME),
 
         Arguments.of(
