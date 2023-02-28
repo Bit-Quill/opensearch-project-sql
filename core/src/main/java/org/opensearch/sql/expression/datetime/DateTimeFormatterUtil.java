@@ -291,7 +291,7 @@ class DateTimeFormatterUtil {
     if (!taWithMissingFields.isSupported(ChronoField.DAY_OF_MONTH)) {
       formatterBuilder.parseDefaulting(ChronoField.DAY_OF_MONTH, 1);
     }
-    if (!taWithMissingFields.isSupported(ChronoField.HOUR_OF_DAY) ) {
+    if (!taWithMissingFields.isSupported(ChronoField.HOUR_OF_DAY)) {
       formatterBuilder.parseDefaulting(ChronoField.HOUR_OF_DAY, 0);
     }
     if (!taWithMissingFields.isSupported(ChronoField.MINUTE_OF_HOUR)) {
@@ -333,16 +333,27 @@ class DateTimeFormatterUtil {
       return ExprNullValue.of();
     }
 
-    int year = taWithMissingFields.isSupported(ChronoField.YEAR) ? taWithMissingFields.get(ChronoField.YEAR) : 2000;
-    int month = taWithMissingFields.isSupported(ChronoField.MONTH_OF_YEAR) ? taWithMissingFields.get(ChronoField.MONTH_OF_YEAR) : 1;
-    int day = taWithMissingFields.isSupported(ChronoField.DAY_OF_MONTH) ? taWithMissingFields.get(ChronoField.DAY_OF_MONTH) : 1;
-    int hour = taWithMissingFields.isSupported(ChronoField.HOUR_OF_DAY) ? taWithMissingFields.get(ChronoField.HOUR_OF_DAY) : 0;
-    int minute = taWithMissingFields.isSupported(ChronoField.MINUTE_OF_HOUR) ? taWithMissingFields.get(ChronoField.MINUTE_OF_HOUR) : 0;
-    int second = taWithMissingFields.isSupported(ChronoField.SECOND_OF_MINUTE) ? taWithMissingFields.get(ChronoField.SECOND_OF_MINUTE) : 0;
+    int year = taWithMissingFields.isSupported(ChronoField.YEAR)
+        ? taWithMissingFields.get(ChronoField.YEAR) : 2000;
+
+    int month = taWithMissingFields.isSupported(ChronoField.MONTH_OF_YEAR)
+        ? taWithMissingFields.get(ChronoField.MONTH_OF_YEAR) : 1;
+
+    int day = taWithMissingFields.isSupported(ChronoField.DAY_OF_MONTH)
+        ? taWithMissingFields.get(ChronoField.DAY_OF_MONTH) : 1;
+
+    int hour = taWithMissingFields.isSupported(ChronoField.HOUR_OF_DAY)
+        ? taWithMissingFields.get(ChronoField.HOUR_OF_DAY) : 0;
+
+    int minute = taWithMissingFields.isSupported(ChronoField.MINUTE_OF_HOUR)
+        ? taWithMissingFields.get(ChronoField.MINUTE_OF_HOUR) : 0;
+
+    int second = taWithMissingFields.isSupported(ChronoField.SECOND_OF_MINUTE)
+        ? taWithMissingFields.get(ChronoField.SECOND_OF_MINUTE) : 0;
 
     //Fill returned datetime with current date if only Time information was parsed
     LocalDateTime output;
-    if(!canGetDate(taWithMissingFields) && canGetTime(taWithMissingFields)) {
+    if (!canGetDate(taWithMissingFields) && canGetTime(taWithMissingFields)) {
       output = LocalDateTime.of(
           LocalDate.now(fp.getQueryStartClock()),
           LocalTime.of(hour, minute, second)
