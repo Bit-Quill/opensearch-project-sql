@@ -158,7 +158,7 @@ public class ArithmeticFunction {
    * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
    * -> wider type between types of x and y
    */
-  private static DefaultFunctionResolver modulesBase(FunctionName functionName) {
+  private static DefaultFunctionResolver modulusBase(FunctionName functionName) {
     return FunctionDSL.define(functionName,
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
@@ -194,15 +194,15 @@ public class ArithmeticFunction {
   }
 
   private static DefaultFunctionResolver mod() {
-    return modulesBase(BuiltinFunctionName.MOD.getName());
+    return modulusBase(BuiltinFunctionName.MOD.getName());
   }
 
   private static DefaultFunctionResolver modulus() {
-    return modulesBase(BuiltinFunctionName.MODULUS.getName());
+    return modulusBase(BuiltinFunctionName.MODULUS.getName());
   }
 
   private static DefaultFunctionResolver modulusFunction() {
-    return modulesBase(BuiltinFunctionName.MODULUSFUNCTION.getName());
+    return modulusBase(BuiltinFunctionName.MODULUSFUNCTION.getName());
   }
 
   /**
