@@ -13,7 +13,6 @@ import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.tree.Unnest;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.exception.SemanticCheckException;
-import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParserBaseVisitor;
 import org.opensearch.sql.sql.parser.context.QuerySpecification;
 
@@ -32,7 +31,7 @@ public class AstUnnestBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedP
       if (item instanceof Alias
           && ((Alias)item).getDelegated() instanceof Function
           && ((Function)((Alias)item).getDelegated()).getFuncName().equalsIgnoreCase("nested")) {
-        var func = (Function)((Alias)item).getDelegated();
+        Function func = (Function)((Alias)item).getDelegated();
         validateArgs(func);
         if (unnest == null) {
           unnest = new Unnest(func);
