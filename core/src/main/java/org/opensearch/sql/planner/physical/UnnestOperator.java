@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,20 +30,19 @@ public class UnnestOperator extends PhysicalPlan {
   @Getter
   private final PhysicalPlan input;
   @Getter
-  private final Map<String, ReferenceExpression> fields; // Needs to be a HashMap of (path, field) to match legacy implementation
+  private final Set<String> fields; // Needs to be a Set to match legacy implementation
   @Getter
   List<Map<String, ExprValue>> result = new ArrayList<>();
   private ListIterator<Map<String, ExprValue>> flattenedResult = result.listIterator();
 
   public UnnestOperator(PhysicalPlan input, List<Map<String, ReferenceExpression>> fields) {
     this.input = input;
-    this.fields = Stream.of(fields)
-        .flatMap(list -> list.stream())
-        .collect(Collectors.toMap(m -> m.get("path").toString()
-            ,m -> m.get("field")));
+    this.fields = fields.stream()
+        .map(m -> m.get("field").toString())
+        .collect(Collectors.toSet());
   }
 
-  public UnnestOperator(PhysicalPlan input, Map<String, ReferenceExpression> fields) {
+  public UnnestOperator(PhysicalPlan input, Set<String> fields) {
     this.input = input;
     this.fields = fields;
   }
@@ -68,8 +68,8 @@ public class UnnestOperator extends PhysicalPlan {
     if (!flattenedResult.hasNext()) {
       result.clear();
       ExprValue inputValue = input.next();
-      for (var field : fields.keySet()) {
-        result = flatten(fields.get(field).toString(), inputValue, result);
+      for (String field : fields) {
+        result = flatten(field, inputValue, result);
       }
       flattenedResult = result.listIterator();
     }

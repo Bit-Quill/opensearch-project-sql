@@ -179,14 +179,16 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
       conditionSet = true;
     }
 
-    // TODO remove me for first PR?
-    if ((fieldSet && conditionSet && pathSet) || (fieldSet && conditionSet)) {
+    if (fieldSet || (fieldSet && pathSet)) {
+      return new Alias(ctx.nestedFunction().nestedField().getText(),
+          new Function(NESTED.getName().getFunctionName(), args));
+    } else if (pathSet && conditionSet) {
+      return new Alias(ctx.nestedFunction().nestedPath().getText(),
+          new Function(NESTED.getName().getFunctionName(), args));
+    } else {
       throw new SyntaxCheckException(
           "Invalid parameters for nested function, use syntax: nested(field | field, path | path, condition)");
     }
-
-    return new Alias(ctx.nestedFunction().nestedField().getText(),
-        new Function(NESTED.getName().getFunctionName(), args));
   }
 
   @Override
