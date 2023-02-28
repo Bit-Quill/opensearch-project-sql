@@ -1757,21 +1757,19 @@ public class DateTimeFunction {
   }
 
   /**
-   * Yearweek for date implementation for ExprValue.
+   * Convert mode argument passed into our CalendarLookup class to a different mode.
+   * Needed to align with MySQL for the yearweek function due to different behaviour for modes.
+   * Note, this misalignment only exists for yearweek.
+   * Our current mode behavior works as intended for other functions.
    *
-   * @param date ExprValue of Date/Datetime/Time/Timestamp/String type.
-   * @param mode ExprValue of Integer type.
+   * @param mode is an integer containing the initial mode arg
+   * @return an integer containing the new mode
    */
-  private ExprValue exprYearweek(ExprValue date, ExprValue mode) {
-    return new ExprIntegerValue(extractYearweek(date.dateValue(), mode.integerValue()));
-  }
-
-  private int extractYearweek(LocalDate date, int mode) {
-
-    // Special case to rely on a different mode for week 0 of a given year.
+  private int convertWeekModeFromMySqlToJava(LocalDate date, int mode) {
     // Needed to align with MySQL. Due to how modes for this function work.
     // See description of modes here ...
     // https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_week
+
     if (CalendarLookup.getWeekNumber(mode, date) == 0) {
       if (mode == 0 || mode == 1) {
         mode = 2;
@@ -1780,16 +1778,32 @@ public class DateTimeFunction {
       }
     }
 
-    int formatted = Integer.parseInt(
-        String.format(
-            "%d%02d",
-            CalendarLookup.getYearNumber(mode, date),
-            CalendarLookup.getWeekNumber(mode, date)
+    return mode;
+  }
 
-        )
-    );
+  /**
+   * Helper function to extract the yearweek output from a given date.
+   *
+   * @param date is a LocalDate input argument.
+   * @param mode is an integer containing the mode used to parse the LocalDate.
+   * @return is a long containing the formatted output for the yearweek function.
+   */
+  private int extractYearweek(LocalDate date, int mode) {
+    mode = convertWeekModeFromMySqlToJava(date, mode);
+    int formatted = CalendarLookup.getYearNumber(mode, date) * 100
+        + CalendarLookup.getWeekNumber(mode, date);
 
     return formatted;
+  }
+
+  /**
+   * Yearweek for date implementation for ExprValue.
+   *
+   * @param date ExprValue of Date/Datetime/Time/Timestamp/String type.
+   * @param mode ExprValue of Integer type.
+   */
+  private ExprValue exprYearweek(ExprValue date, ExprValue mode) {
+    return new ExprIntegerValue(extractYearweek(date.dateValue(), mode.integerValue()));
   }
 
   /**

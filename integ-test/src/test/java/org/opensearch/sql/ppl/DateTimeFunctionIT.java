@@ -9,7 +9,6 @@ package org.opensearch.sql.ppl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
-import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_CALCS;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DATE;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_PEOPLE2;
 import static org.opensearch.sql.sql.DateTimeFunctionIT.utcDateTimeNow;
