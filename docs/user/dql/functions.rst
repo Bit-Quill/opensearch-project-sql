@@ -2633,11 +2633,11 @@ _______
 Description
 >>>>>>>>>>>
 
-Usage: weekday(date) returns the weekday index for date (0 = Monday, 1 = Tuesday, …, 6 = Sunday).
+Usage: weekday(date) returns the weekday index for date (0 = Monday, 1 = Tuesday, ..., 6 = Sunday).
 
 It is similar to the `dayofweek`_ function, but returns different indexes for each day.
 
-Argument type: STRING/DATE/DATETIME/TIMESTAMP
+Argument type: STRING/DATE/DATETIME/TIME/TIMESTAMP
 
 Return type: INTEGER
 
