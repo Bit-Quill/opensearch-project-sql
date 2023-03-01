@@ -72,6 +72,7 @@ class ToSecondsTest extends ExpressionTestBase {
   private static Stream<Arguments> getTestDataForToSeconds() {
     return Stream.of(
         Arguments.of(new ExprLongValue(950501), new ExprLongValue(62966505600L)),
+        Arguments.of(new ExprLongValue(9950501), ExprNullValue.of()),
         Arguments.of(new ExprStringValue("2009-11-29 00:00:00"), new ExprLongValue(63426672000L)),
         Arguments.of(new ExprStringValue("2009-11-29 13:43:32"), new ExprLongValue(63426721412L)),
         Arguments.of(new ExprDateValue("2009-11-29"), new ExprLongValue(63426672000L)),

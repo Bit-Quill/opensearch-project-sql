@@ -1662,12 +1662,19 @@ public class DateTimeFunction {
         throw new DateTimeException("Integer argument was out of range");
       }
 
-      LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()), DATE_FORMATTER_SHORT_YEAR);
+      try {
+        LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()), DATE_FORMATTER_SHORT_YEAR);
+        return new ExprLongValue(
+            date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC) + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
+      } catch (DateTimeParseException ignored) {
+        //ignore parse exception and try next format
+      }
+
+      LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()), DATE_TIME_FORMATTER_LONG_YEAR);
       return new ExprLongValue(
           date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC) + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
-
-    } catch (DateTimeParseException e) {
-      return null;
+    } catch (DateTimeException e) {
+      return ExprNullValue.of();
     }
   }
 

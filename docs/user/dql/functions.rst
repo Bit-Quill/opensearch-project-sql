@@ -2466,6 +2466,7 @@ Description
 >>>>>>>>>>>
 
 Usage: to_seconds(date) returns the number of seconds since the year 0 of the given value. Returns NULL if value is invalid.
+An argument of a LONG type can be used. It must be formatted as YMMDD, YYMMDD, or YYYYMMDD.
 
 Argument type: STRING/LONG/DATE/DATETIME/TIME/TIMESTAMP
 
@@ -2473,13 +2474,13 @@ Return type: LONG
 
 Example::
 
-    os> SELECT TO_SECONDS(DATE '2008-10-07')
+    os> SELECT TO_SECONDS(DATE '2008-10-07'), TO_SECONDS(950228)
     fetched rows / total rows = 1/1
-    +---------------------------------+
-    | TO_SECONDS(DATE '2008-10-07')   |
-    |---------------------------------|
-    | 63390556800                     |
-    +---------------------------------+
+    +---------------------------------+----------------------+
+    | TO_SECONDS(DATE '2008-10-07')   | TO_SECONDS(950228)   |
+    |---------------------------------+----------------------|
+    | 63390556800                     |                      |
+    +---------------------------------+----------------------+
 
 UNIX_TIMESTAMP
 --------------
