@@ -103,20 +103,9 @@ public class SQLService {
       class JsonSupportedVisitor extends AbstractNodeVisitor<Boolean, VisitorContext> {
         @Override
         public Boolean visit(Node node, VisitorContext context) {
-          // A node is supported if it's a leaf node or if all of its children are supported.
-          return node.getChild().isEmpty()
-              || node.getChild().stream().filter(c -> c.accept(this, context) != null)
+          // A node is supported if all of its children are supported.
+          return node.getChild().stream().filter(c -> c.accept(this, context) != null)
               .allMatch(c -> c.accept(this, context));
-        }
-
-        @Override
-        public Boolean visitAlias(Alias node, VisitorContext context) {
-          // Alias node is accepted if it does not have a user-defined alias
-          // and if the delegated expression is accepted.
-          if (!StringUtils.isEmpty(node.getAlias()))
-            return false;
-          else
-            return node.getDelegated().accept(this, context);
         }
 
         @Override

@@ -7,7 +7,6 @@
 package org.opensearch.sql.sql;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -111,40 +110,6 @@ class SQLServiceTest {
   public void canThrowUnsupportedExceptionForAggregationJsonQuery() {
     sqlService.execute(
         new SQLQueryRequest(new JSONObject(), "SELECT FIELD FROM TABLE GROUP BY FIELD", QUERY, "json"),
-        new ResponseListener<QueryResponse>() {
-          @Override
-          public void onResponse(QueryResponse response) {
-            assertNotNull(response);
-          }
-
-          @Override
-          public void onFailure(Exception e) {
-            assert(e instanceof UnsupportedOperationException);
-          }
-        });
-  }
-
-  @Test
-  public void canThrowUnsupportedExceptionForFilterAggregationJsonQuery() {
-    sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), "SELECT * FROM TABLE GROUP BY FIELD HAVING COUNT(*) > 0", QUERY, "json"),
-        new ResponseListener<QueryResponse>() {
-          @Override
-          public void onResponse(QueryResponse response) {
-            assertNotNull(response);
-          }
-
-          @Override
-          public void onFailure(Exception e) {
-            assert(e instanceof UnsupportedOperationException);
-          }
-        });
-  }
-
-  @Test
-  public void canThrowUnsupportedExceptionForLimitAggregationJsonQuery() {
-    sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), "SELECT * FROM TABLE GROUP BY FIELD LIMIT 10", QUERY, "json"),
         new ResponseListener<QueryResponse>() {
           @Override
           public void onResponse(QueryResponse response) {

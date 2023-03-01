@@ -7,8 +7,10 @@
 package org.opensearch.sql.sql.antlr;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
@@ -238,7 +240,7 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse("SELECT dayofmonth('2022-11-18')"));
     assertNotNull(parser.parse("SELECT day_of_month('2022-11-18')"));
   }
-    
+
   @Test
   public void can_parse_day_of_week_functions() {
     assertNotNull(parser.parse("SELECT dayofweek('2022-11-18')"));
@@ -631,6 +633,12 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse("SELECT * FROM test WHERE Field = multi_match(\"query\")"));
     assertNotNull(parser.parse("SELECT * FROM test WHERE Field = multimatch('query')"));
     assertNotNull(parser.parse("SELECT * FROM test WHERE Field = multimatch(\"query\")"));
+  }
+
+  @Test
+  public void containHintsTest() {
+    assertTrue(parser.containsHints("SELECT /*! HINTS */ field FROM test"));
+    assertFalse(parser.containsHints("SELECT field FROM test"));
   }
 
   private static Stream<String> matchPhraseQueryComplexQueries() {
