@@ -27,6 +27,8 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.window.WindowDefinition;
 
+import java.util.Set;
+
 /**
  * Todo, testing purpose, delete later.
  */
@@ -131,6 +133,11 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
 
     PhysicalPlan limit = PhysicalPlanDSL.limit(plan, 1, 1);
     assertNull(limit.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
+    Set<String> unnestArgs = Set.of("nested.test");
+    PhysicalPlan unnest = new UnnestOperator(plan, unnestArgs);
+    assertNull(unnest.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
   }
 

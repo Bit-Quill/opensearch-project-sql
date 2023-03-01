@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.expression.ReferenceExpression;
 
 @ToString
@@ -71,6 +72,9 @@ public class UnnestOperator extends PhysicalPlan {
       for (String field : fields) {
         result = flatten(field, inputValue, result);
       }
+      if (result.isEmpty()) {
+        return ExprValueUtils.missingValue();
+      }
       flattenedResult = result.listIterator();
     }
     return new ExprTupleValue(new LinkedHashMap<>(flattenedResult.next()));
@@ -105,9 +109,6 @@ public class UnnestOperator extends PhysicalPlan {
     ExprValue nestedObj = null;
     for (String splitKey : splitKeys) {
       nestedObj = getNested(nestedField, splitKey, row, copy, nestedObj);
-      if (nestedObj == null) {
-        break;
-      }
     }
 
     // Only one field in select statement
@@ -147,13 +148,7 @@ public class UnnestOperator extends PhysicalPlan {
         return null;
       }
       currentObj = currentMap.tupleValue().get(nestedField);
-    } else if (currentObj instanceof Map) {
-      Map<String, ExprValue> currentMap = (Map<String, ExprValue>)currentObj;
-      if (!currentMap.containsKey(nestedField)) {
-        return null;
-      }
-      currentObj = currentMap.get(nestedField);
-    } else if (currentObj instanceof ExprCollectionValue) {
+    } else  { // Collection Value
       ExprValue arrayObj = currentObj;
       for (int x = 0; x < arrayObj.collectionValue().size() ; x++) {
         currentObj = arrayObj.collectionValue().get(x);

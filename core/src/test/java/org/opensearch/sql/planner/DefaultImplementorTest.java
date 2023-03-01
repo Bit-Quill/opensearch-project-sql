@@ -18,6 +18,7 @@ import static org.opensearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.eval;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.filter;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.limit;
+import static org.opensearch.sql.planner.logical.LogicalPlanDSL.nested;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.project;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.rareTopN;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.remove;
@@ -97,32 +98,36 @@ class DefaultImplementorTest {
         ImmutablePair.of(ref("name1", STRING), ref("name", STRING));
     Pair<Sort.SortOption, Expression> sortField =
         ImmutablePair.of(Sort.SortOption.DEFAULT_ASC, ref("name1", STRING));
+    List<List<Expression>> nestedArgs = List.of(List.of(new ReferenceExpression("message.info", STRING)));
     Integer limit = 1;
     Integer offset = 1;
 
+
     LogicalPlan plan =
         project(
-            limit(
-                LogicalPlanDSL.dedupe(
-                    rareTopN(
-                        sort(
-                            eval(
-                                remove(
-                                    rename(
-                                        aggregation(
-                                            filter(values(emptyList()), filterExpr),
-                                            aggregators,
-                                            groupByExprs),
-                                        mappings),
-                                    exclude),
-                                newEvalField),
-                            sortField),
-                        CommandType.TOP,
-                        topByExprs,
-                        rareTopNField),
-                    dedupeField),
-                limit,
+            nested(
+                limit(
+                    LogicalPlanDSL.dedupe(
+                        rareTopN(
+                            sort(
+                                eval(
+                                    remove(
+                                        rename(
+                                            aggregation(
+                                                filter(values(emptyList()), filterExpr),
+                                                aggregators,
+                                                groupByExprs),
+                                            mappings),
+                                        exclude),
+                                    newEvalField),
+                                sortField),
+                            CommandType.TOP,
+                            topByExprs,
+                            rareTopNField),
+                        dedupeField),
+                    limit,
                 offset),
+                nestedArgs),
             include);
 
     PhysicalPlan actual = plan.accept(implementor, null);

@@ -12,6 +12,9 @@ import static org.opensearch.sql.data.model.ExprValueUtils.collectionValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.tupleValue;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
@@ -19,11 +22,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.expression.ReferenceExpression;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class UnnestOperatorTest extends PhysicalPlanTestBase {
@@ -96,6 +96,18 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
             tupleValue(ImmutableMap.of("message.info", "c", "comment.data", "2")),
             tupleValue(ImmutableMap.of("message.info", "c", "comment.data", "3"))
         )
+    );
+  }
+
+  @Test
+  public void nested_missing_field() {
+    when(inputPlan.hasNext()).thenReturn(true, false);
+    when(inputPlan.next())
+        .thenReturn(test_data);
+    Set<String> fields = Set.of("message.invalid");
+    assertThat(
+        execute(new UnnestOperator(inputPlan, fields)),
+        contains(ExprValueUtils.missingValue())
     );
   }
 }
