@@ -277,32 +277,6 @@ class DateTimeFormatterUtil {
     return false;
   }
 
-  private static DateTimeFormatterBuilder getBuilderWithDefaultVals(
-      TemporalAccessor taWithMissingFields) {
-
-    DateTimeFormatterBuilder formatterBuilder = new DateTimeFormatterBuilder();
-
-    if (!taWithMissingFields.isSupported(ChronoField.YEAR)) {
-      formatterBuilder.parseDefaulting(ChronoField.YEAR, 1);
-    }
-    if (!taWithMissingFields.isSupported(ChronoField.MONTH_OF_YEAR)) {
-      formatterBuilder.parseDefaulting(ChronoField.MONTH_OF_YEAR, 1);
-    }
-    if (!taWithMissingFields.isSupported(ChronoField.DAY_OF_MONTH)) {
-      formatterBuilder.parseDefaulting(ChronoField.DAY_OF_MONTH, 1);
-    }
-    if (!taWithMissingFields.isSupported(ChronoField.HOUR_OF_DAY)) {
-      formatterBuilder.parseDefaulting(ChronoField.HOUR_OF_DAY, 0);
-    }
-    if (!taWithMissingFields.isSupported(ChronoField.MINUTE_OF_HOUR)) {
-      formatterBuilder.parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0);
-    }
-    if (!taWithMissingFields.isSupported(ChronoField.SECOND_OF_MINUTE)) {
-      formatterBuilder.parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0);
-    }
-    return formatterBuilder;
-  }
-
   static ExprValue parseStringWithDateOrTime(FunctionProperties fp,
                                              ExprValue datetimeStringExpr,
                                              ExprValue formatExpr) {
