@@ -1658,13 +1658,13 @@ public class DateTimeFunction {
    */
   private ExprValue exprToSecondsForIntType(ExprValue dateExpr) {
     try {
-      if (dateExpr.longValue() < 0 || dateExpr.longValue() > 999999) {
+      if (dateExpr.longValue() < 0 || dateExpr.longValue() > 99999999) {
         throw new DateTimeException("Integer argument was out of range");
       }
 
       try {
         LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()),
-            DATE_FORMATTER_SHORT_YEAR);
+            DATE_FORMATTER_LONG_YEAR);
 
         return new ExprLongValue(
             date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
@@ -1674,7 +1674,7 @@ public class DateTimeFunction {
       }
 
       LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()),
-          DATE_TIME_FORMATTER_LONG_YEAR);
+          DATE_FORMATTER_SHORT_YEAR);
 
       return new ExprLongValue(
           date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
