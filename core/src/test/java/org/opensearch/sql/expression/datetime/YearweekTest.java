@@ -16,13 +16,11 @@ import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import java.time.LocalDate;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
+import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.exception.SemanticCheckException;
@@ -112,5 +110,29 @@ class YearweekTest extends ExpressionTestBase {
             SemanticCheckException.class,
             () -> yearweekQuery("2019-02-29 01:02:03", 0, 0))
     );
+  }
+
+  @Test
+  public void yearweekModeInUnsupportedFormat() {
+    FunctionExpression expression1 = DSL
+        .yearweek(
+            functionProperties,
+            DSL.literal(new ExprDatetimeValue("2019-01-05 10:11:12")), DSL.literal(8));
+    SemanticCheckException exception =
+        assertThrows(SemanticCheckException.class, () -> eval(expression1));
+    assertEquals("mode:8 is invalid, please use mode value between 0-7",
+        exception.getMessage());
+
+    FunctionExpression expression2 = DSL
+        .yearweek(
+            functionProperties,
+            DSL.literal(new ExprDatetimeValue("2019-01-05 10:11:12")), DSL.literal(-1));
+    exception = assertThrows(SemanticCheckException.class, () -> eval(expression2));
+    assertEquals("mode:-1 is invalid, please use mode value between 0-7",
+        exception.getMessage());
+  }
+
+  private ExprValue eval(Expression expression) {
+    return expression.valueOf();
   }
 }
