@@ -14,18 +14,11 @@ import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.SHORT;
 
 import lombok.experimental.UtilityClass;
-import org.opensearch.sql.data.model.ExprByteValue;
-import org.opensearch.sql.data.model.ExprDoubleValue;
-import org.opensearch.sql.data.model.ExprFloatValue;
-import org.opensearch.sql.data.model.ExprIntegerValue;
-import org.opensearch.sql.data.model.ExprLongValue;
-import org.opensearch.sql.data.model.ExprNullValue;
-import org.opensearch.sql.data.model.ExprShortValue;
-import org.opensearch.sql.expression.function.BuiltinFunctionName;
-import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
-import org.opensearch.sql.expression.function.DefaultFunctionResolver;
-import org.opensearch.sql.expression.function.FunctionDSL;
-import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.data.model.*;
+import org.opensearch.sql.data.type.ExprCoreType;
+import org.opensearch.sql.expression.function.*;
+
+import java.math.BigDecimal;
 
 /**
  * The definition of arithmetic function
@@ -56,6 +49,30 @@ public class ArithmeticFunction {
     repository.register(subtractFunction());
   }
 
+  private static SerializableFunction baseArithmeticFunction(SerializableBiFunction<BigDecimal, BigDecimal, BigDecimal> formula,
+                                                             Boolean secondArgumentZeroCheck,
+                                                             SerializableFunction<ExprValue, BigDecimal> argValue,
+                                                             SerializableFunction<BigDecimal, Number> convertValue,
+                                                             ExprCoreType argumentType, ExprCoreType returnType) {
+    return FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                    (ExprValue v1, ExprValue v2) -> secondArgumentZeroCheck && v2.byteValue() == 0 ? ExprNullValue.of() :
+                            ExprValueUtils.fromObjectValue(convertValue.apply(formula.apply(argValue.apply(v1), argValue.apply(v2))))),
+            argumentType, argumentType, returnType);
+  }
+
+  private static DefaultFunctionResolver baseArithmeticParser(SerializableBiFunction<BigDecimal, BigDecimal, BigDecimal> formula,
+                                                      Boolean secondArgumentZeroCheck, FunctionName functionName) {
+    return FunctionDSL.define(functionName,
+            baseArithmeticFunction(formula, secondArgumentZeroCheck, v -> BigDecimal.valueOf(v.shortValue()), v -> new ExprShortValue(v).shortValue(), BYTE, SHORT),
+            baseArithmeticFunction(formula, secondArgumentZeroCheck, v -> BigDecimal.valueOf(v.integerValue()), v -> new ExprIntegerValue(v).integerValue(), SHORT, INTEGER),
+            baseArithmeticFunction(formula, secondArgumentZeroCheck, v -> BigDecimal.valueOf(v.longValue()), v -> new ExprLongValue(v).longValue(), INTEGER, LONG),
+            baseArithmeticFunction(formula, secondArgumentZeroCheck, v -> BigDecimal.valueOf(v.longValue()), v -> new ExprLongValue(v).longValue(), LONG, LONG),
+            baseArithmeticFunction(formula, secondArgumentZeroCheck, v -> BigDecimal.valueOf(v.doubleValue()), v -> new ExprDoubleValue(v).doubleValue(), FLOAT, DOUBLE),
+            baseArithmeticFunction(formula, secondArgumentZeroCheck, v -> BigDecimal.valueOf(v.doubleValue()), v -> new ExprDoubleValue(v).doubleValue(), DOUBLE, DOUBLE)
+    );
+  }
+
   /**
    * Definition of add(x, y) function.
    * Returns the number x plus number y
@@ -63,42 +80,12 @@ public class ArithmeticFunction {
    * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
    * -> wider type between types of x and y
    */
-  private static DefaultFunctionResolver addBase(FunctionName functionName) {
-    return FunctionDSL.define(functionName,
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprShortValue(v1.shortValue() + v2.shortValue())),
-            BYTE, BYTE, SHORT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprIntegerValue(v1.integerValue() + v2.integerValue())),
-            SHORT, SHORT, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprLongValue(Math.addExact(v1.longValue(),
-                    v2.longValue()))),
-            INTEGER, INTEGER, LONG),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprLongValue(Math.addExact(v1.longValue(), v2.longValue()))),
-            LONG, LONG, LONG),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprDoubleValue(v1.doubleValue() + v2.doubleValue())),
-            FLOAT, FLOAT, DOUBLE),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1, v2) -> new ExprDoubleValue(v1.doubleValue() + v2.doubleValue())),
-            DOUBLE, DOUBLE, DOUBLE)
-    );
-  }
-
   private static DefaultFunctionResolver add() {
-    return addBase(BuiltinFunctionName.ADD.getName());
+    return baseArithmeticParser(BigDecimal::add, false, BuiltinFunctionName.ADD.getName());
   }
 
   private static DefaultFunctionResolver addFunction() {
-    return addBase(BuiltinFunctionName.ADDFUNCTION.getName());
+    return baseArithmeticParser(BigDecimal::add, false, BuiltinFunctionName.ADDFUNCTION.getName());
   }
 
   /**
@@ -108,47 +95,12 @@ public class ArithmeticFunction {
    * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
    * -> wider type between types of x and y
    */
-  private static DefaultFunctionResolver divideBase(FunctionName functionName) {
-    return FunctionDSL.define(functionName,
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> v2.byteValue() == 0 ? ExprNullValue.of() :
-                                    new ExprShortValue(v1.shortValue() / v2.shortValue())),
-                    BYTE, BYTE, SHORT),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                                    new ExprIntegerValue(v1.integerValue() / v2.integerValue())),
-                    SHORT, SHORT, INTEGER),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> v2.integerValue() == 0 ? ExprNullValue.of() :
-                                    new ExprLongValue(v1.longValue() / v2.longValue())),
-                    INTEGER, INTEGER, LONG),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> v2.longValue() == 0 ? ExprNullValue.of() :
-                                    new ExprLongValue(v1.longValue() / v2.longValue())),
-                    LONG, LONG, LONG),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> v2.floatValue() == 0 ? ExprNullValue.of() :
-                                    new ExprDoubleValue(v1.doubleValue() / v2.doubleValue())),
-                    FLOAT, FLOAT, DOUBLE),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> v2.doubleValue() == 0 ? ExprNullValue.of() :
-                                    new ExprDoubleValue(v1.doubleValue() / v2.doubleValue())),
-                    DOUBLE, DOUBLE, DOUBLE)
-    );
-  }
-
   private static DefaultFunctionResolver divide() {
-    return divideBase(BuiltinFunctionName.DIVIDE.getName());
+    return baseArithmeticParser(BigDecimal::divide, true, BuiltinFunctionName.DIVIDE.getName());
   }
 
   private static DefaultFunctionResolver divideFunction() {
-    return divideBase(BuiltinFunctionName.DIVIDEFUNCTION.getName());
+    return baseArithmeticParser(BigDecimal::divide, true, BuiltinFunctionName.DIVIDEFUNCTION.getName());
   }
 
   /**
@@ -158,51 +110,16 @@ public class ArithmeticFunction {
    * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
    * -> wider type between types of x and y
    */
-  private static DefaultFunctionResolver modulusBase(FunctionName functionName) {
-    return FunctionDSL.define(functionName,
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> v2.byteValue() == 0 ? ExprNullValue.of() :
-                                    new ExprShortValue(v1.shortValue() % v2.shortValue())),
-                    BYTE, BYTE, SHORT),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
-                                    new ExprIntegerValue(v1.integerValue() % v2.integerValue())),
-                    SHORT, SHORT, INTEGER),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> v2.integerValue() == 0 ? ExprNullValue.of() :
-                                    new ExprLongValue(v1.longValue() % v2.longValue())),
-                    INTEGER, INTEGER, LONG),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> v2.longValue() == 0 ? ExprNullValue.of() :
-                                    new ExprLongValue(v1.longValue() % v2.longValue())),
-                    LONG, LONG, LONG),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> v2.floatValue() == 0 ? ExprNullValue.of() :
-                                    new ExprDoubleValue(v1.doubleValue() % v2.doubleValue())),
-                    FLOAT, FLOAT, DOUBLE),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> v2.doubleValue() == 0 ? ExprNullValue.of() :
-                                    new ExprDoubleValue(v1.doubleValue() % v2.doubleValue())),
-                    DOUBLE, DOUBLE, DOUBLE)
-    );
-  }
-
   private static DefaultFunctionResolver mod() {
-    return modulusBase(BuiltinFunctionName.MOD.getName());
+    return baseArithmeticParser(BigDecimal::remainder, true, BuiltinFunctionName.MOD.getName());
   }
 
   private static DefaultFunctionResolver modulus() {
-    return modulusBase(BuiltinFunctionName.MODULUS.getName());
+    return baseArithmeticParser(BigDecimal::remainder, true, BuiltinFunctionName.MODULUS.getName());
   }
 
   private static DefaultFunctionResolver modulusFunction() {
-    return modulusBase(BuiltinFunctionName.MODULUSFUNCTION.getName());
+    return baseArithmeticParser(BigDecimal::remainder, true, BuiltinFunctionName.MODULUSFUNCTION.getName());
   }
 
   /**
@@ -212,42 +129,12 @@ public class ArithmeticFunction {
    * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
    * -> wider type between types of x and y
    */
-  private static DefaultFunctionResolver multiplyBase(FunctionName functionName) {
-    return FunctionDSL.define(functionName,
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprShortValue(v1.shortValue() * v2.shortValue())),
-                    BYTE, BYTE, SHORT),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprIntegerValue(v1.integerValue() * v2.integerValue())),
-                    SHORT, SHORT, INTEGER),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprLongValue(Math.multiplyExact(v1.longValue(),
-                                    v2.longValue()))),
-                    INTEGER, INTEGER, LONG),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprLongValue(Math.multiplyExact(v1.longValue(), v2.longValue()))),
-                    LONG, LONG, LONG),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprDoubleValue(v1.doubleValue() * v2.doubleValue())),
-                    FLOAT, FLOAT, DOUBLE),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprDoubleValue(v1.doubleValue() * v2.doubleValue())),
-                    DOUBLE, DOUBLE, DOUBLE)
-    );
-  }
-
   private static DefaultFunctionResolver multiply() {
-    return multiplyBase(BuiltinFunctionName.MULTIPLY.getName());
+    return baseArithmeticParser(BigDecimal::multiply, false, BuiltinFunctionName.MULTIPLY.getName());
   }
 
   private static DefaultFunctionResolver multiplyFunction() {
-    return multiplyBase(BuiltinFunctionName.MULTIPLYFUNCTION.getName());
+    return baseArithmeticParser(BigDecimal::multiply, false, BuiltinFunctionName.MULTIPLYFUNCTION.getName());
   }
 
   /**
@@ -257,41 +144,11 @@ public class ArithmeticFunction {
    * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
    * -> wider type between types of x and y
    */
-  private static DefaultFunctionResolver subtractBase(FunctionName functionName) {
-    return FunctionDSL.define(functionName,
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprShortValue(v1.shortValue() - v2.shortValue())),
-                    BYTE, BYTE, SHORT),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprIntegerValue(v1.integerValue() - v2.integerValue())),
-                    SHORT, SHORT, INTEGER),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprLongValue(Math.subtractExact(v1.longValue(),
-                                    v2.longValue()))),
-                    INTEGER, INTEGER, LONG),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprLongValue(Math.subtractExact(v1.longValue(), v2.longValue()))),
-                    LONG, LONG, LONG),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprDoubleValue(v1.doubleValue() - v2.doubleValue())),
-                    FLOAT, FLOAT, DOUBLE),
-            FunctionDSL.impl(
-                    FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprDoubleValue(v1.doubleValue() - v2.doubleValue())),
-                    DOUBLE, DOUBLE, DOUBLE)
-    );
-  }
-
   private static DefaultFunctionResolver subtract() {
-    return subtractBase(BuiltinFunctionName.SUBTRACT.getName());
+    return baseArithmeticParser(BigDecimal::subtract, false, BuiltinFunctionName.SUBTRACT.getName());
   }
 
   private static DefaultFunctionResolver subtractFunction() {
-    return subtractBase(BuiltinFunctionName.SUBTRACTFUNCTION.getName());
+    return baseArithmeticParser(BigDecimal::subtract, false, BuiltinFunctionName.SUBTRACTFUNCTION.getName());
   }
 }
