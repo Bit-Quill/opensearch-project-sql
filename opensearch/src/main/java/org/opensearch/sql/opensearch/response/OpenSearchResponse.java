@@ -7,20 +7,13 @@
 package org.opensearch.sql.opensearch.response;
 
 import com.google.common.collect.ImmutableMap;
-
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.opensearch.action.search.SearchResponse;
-import org.opensearch.search.SearchHit;
 import org.opensearch.search.SearchHits;
 import org.opensearch.search.aggregations.Aggregations;
 import org.opensearch.sql.data.model.ExprTupleValue;

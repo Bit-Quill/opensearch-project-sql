@@ -20,11 +20,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -252,14 +250,23 @@ public class OpenSearchRequestBuilder {
     return false;
   }
 
+  /**
+   * Push down logical nested to sourceBuilder.
+   * @param nested : Logical nested to push down.
+   */
   public void pushDownNested(LogicalNested nested) {
     initBoolQueryFilterIfNull();
     List<NestedQueryBuilder> nestedQueries = extractNestedQueries(query());
     groupFieldNamesByPath(nested.getFields()).forEach(
-          (path, fieldNames) -> buildInnerHit(fieldNames, findNestedQueryWithSamePath(nestedQueries, path))
-        );
+          (path, fieldNames) -> buildInnerHit(
+              fieldNames, findNestedQueryWithSamePath(nestedQueries, path)
+          )
+    );
   }
 
+  /**
+   * Initialize bool query for push down if not yet initialized.
+   */
   private void initBoolQueryFilterIfNull() {
     if (sourceBuilder == null || query() == null) {
       sourceBuilder.query(QueryBuilders.boolQuery());
@@ -269,18 +276,22 @@ public class OpenSearchRequestBuilder {
     }
   }
 
-  private Map<String, List<String>> groupFieldNamesByPath(List<Map<String, ReferenceExpression>> fields) {
-    // TODO filter out reverse nested when supported - .filter(not(Field::isReverseNested))
-    return fields.stream().collect(Collectors.groupingBy(LogicalNested::getPathFromMap, mapping(LogicalNested::getFieldFromMap, toList())));
+  /**
+   * Map all field names in nested queries that use same path.
+   * @param fields : Fields for nested queries.
+   * @return : Map of path and associated field names.
+   */
+  private Map<String, List<String>> groupFieldNamesByPath(
+      List<Map<String, ReferenceExpression>> fields) {
+    // TODO filter out reverse nested when supported - .filter(not(isReverseNested()))
+    return fields.stream().collect(Collectors.groupingBy(
+        LogicalNested::getPathFromMap,
+        mapping(LogicalNested::getFieldFromMap, toList()))
+    );
   }
 
   /**
-   * Why search for NestedQueryBuilder recursively?
-   * Because 1) it was added and wrapped by BoolQuery when WHERE explained (far from here)
-   * 2) InnerHit must be added to the NestedQueryBuilder related
-   * <p>
-   * Either we store it to global data structure (which requires to be thread-safe or ThreadLocal)
-   * or we peel off BoolQuery to find it (the way we followed here because recursion tree should be very thin).
+   * Add query to NestedQueryBuilder result.
    */
   private List<NestedQueryBuilder> extractNestedQueries(QueryBuilder query) {
     List<NestedQueryBuilder> result = new ArrayList<>();
@@ -288,13 +299,18 @@ public class OpenSearchRequestBuilder {
       result.add((NestedQueryBuilder) query);
     } else if (query instanceof BoolQueryBuilder) {
       BoolQueryBuilder boolQ = (BoolQueryBuilder) query;
-      Stream.of(boolQ.filter(), boolQ.must(), boolQ.should()).
-          flatMap(Collection::stream).
-          forEach(q -> result.addAll(extractNestedQueries(q)));
+      Stream.of(boolQ.filter(), boolQ.must(), boolQ.should())
+              .flatMap(Collection::stream)
+              .forEach(q -> result.addAll(extractNestedQueries(q)));
     }
     return result;
   }
 
+  /**
+   * Build inner hits portion to nested query.
+   * @param paths : Set of all paths used in nested queries.
+   * @param query : Current pushDown query.
+   */
   private void buildInnerHit(List<String> paths, NestedQueryBuilder query) {
     query.innerHit(new InnerHitBuilder().setFetchSourceContext(
         new FetchSourceContext(true, paths.toArray(new String[0]), null)
@@ -305,11 +321,12 @@ public class OpenSearchRequestBuilder {
    * Why linear search? Because NestedQueryBuilder hides "path" field from any access.
    * Assumption: collected NestedQueryBuilder list should be very small or mostly only one.
    */
-  private NestedQueryBuilder findNestedQueryWithSamePath(List<NestedQueryBuilder> nestedQueries, String path) {
-    return nestedQueries.stream().
-        filter(query -> isSamePath(path, query)).
-        findAny().
-        orElseGet(createEmptyNestedQuery(path));
+  private NestedQueryBuilder findNestedQueryWithSamePath(
+      List<NestedQueryBuilder> nestedQueries, String path) {
+    return nestedQueries.stream()
+            .filter(query -> isSamePath(path, query))
+            .findAny()
+            .orElseGet(createEmptyNestedQuery(path));
   }
 
   private boolean isSamePath(String path, NestedQueryBuilder query) {
@@ -317,7 +334,7 @@ public class OpenSearchRequestBuilder {
   }
 
   /**
-   * Create a nested query with match all filter to place inner hits
+   * Create a nested query with match all filter to place inner hits.
    */
   private Supplier<NestedQueryBuilder> createEmptyNestedQuery(String path) {
     return () -> {
@@ -327,6 +344,10 @@ public class OpenSearchRequestBuilder {
     };
   }
 
+  /**
+   * Return current query.
+   * @return : Current source builder query.
+   */
   private BoolQueryBuilder query() {
     return (BoolQueryBuilder) sourceBuilder.query();
   }
