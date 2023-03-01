@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.index.query.QueryBuilder;
