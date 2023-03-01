@@ -32,9 +32,9 @@ public class SQLSyntaxParser implements Parser {
     return parser.root();
   }
 
-  public ParseTree parseHints(String query) {
+  public boolean containsHints(String query) {
     OpenSearchSQLLexer lexer = new OpenSearchSQLLexer(new CaseInsensitiveCharStream(query));
     OpenSearchSQLParser hintsParser = new OpenSearchSQLParser(new CommonTokenStream(lexer, OpenSearchSQLLexer.SQLCOMMENT));
-    return hintsParser.root();
+    return hintsParser.root().getChildCount() > 1;
   }
 }
