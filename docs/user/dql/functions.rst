@@ -2466,7 +2466,7 @@ Description
 >>>>>>>>>>>
 
 Usage: to_seconds(date) returns the number of seconds since the year 0 of the given value. Returns NULL if value is invalid.
-An argument of a LONG type can be used. It must be formatted as YMMDD, YYMMDD, or YYYYMMDD.
+An argument of a LONG type can be used. It must be formatted as YMMDD, YYMMDD, YYYMMDD or YYYYMMDD. Note that a LONG type argument cannot have leading 0s as it will be parsed using an octal numbering system.
 
 Argument type: STRING/LONG/DATE/DATETIME/TIME/TIMESTAMP
 
