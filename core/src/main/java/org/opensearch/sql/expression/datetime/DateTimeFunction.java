@@ -27,7 +27,10 @@ import static org.opensearch.sql.expression.function.FunctionDSL.implWithPropert
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandlingWithProperties;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_LONG_YEAR;
+import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_NO_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_SHORT_YEAR;
+import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_SINGLE_DIGIT_MONTH;
+import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_SINGLE_DIGIT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_STRICT_WITH_TZ;
@@ -1673,8 +1676,41 @@ public class DateTimeFunction {
         //ignore parse exception and try next format
       }
 
+      try {
+        LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()),
+            DATE_FORMATTER_SHORT_YEAR);
+
+        return new ExprLongValue(
+            date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
+                + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
+      } catch (DateTimeParseException ignored) {
+        //ignore parse exception and try next format
+      }
+
+      try {
+        LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()),
+            DATE_FORMATTER_SINGLE_DIGIT_YEAR);
+
+        return new ExprLongValue(
+            date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
+                + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
+      } catch (DateTimeParseException ignored) {
+        //ignore parse exception and try next format
+      }
+
+      try {
+        LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()),
+            DATE_FORMATTER_NO_YEAR);
+
+        return new ExprLongValue(
+            date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
+                + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
+      } catch (DateTimeParseException ignored) {
+        //ignore parse exception and try next format
+      }
+
       LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()),
-          DATE_FORMATTER_SHORT_YEAR);
+          DATE_FORMATTER_SINGLE_DIGIT_MONTH);
 
       return new ExprLongValue(
           date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
