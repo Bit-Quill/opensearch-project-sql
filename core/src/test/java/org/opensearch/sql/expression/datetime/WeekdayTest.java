@@ -6,15 +6,18 @@
 
 package org.opensearch.sql.expression.datetime;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
+import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
+
 import java.time.LocalDate;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprValue;
@@ -24,19 +27,9 @@ import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.LiteralExpression;
-import org.opensearch.sql.expression.env.Environment;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
-import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 
-@ExtendWith(MockitoExtension.class)
 class WeekdayTest extends ExpressionTestBase {
-
-  @Mock
-  Environment<Expression, ExprValue> env;
 
   private void weekdayQuery(
       FunctionExpression dateExpression,
@@ -141,6 +134,6 @@ class WeekdayTest extends ExpressionTestBase {
   }
 
   private ExprValue eval(Expression expression) {
-    return expression.valueOf(env);
+    return expression.valueOf();
   }
 }
