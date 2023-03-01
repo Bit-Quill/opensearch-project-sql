@@ -6,6 +6,15 @@
 
 package org.opensearch.sql.expression.datetime;
 
+import static java.time.temporal.ChronoField.ALIGNED_WEEK_OF_YEAR;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
+import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
+
+import java.time.LocalDate;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,23 +30,8 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
-import org.opensearch.sql.expression.env.Environment;
 
-import java.time.LocalDate;
-import java.util.stream.Stream;
-
-import static java.time.temporal.ChronoField.ALIGNED_WEEK_OF_YEAR;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
-import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
-
-@ExtendWith(MockitoExtension.class)
 class YearweekTest extends ExpressionTestBase {
-
-  @Mock
-  Environment<Expression, ExprValue> env;
 
   private void yearweekQuery(String date, int mode, int expectedResult) {
     FunctionExpression expression = DSL
@@ -118,8 +112,5 @@ class YearweekTest extends ExpressionTestBase {
             SemanticCheckException.class,
             () -> yearweekQuery("2019-02-29 01:02:03", 0, 0))
     );
-  }
-  private ExprValue eval(Expression expression) {
-    return expression.valueOf(env);
   }
 }
