@@ -2643,7 +2643,7 @@ Return type: INTEGER
 
 Example::
 
-    os> SELECT weekday('2020-08-26'), weekday('2020-08-26')
+    os> SELECT weekday('2020-08-26'), weekday('2020-08-27')
     fetched rows / total rows = 1/1
     +---------------------------------------------------+
     | weekday('2020-08-26')   | weekday('2020-08-27')   |
