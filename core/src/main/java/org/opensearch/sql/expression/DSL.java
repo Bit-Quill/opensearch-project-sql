@@ -433,6 +433,7 @@ public class DSL {
   public static FunctionExpression to_days(Expression... expressions) {
     return compile(FunctionProperties.None, BuiltinFunctionName.TO_DAYS, expressions);
   }
+
   public static FunctionExpression to_seconds(FunctionProperties functionProperties,
                                               Expression... expressions) {
     return compile(functionProperties, BuiltinFunctionName.TO_SECONDS, expressions);

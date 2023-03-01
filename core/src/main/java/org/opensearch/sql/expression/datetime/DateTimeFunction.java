@@ -1658,21 +1658,27 @@ public class DateTimeFunction {
    */
   private ExprValue exprToSecondsForIntType(ExprValue dateExpr) {
     try {
-      if(dateExpr.longValue() < 0 || dateExpr.longValue() > 999999) {
+      if (dateExpr.longValue() < 0 || dateExpr.longValue() > 999999) {
         throw new DateTimeException("Integer argument was out of range");
       }
 
       try {
-        LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()), DATE_FORMATTER_SHORT_YEAR);
+        LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()),
+            DATE_FORMATTER_SHORT_YEAR);
+
         return new ExprLongValue(
-            date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC) + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
+            date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
+                + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
       } catch (DateTimeParseException ignored) {
         //ignore parse exception and try next format
       }
 
-      LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()), DATE_TIME_FORMATTER_LONG_YEAR);
+      LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()),
+          DATE_TIME_FORMATTER_LONG_YEAR);
+
       return new ExprLongValue(
-          date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC) + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
+          date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
+              + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
     } catch (DateTimeException e) {
       return ExprNullValue.of();
     }
