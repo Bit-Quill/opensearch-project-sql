@@ -14,15 +14,11 @@ import static org.opensearch.index.query.QueryBuilders.nestedQuery;
 import static org.opensearch.search.sort.FieldSortBuilder.DOC_FIELD_NAME;
 import static org.opensearch.search.sort.SortOrder.ASC;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -256,10 +252,9 @@ public class OpenSearchRequestBuilder {
    */
   public void pushDownNested(LogicalNested nested) {
     initBoolQueryFilterIfNull();
-    List<NestedQueryBuilder> nestedQueries = extractNestedQueries(query());
     groupFieldNamesByPath(nested.getFields()).forEach(
           (path, fieldNames) -> buildInnerHit(
-              fieldNames, findNestedQueryWithSamePath(nestedQueries, path)
+              fieldNames, createEmptyNestedQuery(path)
           )
     );
   }
@@ -291,22 +286,6 @@ public class OpenSearchRequestBuilder {
   }
 
   /**
-   * Add query to NestedQueryBuilder result.
-   */
-  private List<NestedQueryBuilder> extractNestedQueries(QueryBuilder query) {
-    List<NestedQueryBuilder> result = new ArrayList<>();
-    if (query instanceof NestedQueryBuilder) {
-      result.add((NestedQueryBuilder) query);
-    } else if (query instanceof BoolQueryBuilder) {
-      BoolQueryBuilder boolQ = (BoolQueryBuilder) query;
-      Stream.of(boolQ.filter(), boolQ.must(), boolQ.should())
-              .flatMap(Collection::stream)
-              .forEach(q -> result.addAll(extractNestedQueries(q)));
-    }
-    return result;
-  }
-
-  /**
    * Build inner hits portion to nested query.
    * @param paths : Set of all paths used in nested queries.
    * @param query : Current pushDown query.
@@ -318,30 +297,12 @@ public class OpenSearchRequestBuilder {
   }
 
   /**
-   * Why linear search? Because NestedQueryBuilder hides "path" field from any access.
-   * Assumption: collected NestedQueryBuilder list should be very small or mostly only one.
-   */
-  private NestedQueryBuilder findNestedQueryWithSamePath(
-      List<NestedQueryBuilder> nestedQueries, String path) {
-    return nestedQueries.stream()
-            .filter(query -> isSamePath(path, query))
-            .findAny()
-            .orElseGet(createEmptyNestedQuery(path));
-  }
-
-  private boolean isSamePath(String path, NestedQueryBuilder query) {
-    return nestedQuery(path, query.query(), query.scoreMode()).equals(query);
-  }
-
-  /**
    * Create a nested query with match all filter to place inner hits.
    */
-  private Supplier<NestedQueryBuilder> createEmptyNestedQuery(String path) {
-    return () -> {
+  private NestedQueryBuilder createEmptyNestedQuery(String path) {
       NestedQueryBuilder nestedQuery = nestedQuery(path, matchAllQuery(), ScoreMode.None);
       ((BoolQueryBuilder) query().filter().get(0)).must(nestedQuery);
       return nestedQuery;
-    };
   }
 
   /**
