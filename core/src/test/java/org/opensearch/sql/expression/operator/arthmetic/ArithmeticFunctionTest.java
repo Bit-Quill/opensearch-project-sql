@@ -6,8 +6,7 @@
 
 package org.opensearch.sql.expression.operator.arthmetic;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.opensearch.sql.config.TestConfig.INT_TYPE_MISSING_VALUE_FIELD;
 import static org.opensearch.sql.config.TestConfig.INT_TYPE_NULL_VALUE_FIELD;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
@@ -38,6 +37,7 @@ import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.data.type.WideningTypeRule;
+import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
@@ -259,6 +259,37 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
     expression = DSL.divideFunction(literal(op1), literal(new ExprShortValue(0)));
     assertTrue(expression.valueOf(valueEnv()).isNull());
     assertEquals(String.format("divide(%s, 0)", op1.toString()), expression.toString());
+  }
+
+  @ParameterizedTest(name = "multipleParameters({1},{2})")
+  @MethodSource("arithmeticFunctionArguments")
+  public void multipleParameters(ExprValue op1) {
+    assertThrows(ExpressionEvaluationException.class,
+            () -> DSL.add(literal(op1), literal(op1), literal(op1)));
+    assertThrows(ExpressionEvaluationException.class,
+            () -> DSL.addFunction(literal(op1), literal(op1), literal(op1)));
+
+    assertThrows(ExpressionEvaluationException.class,
+            () -> DSL.subtract(literal(op1), literal(op1), literal(op1)));
+    assertThrows(ExpressionEvaluationException.class,
+            () -> DSL.subtractFunction(literal(op1), literal(op1), literal(op1)));
+
+    assertThrows(ExpressionEvaluationException.class,
+            () -> DSL.multiply(literal(op1), literal(op1), literal(op1)));
+    assertThrows(ExpressionEvaluationException.class,
+            () -> DSL.multiplyFunction(literal(op1), literal(op1), literal(op1)));
+
+    assertThrows(ExpressionEvaluationException.class,
+            () -> DSL.divide(literal(op1), literal(op1), literal(op1)));
+    assertThrows(ExpressionEvaluationException.class,
+            () -> DSL.divideFunction(literal(op1), literal(op1), literal(op1)));
+
+    assertThrows(ExpressionEvaluationException.class,
+            () -> DSL.mod(literal(op1), literal(op1), literal(op1)));
+    assertThrows(ExpressionEvaluationException.class,
+            () -> DSL.modulus(literal(op1), literal(op1), literal(op1)));
+    assertThrows(ExpressionEvaluationException.class,
+            () -> DSL.modulusFunction(literal(op1), literal(op1), literal(op1)));
   }
 
   protected void assertValueEqual(BuiltinFunctionName builtinFunctionName, ExprType type,
