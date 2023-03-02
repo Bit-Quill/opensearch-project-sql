@@ -40,9 +40,6 @@ import org.opensearch.sql.expression.env.Environment;
 @ExtendWith(MockitoExtension.class)
 class ToSecondsTest extends ExpressionTestBase {
 
-  @Mock
-  Environment<Expression, ExprValue> env;
-
   private static final long SECONDS_FROM_0001_01_01_TO_EPOCH_START = 62167219200L;
 
   private static Stream<Arguments> getTestDataForToSeconds() {
@@ -97,6 +94,6 @@ class ToSecondsTest extends ExpressionTestBase {
   }
 
   private ExprValue eval(Expression expression) {
-    return expression.valueOf(env);
+    return expression.valueOf();
   }
 }

@@ -133,7 +133,7 @@ public class DateTimeFormatters {
           .toFormatter(Locale.ROOT)
           .withResolverStyle(ResolverStyle.STRICT);
 
-  // MMDD
+  // MDD
   public static final DateTimeFormatter DATE_FORMATTER_SINGLE_DIGIT_MONTH =
       new DateTimeFormatterBuilder()
           .parseDefaulting(YEAR, 2000)

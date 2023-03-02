@@ -834,7 +834,9 @@ public class DateTimeFunction {
   }
 
   /**
-   * TO_SECONDS(STRING/DATE/DATETIME/TIMESTAMP/LONG). return the seconds number of the given date.
+   * TO_SECONDS(TIMESTAMP/LONG). return the seconds number of the given date.
+   * Arguments of type STRING/TIMESTAMP/LONG are also accepted.
+   * STRING/TIMESTAMP/LONG arguments are automatically cast to TIMESTAMP.
    */
   private DefaultFunctionResolver to_seconds() {
     return define(BuiltinFunctionName.TO_SECONDS.getName(),
@@ -1704,7 +1706,7 @@ public class DateTimeFunction {
   private ExprValue exprToSecondsForIntType(ExprValue dateExpr) {
     try {
       //Attempt to parse integer argument as date
-      LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()),
+      LocalDate date = LocalDate.parse(String.valueOf(dateExpr.integerValue()),
           getFormatter(dateExpr.integerValue()));
 
       return new ExprLongValue(date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
