@@ -44,8 +44,8 @@ public class ArithmeticFunctionIT extends SQLIntegTestCase {
         verifySchema(result, schema("3000000000 + 2", null, "long"));
         verifyDataRows(result, rows(3000000000L + 2));
 
-        result = executeQuery("select CAST(1.6 AS FLOAT) + 2");
-        verifySchema(result, schema("CAST(1.6 AS FLOAT) + 2", null, "float"));
+        result = executeQuery("select CAST(6.666666 AS FLOAT) + 2");
+        verifySchema(result, schema("CAST(6.666666 AS FLOAT) + 2", null, "float"));
         verifyDataRows(result, rows(6.666666 + 2));
     }
 
@@ -63,8 +63,8 @@ public class ArithmeticFunctionIT extends SQLIntegTestCase {
         verifySchema(result, schema("add(3000000000, 2)", null, "long"));
         verifyDataRows(result, rows(3000000000L + 2));
 
-        result = executeQuery("select add(CAST(1.6 AS FLOAT), 2)");
-        verifySchema(result, schema("add(CAST(1.6 AS FLOAT), 2)", null, "float"));
+        result = executeQuery("select add(CAST(6.666666 AS FLOAT), 2)");
+        verifySchema(result, schema("add(CAST(6.666666 AS FLOAT), 2)", null, "float"));
         verifyDataRows(result, rows(6.666666 + 2));
     }
 
