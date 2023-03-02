@@ -31,27 +31,7 @@ public class ArithmeticFunctionIT extends SQLIntegTestCase {
         loadIndex(Index.BANK);
     }
 
-
-    @Test
     public void testAdd() throws IOException {
-        JSONObject result = executeQuery("select add(3, 2)");
-        verifySchema(result, schema("add(3, 2)", null, "integer"));
-        verifyDataRows(result, rows(3 + 2));
-
-        result = executeQuery("select add(2.5, 2)");
-        verifySchema(result, schema("add(2.5, 2)", null, "double"));
-        verifyDataRows(result, rows(2.5D + 2));
-
-        result = executeQuery("select add(3000000000, 2)");
-        verifySchema(result, schema("add(3000000000, 2)", null, "long"));
-        verifyDataRows(result, rows(3000000000L + 2));
-
-        result = executeQuery("select add(CAST(1.6 AS FLOAT), 2)");
-        verifySchema(result, schema("add(CAST(1.6 AS FLOAT), 2)", null, "float"));
-        verifyDataRows(result, rows(1.6 + 2));
-    }
-
-    public void testAddFunction() throws IOException {
         JSONObject result = executeQuery("select 3 + 2");
         verifySchema(result, schema("3 + 2", null, "integer"));
         verifyDataRows(result, rows(3 + 2));
@@ -66,28 +46,29 @@ public class ArithmeticFunctionIT extends SQLIntegTestCase {
 
         result = executeQuery("select CAST(1.6 AS FLOAT) + 2");
         verifySchema(result, schema("CAST(1.6 AS FLOAT) + 2", null, "float"));
-        verifyDataRows(result, rows(1.6 + 2));
+        verifyDataRows(result, rows(6.666666 + 2));
+    }
+
+    @Test
+    public void testAddFunction() throws IOException {
+        JSONObject result = executeQuery("select add(3, 2)");
+        verifySchema(result, schema("add(3, 2)", null, "integer"));
+        verifyDataRows(result, rows(3 + 2));
+
+        result = executeQuery("select add(2.5, 2)");
+        verifySchema(result, schema("add(2.5, 2)", null, "double"));
+        verifyDataRows(result, rows(2.5D + 2));
+
+        result = executeQuery("select add(3000000000, 2)");
+        verifySchema(result, schema("add(3000000000, 2)", null, "long"));
+        verifyDataRows(result, rows(3000000000L + 2));
+
+        result = executeQuery("select add(CAST(1.6 AS FLOAT), 2)");
+        verifySchema(result, schema("add(CAST(1.6 AS FLOAT), 2)", null, "float"));
+        verifyDataRows(result, rows(6.666666 + 2));
     }
 
     public void testDivide() throws IOException {
-        JSONObject result = executeQuery("select divide(3, 2)");
-        verifySchema(result, schema("divide(3, 2)", null, "integer"));
-        verifyDataRows(result, rows(3 / 2));
-
-        result = executeQuery("select divide(2.5, 2)");
-        verifySchema(result, schema("divide(2.5, 2)", null, "double"));
-        verifyDataRows(result, rows(2.5D / 2));
-
-        result = executeQuery("select divide(6000000000, 2)");
-        verifySchema(result, schema("divide(6000000000, 2)", null, "long"));
-        verifyDataRows(result, rows(6000000000L / 2));
-
-        result = executeQuery("select divide(cast(1.6 AS float), 2)");
-        verifySchema(result, schema("divide(cast(1.6 AS float), 2)", null, "float"));
-        verifyDataRows(result, rows(1.6 / 2));
-    }
-
-    public void testDivideFunction() throws IOException {
         JSONObject result = executeQuery("select 3 / 2");
         verifySchema(result, schema("3 / 2", null, "integer"));
         verifyDataRows(result, rows(3 / 2));
@@ -102,6 +83,24 @@ public class ArithmeticFunctionIT extends SQLIntegTestCase {
 
         result = executeQuery("select cast(1.6 AS float) / 2");
         verifySchema(result, schema("cast(1.6 AS float) / 2", null, "float"));
+        verifyDataRows(result, rows(1.6 / 2));
+    }
+
+    public void testDivideFunction() throws IOException {
+        JSONObject result = executeQuery("select divide(3, 2)");
+        verifySchema(result, schema("divide(3, 2)", null, "integer"));
+        verifyDataRows(result, rows(3 / 2));
+
+        result = executeQuery("select divide(2.5, 2)");
+        verifySchema(result, schema("divide(2.5, 2)", null, "double"));
+        verifyDataRows(result, rows(2.5D / 2));
+
+        result = executeQuery("select divide(6000000000, 2)");
+        verifySchema(result, schema("divide(6000000000, 2)", null, "long"));
+        verifyDataRows(result, rows(6000000000L / 2));
+
+        result = executeQuery("select divide(cast(1.6 AS float), 2)");
+        verifySchema(result, schema("divide(cast(1.6 AS float), 2)", null, "float"));
         verifyDataRows(result, rows(1.6 / 2));
     }
 

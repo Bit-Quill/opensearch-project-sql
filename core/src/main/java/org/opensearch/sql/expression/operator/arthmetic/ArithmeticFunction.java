@@ -14,9 +14,23 @@ import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.SHORT;
 
 import lombok.experimental.UtilityClass;
-import org.opensearch.sql.data.model.*;
+import org.opensearch.sql.data.model.ExprNullValue;
+import org.opensearch.sql.data.model.ExprByteValue;
+import org.opensearch.sql.data.model.ExprShortValue;
+import org.opensearch.sql.data.model.ExprIntegerValue;
+import org.opensearch.sql.data.model.ExprLongValue;
+import org.opensearch.sql.data.model.ExprFloatValue;
+import org.opensearch.sql.data.model.ExprDoubleValue;
+import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.data.type.ExprCoreType;
-import org.opensearch.sql.expression.function.*;
+import org.opensearch.sql.expression.function.BuiltinFunctionName;
+import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
+import org.opensearch.sql.expression.function.DefaultFunctionResolver;
+import org.opensearch.sql.expression.function.FunctionDSL;
+import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.expression.function.SerializableBiFunction;
+import org.opensearch.sql.expression.function.SerializableFunction;
 
 import java.math.BigDecimal;
 
@@ -53,23 +67,35 @@ public class ArithmeticFunction {
                                                              Boolean secondArgumentZeroCheck,
                                                              SerializableFunction<ExprValue, BigDecimal> argValue,
                                                              SerializableFunction<BigDecimal, Number> convertValue,
-                                                             ExprCoreType argumentType, ExprCoreType returnType) {
+                                                             ExprCoreType dataType) {
     return FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                     (ExprValue v1, ExprValue v2) -> secondArgumentZeroCheck && v2.byteValue() == 0 ? ExprNullValue.of() :
                             ExprValueUtils.fromObjectValue(convertValue.apply(formula.apply(argValue.apply(v1), argValue.apply(v2))))),
-            argumentType, argumentType, returnType);
+            dataType, dataType, dataType);
   }
 
   private static DefaultFunctionResolver baseArithmeticParser(SerializableBiFunction<BigDecimal, BigDecimal, BigDecimal> formula,
                                                       Boolean secondArgumentZeroCheck, FunctionName functionName) {
     return FunctionDSL.define(functionName,
-            baseArithmeticFunction(formula, secondArgumentZeroCheck, v -> BigDecimal.valueOf(v.shortValue()), v -> new ExprShortValue(v).shortValue(), BYTE, SHORT),
-            baseArithmeticFunction(formula, secondArgumentZeroCheck, v -> BigDecimal.valueOf(v.integerValue()), v -> new ExprIntegerValue(v).integerValue(), SHORT, INTEGER),
-            baseArithmeticFunction(formula, secondArgumentZeroCheck, v -> BigDecimal.valueOf(v.longValue()), v -> new ExprLongValue(v).longValue(), INTEGER, LONG),
-            baseArithmeticFunction(formula, secondArgumentZeroCheck, v -> BigDecimal.valueOf(v.longValue()), v -> new ExprLongValue(v).longValue(), LONG, LONG),
-            baseArithmeticFunction(formula, secondArgumentZeroCheck, v -> BigDecimal.valueOf(v.doubleValue()), v -> new ExprDoubleValue(v).doubleValue(), FLOAT, DOUBLE),
-            baseArithmeticFunction(formula, secondArgumentZeroCheck, v -> BigDecimal.valueOf(v.doubleValue()), v -> new ExprDoubleValue(v).doubleValue(), DOUBLE, DOUBLE)
+            baseArithmeticFunction(formula, secondArgumentZeroCheck,
+                    v -> BigDecimal.valueOf(v.byteValue()),
+                    v -> new ExprByteValue(v).byteValue(), BYTE),
+            baseArithmeticFunction(formula, secondArgumentZeroCheck,
+                    v -> BigDecimal.valueOf(v.shortValue()),
+                    v -> new ExprShortValue(v).shortValue(), SHORT),
+            baseArithmeticFunction(formula, secondArgumentZeroCheck,
+                    v -> BigDecimal.valueOf(v.integerValue()),
+                    v -> new ExprIntegerValue(v).integerValue(), INTEGER),
+            baseArithmeticFunction(formula, secondArgumentZeroCheck,
+                    v -> BigDecimal.valueOf(v.longValue()),
+                    v -> new ExprLongValue(v).longValue(), LONG),
+            baseArithmeticFunction(formula, secondArgumentZeroCheck,
+                    v -> BigDecimal.valueOf(v.floatValue()),
+                    v -> new ExprFloatValue(v).floatValue(), FLOAT),
+            baseArithmeticFunction(formula, secondArgumentZeroCheck,
+                    v -> BigDecimal.valueOf(v.doubleValue()),
+                    v -> new ExprDoubleValue(v).doubleValue(), DOUBLE)
     );
   }
 
