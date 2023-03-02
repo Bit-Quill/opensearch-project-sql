@@ -137,8 +137,6 @@ Return type: Wider type between types of x and y and fits return value
 
 Synonyms: Addition Symbol (+)
 
-Synonyms: Addition Symbol (+)
-
 Example::
 
     os> SELECT ADD(2, 1), ADD(2.5, 3);
