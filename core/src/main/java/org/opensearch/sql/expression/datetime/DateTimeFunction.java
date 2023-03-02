@@ -1654,6 +1654,48 @@ public class DateTimeFunction {
   }
 
   /**
+   * Helper function to determine the correct formatter for date arguments passed in as integers.
+   *
+   * @param dateAsInt is an integer formatted as one of YYYYMMDD, YYMMDD, YMMDD, MMDD, MDD
+   * @return is a DateTimeFormatter that can parse the input.
+   */
+  private DateTimeFormatter getFormatter(int dateAsInt) {
+    if (dateAsInt < 0 || dateAsInt > 99999999) {
+      throw new DateTimeException("Integer argument was out of range");
+    }
+
+    //Check below from YYYYMMDD - MMDD which format should be used
+
+    //Check if dateAsInt is at least 8 digits long
+    if (dateAsInt - 9999999 > 0) {
+      return DATE_FORMATTER_LONG_YEAR;
+    }
+
+    //Check if dateAsInt is at least 6 digits long
+    if (dateAsInt - 99999 > 0) {
+      return DATE_FORMATTER_SHORT_YEAR;
+    }
+
+    //Check if dateAsInt is at least 5 digits long
+    if (dateAsInt - 9999 > 0) {
+      return DATE_FORMATTER_SINGLE_DIGIT_YEAR;
+    }
+
+    //Check if dateAsInt is at least 4 digits long
+    if (dateAsInt - 999 > 0) {
+      return DATE_FORMATTER_NO_YEAR;
+    }
+
+    //Check if dateAsInt is at least 3 digits long
+    if (dateAsInt - 99 > 0) {
+      return DATE_FORMATTER_SINGLE_DIGIT_MONTH;
+    }
+
+    throw new DateTimeException("No Matching Format");
+
+  }
+
+  /**
    * To_seconds implementation with an integer argument for ExprValue.
    *
    * @param dateExpr ExprValue of an Integer/Long formatted for a date (e.g., 950501 = 1995-05-01)
@@ -1661,61 +1703,15 @@ public class DateTimeFunction {
    */
   private ExprValue exprToSecondsForIntType(ExprValue dateExpr) {
     try {
-      if (dateExpr.longValue() < 0 || dateExpr.longValue() > 99999999) {
-        throw new DateTimeException("Integer argument was out of range");
-      }
-
-      try {
-        LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()),
-            DATE_FORMATTER_LONG_YEAR);
-
-        return new ExprLongValue(
-            date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
-                + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
-      } catch (DateTimeParseException ignored) {
-        //ignore parse exception and try next format
-      }
-
-      try {
-        LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()),
-            DATE_FORMATTER_SHORT_YEAR);
-
-        return new ExprLongValue(
-            date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
-                + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
-      } catch (DateTimeParseException ignored) {
-        //ignore parse exception and try next format
-      }
-
-      try {
-        LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()),
-            DATE_FORMATTER_SINGLE_DIGIT_YEAR);
-
-        return new ExprLongValue(
-            date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
-                + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
-      } catch (DateTimeParseException ignored) {
-        //ignore parse exception and try next format
-      }
-
-      try {
-        LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()),
-            DATE_FORMATTER_NO_YEAR);
-
-        return new ExprLongValue(
-            date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
-                + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
-      } catch (DateTimeParseException ignored) {
-        //ignore parse exception and try next format
-      }
-
+      //Attempt to parse integer argument as date
       LocalDate date = LocalDate.parse(String.valueOf(dateExpr.longValue()),
-          DATE_FORMATTER_SINGLE_DIGIT_MONTH);
+          getFormatter(dateExpr.integerValue()));
 
-      return new ExprLongValue(
-          date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
-              + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
-    } catch (DateTimeException e) {
+      return new ExprLongValue(date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
+          + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
+
+    } catch (DateTimeParseException ignored) {
+      //Return null if parsing error
       return ExprNullValue.of();
     }
   }
