@@ -9,8 +9,10 @@ package org.opensearch.sql.expression.datetime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opensearch.sql.data.type.ExprCoreType.LONG;
+import static org.opensearch.sql.expression.datetime.DateTimeFunction.SECONDS_PER_DAY;
 
 import java.time.DateTimeException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
@@ -24,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
+import org.opensearch.sql.data.model.ExprIntervalValue;
 import org.opensearch.sql.data.model.ExprLongValue;
 import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprStringValue;
@@ -91,6 +94,22 @@ class ToSecondsTest extends ExpressionTestBase {
   public void testToSecondsInvalidArg(ExprValue arg) {
     FunctionExpression expr = DSL.to_seconds(DSL.literal(arg));
     assertThrows(DateTimeException.class, () -> eval(expr));
+  }
+
+  @Test
+  public void testToSecondsWithDateAdd() {
+    LocalDate date = LocalDate.of(2000, 1, 1);
+    FunctionExpression dateExpr = DSL.to_seconds(DSL.literal(new ExprDateValue(date)));
+    long addedSeconds = SECONDS_PER_DAY;
+    long expected = eval(dateExpr).longValue() + addedSeconds;
+
+    FunctionExpression dateAddExpr = DSL.date_add(
+        DSL.literal(new ExprDateValue(date)),
+        DSL.literal(new ExprIntervalValue(Duration.ofSeconds(addedSeconds))));
+
+    long result = eval(DSL.to_seconds(DSL.literal(eval(dateAddExpr)))).longValue();
+
+    assertEquals(expected, result);
   }
 
   private ExprValue eval(Expression expression) {

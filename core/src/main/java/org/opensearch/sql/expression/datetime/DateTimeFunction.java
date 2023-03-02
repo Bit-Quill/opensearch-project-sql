@@ -96,6 +96,9 @@ import org.opensearch.sql.utils.DateTimeUtils;
 @UtilityClass
 @SuppressWarnings("unchecked")
 public class DateTimeFunction {
+  //The number of seconds per day
+  public static final long SECONDS_PER_DAY = 86400;
+
   // The number of days from year zero to year 1970.
   private static final Long DAYS_0000_TO_1970 = (146097 * 5L) - (30L * 365L + 7L);
 
@@ -106,8 +109,6 @@ public class DateTimeFunction {
   // Mode used for week/week_of_year function by default when no argument is provided
   private static final ExprIntegerValue DEFAULT_WEEK_OF_YEAR_MODE = new ExprIntegerValue(0);
 
-  //The number of seconds per day
-  private static final long SECONDS_PER_DAY = 86400;
 
   // Map used to determine format output for the get_format function
   private static final Table<String, String, String> formats =
