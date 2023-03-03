@@ -13,14 +13,14 @@ import org.opensearch.sql.ast.expression.Cast;
 import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.tree.Aggregation;
+import org.opensearch.sql.ast.tree.Filter;
 import org.opensearch.sql.ast.tree.Project;
 
 public class JsonSupportAnalyzer extends AbstractNodeVisitor<Boolean, Object> {
   @Override
   public Boolean visit(Node node, Object context) {
     // A node is supported if all of its children are supported.
-    return node.getChild().stream().filter(c -> c.accept(this, null) != null)
-        .allMatch(c -> c.accept(this, null));
+    return node.getChild().stream().allMatch(c -> c.accept(this, null));
   }
 
   @Override
@@ -70,5 +70,11 @@ public class JsonSupportAnalyzer extends AbstractNodeVisitor<Boolean, Object> {
   @Override
   public Boolean visitAggregation(Aggregation node, Object context) {
     return node.getGroupExprList().isEmpty();
+  }
+
+  @Override
+  public Boolean visitFilter(Filter node, Object context) {
+    return visit(node, null)
+        && node.getCondition().accept(this, null);
   }
 }
