@@ -16,10 +16,10 @@ import lombok.ToString;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.SearchHits;
 import org.opensearch.search.aggregations.Aggregations;
-import org.opensearch.sql.data.model.ExprTupleValue;
-import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprFloatValue;
 import org.opensearch.sql.data.model.ExprLongValue;
+import org.opensearch.sql.data.model.ExprStringValue;
+import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
@@ -106,10 +106,10 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
             builder.put("_index", new ExprStringValue(hit.getIndex()));
             builder.put("_id", new ExprStringValue(hit.getId()));
             if (!Float.isNaN(hit.getScore())) {
-                builder.put("_score", new ExprFloatValue(hit.getScore()));
+              builder.put("_score", new ExprFloatValue(hit.getScore()));
             }
             if (!Float.isNaN(maxScore)) {
-                builder.put("_maxscore", new ExprFloatValue(maxScore));
+              builder.put("_maxscore", new ExprFloatValue(maxScore));
             }
             builder.put("_sort", new ExprLongValue(hit.getSeqNo()));
 

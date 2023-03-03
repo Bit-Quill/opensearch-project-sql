@@ -66,7 +66,8 @@ class OpenSearchIndexScanQueryBuilder extends TableScanBuilder {
     Expression queryCondition = filter.getCondition();
     QueryBuilder query = queryBuilder.build(queryCondition);
     indexScan.getRequestBuilder().pushDown(query);
-    indexScan.getRequestBuilder().pushDownTrackedScore(trackScoresFromOpenSearchFunction(queryCondition));
+    indexScan.getRequestBuilder().pushDownTrackedScore(
+        trackScoresFromOpenSearchFunction(queryCondition));
     return true;
   }
 
@@ -104,12 +105,12 @@ class OpenSearchIndexScanQueryBuilder extends TableScanBuilder {
   }
 
   private boolean trackScoresFromOpenSearchFunction(Expression condition) {
-    if (condition instanceof OpenSearchFunctions.OpenSearchFunction &&
-            ((OpenSearchFunctions.OpenSearchFunction) condition).isScoreTracked()) {
+    if (condition instanceof OpenSearchFunctions.OpenSearchFunction
+        && ((OpenSearchFunctions.OpenSearchFunction) condition).isScoreTracked()) {
       return true;
     }
     if (condition instanceof FunctionExpression) {
-      for(Expression expr: ((FunctionExpression) condition).getArguments()) {
+      for (Expression expr: ((FunctionExpression) condition).getArguments()) {
         if (trackScoresFromOpenSearchFunction(expr)) {
           return true;
         }
