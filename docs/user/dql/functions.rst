@@ -3845,7 +3845,6 @@ SCORE
 Description
 >>>>>>>>>>>
 
-<<<<<<< Updated upstream
 ``score(search_expression, boost)``
 ``score_query(search_expression, boost)``
 ``scorequery(search_expression, boost)``
@@ -3867,27 +3866,6 @@ Example boosting score::
     |------+--------------------------+----------------------+-----------|
     | 1    | The House at Pooh Corner | Alan Alexander Milne | 1.5884793 |
     +------+--------------------------+----------------------+-----------+
-=======
-``SCORE(search_expression, boost)``
-``SCOREQUERY(search_expression, boost)``
-``SCORE_QUERY(search_expression, boost)``
-
-The score function ensures that tracked_scores are returned with every matching document of a relevance search query.
-The score function expects two arguments. The first argument is the relevance-search expression. The second argument is an optional floating-point number to boost the score:
-`scorequery` and `score_query` functions are alternative names for the `score` function.
-
-Please refer to examples below:
-
-    os> select *, _score from books where score(query('title:Pooh House'));
-    fetched rows / total rows = 2/2
-    +------+--------------------------+----------------------+
-    | id   | title                    | author               |
-    |------+--------------------------+----------------------|
-    | 1    | The House at Pooh Corner | Alan Alexander Milne |
-    | 2    | Winnie-the-Pooh          | Alan Alexander Milne |
-    +------+--------------------------+----------------------+
-
->>>>>>> Stashed changes
 
 HIGHLIGHT
 ------------

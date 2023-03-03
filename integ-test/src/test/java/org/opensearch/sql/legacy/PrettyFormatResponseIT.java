@@ -128,8 +128,8 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
   @Test
   public void selectScore() throws IOException {
     JSONObject response = executeQuery(
-        String.format(Locale.ROOT, "SELECT _score FROM %s WHERE balance > 30000",
-            TestsConstants.TEST_INDEX_ACCOUNT));
+        String.format(Locale.ROOT, "SELECT _score FROM %s WHERE SCORE(match_phrase(phrase, 'brown fox'))",
+            TestsConstants.TEST_INDEX_PHRASE));
 
     List<String> fields = Collections.singletonList("_score");
     assertContainsColumns(getSchema(response), fields);

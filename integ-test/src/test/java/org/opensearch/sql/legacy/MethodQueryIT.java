@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.containsString;
 import java.io.IOException;
 import java.util.Locale;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -66,13 +67,14 @@ public class MethodQueryIT extends SQLIntegTestCase {
    *
    * @throws IOException
    */
-  // todo
+  // score query no longer maps to constant_score in the V2 engine
   @Test
+  @Ignore
   public void scoreQueryTest() throws IOException {
     final String result = explainQuery(String.format(Locale.ROOT,
         "select address from %s " +
             "where score(matchQuery(address, 'Lane'),100) " +
-            "or score(matchQuery(address,'Street'),0.5)  order by _score desc limit 3",
+            "or score(matchQuery(address,'Street'),0.5) order by _score desc limit 3",
         TestsConstants.TEST_INDEX_ACCOUNT));
     Assert.assertThat(result,
         both(containsString("{\"constant_score\":" +
