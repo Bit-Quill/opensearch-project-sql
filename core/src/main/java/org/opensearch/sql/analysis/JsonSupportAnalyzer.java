@@ -15,61 +15,60 @@ import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.tree.Aggregation;
 import org.opensearch.sql.ast.tree.Project;
 
-public class JsonSupportAnalyzer extends AbstractNodeVisitor<Boolean, JsonSupportAnalysisContext> {
+public class JsonSupportAnalyzer extends AbstractNodeVisitor<Boolean, Object> {
   @Override
-  public Boolean visit(Node node, JsonSupportAnalysisContext context) {
+  public Boolean visit(Node node, Object context) {
     // A node is supported if all of its children are supported.
-    return node.getChild().stream().filter(c -> c.accept(this, context) != null)
-        .allMatch(c -> c.accept(this, context));
+    return node.getChild().stream().filter(c -> c.accept(this, null) != null)
+        .allMatch(c -> c.accept(this, null));
   }
 
   @Override
-  public Boolean visitChildren(Node node, JsonSupportAnalysisContext context) {
+  public Boolean visitChildren(Node node, Object context) {
     for (Node child : node.getChild()) {
-      if (!child.accept(this, context))
+      if (!child.accept(this, null))
         return false;
     }
     return true;
   }
 
   @Override
-  public Boolean visitFunction(Function node, JsonSupportAnalysisContext context) {
+  public Boolean visitFunction(Function node, Object context) {
     // queries with function calls are not supported.
     return false;
   }
 
   @Override
-  public Boolean visitLiteral(Literal node, JsonSupportAnalysisContext context) {
+  public Boolean visitLiteral(Literal node, Object context) {
     // queries with literal values are not supported
     return false;
   }
 
   @Override
-  public Boolean visitCast(Cast node, JsonSupportAnalysisContext context) {
+  public Boolean visitCast(Cast node, Object context) {
     // Queries with cast are not supported
     return false;
   }
 
   @Override
-  public Boolean visitAlias(Alias node, JsonSupportAnalysisContext context) {
+  public Boolean visitAlias(Alias node, Object context) {
     // Alias node is accepted if it does not have a user-defined alias
     // and if the delegated expression is accepted.
     if (!StringUtils.isEmpty(node.getAlias()))
       return false;
     else {
-      return node.getDelegated().accept(this, context);
+      return node.getDelegated().accept(this, null);
     }
   }
 
   @Override
-  public Boolean visitProject(Project node, JsonSupportAnalysisContext context) {
-    return visit(node, context)
-        && node.getProjectList().stream().filter(c -> c.accept(this, context) != null)
-        .allMatch(e -> e.accept(this, context));
+  public Boolean visitProject(Project node, Object context) {
+    return visit(node, null)
+        && node.getProjectList().stream().allMatch(e -> e.accept(this, null));
   }
 
   @Override
-  public Boolean visitAggregation(Aggregation node, JsonSupportAnalysisContext context) {
+  public Boolean visitAggregation(Aggregation node, Object context) {
     return node.getGroupExprList().isEmpty();
   }
 }
