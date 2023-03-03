@@ -8,23 +8,11 @@ package org.opensearch.sql.sql;
 
 import java.util.Optional;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.apache.commons.lang3.StringUtils;
-import org.opensearch.sql.analysis.JsonSupportAnalysisContext;
 import org.opensearch.sql.analysis.JsonSupportAnalyzer;
-import org.opensearch.sql.ast.AbstractNodeVisitor;
-import org.opensearch.sql.ast.Node;
-import org.opensearch.sql.ast.expression.Alias;
-import org.opensearch.sql.ast.expression.Cast;
-import org.opensearch.sql.ast.expression.Function;
-import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.statement.Query;
 import org.opensearch.sql.ast.statement.Statement;
-import org.opensearch.sql.ast.tree.Aggregation;
-import org.opensearch.sql.ast.tree.Project;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.ExecutionEngine.ExplainResponse;
 import org.opensearch.sql.executor.ExecutionEngine.QueryResponse;
@@ -96,8 +84,7 @@ public class SQLService {
     // There is no full support for JSON format yet for in memory operations, aliases, literals, and casts
     // Aggregation has differences with legacy results
     if (request.format().getFormatName().equals("json")) {
-      Boolean isJsonSupported = ((Query) statement).getPlan()
-          .accept(new JsonSupportAnalyzer(), new JsonSupportAnalysisContext());
+      Boolean isJsonSupported = ((Query) statement).getPlan().accept(new JsonSupportAnalyzer(), null);
 
       if (!isJsonSupported) {
         throw new UnsupportedOperationException(
