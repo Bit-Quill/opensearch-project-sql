@@ -83,7 +83,7 @@ public class SQLService {
 
     // There is no full support for JSON format yet for in memory operations, aliases, literals, and casts
     // Aggregation has differences with legacy results
-    if (request.format().getFormatName().equals("json")) {
+    if (request.format().getFormatName().equals("json") && statement instanceof Query) {
       Boolean isJsonSupported = ((Query) statement).getPlan().accept(new JsonSupportAnalyzer(), null);
 
       if (!isJsonSupported) {
