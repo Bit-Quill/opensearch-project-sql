@@ -270,13 +270,6 @@ class DateTimeFormatterUtil {
     return true;
   }
 
-  private static boolean isValidTemporalAccessor(TemporalAccessor ta) {
-    if (canGetDate(ta) || canGetTime(ta)) {
-      return true;
-    }
-    return false;
-  }
-
   static ExprValue parseStringWithDateOrTime(FunctionProperties fp,
                                              ExprValue datetimeStringExpr,
                                              ExprValue formatExpr) {
@@ -300,7 +293,7 @@ class DateTimeFormatterUtil {
       taWithMissingFields = new DateTimeFormatterBuilder()
           .appendPattern(format.toString()).toFormatter().parse(datetimeStringExpr.stringValue());
 
-      if (!isValidTemporalAccessor(taWithMissingFields)) {
+      if (!canGetDate(taWithMissingFields) && !canGetTime(taWithMissingFields)) {
         throw new DateTimeException("Not enough data to build a valid Date, Time, or Datetime.");
       }
     } catch (DateTimeException e) {
