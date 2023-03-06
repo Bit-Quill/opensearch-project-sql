@@ -48,7 +48,7 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
    * Constructor of ElasticsearchResponse.
    */
   public OpenSearchResponse(SearchResponse searchResponse,
-      OpenSearchExprValueFactory exprValueFactory) {
+                            OpenSearchExprValueFactory exprValueFactory) {
     this.hits = searchResponse.getHits();
     this.aggregations = searchResponse.getAggregations();
     this.exprValueFactory = exprValueFactory;
@@ -96,12 +96,7 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
           .map(hit -> {
             ExprValue docData = exprValueFactory.construct(hit.getSourceAsString());
             if (hit.getHighlightFields().isEmpty()) {
-              if (hit.getInnerHits().isEmpty()) {
-                return docData;
-              } else {
-                Map<String, Object> rowSource = hit.getSourceAsMap();
-                return ExprValueUtils.tupleValue(rowSource);
-              }
+              return docData;
             } else {
               ImmutableMap.Builder<String, ExprValue> builder = new ImmutableMap.Builder<>();
               builder.putAll(docData.tupleValue());
