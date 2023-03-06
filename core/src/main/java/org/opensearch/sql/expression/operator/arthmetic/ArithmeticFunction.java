@@ -21,18 +21,11 @@ import org.opensearch.sql.data.model.ExprIntegerValue;
 import org.opensearch.sql.data.model.ExprLongValue;
 import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprShortValue;
-import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.model.ExprValueUtils;
-import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.DefaultFunctionResolver;
 import org.opensearch.sql.expression.function.FunctionDSL;
 import org.opensearch.sql.expression.function.FunctionName;
-import org.opensearch.sql.expression.function.SerializableBiFunction;
-import org.opensearch.sql.expression.function.SerializableFunction;
-
-import java.math.BigDecimal;
 
 /**
  * The definition of arithmetic function
@@ -61,42 +54,6 @@ public class ArithmeticFunction {
     repository.register(multiplyFunction());
     repository.register(subtract());
     repository.register(subtractFunction());
-  }
-
-  private static SerializableFunction baseArithmeticFunction(SerializableBiFunction<BigDecimal, BigDecimal, BigDecimal> formula,
-                                                             Boolean secondArgumentZeroCheck,
-                                                             SerializableFunction<ExprValue, BigDecimal> argValue,
-                                                             SerializableFunction<BigDecimal, Number> convertValue,
-                                                             ExprCoreType dataType) {
-    return FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                    (ExprValue v1, ExprValue v2) -> (secondArgumentZeroCheck && v2.byteValue() == 0) ? ExprNullValue.of() :
-                            ExprValueUtils.fromObjectValue(convertValue.apply(formula.apply(argValue.apply(v1), argValue.apply(v2))))),
-            dataType, dataType, dataType);
-  }
-
-  private static DefaultFunctionResolver baseArithmeticParser(SerializableBiFunction<BigDecimal, BigDecimal, BigDecimal> formula,
-                                                      boolean secondArgumentZeroCheck, FunctionName functionName) {
-    return FunctionDSL.define(functionName,
-            baseArithmeticFunction(formula, secondArgumentZeroCheck,
-                    v -> BigDecimal.valueOf(v.byteValue()),
-                    v -> new ExprByteValue(v).byteValue(), BYTE),
-            baseArithmeticFunction(formula, secondArgumentZeroCheck,
-                    v -> BigDecimal.valueOf(v.shortValue()),
-                    v -> new ExprShortValue(v).shortValue(), SHORT),
-            baseArithmeticFunction(formula, secondArgumentZeroCheck,
-                    v -> BigDecimal.valueOf(v.integerValue()),
-                    v -> new ExprIntegerValue(v).integerValue(), INTEGER),
-            baseArithmeticFunction(formula, secondArgumentZeroCheck,
-                    v -> BigDecimal.valueOf(v.longValue()),
-                    v -> new ExprLongValue(v).longValue(), LONG),
-            baseArithmeticFunction(formula, secondArgumentZeroCheck,
-                    v -> BigDecimal.valueOf(v.floatValue()),
-                    v -> new ExprFloatValue(v).floatValue(), FLOAT),
-            baseArithmeticFunction(formula, secondArgumentZeroCheck,
-                    v -> BigDecimal.valueOf(v.doubleValue()),
-                    v -> new ExprDoubleValue(v).doubleValue(), DOUBLE)
-    );
   }
 
   /**
