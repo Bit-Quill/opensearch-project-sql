@@ -19,13 +19,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
-import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.expression.ReferenceExpression;
 
-@ToString
 @EqualsAndHashCode(callSuper = false)
 public class UnnestOperator extends PhysicalPlan {
   @Getter
@@ -34,6 +32,7 @@ public class UnnestOperator extends PhysicalPlan {
   private final Set<String> fields; // Needs to be a Set to match legacy implementation
   @Getter
   List<Map<String, ExprValue>> result = new ArrayList<>();
+  @EqualsAndHashCode.Exclude
   private ListIterator<Map<String, ExprValue>> flattenedResult = result.listIterator();
 
   public UnnestOperator(PhysicalPlan input, List<Map<String, ReferenceExpression>> fields) {
