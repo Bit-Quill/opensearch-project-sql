@@ -36,9 +36,12 @@ class YearweekTest extends ExpressionTestBase {
         .yearweek(
             functionProperties,
             DSL.literal(new ExprDateValue(date)), DSL.literal(mode));
-    assertEquals(INTEGER, expression.type());
-    assertEquals(String.format("yearweek(DATE '%s', %d)", date, mode), expression.toString());
-    assertEquals(integerValue(expectedResult), eval(expression));
+    assertAll(
+        () -> assertEquals(INTEGER, expression.type()),
+        () -> assertEquals(
+            String.format("yearweek(DATE '%s', %d)", date, mode), expression.toString()),
+        () -> assertEquals(integerValue(expectedResult), eval(expression))
+    );
   }
 
   private static Stream<Arguments> getTestDataForYearweek() {
@@ -76,12 +79,29 @@ class YearweekTest extends ExpressionTestBase {
 
   @ParameterizedTest(name = "{0} | {1}")
   @MethodSource("getTestDataForYearweek")
-  public void testWeekyear(String date, int mode, int expected) {
+  public void testYearweak(String date, int mode, int expected) {
     yearweekQuery(date, mode, expected);
   }
 
   @Test
-  public void testYearWeekWithTimeType() {
+  public void testYearweekWithoutMode() {
+    LocalDate date = LocalDate.of(2019,1,05);
+
+    FunctionExpression expression = DSL
+        .yearweek(
+            functionProperties,
+            DSL.literal(new ExprDateValue(date)), DSL.literal(0));
+
+    FunctionExpression expressionWithoutMode = DSL
+        .yearweek(
+            functionProperties,
+            DSL.literal(new ExprDateValue(date)), DSL.literal(0));
+
+    assertEquals(eval(expression), eval(expressionWithoutMode));
+  }
+
+  @Test
+  public void testYearweekWithTimeType() {
     int week = LocalDate.now(functionProperties.getQueryStartClock()).get(ALIGNED_WEEK_OF_YEAR);
     int year = LocalDate.now(functionProperties.getQueryStartClock()).getYear();
     int expected = Integer.parseInt(String.format("%d%02d", year, week));
@@ -91,7 +111,15 @@ class YearweekTest extends ExpressionTestBase {
             functionProperties,
             DSL.literal(new ExprTimeValue("10:11:12")), DSL.literal(0));
 
-    assertEquals(expected, eval(expression).integerValue());
+    FunctionExpression expressionWithoutMode = DSL
+        .yearweek(
+            functionProperties,
+            DSL.literal(new ExprTimeValue("10:11:12")));
+
+    assertAll(
+        () -> assertEquals(expected, eval(expression).integerValue()),
+        () -> assertEquals(expected, eval(expressionWithoutMode).integerValue())
+    );
   }
 
   @Test
