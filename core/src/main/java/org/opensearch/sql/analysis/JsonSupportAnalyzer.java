@@ -26,8 +26,9 @@ public class JsonSupportAnalyzer extends AbstractNodeVisitor<Boolean, Object> {
   @Override
   public Boolean visitChildren(Node node, Object context) {
     for (Node child : node.getChild()) {
-      if (!child.accept(this, null))
+      if (!child.accept(this, null)) {
         return false;
+      }
     }
     return true;
   }
@@ -54,9 +55,9 @@ public class JsonSupportAnalyzer extends AbstractNodeVisitor<Boolean, Object> {
   public Boolean visitAlias(Alias node, Object context) {
     // Alias node is accepted if it does not have a user-defined alias
     // and if the delegated expression is accepted.
-    if (!StringUtils.isEmpty(node.getAlias()))
+    if (!StringUtils.isEmpty(node.getAlias())) {
       return false;
-    else {
+    } else {
       return node.getDelegated().accept(this, null);
     }
   }

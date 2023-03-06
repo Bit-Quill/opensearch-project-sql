@@ -110,7 +110,8 @@ class SQLServiceTest {
   @Test
   public void canThrowUnsupportedExceptionForAggregationJsonQuery() {
     sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), "SELECT FIELD FROM TABLE GROUP BY FIELD", QUERY, "json"),
+        new SQLQueryRequest(new JSONObject(),
+            "SELECT FIELD FROM TABLE GROUP BY FIELD", QUERY, "json"),
         new ResponseListener<QueryResponse>() {
           @Override
           public void onResponse(QueryResponse response) {
@@ -170,7 +171,7 @@ class SQLServiceTest {
 
           @Override
           public void onFailure(Exception e) {
-            assert(e instanceof UnsupportedOperationException);
+            assert (e instanceof UnsupportedOperationException);
           }
         });
   }
@@ -187,7 +188,7 @@ class SQLServiceTest {
 
           @Override
           public void onFailure(Exception e) {
-            assert(e instanceof UnsupportedOperationException);
+            assert (e instanceof UnsupportedOperationException);
           }
         });
   }
@@ -227,7 +228,7 @@ class SQLServiceTest {
 
           @Override
           public void onFailure(Exception e) {
-            assert(e instanceof UnsupportedOperationException);
+            assert (e instanceof UnsupportedOperationException);
           }
         });
   }

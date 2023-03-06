@@ -7,7 +7,6 @@
 package org.opensearch.sql.sql;
 
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.opensearch.sql.analysis.JsonSupportAnalyzer;
@@ -68,8 +67,9 @@ public class SQLService {
       SQLQueryRequest request,
       Optional<ResponseListener<QueryResponse>> queryListener,
       Optional<ResponseListener<ExplainResponse>> explainListener) {
-    if (parser.containsHints(request.getQuery()))
+    if (parser.containsHints(request.getQuery())) {
       throw new UnsupportedOperationException("Hints are not yet supported in the new engine.");
+    }
 
     // 1.Parse query and convert parse tree (CST) to abstract syntax tree (AST)
     ParseTree cst = parser.parse(request.getQuery());
@@ -81,10 +81,11 @@ public class SQLService {
                     .isExplain(request.isExplainRequest())
                     .build()));
 
-    // There is no full support for JSON format yet for in memory operations, aliases, literals, and casts
-    // Aggregation has differences with legacy results
+    // There is no full support for JSON format yet for in memory operations, aliases, literals,
+    // and casts. Aggregation has differences with legacy results
     if (request.format().getFormatName().equals("json") && statement instanceof Query) {
-      Boolean isJsonSupported = ((Query) statement).getPlan().accept(new JsonSupportAnalyzer(), null);
+      Boolean isJsonSupported = ((Query) statement).getPlan()
+          .accept(new JsonSupportAnalyzer(), null);
 
       if (!isJsonSupported) {
         throw new UnsupportedOperationException(
