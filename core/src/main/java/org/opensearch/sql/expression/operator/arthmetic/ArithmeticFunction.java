@@ -14,13 +14,13 @@ import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.SHORT;
 
 import lombok.experimental.UtilityClass;
-import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprByteValue;
-import org.opensearch.sql.data.model.ExprShortValue;
+import org.opensearch.sql.data.model.ExprDoubleValue;
+import org.opensearch.sql.data.model.ExprFloatValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
 import org.opensearch.sql.data.model.ExprLongValue;
-import org.opensearch.sql.data.model.ExprFloatValue;
-import org.opensearch.sql.data.model.ExprDoubleValue;
+import org.opensearch.sql.data.model.ExprNullValue;
+import org.opensearch.sql.data.model.ExprShortValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.data.type.ExprCoreType;
@@ -70,13 +70,13 @@ public class ArithmeticFunction {
                                                              ExprCoreType dataType) {
     return FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
-                    (ExprValue v1, ExprValue v2) -> secondArgumentZeroCheck && v2.byteValue() == 0 ? ExprNullValue.of() :
+                    (ExprValue v1, ExprValue v2) -> (secondArgumentZeroCheck && v2.byteValue() == 0) ? ExprNullValue.of() :
                             ExprValueUtils.fromObjectValue(convertValue.apply(formula.apply(argValue.apply(v1), argValue.apply(v2))))),
             dataType, dataType, dataType);
   }
 
   private static DefaultFunctionResolver baseArithmeticParser(SerializableBiFunction<BigDecimal, BigDecimal, BigDecimal> formula,
-                                                      Boolean secondArgumentZeroCheck, FunctionName functionName) {
+                                                      boolean secondArgumentZeroCheck, FunctionName functionName) {
     return FunctionDSL.define(functionName,
             baseArithmeticFunction(formula, secondArgumentZeroCheck,
                     v -> BigDecimal.valueOf(v.byteValue()),
