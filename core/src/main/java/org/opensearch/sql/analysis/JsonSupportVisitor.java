@@ -16,6 +16,12 @@ import org.opensearch.sql.ast.tree.Aggregation;
 import org.opensearch.sql.ast.tree.Filter;
 import org.opensearch.sql.ast.tree.Project;
 
+/**
+ * This visitor's sole purpose is to throw UnsupportedOperationExceptions
+ * for unsupported features in the new engine when JSON format is specified.
+ * Unsupported features in V2 are ones the produce results that differ from
+ * legacy results.
+ */
 public class JsonSupportVisitor extends AbstractNodeVisitor<Boolean, Object> {
   @Override
   public Boolean visit(Node node, Object context) {
