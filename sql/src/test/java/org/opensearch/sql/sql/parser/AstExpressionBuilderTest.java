@@ -821,6 +821,7 @@ class AstExpressionBuilderTest {
         buildExprAst("score(query_string(['field1', 'field2' ^ 3.2], 'search query'), 1.0)")
     );
   }
+
   @Test
   public void relevanceQuery() {
     assertEquals(AstDSL.function("query",

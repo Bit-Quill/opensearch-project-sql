@@ -34,14 +34,13 @@ import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.P
 import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.PUSH_DOWN_SORT;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.ImmutableMap;
 import lombok.Builder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
@@ -713,7 +712,7 @@ class OpenSearchIndexScanOptimizationTest {
   }
 
   private Runnable withTrackedScoresPushedDown(boolean trackScores) {
-    return() -> verify(requestBuilder, times(1)).pushDownTrackedScore(trackScores);
+    return () -> verify(requestBuilder, times(1)).pushDownTrackedScore(trackScores);
   }
 
   private static AggregationAssertHelper.AggregationAssertHelperBuilder aggregate(String aggName) {
