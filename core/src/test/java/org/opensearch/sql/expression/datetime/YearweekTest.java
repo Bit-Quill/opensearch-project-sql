@@ -73,7 +73,12 @@ class YearweekTest extends ExpressionTestBase {
         Arguments.of("2019-01-07", 7, 201901),
         Arguments.of("2000-01-01", 0, 199952),
         Arguments.of("2000-01-01", 2, 199952),
-        Arguments.of("1999-12-31", 0, 199952)
+        Arguments.of("1999-12-31", 0, 199952),
+        Arguments.of("1999-01-01", 0, 199852),
+        Arguments.of("1999-01-01", 1, 199852),
+        Arguments.of("1999-01-01", 4, 199852),
+        Arguments.of("1999-01-01", 5, 199852),
+        Arguments.of("1999-01-01", 6, 199852)
     );
   }
 
@@ -95,7 +100,7 @@ class YearweekTest extends ExpressionTestBase {
     FunctionExpression expressionWithoutMode = DSL
         .yearweek(
             functionProperties,
-            DSL.literal(new ExprDateValue(date)), DSL.literal(0));
+            DSL.literal(new ExprDateValue(date)));
 
     assertEquals(eval(expression), eval(expressionWithoutMode));
   }

@@ -1765,17 +1765,15 @@ public class DateTimeFunction {
    * @param mode is an integer containing the initial mode arg
    * @return an integer containing the new mode
    */
-  private int convertWeekModeFromMySqlToJava(LocalDate date, int mode) {
+  public int convertWeekModeFromMySqlToJava(LocalDate date, int mode) {
     // Needed to align with MySQL. Due to how modes for this function work.
     // See description of modes here ...
     // https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_week
 
-    if (CalendarLookup.getWeekNumber(mode, date) == 0) {
-      if (mode == 0 || mode == 1) {
-        mode = 2;
-      } else if (mode == 5) {
-        mode = 7;
-      }
+    if ((0 <= mode && mode <= 4) && (CalendarLookup.getWeekNumber(mode, date) == 0)) {
+      mode = 2;
+    } else if ((mode == 5) && (CalendarLookup.getWeekNumber(mode, date) == 0)) {
+      mode = 7;
     }
 
     return mode;
