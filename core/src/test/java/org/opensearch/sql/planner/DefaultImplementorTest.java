@@ -32,6 +32,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
@@ -99,6 +101,7 @@ class DefaultImplementorTest {
     Pair<Sort.SortOption, Expression> sortField =
         ImmutablePair.of(Sort.SortOption.DEFAULT_ASC, ref("name1", STRING));
     List<List<Expression>> nestedArgs = List.of(List.of(new ReferenceExpression("message.info", STRING)));
+    Set<String> unnestArgs = Set.of("message.info");
     Integer limit = 1;
     Integer offset = 1;
 
@@ -134,29 +137,31 @@ class DefaultImplementorTest {
 
     assertEquals(
         PhysicalPlanDSL.project(
-            PhysicalPlanDSL.limit(
-                PhysicalPlanDSL.dedupe(
-                    PhysicalPlanDSL.rareTopN(
-                        PhysicalPlanDSL.sort(
-                            PhysicalPlanDSL.eval(
-                                PhysicalPlanDSL.remove(
-                                    PhysicalPlanDSL.rename(
-                                        PhysicalPlanDSL.agg(
-                                            PhysicalPlanDSL.filter(
-                                                PhysicalPlanDSL.values(emptyList()),
-                                                filterExpr),
-                                            aggregators,
-                                            groupByExprs),
-                                        mappings),
-                                    exclude),
-                                newEvalField),
-                            sortField),
-                        CommandType.TOP,
-                        topByExprs,
-                        rareTopNField),
-                    dedupeField),
-                limit,
-                offset),
+            PhysicalPlanDSL.unnest(
+              PhysicalPlanDSL.limit(
+                  PhysicalPlanDSL.dedupe(
+                      PhysicalPlanDSL.rareTopN(
+                          PhysicalPlanDSL.sort(
+                              PhysicalPlanDSL.eval(
+                                  PhysicalPlanDSL.remove(
+                                      PhysicalPlanDSL.rename(
+                                          PhysicalPlanDSL.agg(
+                                              PhysicalPlanDSL.filter(
+                                                  PhysicalPlanDSL.values(emptyList()),
+                                                  filterExpr),
+                                              aggregators,
+                                              groupByExprs),
+                                          mappings),
+                                      exclude),
+                                  newEvalField),
+                              sortField),
+                          CommandType.TOP,
+                          topByExprs,
+                          rareTopNField),
+                      dedupeField),
+                  limit,
+                  offset),
+                unnestArgs),
             include),
         actual);
   }

@@ -86,6 +86,7 @@ import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.window.WindowDefinition;
 import org.opensearch.sql.planner.logical.LogicalAD;
 import org.opensearch.sql.planner.logical.LogicalMLCommons;
+import org.opensearch.sql.planner.logical.LogicalNested;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.logical.LogicalPlanDSL;
 import org.opensearch.sql.planner.logical.LogicalProject;
@@ -389,6 +390,12 @@ class AnalyzerTest extends AnalyzerTestBase {
                 function("nested", qualifiedName("message", "info")), null)
         )
     );
+
+    Map<String, ReferenceExpression> fieldPathMap = Map.of(
+        "field", new ReferenceExpression("message.info", STRING),
+        "path", new ReferenceExpression("message", STRING));
+    assertTrue(LogicalNested.getFieldFromMap(fieldPathMap).equals("message.info"));
+    assertTrue(LogicalNested.getPathFromMap(fieldPathMap).equals("message"));
   }
 
   @Test

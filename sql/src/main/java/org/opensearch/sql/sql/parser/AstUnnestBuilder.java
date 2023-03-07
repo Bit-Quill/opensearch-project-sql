@@ -28,9 +28,8 @@ public class AstUnnestBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedP
   public UnresolvedPlan visit(ParseTree selectClause) {
     Unnest unnest = null;
     for (UnresolvedExpression item : querySpec.getSelectItems()) {
-      if (item instanceof Alias
-          && ((Alias)item).getDelegated() instanceof Function
-          && ((Function)((Alias)item).getDelegated()).getFuncName().equalsIgnoreCase("nested")) {
+      // Assume is nested as that's all that's currently supported as alias in SELECT clause from AstBuilder
+      if (item instanceof Alias) {
         Function func = (Function)((Alias)item).getDelegated();
         validateArgs(func);
         if (unnest == null) {
