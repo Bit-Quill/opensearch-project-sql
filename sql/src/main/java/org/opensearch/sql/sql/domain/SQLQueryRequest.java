@@ -93,7 +93,7 @@ public class SQLQueryRequest {
     var noContent = jsonContent == null || jsonContent.isEmpty();
 
     return ((!noCursor && noQuery && noParams && noContent) // if cursor is given, but other things
-        || (noCursor && !noQuery))                          // of if cursor is not given, but query
+        || (noCursor && !noQuery))                          // or if cursor is not given, but query
         && isOnlySupportedFieldInPayload()        // and request has supported fields only
         && isSupportedFormat();                   // and request is in supported format
   }
