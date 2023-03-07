@@ -6,7 +6,9 @@
 
 package org.opensearch.sql.expression.operator.arthmetic;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.sql.config.TestConfig.INT_TYPE_MISSING_VALUE_FIELD;
 import static org.opensearch.sql.config.TestConfig.INT_TYPE_NULL_VALUE_FIELD;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
@@ -173,6 +175,21 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
             expression.valueOf());
     assertEquals(String.format("subtract(%s, %s)", op1.toString(), op2.toString()),
             expression.toString());
+  }
+
+  @ParameterizedTest(name = "mod({1}, {2})")
+  @MethodSource("arithmeticFunctionArguments")
+  public void mod(ExprValue op1, ExprValue op2) {
+    FunctionExpression expression = DSL.mod(literal(op1), literal(op2));
+    ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
+    assertEquals(expectedType, expression.type());
+    assertValueEqual(BuiltinFunctionName.MOD, expectedType, op1, op2, expression.valueOf());
+    assertEquals(String.format("mod(%s, %s)", op1.toString(), op2.toString()),
+            expression.toString());
+
+    expression = DSL.mod(literal(op1), literal(new ExprShortValue(0)));
+    assertTrue(expression.valueOf(valueEnv()).isNull());
+    assertEquals(String.format("mod(%s, 0)", op1.toString()), expression.toString());
   }
 
   @ParameterizedTest(name = "modulus({1}, {2})")

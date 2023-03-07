@@ -80,7 +80,8 @@ public class ArithmeticFunction {
                     INTEGER, INTEGER, INTEGER),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprLongValue(Math.addExact(v1.longValue(), v2.longValue()))),
+                            (v1, v2) -> new ExprLongValue(
+                                    Math.addExact(v1.longValue(), v2.longValue()))),
                     LONG, LONG, LONG),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
@@ -227,7 +228,8 @@ public class ArithmeticFunction {
                     INTEGER, INTEGER, INTEGER),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprLongValue(Math.multiplyExact(v1.longValue(), v2.longValue()))),
+                            (v1, v2) -> new ExprLongValue(
+                                    Math.multiplyExact(v1.longValue(), v2.longValue()))),
                     LONG, LONG, LONG),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
@@ -272,7 +274,8 @@ public class ArithmeticFunction {
                     INTEGER, INTEGER, INTEGER),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
-                            (v1, v2) -> new ExprLongValue(Math.subtractExact(v1.longValue(), v2.longValue()))),
+                            (v1, v2) -> new ExprLongValue(
+                                    Math.subtractExact(v1.longValue(), v2.longValue()))),
                     LONG, LONG, LONG),
             FunctionDSL.impl(
                     FunctionDSL.nullMissingHandling(
