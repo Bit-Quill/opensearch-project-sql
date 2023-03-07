@@ -702,7 +702,7 @@ Description
 
 Usage: RINT(NUMBER T) returns T rounded to the closest whole integer number
 
-Argument type: BYTE/FLOAT/INTEGER/LONG/FLOAT/DOUBLE
+Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: DOUBLE
 
