@@ -17,6 +17,9 @@ import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.SearchHits;
 import org.opensearch.search.aggregations.Aggregations;
 import org.opensearch.sql.data.model.ExprTupleValue;
+import org.opensearch.sql.data.model.ExprStringValue;
+import org.opensearch.sql.data.model.ExprFloatValue;
+import org.opensearch.sql.data.model.ExprLongValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
@@ -92,14 +95,25 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
         return (ExprValue) ExprTupleValue.fromExprValueMap(builder.build());
       }).iterator();
     } else {
+      float maxScore = hits.getMaxScore();
       return Arrays.stream(hits.getHits())
           .map(hit -> {
-            ExprValue docData = exprValueFactory.construct(hit.getSourceAsString());
-            if (hit.getHighlightFields().isEmpty()) {
-              return docData;
-            } else {
-              ImmutableMap.Builder<String, ExprValue> builder = new ImmutableMap.Builder<>();
-              builder.putAll(docData.tupleValue());
+            String source = hit.getSourceAsString();
+            ExprValue docData = exprValueFactory.construct(source);
+
+            ImmutableMap.Builder<String, ExprValue> builder = new ImmutableMap.Builder<>();
+            builder.putAll(docData.tupleValue());
+            builder.put("_index", new ExprStringValue(hit.getIndex()));
+            builder.put("_id", new ExprStringValue(hit.getId()));
+            if (!Float.isNaN(hit.getScore())) {
+                builder.put("_score", new ExprFloatValue(hit.getScore()));
+            }
+            if (!Float.isNaN(maxScore)) {
+                builder.put("_maxscore", new ExprLongValue(maxScore));
+            }
+            builder.put("_sort", new ExprLongValue(hit.getSeqNo()));
+
+            if (!hit.getHighlightFields().isEmpty()) {
               var hlBuilder = ImmutableMap.<String, ExprValue>builder();
               for (var es : hit.getHighlightFields().entrySet()) {
                 hlBuilder.put(es.getKey(), ExprValueUtils.collectionValue(
@@ -107,8 +121,8 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
                         t -> (t.toString())).collect(Collectors.toList())));
               }
               builder.put("_highlight", ExprTupleValue.fromExprValueMap(hlBuilder.build()));
-              return ExprTupleValue.fromExprValueMap(builder.build());
             }
+            return (ExprValue) ExprTupleValue.fromExprValueMap(builder.build());
           }).iterator();
     }
   }
