@@ -794,14 +794,6 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.SCORE, args);
   }
 
-  public static FunctionExpression scorequery(Expression... args) {
-    return compile(FunctionProperties.None, BuiltinFunctionName.SCOREQUERY, args);
-  }
-
-  public static FunctionExpression score_query(Expression... args) {
-    return compile(FunctionProperties.None, BuiltinFunctionName.SCORE_QUERY, args);
-  }
-
   public static FunctionExpression now(FunctionProperties functionProperties,
                                        Expression... args) {
     return compile(functionProperties, BuiltinFunctionName.NOW, args);

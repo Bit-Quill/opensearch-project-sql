@@ -5,16 +5,19 @@
 
 package org.opensearch.sql.ast.expression;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
 /**
- * Expression node of Score function.
- * Score takes a relevance-search expression as an argument and returns it
+ * Expression node of Highlight function.
  */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)

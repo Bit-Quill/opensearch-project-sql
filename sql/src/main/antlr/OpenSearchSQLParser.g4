@@ -358,7 +358,7 @@ relevanceFunction
     ;
 
 scoreRelevanceFunction
-    : scoreRelevanceFunctionName LR_BRACKET relevanceFunction (COMMA functionArg)* RR_BRACKET
+    : scoreRelevanceFunctionName=SCORE LR_BRACKET relevanceFunction (COMMA functionArg)* RR_BRACKET
     ;
 
 noFieldRelevanceFunction
@@ -504,10 +504,6 @@ noFieldRelevanceFunctionName
 
 systemFunctionName
     : TYPEOF
-    ;
-
-scoreRelevanceFunctionName
-    : SCORE | SCOREQUERY | SCORE_QUERY
     ;
 
 singleFieldRelevanceFunctionName
