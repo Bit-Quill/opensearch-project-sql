@@ -251,7 +251,7 @@ public class OpenSearchRequestBuilder {
    * @param nested : Logical nested to push down.
    */
   public void pushDownNested(LogicalNested nested) {
-    initBoolQueryFilterIfNull();
+    initBoolQueryFilter();
     groupFieldNamesByPath(nested.getFields()).forEach(
           (path, fieldNames) -> buildInnerHit(
               fieldNames, createEmptyNestedQuery(path)
@@ -260,15 +260,11 @@ public class OpenSearchRequestBuilder {
   }
 
   /**
-   * Initialize bool query for push down if not yet initialized.
+   * Initialize bool query for push down.
    */
-  private void initBoolQueryFilterIfNull() {
-    if (sourceBuilder == null || query() == null) {
-      sourceBuilder.query(QueryBuilders.boolQuery());
-    }
-    if (query().filter().isEmpty()) {
-      query().filter(boolQuery());
-    }
+  private void initBoolQueryFilter() {
+    sourceBuilder.query(QueryBuilders.boolQuery());
+    query().filter(boolQuery());
   }
 
   /**

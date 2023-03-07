@@ -162,33 +162,25 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitNestedFunctionCall(NestedFunctionCallContext ctx) {
     List<UnresolvedExpression> args = new ArrayList();
-    boolean fieldSet = false;
-    boolean pathSet = false;
     boolean conditionSet = false;
 
     if (ctx.nestedFunction().nestedField() != null) {
       args.add(new QualifiedName(ctx.nestedFunction().nestedField().getText()));
-      fieldSet = true;
     }
     if (ctx.nestedFunction().nestedPath() != null) {
       args.add(new QualifiedName(ctx.nestedFunction().nestedPath().getText()));
-      pathSet = true;
     }
     if (ctx.nestedFunction().expression() != null) {
       args.add(visit(ctx.nestedFunction().expression()));
       conditionSet = true;
     }
 
-    if (fieldSet || (fieldSet && pathSet)) {
+    if (!conditionSet) {
       return new Alias(ctx.nestedFunction().nestedField().getText(),
           new Function(NESTED.getName().getFunctionName(), args));
-    } else if (pathSet && conditionSet) {
-      return new Alias(ctx.nestedFunction().nestedPath().getText(),
-          new Function(NESTED.getName().getFunctionName(), args));
-    } else {
-      throw new SyntaxCheckException(
-          "Invalid parameters for nested function, use syntax: nested(field | field, path | path, condition)");
     }
+    return new Alias(ctx.nestedFunction().nestedPath().getText(),
+        new Function(NESTED.getName().getFunctionName(), args));
   }
 
   @Override
