@@ -34,8 +34,6 @@ public class OpenSearchIndexScanBuilder extends TableScanBuilder {
   /** Is limit operator pushed down. */
   private boolean isLimitPushedDown = false;
 
-  private boolean isScoreTrackedPushedDown = false;
-
   @VisibleForTesting
   OpenSearchIndexScanBuilder(TableScanBuilder delegate) {
     this.delegate = delegate;

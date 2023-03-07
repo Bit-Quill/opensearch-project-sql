@@ -6,14 +6,13 @@
 package org.opensearch.sql.expression.function;
 
 import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
-import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.UtilityClass;
-import org.opensearch.sql.data.model.ExprDoubleValue;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
@@ -94,27 +93,6 @@ public class OpenSearchFunctions {
     return new RelevanceFunctionResolver(funcName);
   }
 
-  /**
-   * Definition of score() function.
-   * Enables score calculation for the match call
-   */
-//  private static DefaultFunctionResolver score(BuiltinFunctionName score) {
-//    FunctionName funcName = score.getName();
-//    return FunctionDSL.define(funcName,
-//            FunctionDSL.impl(
-//                    FunctionDSL.nullMissingHandling(
-//                            (relevanceFunc) -> new ExprDoubleValue(
-//                                    Math.pow(relevanceFunc.shortValue(), 1))
-//                    ),
-//                    BOOLEAN, BOOLEAN),
-//            FunctionDSL.impl(
-//                    FunctionDSL.nullMissingHandling(
-//                            (relevanceFunc, boost) -> new ExprDoubleValue(
-//                                    Math.pow(relevanceFunc.shortValue(), boost.shortValue()))
-//                    ),
-//                    BOOLEAN, BOOLEAN, DOUBLE));
-//  }
-
   private static FunctionResolver score(BuiltinFunctionName score) {
     FunctionName funcName = score.getName();
     return new RelevanceFunctionResolver(funcName);
@@ -123,6 +101,10 @@ public class OpenSearchFunctions {
   public static class OpenSearchFunction extends FunctionExpression {
     private final FunctionName functionName;
     private final List<Expression> arguments;
+
+    @Getter
+    @Setter
+    private boolean isScoreTracked;
 
     /**
      * Required argument constructor.
@@ -133,6 +115,7 @@ public class OpenSearchFunctions {
       super(functionName, arguments);
       this.functionName = functionName;
       this.arguments = arguments;
+      this.isScoreTracked = false;
     }
 
     @Override
