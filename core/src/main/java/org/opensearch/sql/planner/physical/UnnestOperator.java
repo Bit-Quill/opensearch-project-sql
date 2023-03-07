@@ -19,6 +19,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
+import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
@@ -72,7 +73,7 @@ public class UnnestOperator extends PhysicalPlan {
         result = flatten(field, inputValue, result);
       }
       if (result.isEmpty()) {
-        return ExprValueUtils.missingValue();
+        return new ExprTupleValue(new LinkedHashMap<>());
       }
       flattenedResult = result.listIterator();
     }
@@ -147,13 +148,16 @@ public class UnnestOperator extends PhysicalPlan {
         return null;
       }
       currentObj = currentMap.tupleValue().get(nestedField);
-    } else  { // Collection Value
+    } else if (currentObj instanceof ExprCollectionValue)  {
       ExprValue arrayObj = currentObj;
       for (int x = 0; x < arrayObj.collectionValue().size() ; x++) {
         currentObj = arrayObj.collectionValue().get(x);
         getNested(field, nestedField.substring(nestedField.indexOf(".") + 1), row, ret, currentObj);
       }
       return null;
+    } else { // Final recursion did not match nested field
+      currentObj = null;
+      return currentObj;
     }
 
     // Return final nested result
