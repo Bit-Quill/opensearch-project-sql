@@ -1713,7 +1713,7 @@ public class DateTimeFunction {
       return new ExprLongValue(date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC)
           + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
 
-    } catch (DateTimeParseException ignored) {
+    } catch (DateTimeException ignored) {
       //Return null if parsing error
       return ExprNullValue.of();
     }

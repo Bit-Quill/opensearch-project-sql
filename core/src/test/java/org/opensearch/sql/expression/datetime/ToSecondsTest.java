@@ -33,11 +33,11 @@ import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
-import org.opensearch.sql.expression.env.Environment;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -53,6 +53,9 @@ class ToSecondsTest extends ExpressionTestBase {
         Arguments.of(new ExprLongValue(950501), new ExprLongValue(62966505600L)),
         Arguments.of(new ExprLongValue(19950501), new ExprLongValue(62966505600L)),
         Arguments.of(new ExprLongValue(9950501), ExprNullValue.of()),
+        Arguments.of(new ExprLongValue(-123L), ExprNullValue.of()),
+        Arguments.of(new ExprLongValue(1), ExprNullValue.of()),
+        Arguments.of(new ExprLongValue(919950501), ExprNullValue.of()),
         Arguments.of(new ExprStringValue("2009-11-29 00:00:00"), new ExprLongValue(63426672000L)),
         Arguments.of(new ExprStringValue("2009-11-29 13:43:32"), new ExprLongValue(63426721412L)),
         Arguments.of(new ExprDateValue("2009-11-29"), new ExprLongValue(63426672000L)),
@@ -85,7 +88,12 @@ class ToSecondsTest extends ExpressionTestBase {
 
   private static Stream<Arguments> getInvalidTestDataForToSeconds() {
     return Stream.of(
-        Arguments.of(new ExprLongValue(-123L))
+        Arguments.of(new ExprStringValue("asdfasdf")),
+        Arguments.of(new ExprStringValue("2000-14-10")),
+        Arguments.of(new ExprStringValue("2000-10-45")),
+        Arguments.of(new ExprStringValue("2000-10-10 70:00:00")),
+        Arguments.of(new ExprStringValue("2000-10-10 00:70:00")),
+        Arguments.of(new ExprStringValue("2000-10-10 00:00:70"))
     );
   }
 
@@ -93,7 +101,7 @@ class ToSecondsTest extends ExpressionTestBase {
   @MethodSource("getInvalidTestDataForToSeconds")
   public void testToSecondsInvalidArg(ExprValue arg) {
     FunctionExpression expr = DSL.to_seconds(DSL.literal(arg));
-    assertThrows(DateTimeException.class, () -> eval(expr));
+    assertThrows(SemanticCheckException.class, () -> eval(expr));
   }
 
   @Test
