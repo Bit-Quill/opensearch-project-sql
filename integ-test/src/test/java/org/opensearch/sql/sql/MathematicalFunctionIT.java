@@ -105,7 +105,7 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
     verifyDataRows(result, rows(57.0));
 
     result = executeQuery("select rint(-56)");
-    verifySchema(result, schema("rint(-56)", null, "long"));
+    verifySchema(result, schema("rint(-56)", null, "double"));
     verifyDataRows(result, rows(-56));
 
     result = executeQuery("select rint(3.5)");
