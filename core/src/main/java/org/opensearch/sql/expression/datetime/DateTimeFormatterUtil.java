@@ -6,6 +6,7 @@
 package org.opensearch.sql.expression.datetime;
 
 import com.google.common.collect.ImmutableMap;
+import java.text.ParsePosition;
 import java.time.Clock;
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.ResolverStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
@@ -152,7 +154,7 @@ class DateTimeFormatterUtil {
           .put("%s", "s") // %s => ss - Seconds (00..59)
           .put("%T", "HH:mm:ss") // %T => HH:mm:ss
           .put("%W", "EEEE") // %W => EEEE - Weekday name (Sunday..Saturday)
-          .put("%Y", "y") // %Y => yyyy - Year, numeric, 4 digits
+          .put("%Y", "u") // %Y => yyyy - Year, numeric, 4 digits
           .put("%y", "u") // %y => yy - Year, numeric, 2 digits
           .put("%f", "n") // %f => n - Nanoseconds
           //The following have been implemented but cannot be aligned with
@@ -163,8 +165,8 @@ class DateTimeFormatterUtil {
           .put("%u", "w") // %u Week where Monday is the first day - WEEK() mode 1
           .put("%V", "w") // %V Week where Sunday is the first day - WEEK() mode 2
           .put("%v", "w") // %v Week where Monday is the first day - WEEK() mode 3
-          .put("%X", "y") // %X Year for week where Sunday is the first day
-          .put("%x", "y") // %x Year for week where Monday is the first day
+          .put("%X", "u") // %X Year for week where Sunday is the first day
+          .put("%x", "u") // %x Year for week where Monday is the first day
           .build();
 
   private static final Pattern pattern = Pattern.compile("%.");
@@ -291,8 +293,12 @@ class DateTimeFormatterUtil {
     try {
       //Get Temporal Accessor to initially parse string without default values
       taWithMissingFields = new DateTimeFormatterBuilder()
-          .appendPattern(format.toString()).toFormatter().parse(datetimeStringExpr.stringValue());
-
+          .appendPattern(format.toString())
+          .toFormatter().withResolverStyle(ResolverStyle.STRICT)
+          .parseUnresolved(datetimeStringExpr.stringValue(), new ParsePosition(0));
+      if (taWithMissingFields == null) {
+        throw new DateTimeException("Input string could not be parsed properly.");
+      }
       if (!canGetDate(taWithMissingFields) && !canGetTime(taWithMissingFields)) {
         throw new DateTimeException("Not enough data to build a valid Date, Time, or Datetime.");
       }
@@ -320,7 +326,7 @@ class DateTimeFormatterUtil {
 
     //Fill returned datetime with current date if only Time information was parsed
     LocalDateTime output;
-    if (!canGetDate(taWithMissingFields) && canGetTime(taWithMissingFields)) {
+    if (!canGetDate(taWithMissingFields)) {
       output = LocalDateTime.of(
           LocalDate.now(fp.getQueryStartClock()),
           LocalTime.of(hour, minute, second)

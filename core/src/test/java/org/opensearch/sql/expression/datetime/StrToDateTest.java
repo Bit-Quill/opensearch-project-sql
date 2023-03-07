@@ -52,6 +52,21 @@ class StrToDateTest extends ExpressionTestBase {
             "%M %d, %Y - %h,%i,%s",
             new ExprDatetimeValue("2013-05-01 09:23:11"),
             DATETIME),
+        Arguments.of(
+            "2000,1,1",
+            "%Y,%m,%d",
+            new ExprDatetimeValue("2000-01-01 00:00:00"),
+            DATETIME),
+        Arguments.of(
+            "2000,1,1,10",
+            "%Y,%m,%d,%h",
+            new ExprDatetimeValue("2000-01-01 10:00:00"),
+            DATETIME),
+        Arguments.of(
+            "2000,1,1,10,11",
+            "%Y,%m,%d,%h,%i",
+            new ExprDatetimeValue("2000-01-01 10:11:00"),
+            DATETIME),
 
         //Invalid Arguments (should return null)
         Arguments.of(
@@ -62,6 +77,21 @@ class StrToDateTest extends ExpressionTestBase {
         Arguments.of(
             "abc",
             "abc",
+            ExprNullValue.of(),
+            UNDEFINED),
+        Arguments.of(
+            "2000,1",
+            "%Y,%m",
+            ExprNullValue.of(),
+            UNDEFINED),
+        Arguments.of(
+            "2000,1,10",
+            "%Y,%m,%h",
+            ExprNullValue.of(),
+            UNDEFINED),
+        Arguments.of(
+            "2000,1,10,11",
+            "%Y,%m,%h,%i",
             ExprNullValue.of(),
             UNDEFINED),
         Arguments.of(
@@ -107,21 +137,27 @@ class StrToDateTest extends ExpressionTestBase {
     );
   }
 
-  @Test
-  public void test_str_to_date_with_time_type() {
-    final int HOURS = 9;
-    final int MINUTES = 23;
-    final int SECONDS = 11;
+  private static Stream<Arguments> getTestDataForStrToDateWithTime() {
+    return Stream.of(
+        Arguments.of("9,23,11", "%h,%i,%s"),
+        Arguments.of("2000,9,23,11", "%Y,%h,%i,%s"),
+        Arguments.of("2000,3,9,23,11", "%Y,%m,%h,%i,%s")
+    );
+  }
+
+  @ParameterizedTest(name = "{1}")
+  @MethodSource("getTestDataForStrToDateWithTime")
+  public void test_str_to_date_with_time_type(String parsed, String format) {
 
     FunctionExpression expression = DSL.str_to_date(
         functionProperties,
-        DSL.literal(new ExprStringValue(String.format("%d,%d,%d", HOURS, MINUTES, SECONDS))),
-        DSL.literal(new ExprStringValue("%h,%i,%s")));
+        DSL.literal(new ExprStringValue(parsed)),
+        DSL.literal(new ExprStringValue(format)));
 
     ExprValue result = eval(expression);
 
     assertEquals(DATETIME, result.type());
-    assertEquals(getExpectedTimeResult(HOURS, MINUTES, SECONDS), result.datetimeValue());
+    assertEquals(getExpectedTimeResult(9, 23, 11), result.datetimeValue());
   }
 
   @Test
