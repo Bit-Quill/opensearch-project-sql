@@ -23,6 +23,7 @@ import static org.opensearch.sql.ast.dsl.AstDSL.not;
 import static org.opensearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.or;
 import static org.opensearch.sql.ast.dsl.AstDSL.qualifiedName;
+import static org.opensearch.sql.ast.dsl.AstDSL.qualifiedNameWithMetadata;
 import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.timeLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.timestampLiteral;
@@ -36,6 +37,7 @@ import static org.opensearch.sql.ast.tree.Sort.SortOrder.DESC;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
+import java.util.List;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
@@ -436,6 +438,26 @@ class AstExpressionBuilderTest {
   }
 
   @Test
+  public void canBuildMetaDataFieldAsQualifiedName() {
+    List.of("_id", "_index", "_sort", "_score", "_maxscore").stream().forEach(
+        field -> assertEquals(
+            qualifiedNameWithMetadata(field),
+            buildExprAst(field)
+        )
+    );
+  }
+
+  @Test
+  public void canBuildNonMetaDataFieldAsQualifiedName() {
+    List.of("id", "__id", "_routing", "___field").stream().forEach(
+        field -> assertEquals(
+            qualifiedName(field),
+            buildExprAst(field)
+        )
+    );
+  }
+
+  @Test
   public void canCastFieldAsString() {
     assertEquals(
         AstDSL.cast(qualifiedName("state"), stringLiteral("string")),
@@ -770,6 +792,35 @@ class AstExpressionBuilderTest {
     );
   }
 
+  @Test
+  public void relevanceScore_query() {
+    assertEquals(
+        AstDSL.score(
+            AstDSL.function("query_string",
+              unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+                  "field2", 3.2F, "field1", 1.F))),
+              unresolvedArg("query", stringLiteral("search query"))
+            ),
+            List.of()
+        ),
+        buildExprAst("score(query_string(['field1', 'field2' ^ 3.2], 'search query'))")
+    );
+  }
+
+  @Test
+  public void relevanceScore_withBoost_query() {
+    assertEquals(
+        AstDSL.score(
+            AstDSL.function("query_string",
+                unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
+                    "field1", 1.F, "field2", 3.2F))),
+                unresolvedArg("query", stringLiteral("search query"))
+            ),
+            List.of(doubleLiteral(1.0))
+        ),
+        buildExprAst("score(query_string(['field1', 'field2' ^ 3.2], 'search query'), 1.0)")
+    );
+  }
   @Test
   public void relevanceQuery() {
     assertEquals(AstDSL.function("query",

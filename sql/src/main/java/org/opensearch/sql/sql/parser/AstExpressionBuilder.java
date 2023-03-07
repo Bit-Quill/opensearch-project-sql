@@ -502,8 +502,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   }
 
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {
-    Boolean isMetadataField =
-        identifiers.stream().anyMatch(id -> id.metadataField() != null);
+    Boolean isMetadataField = identifiers.stream().filter(id -> id.metadataField() != null).findFirst().isPresent();
     return new QualifiedName(
         identifiers.stream()
             .map(RuleContext::getText)

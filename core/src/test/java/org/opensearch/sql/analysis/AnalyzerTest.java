@@ -249,6 +249,34 @@ class AnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void analyze_filter_visit_without_score_function() {
+    UnresolvedPlan unresolvedPlan = AstDSL.filter(
+        AstDSL.relation("schema"),
+        AstDSL.function("match_phrase_prefix",
+            AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
+            AstDSL.unresolvedArg("query", stringLiteral("search query")),
+            AstDSL.unresolvedArg("boost", stringLiteral("3"))
+        )
+    );
+    assertAnalyzeEqual(
+        LogicalPlanDSL.filter(
+            LogicalPlanDSL.relation("schema", table),
+            DSL.match_phrase_prefix(
+                DSL.namedArgument("field", "field_value1"),
+                DSL.namedArgument("query", "search query"),
+                DSL.namedArgument("boost", "3")
+            )
+        ),
+        unresolvedPlan
+    );
+
+    LogicalPlan logicalPlan = analyze(unresolvedPlan);
+    OpenSearchFunctions.OpenSearchFunction relevanceQuery =
+        (OpenSearchFunctions.OpenSearchFunction)((LogicalFilter) logicalPlan).getCondition();
+    assertEquals(false, relevanceQuery.isScoreTracked());
+  }
+
+  @Test
   public void analyze_filter_visit_score_function_with_double_boost() {
     UnresolvedPlan unresolvedPlan = AstDSL.filter(
         AstDSL.relation("schema"),

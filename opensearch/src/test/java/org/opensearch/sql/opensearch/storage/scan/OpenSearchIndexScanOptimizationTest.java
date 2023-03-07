@@ -7,6 +7,7 @@
 package org.opensearch.sql.opensearch.storage.scan;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -50,6 +51,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.QueryBuilders;
+import org.opensearch.index.query.SpanOrQueryBuilder;
 import org.opensearch.search.aggregations.AggregationBuilder;
 import org.opensearch.search.aggregations.AggregationBuilders;
 import org.opensearch.search.aggregations.bucket.composite.CompositeAggregationBuilder;
@@ -145,7 +147,7 @@ class OpenSearchIndexScanOptimizationTest {
    * SELECT intV as i FROM schema WHERE query_string(["intV^1.5", "QUERY", boost=12.5).
    */
   @Test
-  void test_filter_on_opensearchfunction_push_down() {
+  void test_filter_on_opensearchfunction_with_trackedscores_push_down() {
     LogicalPlan expectedPlan =
         project(
             indexScanBuilder(
@@ -153,7 +155,8 @@ class OpenSearchIndexScanOptimizationTest {
                     QueryBuilders.queryStringQuery("QUERY")
                         .field("intV", 1.5F)
                         .boost(12.5F)
-                )
+                ),
+                withTrackedScoresPushedDown(true)
             ),
             DSL.named("i", DSL.ref("intV", INTEGER))
         );
@@ -173,7 +176,84 @@ class OpenSearchIndexScanOptimizationTest {
         ),
         DSL.named("i", DSL.ref("intV", INTEGER))
     );
-    assertEqualsAfterOptimization(expectedPlan, logicalPlan, true);
+    assertEqualsAfterOptimization(expectedPlan, logicalPlan);
+  }
+
+  @Test
+  void test_filter_on_multiple_opensearchfunctions_with_trackedscores_push_down() {
+    LogicalPlan expectedPlan =
+        project(
+            indexScanBuilder(
+                withFilterPushedDown(
+                    QueryBuilders.boolQuery()
+                        .should(
+                            QueryBuilders.queryStringQuery("QUERY")
+                            .field("intV", 1.5F)
+                            .boost(12.5F))
+                        .should(
+                            QueryBuilders.queryStringQuery("QUERY")
+                                .field("intV", 1.5F)
+                                .boost(12.5F)
+                        )
+                ),
+                withTrackedScoresPushedDown(true)
+            ),
+            DSL.named("i", DSL.ref("intV", INTEGER))
+        );
+    FunctionExpression firstQueryString = DSL.query_string(
+        DSL.namedArgument("fields", DSL.literal(
+            new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                "intV", ExprValueUtils.floatValue(1.5F)))))),
+        DSL.namedArgument("query", "QUERY"),
+        DSL.namedArgument("boost", "12.5"));
+    ((OpenSearchFunctions.OpenSearchFunction) firstQueryString).setScoreTracked(false);
+    FunctionExpression secondQueryString = DSL.query_string(
+        DSL.namedArgument("fields", DSL.literal(
+            new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                "intV", ExprValueUtils.floatValue(1.5F)))))),
+        DSL.namedArgument("query", "QUERY"),
+        DSL.namedArgument("boost", "12.5"));
+    ((OpenSearchFunctions.OpenSearchFunction) secondQueryString).setScoreTracked(true);
+
+    LogicalPlan logicalPlan = project(
+        filter(
+            relation("schema", table),
+            DSL.or(firstQueryString, secondQueryString)
+        ),
+        DSL.named("i", DSL.ref("intV", INTEGER))
+    );
+    assertEqualsAfterOptimization(expectedPlan, logicalPlan);
+  }
+
+  @Test
+  void test_filter_on_opensearchfunction_without_trackedscores_push_down() {
+    LogicalPlan expectedPlan =
+        project(
+            indexScanBuilder(
+                withFilterPushedDown(
+                    QueryBuilders.queryStringQuery("QUERY")
+                        .field("intV", 1.5F)
+                        .boost(12.5F)
+                ),
+                withTrackedScoresPushedDown(false)
+            ),
+            DSL.named("i", DSL.ref("intV", INTEGER))
+        );
+    FunctionExpression queryString = DSL.query_string(
+        DSL.namedArgument("fields", DSL.literal(
+            new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
+                "intV", ExprValueUtils.floatValue(1.5F)))))),
+        DSL.namedArgument("query", "QUERY"),
+        DSL.namedArgument("boost", "12.5"));
+
+    LogicalPlan logicalPlan = project(
+        filter(
+            relation("schema", table),
+            queryString
+        ),
+        DSL.named("i", DSL.ref("intV", INTEGER))
+    );
+    assertEqualsAfterOptimization(expectedPlan, logicalPlan);
   }
 
   /**
@@ -583,21 +663,6 @@ class OpenSearchIndexScanOptimizationTest {
     }
   }
 
-    private void assertEqualsAfterOptimization(LogicalPlan expected, LogicalPlan actual, boolean isScoreTracked) {
-        LogicalPlan optimizedPlan = optimize(actual);
-        assertEquals(expected, optimizedPlan);
-
-        // Trigger build to make sure all push down actually happened in scan builder
-        indexScanBuilder.build();
-
-        // Verify to make sure all push down methods are called as expected
-        if (verifyPushDownCalls.length == 0) {
-            reset(indexScan);
-        } else {
-            Arrays.stream(verifyPushDownCalls).forEach(Runnable::run);
-        }
-    }
-
   private Runnable withFilterPushedDown(QueryBuilder filteringCondition) {
     return () -> verify(requestBuilder, times(1)).pushDown(filteringCondition);
   }
@@ -645,6 +710,10 @@ class OpenSearchIndexScanOptimizationTest {
 
   private Runnable withHighlightPushedDown(String field, Map<String, Literal> arguments) {
     return () -> verify(requestBuilder, times(1)).pushDownHighlight(field, arguments);
+  }
+
+  private Runnable withTrackedScoresPushedDown(boolean trackScores) {
+    return() -> verify(requestBuilder, times(1)).pushDownTrackedScore(trackScores);
   }
 
   private static AggregationAssertHelper.AggregationAssertHelperBuilder aggregate(String aggName) {
