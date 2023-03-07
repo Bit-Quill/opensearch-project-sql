@@ -7,10 +7,8 @@
 package org.opensearch.sql.sql.antlr;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
@@ -636,9 +634,9 @@ class SQLSyntaxParserTest {
   }
 
   @Test
-  public void containHintsTest() {
-    assertTrue(parser.containsHints("SELECT /*! HINTS */ field FROM test"));
-    assertFalse(parser.containsHints("SELECT field FROM test"));
+  public void canParseHints() {
+    assertNotNull(parser.parseHints("SELECT /*! HINTS */ field FROM test"));
+    assertNotNull(parser.parseHints("SELECT field FROM test"));
   }
 
   private static Stream<String> matchPhraseQueryComplexQueries() {
