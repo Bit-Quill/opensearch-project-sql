@@ -5,9 +5,13 @@
 
 package org.opensearch.sql.expression.function;
 
+import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
+import org.opensearch.sql.data.model.ExprDoubleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
@@ -32,6 +36,7 @@ public class OpenSearchFunctions {
     repository.register(simple_query_string());
     repository.register(query());
     repository.register(query_string());
+
     // Register MATCHPHRASE as MATCH_PHRASE as well for backwards
     // compatibility.
     repository.register(match_phrase(BuiltinFunctionName.MATCH_PHRASE));
@@ -40,6 +45,9 @@ public class OpenSearchFunctions {
     repository.register(match_phrase_prefix());
     repository.register(wildcard_query(BuiltinFunctionName.WILDCARD_QUERY));
     repository.register(wildcard_query(BuiltinFunctionName.WILDCARDQUERY));
+    repository.register(score(BuiltinFunctionName.SCORE));
+    repository.register(score(BuiltinFunctionName.SCOREQUERY));
+    repository.register(score(BuiltinFunctionName.SCORE_QUERY));
   }
 
   private static FunctionResolver match_bool_prefix() {
@@ -86,6 +94,32 @@ public class OpenSearchFunctions {
     return new RelevanceFunctionResolver(funcName);
   }
 
+  /**
+   * Definition of score() function.
+   * Enables score calculation for the match call
+   */
+//  private static DefaultFunctionResolver score(BuiltinFunctionName score) {
+//    FunctionName funcName = score.getName();
+//    return FunctionDSL.define(funcName,
+//            FunctionDSL.impl(
+//                    FunctionDSL.nullMissingHandling(
+//                            (relevanceFunc) -> new ExprDoubleValue(
+//                                    Math.pow(relevanceFunc.shortValue(), 1))
+//                    ),
+//                    BOOLEAN, BOOLEAN),
+//            FunctionDSL.impl(
+//                    FunctionDSL.nullMissingHandling(
+//                            (relevanceFunc, boost) -> new ExprDoubleValue(
+//                                    Math.pow(relevanceFunc.shortValue(), boost.shortValue()))
+//                    ),
+//                    BOOLEAN, BOOLEAN, DOUBLE));
+//  }
+
+  private static FunctionResolver score(BuiltinFunctionName score) {
+    FunctionName funcName = score.getName();
+    return new RelevanceFunctionResolver(funcName);
+  }
+
   public static class OpenSearchFunction extends FunctionExpression {
     private final FunctionName functionName;
     private final List<Expression> arguments;
@@ -110,7 +144,7 @@ public class OpenSearchFunctions {
 
     @Override
     public ExprType type() {
-      return ExprCoreType.BOOLEAN;
+      return BOOLEAN;
     }
 
     @Override

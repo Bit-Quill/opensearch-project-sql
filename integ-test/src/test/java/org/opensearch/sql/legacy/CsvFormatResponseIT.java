@@ -99,8 +99,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     }
   }
 
-  // TODO: this should now work
-  @Ignore("only work for legacy engine")
   public void nestedObjectsAndArraysAreQuoted() throws IOException {
     final String query = String.format(Locale.ROOT, "SELECT * FROM %s WHERE _id = 5",
         TEST_INDEX_NESTED_TYPE);
@@ -115,8 +113,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     Assert.assertThat(result, containsString(expectedMessage));
   }
 
-  // TODO: this should now work
-  @Ignore("only work for legacy engine")
   public void arraysAreQuotedInFlatMode() throws IOException {
     setFlatOption(true);
 
@@ -523,7 +519,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
   @Test
   public void includeScore() throws Exception {
     String query = String.format(Locale.ROOT,
-        "select age , firstname from %s where age > 31 order by _score desc limit 2 ",
+        "select age, firstname, _score from %s where age > 31 order by _score desc limit 2 ",
         TEST_INDEX_ACCOUNT);
     CSVResult csvResult = executeCsvRequest(query, false, true, false);
     List<String> headers = csvResult.getHeaders();
@@ -577,11 +573,9 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   }
 
-  // TODO: this should now work
-  @Ignore("only work for legacy engine")
   public void includeIdAndNotTypeOrScore() throws Exception {
     String query = String.format(Locale.ROOT,
-        "select age , firstname from %s where lastname = 'Marquez' ", TEST_INDEX_ACCOUNT);
+        "select age, firstname, _id from %s where lastname = 'Marquez' ", TEST_INDEX_ACCOUNT);
     CSVResult csvResult = executeCsvRequest(query, false, false, true);
     List<String> headers = csvResult.getHeaders();
     Assert.assertEquals(3, headers.size());

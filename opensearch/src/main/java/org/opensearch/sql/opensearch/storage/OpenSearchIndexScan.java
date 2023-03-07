@@ -58,8 +58,13 @@ public class OpenSearchIndexScan extends TableScanOperator {
   public OpenSearchIndexScan(OpenSearchClient client, Settings settings,
                              String indexName, Integer maxResultWindow,
                              OpenSearchExprValueFactory exprValueFactory) {
-    this(client, settings,
-        new OpenSearchRequest.IndexName(indexName),maxResultWindow, exprValueFactory);
+    this(
+            client,
+            settings,
+            new OpenSearchRequest.IndexName(indexName),
+            maxResultWindow,
+            exprValueFactory
+    );
   }
 
   /**

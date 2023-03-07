@@ -78,6 +78,8 @@ public class OpenSearchRequestBuilder {
    */
   private Integer querySize;
 
+  private boolean trackScores;
+
   public OpenSearchRequestBuilder(String indexName,
                                   Integer maxResultWindow,
                                   Settings settings,
@@ -97,9 +99,11 @@ public class OpenSearchRequestBuilder {
     this.sourceBuilder = new SearchSourceBuilder();
     this.exprValueFactory = exprValueFactory;
     this.querySize = settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT);
+    this.trackScores = true;
     sourceBuilder.from(0);
     sourceBuilder.size(querySize);
     sourceBuilder.timeout(DEFAULT_QUERY_TIMEOUT);
+    sourceBuilder.trackScores(this.trackScores);
   }
 
   /**

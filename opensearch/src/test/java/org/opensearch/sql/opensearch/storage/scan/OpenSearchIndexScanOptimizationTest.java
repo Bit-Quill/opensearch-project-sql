@@ -30,6 +30,7 @@ import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.P
 import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.PUSH_DOWN_HIGHLIGHT;
 import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.PUSH_DOWN_LIMIT;
 import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.PUSH_DOWN_PROJECT;
+import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.PUSH_DOWN_SCORE;
 import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.PUSH_DOWN_SORT;
 
 import com.google.common.collect.ImmutableList;
@@ -603,6 +604,7 @@ class OpenSearchIndexScanOptimizationTest {
         PUSH_DOWN_SORT,
         PUSH_DOWN_LIMIT,
         PUSH_DOWN_HIGHLIGHT,
+        PUSH_DOWN_SCORE,
         PUSH_DOWN_PROJECT));
     return optimizer.optimize(plan);
   }
