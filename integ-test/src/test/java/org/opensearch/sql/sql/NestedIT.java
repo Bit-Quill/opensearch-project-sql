@@ -33,13 +33,14 @@ public class NestedIT extends SQLIntegTestCase {
     String query = "SELECT nested(message.info), nested(comment.data) FROM " + TEST_INDEX_NESTED_TYPE;
     JSONObject result = executeJdbcRequest(query);
 
-    assertEquals(5, result.getInt("total"));
+    assertEquals(6, result.getInt("total"));
     verifyDataRows(result,
+        rows("c", "ab"),
         rows("a", "ab"),
         rows("b", "aa"),
         rows("c", "aa"),
-        rows(new JSONArray(List.of("c","a")), "ab"),
-        rows(new JSONArray(List.of("zz")), new JSONArray(List.of("aa", "bb"))));
+        rows("a", "ab"),
+        rows("zz", new JSONArray(List.of("aa", "bb"))));
   }
 
   @Test
