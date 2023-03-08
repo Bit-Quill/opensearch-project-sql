@@ -907,7 +907,7 @@ public class DateTimeFunction {
   private DefaultFunctionResolver yearweek() {
     return define(BuiltinFunctionName.YEARWEEK.getName(),
         implWithProperties(nullMissingHandlingWithProperties((functionProperties, arg)
-            -> DateTimeFunction.yearweekToday(
+            -> yearweekToday(
             DEFAULT_WEEK_OF_YEAR_MODE,
             functionProperties.getQueryStartClock())), INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprYearweekWithoutMode), INTEGER, DATE),
@@ -915,7 +915,7 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprYearweekWithoutMode), INTEGER, TIMESTAMP),
         impl(nullMissingHandling(DateTimeFunction::exprYearweekWithoutMode), INTEGER, STRING),
         implWithProperties(nullMissingHandlingWithProperties((functionProperties, time, modeArg)
-            -> DateTimeFunction.yearweekToday(
+            -> yearweekToday(
             modeArg,
             functionProperties.getQueryStartClock())), INTEGER, TIME, INTEGER),
         impl(nullMissingHandling(DateTimeFunction::exprYearweek), INTEGER, DATE, INTEGER),
@@ -1770,13 +1770,9 @@ public class DateTimeFunction {
     // See description of modes here ...
     // https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_week
 
-    if ((0 <= mode && mode <= 4) && (CalendarLookup.getWeekNumber(mode, date) == 0)) {
-      mode = 2;
-    } else if ((mode == 5) && (CalendarLookup.getWeekNumber(mode, date) == 0)) {
-      mode = 7;
-    }
-
-    return mode;
+    return CalendarLookup.getWeekNumber(mode, date) != 0 ? mode :
+        mode <= 4 ? 2 :
+            7;
   }
 
   /**
@@ -1786,12 +1782,12 @@ public class DateTimeFunction {
    * @param mode is an integer containing the mode used to parse the LocalDate.
    * @return is a long containing the formatted output for the yearweek function.
    */
-  private int extractYearweek(LocalDate date, int mode) {
-    mode = convertWeekModeFromMySqlToJava(date, mode);
-    int formatted = CalendarLookup.getYearNumber(mode, date) * 100
-        + CalendarLookup.getWeekNumber(mode, date);
+  private ExprIntegerValue extractYearweek(LocalDate date, int mode) {
+    int modeJava = convertWeekModeFromMySqlToJava(date, mode);
+    int formatted = CalendarLookup.getYearNumber(modeJava, date) * 100
+        + CalendarLookup.getWeekNumber(modeJava, date);
 
-    return formatted;
+    return new ExprIntegerValue(formatted);
   }
 
   /**
@@ -1801,7 +1797,7 @@ public class DateTimeFunction {
    * @param mode ExprValue of Integer type.
    */
   private ExprValue exprYearweek(ExprValue date, ExprValue mode) {
-    return new ExprIntegerValue(extractYearweek(date.dateValue(), mode.integerValue()));
+    return extractYearweek(date.dateValue(), mode.integerValue());
   }
 
   /**
@@ -1816,8 +1812,7 @@ public class DateTimeFunction {
   }
 
   private ExprValue yearweekToday(ExprValue mode, Clock clock) {
-    return new ExprIntegerValue(
-        extractYearweek(LocalDateTime.now(clock).toLocalDate(), mode.integerValue()));
+    return extractYearweek(LocalDateTime.now(clock).toLocalDate(), mode.integerValue());
   }
 
   private ExprValue monthOfYearToday(Clock clock) {
