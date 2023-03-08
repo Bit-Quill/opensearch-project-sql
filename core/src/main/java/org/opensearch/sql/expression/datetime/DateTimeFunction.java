@@ -892,8 +892,9 @@ public class DateTimeFunction {
   private DefaultFunctionResolver weekday() {
     return define(BuiltinFunctionName.WEEKDAY.getName(),
         implWithProperties(nullMissingHandlingWithProperties(
-            (functionProperties, arg) -> DateTimeFunction.weekdayToday(
-                functionProperties.getQueryStartClock())), INTEGER, TIME),
+            (functionProperties, arg) -> new ExprIntegerValue(
+                formatNow(functionProperties.getQueryStartClock()).getDayOfWeek().getValue() - 1)),
+            INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprWeekday), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprWeekday), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprWeekday), INTEGER, TIMESTAMP),
@@ -1658,16 +1659,6 @@ public class DateTimeFunction {
    */
   private ExprValue exprWeekday(ExprValue date) {
     return new ExprIntegerValue(date.dateValue().getDayOfWeek().getValue() - 1);
-  }
-
-  /**
-   * weekday implementation for ExprValue when passing in an arguemt of type TIME.
-   *
-   * @param clock Current clock taken from function properties
-   * @return ExprValue.
-   */
-  private ExprValue weekdayToday(Clock clock) {
-    return new ExprIntegerValue(formatNow(clock).getDayOfWeek().getValue() - 1);
   }
 
   private ExprValue unixTimeStamp(Clock clock) {
