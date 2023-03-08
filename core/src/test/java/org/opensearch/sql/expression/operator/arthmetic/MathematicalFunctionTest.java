@@ -1740,8 +1740,8 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   public void sign_int_value(Integer value) {
     FunctionExpression sign = DSL.sign(DSL.literal(value));
     assertThat(
-            sign.valueOf(valueEnv()),
-            allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+        sign.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
     assertEquals(String.format("sign(%s)", value), sign.toString());
   }
 
@@ -1753,8 +1753,8 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   public void sign_long_value(Long value) {
     FunctionExpression sign = DSL.sign(DSL.literal(value));
     assertThat(
-            sign.valueOf(valueEnv()),
-            allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+        sign.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
     assertEquals(String.format("sign(%s)", value), sign.toString());
   }
 
@@ -1766,8 +1766,8 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   public void sign_float_value(Float value) {
     FunctionExpression sign = DSL.sign(DSL.literal(value));
     assertThat(
-            sign.valueOf(valueEnv()),
-            allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+        sign.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
     assertEquals(String.format("sign(%s)", value), sign.toString());
   }
 
@@ -1779,8 +1779,8 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   public void sign_double_value(Double value) {
     FunctionExpression sign = DSL.sign(DSL.literal(value));
     assertThat(
-            sign.valueOf(valueEnv()),
-            allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+        sign.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
     assertEquals(String.format("sign(%s)", value), sign.toString());
   }
 
@@ -1812,8 +1812,8 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   public void signum_bytes_value(Byte value) {
     FunctionExpression signum = DSL.signum(DSL.literal(value));
     assertThat(
-            signum.valueOf(valueEnv()),
-            allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+        signum.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
     assertEquals(String.format("signum(%s)", value), signum.toString());
   }
 
@@ -1825,8 +1825,8 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   public void signum_short_value(Short value) {
     FunctionExpression signum = DSL.signum(DSL.literal(value));
     assertThat(
-            signum.valueOf(valueEnv()),
-            allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+        signum.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
     assertEquals(String.format("signum(%s)", value), signum.toString());
   }
 
@@ -1838,8 +1838,8 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   public void signum_int_value(Integer value) {
     FunctionExpression signum = DSL.signum(DSL.literal(value));
     assertThat(
-            signum.valueOf(valueEnv()),
-            allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+        signum.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
     assertEquals(String.format("signum(%s)", value), signum.toString());
   }
 
@@ -1851,8 +1851,8 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   public void signum_long_value(Long value) {
     FunctionExpression signum = DSL.signum(DSL.literal(value));
     assertThat(
-            signum.valueOf(valueEnv()),
-            allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+        signum.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
     assertEquals(String.format("signum(%s)", value), signum.toString());
   }
 
@@ -1864,8 +1864,8 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   public void signum_float_value(Float value) {
     FunctionExpression signum = DSL.signum(DSL.literal(value));
     assertThat(
-            signum.valueOf(valueEnv()),
-            allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+        signum.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
     assertEquals(String.format("signum(%s)", value), signum.toString());
   }
 
@@ -1877,8 +1877,8 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   public void signum_double_value(Double value) {
     FunctionExpression signum = DSL.signum(DSL.literal(value));
     assertThat(
-            signum.valueOf(valueEnv()),
-            allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+        signum.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
     assertEquals(String.format("signum(%s)", value), signum.toString());
   }
 
