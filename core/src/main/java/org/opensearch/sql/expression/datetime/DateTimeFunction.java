@@ -34,6 +34,11 @@ import static org.opensearch.sql.utils.DateTimeFormatters.DATE_FORMATTER_SINGLE_
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_LONG_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_SHORT_YEAR;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER_STRICT_WITH_TZ;
+import static org.opensearch.sql.utils.DateTimeFormatters.FULL_DATE_LENGTH;
+import static org.opensearch.sql.utils.DateTimeFormatters.NO_YEAR_DATE_LENGTH;
+import static org.opensearch.sql.utils.DateTimeFormatters.SHORT_DATE_LENGTH;
+import static org.opensearch.sql.utils.DateTimeFormatters.SINGLE_DIGIT_MONTH_DATE_LENGTH;
+import static org.opensearch.sql.utils.DateTimeFormatters.SINGLE_DIGIT_YEAR_DATE_LENGTH;
 import static org.opensearch.sql.utils.DateTimeUtils.extractDate;
 import static org.opensearch.sql.utils.DateTimeUtils.extractDateTime;
 
@@ -1663,39 +1668,39 @@ public class DateTimeFunction {
    * @return is a DateTimeFormatter that can parse the input.
    */
   private DateTimeFormatter getFormatter(int dateAsInt) {
-    if (dateAsInt < 0 || dateAsInt > 99999999) {
+    int length = String.format("%d", dateAsInt).length();
+
+    if (length > 8) {
       throw new DateTimeException("Integer argument was out of range");
     }
 
     //Check below from YYYYMMDD - MMDD which format should be used
+    switch (length) {
+      //Check if dateAsInt is at least 8 digits long
+      case FULL_DATE_LENGTH:
+        return DATE_FORMATTER_LONG_YEAR;
 
-    //Check if dateAsInt is at least 8 digits long
-    if (dateAsInt - 9999999 > 0) {
-      return DATE_FORMATTER_LONG_YEAR;
-    }
+      //Check if dateAsInt is at least 6 digits long
+      case SHORT_DATE_LENGTH:
+        return DATE_FORMATTER_SHORT_YEAR;
 
-    //Check if dateAsInt is at least 6 digits long
-    if (dateAsInt - 99999 > 0) {
-      return DATE_FORMATTER_SHORT_YEAR;
-    }
+      //Check if dateAsInt is at least 5 digits long
+      case SINGLE_DIGIT_YEAR_DATE_LENGTH:
+        return DATE_FORMATTER_SINGLE_DIGIT_YEAR;
 
-    //Check if dateAsInt is at least 5 digits long
-    if (dateAsInt - 9999 > 0) {
-      return DATE_FORMATTER_SINGLE_DIGIT_YEAR;
-    }
+      //Check if dateAsInt is at least 4 digits long
+      case NO_YEAR_DATE_LENGTH:
+        return DATE_FORMATTER_NO_YEAR;
 
-    //Check if dateAsInt is at least 4 digits long
-    if (dateAsInt - 999 > 0) {
-      return DATE_FORMATTER_NO_YEAR;
-    }
+      //Check if dateAsInt is at least 3 digits long
+      case SINGLE_DIGIT_MONTH_DATE_LENGTH:
+        return DATE_FORMATTER_SINGLE_DIGIT_MONTH;
 
-    //Check if dateAsInt is at least 3 digits long
-    if (dateAsInt - 99 > 0) {
-      return DATE_FORMATTER_SINGLE_DIGIT_MONTH;
+      default:
+        break;
     }
 
     throw new DateTimeException("No Matching Format");
-
   }
 
   /**

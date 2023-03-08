@@ -29,6 +29,12 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class DateTimeFormatters {
 
+  public static final int FULL_DATE_LENGTH = 8;
+  public static final int SHORT_DATE_LENGTH = 6;
+  public static final int SINGLE_DIGIT_YEAR_DATE_LENGTH = 5;
+  public static final int NO_YEAR_DATE_LENGTH = 4;
+  public static final int SINGLE_DIGIT_MONTH_DATE_LENGTH = 3;
+
   public static final DateTimeFormatter TIME_ZONE_FORMATTER_NO_COLON =
       new DateTimeFormatterBuilder()
           .appendOffset("+HHmm", "Z")
