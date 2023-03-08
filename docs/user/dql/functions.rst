@@ -791,12 +791,21 @@ Example::
 SINH
 ----
 
-Description
->>>>>>>>>>>
+Usage: sinh(x) calculate the hyperbolic sine of x, defined as (((e^x) - (e^(-x))) / 2)
 
-Specifications:
+Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
-1. SINH(NUMBER T) -> DOUBLE
+Return type: DOUBLE
+
+Example::
+
+    os> SELECT SINH(2), SINH(1.5)
+    fetched rows / total rows = 1/1
+    +-------------------+--------------------+
+    | SINH(2)           | SINH(1.5)          |
+    |-------------------+--------------------|
+    | 3.626860407847019 | 2.1292794550948173 |
+    +-------------------+--------------------+
 
 
 SQRT

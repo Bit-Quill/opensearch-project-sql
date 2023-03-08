@@ -1805,6 +1805,72 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
+   * Test sinh with byte value.
+   */
+  @ParameterizedTest(name = "sinh({0})")
+  @ValueSource(bytes = {-1, 1, 2})
+  public void sinh_byte_value(Byte value) {
+    FunctionExpression sinh = DSL.sinh(DSL.literal(value));
+    assertThat(sinh.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sinh(value))));
+    assertEquals(String.format("sinh(%s)", value), sinh.toString());
+  }
+
+  /**
+   * Test sinh with short value.
+   */
+  @ParameterizedTest(name = "sinh({0})")
+  @ValueSource(shorts = {-1, 1, 2})
+  public void sinh_short_value(Short value) {
+    FunctionExpression sinh = DSL.sinh(DSL.literal(value));
+    assertThat(sinh.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sinh(value))));
+    assertEquals(String.format("sinh(%s)", value), sinh.toString());
+  }
+
+  /**
+   * Test sinh with integer value.
+   */
+  @ParameterizedTest(name = "sinh({0})")
+  @ValueSource(ints = {-1, 1, 2})
+  public void sinh_int_value(Integer value) {
+    FunctionExpression sinh = DSL.sinh(DSL.literal(value));
+    assertThat(sinh.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sinh(value))));
+    assertEquals(String.format("sinh(%s)", value), sinh.toString());
+  }
+
+  /**
+   * Test sinh with long value.
+   */
+  @ParameterizedTest(name = "sinh({0})")
+  @ValueSource(longs = {-1L, 1L, 2L})
+  public void sinh_long_value(Long value) {
+    FunctionExpression sinh = DSL.sinh(DSL.literal(value));
+    assertThat(sinh.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sinh(value))));
+    assertEquals(String.format("sinh(%s)", value), sinh.toString());
+  }
+
+  /**
+   * Test sinh with float value.
+   */
+  @ParameterizedTest(name = "sinh({0})")
+  @ValueSource(floats = {-1F, 1F, 2F})
+  public void sinh_float_value(Float value) {
+    FunctionExpression sinh = DSL.sinh(DSL.literal(value));
+    assertThat(sinh.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sinh(value))));
+    assertEquals(String.format("sinh(%s)", value), sinh.toString());
+  }
+
+  /**
+   * Test sinh with double value.
+   */
+  @ParameterizedTest(name = "sinh({0})")
+  @ValueSource(doubles = {-1D, 1D, 2D})
+  public void sinh_double_value(Double value) {
+    FunctionExpression sinh = DSL.sinh(DSL.literal(value));
+    assertThat(sinh.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sinh(value))));
+    assertEquals(String.format("sinh(%s)", value), sinh.toString());
+  }
+
+  /**
    * Test sqrt with int value.
    */
   @ParameterizedTest(name = "sqrt({0})")
