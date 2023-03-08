@@ -1808,7 +1808,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test signum with byte value.
    */
   @ParameterizedTest(name = "signum({0})")
-  @ValueSource(bytes = {2, -2})
+  @ValueSource(bytes = {2, 0, -2})
   public void signum_bytes_value(Byte value) {
     FunctionExpression signum = DSL.signum(DSL.literal(value));
     assertThat(
@@ -1821,7 +1821,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test signum with short value.
    */
   @ParameterizedTest(name = "signum({0})")
-  @ValueSource(shorts = {2, -2})
+  @ValueSource(shorts = {2, 0, -2})
   public void signum_short_value(Short value) {
     FunctionExpression signum = DSL.signum(DSL.literal(value));
     assertThat(
@@ -1834,7 +1834,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test signum with integer value.
    */
   @ParameterizedTest(name = "signum({0})")
-  @ValueSource(ints = {2, -2})
+  @ValueSource(ints = {2, 0, -2})
   public void signum_int_value(Integer value) {
     FunctionExpression signum = DSL.signum(DSL.literal(value));
     assertThat(
@@ -1847,7 +1847,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test signum with long value.
    */
   @ParameterizedTest(name = "signum({0})")
-  @ValueSource(longs = {2L, -2L})
+  @ValueSource(longs = {2L, 0L, -2L})
   public void signum_long_value(Long value) {
     FunctionExpression signum = DSL.signum(DSL.literal(value));
     assertThat(
@@ -1860,7 +1860,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test signum with float value.
    */
   @ParameterizedTest(name = "signum({0})")
-  @ValueSource(floats = {2F, -2F})
+  @ValueSource(floats = {2F, 0F, -2F})
   public void signum_float_value(Float value) {
     FunctionExpression signum = DSL.signum(DSL.literal(value));
     assertThat(
@@ -1873,7 +1873,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test signum with double value.
    */
   @ParameterizedTest(name = "signum({0})")
-  @ValueSource(doubles = {2, -2})
+  @ValueSource(doubles = {2, 0, -2})
   public void signum_double_value(Double value) {
     FunctionExpression signum = DSL.signum(DSL.literal(value));
     assertThat(

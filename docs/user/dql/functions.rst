@@ -766,6 +766,8 @@ Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: INTEGER
 
+Synonyms: `SIGN`_
+
 Example::
 
     os> SELECT SIGN(1), SIGN(0), SIGN(-1.1)
