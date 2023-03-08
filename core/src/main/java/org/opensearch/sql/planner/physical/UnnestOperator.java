@@ -102,14 +102,11 @@ public class UnnestOperator extends PhysicalPlan {
    */
   @SuppressWarnings("unchecked")
   private List<Map<String, ExprValue>> flatten(String nestedField, ExprValue row, List<Map<String, ExprValue>> prevList) {
-    String[] splitKeys = nestedField.split("\\.");
     List<Map<String, ExprValue>> copy = new ArrayList<>();
     List<Map<String, ExprValue>> newList = new ArrayList<>();
 
     ExprValue nestedObj = null;
-    for (String splitKey : splitKeys) {
-      nestedObj = getNested(nestedField, splitKey, row, copy, nestedObj);
-    }
+    getNested(nestedField, nestedField, row, copy, nestedObj);
 
     // Only one field in select statement
     if (prevList.size() == 0) {
@@ -139,33 +136,32 @@ public class UnnestOperator extends PhysicalPlan {
    * @param nestedObj : object at current nested level.
    * @return : Object at current nested level.
    */
-  private ExprValue getNested(String field, String nestedField, ExprValue row, List<Map<String, ExprValue>> ret, ExprValue nestedObj) {
+  private void getNested(String field, String nestedField, ExprValue row, List<Map<String, ExprValue>> ret, ExprValue nestedObj) {
     ExprValue currentObj = (nestedObj == null) ? row : nestedObj;
+    String[] splitKeys = nestedField.split("\\.");
 
     if (currentObj instanceof ExprTupleValue) {
       ExprTupleValue currentMap = (ExprTupleValue) currentObj;
-      if (!currentMap.tupleValue().containsKey(nestedField)) {
-        return null;
+      if (currentMap.tupleValue().containsKey(splitKeys[0])) {
+        currentObj = currentMap.tupleValue().get(splitKeys[0]);
       }
-      currentObj = currentMap.tupleValue().get(nestedField);
     } else if (currentObj instanceof ExprCollectionValue)  {
       ExprValue arrayObj = currentObj;
       for (int x = 0; x < arrayObj.collectionValue().size() ; x++) {
         currentObj = arrayObj.collectionValue().get(x);
-        getNested(field, nestedField.substring(nestedField.indexOf(".") + 1), row, ret, currentObj);
+        getNested(field, nestedField, row, ret, currentObj);
+        currentObj = null;
       }
-      return null;
     } else { // Final recursion did not match nested field
       currentObj = null;
-      return currentObj;
     }
 
     // Return final nested result
-    if (StringUtils.substringAfterLast(field, ".").equals(nestedField)) {
+    if (StringUtils.substringAfterLast(field, ".").equals(nestedField)
+        && currentObj != null) {
       ret.add(Map.of(field, currentObj));
-      currentObj = null;
+    } else if (currentObj != null) {
+      getNested(field, nestedField.substring(nestedField.indexOf(".") + 1), row, ret, currentObj);
     }
-
-    return currentObj;
   }
 }
