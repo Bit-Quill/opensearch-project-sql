@@ -5,6 +5,7 @@
 
 package org.opensearch.sql.executor.execution;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.opensearch.sql.ast.tree.Paginate;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.response.ResponseListener;
@@ -38,8 +39,9 @@ public class PaginatedPlan extends AbstractPlan {
   }
 
   @Override
+  // TODO why can't use listener given in the constructor?
   public void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener) {
-    listener.onFailure(new UnsupportedOperationException(
+    listener.onFailure(new NotImplementedException(
         "`explain` feature for paginated requests is not implemented yet."));
   }
 }

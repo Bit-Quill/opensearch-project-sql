@@ -49,7 +49,8 @@ public class ContinuePaginatedPlan extends AbstractPlan {
   }
 
   @Override
+  // TODO why can't use listener given in the constructor?
   public void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener) {
-    throw new NotImplementedException("Explain of query continuation is not supported");
+    throw new UnsupportedOperationException("Explain of query continuation is not supported");
   }
 }

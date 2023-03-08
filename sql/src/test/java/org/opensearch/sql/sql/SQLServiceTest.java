@@ -57,6 +57,9 @@ class SQLServiceTest {
   @Mock
   private PaginatedPlanCache paginatedPlanCache;
 
+  @Mock
+  private PaginatedQueryService paginatedQueryService;
+
   @BeforeEach
   public void setUp() {
     queryManager = DefaultQueryManager.defaultQueryManager();

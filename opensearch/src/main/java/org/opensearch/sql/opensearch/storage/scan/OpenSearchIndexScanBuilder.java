@@ -93,8 +93,8 @@ public class OpenSearchIndexScanBuilder extends TableScanBuilder {
   }
 
   @Override
-  public void pushDownOffset(int i) {
-    delegate.pushDownOffset(i);
+  public boolean pushDownOffset(int i) {
+    return delegate.pushDownOffset(i);
   }
 
   @Override
