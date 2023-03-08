@@ -95,7 +95,8 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
         return (ExprValue) ExprTupleValue.fromExprValueMap(builder.build());
       }).iterator();
     } else {
-      float maxScore = hits.getMaxScore();
+      ExprFloatValue maxScore = Float.isNaN(hits.getMaxScore())
+          ? null : new ExprFloatValue(hits.getMaxScore());
       return Arrays.stream(hits.getHits())
           .map(hit -> {
             String source = hit.getSourceAsString();
@@ -108,8 +109,8 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
             if (!Float.isNaN(hit.getScore())) {
               builder.put("_score", new ExprFloatValue(hit.getScore()));
             }
-            if (!Float.isNaN(maxScore)) {
-              builder.put("_maxscore", new ExprFloatValue(maxScore));
+            if (maxScore != null) {
+              builder.put("_maxscore", maxScore);
             }
             builder.put("_sort", new ExprLongValue(hit.getSeqNo()));
 
