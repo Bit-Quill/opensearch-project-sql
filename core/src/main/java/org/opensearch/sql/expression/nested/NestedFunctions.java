@@ -13,6 +13,7 @@ import org.opensearch.sql.expression.function.DefaultFunctionResolver;
 import org.opensearch.sql.expression.function.FunctionDSL;
 
 import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
+import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 
@@ -24,6 +25,10 @@ public class NestedFunctions {
 
   private static DefaultFunctionResolver nested() {
     return FunctionDSL.define(BuiltinFunctionName.NESTED.getName(),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1) -> v1
+            ), LONG, LONG),//TODO we are going to need to do this for all single params, double params types i think
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1) -> v1
