@@ -1757,25 +1757,6 @@ public class DateTimeFunction {
   }
 
   /**
-   * Convert mode argument passed into our CalendarLookup class to a different mode.
-   * Needed to align with MySQL for the yearweek function due to different behaviour for modes.
-   * Note, this misalignment only exists for yearweek.
-   * Our current mode behavior works as intended for other functions.
-   *
-   * @param mode is an integer containing the initial mode arg
-   * @return an integer containing the new mode
-   */
-  public int convertWeekModeFromMySqlToJava(LocalDate date, int mode) {
-    // Needed to align with MySQL. Due to how modes for this function work.
-    // See description of modes here ...
-    // https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_week
-
-    return CalendarLookup.getWeekNumber(mode, date) != 0 ? mode :
-        mode <= 4 ? 2 :
-            7;
-  }
-
-  /**
    * Helper function to extract the yearweek output from a given date.
    *
    * @param date is a LocalDate input argument.
@@ -1783,7 +1764,13 @@ public class DateTimeFunction {
    * @return is a long containing the formatted output for the yearweek function.
    */
   private ExprIntegerValue extractYearweek(LocalDate date, int mode) {
-    int modeJava = convertWeekModeFromMySqlToJava(date, mode);
+    // Needed to align with MySQL. Due to how modes for this function work.
+    // See description of modes here ...
+    // https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_week
+    int modeJava = CalendarLookup.getWeekNumber(mode, date) != 0 ? mode :
+        mode <= 4 ? 2 :
+            7;
+
     int formatted = CalendarLookup.getYearNumber(modeJava, date) * 100
         + CalendarLookup.getWeekNumber(modeJava, date);
 
