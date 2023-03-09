@@ -636,7 +636,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   private List<UnresolvedExpression> getExtractFunctionArguments(
       ExtractFunctionCallContext ctx) {
     List<UnresolvedExpression> args = Arrays.asList(
-        new Literal(ctx.extractFunction().part().getText(), DataType.STRING),
+        new Literal(ctx.extractFunction().datetimePart().getText(), DataType.STRING),
         visitFunctionArg(ctx.extractFunction().functionArg())
     );
     return args;
