@@ -144,6 +144,8 @@ public class UnnestOperator extends PhysicalPlan {
       ExprTupleValue currentMap = (ExprTupleValue) currentObj;
       if (currentMap.tupleValue().containsKey(splitKeys[0])) {
         currentObj = currentMap.tupleValue().get(splitKeys[0]);
+      } else {
+        currentObj = null;
       }
     } else if (currentObj instanceof ExprCollectionValue)  {
       ExprValue arrayObj = currentObj;

@@ -7,6 +7,7 @@ package org.opensearch.sql.planner.physical;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.opensearch.sql.data.model.ExprValueUtils.collectionValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.tupleValue;
@@ -22,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.expression.ReferenceExpression;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,6 +46,12 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
                   ImmutableMap.of("data", "1"),
                   ImmutableMap.of("data", "2"),
                   ImmutableMap.of("data", "3")
+              )
+          ),
+          "deep",
+          collectionValue(
+              ImmutableList.of(
+                  "noValidKey"
               )
           )
       )
@@ -100,14 +106,31 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
   }
 
   @Test
+  public void nested_deepest_field_missing() {
+    when(inputPlan.hasNext()).thenReturn(true, false);
+    when(inputPlan.next())
+        .thenReturn(test_data);
+
+    Set<String> fields = Set.of("deep.invalid");
+    assertTrue(
+        execute(new UnnestOperator(inputPlan, fields))
+            .get(0)
+            .tupleValue()
+            .size() == 0
+    );
+  }
+
+  @Test
   public void nested_missing_field() {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
         .thenReturn(test_data);
     Set<String> fields = Set.of("message.invalid");
-    assertThat(
-        execute(new UnnestOperator(inputPlan, fields)),
-        contains(ExprValueUtils.missingValue())
+    assertTrue(
+        execute(new UnnestOperator(inputPlan, fields))
+        .get(0)
+        .tupleValue()
+        .size() == 0
     );
   }
 }
