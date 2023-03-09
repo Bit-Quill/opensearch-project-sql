@@ -14,15 +14,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.expression.ReferenceExpression;
 
 @EqualsAndHashCode(callSuper = false)
@@ -36,6 +33,11 @@ public class UnnestOperator extends PhysicalPlan {
   @EqualsAndHashCode.Exclude
   private ListIterator<Map<String, ExprValue>> flattenedResult = result.listIterator();
 
+  /**
+   * Constructor for UnnestOperator with list of map as arg.
+   * @param input : PhysicalPlan input.
+   * @param fields : List of all fields and paths for nested fields.
+   */
   public UnnestOperator(PhysicalPlan input, List<Map<String, ReferenceExpression>> fields) {
     this.input = input;
     this.fields = fields.stream()
@@ -43,6 +45,11 @@ public class UnnestOperator extends PhysicalPlan {
         .collect(Collectors.toSet());
   }
 
+  /**
+   * Constructor for UnnestOperator with Set of fields.
+   * @param input : PhysicalPlan input.
+   * @param fields : List of all fields for nested fields.
+   */
   public UnnestOperator(PhysicalPlan input, Set<String> fields) {
     this.input = input;
     this.fields = fields;
@@ -80,19 +87,18 @@ public class UnnestOperator extends PhysicalPlan {
     return new ExprTupleValue(new LinkedHashMap<>(flattenedResult.next()));
   }
 
-
-
   /**
-   * Simplifies the structure of row's source Map by flattening it, making the full path of an object the key
+   * Simplifies the structure of row's source Map by flattening it,
+   * making the full path of an object the key
    * and the Object it refers to the value.
-   * <p>
-   * Sample input:
+   *
+   * <p>Sample input:
    * keys = ['comments.likes']
    * row = comments: {
    * likes: 2
    * }
-   * <p>
-   * Return:
+   *
+   * <p>Return:
    * flattenedRow = {comment.likes: 2}
    *
    * @param nestedField : Field to query in row
@@ -101,7 +107,9 @@ public class UnnestOperator extends PhysicalPlan {
    * @return : List of nested select items or cartesian product of nested calls
    */
   @SuppressWarnings("unchecked")
-  private List<Map<String, ExprValue>> flatten(String nestedField, ExprValue row, List<Map<String, ExprValue>> prevList) {
+  private List<Map<String, ExprValue>> flatten(
+      String nestedField, ExprValue row, List<Map<String, ExprValue>> prevList
+  ) {
     List<Map<String, ExprValue>> copy = new ArrayList<>();
     List<Map<String, ExprValue>> newList = new ArrayList<>();
 
@@ -114,9 +122,9 @@ public class UnnestOperator extends PhysicalPlan {
     }
 
     // Generate cartesian product
-    for (Map<String, ExprValue> prev_map : prevList) {
-      for (Map<String, ExprValue> new_map : copy) {
-        newList.add(Stream.of(new_map, prev_map)
+    for (Map<String, ExprValue> prevMap : prevList) {
+      for (Map<String, ExprValue> newMap : copy) {
+        newList.add(Stream.of(newMap, prevMap)
             .flatMap(map -> map.entrySet().stream())
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
@@ -136,7 +144,10 @@ public class UnnestOperator extends PhysicalPlan {
    * @param nestedObj : object at current nested level.
    * @return : Object at current nested level.
    */
-  private void getNested(String field, String nestedField, ExprValue row, List<Map<String, ExprValue>> ret, ExprValue nestedObj) {
+  private void getNested(
+      String field, String nestedField, ExprValue row,
+      List<Map<String, ExprValue>> ret, ExprValue nestedObj
+  ) {
     ExprValue currentObj = (nestedObj == null) ? row : nestedObj;
     String[] splitKeys = nestedField.split("\\.");
 
@@ -149,7 +160,7 @@ public class UnnestOperator extends PhysicalPlan {
       }
     } else if (currentObj instanceof ExprCollectionValue)  {
       ExprValue arrayObj = currentObj;
-      for (int x = 0; x < arrayObj.collectionValue().size() ; x++) {
+      for (int x = 0; x < arrayObj.collectionValue().size(); x++) {
         currentObj = arrayObj.collectionValue().get(x);
         getNested(field, nestedField, row, ret, currentObj);
         currentObj = null;

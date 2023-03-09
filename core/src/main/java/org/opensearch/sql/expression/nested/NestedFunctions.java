@@ -5,14 +5,6 @@
 
 package org.opensearch.sql.expression.nested;
 
-import lombok.experimental.UtilityClass;
-import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.model.ExprValueUtils;
-import org.opensearch.sql.expression.function.BuiltinFunctionName;
-import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
-import org.opensearch.sql.expression.function.DefaultFunctionResolver;
-import org.opensearch.sql.expression.function.FunctionDSL;
-
 import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
 import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
@@ -21,6 +13,14 @@ import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
+
+import lombok.experimental.UtilityClass;
+import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.expression.function.BuiltinFunctionName;
+import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
+import org.opensearch.sql.expression.function.DefaultFunctionResolver;
+import org.opensearch.sql.expression.function.FunctionDSL;
 
 @UtilityClass
 public class NestedFunctions {
@@ -65,95 +65,80 @@ public class NestedFunctions {
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , STRING, STRING, ARRAY),
+            }, STRING, STRING, ARRAY),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , INTEGER, INTEGER, ARRAY),
+            }, INTEGER, INTEGER, ARRAY),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , LONG, LONG, ARRAY),
+            }, LONG, LONG, ARRAY),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , FLOAT, FLOAT, ARRAY),
+            }, FLOAT, FLOAT, ARRAY),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , DOUBLE, DOUBLE, ARRAY),
+            }, DOUBLE, DOUBLE, ARRAY),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , BOOLEAN, BOOLEAN, ARRAY),
+            }, BOOLEAN, BOOLEAN, ARRAY),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , STRUCT, STRUCT, ARRAY),
+            }, STRUCT, STRUCT, ARRAY),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , ARRAY, ARRAY, ARRAY),
+            }, ARRAY, ARRAY, ARRAY),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , STRING, STRING, STRUCT),
+            }, STRING, STRING, STRUCT),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , INTEGER, INTEGER, STRUCT),
+            }, INTEGER, INTEGER, STRUCT),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , LONG, LONG, STRUCT),
+            }, LONG, LONG, STRUCT),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , FLOAT, FLOAT, STRUCT),
+            }, FLOAT, FLOAT, STRUCT),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , DOUBLE, DOUBLE, STRUCT),
+            }, DOUBLE, DOUBLE, STRUCT),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , BOOLEAN, BOOLEAN, STRUCT),
+            }, BOOLEAN, BOOLEAN, STRUCT),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , STRUCT, STRUCT, STRUCT),
+            }, STRUCT, STRUCT, STRUCT),
         FunctionDSL.impl(
             (v1, v2) -> {
               return nullMissingFirstArgOnlyHandling(v1);
-            }
-            , ARRAY, ARRAY, STRUCT));
+            }, ARRAY, ARRAY, STRUCT));
   }
 
   /**
-   * Wrapper the binary ExprValue function with default NULL and MISSING handling for first arg only.
+   * Wrapper the binary ExprValue function with default
+   * NULL and MISSING handling for first arg only.
    */
   public static ExprValue nullMissingFirstArgOnlyHandling(ExprValue v1) {
-      if (v1.isMissing()) {
-        return ExprValueUtils.missingValue();
-      } else if (v1.isNull()) {
-        return ExprValueUtils.nullValue();
-      } else {
-        return v1;
-      }
+    if (v1.isMissing()) {
+      return ExprValueUtils.missingValue();
+    } else if (v1.isNull()) {
+      return ExprValueUtils.nullValue();
+    } else {
+      return v1;
+    }
   }
 }

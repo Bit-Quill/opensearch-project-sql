@@ -22,6 +22,8 @@ import static org.opensearch.sql.expression.nested.NestedFunctions.nullMissingFi
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Map;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -32,8 +34,6 @@ import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.env.Environment;
-import java.util.Map;
-import java.util.stream.Stream;
 
 public class NestedFunctionTest extends ExpressionTestBase {
 
@@ -47,6 +47,7 @@ public class NestedFunctionTest extends ExpressionTestBase {
       "message.struct_value", tupleValue(ImmutableMap.of("str", 1)),
       "message.array_value", collectionValue(ImmutableList.of(1))
   );
+
   protected static Environment<Expression, ExprValue> env() {
     return var -> {
       return dataMap.get(((ReferenceExpression) var).getAttr());
@@ -59,20 +60,28 @@ public class NestedFunctionTest extends ExpressionTestBase {
     );
   }
 
+  /**
+   * Test single parameter nested function parameters.
+   * @param dataMap : Map of data to validate against.
+   */
   @ParameterizedTest
   @MethodSource("generateValidData")
-  public void test_single_param_nested(Map<String, ExprValue> map) {
-    for (var entry : map.entrySet()) {
+  public void test_single_param_nested(Map<String, ExprValue> dataMap) {
+    for (var entry : dataMap.entrySet()) {
       FunctionExpression nested = DSL.nested(DSL.ref(entry.getKey(), entry.getValue().type()));
       assertEquals(entry.getValue(), nested.valueOf(env()));
       assertEquals(String.format("nested(%s)", entry.getKey()), nested.toString());
     }
   }
 
+  /**
+   * Test double parameter nested function parameters with second parameter of type STRUCT.
+   * @param dataMap : Map of data to validate against.
+   */
   @ParameterizedTest
   @MethodSource("generateValidData")
-  public void test_double_param_nested_struct(Map<String, ExprValue> map) {
-    for (var entry : map.entrySet()) {
+  public void test_double_param_nested_struct(Map<String, ExprValue> dataMap) {
+    for (var entry : dataMap.entrySet()) {
       FunctionExpression nested = DSL.nested(DSL.ref(entry.getKey(), entry.getValue().type()),
           DSL.ref("message", STRUCT));
       assertEquals(entry.getValue(), nested.valueOf(env()));
@@ -80,10 +89,14 @@ public class NestedFunctionTest extends ExpressionTestBase {
     }
   }
 
+  /**
+   * Test double parameter nested function parameters with second parameter of type ARRAY.
+   * @param dataMap : Map of data to validate against.
+   */
   @ParameterizedTest
   @MethodSource("generateValidData")
-  public void test_double_param_nested_array(Map<String, ExprValue> map) {
-    for (var entry : map.entrySet()) {
+  public void test_double_param_nested_array(Map<String, ExprValue> dataMap) {
+    for (var entry : dataMap.entrySet()) {
       FunctionExpression nested = DSL.nested(DSL.ref(entry.getKey(), entry.getValue().type()),
           DSL.ref("message", ARRAY));
       assertEquals(entry.getValue(), nested.valueOf(env()));

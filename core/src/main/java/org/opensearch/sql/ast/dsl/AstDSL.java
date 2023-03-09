@@ -77,10 +77,6 @@ public class AstDSL {
     return new Relation(qualifiedName(tableName));
   }
 
-  public UnresolvedPlan unnest(Function func) {
-    return new Unnest(func);
-  }
-
   public UnresolvedPlan relation(List<String> tableNames) {
     return new Relation(
         tableNames.stream().map(AstDSL::qualifiedName).collect(Collectors.toList()));
@@ -288,6 +284,10 @@ public class AstDSL {
   public UnresolvedExpression highlight(UnresolvedExpression fieldName,
       java.util.Map<String, Literal> arguments) {
     return new HighlightFunction(fieldName, arguments);
+  }
+
+  public UnresolvedPlan unnest(Function func) {
+    return new Unnest(func);
   }
 
   public UnresolvedExpression window(UnresolvedExpression function,

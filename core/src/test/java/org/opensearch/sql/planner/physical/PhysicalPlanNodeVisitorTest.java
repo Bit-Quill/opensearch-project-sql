@@ -16,6 +16,7 @@ import static org.opensearch.sql.expression.DSL.named;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,8 +27,6 @@ import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.window.WindowDefinition;
-
-import java.util.Set;
 
 /**
  * Todo, testing purpose, delete later.

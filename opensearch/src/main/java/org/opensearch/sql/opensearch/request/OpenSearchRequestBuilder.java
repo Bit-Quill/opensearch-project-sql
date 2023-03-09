@@ -296,9 +296,9 @@ public class OpenSearchRequestBuilder {
    * Create a nested query with match all filter to place inner hits.
    */
   private NestedQueryBuilder createEmptyNestedQuery(String path) {
-      NestedQueryBuilder nestedQuery = nestedQuery(path, matchAllQuery(), ScoreMode.None);
-      ((BoolQueryBuilder) query().filter().get(0)).must(nestedQuery);
-      return nestedQuery;
+    NestedQueryBuilder nestedQuery = nestedQuery(path, matchAllQuery(), ScoreMode.None);
+    ((BoolQueryBuilder) query().filter().get(0)).must(nestedQuery);
+    return nestedQuery;
   }
 
   /**

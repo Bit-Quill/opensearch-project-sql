@@ -29,17 +29,14 @@ import static org.opensearch.sql.ast.dsl.AstDSL.sort;
 import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.unnest;
 import static org.opensearch.sql.ast.dsl.AstDSL.values;
-import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.utils.SystemIndexUtils.TABLE_INFO;
 import static org.opensearch.sql.utils.SystemIndexUtils.mappingTable;
 
 import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.ast.dsl.AstDSL;
-import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.Literal;
@@ -47,8 +44,6 @@ import org.opensearch.sql.ast.tree.Unnest;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.exception.SemanticCheckException;
-import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.ReferenceExpression;
 
 class AstBuilderTest extends AstBuilderTestBase {
 
@@ -703,7 +698,7 @@ class AstBuilderTest extends AstBuilderTestBase {
     assertEquals(
         project(
             unnest(function("nested", qualifiedName("message.info")))
-                .attach( relation("test")),
+                .attach(relation("test")),
             alias(
                 "message.info",
                 function("nested", qualifiedName("message.info")),
@@ -748,8 +743,8 @@ class AstBuilderTest extends AstBuilderTestBase {
     SemanticCheckException exception = assertThrows(SemanticCheckException.class,
         () -> buildAST("SELECT nested(message, message.info = 'a') FROM test"));
 
-    assertEquals("Condition parameter for the nested " +
-            "function is invalid in a SELECT statement: 'nested(field | field, path)'",
+    assertEquals("Condition parameter for the nested "
+            + "function is invalid in a SELECT statement: 'nested(field | field, path)'",
         exception.getMessage());
   }
 }
