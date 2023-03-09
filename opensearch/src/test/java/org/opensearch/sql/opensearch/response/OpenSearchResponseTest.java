@@ -117,6 +117,31 @@ class OpenSearchResponseTest {
   }
 
   @Test
+  void iterator_with_inner_hits() {
+    when(searchResponse.getHits())
+        .thenReturn(
+            new SearchHits(
+                new SearchHit[] {searchHit1},
+                new TotalHits(2L, TotalHits.Relation.EQUAL_TO),
+                1.0F));
+    when(searchHit1.getSourceAsString()).thenReturn("{\"id1\", 1}");
+    when(searchHit1.getSourceAsMap()).thenReturn(Map.of("id1", 1));
+    when(searchHit1.getInnerHits()).thenReturn(
+        Map.of(
+            "innerHit",
+            new SearchHits(
+                new SearchHit[] {searchHit1},
+                new TotalHits(2L, TotalHits.Relation.EQUAL_TO),
+                1.0F)));
+
+    when(factory.construct(any())).thenReturn(exprTupleValue1);
+
+    for (ExprValue hit : new OpenSearchResponse(searchResponse, factory)) {
+      assertEquals(exprTupleValue1, hit);
+    }
+  }
+
+  @Test
   void response_is_aggregation_when_aggregation_not_empty() {
     when(searchResponse.getAggregations()).thenReturn(aggregations);
 
