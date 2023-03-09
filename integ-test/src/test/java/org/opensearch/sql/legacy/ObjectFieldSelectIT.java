@@ -71,8 +71,7 @@ public class ObjectFieldSelectIT extends SQLIntegTestCase {
   public void testSelectNestedFieldItself() {
     JSONObject response = new JSONObject(query("SELECT projects FROM %s"));
 
-    // Nested field is absent in OpenSearch Get Field Mapping response either hence "object" used
-    verifySchema(response, schema("projects", null, "object"));
+    verifySchema(response, schema("projects", null, "nested"));
 
     // Expect nested field itself is returned in a single cell
     verifyDataRows(response,
@@ -95,6 +94,9 @@ public class ObjectFieldSelectIT extends SQLIntegTestCase {
             new JSONObject("{\"id\":2}")))));
   }
 
+  // TODO needs fallback mechanism or treat as nested function call alias.
+  //  can be completed after nested type derived in index scan from:
+  //  https://github.com/opensearch-project/sql/pull/1314
   @Test
   public void testSelectObjectFieldOfArrayValuesInnerFields() {
     JSONObject response = new JSONObject(query("SELECT accounts.id FROM %s"));
