@@ -29,10 +29,19 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class DateTimeFormatters {
 
+  //Length of a date formatted as YYYYMMDD.
   public static final int FULL_DATE_LENGTH = 8;
+
+  //Length of a date formatted as YYMMDD.
   public static final int SHORT_DATE_LENGTH = 6;
+
+  //Length of a date formatted as YMMDD.
   public static final int SINGLE_DIGIT_YEAR_DATE_LENGTH = 5;
+
+  //Length of a date formatted as MMDD.
   public static final int NO_YEAR_DATE_LENGTH = 4;
+
+  //Length of a date formatted as MDD.
   public static final int SINGLE_DIGIT_MONTH_DATE_LENGTH = 3;
 
   public static final DateTimeFormatter TIME_ZONE_FORMATTER_NO_COLON =
