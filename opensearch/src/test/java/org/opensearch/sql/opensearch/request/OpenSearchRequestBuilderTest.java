@@ -228,7 +228,7 @@ public class OpenSearchRequestBuilderTest {
   void testPushDownNested() {
     List<List<Expression>> args = List.of(List.of(new ReferenceExpression("message.info", STRING)));
     LogicalNested nested = new LogicalNested(null, args);
-    requestBuilder.pushDownNested(nested);
+    requestBuilder.pushDownNested(nested.getFields());
 
     NestedQueryBuilder nestedQuery = nestedQuery("message", matchAllQuery(), ScoreMode.None)
         .innerHit(new InnerHitBuilder().setFetchSourceContext(
@@ -250,7 +250,7 @@ public class OpenSearchRequestBuilderTest {
         List.of(new ReferenceExpression("message.from", STRING))
     );
     LogicalNested nested = new LogicalNested(null, args);
-    requestBuilder.pushDownNested(nested);
+    requestBuilder.pushDownNested(nested.getFields());
 
     NestedQueryBuilder nestedQuery = nestedQuery("message", matchAllQuery(), ScoreMode.None)
         .innerHit(new InnerHitBuilder().setFetchSourceContext(
