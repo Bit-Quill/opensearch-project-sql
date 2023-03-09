@@ -247,12 +247,12 @@ public class OpenSearchRequestBuilder {
   }
 
   /**
-   * Push down logical nested to sourceBuilder.
-   * @param nested : Logical nested to push down.
+   * Push down nested to sourceBuilder.
+   * @param nestedArgs : Nested arguments to push down.
    */
-  public void pushDownNested(List<Map<String, ReferenceExpression>> nested) {
+  public void pushDownNested(List<Map<String, ReferenceExpression>> nestedArgs) {
     initBoolQueryFilter();
-    groupFieldNamesByPath(nested).forEach(
+    groupFieldNamesByPath(nestedArgs).forEach(
           (path, fieldNames) -> buildInnerHit(
               fieldNames, createEmptyNestedQuery(path)
           )
