@@ -480,7 +480,7 @@ public class MathematicalFunction {
    * Definition of sinh(x) function.
    * Returns the hyperbolix sine of x, defined as (((e^x) - (e^(-x))) / 2)
    * The supported signature is
-   * SHORT/INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+   * BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static DefaultFunctionResolver sinh() {
     return baseMathFunction(BuiltinFunctionName.SINH.getName(),

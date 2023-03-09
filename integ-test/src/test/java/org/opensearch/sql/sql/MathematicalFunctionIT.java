@@ -147,9 +147,6 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
     verifyDataRows(result, rows(-1));
   }
 
-  /**
-   * Test sinh function
-   */
   @Test
   public void testSinh() throws IOException {
     JSONObject result = executeQuery("select sinh(1)");
