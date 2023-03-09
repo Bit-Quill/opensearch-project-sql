@@ -770,7 +770,7 @@ Synonyms: `SIGN`_
 
 Example::
 
-    os> SELECT SIGN(1), SIGN(0), SIGN(-1.1)
+    os> SELECT SIGNUM(1), SIGNUM(0), SIGNUM(-1.1)
     fetched rows / total rows = 1/1
     +-------------+-------------+----------------+
     | SIGNUM(1)   | SIGNUM(0)   | SIGNUM(-1.1)   |
