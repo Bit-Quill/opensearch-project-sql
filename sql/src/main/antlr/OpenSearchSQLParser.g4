@@ -325,10 +325,10 @@ getFormatType
     ;
 
 extractFunction
-    : EXTRACT LR_BRACKET part FROM functionArg RR_BRACKET
+    : EXTRACT LR_BRACKET datetimePart FROM functionArg RR_BRACKET
     ;
 
-part
+datetimePart
     : MICROSECOND
     | SECOND
     | MINUTE
