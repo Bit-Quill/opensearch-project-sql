@@ -1631,7 +1631,8 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    */
   @ParameterizedTest(name = "rint({0})")
   @ValueSource(floats = {
-      -1F, -0.5F, 0F, 0.5F, 1F, Float.MAX_VALUE, Float.MIN_VALUE})
+      -1F, -0.75F, -0.5F, 0F, 0.5F, 0.500000001F,
+      0.75F, 1F, 1.9999F, 42.42F, Float.MAX_VALUE, Float.MIN_VALUE})
   public void rint_float_value(Float value) {
     FunctionExpression rint = DSL.rint(DSL.literal(value));
     assertThat(
@@ -1645,7 +1646,8 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    */
   @ParameterizedTest(name = "rint({0})")
   @ValueSource(doubles = {
-      -1D, -0.5D, 0D, 0.5D, 1D, Double.MAX_VALUE, Double.MIN_VALUE})
+      -1F, -0.75F, -0.5F, 0F, 0.5F, 0.500000001F,
+      0.75F, 1F, 1.9999F, 42.42F, Double.MAX_VALUE, Double.MIN_VALUE})
   public void rint_double_value(Double value) {
     FunctionExpression rint = DSL.rint(DSL.literal(value));
     assertThat(
