@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.lucene.search.join.ScoreMode;
 import org.junit.jupiter.api.BeforeEach;
@@ -232,7 +231,7 @@ public class OpenSearchRequestBuilderTest {
 
     NestedQueryBuilder nestedQuery = nestedQuery("message", matchAllQuery(), ScoreMode.None)
         .innerHit(new InnerHitBuilder().setFetchSourceContext(
-        new FetchSourceContext(true, new String[]{"message.info"}, null)));
+          new FetchSourceContext(true, new String[]{"message.info"}, null)));
 
     assertEquals(
         new SearchSourceBuilder()

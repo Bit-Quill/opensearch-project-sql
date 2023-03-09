@@ -10,7 +10,6 @@ import static org.opensearch.sql.utils.ExpressionUtils.PATH_SEP;
 
 import java.util.Arrays;
 import java.util.List;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -639,7 +639,6 @@ class SQLSyntaxParserTest {
         parser.parse("SELECT NESTED(FIELD.DAYOFWEEK, PATH) FROM TEST"));
     assertNotNull(
         parser.parse("SELECT NESTED(PATH, CONDITION = 'a') FROM TEST"));
-
   }
 
   @Test

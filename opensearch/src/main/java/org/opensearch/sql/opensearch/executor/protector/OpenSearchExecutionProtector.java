@@ -92,7 +92,7 @@ public class OpenSearchExecutionProtector extends ExecutionProtector {
   public PhysicalPlan visitUnnest(UnnestOperator node, Object context) {
     return doProtect(
         new UnnestOperator(visitInput(node.getInput(), context), node.getFields())
-        );
+    );
   }
 
   @Override

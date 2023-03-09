@@ -80,7 +80,7 @@ public class AggregationQueryBuilder extends ExpressionNodeVisitor<AggregationBu
 
     final Pair<AggregatorFactories.Builder, List<MetricParser>> metrics =
         metricBuilder.build(namedAggregatorList);
-    
+
     if (groupByList.isEmpty()) {
       // no bucket
       return Pair.of(

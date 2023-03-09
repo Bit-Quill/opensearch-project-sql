@@ -5,18 +5,17 @@
 
 package org.opensearch.sql.planner.logical;
 
+import static org.opensearch.sql.data.type.ExprCoreType.STRING;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ReferenceExpression;
-
-import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter

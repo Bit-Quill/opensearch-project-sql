@@ -28,7 +28,8 @@ public class AstUnnestBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedP
   public UnresolvedPlan visit(ParseTree selectClause) {
     Unnest unnest = null;
     for (UnresolvedExpression item : querySpec.getSelectItems()) {
-      // Assume is nested as that's the only function currently supported as alias in SELECT clause from AstBuilder
+      // Assume is nested as that's the only function currently
+      // supported as alias in SELECT clause from AstBuilder
       if (item instanceof Alias) {
         Function func = (Function)((Alias)item).getDelegated();
         validateArgs(func);
@@ -50,8 +51,8 @@ public class AstUnnestBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedP
     nestedFunction.getFuncArgs().stream().filter(
         arg -> arg instanceof Function
         ).findAny().ifPresent(e -> {
-          throw new SemanticCheckException("Condition parameter for the nested " +
-              "function is invalid in a SELECT statement: 'nested(field | field, path)'");
+          throw new SemanticCheckException("Condition parameter for the nested "
+              + "function is invalid in a SELECT statement: 'nested(field | field, path)'");
         });
   }
 }

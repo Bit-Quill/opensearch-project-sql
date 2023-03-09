@@ -13,11 +13,11 @@ import static org.opensearch.sql.data.model.ExprValueUtils.collectionValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.tupleValue;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -30,7 +30,7 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
   @Mock
   private PhysicalPlan inputPlan;
 
-  private final ExprValue test_data = tupleValue(
+  private final ExprValue testData = tupleValue(
       ImmutableMap.of(
           "message",
           collectionValue(
@@ -61,7 +61,7 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
   public void nested_one_field() {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
-        .thenReturn(test_data);
+        .thenReturn(testData);
 
     Set<String> fields = Set.of("message.info");
     assertThat(
@@ -78,7 +78,7 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
   public void nested_two_field() {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
-        .thenReturn(test_data);
+        .thenReturn(testData);
 
     List<Map<String, ReferenceExpression>> fields =
         List.of(
@@ -109,7 +109,7 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
   public void nested_deepest_field_missing() {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
-        .thenReturn(test_data);
+        .thenReturn(testData);
 
     Set<String> fields = Set.of("deep.invalid");
     assertTrue(
@@ -124,7 +124,7 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
   public void nested_missing_field() {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
-        .thenReturn(test_data);
+        .thenReturn(testData);
     Set<String> fields = Set.of("message.invalid");
     assertTrue(
         execute(new UnnestOperator(inputPlan, fields))

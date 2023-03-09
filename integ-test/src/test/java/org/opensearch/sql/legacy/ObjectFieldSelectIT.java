@@ -12,12 +12,11 @@ import static org.opensearch.sql.util.MatcherUtils.schema;
 import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
 import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.opensearch.sql.legacy.utils.StringUtils;
-
-import java.util.List;
 
 /**
  * Integration test for OpenSearch object field (and nested field).
