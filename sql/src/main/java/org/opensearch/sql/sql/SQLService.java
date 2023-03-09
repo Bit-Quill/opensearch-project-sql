@@ -10,6 +10,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.opensearch.sql.analysis.JsonSupportVisitor;
+import org.opensearch.sql.analysis.JsonSupportVisitorContext;
 import org.opensearch.sql.ast.statement.Query;
 import org.opensearch.sql.ast.statement.Statement;
 import org.opensearch.sql.common.response.ResponseListener;
@@ -67,10 +68,6 @@ public class SQLService {
       SQLQueryRequest request,
       Optional<ResponseListener<QueryResponse>> queryListener,
       Optional<ResponseListener<ExplainResponse>> explainListener) {
-    if (parser.parseHints(request.getQuery()).getChildCount() > 1) {
-      throw new UnsupportedOperationException("Hints are not yet supported in the new engine.");
-    }
-
     // 1.Parse query and convert parse tree (CST) to abstract syntax tree (AST)
     ParseTree cst = parser.parse(request.getQuery());
     Statement statement =
@@ -84,8 +81,15 @@ public class SQLService {
     // There is no full support for JSON format yet for in memory operations, aliases, literals,
     // and casts. Aggregation has differences with legacy results.
     if (request.format().getFormatName().equals("json") && statement instanceof Query) {
+      if (parser.parseHints(request.getQuery()).getChildCount() > 1) {
+        throw new UnsupportedOperationException("Hints are not yet supported in the new engine.");
+      }
+
       // Go through the tree and throw exceptions when unsupported
-      ((Query) statement).getPlan().accept(new JsonSupportVisitor(), null);
+      JsonSupportVisitorContext jsonSupportVisitorContext = new JsonSupportVisitorContext();
+      if (!((Query) statement).getPlan().accept(new JsonSupportVisitor(), jsonSupportVisitorContext)) {
+        throw jsonSupportVisitorContext.getUnsupportedOperationException();
+      }
     }
 
     return queryExecutionFactory.create(statement, queryListener, explainListener);
