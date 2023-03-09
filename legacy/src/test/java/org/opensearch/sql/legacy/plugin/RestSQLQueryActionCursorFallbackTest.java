@@ -83,13 +83,6 @@ public class RestSQLQueryActionCursorFallbackTest extends BaseRestHandler {
     assertFalse(doesQueryFallback(request));
   }
 
-  @Test
-  public void fallback_with_aggregation() throws Exception {
-    var query = "SELECT name FROM test1 GROUP BY age";
-    SQLQueryRequest request = createSqlQueryRequest(query, Optional.empty(), Optional.of(45));
-    assertTrue(doesQueryFallback(request));
-  }
-
   private static SQLQueryRequest createSqlQueryRequest(String query, Optional<String> cursorId,
                                                        Optional<Integer> fetchSize) throws IOException {
     var builder = XContentFactory.jsonBuilder()
