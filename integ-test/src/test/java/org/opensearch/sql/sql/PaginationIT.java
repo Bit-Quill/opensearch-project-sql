@@ -5,7 +5,6 @@
 
 package org.opensearch.sql.sql;
 
-import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BEER;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_CALCS;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_ONLINE;
 
@@ -19,7 +18,6 @@ public class PaginationIT extends SQLIntegTestCase {
   @Override
   public void init() throws IOException {
     loadIndex(Index.CALCS);
-    loadIndex(Index.BEER);
     loadIndex(Index.ONLINE);
   }
 
@@ -28,21 +26,23 @@ public class PaginationIT extends SQLIntegTestCase {
     var query = "SELECT * from " + TEST_INDEX_CALCS;
     var response = new JSONObject(executeFetchQuery(query, 4, "jdbc"));
     assertTrue(response.has("cursor"));
-    assertEquals(4, response.getInt("total"));
+    assertEquals(4, response.getInt("size"));
     TestUtils.verifyIsV2Cursor(response);
   }
 
   @Test
-  public void testLargeDataSet() throws IOException {
-    var query = "SELECT * from " + TEST_INDEX_ONLINE;
-    var response = new JSONObject(executeFetchQuery(query, 4, "jdbc"));
-    assertTrue(response.has("cursor"));
-    assertEquals(4, response.getInt("total"));
-    TestUtils.verifyIsV2Cursor(response);
-
+  public void testLargeDataSetV1() throws IOException {
     var v1query = "SELECT * from " + TEST_INDEX_ONLINE + " WHERE 1 = 1";
     var v1response = new JSONObject(executeFetchQuery(v1query, 4, "jdbc"));
-    assertTrue(v1response.has("cursor"));
+    assertEquals(4, v1response.getInt("size"));
     TestUtils.verifyIsV1Cursor(v1response);
+  }
+
+  @Test
+  public void testLargeDataSetV2() throws IOException {
+    var query = "SELECT * from " + TEST_INDEX_ONLINE;
+    var response = new JSONObject(executeFetchQuery(query, 4, "jdbc"));
+    assertEquals(4, response.getInt("size"));
+    TestUtils.verifyIsV2Cursor(response);
   }
 }
