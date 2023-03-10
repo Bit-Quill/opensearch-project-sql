@@ -11,8 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.opensearch.sql.executor.PaginatedPlanCacheTest.buildCursor;
 
@@ -114,7 +116,8 @@ public class ContinuePaginatedPlanTest {
 
   @Test
   public void explain_is_not_supported() {
-    assertThrows(UnsupportedOperationException.class,
-        () -> ContinuePaginatedPlan.None.explain(null));
+    var listener = mock(ResponseListener.class);
+    ContinuePaginatedPlan.None.explain(listener);
+    verify(listener).onFailure(any(UnsupportedOperationException.class));
   }
 }

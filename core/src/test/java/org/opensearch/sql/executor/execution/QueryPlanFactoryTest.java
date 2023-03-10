@@ -8,6 +8,7 @@
 
 package org.opensearch.sql.executor.execution;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -78,8 +79,12 @@ class QueryPlanFactoryTest {
 
   @Test
   public void createFromCursorShouldSuccess() {
-    AbstractPlan queryExecution = factory.create("", queryListener);
-    assertTrue(queryExecution instanceof ContinuePaginatedPlan);
+    AbstractPlan queryExecution = factory.create("", false, queryListener, explainListener);
+    AbstractPlan explainExecution = factory.create("", true, queryListener, explainListener);
+    assertAll(
+        () -> assertTrue(queryExecution instanceof ContinuePaginatedPlan),
+        () -> assertTrue(explainExecution instanceof ExplainPlan)
+    );
   }
 
   @Test

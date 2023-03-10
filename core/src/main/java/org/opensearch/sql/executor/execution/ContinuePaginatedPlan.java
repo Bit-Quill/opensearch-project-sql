@@ -5,7 +5,6 @@
 
 package org.opensearch.sql.executor.execution;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.PaginatedPlanCache;
@@ -51,6 +50,8 @@ public class ContinuePaginatedPlan extends AbstractPlan {
   @Override
   // TODO why can't use listener given in the constructor?
   public void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener) {
-    throw new UnsupportedOperationException("Explain of query continuation is not supported");
+    listener.onFailure(new UnsupportedOperationException(
+        "Explain of a paged query continuation is not supported. "
+        + "Use `explain` for the initial query request."));
   }
 }

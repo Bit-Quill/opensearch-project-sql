@@ -68,23 +68,8 @@ public class SQLService {
       Optional<ResponseListener<ExplainResponse>> explainListener) {
     if (request.getCursor().isPresent()) {
       // Handle v2 cursor here -- legacy cursor was handled earlier.
-      if (queryListener.isEmpty() && explainListener.isPresent()) { // explain request
-        // TODO explain should be processed inside the plan
-        explainListener.get().onFailure(new UnsupportedOperationException(
-            "`explain` request for cursor requests is not supported. "
-            + "Use `explain` for the initial query request."));
-        return new AbstractPlan(QueryId.queryId()) {
-          @Override
-          public void execute() {
-          }
-
-          @Override
-          public void explain(ResponseListener<ExplainResponse> listener) {
-          }
-        };
-      }
-      // non-explain request
-      return queryExecutionFactory.create(request.getCursor().get(), queryListener.get());
+      return queryExecutionFactory.create(request.getCursor().get(), request.isExplainRequest(),
+          queryListener.orElse(null), explainListener.orElse(null));
     } else {
       // 1.Parse query and convert parse tree (CST) to abstract syntax tree (AST)
       ParseTree cst = parser.parse(request.getQuery());

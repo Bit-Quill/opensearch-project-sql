@@ -76,11 +76,13 @@ public class QueryPlanFactory
   /**
    * Creates a ContinuePaginatedPlan from a cursor.
    */
-  public AbstractPlan create(String cursor, ResponseListener<ExecutionEngine.QueryResponse>
-      queryResponseListener) {
+  public AbstractPlan create(String cursor, boolean isExplain,
+      ResponseListener<ExecutionEngine.QueryResponse> queryResponseListener,
+      ResponseListener<ExecutionEngine.ExplainResponse> explainListener) {
     QueryId queryId = QueryId.queryId();
-    return new ContinuePaginatedPlan(queryId, cursor, paginatedQueryService, paginatedPlanCache,
+    var cpp = new ContinuePaginatedPlan(queryId, cursor, paginatedQueryService, paginatedPlanCache,
         queryResponseListener);
+    return isExplain ? new ExplainPlan(queryId, cpp, explainListener) : cpp;
   }
 
   @Override
