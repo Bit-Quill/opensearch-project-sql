@@ -60,16 +60,9 @@ class SQLServiceTest {
     queryManager.awaitTermination(1, TimeUnit.SECONDS);
   }
 
-  @Test
-  public void canExecuteSqlQuery() {
-    doAnswer(invocation -> {
-      ResponseListener<QueryResponse> listener = invocation.getArgument(1);
-      listener.onResponse(new QueryResponse(schema, Collections.emptyList(), ""));
-      return null;
-    }).when(queryService).execute(any(), any());
-
+  private void execute(String query, String format) {
     sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), "SELECT 123", QUERY, "jdbc"),
+        new SQLQueryRequest(new JSONObject(), query, QUERY, format),
         new ResponseListener<QueryResponse>() {
           @Override
           public void onResponse(QueryResponse response) {
@@ -81,6 +74,33 @@ class SQLServiceTest {
             fail(e);
           }
         });
+  }
+
+  private void executeWithUnsupportedException(String query, String format) {
+    sqlService.execute(
+        new SQLQueryRequest(new JSONObject(), query, QUERY, format),
+        new ResponseListener<QueryResponse>() {
+          @Override
+          public void onResponse(QueryResponse response) {
+            assertNotNull(response);
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            assert (e instanceof UnsupportedOperationException);
+          }
+        });
+  }
+
+  @Test
+  public void canExecuteSqlQuery() {
+    doAnswer(invocation -> {
+      ResponseListener<QueryResponse> listener = invocation.getArgument(1);
+      listener.onResponse(new QueryResponse(schema, Collections.emptyList(), ""));
+      return null;
+    }).when(queryService).execute(any(), any());
+
+    execute("SELECT 123", "jdbc");
   }
 
   @Test
@@ -91,19 +111,7 @@ class SQLServiceTest {
       return null;
     }).when(queryService).execute(any(), any());
 
-    sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), "SELECT 123", QUERY, "csv"),
-        new ResponseListener<QueryResponse>() {
-          @Override
-          public void onResponse(QueryResponse response) {
-            assertNotNull(response);
-          }
-
-          @Override
-          public void onFailure(Exception e) {
-            fail(e);
-          }
-        });
+    execute("SELECT 123", "csv");
   }
 
   @Test
@@ -114,53 +122,17 @@ class SQLServiceTest {
       return null;
     }).when(queryService).execute(any(), any());
 
-    sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), "SELECT FIELD FROM TABLE", QUERY, "json"),
-        new ResponseListener<QueryResponse>() {
-          @Override
-          public void onResponse(QueryResponse response) {
-            assertNotNull(response);
-          }
-
-          @Override
-          public void onFailure(Exception e) {
-            fail(e);
-          }
-        });
+    execute("SELECT FIELD FROM TABLE", "json");
   }
 
   @Test
   public void canThrowUnsupportedExceptionWithUnsupportedJsonQuery() {
-    sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), "SELECT CAST(FIELD AS DOUBLE)", QUERY, "json"),
-        new ResponseListener<QueryResponse>() {
-          @Override
-          public void onResponse(QueryResponse response) {
-            assertNotNull(response);
-          }
-
-          @Override
-          public void onFailure(Exception e) {
-            assert (e instanceof UnsupportedOperationException);
-          }
-        });
+    executeWithUnsupportedException("SELECT CAST(FIELD AS DOUBLE)", "json");
   }
 
   @Test
   public void canThrowUnsupportedExceptionForHintsQuery() {
-    sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), "SELECT /*! HINTS */ 123", QUERY, "json"),
-        new ResponseListener<QueryResponse>() {
-          @Override
-          public void onResponse(QueryResponse response) {
-            assertNotNull(response);
-          }
-
-          @Override
-          public void onFailure(Exception e) {
-            assert (e instanceof UnsupportedOperationException);
-          }
-        });
+    executeWithUnsupportedException("SELECT /*! HINTS */ 123", "json");
   }
 
   @Test
