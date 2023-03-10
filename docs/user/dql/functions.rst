@@ -320,7 +320,7 @@ COSH
 Description
 >>>>>>>>>>>
 
-Usage: cosh(x) calculates the hyperbolic sine of x, defined as (((e^x) + (e^(-x))) / 2)
+Usage: cosh(x) calculates the hyperbolic cosine of x, defined as (((e^x) + (e^(-x))) / 2)
 
 Argument type: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE
 
