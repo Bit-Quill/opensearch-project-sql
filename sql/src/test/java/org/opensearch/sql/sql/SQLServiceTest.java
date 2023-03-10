@@ -7,7 +7,6 @@
 package org.opensearch.sql.sql;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -85,115 +84,6 @@ class SQLServiceTest {
   }
 
   @Test
-  public void canExecuteJsonFormatRequest() {
-    doAnswer(invocation -> {
-      ResponseListener<QueryResponse> listener = invocation.getArgument(1);
-      listener.onResponse(new QueryResponse(schema, Collections.emptyList(), ""));
-      return null;
-    }).when(queryService).execute(any(), any());
-
-    sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), "SELECT FIELD FROM TABLE", QUERY, "json"),
-        new ResponseListener<QueryResponse>() {
-          @Override
-          public void onResponse(QueryResponse response) {
-            assertNotNull(response);
-          }
-
-          @Override
-          public void onFailure(Exception e) {
-            fail(e);
-          }
-        });
-  }
-
-  @Test
-  public void canThrowUnsupportedExceptionForAggregationJsonQuery() {
-    sqlService.execute(
-        new SQLQueryRequest(new JSONObject(),
-            "SELECT FIELD FROM TABLE GROUP BY FIELD", QUERY, "json"),
-        new ResponseListener<QueryResponse>() {
-          @Override
-          public void onResponse(QueryResponse response) {
-            assertNotNull(response);
-          }
-
-          @Override
-          public void onFailure(Exception e) {
-            assertTrue(e instanceof UnsupportedOperationException);
-          }
-        });
-  }
-
-  @Test
-  public void canThrowUnsupportedExceptionForAliasJsonQuery() {
-    sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), "SELECT FIELD as FIELD FROM TABLE", QUERY, "json"),
-        new ResponseListener<QueryResponse>() {
-          @Override
-          public void onResponse(QueryResponse response) {
-            assertNotNull(response);
-          }
-
-          @Override
-          public void onFailure(Exception e) {
-            assertTrue(e instanceof UnsupportedOperationException);
-          }
-        });
-  }
-
-  @Test
-  public void canThrowUnsupportedExceptionForFunctionJsonQuery() {
-    sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), "SELECT 1 + 1", QUERY, "json"),
-        new ResponseListener<QueryResponse>() {
-          @Override
-          public void onResponse(QueryResponse response) {
-            assertNotNull(response);
-          }
-
-          @Override
-          public void onFailure(Exception e) {
-            assertTrue(e instanceof UnsupportedOperationException);
-          }
-        });
-  }
-
-  @Test
-  public void canThrowUnsupportedExceptionForLiteralJsonQuery() {
-    sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), "SELECT 123", QUERY, "json"),
-        new ResponseListener<QueryResponse>() {
-          @Override
-          public void onResponse(QueryResponse response) {
-            assertNotNull(response);
-          }
-
-          @Override
-          public void onFailure(Exception e) {
-            assert (e instanceof UnsupportedOperationException);
-          }
-        });
-  }
-
-  @Test
-  public void canThrowUnsupportedExceptionForCastJsonQuery() {
-    sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), "SELECT CAST(FIELD AS DOUBLE)", QUERY, "json"),
-        new ResponseListener<QueryResponse>() {
-          @Override
-          public void onResponse(QueryResponse response) {
-            assertNotNull(response);
-          }
-
-          @Override
-          public void onFailure(Exception e) {
-            assert (e instanceof UnsupportedOperationException);
-          }
-        });
-  }
-
-  @Test
   public void canExecuteCsvFormatRequest() {
     doAnswer(invocation -> {
       ResponseListener<QueryResponse> listener = invocation.getArgument(1);
@@ -217,9 +107,32 @@ class SQLServiceTest {
   }
 
   @Test
-  public void canThrowUnsupportedExceptionForHintsQuery() {
+  public void canExecuteJsonFormatRequest() {
+    doAnswer(invocation -> {
+      ResponseListener<QueryResponse> listener = invocation.getArgument(1);
+      listener.onResponse(new QueryResponse(schema, Collections.emptyList(), ""));
+      return null;
+    }).when(queryService).execute(any(), any());
+
     sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), "SELECT /*! HINTS */ 123", QUERY, "jdbc"),
+        new SQLQueryRequest(new JSONObject(), "SELECT FIELD FROM TABLE", QUERY, "json"),
+        new ResponseListener<QueryResponse>() {
+          @Override
+          public void onResponse(QueryResponse response) {
+            assertNotNull(response);
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            fail(e);
+          }
+        });
+  }
+
+  @Test
+  public void canThrowUnsupportedExceptionWithUnsupportedJsonQuery() {
+    sqlService.execute(
+        new SQLQueryRequest(new JSONObject(), "SELECT CAST(FIELD AS DOUBLE)", QUERY, "json"),
         new ResponseListener<QueryResponse>() {
           @Override
           public void onResponse(QueryResponse response) {
@@ -229,6 +142,40 @@ class SQLServiceTest {
           @Override
           public void onFailure(Exception e) {
             assert (e instanceof UnsupportedOperationException);
+          }
+        });
+  }
+
+  @Test
+  public void canThrowUnsupportedExceptionForHintsQuery() {
+    sqlService.execute(
+        new SQLQueryRequest(new JSONObject(), "SELECT /*! HINTS */ 123", QUERY, "json"),
+        new ResponseListener<QueryResponse>() {
+          @Override
+          public void onResponse(QueryResponse response) {
+            assertNotNull(response);
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            assert (e instanceof UnsupportedOperationException);
+          }
+        });
+  }
+
+  @Test
+  public void canExplainHintsQueryWithJsonFormat() {
+    sqlService.explain(
+        new SQLQueryRequest(new JSONObject(), "SELECT /*! HINTS */ 123", EXPLAIN, "json"),
+        new ResponseListener<ExplainResponse>() {
+          @Override
+          public void onResponse(ExplainResponse response) {
+            assertNotNull(response);
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            fail(e);
           }
         });
   }

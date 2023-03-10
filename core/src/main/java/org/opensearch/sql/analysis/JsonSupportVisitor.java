@@ -13,7 +13,6 @@ import org.opensearch.sql.ast.expression.Cast;
 import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.tree.Aggregation;
-import org.opensearch.sql.ast.tree.Filter;
 import org.opensearch.sql.ast.tree.Project;
 
 /**
@@ -47,12 +46,6 @@ public class JsonSupportVisitor extends AbstractNodeVisitor<Boolean, JsonSupport
           "Queries with aggregation are not yet supported with json format in the new engine"));
       return Boolean.FALSE;
     }
-  }
-
-  @Override
-  public Boolean visitFilter(Filter node, JsonSupportVisitorContext context) {
-    return visit(node, context)
-        && node.getCondition().accept(this, context);
   }
 
   @Override

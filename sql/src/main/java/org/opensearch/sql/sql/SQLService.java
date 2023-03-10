@@ -87,7 +87,8 @@ public class SQLService {
 
       // Go through the tree and throw exceptions when unsupported
       JsonSupportVisitorContext jsonSupportVisitorContext = new JsonSupportVisitorContext();
-      if (!((Query) statement).getPlan().accept(new JsonSupportVisitor(), jsonSupportVisitorContext)) {
+      if (!((Query) statement).getPlan()
+          .accept(new JsonSupportVisitor(), jsonSupportVisitorContext)) {
         throw jsonSupportVisitorContext.getUnsupportedOperationException();
       }
     }
