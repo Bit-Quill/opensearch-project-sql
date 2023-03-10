@@ -53,7 +53,12 @@ import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.mapping.IndexMapping;
+import org.opensearch.sql.opensearch.request.InitialPageRequestBuilder;
+import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder;
+import org.opensearch.sql.opensearch.request.PagedRequestBuilder;
+import org.opensearch.sql.opensearch.storage.scan.OpenSearchIndexScan;
+import org.opensearch.sql.opensearch.storage.scan.OpenSearchPagedIndexScan;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.logical.LogicalPlanDSL;
 import org.opensearch.sql.planner.physical.PhysicalPlanDSL;
@@ -163,6 +168,17 @@ class OpenSearchIndexTest {
         builder = new OpenSearchRequestBuilder(indexName, maxResultWindow,
         settings, exprValueFactory);
     assertEquals(new OpenSearchIndexScan(client, builder), index.implement(plan));
+  }
+
+  @Test
+  void implementPagedRelationOperatorOnly() {
+    when(client.getIndexMaxResultWindows("test")).thenReturn(Map.of("test", 10000));
+
+    LogicalPlan plan = index.createPagedScanBuilder(42);
+    Integer maxResultWindow = index.getMaxResultWindow();
+    PagedRequestBuilder builder = new InitialPageRequestBuilder(
+        new OpenSearchRequest.IndexName(indexName), maxResultWindow, settings, exprValueFactory);
+    assertEquals(new OpenSearchPagedIndexScan(client, builder), index.implement(plan));
   }
 
   @Test

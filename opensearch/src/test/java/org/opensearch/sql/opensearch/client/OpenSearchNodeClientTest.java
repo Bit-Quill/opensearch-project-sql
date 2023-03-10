@@ -15,6 +15,7 @@ import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -33,6 +34,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.lucene.search.TotalHits;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -270,7 +272,8 @@ class OpenSearchNodeClientTest {
     // Mock second scroll request followed
     SearchResponse scrollResponse = mock(SearchResponse.class);
     when(nodeClient.searchScroll(any()).actionGet()).thenReturn(scrollResponse);
-    when(scrollResponse.getScrollId()).thenReturn("scroll456");
+    // TODO commented out because scroll clean-up is disabled
+    //when(scrollResponse.getScrollId()).thenReturn("scroll456");
     when(scrollResponse.getHits()).thenReturn(SearchHits.empty());
 
     // Verify response for first scroll request
@@ -284,6 +287,7 @@ class OpenSearchNodeClientTest {
     assertFalse(hits.hasNext());
 
     // Verify response for second scroll request
+    request.setScrollId("scroll123");
     OpenSearchResponse response2 = client.search(request);
     assertTrue(response2.isEmpty());
   }
@@ -302,18 +306,20 @@ class OpenSearchNodeClientTest {
   void cleanup() {
     ClearScrollRequestBuilder requestBuilder = mock(ClearScrollRequestBuilder.class);
     when(nodeClient.prepareClearScroll()).thenReturn(requestBuilder);
-    when(requestBuilder.addScrollId(any())).thenReturn(requestBuilder);
-    when(requestBuilder.get()).thenReturn(null);
+    lenient().when(requestBuilder.addScrollId(any())).thenReturn(requestBuilder);
+    lenient().when(requestBuilder.get()).thenReturn(null);
 
     OpenSearchScrollRequest request = new OpenSearchScrollRequest("test", factory);
     request.setScrollId("scroll123");
     client.cleanup(request);
     assertFalse(request.isScrollStarted());
 
+    /* TODO: Scroll cleaning is temporary disabled
     InOrder inOrder = Mockito.inOrder(nodeClient, requestBuilder);
     inOrder.verify(nodeClient).prepareClearScroll();
     inOrder.verify(requestBuilder).addScrollId("scroll123");
     inOrder.verify(requestBuilder).get();
+    */
   }
 
   @Test

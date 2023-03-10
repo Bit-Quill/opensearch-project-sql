@@ -4,7 +4,7 @@
  */
 
 
-package org.opensearch.sql.opensearch.storage;
+package org.opensearch.sql.opensearch.storage.scan;
 
 import java.util.Collections;
 import java.util.Iterator;

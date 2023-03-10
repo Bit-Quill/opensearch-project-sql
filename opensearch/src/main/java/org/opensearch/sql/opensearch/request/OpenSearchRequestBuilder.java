@@ -42,6 +42,7 @@ import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseP
 @EqualsAndHashCode
 @Getter
 @ToString
+// TODO make an interface which defines all pushDown functions?
 public class OpenSearchRequestBuilder {
 
   /**

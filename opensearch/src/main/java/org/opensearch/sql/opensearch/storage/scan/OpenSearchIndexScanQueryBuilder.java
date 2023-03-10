@@ -21,7 +21,6 @@ import org.opensearch.sql.expression.ExpressionNodeVisitor;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.serialization.DefaultExpressionSerializer;
-import org.opensearch.sql.opensearch.storage.OpenSearchIndexScan;
 import org.opensearch.sql.opensearch.storage.script.filter.FilterQueryBuilder;
 import org.opensearch.sql.opensearch.storage.script.sort.SortQueryBuilder;
 import org.opensearch.sql.planner.logical.LogicalFilter;
@@ -38,10 +37,6 @@ import org.opensearch.sql.storage.read.TableScanBuilder;
  */
 @VisibleForTesting
 class OpenSearchIndexScanQueryBuilder extends TableScanBuilder {
-  @Override
-  public void pushDownOffset(int i) {
-    indexScan.getRequestBuilder().getSourceBuilder().from(i);
-  }
 
   /** OpenSearch index scan to be optimized. */
   @EqualsAndHashCode.Include

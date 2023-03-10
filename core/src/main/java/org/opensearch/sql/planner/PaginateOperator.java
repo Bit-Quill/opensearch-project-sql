@@ -6,6 +6,7 @@
 package org.opensearch.sql.planner;
 
 import java.util.List;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.data.model.ExprValue;
@@ -15,6 +16,7 @@ import org.opensearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 import org.opensearch.sql.planner.physical.ProjectOperator;
 
 @RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class PaginateOperator extends PhysicalPlan {
   @Getter
   private final PhysicalPlan input;

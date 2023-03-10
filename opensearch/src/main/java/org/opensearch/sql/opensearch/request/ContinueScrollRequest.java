@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.opensearch.sql.opensearch.storage;
+package org.opensearch.sql.opensearch.request;
 
 import static org.opensearch.sql.opensearch.request.OpenSearchScrollRequest.DEFAULT_SCROLL_TIMEOUT;
 
@@ -17,9 +17,9 @@ import org.opensearch.action.search.SearchResponse;
 import org.opensearch.action.search.SearchScrollRequest;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
-import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 
+@EqualsAndHashCode
 public class ContinueScrollRequest implements OpenSearchRequest {
   final String initialScrollId;
 
@@ -39,9 +39,7 @@ public class ContinueScrollRequest implements OpenSearchRequest {
   @Override
   public OpenSearchResponse search(Function<SearchRequest, SearchResponse> searchAction,
                                    Function<SearchScrollRequest, SearchResponse> scrollAction) {
-    SearchResponse openSearchResponse;
-
-    openSearchResponse = scrollAction.apply(new SearchScrollRequest(initialScrollId)
+    SearchResponse openSearchResponse = scrollAction.apply(new SearchScrollRequest(initialScrollId)
         .scroll(DEFAULT_SCROLL_TIMEOUT));
 
     // TODO if terminated_early - something went wrong, e.g. no scroll returned.

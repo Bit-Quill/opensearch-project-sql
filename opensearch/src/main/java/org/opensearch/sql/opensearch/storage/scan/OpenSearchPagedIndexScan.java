@@ -3,15 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.opensearch.sql.opensearch.storage;
+package org.opensearch.sql.opensearch.storage.scan;
 
 import java.util.Collections;
 import java.util.Iterator;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.apache.commons.lang3.NotImplementedException;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
+import org.opensearch.sql.opensearch.request.PagedRequestBuilder;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 import org.opensearch.sql.storage.TableScanOperator;
 
@@ -33,7 +35,7 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
 
   @Override
   public String explain() {
-    throw new RuntimeException("Implement OpenSearchPagedIndexScan.explain");
+    throw new NotImplementedException("Implement OpenSearchPagedIndexScan.explain");
   }
 
   @Override

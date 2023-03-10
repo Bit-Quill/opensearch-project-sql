@@ -3,14 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.opensearch.sql.opensearch.storage;
+package org.opensearch.sql.opensearch.request;
 
 import static org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder.DEFAULT_QUERY_TIMEOUT;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.index.query.QueryBuilder;
@@ -22,8 +21,6 @@ import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
-import org.opensearch.sql.opensearch.request.OpenSearchRequest;
-import org.opensearch.sql.opensearch.request.OpenSearchScrollRequest;
 import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseParser;
 
 public class InitialPageRequestBuilder implements PagedRequestBuilder {
@@ -40,15 +37,16 @@ public class InitialPageRequestBuilder implements PagedRequestBuilder {
    * @param settings other settings
    * @param exprValueFactory value factory
    */
+  // TODO accept indexName as string (same way as `OpenSearchRequestBuilder` does)?
   public InitialPageRequestBuilder(OpenSearchRequest.IndexName indexName,
                                    int pageSize,
-                                   Settings settings,
+                                   Settings settings, // TODO: settings are not used - refactor?
                                    OpenSearchExprValueFactory exprValueFactory) {
     this.indexName = indexName;
-    this.sourceBuilder = new SearchSourceBuilder();
     this.exprValueFactory = exprValueFactory;
     this.querySize = pageSize;
-    sourceBuilder.from(0)
+    this.sourceBuilder = new SearchSourceBuilder()
+        .from(0)
         .size(querySize)
         .timeout(DEFAULT_QUERY_TIMEOUT);
   }
@@ -85,9 +83,8 @@ public class InitialPageRequestBuilder implements PagedRequestBuilder {
    * Push down project expression to OpenSearch.
    */
   public void pushDownProjects(Set<ReferenceExpression> projects) {
-    final Set<String> projectsSet =
-        projects.stream().map(ReferenceExpression::getAttr).collect(Collectors.toSet());
-    sourceBuilder.fetchSource(projectsSet.toArray(new String[0]), new String[0]);
+    sourceBuilder.fetchSource(projects.stream().map(ReferenceExpression::getAttr)
+        .distinct().toArray(String[]::new), new String[0]);
   }
 
   public void pushTypeMapping(Map<String, ExprType> typeMapping) {

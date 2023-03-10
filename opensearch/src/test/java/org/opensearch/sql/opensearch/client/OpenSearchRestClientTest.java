@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.lucene.search.TotalHits;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -251,7 +252,8 @@ class OpenSearchRestClientTest {
     // Mock second scroll request followed
     SearchResponse scrollResponse = mock(SearchResponse.class);
     when(restClient.scroll(any(), any())).thenReturn(scrollResponse);
-    when(scrollResponse.getScrollId()).thenReturn("scroll456");
+    // TODO commented out because scroll clean-up is disabled
+    //when(scrollResponse.getScrollId()).thenReturn("scroll456");
     when(scrollResponse.getHits()).thenReturn(SearchHits.empty());
 
     // Verify response for first scroll request
@@ -265,6 +267,7 @@ class OpenSearchRestClientTest {
     assertFalse(hits.hasNext());
 
     // Verify response for second scroll request
+    request.setScrollId("scroll123");
     OpenSearchResponse response2 = client.search(request);
     assertTrue(response2.isEmpty());
   }
@@ -315,7 +318,8 @@ class OpenSearchRestClientTest {
     OpenSearchScrollRequest request = new OpenSearchScrollRequest("test", factory);
     request.setScrollId("scroll123");
     client.cleanup(request);
-    verify(restClient).clearScroll(any(), any());
+    // TODO: Scroll cleaning is temporary disabled
+    //verify(restClient).clearScroll(any(), any());
     assertFalse(request.isScrollStarted());
   }
 
@@ -326,6 +330,7 @@ class OpenSearchRestClientTest {
     verify(restClient, never()).clearScroll(any(), any());
   }
 
+  @Disabled("TODO: Scroll cleaning is temporary disabled")
   @Test
   void cleanupWithIOException() throws IOException {
     when(restClient.clearScroll(any(), any())).thenThrow(new IOException());
