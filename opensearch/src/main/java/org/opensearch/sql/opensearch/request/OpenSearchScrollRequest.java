@@ -88,9 +88,7 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
     }
 
     var response = new OpenSearchResponse(openSearchResponse, exprValueFactory);
-    if (!response.isEmpty()) {
-      setScrollId(openSearchResponse.getScrollId());
-    } // else - last empty page, we should ignore the scroll even if it is returned
+    setScrollId(openSearchResponse.getScrollId());
     return response;
   }
 
@@ -99,6 +97,7 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
     try {
       if (isScrollStarted()) {
         cleanAction.accept(getScrollId());
+        setScrollId(null);
       }
     } finally {
       reset();

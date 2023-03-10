@@ -31,6 +31,9 @@ public class ContinueScrollRequest implements OpenSearchRequest {
   @Getter
   private final OpenSearchExprValueFactory exprValueFactory;
 
+  @EqualsAndHashCode.Exclude
+  private boolean scrollFinished = false;
+
   public ContinueScrollRequest(String scrollId, OpenSearchExprValueFactory exprValueFactory) {
     this.initialScrollId = scrollId;
     this.exprValueFactory = exprValueFactory;
@@ -44,9 +47,9 @@ public class ContinueScrollRequest implements OpenSearchRequest {
 
     // TODO if terminated_early - something went wrong, e.g. no scroll returned.
     var response = new OpenSearchResponse(openSearchResponse, exprValueFactory);
-    if (!response.isEmpty()) {
-      responseScrollId = openSearchResponse.getScrollId();
-    } // else - last empty page, we should ignore the scroll even if it is returned
+    // on the last empty page, we should close the scroll
+    scrollFinished = response.isEmpty();
+    responseScrollId = openSearchResponse.getScrollId();
     return response;
   }
 
@@ -63,6 +66,7 @@ public class ContinueScrollRequest implements OpenSearchRequest {
 
   @Override
   public String toCursor() {
-    return responseScrollId;
+    // on the last page, we shouldn't return the scroll to user, it is kept for closing (clean)
+    return scrollFinished ? null : responseScrollId;
   }
 }

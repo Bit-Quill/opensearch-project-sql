@@ -5,6 +5,7 @@
 
 package org.opensearch.sql.opensearch.storage.scan;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -12,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
@@ -31,6 +33,7 @@ import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.request.InitialPageRequestBuilder;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
+import org.opensearch.sql.opensearch.request.PagedRequestBuilder;
 import org.opensearch.sql.opensearch.request.SubsequentPageRequestBuilder;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,19 +67,31 @@ public class OpenSearchPagedIndexScanTest {
         employee(2, "Smith", "HR"),
         employee(3, "Allen", "IT")});
 
-    InitialPageRequestBuilder builder = new InitialPageRequestBuilder(
+    PagedRequestBuilder builder = new InitialPageRequestBuilder(
         new OpenSearchRequest.IndexName("test"), 3, settings, exprValueFactory);
     try (OpenSearchPagedIndexScan indexScan = new OpenSearchPagedIndexScan(client, builder)) {
       indexScan.open();
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(1, "John", "IT"), indexScan.next());
+      assertAll(
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(1, "John", "IT"), indexScan.next()),
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(2, "Smith", "HR"), indexScan.next());
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(2, "Smith", "HR"), indexScan.next()),
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(3, "Allen", "IT"), indexScan.next());
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(3, "Allen", "IT"), indexScan.next()),
+
+          () -> assertFalse(indexScan.hasNext())
+      );
+    }
+    // cleanup should be called on empty response only
+    verify(client, never()).cleanup(any());
+
+    builder = new SubsequentPageRequestBuilder(
+        new OpenSearchRequest.IndexName("test"), "scroll", exprValueFactory);
+    try (OpenSearchPagedIndexScan indexScan = new OpenSearchPagedIndexScan(client, builder)) {
+      indexScan.open();
 
       assertFalse(indexScan.hasNext());
     }
@@ -95,14 +110,26 @@ public class OpenSearchPagedIndexScanTest {
     try (OpenSearchPagedIndexScan indexScan = new OpenSearchPagedIndexScan(client, builder)) {
       indexScan.open();
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(1, "John", "IT"), indexScan.next());
+      assertAll(
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(1, "John", "IT"), indexScan.next()),
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(2, "Smith", "HR"), indexScan.next());
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(2, "Smith", "HR"), indexScan.next()),
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(3, "Allen", "IT"), indexScan.next());
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(3, "Allen", "IT"), indexScan.next()),
+
+          () -> assertFalse(indexScan.hasNext())
+      );
+    }
+    // cleanup should be called on empty response only
+    verify(client, never()).cleanup(any());
+
+    builder = new SubsequentPageRequestBuilder(
+        new OpenSearchRequest.IndexName("test"), "scroll", exprValueFactory);
+    try (OpenSearchPagedIndexScan indexScan = new OpenSearchPagedIndexScan(client, builder)) {
+      indexScan.open();
 
       assertFalse(indexScan.hasNext());
     }
