@@ -842,21 +842,21 @@ public class TestUtils {
   }
 
   public static void verifyIsV1Cursor(JSONObject response) {
-    verifyCursor(response, "d:", "v1");
+    verifyCursor(response, List.of("d:", "j:", "a:"), "v1");
   }
 
 
   public static void verifyIsV2Cursor(JSONObject response) {
-    verifyCursor(response, "n:", "v2");
+    verifyCursor(response, List.of("n:"), "v2");
   }
 
-  private static void verifyCursor(JSONObject response, String cursorPrefix, String engineName) {
+  private static void verifyCursor(JSONObject response, List<String> validCursorPrefix, String engineName) {
       assertTrue("'cursor' property does not exist", response.has("cursor"));
 
       var cursor = response.getString("cursor");
       assertTrue("'cursor' property is empty", !cursor.isEmpty());
       assertTrue("The cursor '" + cursor + "' is not from " + engineName + " engine.",
-          cursor.startsWith(cursorPrefix));
+          validCursorPrefix.stream().anyMatch(cursor::startsWith));
     }
 
   public static void verifyNoCursor(JSONObject response) {
