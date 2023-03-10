@@ -348,8 +348,6 @@ class LogicalPlanOptimizerTest {
 
   @Test
   void table_scan_builder_support_offset_push_down_can_apply_its_rule() {
-    // next line is noop, added for coverage only
-    lenient().when(tableScanBuilder.pushDownOffset(anyInt())).thenReturn(true);
     when(table.createPagedScanBuilder(anyInt())).thenReturn(tableScanBuilder);
 
     var optimized = LogicalPlanOptimizer.paginationCreate()
