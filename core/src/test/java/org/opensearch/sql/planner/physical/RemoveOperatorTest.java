@@ -113,7 +113,7 @@ class RemoveOperatorTest extends PhysicalPlanTestBase {
 
   @Test
   public void invalid_to_retrieve_schema_from_remove() {
-    PhysicalPlan plan = remove(inputPlan, DSL.ref("response", STRING), DSL.ref("referer", STRING));
+    PhysicalPlan plan = remove(inputPlan);
     IllegalStateException exception =
         assertThrows(IllegalStateException.class, () -> plan.schema());
     assertEquals(

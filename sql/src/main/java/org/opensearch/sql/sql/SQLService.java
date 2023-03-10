@@ -13,6 +13,7 @@ import org.opensearch.sql.ast.statement.Statement;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.ExecutionEngine.ExplainResponse;
 import org.opensearch.sql.executor.ExecutionEngine.QueryResponse;
+import org.opensearch.sql.executor.QueryId;
 import org.opensearch.sql.executor.QueryManager;
 import org.opensearch.sql.executor.execution.AbstractPlan;
 import org.opensearch.sql.executor.execution.QueryPlanFactory;
@@ -68,9 +69,19 @@ public class SQLService {
     if (request.getCursor().isPresent()) {
       // Handle v2 cursor here -- legacy cursor was handled earlier.
       if (queryListener.isEmpty() && explainListener.isPresent()) { // explain request
+        // TODO explain should be processed inside the plan
         explainListener.get().onFailure(new UnsupportedOperationException(
             "`explain` request for cursor requests is not supported. "
             + "Use `explain` for the initial query request."));
+        return new AbstractPlan(QueryId.queryId()) {
+          @Override
+          public void execute() {
+          }
+
+          @Override
+          public void explain(ResponseListener<ExplainResponse> listener) {
+          }
+        };
       }
       // non-explain request
       return queryExecutionFactory.create(request.getCursor().get(), queryListener.get());

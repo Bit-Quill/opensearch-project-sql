@@ -47,7 +47,7 @@ public class PaginatedPlanCache {
   public Cursor convertToCursor(PhysicalPlan plan) {
     if (plan instanceof PaginateOperator) {
       var cursor = plan.toCursor();
-      if (cursor == null || cursor.isEmpty()) {
+      if (cursor == null) {
         return Cursor.None;
       }
       var raw = CURSOR_PREFIX + compress(cursor);
@@ -67,7 +67,6 @@ public class PaginatedPlanCache {
     if (str == null || str.length() == 0) {
       return null;
     }
-
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     GZIPOutputStream gzip = new GZIPOutputStream(out);
     gzip.write(str.getBytes());
@@ -123,6 +122,7 @@ public class PaginatedPlanCache {
         if (!cursor.startsWith("(Paginate,")) {
           throw new UnsupportedOperationException("Unsupported cursor");
         }
+        // TODO add checks for > 0
         cursor = cursor.substring(cursor.indexOf(',') + 1);
         final int currentPageIndex = Integer.parseInt(cursor, 0, cursor.indexOf(','), 10);
 

@@ -46,11 +46,7 @@ public class PaginatedQueryService {
    */
   public void executePlan(PhysicalPlan plan,
                           ResponseListener<ExecutionEngine.QueryResponse> listener) {
-    try {
-      executionEngine.execute(plan, ExecutionContext.emptyExecutionContext(), listener);
-    } catch (Exception e) {
-      listener.onFailure(e);
-    }
+    executionEngine.execute(plan, ExecutionContext.emptyExecutionContext(), listener);
   }
 
   public LogicalPlan analyze(UnresolvedPlan plan) {

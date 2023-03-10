@@ -11,6 +11,7 @@ package org.opensearch.sql.executor.execution;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 import static org.opensearch.sql.executor.execution.QueryPlanFactory.NO_CONSUMER_RESPONSE_LISTENER;
 
 import java.util.Optional;
@@ -27,6 +28,7 @@ import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.executor.QueryService;
+import org.opensearch.sql.legacy.plugin.UnsupportCursorRequestException;
 
 @ExtendWith(MockitoExtension.class)
 class QueryPlanFactoryTest {
@@ -75,6 +77,12 @@ class QueryPlanFactoryTest {
   }
 
   @Test
+  public void createFromCursorShouldSuccess() {
+    AbstractPlan queryExecution = factory.create("", queryListener);
+    assertTrue(queryExecution instanceof ContinuePaginatedPlan);
+  }
+
+  @Test
   public void createFromQueryWithoutQueryListenerShouldThrowException() {
     Statement query = new Query(plan, 0);
 
@@ -109,5 +117,24 @@ class QueryPlanFactoryTest {
             () -> NO_CONSUMER_RESPONSE_LISTENER.onFailure(new RuntimeException()));
     assertEquals(
         "[BUG] exception response should not sent to unexpected channel", exception.getMessage());
+  }
+
+  @Test
+  public void createQueryWithFetchSizeWhichCanBePaged() {
+    when(paginatedPlanCache.canConvertToCursor(plan)).thenReturn(true);
+    factory = new QueryPlanFactory(queryService, paginatedQueryService, paginatedPlanCache);
+    Statement query = new Query(plan, 10);
+    AbstractPlan queryExecution =
+        factory.create(query, Optional.of(queryListener), Optional.empty());
+    assertTrue(queryExecution instanceof PaginatedPlan);
+  }
+
+  @Test
+  public void createQueryWithFetchSizeWhichCannotBePaged() {
+    when(paginatedPlanCache.canConvertToCursor(plan)).thenReturn(false);
+    factory = new QueryPlanFactory(queryService, paginatedQueryService, paginatedPlanCache);
+    Statement query = new Query(plan, 10);
+    assertThrows(UnsupportCursorRequestException.class,
+        () -> factory.create(query, Optional.of(queryListener), Optional.empty()));
   }
 }

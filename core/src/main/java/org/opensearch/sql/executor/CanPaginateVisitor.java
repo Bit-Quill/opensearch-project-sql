@@ -39,13 +39,13 @@ public class CanPaginateVisitor extends AbstractNodeVisitor<Boolean, Object> {
     return Boolean.TRUE;
   }
 
+  /*
   private Boolean canPaginate(Node node, Object context) {
     AtomicBoolean result = new AtomicBoolean(true);
     node.getChild().forEach(n -> result.set(result.get() && n.accept(this, context)));
     return result.get();
   }
 
-  /*
   For queries without `FROM` clause.
   Required to overload `toCursor` function in `ValuesOperator` and modify cursor parsing.
   @Override

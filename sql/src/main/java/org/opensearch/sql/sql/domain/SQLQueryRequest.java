@@ -6,13 +6,12 @@
 
 package org.opensearch.sql.sql.domain;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +63,7 @@ public class SQLQueryRequest {
   @Accessors(fluent = true)
   private boolean sanitize = true;
 
-  private String cursor = "";
+  private String cursor;
 
   /**
    * Constructor of SQLQueryRequest that passes request params.
@@ -77,8 +76,7 @@ public class SQLQueryRequest {
     this.params = params;
     this.format = getFormat(params);
     this.sanitize = shouldSanitize(params);
-    // TODO hack
-    this.cursor = cursor == null ? "" : cursor;
+    this.cursor = cursor;
   }
 
   /**
@@ -86,20 +84,27 @@ public class SQLQueryRequest {
    *  1.Only supported fields present in request body, ex. "filter" and "cursor" are not supported
    *  2.Response format is default or can be supported.
    *
-   * @return  true if supported.
+   * @return true if supported.
    */
   public boolean isSupported() {
-    return (isCursor() || isOnlySupportedFieldInPayload())
-        && isSupportedFormat();
+    var noCursor = !isCursor();
+    var noQuery = query == null;
+    var noParams = params.isEmpty();
+    var noContent = jsonContent == null || jsonContent.isEmpty();
+
+    return ((!noCursor && noQuery && noParams && noContent) // if cursor is given, but other things
+        || (noCursor && !noQuery))                          // or if cursor is not given, but query
+        && isOnlySupportedFieldInPayload()        // and request has supported fields only
+        && isSupportedFormat();                   // and request is in supported format
   }
 
   private boolean isCursor() {
-    return cursor != null &&  cursor.isEmpty() == false;
+    return cursor != null && !cursor.isEmpty();
   }
 
   /**
    * Check if request is to explain rather than execute the query.
-   * @return  true if it is a explain request
+   * @return true if it is an explain request
    */
   public boolean isExplainRequest() {
     return path.endsWith("/_explain");
@@ -122,13 +127,8 @@ public class SQLQueryRequest {
     return jsonContent == null || SUPPORTED_FIELDS.containsAll(jsonContent.keySet());
   }
 
-
   public Optional<String> getCursor() {
-    return cursor != "" ? Optional.of(cursor) : Optional.empty();
-  }
-
-  public boolean mayReturnCursor() {
-    return cursor != "" || getFetchSize() > 0;
+    return Optional.ofNullable(cursor);
   }
 
   public int getFetchSize() {
@@ -136,15 +136,11 @@ public class SQLQueryRequest {
   }
 
   private boolean isSupportedFormat() {
-    return Strings.isNullOrEmpty(format) || "jdbc".equalsIgnoreCase(format)
-        || "csv".equalsIgnoreCase(format) || "raw".equalsIgnoreCase(format);
+    return Stream.of("csv", "jdbc", "raw").anyMatch(format::equalsIgnoreCase);
   }
 
   private String getFormat(Map<String, String> params) {
-    if (params.containsKey(QUERY_PARAMS_FORMAT)) {
-      return params.get(QUERY_PARAMS_FORMAT);
-    }
-    return "jdbc";
+    return params.getOrDefault(QUERY_PARAMS_FORMAT, "jdbc");
   }
 
   private boolean shouldSanitize(Map<String, String> params) {
