@@ -75,7 +75,7 @@ public class PPLServiceTest {
   public void testExecuteShouldPass() {
     doAnswer(invocation -> {
       ResponseListener<QueryResponse> listener = invocation.getArgument(1);
-      listener.onResponse(new QueryResponse(schema, Collections.emptyList(), Cursor.None));
+      listener.onResponse(new QueryResponse(schema, Collections.emptyList(), 0, Cursor.None));
       return null;
     }).when(queryService).execute(any(), any());
 
@@ -97,7 +97,7 @@ public class PPLServiceTest {
   public void testExecuteCsvFormatShouldPass() {
     doAnswer(invocation -> {
       ResponseListener<QueryResponse> listener = invocation.getArgument(1);
-      listener.onResponse(new QueryResponse(schema, Collections.emptyList(), Cursor.None));
+      listener.onResponse(new QueryResponse(schema, Collections.emptyList(), 0, Cursor.None));
       return null;
     }).when(queryService).execute(any(), any());
 
@@ -171,7 +171,7 @@ public class PPLServiceTest {
   public void testPrometheusQuery() {
     doAnswer(invocation -> {
       ResponseListener<QueryResponse> listener = invocation.getArgument(1);
-      listener.onResponse(new QueryResponse(schema, Collections.emptyList(), Cursor.None));
+      listener.onResponse(new QueryResponse(schema, Collections.emptyList(), 0, Cursor.None));
       return null;
     }).when(queryService).execute(any(), any());
 
