@@ -50,6 +50,10 @@ public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
         + "ProjectOperator, instead of %s", this.getClass().getSimpleName()));
   }
 
+  public long getTotalHits() {
+    return getChild().stream().mapToLong(PhysicalPlan::getTotalHits).max().orElse(0);
+  }
+
   public String toCursor() {
     throw new IllegalStateException(String.format("%s is not compatible with cursor feature",
         this.getClass().getSimpleName()));

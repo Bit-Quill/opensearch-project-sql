@@ -82,7 +82,8 @@ public class OpenSearchPagedIndexScanTest {
           () -> assertTrue(indexScan.hasNext()),
           () -> assertEquals(employee(3, "Allen", "IT"), indexScan.next()),
 
-          () -> assertFalse(indexScan.hasNext())
+          () -> assertFalse(indexScan.hasNext()),
+          () -> assertEquals(3, indexScan.getTotalHits())
       );
     }
     // cleanup should be called on empty response only
@@ -120,7 +121,8 @@ public class OpenSearchPagedIndexScanTest {
           () -> assertTrue(indexScan.hasNext()),
           () -> assertEquals(employee(3, "Allen", "IT"), indexScan.next()),
 
-          () -> assertFalse(indexScan.hasNext())
+          () -> assertFalse(indexScan.hasNext()),
+          () -> assertEquals(3, indexScan.getTotalHits())
       );
     }
     // cleanup should be called on empty response only

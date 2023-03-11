@@ -71,7 +71,10 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
    */
   public boolean isEmpty() {
     return (hits.getHits() == null) || (hits.getHits().length == 0) && aggregations == null;
-    // TODO             TBD       ^    ^
+  }
+
+  public long getTotalHits() {
+    return hits.getTotalHits().value;
   }
 
   public boolean isAggregationResponse() {

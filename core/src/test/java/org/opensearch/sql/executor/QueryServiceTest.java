@@ -133,7 +133,7 @@ class QueryServiceTest {
           invocation -> {
             ResponseListener<ExecutionEngine.QueryResponse> listener = invocation.getArgument(2);
             listener.onResponse(
-                new ExecutionEngine.QueryResponse(schema, Collections.emptyList(),
+                new ExecutionEngine.QueryResponse(schema, Collections.emptyList(), 0,
                     Cursor.None));
             return null;
           })

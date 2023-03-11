@@ -54,7 +54,7 @@ public interface ExecutionEngine {
   class QueryResponse {
     private final Schema schema;
     private final List<ExprValue> results;
-    
+    private final long total;
     private final Cursor cursor;
   }
 

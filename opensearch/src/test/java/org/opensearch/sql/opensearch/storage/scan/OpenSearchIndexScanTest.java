@@ -6,10 +6,12 @@
 
 package org.opensearch.sql.opensearch.storage.scan;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,6 +24,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -47,6 +51,7 @@ import org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class OpenSearchIndexScanTest {
 
   @Mock
@@ -64,19 +69,22 @@ class OpenSearchIndexScanTest {
   }
 
   @Test
-  void queryEmptyResult() {
+  void query_empty_result() {
     mockResponse(client);
     try (OpenSearchIndexScan indexScan =
              new OpenSearchIndexScan(client, new OpenSearchRequestBuilder("test", 3, settings,
                  exprValueFactory))) {
       indexScan.open();
-      assertFalse(indexScan.hasNext());
+      assertAll(
+          () -> assertFalse(indexScan.hasNext()),
+          () -> assertEquals(0, indexScan.getTotalHits())
+      );
     }
     verify(client).cleanup(any());
   }
 
   @Test
-  void queryAllResultsWithQuery() {
+  void query_all_results_with_query() {
     mockResponse(client, new ExprValue[]{
         employee(1, "John", "IT"),
         employee(2, "Smith", "HR"),
@@ -89,22 +97,25 @@ class OpenSearchIndexScanTest {
              new OpenSearchIndexScan(client, builder)) {
       indexScan.open();
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(1, "John", "IT"), indexScan.next());
+      assertAll(
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(1, "John", "IT"), indexScan.next()),
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(2, "Smith", "HR"), indexScan.next());
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(2, "Smith", "HR"), indexScan.next()),
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(3, "Allen", "IT"), indexScan.next());
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(3, "Allen", "IT"), indexScan.next()),
 
-      assertFalse(indexScan.hasNext());
+          () -> assertFalse(indexScan.hasNext()),
+          () -> assertEquals(3, indexScan.getTotalHits())
+      );
     }
     verify(client).cleanup(any());
   }
 
   @Test
-  void queryAllResultsWithScroll() {
+  void query_all_results_with_scroll() {
     mockResponse(client,
         new ExprValue[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
         new ExprValue[]{employee(3, "Allen", "IT")});
@@ -114,22 +125,25 @@ class OpenSearchIndexScanTest {
                  exprValueFactory))) {
       indexScan.open();
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(1, "John", "IT"), indexScan.next());
+      assertAll(
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(1, "John", "IT"), indexScan.next()),
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(2, "Smith", "HR"), indexScan.next());
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(2, "Smith", "HR"), indexScan.next()),
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(3, "Allen", "IT"), indexScan.next());
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(3, "Allen", "IT"), indexScan.next()),
 
-      assertFalse(indexScan.hasNext());
+          () -> assertFalse(indexScan.hasNext()),
+          () -> assertEquals(3, indexScan.getTotalHits())
+      );
     }
     verify(client).cleanup(any());
   }
 
   @Test
-  void querySomeResultsWithQuery() {
+  void query_some_results_with_query() {
     mockResponse(client, new ExprValue[]{
         employee(1, "John", "IT"),
         employee(2, "Smith", "HR"),
@@ -142,22 +156,25 @@ class OpenSearchIndexScanTest {
       indexScan.getRequestBuilder().pushDownLimit(3, 0);
       indexScan.open();
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(1, "John", "IT"), indexScan.next());
+      assertAll(
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(1, "John", "IT"), indexScan.next()),
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(2, "Smith", "HR"), indexScan.next());
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(2, "Smith", "HR"), indexScan.next()),
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(3, "Allen", "IT"), indexScan.next());
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(3, "Allen", "IT"), indexScan.next()),
 
-      assertFalse(indexScan.hasNext());
+          () -> assertFalse(indexScan.hasNext()),
+          () -> assertEquals(3, indexScan.getTotalHits())
+      );
     }
     verify(client).cleanup(any());
   }
 
   @Test
-  void querySomeResultsWithScroll() {
+  void query_some_results_with_scroll() {
     mockResponse(client,
         new ExprValue[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
         new ExprValue[]{employee(3, "Allen", "IT"), employee(4, "Bob", "HR")});
@@ -168,22 +185,25 @@ class OpenSearchIndexScanTest {
       indexScan.getRequestBuilder().pushDownLimit(3, 0);
       indexScan.open();
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(1, "John", "IT"), indexScan.next());
+      assertAll(
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(1, "John", "IT"), indexScan.next()),
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(2, "Smith", "HR"), indexScan.next());
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(2, "Smith", "HR"), indexScan.next()),
 
-      assertTrue(indexScan.hasNext());
-      assertEquals(employee(3, "Allen", "IT"), indexScan.next());
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(3, "Allen", "IT"), indexScan.next()),
 
-      assertFalse(indexScan.hasNext());
+          () -> assertFalse(indexScan.hasNext()),
+          () -> assertEquals(3, indexScan.getTotalHits())
+      );
     }
     verify(client).cleanup(any());
   }
 
   @Test
-  void pushDownFilters() {
+  void push_down_filters() {
     assertThat()
         .pushDown(QueryBuilders.termQuery("name", "John"))
         .shouldQuery(QueryBuilders.termQuery("name", "John"))
@@ -201,7 +221,7 @@ class OpenSearchIndexScanTest {
   }
 
   @Test
-  void pushDownHighlight() {
+  void push_down_highlight() {
     Map<String, Literal> args = new HashMap<>();
     assertThat()
         .pushDown(QueryBuilders.termQuery("name", "John"))
@@ -212,7 +232,7 @@ class OpenSearchIndexScanTest {
   }
 
   @Test
-  void pushDownHighlightWithArguments() {
+  void push_down_highlight_with_arguments() {
     Map<String, Literal> args = new HashMap<>();
     args.put("pre_tags", new Literal("<mark>", DataType.STRING));
     args.put("post_tags", new Literal("</mark>", DataType.STRING));
@@ -227,7 +247,7 @@ class OpenSearchIndexScanTest {
   }
 
   @Test
-  void pushDownHighlightWithRepeatingFields() {
+  void push_down_highlight_with_repeating_fields() {
     mockResponse(client,
         new ExprValue[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
         new ExprValue[]{employee(3, "Allen", "IT"), employee(4, "Bob", "HR")});
@@ -314,6 +334,9 @@ class OpenSearchIndexScanTest {
                   when(response.isEmpty()).thenReturn(false);
                   ExprValue[] searchHit = searchHitBatches[batchNum];
                   when(response.iterator()).thenReturn(Arrays.asList(searchHit).iterator());
+                  // used in OpenSearchPagedIndexScanTest
+                  lenient().when(response.getTotalHits())
+                      .thenReturn((long) searchHitBatches[batchNum].length);
                 } else {
                   when(response.isEmpty()).thenReturn(true);
                 }

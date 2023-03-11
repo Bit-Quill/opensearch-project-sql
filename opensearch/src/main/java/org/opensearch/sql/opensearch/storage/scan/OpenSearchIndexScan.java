@@ -84,6 +84,12 @@ public class OpenSearchIndexScan extends TableScanOperator {
     return iterator.next();
   }
 
+  @Override
+  public long getTotalHits() {
+    // TODO maybe store totalHits from `response`
+    return queryCount;
+  }
+
   private void fetchNextBatch() {
     OpenSearchResponse response = client.search(request);
     if (!response.isEmpty()) {
