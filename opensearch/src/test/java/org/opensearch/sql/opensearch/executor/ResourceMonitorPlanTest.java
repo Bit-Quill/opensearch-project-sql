@@ -113,4 +113,10 @@ class ResourceMonitorPlanTest {
     monitorPlan.getTotalHits();
     verify(plan, times(1)).getTotalHits();
   }
+
+  @Test
+  void toCursorSuccess() {
+    monitorPlan.toCursor();
+    verify(plan, times(1)).toCursor();
+  }
 }

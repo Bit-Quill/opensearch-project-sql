@@ -19,9 +19,6 @@ import org.opensearch.sql.storage.split.Split;
 public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
     Iterator<ExprValue>,
     AutoCloseable {
-
-  public static final List<String> FORBIDDEN_CHARS = List.of("(", ")", ",");
-
   /**
    * Accept the {@link PhysicalPlanNodeVisitor}.
    *
@@ -66,14 +63,6 @@ public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
    * @return A string that represents the plan called with those parameters.
    */
   protected String createSection(String plan, String... params) {
-    if (FORBIDDEN_CHARS.stream().anyMatch(plan::contains)) {
-      var error = String.format("plan key '%s' contains forbidden character",
-          plan);
-      throw new RuntimeException(error);
-    }
-
-    // TODO: check that each param is either a valid s-expression or
-    // does not contain forbidden characters.
     return "(" + plan + ","
         + String.join(",", params)
         + ")";

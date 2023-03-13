@@ -6,6 +6,10 @@
 package org.opensearch.sql.planner.physical;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -73,5 +77,20 @@ class PhysicalPlanTest {
     var plan = mock(PhysicalPlan.class);
     when(plan.getTotalHits()).then(CALLS_REAL_METHODS);
     assertEquals(0, plan.getTotalHits());
+  }
+
+  @Test
+  void toCursor() {
+    var plan = mock(PhysicalPlan.class);
+    when(plan.toCursor()).then(CALLS_REAL_METHODS);
+    assertTrue(assertThrows(IllegalStateException.class, plan::toCursor)
+        .getMessage().contains("is not compatible with cursor feature"));
+  }
+
+  @Test
+  void createSection() {
+    var plan = mock(PhysicalPlan.class);
+    when(plan.createSection(anyString(), any())).then(CALLS_REAL_METHODS);
+    assertEquals("(plan,one,two)", plan.createSection("plan", "one", "two"));
   }
 }

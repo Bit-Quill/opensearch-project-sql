@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.planner.physical;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -82,5 +83,18 @@ public class PaginateOperatorTest extends PhysicalPlanTestBase {
   public void schema_assert() {
     assertThrows(Throwable.class,
         () -> new PaginateOperator(mock(PhysicalPlan.class), 42).schema());
+  }
+
+  @Test
+  public void toCursor() {
+    var plan = mock(PhysicalPlan.class);
+    when(plan.toCursor()).thenReturn("Great plan, Walter, reliable as a swiss watch!", "", null);
+    var po = new PaginateOperator(plan, 2);
+    assertAll(
+        () -> assertEquals("(Paginate,1,2,Great plan, Walter, reliable as a swiss watch!)",
+            po.toCursor()),
+        () -> assertNull(po.toCursor()),
+        () -> assertNull(po.toCursor())
+    );
   }
 }

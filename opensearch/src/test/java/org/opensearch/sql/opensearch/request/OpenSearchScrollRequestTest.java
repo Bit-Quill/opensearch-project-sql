@@ -61,4 +61,13 @@ class OpenSearchScrollRequestTest {
             .scrollId("scroll123"),
         request.scrollRequest());
   }
+
+  @Test
+  void toCursor() {
+    request.setScrollId("scroll123");
+    assertEquals("scroll123", request.toCursor());
+
+    request.reset();
+    assertEquals("", request.toCursor());
+  }
 }

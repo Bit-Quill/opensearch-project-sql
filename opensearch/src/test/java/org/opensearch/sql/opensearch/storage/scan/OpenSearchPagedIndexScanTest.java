@@ -15,6 +15,7 @@ import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.opensearch.storage.scan.OpenSearchIndexScanTest.employee;
@@ -35,6 +36,7 @@ import org.opensearch.sql.opensearch.request.InitialPageRequestBuilder;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.request.PagedRequestBuilder;
 import org.opensearch.sql.opensearch.request.SubsequentPageRequestBuilder;
+import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -142,5 +144,24 @@ public class OpenSearchPagedIndexScanTest {
   void explain_not_implemented() {
     assertThrows(Throwable.class, () -> mock(OpenSearchPagedIndexScan.class,
         withSettings().defaultAnswer(CALLS_REAL_METHODS)).explain());
+  }
+
+  @Test
+  void toCursor() {
+    PagedRequestBuilder builder = mock();
+    OpenSearchRequest request = mock();
+    OpenSearchResponse response = mock();
+    when(builder.build()).thenReturn(request);
+    when(builder.getIndexName()).thenReturn(new OpenSearchRequest.IndexName("index"));
+    when(client.search(request)).thenReturn(response);
+    when(response.isEmpty()).thenReturn(true);
+    when(request.toCursor()).thenReturn("cu-cursor", "", null);
+    OpenSearchPagedIndexScan indexScan = new OpenSearchPagedIndexScan(client, builder);
+    indexScan.open();
+    assertAll(
+        () -> assertEquals("(OpenSearchPagedIndexScan,index,cu-cursor)", indexScan.toCursor()),
+        () -> assertEquals("", indexScan.toCursor()),
+        () -> assertEquals("", indexScan.toCursor())
+    );
   }
 }
