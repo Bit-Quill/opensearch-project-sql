@@ -373,7 +373,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Override
   public Expression visitQualifiedName(QualifiedName node, AnalysisContext context) {
     QualifierAnalyzer qualifierAnalyzer = new QualifierAnalyzer(context);
-    if (node.isMetadataField().booleanValue()) {
+    if (node.isMetadataField()) {
       return visitMetadata(qualifierAnalyzer.unqualified(node), context);
     }
     return visitIdentifier(qualifierAnalyzer.unqualified(node), context);
