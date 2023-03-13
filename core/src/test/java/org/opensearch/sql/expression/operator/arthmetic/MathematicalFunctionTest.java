@@ -1808,7 +1808,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test sinh with byte value.
    */
   @ParameterizedTest(name = "sinh({0})")
-  @ValueSource(bytes = {-1, 1, 2})
+  @ValueSource(bytes = {-1, 1, 2, Byte.MAX_VALUE, Byte.MIN_VALUE})
   public void sinh_byte_value(Byte value) {
     FunctionExpression sinh = DSL.sinh(DSL.literal(value));
     assertThat(sinh.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sinh(value))));
@@ -1819,7 +1819,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test sinh with short value.
    */
   @ParameterizedTest(name = "sinh({0})")
-  @ValueSource(shorts = {-1, 1, 2})
+  @ValueSource(shorts = {-1, 1, 2, Short.MAX_VALUE, Short.MIN_VALUE})
   public void sinh_short_value(Short value) {
     FunctionExpression sinh = DSL.sinh(DSL.literal(value));
     assertThat(sinh.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sinh(value))));
@@ -1830,7 +1830,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test sinh with integer value.
    */
   @ParameterizedTest(name = "sinh({0})")
-  @ValueSource(ints = {-1, 1, 2})
+  @ValueSource(ints = {-1, 1, 2, Integer.MAX_VALUE, Integer.MIN_VALUE})
   public void sinh_int_value(Integer value) {
     FunctionExpression sinh = DSL.sinh(DSL.literal(value));
     assertThat(sinh.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sinh(value))));
@@ -1841,7 +1841,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test sinh with long value.
    */
   @ParameterizedTest(name = "sinh({0})")
-  @ValueSource(longs = {-1L, 1L, 2L})
+  @ValueSource(longs = {-1L, 1L, 2L, Long.MAX_VALUE, Long.MIN_VALUE})
   public void sinh_long_value(Long value) {
     FunctionExpression sinh = DSL.sinh(DSL.literal(value));
     assertThat(sinh.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sinh(value))));
@@ -1852,7 +1852,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test sinh with float value.
    */
   @ParameterizedTest(name = "sinh({0})")
-  @ValueSource(floats = {-1F, 1F, 2F})
+  @ValueSource(floats = {-1.5F, -1F, 1F, 1.5F, 2F, 2.7F, Float.MAX_VALUE, Float.MIN_VALUE})
   public void sinh_float_value(Float value) {
     FunctionExpression sinh = DSL.sinh(DSL.literal(value));
     assertThat(sinh.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sinh(value))));
@@ -1863,7 +1863,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test sinh with double value.
    */
   @ParameterizedTest(name = "sinh({0})")
-  @ValueSource(doubles = {-1D, 1D, 2D})
+  @ValueSource(doubles = {-1.5, -1D, 1D, 1.5D, 2D, 2.7D, Double.MAX_VALUE, Double.MIN_VALUE})
   public void sinh_double_value(Double value) {
     FunctionExpression sinh = DSL.sinh(DSL.literal(value));
     assertThat(sinh.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sinh(value))));
