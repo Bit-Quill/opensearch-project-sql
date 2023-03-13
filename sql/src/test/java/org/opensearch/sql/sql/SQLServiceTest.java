@@ -64,7 +64,7 @@ class SQLServiceTest {
   public void canExecuteSqlQuery() {
     doAnswer(invocation -> {
       ResponseListener<QueryResponse> listener = invocation.getArgument(1);
-      listener.onResponse(new QueryResponse(schema, Collections.emptyList(), ""));
+      listener.onResponse(new QueryResponse(schema, Collections.emptyList()));
       return null;
     }).when(queryService).execute(any(), any());
 
@@ -87,7 +87,7 @@ class SQLServiceTest {
   public void canExecuteCsvFormatRequest() {
     doAnswer(invocation -> {
       ResponseListener<QueryResponse> listener = invocation.getArgument(1);
-      listener.onResponse(new QueryResponse(schema, Collections.emptyList(), ""));
+      listener.onResponse(new QueryResponse(schema, Collections.emptyList()));
       return null;
     }).when(queryService).execute(any(), any());
 

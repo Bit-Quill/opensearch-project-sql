@@ -54,6 +54,31 @@ public interface ExecutionEngine {
     private final Schema schema;
     private final List<ExprValue> results;
     private final String rawResponse;
+
+    /**
+     * Constructor for Query Response.
+     *
+     * @param schema  schema of the query
+     * @param results list of expressions
+     * @param rawResponse raw response from OpenSearch server
+     */
+    public QueryResponse(Schema schema, List<ExprValue> results, String rawResponse) {
+      this.schema = schema;
+      this.results = results;
+      this.rawResponse = rawResponse;
+    }
+
+    /**
+     * Constructor for Query Response.
+     *
+     * @param schema  schema of the query
+     * @param results list of expressions
+     */
+    public QueryResponse(Schema schema, List<ExprValue> results) {
+      this.schema = schema;
+      this.results = results;
+      this.rawResponse = "";
+    }
   }
 
   @Data
