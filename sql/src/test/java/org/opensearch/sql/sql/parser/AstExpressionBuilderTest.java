@@ -37,7 +37,7 @@ import static org.opensearch.sql.ast.tree.Sort.SortOrder.DESC;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
-import java.util.List;
+import java.util.stream.Stream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
@@ -439,7 +439,7 @@ class AstExpressionBuilderTest {
 
   @Test
   public void canBuildMetaDataFieldAsQualifiedName() {
-    List.of("_id", "_index", "_sort", "_score", "_maxscore").stream().forEach(
+    Stream.of("_id", "_index", "_sort", "_score", "_maxscore").forEach(
         field -> assertEquals(
             qualifiedNameWithMetadata(field),
             buildExprAst(field)
@@ -449,7 +449,7 @@ class AstExpressionBuilderTest {
 
   @Test
   public void canBuildNonMetaDataFieldAsQualifiedName() {
-    List.of("id", "__id", "_routing", "___field").stream().forEach(
+    Stream.of("id", "__id", "_routing", "___field").forEach(
         field -> assertEquals(
             qualifiedName(field),
             buildExprAst(field)
@@ -801,7 +801,7 @@ class AstExpressionBuilderTest {
                   "field2", 3.2F, "field1", 1.F))),
               unresolvedArg("query", stringLiteral("search query"))
             ),
-            List.of()
+            null
         ),
         buildExprAst("score(query_string(['field1', 'field2' ^ 3.2], 'search query'))")
     );
@@ -816,7 +816,7 @@ class AstExpressionBuilderTest {
                     "field1", 1.F, "field2", 3.2F))),
                 unresolvedArg("query", stringLiteral("search query"))
             ),
-            List.of(doubleLiteral(1.0))
+            doubleLiteral(1.0)
         ),
         buildExprAst("score(query_string(['field1', 'field2' ^ 3.2], 'search query'), 1.0)")
     );

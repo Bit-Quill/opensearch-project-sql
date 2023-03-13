@@ -214,13 +214,14 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
    * visitScoreFunction removes the score function from the AST and replaces it with the child
    * relevance function node. If the optional boost variable is provided, the boost argument
    * of the relevance function is combined.
+   *
    * @param node    score function node
    * @param context analysis context for the query
    * @return resolved relevance function
    */
   public Expression visitScoreFunction(ScoreFunction node, AnalysisContext context) {
     // if no function argument given, just accept the relevance query and return
-    if (node.getFuncArgs().isEmpty() || !(node.getFuncArgs().get(0) instanceof Literal)) {
+    if (!(node.getFuncArg() instanceof Literal)) {
       OpenSearchFunctions.OpenSearchFunction relevanceQueryExpr =
               (OpenSearchFunctions.OpenSearchFunction) node
                       .getRelevanceQuery().accept(this, context);
@@ -229,7 +230,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     }
 
     // note: if an argument exists, and there should only be one, it will be a boost argument
-    Literal boostFunctionArg = (Literal) node.getFuncArgs().get(0);
+    Literal boostFunctionArg = (Literal) node.getFuncArg();
     Double thisBoostValue;
     if (boostFunctionArg.getType().equals(DataType.DOUBLE)) {
       thisBoostValue = ((Double) boostFunctionArg.getValue());
@@ -242,17 +243,18 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
     // update the existing unresolved expression to add a boost argument if it doesn't exist
     // OR multiply the existing boost argument
-    Function relevanceQueryUnresolvedExpr = (Function)node.getRelevanceQuery();
+    Function relevanceQueryUnresolvedExpr = (Function) node.getRelevanceQuery();
     List<UnresolvedExpression> relevanceFuncArgs = relevanceQueryUnresolvedExpr.getFuncArgs();
 
     boolean doesFunctionContainBoostArgument = false;
     List<UnresolvedExpression> updatedFuncArgs = new ArrayList<>();
-    for (UnresolvedExpression expr: relevanceFuncArgs) {
+    for (UnresolvedExpression expr : relevanceFuncArgs) {
       String argumentName = ((UnresolvedArgument) expr).getArgName();
       if (argumentName.equalsIgnoreCase("boost")) {
         doesFunctionContainBoostArgument = true;
-        Literal boostArgLiteral = (Literal)((UnresolvedArgument) expr).getValue();
-        Double boostValue = Double.parseDouble((String)boostArgLiteral.getValue()) * thisBoostValue;
+        Literal boostArgLiteral = (Literal) ((UnresolvedArgument) expr).getValue();
+        Double boostValue =
+            Double.parseDouble((String) boostArgLiteral.getValue()) * thisBoostValue;
         UnresolvedArgument newBoostArg = new UnresolvedArgument(
                 argumentName,
                 new Literal(boostValue.toString(), DataType.STRING)

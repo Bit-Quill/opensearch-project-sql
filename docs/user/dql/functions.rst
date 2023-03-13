@@ -3855,7 +3855,7 @@ Please refer to examples below:
 
 | ``score(query('Tags:taste OR Body:taste', ...), 2.0)``
 
-The `score_query` and `scorequery` functions are alternative syntax to the `score` function.
+The `score_query` and `scorequery` functions are alternative names for the `score` function.
 
 Example boosting score::
 
@@ -3865,6 +3865,15 @@ Example boosting score::
     | id   | title                    | author               | _score    |
     |------+--------------------------+----------------------+-----------|
     | 1    | The House at Pooh Corner | Alan Alexander Milne | 1.5884793 |
+    +------+--------------------------+----------------------+-----------+
+
+    os> select *, _score from books where score(query('title:Pooh House', default_operator='AND'), 5.0) OR score(query('title:Winnie', default_operator='AND'), 1.5);
+    fetched rows / total rows = 2/2
+    +------+--------------------------+----------------------+-----------+
+    | id   | title                    | author               | _score    |
+    |------+--------------------------+----------------------+-----------|
+    | 1    | The House at Pooh Corner | Alan Alexander Milne | 3.9711983 |
+    | 2    | Winnie-the-Pooh          | Alan Alexander Milne | 1.1581701 |
     +------+--------------------------+----------------------+-----------+
 
 HIGHLIGHT

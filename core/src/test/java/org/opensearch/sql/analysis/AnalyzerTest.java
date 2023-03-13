@@ -228,7 +228,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                 AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
                 AstDSL.unresolvedArg("query", stringLiteral("search query")),
                 AstDSL.unresolvedArg("boost", stringLiteral("3"))
-            ), List.of())
+            ), null)
     );
     assertAnalyzeEqual(
         LogicalPlanDSL.filter(
@@ -285,7 +285,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                 AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
                 AstDSL.unresolvedArg("query", stringLiteral("search query")),
                 AstDSL.unresolvedArg("slop", stringLiteral("3"))
-            ), List.of(new Literal(3.0, DataType.DOUBLE))
+            ), new Literal(3.0, DataType.DOUBLE)
         )
     );
 
@@ -326,7 +326,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                     AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
                     AstDSL.unresolvedArg("query", stringLiteral("search query")),
                     AstDSL.unresolvedArg("boost", stringLiteral("3"))
-                ), List.of(new Literal(3, DataType.INTEGER))
+                ), new Literal(3, DataType.INTEGER)
             )
         )
     );
@@ -341,7 +341,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                 AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
                 AstDSL.unresolvedArg("query", stringLiteral("search query")),
                 AstDSL.unresolvedArg("boost", stringLiteral("3"))
-            ), List.of(new Literal("3.0", DataType.STRING))
+            ), new Literal("3.0", DataType.STRING)
         )
     );
     SemanticCheckException exception =
@@ -371,7 +371,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                     AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
                     AstDSL.unresolvedArg("query", stringLiteral("search query")),
                     AstDSL.unresolvedArg("boost", stringLiteral("3"))
-                ), List.of(AstDSL.unresolvedArg("invalid", stringLiteral("value")))
+                ), AstDSL.unresolvedArg("invalid", stringLiteral("value"))
             )
         )
     );

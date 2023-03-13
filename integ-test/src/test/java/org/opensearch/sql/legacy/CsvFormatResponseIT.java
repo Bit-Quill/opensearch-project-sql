@@ -573,6 +573,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   }
 
+  @Ignore("tested in @see: org.opensearch.sql.sql.IdentifierIT.testMetafieldIdentifierTest")
   public void includeIdAndNotTypeOrScore() throws Exception {
     String query = String.format(Locale.ROOT,
         "select age, firstname, _id from %s where lastname = 'Marquez' ", TEST_INDEX_ACCOUNT);

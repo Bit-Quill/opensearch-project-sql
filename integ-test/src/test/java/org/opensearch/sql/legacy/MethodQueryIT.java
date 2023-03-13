@@ -59,8 +59,6 @@ public class MethodQueryIT extends SQLIntegTestCase {
   }
 
   /**
-   * score query no longer maps to constant_score in the V2 engine
-   * @see org.opensearch.sql.sql.ScoreQueryIT
    * matchQuery 是利用分词结果进行单个字段的搜索． "query" : { "bool" : { "must" : { "bool" : {
    * "should" : [ { "constant_score" : { "query" : { "match" : { "address" : {
    * "query" : "Lane", "type" : "boolean" } } }, "boost" : 100.0 } }, {
@@ -70,7 +68,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
    * @throws IOException
    */
   @Test
-  @Ignore
+  @Ignore("score query no longer maps to constant_score in the V2 engine - @see org.opensearch.sql.sql.ScoreQueryIT")
   public void scoreQueryTest() throws IOException {
     final String result = explainQuery(String.format(Locale.ROOT,
         "select address from %s " +
@@ -120,8 +118,6 @@ public class MethodQueryIT extends SQLIntegTestCase {
   }
 
   /**
-   * score query no longer handled by legacy engine
-   * @see org.opensearch.sql.sql.ScoreQueryIT
    * matchPhraseQueryTest 短语查询完全匹配．
    * "address" : {
    * "query" : "671 Bristol Street",
@@ -131,7 +127,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
    * @throws IOException
    */
   @Test
-  @Ignore
+  @Ignore("score query no longer handled by legacy engine - @see org.opensearch.sql.sql.ScoreQueryIT")
   public void matchPhraseQueryTest() throws IOException {
     final String result = explainQuery(String.format(Locale.ROOT,
         "select address from %s " +

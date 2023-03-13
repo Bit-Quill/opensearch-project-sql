@@ -486,7 +486,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   public UnresolvedExpression visitScoreRelevanceFunction(ScoreRelevanceFunctionContext ctx) {
     return new ScoreFunction(
         visit(ctx.relevanceFunction()),
-        ctx.functionArg().stream().map(this::visitFunctionArg).collect(Collectors.toList())
+        ctx.functionArg() == null ? null : visit(ctx.functionArg())
     );
   }
 

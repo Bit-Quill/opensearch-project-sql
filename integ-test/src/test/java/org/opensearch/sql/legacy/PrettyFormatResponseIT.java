@@ -126,6 +126,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
   }
 
   @Test
+  @Ignore("_score tested in V2 engine - @see org.opensearch.sql.sql.ScoreQueryIT")
   public void selectScore() throws IOException {
     JSONObject response = executeQuery(
         String.format(Locale.ROOT, "SELECT _score FROM %s WHERE SCORE(match_phrase(phrase, 'brown fox'))",

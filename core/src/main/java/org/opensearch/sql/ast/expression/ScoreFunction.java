@@ -22,7 +22,7 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 @ToString
 public class ScoreFunction extends UnresolvedExpression {
   private final UnresolvedExpression relevanceQuery;
-  private final List<UnresolvedExpression> funcArgs;
+  private final UnresolvedExpression funcArg;
 
   @Override
   public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
@@ -32,7 +32,7 @@ public class ScoreFunction extends UnresolvedExpression {
   @Override
   public List<UnresolvedExpression> getChild() {
     List<UnresolvedExpression> resultingList = List.of(relevanceQuery);
-    resultingList.addAll(funcArgs);
+    resultingList.add(funcArg);
     return resultingList;
   }
 }

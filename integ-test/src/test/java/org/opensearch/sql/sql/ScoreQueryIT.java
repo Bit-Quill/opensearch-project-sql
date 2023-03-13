@@ -7,7 +7,6 @@ package org.opensearch.sql.sql;
 
 import org.json.JSONObject;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opensearch.sql.legacy.SQLIntegTestCase;
 import org.opensearch.sql.legacy.TestsConstants;
@@ -15,11 +14,11 @@ import org.opensearch.sql.legacy.TestsConstants;
 import java.io.IOException;
 import java.util.Locale;
 
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BEER;
+import static org.opensearch.sql.util.MatcherUtils.rows;
+import static org.opensearch.sql.util.MatcherUtils.schema;
+import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
+import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
 public class ScoreQueryIT extends SQLIntegTestCase {
   @Override
@@ -88,22 +87,37 @@ public class ScoreQueryIT extends SQLIntegTestCase {
    * @throws IOException
    */
   @Test
-  public void scoreQueryTest() throws IOException {
+  public void scoreQueryExplainTest() throws IOException {
     final String result = explainQuery(String.format(Locale.ROOT,
         "select address from %s " +
-            "where score(matchQuery(address, 'Lane'),100) " +
-            "or score(matchQuery(address,'Street'),0.5) order by _score desc limit 3",
+            "where score(matchQuery(address, 'Douglass'), 100) " +
+            "or score(matchQuery(address, 'Hall'), 0.5) order by _score desc limit 2",
         TestsConstants.TEST_INDEX_ACCOUNT));
-    Assert.assertThat(result, containsString("\\\"match\\\":{\\\"address\\\":{\\\"query\\\":\\\"Lane\\\""));
+    Assert.assertThat(result, containsString("\\\"match\\\":{\\\"address\\\":{\\\"query\\\":\\\"Douglass\\\""));
     Assert.assertThat(result, containsString("\\\"boost\\\":100.0"));
-    Assert.assertThat(result, containsString("\\\"match\\\":{\\\"address\\\":{\\\"query\\\":\\\"Street\\\""));
+    Assert.assertThat(result, containsString("\\\"match\\\":{\\\"address\\\":{\\\"query\\\":\\\"Hall\\\""));
     Assert.assertThat(result, containsString("\\\"boost\\\":0.5"));
     Assert.assertThat(result, containsString("\\\"sort\\\":[{\\\"_score\\\""));
     Assert.assertThat(result, containsString("\\\"track_scores\\\":true"));
   }
 
   @Test
-  public void scoreQueryDefaultBoostTest() throws IOException {
+  public void scoreQueryTest() throws IOException {
+    final JSONObject result = new JSONObject(executeQuery(String.format(Locale.ROOT,
+        "select address, _score from %s " +
+            "where score(matchQuery(address, 'Douglass'), 100) " +
+            "or score(matchQuery(address, 'Hall'), 0.5) order by _score desc limit 2",
+        TestsConstants.TEST_INDEX_ACCOUNT), "jdbc"));
+    verifySchema(result,
+        schema("address", null, "text"),
+        schema("_score", null, "float"));
+    verifyDataRows(result,
+        rows("154 Douglass Street", 650.1515),
+        rows("565 Hall Street", 3.2507575));
+  }
+
+  @Test
+  public void scoreQueryDefaultBoostExplainTest() throws IOException {
     final String result = explainQuery(String.format(Locale.ROOT,
         "select address from %s " +
             "where score(matchQuery(address, 'Lane')) order by _score desc limit 2",
@@ -112,5 +126,17 @@ public class ScoreQueryIT extends SQLIntegTestCase {
     Assert.assertThat(result, containsString("\\\"boost\\\":1.0"));
     Assert.assertThat(result, containsString("\\\"sort\\\":[{\\\"_score\\\""));
     Assert.assertThat(result, containsString("\\\"track_scores\\\":true"));
+  }
+
+  @Test
+  public void scoreQueryDefaultBoostQueryTest() throws IOException {
+    final JSONObject result = new JSONObject(executeQuery(String.format(Locale.ROOT,
+        "select address, _score from %s " +
+            "where score(matchQuery(address, 'Powell')) order by _score desc limit 2",
+        TestsConstants.TEST_INDEX_ACCOUNT), "jdbc"));
+    verifySchema(result,
+        schema("address", null, "text"),
+        schema("_score", null, "float"));
+    verifyDataRows(result, rows("305 Powell Street", 6.501515));
   }
 }

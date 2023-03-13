@@ -10,6 +10,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,15 +39,14 @@ public class QualifiedName extends UnresolvedExpression {
   public static final String METADATA_FIELD_SCORE = "_score";
   public static final String METADATA_FIELD_MAXSCORE = "_maxscore";
   public static final String METADATA_FIELD_SORT = "_sort";
-  public static final java.util.Map<String, ExprCoreType> METADATAFIELD_TYPE_MAP = new HashMap<>() {
-    {
-      put(METADATA_FIELD_ID, ExprCoreType.STRING);
-      put(METADATA_FIELD_INDEX, ExprCoreType.STRING);
-      put(METADATA_FIELD_SCORE, ExprCoreType.FLOAT);
-      put(METADATA_FIELD_MAXSCORE, ExprCoreType.FLOAT);
-      put(METADATA_FIELD_SORT, ExprCoreType.LONG);
-    }
-  };
+
+  public static final java.util.Map<String, ExprCoreType> METADATAFIELD_TYPE_MAP = ImmutableMap.of(
+      METADATA_FIELD_ID, ExprCoreType.STRING,
+      METADATA_FIELD_INDEX, ExprCoreType.STRING,
+      METADATA_FIELD_SCORE, ExprCoreType.FLOAT,
+      METADATA_FIELD_MAXSCORE, ExprCoreType.FLOAT,
+      METADATA_FIELD_SORT, ExprCoreType.LONG
+  );
 
   public QualifiedName(String name, Boolean isMetadataField) {
     this.parts = Collections.singletonList(name);
