@@ -30,7 +30,7 @@ import org.opensearch.sql.sql.parser.AstStatementBuilder;
 @RequiredArgsConstructor
 public class SQLService {
 
-  private final SQLSyntaxParser parser;
+  private final SQLSyntaxParser parser;sq
 
   private final QueryManager queryManager;
 
