@@ -14,10 +14,8 @@ import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
 import java.io.IOException;
 import java.util.Locale;
-
 import org.json.JSONObject;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opensearch.sql.legacy.SQLIntegTestCase;
 import org.opensearch.sql.legacy.TestsConstants;

@@ -187,8 +187,8 @@ class OpenSearchIndexScanOptimizationTest {
                     QueryBuilders.boolQuery()
                         .should(
                             QueryBuilders.queryStringQuery("QUERY")
-                            .field("intV", 1.5F)
-                            .boost(12.5F))
+                                .field("intV", 1.5F)
+                                .boost(12.5F))
                         .should(
                             QueryBuilders.queryStringQuery("QUERY")
                                 .field("intV", 1.5F)
