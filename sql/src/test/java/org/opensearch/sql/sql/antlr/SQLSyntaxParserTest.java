@@ -528,6 +528,12 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void can_parse_timestampadd_function() {
+    assertNotNull(parser.parse("SELECT TIMESTAMPADD(MINUTE, 1, '2003-01-02')"));
+    assertNotNull(parser.parse("SELECT TIMESTAMPADD(WEEK,1,'2003-01-02')"));
+  }
+
+  @Test
   public void can_parse_wildcard_query_relevance_function() {
     assertNotNull(
         parser.parse("SELECT * FROM test WHERE wildcard_query(column, \"this is a test*\")"));
