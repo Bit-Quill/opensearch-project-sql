@@ -22,7 +22,7 @@ import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.parse.ParseExpression;
-import org.opensearch.sql.expression.serialization.DefaultExpressionSerializer;
+import org.opensearch.sql.expression.serialization.NoEncodeExpressionSerializer;
 
 /**
  * Project the fields specified in {@link ProjectOperator#projectList} from input.
@@ -102,11 +102,13 @@ public class ProjectOperator extends PhysicalPlan {
     if (child == null || child.isEmpty()) {
       return null;
     }
-    var serializer = new DefaultExpressionSerializer();
+    var serializer = new NoEncodeExpressionSerializer();
     String projects = createSection("projectList",
-        projectList.stream().map(serializer::serialize).toArray(String[]::new));
+        projectList.stream().map(serializer::serialize)
+            .map(Object::toString).toArray(String[]::new));
     String namedExpressions = createSection("namedParseExpressions",
-        namedParseExpressions.stream().map(serializer::serialize).toArray(String[]::new));
+        namedParseExpressions.stream().map(serializer::serialize)
+            .map(Object::toString).toArray(String[]::new));
     return createSection("Project", namedExpressions, projects, child);
   }
 }

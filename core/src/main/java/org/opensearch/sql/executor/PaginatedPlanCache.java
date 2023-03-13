@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.expression.NamedExpression;
-import org.opensearch.sql.expression.serialization.DefaultExpressionSerializer;
+import org.opensearch.sql.expression.serialization.NoEncodeExpressionSerializer;
 import org.opensearch.sql.opensearch.executor.Cursor;
 import org.opensearch.sql.planner.physical.PaginateOperator;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
@@ -28,6 +28,7 @@ import org.opensearch.sql.storage.TableScanOperator;
 @RequiredArgsConstructor
 public class PaginatedPlanCache {
   public static final String CURSOR_PREFIX = "n:";
+  public static final String UNSUPPORTED_CURSOR = "Unsupported cursor";
   private final StorageEngine storageEngine;
   public static final PaginatedPlanCache None = new PaginatedPlanCache(null);
 
@@ -82,7 +83,7 @@ public class PaginatedPlanCache {
   @SneakyThrows
   public static String decompress(String input) {
     if (input == null || input.length() == 0) {
-      return null;
+      return "";
     }
     GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(
         HashCode.fromString(input).asBytes()));
@@ -96,14 +97,14 @@ public class PaginatedPlanCache {
    * @return Remaining part of the cursor.
    */
   private String parseNamedExpressions(List<NamedExpression> listToFill, String cursor) {
-    var serializer = new DefaultExpressionSerializer();
+    var serializer = new NoEncodeExpressionSerializer();
     if (cursor.startsWith(")")) { //empty list
       return cursor.substring(cursor.indexOf(',') + 1);
     }
     while (!cursor.startsWith("(")) {
       listToFill.add((NamedExpression)
           serializer.deserialize(cursor.substring(0,
-              Math.min(cursor.indexOf(','), cursor.indexOf(')')))));
+              Math.min(cursor.indexOf(','), cursor.indexOf(')'))).getBytes()));
       cursor = cursor.substring(cursor.indexOf(',') + 1);
     }
     return cursor;
@@ -120,7 +121,7 @@ public class PaginatedPlanCache {
 
         // TODO Parse with ANTLR or serialize as JSON/XML
         if (!cursor.startsWith("(Paginate,")) {
-          throw new UnsupportedOperationException("Unsupported cursor");
+          throw new UnsupportedOperationException(UNSUPPORTED_CURSOR);
         }
         // TODO add checks for > 0
         cursor = cursor.substring(cursor.indexOf(',') + 1);
@@ -131,11 +132,11 @@ public class PaginatedPlanCache {
 
         cursor = cursor.substring(cursor.indexOf(',') + 1);
         if (!cursor.startsWith("(Project,")) {
-          throw new UnsupportedOperationException("Unsupported cursor");
+          throw new UnsupportedOperationException(UNSUPPORTED_CURSOR);
         }
         cursor = cursor.substring(cursor.indexOf(',') + 1);
         if (!cursor.startsWith("(namedParseExpressions,")) {
-          throw new UnsupportedOperationException("Unsupported cursor");
+          throw new UnsupportedOperationException(UNSUPPORTED_CURSOR);
         }
 
         cursor = cursor.substring(cursor.indexOf(',') + 1);
@@ -144,13 +145,13 @@ public class PaginatedPlanCache {
 
         List<NamedExpression> projectList = new ArrayList<>();
         if (!cursor.startsWith("(projectList,")) {
-          throw new UnsupportedOperationException("Unsupported cursor");
+          throw new UnsupportedOperationException(UNSUPPORTED_CURSOR);
         }
         cursor = cursor.substring(cursor.indexOf(',') + 1);
         cursor = parseNamedExpressions(projectList, cursor);
 
         if (!cursor.startsWith("(OpenSearchPagedIndexScan,")) {
-          throw new UnsupportedOperationException("Unsupported cursor");
+          throw new UnsupportedOperationException(UNSUPPORTED_CURSOR);
         }
         cursor = cursor.substring(cursor.indexOf(',') + 1);
         var indexName = cursor.substring(0, cursor.indexOf(','));
@@ -161,10 +162,10 @@ public class PaginatedPlanCache {
         return new PaginateOperator(new ProjectOperator(scan, projectList, namedParseExpressions),
             pageSize, currentPageIndex);
       } catch (Exception e) {
-        throw new UnsupportedOperationException("Unsupported cursor", e);
+        throw new UnsupportedOperationException(UNSUPPORTED_CURSOR, e);
       }
     } else {
-      throw new UnsupportedOperationException("Unsupported cursor");
+      throw new UnsupportedOperationException(UNSUPPORTED_CURSOR);
     }
   }
 }
