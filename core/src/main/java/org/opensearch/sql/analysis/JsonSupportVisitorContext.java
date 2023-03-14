@@ -15,8 +15,4 @@ public class JsonSupportVisitorContext {
   @Getter
   @Setter
   private boolean isVisitingProject = false;
-
-  @Getter
-  @Setter
-  private UnsupportedOperationException unsupportedOperationException;
 }

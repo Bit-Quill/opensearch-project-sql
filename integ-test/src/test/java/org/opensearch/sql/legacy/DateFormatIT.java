@@ -52,6 +52,7 @@ public class DateFormatIT extends SQLIntegTestCase {
    */
 
   // DATE_FORMAT with timezone argument is not yet supported in V2
+  // Can be tracked with https://github.com/opensearch-project/sql/issues/1436
   @Test(expected = SqlParseException.class)
   public void equalTo() throws SqlParseException {
     assertThat(
@@ -62,6 +63,7 @@ public class DateFormatIT extends SQLIntegTestCase {
   }
 
   // DATE_FORMAT with timezone argument is not yet supported in V2
+  // Can be tracked with https://github.com/opensearch-project/sql/issues/1436
   @Test(expected = SqlParseException.class)
   public void lessThan() throws SqlParseException {
     assertThat(
@@ -72,6 +74,7 @@ public class DateFormatIT extends SQLIntegTestCase {
   }
 
   // DATE_FORMAT with timezone argument is not yet supported in V2
+  // Can be tracked with https://github.com/opensearch-project/sql/issues/1436
   @Test(expected = SqlParseException.class)
   public void lessThanOrEqualTo() throws SqlParseException {
     assertThat(
@@ -84,6 +87,7 @@ public class DateFormatIT extends SQLIntegTestCase {
   }
 
   // DATE_FORMAT with timezone argument is not yet supported in V2
+  // Can be tracked with https://github.com/opensearch-project/sql/issues/1436
   @Test(expected = SqlParseException.class)
   public void greaterThan() throws SqlParseException {
     assertThat(
@@ -94,6 +98,7 @@ public class DateFormatIT extends SQLIntegTestCase {
   }
 
   // DATE_FORMAT with timezone argument is not yet supported in V2
+  // Can be tracked with https://github.com/opensearch-project/sql/issues/1436
   @Test(expected = SqlParseException.class)
   public void greaterThanOrEqualTo() throws SqlParseException {
     assertThat(
@@ -106,6 +111,7 @@ public class DateFormatIT extends SQLIntegTestCase {
   }
 
   // DATE_FORMAT with timezone argument is not yet supported in V2
+  // Can be tracked with https://github.com/opensearch-project/sql/issues/1436
   @Test(expected = SqlParseException.class)
   public void and() throws SqlParseException {
     assertThat(
@@ -130,6 +136,7 @@ public class DateFormatIT extends SQLIntegTestCase {
   }
 
   // DATE_FORMAT with timezone argument is not yet supported in V2
+  // Can be tracked with https://github.com/opensearch-project/sql/issues/1436
   @Test(expected = SqlParseException.class)
   public void or() throws SqlParseException {
     assertThat(
@@ -143,6 +150,7 @@ public class DateFormatIT extends SQLIntegTestCase {
   }
 
   // DATE_FORMAT with timezone argument is not yet supported in V2
+  // Can be tracked with https://github.com/opensearch-project/sql/issues/1436
   @Test(expected = ResponseException.class)
   public void sortByDateFormat() throws IOException {
     // Sort by expression in descending order, but sort inside in ascending order, so we increase our confidence
