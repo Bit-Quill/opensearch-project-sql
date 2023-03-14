@@ -155,7 +155,7 @@ Result set:
 |  Nanette|   Bates|
 +---------+--------+
 
-One can also provide meta-field name(s) in ``SELECT`` clause to retrieve reserved-fields (beginning with underscore) from OpenSearch documents.
+One can also provide meta-field name(s) to retrieve reserved-fields (beginning with underscore) from OpenSearch documents.
 
 SQL query::
 
@@ -181,20 +181,19 @@ Explain::
 	  }
 	}
 
-Result set:
 
-+---------+--------+---+--------+-----+
-|firstname|lastname|_id|  _index|_sort|
-+=========+========+===+========+=====+
-|    Amber|    Duke|  1|accounts|   -2|
-+---------+--------+---+--------+-----+
-|     Dale|   Adams|  2|accounts|   -2|
-+---------+--------+---+--------+-----+
-|   Hattie|    Bond|  3|accounts|   -2|
-+---------+--------+---+--------+-----+
-|  Nanette|   Bates|  4|accounts|   -2|
-+---------+--------+---+--------+-----+
+This produces results like this for example::
 
+    os> SELECT firstname, lastname, _index, _sort FROM accounts;
+    fetched rows / total rows = 4/4
+    +-------------+------------+----------+---------+
+    | firstname   | lastname   | _index   | _sort   |
+    |-------------+------------+----------+---------|
+    | Amber       | Duke       | accounts | -2      |
+    | Hattie      | Bond       | accounts | -2      |
+    | Nanette     | Bates      | accounts | -2      |
+    | Dale        | Adams      | accounts | -2      |
+    +-------------+------------+----------+---------+
 
 Example 3: Using Field Alias
 ----------------------------

@@ -31,8 +31,6 @@ public class ScoreFunction extends UnresolvedExpression {
 
   @Override
   public List<UnresolvedExpression> getChild() {
-    List<UnresolvedExpression> resultingList = List.of(relevanceQuery);
-    resultingList.add(funcArg);
-    return resultingList;
+    return List.of(relevanceQuery, funcArg);
   }
 }
