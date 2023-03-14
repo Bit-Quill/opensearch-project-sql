@@ -156,7 +156,7 @@ Result set:
 +---------+--------+
 
 One can also provide meta-field name(s) to retrieve reserved-fields (beginning with underscore) from OpenSearch documents. Meta-fields are not output
-from wildcard calls (`SELECT *`) and must be explicitly included to be returned. 
+from wildcard calls (`SELECT *`) and must be explicitly included to be returned.
 
 SQL query::
 
