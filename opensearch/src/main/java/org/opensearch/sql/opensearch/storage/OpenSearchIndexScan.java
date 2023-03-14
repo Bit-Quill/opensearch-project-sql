@@ -34,23 +34,23 @@ public class OpenSearchIndexScan extends TableScanOperator {
   @EqualsAndHashCode.Include
   @Getter
   @ToString.Include
-  protected final OpenSearchRequestBuilder requestBuilder;
+  private final OpenSearchRequestBuilder requestBuilder;
 
   /** Search request. */
   @EqualsAndHashCode.Include
   @ToString.Include
-  protected OpenSearchRequest request;
+  private OpenSearchRequest request;
 
   /** Total query size. */
   @EqualsAndHashCode.Include
   @ToString.Include
-  protected Integer querySize;
+  private Integer querySize;
 
   /** Number of rows returned. */
-  protected Integer queryCount;
+  private Integer queryCount;
 
   /** Search response for current batch. */
-  protected Iterator<ExprValue> iterator;
+  private Iterator<ExprValue> iterator;
 
   @Getter
   private String rawResponse;
@@ -102,7 +102,7 @@ public class OpenSearchIndexScan extends TableScanOperator {
     return iterator.next();
   }
 
-  private OpenSearchResponse fetchNextBatch() {
+  protected OpenSearchResponse fetchNextBatch() {
     OpenSearchResponse response = client.search(request);
     if (!response.isEmpty()) {
       iterator = response.iterator();

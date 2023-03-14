@@ -23,7 +23,6 @@ import static org.opensearch.sql.executor.ExecutionEngine.QueryResponse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.action.search.SearchResponse;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.data.model.ExprValue;
@@ -44,7 +44,6 @@ import org.opensearch.sql.executor.ExecutionEngine.ExplainResponse;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.executor.protector.OpenSearchExecutionProtector;
-import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 import org.opensearch.sql.opensearch.storage.OpenSearchIndexScan;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
@@ -64,6 +63,10 @@ class OpenSearchExecutionEngineTest {
   @Mock private ExecutionContext executionContext;
 
   @Mock private Split split;
+
+  @Mock private static SearchResponse searchResponse;
+
+  @Mock private static OpenSearchExprValueFactory factory;
 
   @BeforeEach
   void setUp() {
@@ -212,7 +215,7 @@ class OpenSearchExecutionEngineTest {
   }
 
   @Test
-  void executeResponseSuccessfully() {
+  void executeRawResponseSuccessfully() {
     OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector);
     Settings settings = mock(Settings.class);
     when(settings.getSettingValue(QUERY_SIZE_LIMIT)).thenReturn(100);
@@ -297,11 +300,8 @@ class OpenSearchExecutionEngineTest {
     }
 
     @Override
-    public void open() {
-      querySize = requestBuilder.getQuerySize();
-      request = requestBuilder.build();
-      iterator = Collections.emptyIterator();
-      queryCount = 0;
+    protected OpenSearchResponse fetchNextBatch() {
+      return new OpenSearchResponse(searchResponse, factory);
     }
 
     @Override
