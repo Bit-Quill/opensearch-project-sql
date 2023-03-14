@@ -71,9 +71,8 @@ class OpenSearchIndexScanTest {
   @Test
   void query_empty_result() {
     mockResponse(client);
-    try (OpenSearchIndexScan indexScan =
-             new OpenSearchIndexScan(client, new OpenSearchRequestBuilder("test", 3, settings,
-                 exprValueFactory))) {
+    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client,
+        new OpenSearchRequestBuilder("test", 3, settings, exprValueFactory))) {
       indexScan.open();
       assertAll(
           () -> assertFalse(indexScan.hasNext()),
@@ -90,11 +89,8 @@ class OpenSearchIndexScanTest {
         employee(2, "Smith", "HR"),
         employee(3, "Allen", "IT")});
 
-    OpenSearchRequestBuilder
-        builder = new OpenSearchRequestBuilder("employees", 10, settings,
-        exprValueFactory);
-    try (OpenSearchIndexScan indexScan =
-             new OpenSearchIndexScan(client, builder)) {
+    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client,
+        new OpenSearchRequestBuilder("employees", 10, settings, exprValueFactory))) {
       indexScan.open();
 
       assertAll(
@@ -119,10 +115,10 @@ class OpenSearchIndexScanTest {
     mockResponse(client,
         new ExprValue[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
         new ExprValue[]{employee(3, "Allen", "IT")});
+    //when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(2);
 
-    try (OpenSearchIndexScan indexScan =
-             new OpenSearchIndexScan(client, new OpenSearchRequestBuilder("employees", 2, settings,
-                 exprValueFactory))) {
+    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client,
+        new OpenSearchRequestBuilder("employees", 10, settings, exprValueFactory))) {
       indexScan.open();
 
       assertAll(
@@ -150,9 +146,8 @@ class OpenSearchIndexScanTest {
         employee(3, "Allen", "IT"),
         employee(4, "Bob", "HR")});
 
-    try (OpenSearchIndexScan indexScan =
-             new OpenSearchIndexScan(client, new OpenSearchRequestBuilder("employees", 10, settings,
-                 exprValueFactory))) {
+    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client,
+        new OpenSearchRequestBuilder("employees", 10, settings, exprValueFactory))) {
       indexScan.getRequestBuilder().pushDownLimit(3, 0);
       indexScan.open();
 
@@ -167,7 +162,7 @@ class OpenSearchIndexScanTest {
           () -> assertEquals(employee(3, "Allen", "IT"), indexScan.next()),
 
           () -> assertFalse(indexScan.hasNext()),
-          () -> assertEquals(3, indexScan.getTotalHits())
+          () -> assertEquals(4, indexScan.getTotalHits())
       );
     }
     verify(client).cleanup(any());
@@ -196,7 +191,34 @@ class OpenSearchIndexScanTest {
           () -> assertEquals(employee(3, "Allen", "IT"), indexScan.next()),
 
           () -> assertFalse(indexScan.hasNext()),
-          () -> assertEquals(3, indexScan.getTotalHits())
+          () -> assertEquals(4, indexScan.getTotalHits())
+      );
+    }
+    verify(client).cleanup(any());
+  }
+
+  @Test
+  void query_results_limited_by_query_size() {
+    mockResponse(client, new ExprValue[]{
+        employee(1, "John", "IT"),
+        employee(2, "Smith", "HR"),
+        employee(3, "Allen", "IT"),
+        employee(4, "Bob", "HR")});
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(2);
+
+    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client,
+        new OpenSearchRequestBuilder("employees", 10, settings, exprValueFactory))) {
+      indexScan.open();
+
+      assertAll(
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(1, "John", "IT"), indexScan.next()),
+
+          () -> assertTrue(indexScan.hasNext()),
+          () -> assertEquals(employee(2, "Smith", "HR"), indexScan.next()),
+
+          () -> assertFalse(indexScan.hasNext()),
+          () -> assertEquals(4, indexScan.getTotalHits())
       );
     }
     verify(client).cleanup(any());
