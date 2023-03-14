@@ -34,23 +34,23 @@ public class OpenSearchIndexScan extends TableScanOperator {
   @EqualsAndHashCode.Include
   @Getter
   @ToString.Include
-  private final OpenSearchRequestBuilder requestBuilder;
+  protected final OpenSearchRequestBuilder requestBuilder;
 
   /** Search request. */
   @EqualsAndHashCode.Include
   @ToString.Include
-  private OpenSearchRequest request;
+  protected OpenSearchRequest request;
 
   /** Total query size. */
   @EqualsAndHashCode.Include
   @ToString.Include
-  private Integer querySize;
+  protected Integer querySize;
 
   /** Number of rows returned. */
-  private Integer queryCount;
+  protected Integer queryCount;
 
   /** Search response for current batch. */
-  private Iterator<ExprValue> iterator;
+  protected Iterator<ExprValue> iterator;
 
   @Getter
   private String rawResponse;
