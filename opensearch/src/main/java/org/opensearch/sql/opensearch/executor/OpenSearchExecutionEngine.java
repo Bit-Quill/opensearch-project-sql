@@ -55,7 +55,7 @@ public class OpenSearchExecutionEngine implements ExecutionEngine {
             try {
               rawResponse = ((OpenSearchIndexScan) ((ProjectOperator) physicalPlan).getInput())
                       .getRawResponse();
-            } catch (ClassCastException e) {
+            } catch (Exception e) {
               rawResponse = "";
             }
             QueryResponse response = new QueryResponse(physicalPlan.schema(), result, rawResponse);

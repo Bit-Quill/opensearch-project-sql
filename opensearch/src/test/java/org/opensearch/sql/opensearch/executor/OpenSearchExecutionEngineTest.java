@@ -23,11 +23,12 @@ import static org.opensearch.sql.executor.ExecutionEngine.QueryResponse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,8 +44,11 @@ import org.opensearch.sql.executor.ExecutionEngine.ExplainResponse;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.executor.protector.OpenSearchExecutionProtector;
+import org.opensearch.sql.opensearch.request.OpenSearchRequest;
+import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 import org.opensearch.sql.opensearch.storage.OpenSearchIndexScan;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
+import org.opensearch.sql.planner.physical.ProjectOperator;
 import org.opensearch.sql.storage.TableScanOperator;
 import org.opensearch.sql.storage.split.Split;
 
@@ -207,6 +211,32 @@ class OpenSearchExecutionEngineTest {
     assertTrue(plan.hasClosed);
   }
 
+  @Test
+  void executeResponseSuccessfully() {
+    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector);
+    Settings settings = mock(Settings.class);
+    when(settings.getSettingValue(QUERY_SIZE_LIMIT)).thenReturn(100);
+    PhysicalPlan plan = new FakeOperator(new FakeOpenSearchIndexScan(mock(OpenSearchClient.class),
+        settings, "test", 10000, mock(OpenSearchExprValueFactory.class),
+        "not empty"));
+    when(protector.protect(plan)).thenReturn(plan);
+
+    AtomicReference<QueryResponse> result = new AtomicReference<>();
+    executor.execute(plan, new ResponseListener<QueryResponse>() {
+      @Override
+      public void onResponse(QueryResponse response) {
+        result.set(response);
+      }
+
+      @Override
+      public void onFailure(Exception e) {
+        fail(e);
+      }
+    });
+
+    assertNotNull(result.get());
+  }
+
   @RequiredArgsConstructor
   private static class FakePhysicalPlan extends TableScanOperator {
     private final Iterator<ExprValue> it;
@@ -250,6 +280,47 @@ class OpenSearchExecutionEngineTest {
     @Override
     public String explain() {
       return "explain";
+    }
+  }
+
+  public static class FakeOpenSearchIndexScan extends OpenSearchIndexScan {
+    @Getter
+    private String rawResponse;
+
+    public FakeOpenSearchIndexScan(OpenSearchClient client, Settings settings,
+                               String indexName, Integer maxResultWindow,
+                               OpenSearchExprValueFactory exprValueFactory,
+                                   String rawResponse) {
+      super(client, settings,
+          indexName,maxResultWindow, exprValueFactory);
+      this.rawResponse = rawResponse;
+    }
+
+    @Override
+    public void open() {
+      querySize = requestBuilder.getQuerySize();
+      request = requestBuilder.build();
+      iterator = Collections.emptyIterator();
+      queryCount = 0;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return false;
+    }
+  }
+
+  private static class FakeOperator extends ProjectOperator {
+    private final PhysicalPlan input;
+
+    public FakeOperator(PhysicalPlan input) {
+      super(input, null, null);
+      this.input = input;
+    }
+
+    @Override
+    public ExecutionEngine.Schema schema() {
+      return schema;
     }
   }
 }
