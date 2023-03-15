@@ -823,14 +823,16 @@ public class DateTimeFunction {
 
   private DefaultFunctionResolver timestampadd() {
     return define(BuiltinFunctionName.TIMESTAMPADD.getName(),
-//        implWithProperties(
-//            nullMissingHandlingWithProperties((functionProperties, part, amount, time) -> DateTimeFunction.exprTimestampAddForTimeType(
-//                functionProperties.getQueryStartClock(),
-//                part,
-//                amount,
-//                time)), DATETIME, STRING, INTEGER, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampAdd), DATETIME, STRING, INTEGER, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprTimestampAdd), DATETIME, STRING, INTEGER, TIMESTAMP));
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampAdd), DATETIME, STRING, INTEGER, TIMESTAMP),
+        implWithProperties(
+            nullMissingHandlingWithProperties(
+                (functionProperties, part, amount, time) -> DateTimeFunction.exprTimestampAddForTimeType(
+                    functionProperties.getQueryStartClock(),
+                    part,
+                    amount,
+                    time)),
+            DATETIME, STRING, INTEGER, TIME));
   }
 
   /**
@@ -1603,7 +1605,6 @@ public class DateTimeFunction {
   }
 
   private ExprValue exprTimestampAdd(ExprValue partExpr, ExprValue amountExpr, ExprValue datetimeExpr) {
-    //TODO: Add support if 3rd argument is anything else besides a datetime
     String part = partExpr.stringValue();
     int amount = amountExpr.integerValue();
     LocalDateTime datetime = datetimeExpr.datetimeValue();
@@ -1645,7 +1646,10 @@ public class DateTimeFunction {
     return new ExprDatetimeValue(datetime.plus(amount, temporalUnit));
   }
 
-  private ExprValue exprTimestampAddForTimeType(Clock clock, ExprValue partExpr, ExprValue amountExpr, ExprValue timeExpr) {
+  private ExprValue exprTimestampAddForTimeType(Clock clock,
+                                                ExprValue partExpr,
+                                                ExprValue amountExpr,
+                                                ExprValue timeExpr) {
     LocalDateTime datetime = LocalDateTime.of(
         formatNow(clock).toLocalDate(),
         timeExpr.timeValue());

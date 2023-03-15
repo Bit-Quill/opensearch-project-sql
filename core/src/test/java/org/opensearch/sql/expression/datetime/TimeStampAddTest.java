@@ -98,20 +98,12 @@ class TimeStampAddTest extends ExpressionTestBase {
 
   @Test
   public void testAddingDatePartToTime() {
-    String interval1 = "WEEK";
-    String interval2 = "MINUTE";
+    String interval = "WEEK";
     int addedInterval = 1;
     String timeArg = "10:11:12";
-    FunctionExpression expr1 = DSL.timestampadd(
+    FunctionExpression expr = DSL.timestampadd(
         functionProperties,
-        DSL.literal(interval1),
-        DSL.literal(new ExprIntegerValue(addedInterval)),
-        DSL.literal(new ExprTimeValue(timeArg))
-    );
-
-    FunctionExpression expr2 = DSL.timestampadd(
-        functionProperties,
-        DSL.literal(interval1),
+        DSL.literal(interval),
         DSL.literal(new ExprIntegerValue(addedInterval)),
         DSL.literal(new ExprTimeValue(timeArg))
     );
@@ -119,19 +111,33 @@ class TimeStampAddTest extends ExpressionTestBase {
     LocalDate todayPlusOneWeek = LocalDate.now().plusWeeks(addedInterval);
     LocalDateTime expected1 = LocalDateTime.of(todayPlusOneWeek, LocalTime.parse(timeArg));
 
-    LocalDateTime expected2 = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeArg).plusMinutes(addedInterval));
-
-    assertEquals(new ExprDatetimeValue(expected1), eval(expr1));
-    assertEquals(new ExprDatetimeValue(expected2), eval(expr2));
+    assertEquals(new ExprDatetimeValue(expected1), eval(expr));
   }
 
-  //TODO: Add test to compare outputs when using a string/timestamp/datetime for 3rd argument.
+  @Test
+  public void testAddingTimePartToTime() {
+    String interval = "MINUTE";
+    int addedInterval = 1;
+    String timeArg = "10:11:12";
+
+    FunctionExpression expr = DSL.timestampadd(
+        functionProperties,
+        DSL.literal(interval),
+        DSL.literal(new ExprIntegerValue(addedInterval)),
+        DSL.literal(new ExprTimeValue(timeArg))
+    );
+
+    LocalDateTime expected = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeArg).plusMinutes(addedInterval));
+
+    assertEquals(new ExprDatetimeValue(expected), eval(expr));
+  }
+
   @Test
   public void testDifferentInputTypesHaveSameResult() {
     String part = "SECOND";
     int amount = 1;
     FunctionExpression dateExpr = timestampaddQuery(part, amount, new ExprDateValue("2000-01-01"));
-    FunctionExpression stringExpr = timestampaddQuery(part, amount, new ExprStringValue("2000-01-01"));
+    FunctionExpression stringExpr = timestampaddQuery(part, amount, new ExprStringValue("2000-01-01 00:00:00"));
     FunctionExpression datetimeExpr = timestampaddQuery(
         part,
         amount,
