@@ -846,7 +846,7 @@ public class DSL {
 
   public static FunctionExpression timestampadd(FunctionProperties functionProperties,
                                                Expression... expressions) {
-    return compile(functionProperties, BuiltinFunctionName.TIME_FORMAT, expressions);
+    return compile(functionProperties, BuiltinFunctionName.TIMESTAMPADD, expressions);
   }
 
   public static FunctionExpression utc_date(FunctionProperties functionProperties,

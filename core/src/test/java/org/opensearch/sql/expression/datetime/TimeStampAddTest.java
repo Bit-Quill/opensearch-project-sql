@@ -39,26 +39,26 @@ class TimeStampAddTest extends ExpressionTestBase {
         Arguments.of("MINUTE", 1, new ExprStringValue("2003-01-02"),
             "2003-01-02 00:01:00"),
         Arguments.of("WEEK", 1, new ExprStringValue("2003-01-02"),
-            "2003-01-09"),
+            "2003-01-09 00:00:00"),
         //Date
         Arguments.of("MINUTE", 1, new ExprDateValue("2003-01-02"),
             "2003-01-02 00:01:00"),
         Arguments.of("WEEK", 1, new ExprDateValue("2003-01-02"),
-            "2003-01-09"),
+            "2003-01-09 00:00:00"),
         //Datetime
         Arguments.of("MINUTE", 1, new ExprDatetimeValue("2003-01-02 00:00:00"),
             "2003-01-02 00:01:00"),
         Arguments.of("WEEK", 1, new ExprDatetimeValue("2003-01-02 00:00:00"),
-            "2003-01-09"),
+            "2003-01-09 00:00:00"),
         //timstamp
         Arguments.of("MINUTE", 1, new ExprTimestampValue("2003-01-02 00:00:00"),
             "2003-01-02 00:01:00"),
         Arguments.of("WEEK", 1, new ExprTimestampValue("2003-01-02 00:00:00"),
-            "2003-01-09"),
+            "2003-01-09 00:00:00"),
         //time
         //Note: Adding date part to time argument requires function properties and is handled in another test.
         Arguments.of("MINUTE", 1, new ExprTimeValue("10:11:12"),
-            "10:12:12"),
+            "10:12:12 00:00:00"),
         //Cases surrounding leap year
         Arguments.of("SECOND", 1, new ExprTimestampValue("2020-02-28 23:59:59"),
             "2020-02-29 00:00:00"),
