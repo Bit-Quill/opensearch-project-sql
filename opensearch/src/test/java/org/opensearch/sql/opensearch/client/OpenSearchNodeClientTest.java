@@ -15,7 +15,6 @@ import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -32,6 +31,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.lucene.search.TotalHits;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -274,7 +275,6 @@ class OpenSearchNodeClientTest {
     // Mock second scroll request followed
     SearchResponse scrollResponse = mock(SearchResponse.class);
     when(nodeClient.searchScroll(any()).actionGet()).thenReturn(scrollResponse);
-    when(scrollResponse.getScrollId()).thenReturn("scroll456");
     when(scrollResponse.getHits()).thenReturn(SearchHits.empty());
 
     // Verify response for first scroll request
@@ -304,16 +304,19 @@ class OpenSearchNodeClientTest {
   }
 
   @Test
+  @SneakyThrows
   void cleanup() {
     ClearScrollRequestBuilder requestBuilder = mock(ClearScrollRequestBuilder.class);
     when(nodeClient.prepareClearScroll()).thenReturn(requestBuilder);
-    lenient().when(requestBuilder.addScrollId(any())).thenReturn(requestBuilder);
-    lenient().when(requestBuilder.get()).thenReturn(null);
+    when(requestBuilder.addScrollId(any())).thenReturn(requestBuilder);
+    when(requestBuilder.get()).thenReturn(null);
 
     OpenSearchScrollRequest request = new OpenSearchScrollRequest("test", factory);
     request.setScrollId("scroll123");
+    // Enforce cleaning by setting a private field.
+    FieldUtils.writeField(request, "needClean", true, true);
     client.cleanup(request);
-    assertFalse(request.isScrollStarted());
+    assertFalse(request.isScroll());
 
     InOrder inOrder = Mockito.inOrder(nodeClient, requestBuilder);
     inOrder.verify(nodeClient).prepareClearScroll();
@@ -329,11 +332,14 @@ class OpenSearchNodeClientTest {
   }
 
   @Test
+  @SneakyThrows
   void cleanup_rethrows_exception() {
     when(nodeClient.prepareClearScroll()).thenThrow(new RuntimeException());
 
     OpenSearchScrollRequest request = new OpenSearchScrollRequest("test", factory);
     request.setScrollId("scroll123");
+    // Enforce cleaning by setting a private field.
+    FieldUtils.writeField(request, "needClean", true, true);
     assertThrows(IllegalStateException.class, () -> client.cleanup(request));
   }
 

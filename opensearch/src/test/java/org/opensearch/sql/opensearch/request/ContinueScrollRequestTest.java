@@ -22,6 +22,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -100,7 +102,12 @@ public class ContinueScrollRequestTest {
   }
 
   @Test
+  @SneakyThrows
   public void clean() {
+    request.clean(cleanAction);
+    verify(cleanAction, never()).accept(any());
+    // Enforce cleaning by setting a private field.
+    FieldUtils.writeField(request, "scrollFinished", true, true);
     request.clean(cleanAction);
     verify(cleanAction, times(1)).accept(any());
   }

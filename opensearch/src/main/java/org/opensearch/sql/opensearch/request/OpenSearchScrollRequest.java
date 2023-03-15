@@ -53,6 +53,8 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
   @Getter
   private String scrollId;
 
+  private boolean needClean = false;
+
   /** Search request source builder. */
   private final SearchSourceBuilder sourceBuilder;
 
@@ -81,21 +83,24 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
   public OpenSearchResponse search(Function<SearchRequest, SearchResponse> searchAction,
                                    Function<SearchScrollRequest, SearchResponse> scrollAction) {
     SearchResponse openSearchResponse;
-    if (isScrollStarted()) {
+    if (isScroll()) {
       openSearchResponse = scrollAction.apply(scrollRequest());
     } else {
       openSearchResponse = searchAction.apply(searchRequest());
     }
 
     var response = new OpenSearchResponse(openSearchResponse, exprValueFactory);
-    setScrollId(openSearchResponse.getScrollId());
+    if (!(needClean = response.isEmpty())) {
+      setScrollId(openSearchResponse.getScrollId());
+    }
     return response;
   }
 
   @Override
   public void clean(Consumer<String> cleanAction) {
     try {
-      if (isScrollStarted()) {
+      // clean on the last page only, to prevent closing the scroll/cursor in the middle of paging.
+      if (needClean && isScroll()) {
         cleanAction.accept(getScrollId());
         setScrollId(null);
       }
@@ -121,8 +126,8 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
    *
    * @return true if scroll started
    */
-  public boolean isScrollStarted() {
-    return (scrollId != null);
+  public boolean isScroll() {
+    return scrollId != null;
   }
 
   /**
@@ -149,11 +154,7 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
    */
   @Override
   public String toCursor() {
-    if (isScrollStarted()) {
-      // TODO: probably should serialize exprValueFactory here as well.
-      return scrollId;
-    } else {
-      return "";
-    }
+    // TODO: probably should serialize exprValueFactory here as well.
+    return scrollId;
   }
 }

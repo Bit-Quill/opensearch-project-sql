@@ -26,7 +26,6 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
   @ToString.Include
   private OpenSearchRequest request;
   private Iterator<ExprValue> iterator;
-  private boolean needClean = false;
   private long totalHits = 0;
 
   public OpenSearchPagedIndexScan(OpenSearchClient client,
@@ -59,7 +58,6 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
       iterator = response.iterator();
       totalHits = response.getTotalHits();
     } else {
-      needClean = true;
       iterator = Collections.emptyIterator();
     }
   }
@@ -67,10 +65,7 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
   @Override
   public void close() {
     super.close();
-    if (needClean) {
-      // clean on the last page only, to prevent closing the scroll/cursor in the middle of paging.
-      client.cleanup(request);
-    }
+    client.cleanup(request);
   }
 
   @Override

@@ -55,7 +55,9 @@ public class ContinueScrollRequest implements OpenSearchRequest {
 
   @Override
   public void clean(Consumer<String> cleanAction) {
-    cleanAction.accept(responseScrollId);
+    if (scrollFinished) {
+      cleanAction.accept(responseScrollId);
+    }
   }
 
   @Override

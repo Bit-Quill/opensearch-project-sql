@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.lucene.search.TotalHits;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -254,7 +256,6 @@ class OpenSearchRestClientTest {
     // Mock second scroll request followed
     SearchResponse scrollResponse = mock(SearchResponse.class);
     when(restClient.scroll(any(), any())).thenReturn(scrollResponse);
-    when(scrollResponse.getScrollId()).thenReturn("scroll456");
     when(scrollResponse.getHits()).thenReturn(SearchHits.empty());
 
     // Verify response for first scroll request
@@ -315,12 +316,15 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void cleanup() throws IOException {
+  @SneakyThrows
+  void cleanup() {
     OpenSearchScrollRequest request = new OpenSearchScrollRequest("test", factory);
+    // Enforce cleaning by setting a private field.
+    FieldUtils.writeField(request, "needClean", true, true);
     request.setScrollId("scroll123");
     client.cleanup(request);
     verify(restClient).clearScroll(any(), any());
-    assertFalse(request.isScrollStarted());
+    assertFalse(request.isScroll());
   }
 
   @Test
@@ -331,10 +335,13 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void cleanup_with_IOException() throws IOException {
+  @SneakyThrows
+  void cleanup_with_IOException() {
     when(restClient.clearScroll(any(), any())).thenThrow(new IOException());
 
     OpenSearchScrollRequest request = new OpenSearchScrollRequest("test", factory);
+    // Enforce cleaning by setting a private field.
+    FieldUtils.writeField(request, "needClean", true, true);
     request.setScrollId("scroll123");
     assertThrows(IllegalStateException.class, () -> client.cleanup(request));
   }
