@@ -484,10 +484,11 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
    * @return children
    */
   public UnresolvedExpression visitScoreRelevanceFunction(ScoreRelevanceFunctionContext ctx) {
-    return new ScoreFunction(
-        visit(ctx.relevanceFunction()),
-        ctx.functionArg() == null ? null : visit(ctx.functionArg())
-    );
+    Literal weight =
+        ctx.weight == null ?
+            new Literal(Double.valueOf(1.0), DataType.DOUBLE) :
+            new Literal(Double.parseDouble(ctx.weight.getText()), DataType.DOUBLE);
+    return new ScoreFunction(visit(ctx.relevanceFunction()), weight);
   }
 
   private Function buildFunction(String functionName,
@@ -502,8 +503,8 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   }
 
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {
-    Boolean isMetadataField = identifiers.stream().filter(
-        id -> id.metadataField() != null).findFirst().isPresent();
+    // check if the last part is a metadata field
+    boolean isMetadataField = identifiers.get(identifiers.size() - 1).metadataField() != null;
     return new QualifiedName(
         identifiers.stream()
                    .map(RuleContext::getText)
@@ -618,7 +619,8 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
         .stream().findFirst().ifPresent(
               arg ->
                     builder.add(new UnresolvedArgument("query",
-                        new Literal(StringUtils.unquoteText(arg.argVal.getText()), DataType.STRING)))
+                        new Literal(
+                            StringUtils.unquoteText(arg.argVal.getText()), DataType.STRING)))
         );
 
     fillRelevanceArgs(ctx.relevanceArg(), builder);

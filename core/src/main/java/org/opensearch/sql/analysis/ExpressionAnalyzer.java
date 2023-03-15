@@ -220,26 +220,12 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
    * @return resolved relevance function
    */
   public Expression visitScoreFunction(ScoreFunction node, AnalysisContext context) {
-    // if no function argument given, just accept the relevance query and return
-    if (!(node.getFuncArg() instanceof Literal)) {
-      OpenSearchFunctions.OpenSearchFunction relevanceQueryExpr =
-              (OpenSearchFunctions.OpenSearchFunction) node
-                      .getRelevanceQuery().accept(this, context);
-      relevanceQueryExpr.setScoreTracked(true);
-      return relevanceQueryExpr;
-    }
-
-    // note: if an argument exists, and there should only be one, it will be a boost argument
-    Literal boostFunctionArg = (Literal) node.getFuncArg();
-    Double thisBoostValue;
-    if (boostFunctionArg.getType().equals(DataType.DOUBLE)) {
-      thisBoostValue = ((Double) boostFunctionArg.getValue());
-    } else if (boostFunctionArg.getType().equals(DataType.INTEGER)) {
-      thisBoostValue = ((Integer) boostFunctionArg.getValue()).doubleValue();
-    } else {
+    Literal boostArg = node.getRelevanceFieldWeight();
+    if (!boostArg.getType().equals(DataType.DOUBLE)) {
       throw new SemanticCheckException(String.format("Expected boost type '%s' but got '%s'",
-          DataType.DOUBLE.name(), boostFunctionArg.getType().name()));
+          DataType.DOUBLE.name(), boostArg.getType().name()));
     }
+    Double thisBoostValue = ((Double) boostArg.getValue());
 
     // update the existing unresolved expression to add a boost argument if it doesn't exist
     // OR multiply the existing boost argument

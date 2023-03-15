@@ -228,7 +228,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                 AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
                 AstDSL.unresolvedArg("query", stringLiteral("search query")),
                 AstDSL.unresolvedArg("boost", stringLiteral("3"))
-            ), null)
+            ), AstDSL.doubleLiteral(1.0))
     );
     assertAnalyzeEqual(
         LogicalPlanDSL.filter(
@@ -236,7 +236,7 @@ class AnalyzerTest extends AnalyzerTestBase {
             DSL.match_phrase_prefix(
                 DSL.namedArgument("field", "field_value1"),
                 DSL.namedArgument("query", "search query"),
-                DSL.namedArgument("boost", "3")
+                DSL.namedArgument("boost", "3.0")
             )
         ),
         unresolvedPlan
@@ -309,30 +309,6 @@ class AnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void analyze_filter_visit_score_function_with_integer_boost() {
-    assertAnalyzeEqual(
-        LogicalPlanDSL.filter(
-            LogicalPlanDSL.relation("schema", table),
-            DSL.match_phrase_prefix(
-                DSL.namedArgument("field", "field_value1"),
-                DSL.namedArgument("query", "search query"),
-                DSL.namedArgument("boost", "9.0")
-            )
-        ),
-        AstDSL.filter(
-            AstDSL.relation("schema"),
-            new ScoreFunction(
-                AstDSL.function("match_phrase_prefix",
-                    AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
-                    AstDSL.unresolvedArg("query", stringLiteral("search query")),
-                    AstDSL.unresolvedArg("boost", stringLiteral("3"))
-                ), new Literal(3, DataType.INTEGER)
-            )
-        )
-    );
-  }
-
-  @Test
   public void analyze_filter_visit_score_function_with_unsupported_boost_SemanticCheckException() {
     UnresolvedPlan unresolvedPlan = AstDSL.filter(
         AstDSL.relation("schema"),
@@ -341,7 +317,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                 AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
                 AstDSL.unresolvedArg("query", stringLiteral("search query")),
                 AstDSL.unresolvedArg("boost", stringLiteral("3"))
-            ), new Literal("3.0", DataType.STRING)
+            ), AstDSL.stringLiteral("3.0")
         )
     );
     SemanticCheckException exception =
@@ -351,30 +327,6 @@ class AnalyzerTest extends AnalyzerTestBase {
     assertEquals(
         "Expected boost type 'DOUBLE' but got 'STRING'",
         exception.getMessage());
-  }
-
-  @Test
-  public void analyze_filter_visit_score_function_with_invalid_field_ignored() {
-    assertAnalyzeEqual(
-        LogicalPlanDSL.filter(
-            LogicalPlanDSL.relation("schema", table),
-            DSL.match_phrase_prefix(
-                DSL.namedArgument("field", "field_value1"),
-                DSL.namedArgument("query", "search query"),
-                DSL.namedArgument("boost", "3")
-            )
-        ),
-        AstDSL.filter(
-            AstDSL.relation("schema"),
-            new ScoreFunction(
-                AstDSL.function("match_phrase_prefix",
-                    AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
-                    AstDSL.unresolvedArg("query", stringLiteral("search query")),
-                    AstDSL.unresolvedArg("boost", stringLiteral("3"))
-                ), AstDSL.unresolvedArg("invalid", stringLiteral("value"))
-            )
-        )
-    );
   }
 
   @Test

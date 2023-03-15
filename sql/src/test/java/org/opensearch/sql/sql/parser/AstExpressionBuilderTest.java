@@ -798,10 +798,10 @@ class AstExpressionBuilderTest {
         AstDSL.score(
             AstDSL.function("query_string",
               unresolvedArg("fields", new RelevanceFieldList(ImmutableMap.of(
-                  "field2", 3.2F, "field1", 1.F))),
+                  "field1", 1.F, "field2", 3.2F))),
               unresolvedArg("query", stringLiteral("search query"))
             ),
-            null
+            AstDSL.doubleLiteral(1.0)
         ),
         buildExprAst("score(query_string(['field1', 'field2' ^ 3.2], 'search query'))")
     );

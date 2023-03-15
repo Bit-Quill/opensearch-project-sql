@@ -358,7 +358,7 @@ relevanceFunction
     ;
 
 scoreRelevanceFunction
-    : scoreRelevanceFunctionName LR_BRACKET relevanceFunction (COMMA functionArg)? RR_BRACKET
+    : scoreRelevanceFunctionName LR_BRACKET relevanceFunction (COMMA weight=relevanceFieldWeight)? RR_BRACKET
     ;
 
 noFieldRelevanceFunction

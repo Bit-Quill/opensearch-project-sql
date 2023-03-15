@@ -290,8 +290,8 @@ public class AstDSL {
   }
 
   public UnresolvedExpression score(UnresolvedExpression relevanceQuery,
-                                    UnresolvedExpression funcArg) {
-    return new ScoreFunction(relevanceQuery, funcArg);
+                                    Literal relevanceFieldWeight) {
+    return new ScoreFunction(relevanceQuery, relevanceFieldWeight);
   }
 
   public UnresolvedExpression window(UnresolvedExpression function,

@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
@@ -28,10 +27,11 @@ import org.opensearch.sql.data.type.ExprCoreType;
 public class QualifiedName extends UnresolvedExpression {
   private final List<String> parts;
 
-  private final Boolean isMetadataField;
+  @Getter
+  private final boolean isMetadataField;
 
   public QualifiedName(String name) {
-    this(name, Boolean.FALSE);
+    this(name, false);
   }
 
   public static final String METADATA_FIELD_ID = "_id";
@@ -48,19 +48,19 @@ public class QualifiedName extends UnresolvedExpression {
       METADATA_FIELD_SORT, ExprCoreType.LONG
   );
 
-  public QualifiedName(String name, Boolean isMetadataField) {
+  public QualifiedName(String name, boolean isMetadataField) {
     this.parts = Collections.singletonList(name);
     this.isMetadataField = isMetadataField;
   }
 
   public QualifiedName(Iterable<String> parts) {
-    this(parts, Boolean.FALSE);
+    this(parts, false);
   }
 
   /**
    * QualifiedName Constructor.
    */
-  public QualifiedName(Iterable<String> parts, Boolean isMetadataField) {
+  public QualifiedName(Iterable<String> parts, boolean isMetadataField) {
     this.isMetadataField = isMetadataField;
     List<String> partsList = StreamSupport.stream(parts.spliterator(), false).collect(toList());
     if (partsList.isEmpty()) {
@@ -138,9 +138,5 @@ public class QualifiedName extends UnresolvedExpression {
   @Override
   public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
     return nodeVisitor.visitQualifiedName(this, context);
-  }
-
-  public Boolean isMetadataField() {
-    return this.isMetadataField;
   }
 }
