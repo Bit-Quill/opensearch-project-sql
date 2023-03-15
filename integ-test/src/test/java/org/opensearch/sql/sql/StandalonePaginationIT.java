@@ -7,6 +7,7 @@ package org.opensearch.sql.sql;
 
 import static org.opensearch.sql.datasource.model.DataSourceMetadata.defaultOpenSearchDataSourceMetadata;
 import static org.opensearch.sql.legacy.TestUtils.getResponseBody;
+import static org.opensearch.sql.legacy.TestUtils.isIndexExist;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -66,7 +67,9 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
     loadIndex(Index.ONLINE);
     loadIndex(Index.BEER);
     loadIndex(Index.BANK);
-    executeRequest(new Request("PUT", "/empty"));
+    if (!isIndexExist(client(), "empty")) {
+      executeRequest(new Request("PUT", "/empty"));
+    }
 
     RestHighLevelClient restClient = new InternalRestHighLevelClient(client());
     client = new OpenSearchRestClient(restClient);
@@ -135,6 +138,7 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
   }
 
   // Test takes 3+ min due to a big amount of requests issued
+  // Skip 'online' index and/or page_size = 1 to get a significant speed-up
   @Test
   @SneakyThrows
   public void test_pagination_blackbox() {
@@ -154,13 +158,14 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
           var cursor = response.getString("cursor");
           assertTrue(testReportPrefix + "Cursor returned from legacy engine",
               cursor.startsWith("n:"));
-          rowsReturned += response.getInt("total");
+          rowsReturned += response.getInt("size");
           var datarows = response.getJSONArray("datarows");
           for (int i = 0; i < datarows.length(); i++) {
             rowsPaged.put(datarows.get(i));
           }
           assertTrue("Paged response schema doesn't match to non-paged",
               schema.similar(response.getJSONArray("schema")));
+          assertEquals(indexSize, response.getInt("total"));
           response = executeCursorQuery(cursor);
         }
         assertEquals(testReportPrefix + "Last page is not empty",
@@ -190,7 +195,7 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
     request.setJsonEntity("{ \"cursor\" : \"n:0000\" }");
     exception = assertThrows(ResponseException.class, () -> client().performRequest(request));
     response = new JSONObject(new String(exception.getResponse().getEntity().getContent().readAllBytes()));
-    assertEquals("`explain` request for cursor requests is not supported. Use `explain` for the initial query request.",
+    assertEquals("Explain of a paged query continuation is not supported. Use `explain` for the initial query request.",
         response.getJSONObject("error").getString("details"));
   }
 
