@@ -36,9 +36,9 @@ class TimeStampAddTest extends ExpressionTestBase {
 
   private static Stream<Arguments> getTestDataForTimestampAdd() {
     return Stream.of(
-        Arguments.of("MINUTE", 1, new ExprStringValue("2003-01-02"),
+        Arguments.of("MINUTE", 1, new ExprStringValue("2003-01-02 00:00:00"),
             "2003-01-02 00:01:00"),
-        Arguments.of("WEEK", 1, new ExprStringValue("2003-01-02"),
+        Arguments.of("WEEK", 1, new ExprStringValue("2003-01-02 00:00:00"),
             "2003-01-09 00:00:00"),
         //Date
         Arguments.of("MINUTE", 1, new ExprDateValue("2003-01-02"),
@@ -55,10 +55,6 @@ class TimeStampAddTest extends ExpressionTestBase {
             "2003-01-02 00:01:00"),
         Arguments.of("WEEK", 1, new ExprTimestampValue("2003-01-02 00:00:00"),
             "2003-01-09 00:00:00"),
-        //time
-        //Note: Adding date part to time argument requires function properties and is handled in another test.
-        Arguments.of("MINUTE", 1, new ExprTimeValue("10:11:12"),
-            "10:12:12 00:00:00"),
         //Cases surrounding leap year
         Arguments.of("SECOND", 1, new ExprTimestampValue("2020-02-28 23:59:59"),
             "2020-02-29 00:00:00"),
@@ -102,20 +98,31 @@ class TimeStampAddTest extends ExpressionTestBase {
 
   @Test
   public void testAddingDatePartToTime() {
-    String interval = "WEEK";
+    String interval1 = "WEEK";
+    String interval2 = "MINUTE";
     int addedInterval = 1;
     String timeArg = "10:11:12";
-    FunctionExpression expr = DSL.timestampadd(
+    FunctionExpression expr1 = DSL.timestampadd(
         functionProperties,
-        DSL.literal(interval),
+        DSL.literal(interval1),
         DSL.literal(new ExprIntegerValue(addedInterval)),
         DSL.literal(new ExprTimeValue(timeArg))
     );
 
-    LocalDate today = LocalDate.now().plusWeeks(addedInterval);
-    LocalDateTime expected = LocalDateTime.of(today, LocalTime.parse(timeArg));
+    FunctionExpression expr2 = DSL.timestampadd(
+        functionProperties,
+        DSL.literal(interval1),
+        DSL.literal(new ExprIntegerValue(addedInterval)),
+        DSL.literal(new ExprTimeValue(timeArg))
+    );
 
-    assertEquals(new ExprDatetimeValue(expected), eval(expr));
+    LocalDate todayPlusOneWeek = LocalDate.now().plusWeeks(addedInterval);
+    LocalDateTime expected1 = LocalDateTime.of(todayPlusOneWeek, LocalTime.parse(timeArg));
+
+    LocalDateTime expected2 = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeArg).plusMinutes(addedInterval));
+
+    assertEquals(new ExprDatetimeValue(expected1), eval(expr1));
+    assertEquals(new ExprDatetimeValue(expected2), eval(expr2));
   }
 
   //TODO: Add test to compare outputs when using a string/timestamp/datetime for 3rd argument.

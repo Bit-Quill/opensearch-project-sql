@@ -823,7 +823,14 @@ public class DateTimeFunction {
 
   private DefaultFunctionResolver timestampadd() {
     return define(BuiltinFunctionName.TIMESTAMPADD.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprTimestampAdd), DATETIME, STRING, INTEGER, DATETIME));
+//        implWithProperties(
+//            nullMissingHandlingWithProperties((functionProperties, part, amount, time) -> DateTimeFunction.exprTimestampAddForTimeType(
+//                functionProperties.getQueryStartClock(),
+//                part,
+//                amount,
+//                time)), DATETIME, STRING, INTEGER, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampAdd), DATETIME, STRING, INTEGER, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampAdd), DATETIME, STRING, INTEGER, TIMESTAMP));
   }
 
   /**
@@ -1636,6 +1643,13 @@ public class DateTimeFunction {
         throw new SemanticCheckException("No matching unit of time.");
     }
     return new ExprDatetimeValue(datetime.plus(amount, temporalUnit));
+  }
+
+  private ExprValue exprTimestampAddForTimeType(Clock clock, ExprValue partExpr, ExprValue amountExpr, ExprValue timeExpr) {
+    LocalDateTime datetime = LocalDateTime.of(
+        formatNow(clock).toLocalDate(),
+        timeExpr.timeValue());
+    return exprTimestampAdd(partExpr, amountExpr, new ExprDatetimeValue(datetime));
   }
 
   /**
