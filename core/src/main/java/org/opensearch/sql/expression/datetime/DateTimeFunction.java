@@ -1640,10 +1640,11 @@ public class DateTimeFunction {
         temporalUnit = MONTHS;
         amount *= 3;
         break;
-      default:
-        //default case covers YEAR. Any other arguments would have been improperly parsed.
+      case "YEAR":
         temporalUnit = YEARS;
         break;
+      default:
+        throw new SemanticCheckException("Invalid interval argument");
     }
     return new ExprDatetimeValue(datetime.plus(amount, temporalUnit));
   }

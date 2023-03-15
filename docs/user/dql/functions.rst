@@ -2447,7 +2447,7 @@ Usage: Returns a DATETIME value based on a passed in DATE/DATETIME/TIME/TIMESTAM
 If an third argument of type STRING is provided, it must be formatted as a valid DATETIME. If only a TIME is provided, a DATETIME is still returned with the DATE portion filled in using the current date.
 
 Argument type: INTERVAL, INTEGER, DATE/DATETIME/TIME/TIMESTAMP/STRING
-INTERVAL must be one of the following tokens: [NANOSECONDS, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR]
+INTERVAL must be one of the following tokens: [MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR]
 
 Examples::
 

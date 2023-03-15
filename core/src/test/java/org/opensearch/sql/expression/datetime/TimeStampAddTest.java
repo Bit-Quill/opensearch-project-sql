@@ -75,8 +75,17 @@ class TimeStampAddTest extends ExpressionTestBase {
         Arguments.of("DAY", 1, new ExprTimestampValue("2020-12-31 23:59:59"),
             "2021-01-01 23:59:59"),
         Arguments.of("WEEK", 1, new ExprTimestampValue("2020-12-31 23:59:59"),
-            "2021-01-07 23:59:59")
+            "2021-01-07 23:59:59"),
 
+        //Test remaining interval types
+        Arguments.of("MICROSECOND", 1, new ExprStringValue("2003-01-02 00:00:00"),
+            "2003-01-02 00:00:00.000001"),
+        Arguments.of("MONTH", 1, new ExprStringValue("2003-01-02 00:00:00"),
+            "2003-02-02 00:00:00"),
+        Arguments.of("QUARTER", 1, new ExprStringValue("2003-01-02 00:00:00"),
+            "2003-04-02 00:00:00"),
+        Arguments.of("YEAR", 1, new ExprStringValue("2003-01-02 00:00:00"),
+            "2004-01-02 00:00:00")
     );
   }
 
@@ -153,7 +162,7 @@ class TimeStampAddTest extends ExpressionTestBase {
         part,
         amount,
         new ExprDatetimeValue("2000-01-01 00:00:00"));
-    
+
     FunctionExpression timestampExpr = timestampaddQuery(
         part,
         amount,
@@ -166,17 +175,19 @@ class TimeStampAddTest extends ExpressionTestBase {
     );
   }
 
-  @Test
-  public void testInvalidArguments() {
-    FunctionExpression expr1 = timestampaddQuery("INVALID", 1, new ExprDateValue("2000-01-01"));
-    FunctionExpression expr2 = timestampaddQuery("WEEK", 1, new ExprStringValue("2000-13-01"));
-    FunctionExpression expr3 = timestampaddQuery("WEEK", 1, new ExprStringValue("2000-01-40"));
-
-    assertAll(
-        () -> assertThrows(SemanticCheckException.class, () -> eval(expr1)),
-        () -> assertThrows(SemanticCheckException.class, () -> eval(expr2)),
-        () -> assertThrows(SemanticCheckException.class, () -> eval(expr3))
+  private static Stream<Arguments> getInvalidTestDataForTimestampAdd() {
+    return Stream.of(
+        Arguments.of("INVALID", 1, new ExprDateValue("2000-01-01")),
+        Arguments.of("WEEK", 1, new ExprStringValue("2000-13-01")),
+        Arguments.of("WEEK", 1, new ExprStringValue("2000-01-40"))
     );
+  }
+
+  @ParameterizedTest
+  @MethodSource("getInvalidTestDataForTimestampAdd")
+  public void testInvalidArguments(String interval, int amount, ExprValue datetimeExpr) {
+    FunctionExpression expr = timestampaddQuery(interval, amount, datetimeExpr);
+    assertThrows(SemanticCheckException.class, () -> eval(expr));
   }
 
   //TODO: Add test to check for null value return???
