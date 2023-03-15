@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
@@ -56,7 +57,7 @@ class TimeStampAddTest extends ExpressionTestBase {
             "2003-01-09"),
         //time
         //Note: Adding date part to time argument requires function properties and is handled in another test.
-        Arguments.of("MINUTE", 1, new ExprTimestampValue("10:11:12"),
+        Arguments.of("MINUTE", 1, new ExprTimeValue("10:11:12"),
             "10:12:12"),
         //Cases surrounding leap year
         Arguments.of("SECOND", 1, new ExprTimestampValue("2020-02-28 23:59:59"),
@@ -93,6 +94,7 @@ class TimeStampAddTest extends ExpressionTestBase {
   }
 
   @ParameterizedTest
+  @MethodSource("getTestDataForTimestampAdd")
   public void testTimestampadd(String unit, int amount, ExprValue datetimeExpr, String expected) {
     FunctionExpression expr = timestampaddQuery(unit, amount, datetimeExpr);
     assertEquals(new ExprDatetimeValue(expected), eval(expr));

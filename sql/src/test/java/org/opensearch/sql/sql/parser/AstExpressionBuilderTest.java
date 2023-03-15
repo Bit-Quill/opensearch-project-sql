@@ -222,6 +222,14 @@ class AstExpressionBuilderTest {
   }
 
   @Test
+  public void canBuildTimestampAddFunctionCall() {
+    assertEquals(
+        function("timestampadd", stringLiteral("WEEK"), intLiteral(1), dateLiteral("2023-03-14")),
+        buildExprAst("timestampadd(WEEK, 1, \"2023-03-14\")")
+    );
+  }
+
+  @Test
   public void canBuildComparisonExpression() {
     assertEquals(
         function("!=", intLiteral(1), intLiteral(2)),

@@ -310,6 +310,23 @@ functionCall
     | highlightFunction                                             #highlightFunctionCall
     | positionFunction                                              #positionFunctionCall
     | getFormatFunction                                             #getFormatFunctionCall
+    | timestampAddFunction                                          #timestampAddFunctionCall
+    ;
+
+timestampAddFunction
+    : TIMESTAMPADD LR_BRACKET timstampAddIntervalType COMMA length=functionArg COMMA timestampExpr=functionArg RR_BRACKET
+    ;
+
+timstampAddIntervalType
+    : MICROSECOND
+    | SECOND
+    | MINUTE
+    | HOUR
+    | DAY
+    | WEEK
+    | MONTH
+    | QUARTER
+    | YEAR
     ;
 
 getFormatFunction

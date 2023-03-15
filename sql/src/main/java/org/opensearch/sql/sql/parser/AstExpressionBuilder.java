@@ -61,6 +61,7 @@ import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.StringLite
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TableFilterContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimeLiteralContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimestampLiteralContext;
+import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimestampAddFunctionCallContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.WindowFunctionClauseContext;
 import static org.opensearch.sql.sql.parser.ParserUtils.createSortOption;
 
@@ -170,6 +171,14 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
     return new HighlightFunction(visit(ctx.highlightFunction().relevanceField()),
         builder.build());
+  }
+
+
+  @Override
+  public UnresolvedExpression visitTimestampAddFunctionCall(TimestampAddFunctionCallContext ctx) {
+    return new Function(
+        ctx.timestampAddFunction().TIMESTAMPADD().toString(),
+        timestampAddFunctionArguments(ctx));
   }
 
   @Override
@@ -568,6 +577,16 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     List<UnresolvedExpression> args = Arrays.asList(
         new Literal(ctx.getFormatFunction().getFormatType().getText(), DataType.STRING),
         visitFunctionArg(ctx.getFormatFunction().functionArg())
+    );
+    return args;
+  }
+
+  private List<UnresolvedExpression> timestampAddFunctionArguments(
+      TimestampAddFunctionCallContext ctx) {
+    List<UnresolvedExpression> args = Arrays.asList(
+        new Literal(ctx.timestampAddFunction().timstampAddIntervalType().getText(), DataType.STRING),
+        visitFunctionArg(ctx.timestampAddFunction().length),
+        visitFunctionArg(ctx.timestampAddFunction().timestampExpr)
     );
     return args;
   }
