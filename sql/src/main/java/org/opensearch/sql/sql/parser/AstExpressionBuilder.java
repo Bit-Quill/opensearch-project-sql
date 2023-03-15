@@ -60,8 +60,8 @@ import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.StringCont
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.StringLiteralContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TableFilterContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimeLiteralContext;
-import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimestampLiteralContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimestampAddFunctionCallContext;
+import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimestampLiteralContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.WindowFunctionClauseContext;
 import static org.opensearch.sql.sql.parser.ParserUtils.createSortOption;
 
@@ -584,7 +584,9 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   private List<UnresolvedExpression> timestampAddFunctionArguments(
       TimestampAddFunctionCallContext ctx) {
     List<UnresolvedExpression> args = Arrays.asList(
-        new Literal(ctx.timestampAddFunction().timstampAddIntervalType().getText(), DataType.STRING),
+        new Literal(
+            ctx.timestampAddFunction().timstampAddIntervalType().getText(),
+            DataType.STRING),
         visitFunctionArg(ctx.timestampAddFunction().length),
         visitFunctionArg(ctx.timestampAddFunction().timestampExpr)
     );

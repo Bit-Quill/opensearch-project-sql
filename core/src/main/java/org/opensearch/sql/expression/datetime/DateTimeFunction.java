@@ -823,8 +823,10 @@ public class DateTimeFunction {
 
   private DefaultFunctionResolver timestampadd() {
     return define(BuiltinFunctionName.TIMESTAMPADD.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprTimestampAdd), DATETIME, STRING, INTEGER, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprTimestampAdd), DATETIME, STRING, INTEGER, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampAdd),
+            DATETIME, STRING, INTEGER, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampAdd),
+            DATETIME, STRING, INTEGER, TIMESTAMP),
         implWithProperties(
             nullMissingHandlingWithProperties(
                 (functionProperties, part, amount, time) -> exprTimestampAddForTimeType(
@@ -1604,13 +1606,15 @@ public class DateTimeFunction {
     return new ExprLongValue(time.timeValue().toSecondOfDay());
   }
 
-  private ExprValue exprTimestampAdd(ExprValue partExpr, ExprValue amountExpr, ExprValue datetimeExpr) {
+  private ExprValue exprTimestampAdd(ExprValue partExpr,
+                                     ExprValue amountExpr,
+                                     ExprValue datetimeExpr) {
     String part = partExpr.stringValue();
     int amount = amountExpr.integerValue();
     LocalDateTime datetime = datetimeExpr.datetimeValue();
     ChronoUnit temporalUnit;
 
-    switch(part) {
+    switch (part) {
       case "MICROSECOND":
         temporalUnit = MICROS;
         break;

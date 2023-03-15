@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -81,7 +80,9 @@ class TimeStampAddTest extends ExpressionTestBase {
     );
   }
 
-  private static FunctionExpression timestampaddQuery(String unit, int amount, ExprValue datetimeExpr) {
+  private static FunctionExpression timestampaddQuery(String unit,
+                                                      int amount,
+                                                      ExprValue datetimeExpr) {
     return DSL.timestampadd(
         DSL.literal(unit),
         DSL.literal(new ExprIntegerValue(amount)),
@@ -127,7 +128,9 @@ class TimeStampAddTest extends ExpressionTestBase {
         DSL.literal(new ExprTimeValue(timeArg))
     );
 
-    LocalDateTime expected = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeArg).plusMinutes(addedInterval));
+    LocalDateTime expected = LocalDateTime.of(
+        LocalDate.now(),
+        LocalTime.parse(timeArg).plusMinutes(addedInterval));
 
     assertEquals(new ExprDatetimeValue(expected), eval(expr));
   }
@@ -136,12 +139,21 @@ class TimeStampAddTest extends ExpressionTestBase {
   public void testDifferentInputTypesHaveSameResult() {
     String part = "SECOND";
     int amount = 1;
-    FunctionExpression dateExpr = timestampaddQuery(part, amount, new ExprDateValue("2000-01-01"));
-    FunctionExpression stringExpr = timestampaddQuery(part, amount, new ExprStringValue("2000-01-01 00:00:00"));
+    FunctionExpression dateExpr = timestampaddQuery(
+        part,
+        amount,
+        new ExprDateValue("2000-01-01"));
+
+    FunctionExpression stringExpr = timestampaddQuery(
+        part,
+        amount,
+        new ExprStringValue("2000-01-01 00:00:00"));
+
     FunctionExpression datetimeExpr = timestampaddQuery(
         part,
         amount,
         new ExprDatetimeValue("2000-01-01 00:00:00"));
+    
     FunctionExpression timestampExpr = timestampaddQuery(
         part,
         amount,

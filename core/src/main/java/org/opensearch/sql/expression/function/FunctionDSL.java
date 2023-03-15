@@ -195,8 +195,13 @@ public class FunctionDSL {
    * @return Binary Function Implementation.
    */
   public static SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>
-  implWithProperties(
-      SerializableQuadFunction<FunctionProperties, ExprValue, ExprValue, ExprValue, ExprValue> function,
+      implWithProperties(
+      SerializableQuadFunction<
+          FunctionProperties,
+          ExprValue,
+          ExprValue,
+          ExprValue,
+          ExprValue> function,
       ExprType returnType,
       ExprType args1Type,
       ExprType args2Type,
@@ -412,9 +417,19 @@ public class FunctionDSL {
    * Wrapper for the ExprValue function that takes 3 arguments and is aware of FunctionProperties,
    * with default NULL and MISSING handling.
    */
-  public static SerializableQuadFunction<FunctionProperties, ExprValue, ExprValue, ExprValue, ExprValue>
-  nullMissingHandlingWithProperties(
-      SerializableQuadFunction<FunctionProperties, ExprValue, ExprValue, ExprValue, ExprValue> implementation) {
+  public static SerializableQuadFunction<
+      FunctionProperties,
+      ExprValue,
+      ExprValue,
+      ExprValue,
+      ExprValue>
+      nullMissingHandlingWithProperties(
+      SerializableQuadFunction<
+          FunctionProperties,
+          ExprValue,
+          ExprValue,
+          ExprValue,
+          ExprValue> implementation) {
     return (functionProperties, v1, v2, v3) -> {
       if (v1.isMissing() || v2.isMissing() || v3.isMissing()) {
         return ExprValueUtils.missingValue();
