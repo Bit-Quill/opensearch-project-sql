@@ -110,11 +110,8 @@ class OpenSearchIndexScanQueryBuilder extends TableScanBuilder {
       return true;
     }
     if (condition instanceof FunctionExpression) {
-      for (Expression expr: ((FunctionExpression) condition).getArguments()) {
-        if (trackScoresFromOpenSearchFunction(expr)) {
-          return true;
-        }
-      }
+      return ((FunctionExpression) condition).getArguments().stream()
+          .anyMatch(this::trackScoresFromOpenSearchFunction);
     }
     return false;
   }

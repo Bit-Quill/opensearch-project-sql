@@ -485,9 +485,9 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
    */
   public UnresolvedExpression visitScoreRelevanceFunction(ScoreRelevanceFunctionContext ctx) {
     Literal weight =
-        ctx.weight == null ?
-            new Literal(Double.valueOf(1.0), DataType.DOUBLE) :
-            new Literal(Double.parseDouble(ctx.weight.getText()), DataType.DOUBLE);
+        ctx.weight == null
+            ? new Literal(Double.valueOf(1.0), DataType.DOUBLE)
+            : new Literal(Double.parseDouble(ctx.weight.getText()), DataType.DOUBLE);
     return new ScoreFunction(visit(ctx.relevanceFunction()), weight);
   }
 
