@@ -3845,12 +3845,14 @@ SCORE
 Description
 >>>>>>>>>>>
 
-``score(search_expression, boost)``
-``score_query(search_expression, boost)``
-``scorequery(search_expression, boost)``
+``score(relevance_expression, boost)``
+``score_query(relevance_expression, boost)``
+``scorequery(relevance_expression, boost)``
 
-The score function returns the _score of any documents matching the enclosed relevance-search expression. The SCORE function expects two
-arguments. The first argument is the search expression. The second argument is an optional floating-point number to boost the score (the default value is 1.0).
+The score function returns the `_score` of any documents matching the enclosed relevance-based expression. The SCORE function expects two
+arguments. The first argument is the relevance-based search expression. The second argument is an optional floating-point number to boost
+the score (the default value is 1.0).
+
 Please refer to examples below:
 
 | ``score(query('Tags:taste OR Body:taste', ...), 2.0)``
