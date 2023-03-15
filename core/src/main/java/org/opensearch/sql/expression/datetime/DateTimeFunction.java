@@ -827,7 +827,7 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprTimestampAdd), DATETIME, STRING, INTEGER, TIMESTAMP),
         implWithProperties(
             nullMissingHandlingWithProperties(
-                (functionProperties, part, amount, time) -> DateTimeFunction.exprTimestampAddForTimeType(
+                (functionProperties, part, amount, time) -> exprTimestampAddForTimeType(
                     functionProperties.getQueryStartClock(),
                     part,
                     amount,
@@ -1634,14 +1634,12 @@ public class DateTimeFunction {
         break;
       case "QUARTER":
         temporalUnit = MONTHS;
-        amount = 3;
-        break;
-      case "YEAR":
-        temporalUnit = YEARS;
+        amount *= 3;
         break;
       default:
-        //TODO: Maybe return null?
-        throw new SemanticCheckException("No matching unit of time.");
+        //default case covers YEAR. Any other arguments would have been improperly parsed.
+        temporalUnit = YEARS;
+        break;
     }
     return new ExprDatetimeValue(datetime.plus(amount, temporalUnit));
   }
