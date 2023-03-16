@@ -594,7 +594,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
       TimestampAddFunctionCallContext ctx) {
     List<UnresolvedExpression> args = Arrays.asList(
         new Literal(
-            ctx.timestampAddFunction().timstampAddIntervalType().getText(),
+            ctx.timestampAddFunction().simpleDateTimePart().getText(),
             DataType.STRING),
         visitFunctionArg(ctx.timestampAddFunction().length),
         visitFunctionArg(ctx.timestampAddFunction().timestampExpr)
