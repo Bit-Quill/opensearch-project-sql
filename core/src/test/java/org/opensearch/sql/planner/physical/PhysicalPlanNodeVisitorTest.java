@@ -26,7 +26,6 @@ import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.window.WindowDefinition;
-import org.opensearch.sql.planner.PaginateOperator;
 
 /**
  * Todo, testing purpose, delete later.

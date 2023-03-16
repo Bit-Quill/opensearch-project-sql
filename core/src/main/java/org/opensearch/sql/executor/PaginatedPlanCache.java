@@ -19,7 +19,7 @@ import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.serialization.DefaultExpressionSerializer;
 import org.opensearch.sql.opensearch.executor.Cursor;
-import org.opensearch.sql.planner.PaginateOperator;
+import org.opensearch.sql.planner.physical.PaginateOperator;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 import org.opensearch.sql.planner.physical.ProjectOperator;
 import org.opensearch.sql.storage.StorageEngine;

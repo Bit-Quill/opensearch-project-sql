@@ -26,10 +26,10 @@ import org.opensearch.sql.ast.statement.Query;
 import org.opensearch.sql.ast.statement.Statement;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.response.ResponseListener;
+import org.opensearch.sql.exception.UnsupportedCursorRequestException;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.executor.QueryService;
-import org.opensearch.sql.legacy.plugin.UnsupportCursorRequestException;
 
 @ExtendWith(MockitoExtension.class)
 class QueryPlanFactoryTest {
@@ -139,7 +139,7 @@ class QueryPlanFactoryTest {
     when(paginatedPlanCache.canConvertToCursor(plan)).thenReturn(false);
     factory = new QueryPlanFactory(queryService, paginatedQueryService, paginatedPlanCache);
     Statement query = new Query(plan, 10);
-    assertThrows(UnsupportCursorRequestException.class,
+    assertThrows(UnsupportedCursorRequestException.class,
         () -> factory.create(query, Optional.of(queryListener), Optional.empty()));
   }
 }
