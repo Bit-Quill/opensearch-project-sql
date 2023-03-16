@@ -49,7 +49,7 @@ import org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder;
 import org.opensearch.sql.opensearch.storage.scan.OpenSearchIndexScan;
 import org.opensearch.sql.planner.PaginateOperator;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
-import org.opensearch.sql.opensearch.storage.OpenSearchIndexScan;
+import org.opensearch.sql.opensearch.storage.scan.OpenSearchIndexScan;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 import org.opensearch.sql.planner.physical.ProjectOperator;
 import org.opensearch.sql.storage.TableScanOperator;
@@ -303,7 +303,8 @@ class OpenSearchExecutionEngineTest {
 
   @Test
   void executeRawResponseSuccessfully() {
-    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector);
+    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector,
+        PaginatedPlanCache.None);
     Settings settings = mock(Settings.class);
     when(settings.getSettingValue(QUERY_SIZE_LIMIT)).thenReturn(100);
     PhysicalPlan plan = new FakeOperator(new FakeOpenSearchIndexScan(mock(OpenSearchClient.class),
