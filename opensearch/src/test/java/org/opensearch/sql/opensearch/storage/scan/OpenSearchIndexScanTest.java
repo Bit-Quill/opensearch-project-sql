@@ -162,7 +162,7 @@ class OpenSearchIndexScanTest {
           () -> assertEquals(employee(3, "Allen", "IT"), indexScan.next()),
 
           () -> assertFalse(indexScan.hasNext()),
-          () -> assertEquals(4, indexScan.getTotalHits())
+          () -> assertEquals(3, indexScan.getTotalHits())
       );
     }
     verify(client).cleanup(any());
@@ -191,7 +191,7 @@ class OpenSearchIndexScanTest {
           () -> assertEquals(employee(3, "Allen", "IT"), indexScan.next()),
 
           () -> assertFalse(indexScan.hasNext()),
-          () -> assertEquals(4, indexScan.getTotalHits())
+          () -> assertEquals(3, indexScan.getTotalHits())
       );
     }
     verify(client).cleanup(any());
@@ -218,7 +218,7 @@ class OpenSearchIndexScanTest {
           () -> assertEquals(employee(2, "Smith", "HR"), indexScan.next()),
 
           () -> assertFalse(indexScan.hasNext()),
-          () -> assertEquals(4, indexScan.getTotalHits())
+          () -> assertEquals(2, indexScan.getTotalHits())
       );
     }
     verify(client).cleanup(any());

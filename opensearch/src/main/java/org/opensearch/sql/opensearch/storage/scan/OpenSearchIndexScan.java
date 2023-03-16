@@ -49,8 +49,6 @@ public class OpenSearchIndexScan extends TableScanOperator {
   /** Number of rows returned. */
   private Integer queryCount;
 
-  private long totalHits = 0;
-
   /** Search response for current batch. */
   private transient Iterator<ExprValue> iterator;
 
@@ -87,12 +85,12 @@ public class OpenSearchIndexScan extends TableScanOperator {
 
   @Override
   public long getTotalHits() {
-    return totalHits;
+    // ignore response.getTotalHits(), because response returns entire index, regardless of LIMIT
+    return queryCount;
   }
 
   private void fetchNextBatch() {
     OpenSearchResponse response = client.search(request);
-    totalHits += response.getTotalHits();
     if (!response.isEmpty()) {
       iterator = response.iterator();
     }
