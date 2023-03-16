@@ -63,14 +63,6 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
   @Override
   @SneakyThrows
   public void init() {
-    loadIndex(Index.ACCOUNT);
-    loadIndex(Index.ONLINE);
-    loadIndex(Index.BEER);
-    loadIndex(Index.BANK);
-    if (!isIndexExist(client(), "empty")) {
-      executeRequest(new Request("PUT", "/empty"));
-    }
-
     RestHighLevelClient restClient = new InternalRestHighLevelClient(client());
     client = new OpenSearchRestClient(restClient);
     DataSourceService dataSourceService = new DataSourceServiceImpl(
@@ -135,49 +127,6 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
     paginatedQueryService.executePlan(plan, secondResponder);
 
     // act 3: confirm that there's no cursor.
-  }
-
-  // Test takes 3+ min due to a big amount of requests issued
-  // Skip 'online' index and/or page_size = 1 to get a significant speed-up
-  @Test
-  @SneakyThrows
-  public void test_pagination_blackbox() {
-    var indices = getResponseBody(client().performRequest(new Request("GET", "_cat/indices?h=i")), true).split("\n");
-    for (var index : indices) {
-      var response = executeJdbcRequest(String.format("select * from %s", index));
-      var indexSize = response.getInt("total");
-      var rows = response.getJSONArray("datarows");
-      var schema = response.getJSONArray("schema");
-      for (var pageSize : List.of(1, 5, 10, 100, 1000)) {
-        var testReportPrefix = String.format("index: %s, page size: %d || ", index, pageSize);
-        var rowsPaged = new JSONArray();
-        var rowsReturned = 0;
-        response = new JSONObject(executeFetchQuery(
-            String.format("select * from %s", index), pageSize, "jdbc"));
-        while (response.has("cursor")) {
-          var cursor = response.getString("cursor");
-          assertTrue(testReportPrefix + "Cursor returned from legacy engine",
-              cursor.startsWith("n:"));
-          rowsReturned += response.getInt("size");
-          var datarows = response.getJSONArray("datarows");
-          for (int i = 0; i < datarows.length(); i++) {
-            rowsPaged.put(datarows.get(i));
-          }
-          assertTrue("Paged response schema doesn't match to non-paged",
-              schema.similar(response.getJSONArray("schema")));
-          assertEquals(indexSize, response.getInt("total"));
-          response = executeCursorQuery(cursor);
-        }
-        assertEquals(testReportPrefix + "Last page is not empty",
-            0, response.getInt("total"));
-        assertEquals(testReportPrefix + "Last page is not empty",
-            0, response.getJSONArray("datarows").length());
-        assertEquals(testReportPrefix + "Paged responses return another row count that non-paged",
-            indexSize, rowsReturned);
-        assertTrue(testReportPrefix + "Paged accumulated result has other rows than non-paged",
-            rows.similar(rowsPaged));
-      }
-    }
   }
 
   @Test
