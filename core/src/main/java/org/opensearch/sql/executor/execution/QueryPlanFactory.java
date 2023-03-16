@@ -18,11 +18,11 @@ import org.opensearch.sql.ast.statement.Explain;
 import org.opensearch.sql.ast.statement.Query;
 import org.opensearch.sql.ast.statement.Statement;
 import org.opensearch.sql.common.response.ResponseListener;
+import org.opensearch.sql.exception.UnsupportedCursorRequestException;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.executor.QueryId;
 import org.opensearch.sql.executor.QueryService;
-import org.opensearch.sql.legacy.plugin.UnsupportCursorRequestException;
 
 /**
  * QueryExecution Factory.
@@ -102,7 +102,7 @@ public class QueryPlanFactory
             context.getLeft().get());
       } else {
         // This should be picked up by the legacy engine.
-        throw new UnsupportCursorRequestException();
+        throw new UnsupportedCursorRequestException();
       }
     } else {
       return new QueryPlan(QueryId.queryId(), node.getPlan(), queryService,

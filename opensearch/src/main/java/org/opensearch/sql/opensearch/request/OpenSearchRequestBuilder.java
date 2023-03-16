@@ -105,7 +105,6 @@ public class OpenSearchRequestBuilder {
   /**
    * Build DSL request.
    *
-
    * @return query request or scroll request
    */
   public OpenSearchRequest build() {

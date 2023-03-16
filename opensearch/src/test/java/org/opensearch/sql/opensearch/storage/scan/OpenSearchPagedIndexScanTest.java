@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -88,8 +88,7 @@ public class OpenSearchPagedIndexScanTest {
           () -> assertEquals(3, indexScan.getTotalHits())
       );
     }
-    // cleanup should be called on empty response only
-    verify(client, never()).cleanup(any());
+    verify(client).cleanup(any());
 
     builder = new SubsequentPageRequestBuilder(
         new OpenSearchRequest.IndexName("test"), "scroll", exprValueFactory);
@@ -98,7 +97,7 @@ public class OpenSearchPagedIndexScanTest {
 
       assertFalse(indexScan.hasNext());
     }
-    verify(client).cleanup(any());
+    verify(client, times(2)).cleanup(any());
   }
 
   @Test
@@ -127,8 +126,7 @@ public class OpenSearchPagedIndexScanTest {
           () -> assertEquals(3, indexScan.getTotalHits())
       );
     }
-    // cleanup should be called on empty response only
-    verify(client, never()).cleanup(any());
+    verify(client).cleanup(any());
 
     builder = new SubsequentPageRequestBuilder(
         new OpenSearchRequest.IndexName("test"), "scroll", exprValueFactory);
@@ -137,7 +135,7 @@ public class OpenSearchPagedIndexScanTest {
 
       assertFalse(indexScan.hasNext());
     }
-    verify(client).cleanup(any());
+    verify(client, times(2)).cleanup(any());
   }
 
   @Test

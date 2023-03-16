@@ -160,6 +160,16 @@ public class SQLQueryRequestTest {
                               .cursor("n:12356")
                               .params(Map.of("one", "two"))
                               .build();
+    SQLQueryRequest requestWithParamsWithFormat =
+        SQLQueryRequestBuilder.request(null)
+                              .cursor("n:12356")
+                              .params(Map.of("format", "jdbc"))
+                              .build();
+    SQLQueryRequest requestWithParamsWithFormatAnd =
+        SQLQueryRequestBuilder.request(null)
+                              .cursor("n:12356")
+                              .params(Map.of("format", "jdbc", "something", "else"))
+                              .build();
     SQLQueryRequest requestWithFetchSize =
         SQLQueryRequestBuilder.request(null)
                               .cursor("n:12356")
@@ -180,6 +190,8 @@ public class SQLQueryRequestTest {
         () -> assertFalse(requestWithParams.isSupported()),
         () -> assertFalse(requestWithFetchSize.isSupported()),
         () -> assertTrue(requestWithNoParams.isSupported()),
+        () -> assertTrue(requestWithParamsWithFormat.isSupported()),
+        () -> assertFalse(requestWithParamsWithFormatAnd.isSupported()),
         () -> assertTrue(requestWithNoContent.isSupported())
     );
   }

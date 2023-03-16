@@ -111,7 +111,7 @@ public class StandaloneModule extends AbstractModule {
   }
 
   @Provides
-  public QueryService querySerivce(ExecutionEngine executionEngine) {
+  public QueryService queryService(ExecutionEngine executionEngine) {
     Analyzer analyzer =
         new Analyzer(
             new ExpressionAnalyzer(functionRepository), dataSourceService, functionRepository);

@@ -13,10 +13,19 @@ import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.ExecutionContext;
 import org.opensearch.sql.executor.ExecutionEngine;
+import org.opensearch.sql.executor.QueryService;
 import org.opensearch.sql.planner.Planner;
 import org.opensearch.sql.planner.logical.LogicalPlan;
+import org.opensearch.sql.planner.optimizer.LogicalPlanOptimizer;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 
+/**
+ * `PaginatedQueryService` does the same as `QueryService`, but it has another planner,
+ * configured to handle paged index scan.
+ * @see OpenSearchPluginModule#queryPlanFactory (:plugin module)
+ * @see LogicalPlanOptimizer#paginationCreate
+ * @see QueryService
+ */
 @RequiredArgsConstructor
 public class PaginatedQueryService {
   private final Analyzer analyzer;

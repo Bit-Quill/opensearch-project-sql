@@ -28,13 +28,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Answers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.opensearch.executor.Cursor;
-import org.opensearch.sql.planner.PaginateOperator;
+import org.opensearch.sql.planner.physical.PaginateOperator;
 import org.opensearch.sql.storage.StorageEngine;
 import org.opensearch.sql.storage.TableScanOperator;
 
