@@ -31,6 +31,7 @@ import static org.opensearch.sql.ast.tree.Sort.SortOption;
 import static org.opensearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 import static org.opensearch.sql.ast.tree.Sort.SortOrder;
 import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
+import static org.opensearch.sql.data.model.ExprValueUtils.stringValue;
 import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
@@ -105,6 +106,54 @@ class AnalyzerTest extends AnalyzerTestBase {
         AstDSL.filter(
             AstDSL.relation("schema"),
             AstDSL.equalTo(AstDSL.field("integer_value"), AstDSL.intLiteral(1))));
+  }
+
+  @Test
+  public void filter_relation_with_reserved_qualifiedName() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.filter(
+            LogicalPlanDSL.relation("schema", table),
+            DSL.equal(DSL.ref("_test", STRING), DSL.literal(stringValue("value")))),
+        AstDSL.filter(
+            AstDSL.relation("schema"),
+            AstDSL.equalTo(AstDSL.qualifiedName("_test"), AstDSL.stringLiteral("value"))));
+  }
+
+  @Test
+  public void filter_relation_with_invalid_qualifiedName_SemanticCheckException() {
+    UnresolvedPlan invalidFieldPlan = AstDSL.filter(
+        AstDSL.relation("schema"),
+        AstDSL.equalTo(
+            AstDSL.qualifiedName("_invalid"),
+            AstDSL.stringLiteral("value"))
+    );
+
+    SemanticCheckException exception =
+        assertThrows(
+            SemanticCheckException.class,
+            () -> analyze(invalidFieldPlan));
+    assertEquals(
+        "can't resolve Symbol(namespace=FIELD_NAME, name=_invalid) in type env",
+        exception.getMessage());
+  }
+
+  @Test
+  public void filter_relation_with_invalid_qualifiedName_ExpressionEvaluationException() {
+    UnresolvedPlan typeMismatchPlan = AstDSL.filter(
+        AstDSL.relation("schema"),
+        AstDSL.equalTo(AstDSL.qualifiedName("_test"), AstDSL.intLiteral(1))
+    );
+
+    ExpressionEvaluationException exception =
+        assertThrows(
+            ExpressionEvaluationException.class,
+            () -> analyze(typeMismatchPlan));
+    assertEquals(
+        "= function expected {[BYTE,BYTE],[SHORT,SHORT],[INTEGER,INTEGER],[LONG,LONG],"
+            + "[FLOAT,FLOAT],[DOUBLE,DOUBLE],[STRING,STRING],[BOOLEAN,BOOLEAN],[DATE,DATE],"
+            + "[TIME,TIME],[DATETIME,DATETIME],[TIMESTAMP,TIMESTAMP],[INTERVAL,INTERVAL],"
+            + "[STRUCT,STRUCT],[ARRAY,ARRAY]}, but get [STRING,INTEGER]",
+        exception.getMessage());
   }
 
   @Test

@@ -15,7 +15,6 @@ import static org.opensearch.sql.ast.dsl.AstDSL.floatLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.function;
 import static org.opensearch.sql.ast.dsl.AstDSL.intLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.qualifiedName;
-import static org.opensearch.sql.ast.dsl.AstDSL.qualifiedNameWithMetadata;
 import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.unresolvedArg;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
@@ -232,36 +231,26 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void qualified_name_with_metadata_field_success() {
+  public void qualified_name_with_reserved_symbol() {
     analysisContext.push();
+
+    analysisContext.peek().addReservedWord(new Symbol(Namespace.FIELD_NAME, "_reserved"), STRING);
+    analysisContext.peek().addReservedWord(new Symbol(Namespace.FIELD_NAME, "_priority"), FLOAT);
     analysisContext.peek().define(new Symbol(Namespace.INDEX_NAME, "index_alias"), STRUCT);
+    assertAnalyzeEqual(
+        DSL.ref("_priority", FLOAT),
+        qualifiedName("_priority")
+    );
+    assertAnalyzeEqual(
+        DSL.ref("_reserved", STRING),
+        qualifiedName("index_alias", "_reserved")
+    );
 
-    assertAnalyzeEqual(DSL.ref("_id", STRING), qualifiedNameWithMetadata("index_alias", "_id"));
-    assertAnalyzeEqual(DSL.ref("_index", STRING),
-            qualifiedNameWithMetadata("index_alias", "_index"));
-    assertAnalyzeEqual(DSL.ref("_score", FLOAT),
-            qualifiedNameWithMetadata("index_alias", "_score"));
-    assertAnalyzeEqual(DSL.ref("_maxscore", FLOAT),
-            qualifiedNameWithMetadata("index_alias", "_maxscore"));
-    assertAnalyzeEqual(DSL.ref("_sort", LONG), qualifiedNameWithMetadata("index_alias", "_sort"));
-
-    assertAnalyzeEqual(DSL.ref("_id", STRING), qualifiedNameWithMetadata("_id"));
-    assertAnalyzeEqual(DSL.ref("_index", STRING), qualifiedNameWithMetadata("_index"));
-
-    analysisContext.pop();
-  }
-
-  @Test
-  public void qualified_name_with_metadata_field_failure() {
-    analysisContext.push();
-    analysisContext.peek().define(new Symbol(Namespace.INDEX_NAME, "index_alias"), STRUCT);
-
-    SemanticCheckException exception =
-            assertThrows(SemanticCheckException.class,
-                    () -> analyze(qualifiedNameWithMetadata("index_alias", "_invalid")));
-    assertEquals(
-            "invalid metadata field",
-            exception.getMessage()
+    // reserved fields take priority over symbol table
+    analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "_reserved"), LONG);
+    assertAnalyzeEqual(
+        DSL.ref("_reserved", STRING),
+        qualifiedName("index_alias", "_reserved")
     );
 
     analysisContext.pop();

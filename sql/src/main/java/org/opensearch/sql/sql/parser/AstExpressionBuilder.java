@@ -503,14 +503,11 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   }
 
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {
-    // check if the last part is a metadata field
-    boolean isMetadataField = identifiers.get(identifiers.size() - 1).metadataField() != null;
     return new QualifiedName(
         identifiers.stream()
                    .map(RuleContext::getText)
                    .map(StringUtils::unquoteIdentifier)
-                   .collect(Collectors.toList()),
-        isMetadataField);
+                   .collect(Collectors.toList()));
   }
 
   private void fillRelevanceArgs(List<RelevanceArgContext> args,

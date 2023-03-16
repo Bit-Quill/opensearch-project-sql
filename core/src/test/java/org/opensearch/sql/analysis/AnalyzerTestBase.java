@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,10 @@ public class AnalyzerTestBase {
       @Override
       public PhysicalPlan implement(LogicalPlan plan) {
         throw new UnsupportedOperationException();
+      }
+
+      public Map<String, ExprType> getReservedFieldTypes() {
+        return ImmutableMap.of("_test", STRING);
       }
     });
   }

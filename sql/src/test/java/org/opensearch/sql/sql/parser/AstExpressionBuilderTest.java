@@ -23,7 +23,6 @@ import static org.opensearch.sql.ast.dsl.AstDSL.not;
 import static org.opensearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.or;
 import static org.opensearch.sql.ast.dsl.AstDSL.qualifiedName;
-import static org.opensearch.sql.ast.dsl.AstDSL.qualifiedNameWithMetadata;
 import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.timeLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.timestampLiteral;
@@ -441,7 +440,7 @@ class AstExpressionBuilderTest {
   public void canBuildMetaDataFieldAsQualifiedName() {
     Stream.of("_id", "_index", "_sort", "_score", "_maxscore").forEach(
         field -> assertEquals(
-            qualifiedNameWithMetadata(field),
+            qualifiedName(field),
             buildExprAst(field)
         )
     );

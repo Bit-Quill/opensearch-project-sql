@@ -140,11 +140,7 @@ public class AstDSL {
   }
 
   public static QualifiedName qualifiedName(String... parts) {
-    return new QualifiedName(Arrays.asList(parts), Boolean.FALSE);
-  }
-
-  public static QualifiedName qualifiedNameWithMetadata(String... parts) {
-    return new QualifiedName(Arrays.asList(parts), Boolean.TRUE);
+    return new QualifiedName(Arrays.asList(parts));
   }
 
   public static UnresolvedExpression equalTo(

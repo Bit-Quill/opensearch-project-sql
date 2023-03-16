@@ -8,7 +8,6 @@ package org.opensearch.sql.analysis;
 
 import static org.opensearch.sql.ast.dsl.AstDSL.and;
 import static org.opensearch.sql.ast.dsl.AstDSL.compare;
-import static org.opensearch.sql.ast.expression.QualifiedName.METADATAFIELD_TYPE_MAP;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -359,8 +358,19 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Override
   public Expression visitQualifiedName(QualifiedName node, AnalysisContext context) {
     QualifierAnalyzer qualifierAnalyzer = new QualifierAnalyzer(context);
-    if (node.isMetadataField()) {
-      return visitMetadata(qualifierAnalyzer.unqualified(node), context);
+
+    // check for reserved words in the identifier
+    TypeEnvironment typeEnv = context.peek();
+    for (String part : node.getParts()) {
+      Optional<ExprType> exprType = typeEnv.getReservedSymbolTable().lookup(
+          new Symbol(Namespace.FIELD_NAME, part));
+      if (exprType.isPresent()) {
+        return visitMetadata(
+            qualifierAnalyzer.unqualified(node),
+            (ExprCoreType) exprType.get(),
+            context
+        );
+      }
     }
     return visitIdentifier(qualifierAnalyzer.unqualified(node), context);
   }
@@ -385,9 +395,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
    * @param context analysis context
    * @return DSL reference
    */
-  private Expression visitMetadata(String ident, AnalysisContext context) {
-    ExprCoreType exprCoreType = Optional.ofNullable(METADATAFIELD_TYPE_MAP.get(ident))
-            .orElseThrow(() -> new SemanticCheckException("invalid metadata field"));
+  private Expression visitMetadata(String ident,
+                                   ExprCoreType exprCoreType,
+                                   AnalysisContext context) {
     return DSL.ref(ident, exprCoreType);
   }
 
