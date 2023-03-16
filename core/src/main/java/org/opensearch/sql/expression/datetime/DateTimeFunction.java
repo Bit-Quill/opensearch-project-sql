@@ -1644,7 +1644,7 @@ public class DateTimeFunction {
         temporalUnit = YEARS;
         break;
       default:
-        throw new SemanticCheckException("Invalid interval argument");
+        return ExprNullValue.of();
     }
     return new ExprDatetimeValue(datetime.plus(amount, temporalUnit));
   }

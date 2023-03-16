@@ -191,7 +191,7 @@ public class FunctionDSL {
    * @param returnType return type.
    * @param args1Type first argument type.
    * @param args2Type second argument type.
-   * @param args3Type second argument type.
+   * @param args3Type third argument type.
    * @return Binary Function Implementation.
    */
   public static SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>
@@ -330,6 +330,53 @@ public class FunctionDSL {
   }
 
   /**
+   * Quadruple Function Implementation.
+   *
+   * @param function   {@link ExprValue} based unary function.
+   * @param returnType return type.
+   * @param args1Type  argument type.
+   * @param args2Type  argument type.
+   * @param args3Type  argument type.
+   * @return Quadruple Function Implementation.
+   */
+  public static SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
+      SerializableQuadFunction<ExprValue, ExprValue, ExprValue, ExprValue, ExprValue> function,
+      ExprType returnType,
+      ExprType args1Type,
+      ExprType args2Type,
+      ExprType args3Type,
+      ExprType args4Type) {
+
+    return functionName -> {
+      FunctionSignature functionSignature =
+          new FunctionSignature(functionName, Arrays.asList(args1Type, args2Type, args3Type, args4Type));
+      FunctionBuilder functionBuilder =
+          (functionProperties, arguments) -> new FunctionExpression(functionName, arguments) {
+            @Override
+            public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
+              ExprValue arg1 = arguments.get(0).valueOf(valueEnv);
+              ExprValue arg2 = arguments.get(1).valueOf(valueEnv);
+              ExprValue arg3 = arguments.get(2).valueOf(valueEnv);
+              ExprValue arg4 = arguments.get(3).valueOf(valueEnv);
+              return function.apply(arg1, arg2, arg3, arg4);
+            }
+
+            @Override
+            public ExprType type() {
+              return returnType;
+            }
+
+            @Override
+            public String toString() {
+              return String.format("%s(%s, %s, %s, %s)", functionName, arguments.get(0).toString(),
+                  arguments.get(1).toString(), arguments.get(2).toString(), arguments.get(3).toString());
+            }
+          };
+      return Pair.of(functionSignature, functionBuilder);
+    };
+  }
+
+  /**
    * Wrapper the unary ExprValue function with default NULL and MISSING handling.
    */
   public static SerializableFunction<ExprValue, ExprValue> nullMissingHandling(
@@ -433,11 +480,13 @@ public class FunctionDSL {
     return (functionProperties, v1, v2, v3) -> {
       if (v1.isMissing() || v2.isMissing() || v3.isMissing()) {
         return ExprValueUtils.missingValue();
-      } else if (v1.isNull() || v2.isNull() || v3.isNull()) {
-        return ExprValueUtils.nullValue();
-      } else {
-        return implementation.apply(functionProperties, v1, v2, v3);
       }
+
+      if (v1.isNull() || v2.isNull() || v3.isNull()) {
+        return ExprValueUtils.nullValue();
+      }
+
+      return implementation.apply(functionProperties, v1, v2, v3);
     };
   }
 }

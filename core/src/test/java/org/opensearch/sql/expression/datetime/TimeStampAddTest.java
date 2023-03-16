@@ -21,6 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
+import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
@@ -77,15 +78,41 @@ class TimeStampAddTest extends ExpressionTestBase {
         Arguments.of("WEEK", 1, new ExprTimestampValue("2020-12-31 23:59:59"),
             "2021-01-07 23:59:59"),
 
-        //Test remaining interval types
-        Arguments.of("MICROSECOND", 1, new ExprStringValue("2003-01-02 00:00:00"),
-            "2003-01-02 00:00:00.000001"),
+        //Test adding a month (including special cases)
         Arguments.of("MONTH", 1, new ExprStringValue("2003-01-02 00:00:00"),
             "2003-02-02 00:00:00"),
+        Arguments.of("MONTH", 1, new ExprDateValue("2024-03-30"),
+            "2024-04-30 00:00:00"),
+        Arguments.of("MONTH", 1, new ExprDateValue("2024-03-31"),
+            "2024-04-30 00:00:00"),
+
+        //Test remaining interval types
+        Arguments.of("MICROSECOND", 123, new ExprStringValue("2003-01-02 00:00:00"),
+            "2003-01-02 00:00:00.000123"),
         Arguments.of("QUARTER", 1, new ExprStringValue("2003-01-02 00:00:00"),
             "2003-04-02 00:00:00"),
         Arguments.of("YEAR", 1, new ExprStringValue("2003-01-02 00:00:00"),
-            "2004-01-02 00:00:00")
+            "2004-01-02 00:00:00"),
+
+        //Test negative value for amount (Test for all intervals)
+        Arguments.of("MICROSECOND", -1, new ExprStringValue("2000-01-01 00:00:00"),
+            "1999-12-31 23:59:59.999999"),
+        Arguments.of("SECOND", -1, new ExprStringValue("2000-01-01 00:00:00"),
+            "1999-12-31 23:59:59"),
+        Arguments.of("MINUTE", -1, new ExprStringValue("2000-01-01 00:00:00"),
+            "1999-12-31 23:59:00"),
+        Arguments.of("HOUR", -1, new ExprStringValue("2000-01-01 00:00:00"),
+            "1999-12-31 23:00:00"),
+        Arguments.of("DAY", -1, new ExprStringValue("2000-01-01 00:00:00"),
+            "1999-12-31 00:00:00"),
+        Arguments.of("WEEK", -1, new ExprStringValue("2000-01-01 00:00:00"),
+            "1999-12-25 00:00:00"),
+        Arguments.of("MONTH", -1, new ExprStringValue("2000-01-01 00:00:00"),
+            "1999-12-01 00:00:00"),
+        Arguments.of("QUARTER", -1, new ExprStringValue("2000-01-01 00:00:00"),
+            "1999-10-01 00:00:00"),
+        Arguments.of("YEAR", -1, new ExprStringValue("2000-01-01 00:00:00"),
+            "1999-01-01 00:00:00")
     );
   }
 
@@ -106,11 +133,37 @@ class TimeStampAddTest extends ExpressionTestBase {
     assertEquals(new ExprDatetimeValue(expected), eval(expr));
   }
 
-  @Test
-  public void testAddingDatePartToTime() {
-    String interval = "WEEK";
-    int addedInterval = 1;
-    String timeArg = "10:11:12";
+  private static Stream<Arguments> getTestDataForTestAddingDatePartToTime() {
+    return Stream.of(
+        Arguments.of("DAY", 1, "10:11:12", LocalDate.now().plusDays(1)),
+        Arguments.of("DAY", 5, "10:11:12", LocalDate.now().plusDays(5)),
+        Arguments.of("DAY", 10, "10:11:12", LocalDate.now().plusDays(10)),
+        Arguments.of("DAY", -10, "10:11:12", LocalDate.now().plusDays(-10)),
+        Arguments.of("WEEK", 1, "10:11:12", LocalDate.now().plusWeeks(1)),
+        Arguments.of("WEEK", 5, "10:11:12", LocalDate.now().plusWeeks(5)),
+        Arguments.of("WEEK", 10, "10:11:12", LocalDate.now().plusWeeks(10)),
+        Arguments.of("WEEK", -10, "10:11:12", LocalDate.now().plusWeeks(-10)),
+        Arguments.of("MONTH", 1, "10:11:12", LocalDate.now().plusMonths(1)),
+        Arguments.of("MONTH", 5, "10:11:12", LocalDate.now().plusMonths(5)),
+        Arguments.of("MONTH", 10, "10:11:12", LocalDate.now().plusMonths(10)),
+        Arguments.of("MONTH", -10, "10:11:12", LocalDate.now().plusMonths(-10)),
+        Arguments.of("QUARTER", 1, "10:11:12", LocalDate.now().plusMonths(3 * 1)),
+        Arguments.of("QUARTER", 3, "10:11:12", LocalDate.now().plusMonths(3 * 3)),
+        Arguments.of("QUARTER", 5, "10:11:12", LocalDate.now().plusMonths(3 * 5)),
+        Arguments.of("QUARTER", -5, "10:11:12", LocalDate.now().plusMonths(3 * -5)),
+        Arguments.of("YEAR", 1, "10:11:12", LocalDate.now().plusYears(1)),
+        Arguments.of("YEAR", 5, "10:11:12", LocalDate.now().plusYears(5)),
+        Arguments.of("YEAR", 10, "10:11:12", LocalDate.now().plusYears(10)),
+        Arguments.of("YEAR", -10, "10:11:12", LocalDate.now().plusYears(-10))
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("getTestDataForTestAddingDatePartToTime")
+  public void testAddingDatePartToTime(String interval,
+                                       int addedInterval,
+                                       String timeArg,
+                                       LocalDate expectedDate) {
     FunctionExpression expr = DSL.timestampadd(
         functionProperties,
         DSL.literal(interval),
@@ -118,8 +171,7 @@ class TimeStampAddTest extends ExpressionTestBase {
         DSL.literal(new ExprTimeValue(timeArg))
     );
 
-    LocalDate todayPlusOneWeek = LocalDate.now().plusWeeks(addedInterval);
-    LocalDateTime expected1 = LocalDateTime.of(todayPlusOneWeek, LocalTime.parse(timeArg));
+    LocalDateTime expected1 = LocalDateTime.of(expectedDate, LocalTime.parse(timeArg));
 
     assertEquals(new ExprDatetimeValue(expected1), eval(expr));
   }
@@ -177,7 +229,6 @@ class TimeStampAddTest extends ExpressionTestBase {
 
   private static Stream<Arguments> getInvalidTestDataForTimestampAdd() {
     return Stream.of(
-        Arguments.of("INVALID", 1, new ExprDateValue("2000-01-01")),
         Arguments.of("WEEK", 1, new ExprStringValue("2000-13-01")),
         Arguments.of("WEEK", 1, new ExprStringValue("2000-01-40"))
     );
@@ -190,7 +241,12 @@ class TimeStampAddTest extends ExpressionTestBase {
     assertThrows(SemanticCheckException.class, () -> eval(expr));
   }
 
-  //TODO: Add test to check for null value return???
+  @Test
+  public void testNullReturnValue() {
+    FunctionExpression expr = timestampaddQuery("INVALID", 1, new ExprDateValue("2000-01-01"));
+    assertEquals(ExprNullValue.of(), eval(expr));
+  }
+
   private ExprValue eval(Expression expression) {
     return expression.valueOf();
   }
