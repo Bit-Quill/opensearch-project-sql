@@ -16,6 +16,7 @@ import org.opensearch.sql.ast.statement.Statement;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.ExecutionEngine.ExplainResponse;
 import org.opensearch.sql.executor.ExecutionEngine.QueryResponse;
+import org.opensearch.sql.executor.QueryId;
 import org.opensearch.sql.executor.QueryManager;
 import org.opensearch.sql.executor.execution.AbstractPlan;
 import org.opensearch.sql.executor.execution.QueryPlanFactory;
@@ -68,28 +69,34 @@ public class SQLService {
       SQLQueryRequest request,
       Optional<ResponseListener<QueryResponse>> queryListener,
       Optional<ResponseListener<ExplainResponse>> explainListener) {
-    // 1.Parse query and convert parse tree (CST) to abstract syntax tree (AST)
-    ParseTree cst = parser.parse(request.getQuery());
-    Statement statement =
-        cst.accept(
-            new AstStatementBuilder(
-                new AstBuilder(request.getQuery()),
-                AstStatementBuilder.StatementBuilderContext.builder()
-                    .isExplain(request.isExplainRequest())
-                    .build()));
+    if (request.getCursor().isPresent()) {
+      // Handle v2 cursor here -- legacy cursor was handled earlier.
+      return queryExecutionFactory.create(request.getCursor().get(), request.isExplainRequest(),
+          queryListener.orElse(null), explainListener.orElse(null));
+    } else {
+      // 1.Parse query and convert parse tree (CST) to abstract syntax tree (AST)
+      ParseTree cst = parser.parse(request.getQuery());
+      Statement statement =
+          cst.accept(
+              new AstStatementBuilder(
+                  new AstBuilder(request.getQuery()),
+                  AstStatementBuilder.StatementBuilderContext.builder()
+                      .isExplain(request.isExplainRequest())
+                      .fetchSize(request.getFetchSize())
+                      .build()));
 
-    // There is no full support for JSON format yet for in memory operations, aliases, literals,
-    // and casts. Aggregation has differences with legacy results.
-    if (request.format().getFormatName().equals("json") && statement instanceof Query) {
-      if (parser.parseHints(request.getQuery()).getChildCount() > 1) {
-        throw new UnsupportedOperationException("Hints are not yet supported in the new engine.");
+      // There is no full support for JSON format yet for in memory operations, aliases, literals,
+      // and casts. Aggregation has differences with legacy results.
+      if (request.format().getFormatName().equals("json") && statement instanceof Query) {
+        if (parser.parseHints(request.getQuery()).getChildCount() > 1) {
+          throw new UnsupportedOperationException("Hints are not yet supported in the new engine.");
+        }
+
+        // Go through the tree and throw exceptions when unsupported
+        JsonSupportVisitorContext jsonSupportVisitorContext = new JsonSupportVisitorContext();
+        ((Query) statement).getPlan().accept(new JsonSupportVisitor(), jsonSupportVisitorContext);
       }
-
-      // Go through the tree and throw exceptions when unsupported
-      JsonSupportVisitorContext jsonSupportVisitorContext = new JsonSupportVisitorContext();
-      ((Query) statement).getPlan().accept(new JsonSupportVisitor(), jsonSupportVisitorContext);
+      return queryExecutionFactory.create(statement, queryListener, explainListener);
     }
-
-    return queryExecutionFactory.create(statement, queryListener, explainListener);
   }
 }

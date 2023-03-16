@@ -47,6 +47,9 @@ class OpenSearchScrollRequestTest {
 
     request.setScrollId("scroll123");
     assertTrue(request.isScrollStarted());
+
+    request.reset();
+    assertFalse(request.isScrollStarted());
   }
 
   @Test
@@ -57,5 +60,14 @@ class OpenSearchScrollRequestTest {
             .scroll(OpenSearchScrollRequest.DEFAULT_SCROLL_TIMEOUT)
             .scrollId("scroll123"),
         request.scrollRequest());
+  }
+
+  @Test
+  void toCursor() {
+    request.setScrollId("scroll123");
+    assertEquals("scroll123", request.toCursor());
+
+    request.reset();
+    assertEquals("", request.toCursor());
   }
 }

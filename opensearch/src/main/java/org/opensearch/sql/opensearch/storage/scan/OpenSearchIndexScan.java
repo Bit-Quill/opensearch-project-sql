@@ -4,7 +4,7 @@
  */
 
 
-package org.opensearch.sql.opensearch.storage;
+package org.opensearch.sql.opensearch.storage.scan;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -28,7 +28,7 @@ import org.opensearch.sql.storage.TableScanOperator;
 public class OpenSearchIndexScan extends TableScanOperator {
 
   /** OpenSearch client. */
-  private final OpenSearchClient client;
+  private final transient OpenSearchClient client;
 
   /** Search request builder. */
   @EqualsAndHashCode.Include
@@ -49,8 +49,9 @@ public class OpenSearchIndexScan extends TableScanOperator {
   /** Number of rows returned. */
   private Integer queryCount;
 
+
   /** Search response for current batch. */
-  private Iterator<ExprValue> iterator;
+  private transient Iterator<ExprValue> iterator;
 
   @Getter
   private String rawResponse;
@@ -74,6 +75,11 @@ public class OpenSearchIndexScan extends TableScanOperator {
     this.client = client;
     this.requestBuilder = new OpenSearchRequestBuilder(
         indexName, maxResultWindow, settings,exprValueFactory);
+  }
+
+  public OpenSearchIndexScan(OpenSearchClient client, OpenSearchRequestBuilder builder) {
+    this.client = client;
+    this.requestBuilder = builder;
   }
 
   @Override
@@ -100,6 +106,12 @@ public class OpenSearchIndexScan extends TableScanOperator {
   public ExprValue next() {
     queryCount++;
     return iterator.next();
+  }
+
+  @Override
+  public long getTotalHits() {
+    // TODO maybe store totalHits from `response`
+    return queryCount;
   }
 
   protected OpenSearchResponse fetchNextBatch() {

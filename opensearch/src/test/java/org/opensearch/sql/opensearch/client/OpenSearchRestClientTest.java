@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.lucene.search.TotalHits;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -63,6 +65,7 @@ import org.opensearch.sql.opensearch.request.OpenSearchScrollRequest;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class OpenSearchRestClientTest {
 
   private static final String TEST_MAPPING_FILE = "mappings/accounts.json";
@@ -90,7 +93,7 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void isIndexExist() throws IOException {
+  void is_index_exist() throws IOException {
     when(restClient.indices()
         .exists(any(), any())) // use any() because missing equals() in GetIndexRequest
         .thenReturn(true);
@@ -99,7 +102,7 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void isIndexNotExist() throws IOException {
+  void is_index_not_exist() throws IOException {
     when(restClient.indices()
         .exists(any(), any())) // use any() because missing equals() in GetIndexRequest
         .thenReturn(false);
@@ -108,14 +111,14 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void isIndexExistWithException() throws IOException {
+  void is_index_exist_with_exception() throws IOException {
     when(restClient.indices().exists(any(), any())).thenThrow(IOException.class);
 
     assertThrows(IllegalStateException.class, () -> client.exists("test"));
   }
 
   @Test
-  void createIndex() throws IOException {
+  void create_index() throws IOException {
     String indexName = "test";
     Map<String, Object> mappings = ImmutableMap.of(
         "properties",
@@ -128,7 +131,7 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void createIndexWithIOException() throws IOException {
+  void create_index_with_IOException() throws IOException {
     when(restClient.indices().create(any(), any())).thenThrow(IOException.class);
 
     assertThrows(IllegalStateException.class,
@@ -136,7 +139,7 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void getIndexMappings() throws IOException {
+  void get_index_mappings() throws IOException {
     URL url = Resources.getResource(TEST_MAPPING_FILE);
     String mappings = Resources.toString(url, Charsets.UTF_8);
     String indexName = "test";
@@ -172,14 +175,14 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void getIndexMappingsWithIOException() throws IOException {
+  void get_index_mappings_with_IOException() throws IOException {
     when(restClient.indices().getMapping(any(GetMappingsRequest.class), any()))
         .thenThrow(new IOException());
     assertThrows(IllegalStateException.class, () -> client.getIndexMappings("test"));
   }
 
   @Test
-  void getIndexMaxResultWindowsSettings() throws IOException {
+  void get_index_max_result_windows_settings() throws IOException {
     String indexName = "test";
     Integer maxResultWindow = 1000;
 
@@ -203,7 +206,7 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void getIndexMaxResultWindowsDefaultSettings() throws IOException {
+  void get_index_max_result_windows_default_settings() throws IOException {
     String indexName = "test";
     Integer maxResultWindow = 10000;
 
@@ -227,7 +230,7 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void getIndexMaxResultWindowsWithIOException() throws IOException {
+  void get_index_max_result_windows_with_IOException() throws IOException {
     when(restClient.indices().getSettings(any(GetSettingsRequest.class), any()))
         .thenThrow(new IOException());
     assertThrows(IllegalStateException.class, () -> client.getIndexMaxResultWindows("test"));
@@ -265,12 +268,13 @@ class OpenSearchRestClientTest {
     assertFalse(hits.hasNext());
 
     // Verify response for second scroll request
+    request.setScrollId("scroll123");
     OpenSearchResponse response2 = client.search(request);
     assertTrue(response2.isEmpty());
   }
 
   @Test
-  void searchWithIOException() throws IOException {
+  void search_with_IOException() throws IOException {
     when(restClient.search(any(), any())).thenThrow(new IOException());
     assertThrows(
         IllegalStateException.class,
@@ -278,7 +282,7 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void scrollWithIOException() throws IOException {
+  void scroll_with_IOException() throws IOException {
     // Mock first scroll request
     SearchResponse searchResponse = mock(SearchResponse.class);
     when(restClient.search(any(), any())).thenReturn(searchResponse);
@@ -320,14 +324,14 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void cleanupWithoutScrollId() throws IOException {
+  void cleanup_without_scrollId() throws IOException {
     OpenSearchScrollRequest request = new OpenSearchScrollRequest("test", factory);
     client.cleanup(request);
     verify(restClient, never()).clearScroll(any(), any());
   }
 
   @Test
-  void cleanupWithIOException() throws IOException {
+  void cleanup_with_IOException() throws IOException {
     when(restClient.clearScroll(any(), any())).thenThrow(new IOException());
 
     OpenSearchScrollRequest request = new OpenSearchScrollRequest("test", factory);
@@ -336,7 +340,7 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void getIndices() throws IOException {
+  void get_indices() throws IOException {
     when(restClient.indices().get(any(GetIndexRequest.class), any(RequestOptions.class)))
         .thenReturn(getIndexResponse);
     when(getIndexResponse.getIndices()).thenReturn(new String[] {"index"});
@@ -346,7 +350,7 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void getIndicesWithIOException() throws IOException {
+  void get_indices_with_IOException() throws IOException {
     when(restClient.indices().get(any(GetIndexRequest.class), any(RequestOptions.class)))
         .thenThrow(new IOException());
     assertThrows(IllegalStateException.class, () -> client.indices());
@@ -365,7 +369,7 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void metaWithIOException() throws IOException {
+  void meta_with_IOException() throws IOException {
     when(restClient.cluster().getSettings(any(), any(RequestOptions.class)))
         .thenThrow(new IOException());
 
@@ -373,7 +377,7 @@ class OpenSearchRestClientTest {
   }
 
   @Test
-  void mlWithException() {
+  void ml_with_exception() {
     assertThrows(UnsupportedOperationException.class, () -> client.getNodeClient());
   }
 

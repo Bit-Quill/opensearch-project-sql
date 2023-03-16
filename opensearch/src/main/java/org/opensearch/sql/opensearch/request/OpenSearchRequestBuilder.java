@@ -9,7 +9,6 @@ package org.opensearch.sql.opensearch.request;
 import static org.opensearch.search.sort.FieldSortBuilder.DOC_FIELD_NAME;
 import static org.opensearch.search.sort.SortOrder.ASC;
 
-import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,6 @@ import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.search.aggregations.AggregationBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.opensearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.opensearch.search.sort.FieldSortBuilder;
 import org.opensearch.search.sort.SortBuilder;
 import org.opensearch.search.sort.SortBuilders;
 import org.opensearch.sql.ast.expression.Literal;
@@ -44,6 +42,7 @@ import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseP
 @EqualsAndHashCode
 @Getter
 @ToString
+// TODO make an interface which defines all pushDown functions?
 public class OpenSearchRequestBuilder {
 
   /**
@@ -74,15 +73,16 @@ public class OpenSearchRequestBuilder {
   private final OpenSearchExprValueFactory exprValueFactory;
 
   /**
-   * Query size of the request.
+   * Query size of the request -- how many rows will be returned.
    */
-  private Integer querySize;
+  private int querySize;
 
   public OpenSearchRequestBuilder(String indexName,
                                   Integer maxResultWindow,
                                   Settings settings,
                                   OpenSearchExprValueFactory exprValueFactory) {
-    this(new OpenSearchRequest.IndexName(indexName), maxResultWindow, settings, exprValueFactory);
+    this(new OpenSearchRequest.IndexName(indexName), maxResultWindow, settings,
+        exprValueFactory);
   }
 
   /**
@@ -105,17 +105,18 @@ public class OpenSearchRequestBuilder {
   /**
    * Build DSL request.
    *
+
    * @return query request or scroll request
    */
   public OpenSearchRequest build() {
     Integer from = sourceBuilder.from();
     Integer size = sourceBuilder.size();
 
-    if (from + size <= maxResultWindow) {
-      return new OpenSearchQueryRequest(indexName, sourceBuilder, exprValueFactory);
-    } else {
+    if (from + size > maxResultWindow) {
       sourceBuilder.size(maxResultWindow - from);
       return new OpenSearchScrollRequest(indexName, sourceBuilder, exprValueFactory);
+    } else {
+      return new OpenSearchQueryRequest(indexName, sourceBuilder, exprValueFactory);
     }
   }
 

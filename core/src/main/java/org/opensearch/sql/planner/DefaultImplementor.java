@@ -11,6 +11,7 @@ import org.opensearch.sql.planner.logical.LogicalDedupe;
 import org.opensearch.sql.planner.logical.LogicalEval;
 import org.opensearch.sql.planner.logical.LogicalFilter;
 import org.opensearch.sql.planner.logical.LogicalLimit;
+import org.opensearch.sql.planner.logical.LogicalPaginate;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import org.opensearch.sql.planner.logical.LogicalProject;
@@ -126,6 +127,11 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
   }
 
   @Override
+  public PhysicalPlan visitPaginate(LogicalPaginate plan, C context) {
+    return new PaginateOperator(visitChild(plan, context), plan.getPageSize());
+  }
+
+  @Override
   public PhysicalPlan visitTableScanBuilder(TableScanBuilder plan, C context) {
     return plan.build();
   }
@@ -145,5 +151,4 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
     // Logical operators visited here must have a single child
     return node.getChild().get(0).accept(this, context);
   }
-
 }

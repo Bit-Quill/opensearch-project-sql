@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.opensearch.action.search.SearchRequest;
@@ -34,7 +33,7 @@ import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 public class OpenSearchScrollRequest implements OpenSearchRequest {
 
   /** Default scroll context timeout in minutes. */
-  public static final TimeValue DEFAULT_SCROLL_TIMEOUT = TimeValue.timeValueMinutes(1L);
+  public static final TimeValue DEFAULT_SCROLL_TIMEOUT = TimeValue.timeValueMinutes(100L);
 
   /**
    * {@link OpenSearchRequest.IndexName}.
@@ -51,6 +50,7 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
    * multi-thread so this state has to be maintained here.
    */
   @Setter
+  @Getter
   private String scrollId;
 
   /** Search request source builder. */
@@ -86,9 +86,10 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
     } else {
       openSearchResponse = searchAction.apply(searchRequest());
     }
-    setScrollId(openSearchResponse.getScrollId());
 
-    return new OpenSearchResponse(openSearchResponse, exprValueFactory);
+    var response = new OpenSearchResponse(openSearchResponse, exprValueFactory);
+    setScrollId(openSearchResponse.getScrollId());
+    return response;
   }
 
   @Override
@@ -96,6 +97,7 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
     try {
       if (isScrollStarted()) {
         cleanAction.accept(getScrollId());
+        setScrollId(null);
       }
     } finally {
       reset();
@@ -139,5 +141,19 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
    */
   public void reset() {
     scrollId = null;
+  }
+
+  /**
+   * Convert a scroll request to string that can be included in a cursor.
+   * @return a string representing the scroll request.
+   */
+  @Override
+  public String toCursor() {
+    if (isScrollStarted()) {
+      // TODO: probably should serialize exprValueFactory here as well.
+      return scrollId;
+    } else {
+      return "";
+    }
   }
 }

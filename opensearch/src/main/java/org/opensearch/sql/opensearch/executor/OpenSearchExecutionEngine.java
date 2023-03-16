@@ -15,6 +15,7 @@ import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.executor.ExecutionContext;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.Explain;
+import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.executor.protector.ExecutionProtector;
 import org.opensearch.sql.opensearch.storage.OpenSearchIndexScan;
@@ -29,6 +30,7 @@ public class OpenSearchExecutionEngine implements ExecutionEngine {
   private final OpenSearchClient client;
 
   private final ExecutionProtector executionProtector;
+  private final PaginatedPlanCache paginatedPlanCache;
 
   @Override
   public void execute(PhysicalPlan physicalPlan, ResponseListener<QueryResponse> listener) {
@@ -58,7 +60,10 @@ public class OpenSearchExecutionEngine implements ExecutionEngine {
             } catch (Exception e) {
               rawResponse = "";
             }
-            QueryResponse response = new QueryResponse(physicalPlan.schema(), result, rawResponse);
+            Cursor qc = paginatedPlanCache.convertToCursor(plan);
+
+            QueryResponse response = new QueryResponse(physicalPlan.schema(), result,
+                plan.getTotalHits(), qc, rawResponse);
             listener.onResponse(response);
           } catch (Exception e) {
             listener.onFailure(e);

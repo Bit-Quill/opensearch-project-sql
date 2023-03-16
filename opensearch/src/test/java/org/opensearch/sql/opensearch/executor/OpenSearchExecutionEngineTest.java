@@ -41,9 +41,13 @@ import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.executor.ExecutionContext;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.ExecutionEngine.ExplainResponse;
+import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.executor.protector.OpenSearchExecutionProtector;
+import org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder;
+import org.opensearch.sql.opensearch.storage.scan.OpenSearchIndexScan;
+import org.opensearch.sql.planner.PaginateOperator;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 import org.opensearch.sql.opensearch.storage.OpenSearchIndexScan;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
@@ -89,7 +93,8 @@ class OpenSearchExecutionEngineTest {
     FakePhysicalPlan plan = new FakePhysicalPlan(expected.iterator());
     when(protector.protect(plan)).thenReturn(plan);
 
-    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector);
+    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector,
+        PaginatedPlanCache.None);
     List<ExprValue> actual = new ArrayList<>();
     executor.execute(
         plan,
@@ -111,13 +116,43 @@ class OpenSearchExecutionEngineTest {
   }
 
   @Test
+  void executeWithCursor() {
+    List<ExprValue> expected =
+        Arrays.asList(
+            tupleValue(of("name", "John", "age", 20)), tupleValue(of("name", "Allen", "age", 30)));
+    FakePaginatePlan plan = new FakePaginatePlan(new FakePhysicalPlan(expected.iterator()), 10, 0);
+    when(protector.protect(plan)).thenReturn(plan);
+
+    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector,
+        PaginatedPlanCache.None);
+    List<ExprValue> actual = new ArrayList<>();
+    executor.execute(
+        plan,
+        new ResponseListener<QueryResponse>() {
+          @Override
+          public void onResponse(QueryResponse response) {
+            actual.addAll(response.getResults());
+            assertTrue(response.getCursor().toString().startsWith("n:"));
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            fail("Error occurred during execution", e);
+          }
+        });
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
   void executeWithFailure() {
     PhysicalPlan plan = mock(PhysicalPlan.class);
     RuntimeException expected = new RuntimeException("Execution error");
     when(plan.hasNext()).thenThrow(expected);
     when(protector.protect(plan)).thenReturn(plan);
 
-    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector);
+    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector,
+        PaginatedPlanCache.None);
     AtomicReference<Exception> actual = new AtomicReference<>();
     executor.execute(
         plan,
@@ -138,11 +173,13 @@ class OpenSearchExecutionEngineTest {
 
   @Test
   void explainSuccessfully() {
-    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector);
+    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector,
+        PaginatedPlanCache.None);
     Settings settings = mock(Settings.class);
     when(settings.getSettingValue(QUERY_SIZE_LIMIT)).thenReturn(100);
     PhysicalPlan plan = new OpenSearchIndexScan(mock(OpenSearchClient.class),
-        settings, "test", 10000, mock(OpenSearchExprValueFactory.class));
+        new OpenSearchRequestBuilder("test", 10000, settings,
+            mock(OpenSearchExprValueFactory.class)));
 
     AtomicReference<ExplainResponse> result = new AtomicReference<>();
     executor.explain(plan, new ResponseListener<ExplainResponse>() {
@@ -162,7 +199,8 @@ class OpenSearchExecutionEngineTest {
 
   @Test
   void explainWithFailure() {
-    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector);
+    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector,
+        PaginatedPlanCache.None);
     PhysicalPlan plan = mock(PhysicalPlan.class);
     when(plan.accept(any(), any())).thenThrow(IllegalStateException.class);
 
@@ -191,7 +229,8 @@ class OpenSearchExecutionEngineTest {
     when(protector.protect(plan)).thenReturn(plan);
     when(executionContext.getSplit()).thenReturn(Optional.of(split));
 
-    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector);
+    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector,
+        PaginatedPlanCache.None);
     List<ExprValue> actual = new ArrayList<>();
     executor.execute(
         plan,
@@ -212,6 +251,54 @@ class OpenSearchExecutionEngineTest {
     assertTrue(plan.hasOpen);
     assertEquals(expected, actual);
     assertTrue(plan.hasClosed);
+  }
+
+  private static class FakePaginatePlan extends PaginateOperator {
+    private final PhysicalPlan input;
+    private final int pageSize;
+    private final int pageIndex;
+
+    public FakePaginatePlan(PhysicalPlan input, int pageSize, int pageIndex) {
+      super(input, pageSize, pageIndex);
+      this.input = input;
+      this.pageSize = pageSize;
+      this.pageIndex = pageIndex;
+    }
+
+    @Override
+    public void open() {
+      input.open();
+    }
+
+    @Override
+    public void close() {
+      input.close();
+    }
+
+    @Override
+    public void add(Split split) {
+      input.add(split);
+    }
+
+    @Override
+    public boolean hasNext() {
+      return input.hasNext();
+    }
+
+    @Override
+    public ExprValue next() {
+      return input.next();
+    }
+
+    @Override
+    public ExecutionEngine.Schema schema() {
+      return input.schema();
+    }
+
+    @Override
+    public String toCursor() {
+      return "FakePaginatePlan";
+    }
   }
 
   @Test

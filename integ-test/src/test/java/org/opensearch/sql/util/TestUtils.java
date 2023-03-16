@@ -7,6 +7,7 @@
 package org.opensearch.sql.util;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -838,5 +839,27 @@ public class TestUtils {
     }
 
     return result;
+  }
+
+  public static void verifyIsV1Cursor(JSONObject response) {
+    verifyCursor(response, List.of("d:", "j:", "a:"), "v1");
+  }
+
+
+  public static void verifyIsV2Cursor(JSONObject response) {
+    verifyCursor(response, List.of("n:"), "v2");
+  }
+
+  private static void verifyCursor(JSONObject response, List<String> validCursorPrefix, String engineName) {
+      assertTrue("'cursor' property does not exist", response.has("cursor"));
+
+      var cursor = response.getString("cursor");
+      assertTrue("'cursor' property is empty", !cursor.isEmpty());
+      assertTrue("The cursor '" + cursor + "' is not from " + engineName + " engine.",
+          validCursorPrefix.stream().anyMatch(cursor::startsWith));
+    }
+
+  public static void verifyNoCursor(JSONObject response) {
+    assertTrue(!response.has("cursor"));
   }
 }
