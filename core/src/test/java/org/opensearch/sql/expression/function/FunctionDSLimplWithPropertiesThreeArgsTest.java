@@ -16,8 +16,8 @@ class FunctionDSLimplWithPropertiesThreeArgsTest extends FunctionDSLimplTestBase
   @Override
   SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>
       getImplementationGenerator() {
-    SerializableQuadFunction<FunctionProperties, ExprValue, ExprValue, ExprValue, ExprValue> functionBody
-        = (fp, arg1, arg2, arg3) -> ANY;
+    SerializableQuadFunction<FunctionProperties, ExprValue, ExprValue, ExprValue, ExprValue>
+        functionBody = (fp, arg1, arg2, arg3) -> ANY;
     return FunctionDSL.implWithProperties(functionBody, ANY_TYPE, ANY_TYPE, ANY_TYPE, ANY_TYPE);
   }
 

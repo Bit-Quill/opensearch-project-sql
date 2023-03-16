@@ -349,7 +349,11 @@ public class FunctionDSL {
 
     return functionName -> {
       FunctionSignature functionSignature =
-          new FunctionSignature(functionName, Arrays.asList(args1Type, args2Type, args3Type, args4Type));
+          new FunctionSignature(functionName, Arrays.asList(
+              args1Type,
+              args2Type,
+              args3Type,
+              args4Type));
       FunctionBuilder functionBuilder =
           (functionProperties, arguments) -> new FunctionExpression(functionName, arguments) {
             @Override
@@ -369,7 +373,9 @@ public class FunctionDSL {
             @Override
             public String toString() {
               return String.format("%s(%s, %s, %s, %s)", functionName, arguments.get(0).toString(),
-                  arguments.get(1).toString(), arguments.get(2).toString(), arguments.get(3).toString());
+                  arguments.get(1).toString(),
+                  arguments.get(2).toString(),
+                  arguments.get(3).toString());
             }
           };
       return Pair.of(functionSignature, functionBuilder);

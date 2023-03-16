@@ -5,13 +5,12 @@
 
 package org.opensearch.sql.expression.function;
 
+import static org.opensearch.sql.expression.function.FunctionDSL.impl;
+
+import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
-
-import java.util.List;
-
-import static org.opensearch.sql.expression.function.FunctionDSL.impl;
 
 class FunctionDSLimplFourArgTest extends FunctionDSLimplTestBase {
 
