@@ -54,7 +54,7 @@ public interface ExecutionEngine {
   class QueryResponse {
     private final Schema schema;
     private final List<ExprValue> results;
-    private final String rawResponse;
+    private final String rawResponse; // JSON response from the OpenSearch instance
 
     /**
      * Constructor for Query Response.

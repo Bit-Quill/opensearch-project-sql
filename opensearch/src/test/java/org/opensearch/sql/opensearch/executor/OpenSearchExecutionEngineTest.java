@@ -27,14 +27,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opensearch.action.search.SearchResponse;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.data.model.ExprValue;
@@ -44,7 +42,6 @@ import org.opensearch.sql.executor.ExecutionEngine.ExplainResponse;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.executor.protector.OpenSearchExecutionProtector;
-import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 import org.opensearch.sql.opensearch.storage.OpenSearchIndexScan;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 import org.opensearch.sql.planner.physical.ProjectOperator;
@@ -64,9 +61,9 @@ class OpenSearchExecutionEngineTest {
 
   @Mock private Split split;
 
-  @Mock private static SearchResponse searchResponse;
+  @Mock private static OpenSearchIndexScan fakeIndexScan;
 
-  @Mock private static OpenSearchExprValueFactory factory;
+  @Mock private static ProjectOperator fakeProjectOperator;
 
   @BeforeEach
   void setUp() {
@@ -216,15 +213,13 @@ class OpenSearchExecutionEngineTest {
 
   @Test
   void executeRawResponseSuccessfully() {
-    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector);
-    Settings settings = mock(Settings.class);
-    when(settings.getSettingValue(QUERY_SIZE_LIMIT)).thenReturn(100);
-    PhysicalPlan plan = new FakeOperator(new FakeOpenSearchIndexScan(mock(OpenSearchClient.class),
-        settings, "test", 10000, mock(OpenSearchExprValueFactory.class),
-        "not empty"));
+    PhysicalPlan plan = fakeProjectOperator;
     when(protector.protect(plan)).thenReturn(plan);
+    when(((ProjectOperator) plan).getInput()).thenReturn(fakeIndexScan);
+    when(fakeIndexScan.getRawResponse()).thenReturn("searchResponse");
 
     AtomicReference<QueryResponse> result = new AtomicReference<>();
+    OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector);
     executor.execute(plan, new ResponseListener<QueryResponse>() {
       @Override
       public void onResponse(QueryResponse response) {
@@ -237,7 +232,7 @@ class OpenSearchExecutionEngineTest {
       }
     });
 
-    assertNotNull(result.get());
+    assertEquals(result.get().getRawResponse(), "searchResponse");
   }
 
   @RequiredArgsConstructor
@@ -283,44 +278,6 @@ class OpenSearchExecutionEngineTest {
     @Override
     public String explain() {
       return "explain";
-    }
-  }
-
-  public static class FakeOpenSearchIndexScan extends OpenSearchIndexScan {
-    @Getter
-    private String rawResponse;
-
-    public FakeOpenSearchIndexScan(OpenSearchClient client, Settings settings,
-                               String indexName, Integer maxResultWindow,
-                               OpenSearchExprValueFactory exprValueFactory,
-                                   String rawResponse) {
-      super(client, settings,
-          indexName,maxResultWindow, exprValueFactory);
-      this.rawResponse = rawResponse;
-    }
-
-    @Override
-    protected OpenSearchResponse fetchNextBatch() {
-      return new OpenSearchResponse(searchResponse, factory);
-    }
-
-    @Override
-    public boolean hasNext() {
-      return false;
-    }
-  }
-
-  private static class FakeOperator extends ProjectOperator {
-    private final PhysicalPlan input;
-
-    public FakeOperator(PhysicalPlan input) {
-      super(input, null, null);
-      this.input = input;
-    }
-
-    @Override
-    public ExecutionEngine.Schema schema() {
-      return schema;
     }
   }
 }
