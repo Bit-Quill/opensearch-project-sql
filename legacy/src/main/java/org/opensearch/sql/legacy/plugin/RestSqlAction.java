@@ -142,9 +142,8 @@ public class RestSqlAction extends BaseRestHandler {
                 }
             }
 
-
-//            LOG.info("[{}] Incoming request {}: {}", QueryContext.getRequestId(), request.uri(),
-//                    QueryDataAnonymizer.anonymizeData(sqlRequest.getSql()));
+            LOG.info("[{}] Incoming request {}: {}", QueryContext.getRequestId(), request.uri(),
+                    QueryDataAnonymizer.anonymizeData(sqlRequest.getSql()));
 
             Format format = SqlRequestParam.getFormat(request.params());
 
