@@ -59,7 +59,6 @@ import org.opensearch.sql.ast.tree.Rename;
 import org.opensearch.sql.ast.tree.Sort;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.ast.tree.TableFunction;
-import org.opensearch.sql.ast.tree.Unnest;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.ast.tree.Values;
 import org.opensearch.sql.data.model.ExprMissingValue;
@@ -69,7 +68,6 @@ import org.opensearch.sql.datasource.model.DataSourceMetadata;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
@@ -87,7 +85,6 @@ import org.opensearch.sql.planner.logical.LogicalFilter;
 import org.opensearch.sql.planner.logical.LogicalLimit;
 import org.opensearch.sql.planner.logical.LogicalML;
 import org.opensearch.sql.planner.logical.LogicalMLCommons;
-import org.opensearch.sql.planner.logical.LogicalNested;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.logical.LogicalProject;
 import org.opensearch.sql.planner.logical.LogicalRareTopN;
@@ -370,9 +367,15 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
       child = highlightAnalyzer.analyze(expr, context);
     }
 
+    for (UnresolvedExpression expr : node.getProjectList()) {
+      NestedAnalyzer nestedAnalyzer = new NestedAnalyzer(expressionAnalyzer, child);
+      child = nestedAnalyzer.analyze(expr, context); // TODO make on logical nested instead of merging so we can have simple push down
+    }
+
     List<NamedExpression> namedExpressions =
         selectExpressionAnalyzer.analyze(node.getProjectList(), context,
             new ExpressionReferenceOptimizer(expressionAnalyzer.getRepository(), child));
+
     // new context
     context.push();
     TypeEnvironment newEnv = context.peek();
@@ -399,20 +402,6 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
       typeEnvironment.define(ref);
     }
     return new LogicalEval(child, expressionsBuilder.build());
-  }
-
-  /**
-   * Build {@link LogicalNested}.
-   */
-  @Override
-  public LogicalPlan visitUnnest(Unnest node, AnalysisContext context) {
-    LogicalPlan child = node.getChild().get(0).accept(this, context);
-    List<List<Expression>> args = node.getNested().stream()
-        .map(f -> f.getFuncArgs().stream()
-            .map(e -> expressionAnalyzer.analyze(e, context))
-            .collect(Collectors.toList()))
-        .collect(Collectors.toList());
-    return new LogicalNested(child, args);
   }
 
   /**
