@@ -113,14 +113,7 @@ public class AstBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedPlan> {
     }
 
     // Add Unnest node
-    UnresolvedPlan result;
-    AstUnnestBuilder unnestBuilder = new AstUnnestBuilder(context.peek());
-    UnresolvedPlan unnest = unnestBuilder.visit(queryContext.selectClause());
-    if (unnest != null) {
-      result = project.attach(unnest.attach(from));
-    } else {
-      result = project.attach(from);
-    }
+    UnresolvedPlan result = project.attach(from);
     context.pop();
     return result;
   }

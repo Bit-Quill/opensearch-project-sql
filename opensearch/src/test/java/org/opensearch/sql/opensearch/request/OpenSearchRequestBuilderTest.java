@@ -225,8 +225,11 @@ public class OpenSearchRequestBuilderTest {
 
   @Test
   void testPushDownNested() {
-    List<List<Expression>> args = List.of(List.of(new ReferenceExpression("message.info", STRING)));
-    LogicalNested nested = new LogicalNested(null, args);
+    List<Map<String, ReferenceExpression>> args = List.of(
+        Map.of("field", new ReferenceExpression("message.info", STRING))
+    );
+
+    LogicalNested nested = new LogicalNested(null, args, null);
     requestBuilder.pushDownNested(nested.getFields());
 
     NestedQueryBuilder nestedQuery = nestedQuery("message", matchAllQuery(), ScoreMode.None)
@@ -244,11 +247,11 @@ public class OpenSearchRequestBuilderTest {
 
   @Test
   void testPushDownMultipleNestedWithSamePath() {
-    List<List<Expression>> args = List.of(
-        List.of(new ReferenceExpression("message.info", STRING)),
-        List.of(new ReferenceExpression("message.from", STRING))
+    List<Map<String, ReferenceExpression>> args = List.of(
+        Map.of("field", new ReferenceExpression("message.info", STRING)),
+        Map.of("field", new ReferenceExpression("message.from", STRING))
     );
-    LogicalNested nested = new LogicalNested(null, args);
+    LogicalNested nested = new LogicalNested(null, args, null);
     requestBuilder.pushDownNested(nested.getFields());
 
     NestedQueryBuilder nestedQuery = nestedQuery("message", matchAllQuery(), ScoreMode.None)

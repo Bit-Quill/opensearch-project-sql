@@ -5,42 +5,38 @@
 
 package org.opensearch.sql.planner.logical;
 
-import static org.opensearch.sql.data.type.ExprCoreType.STRING;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.opensearch.sql.expression.Expression;
+import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @ToString
 public class LogicalNested extends LogicalPlan {
-  private final List<Map<String, ReferenceExpression>> fields = new ArrayList<>();
+  private final List<Map<String, ReferenceExpression>> fields;
+  /**
+   * Project list is merged in from logical project at query optimization.
+   */
+  private final List<NamedExpression> projectList;
 
   /**
    * Constructor of LogicalNested.
+   *
    */
-  public LogicalNested(LogicalPlan childPlan, List<List<Expression>> nestedArgs) {
+  public LogicalNested(
+      LogicalPlan childPlan,
+      List<Map<String, ReferenceExpression>> fields,
+      List<NamedExpression> projectList
+  )
+  {
     super(Collections.singletonList(childPlan));
-    for (var nested : nestedArgs) {
-      if (nested.size() == 2) {
-        this.fields.add(Map.of("field", (ReferenceExpression)nested.get(0),
-            "path", (ReferenceExpression)nested.get(1)));
-      } else {
-        this.fields.add(Map.of("field", (ReferenceExpression)nested.get(0),
-            "path", new ReferenceExpression(generatePathString(nested.get(0).toString()), STRING)));
-      }
-    }
-  }
-
-  private String generatePathString(String field) {
-    return field.substring(0, field.lastIndexOf("."));
+    this.fields = fields;
+    this.projectList = projectList;
   }
 
   public static String getFieldFromMap(Map<String, ReferenceExpression> map) {

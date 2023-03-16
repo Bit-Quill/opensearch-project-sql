@@ -58,10 +58,8 @@ import org.opensearch.sql.ast.tree.Rename;
 import org.opensearch.sql.ast.tree.Sort;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.ast.tree.TableFunction;
-import org.opensearch.sql.ast.tree.Unnest;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.ast.tree.Values;
-import org.opensearch.sql.expression.function.BuiltinFunctionName;
 
 /**
  * Class of static methods to create specific node instances.
@@ -284,10 +282,6 @@ public class AstDSL {
   public UnresolvedExpression highlight(UnresolvedExpression fieldName,
       java.util.Map<String, Literal> arguments) {
     return new HighlightFunction(fieldName, arguments);
-  }
-
-  public UnresolvedPlan unnest(Function func) {
-    return new Unnest(func);
   }
 
   public UnresolvedExpression window(UnresolvedExpression function,
