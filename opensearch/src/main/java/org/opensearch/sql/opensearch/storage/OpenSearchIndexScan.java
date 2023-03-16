@@ -106,8 +106,8 @@ public class OpenSearchIndexScan extends TableScanOperator {
     OpenSearchResponse response = client.search(request);
     if (!response.isEmpty()) {
       iterator = response.iterator();
+      rawResponse = response.getRawResponse();
     }
-    rawResponse = response.getRawResponse();
   }
 
   @Override
