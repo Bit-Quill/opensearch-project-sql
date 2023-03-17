@@ -215,8 +215,7 @@ class OpenSearchExecutionEngineTest {
   void executeRawResponseSuccessfully() {
     PhysicalPlan plan = fakeProjectOperator;
     when(protector.protect(plan)).thenReturn(plan);
-    when(((ProjectOperator) plan).getInput()).thenReturn(fakeIndexScan);
-    when(fakeIndexScan.getRawResponse()).thenReturn("searchResponse");
+    when(plan.getRawResponse()).thenReturn("searchResponse");
 
     AtomicReference<QueryResponse> result = new AtomicReference<>();
     OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector);

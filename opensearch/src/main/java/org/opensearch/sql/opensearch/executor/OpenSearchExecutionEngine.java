@@ -17,9 +17,7 @@ import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.Explain;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.executor.protector.ExecutionProtector;
-import org.opensearch.sql.opensearch.storage.OpenSearchIndexScan;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
-import org.opensearch.sql.planner.physical.ProjectOperator;
 import org.opensearch.sql.storage.TableScanOperator;
 
 /** OpenSearch execution engine implementation. */
@@ -51,13 +49,7 @@ public class OpenSearchExecutionEngine implements ExecutionEngine {
               result.add(plan.next());
             }
 
-            String rawResponse;
-            try {
-              rawResponse = ((OpenSearchIndexScan) ((ProjectOperator) physicalPlan).getInput())
-                      .getRawResponse();
-            } catch (ClassCastException e) {
-              rawResponse = "";
-            }
+            String rawResponse = physicalPlan.getRawResponse();
             QueryResponse response = new QueryResponse(physicalPlan.schema(), result, rawResponse);
             listener.onResponse(response);
           } catch (Exception e) {
