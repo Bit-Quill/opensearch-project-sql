@@ -635,17 +635,8 @@ qualifiedName
 ident
     : DOT? ID
     | BACKTICK_QUOTE_ID
-    | metadataField
     | keywordsCanBeId
     | scalarFunctionName
-    ;
-
-metadataField
-    : META_INDEX
-    | META_ID
-    | META_SCORE
-    | META_MAXSCORE
-    | META_SORT
     ;
 
 keywordsCanBeId

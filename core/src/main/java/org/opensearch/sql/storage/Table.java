@@ -6,7 +6,6 @@
 
 package org.opensearch.sql.storage;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.executor.streaming.StreamingSource;
@@ -48,7 +47,7 @@ public interface Table {
    * Get the {@link ExprType} for each meta-field (reserved fields) in the table.
    */
   default Map<String, ExprType> getReservedFieldTypes() {
-    return ImmutableMap.of();
+    return Map.of();
   }
 
   /**

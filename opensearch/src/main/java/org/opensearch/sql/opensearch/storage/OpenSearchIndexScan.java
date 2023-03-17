@@ -75,7 +75,7 @@ public class OpenSearchIndexScan extends TableScanOperator {
                              OpenSearchExprValueFactory exprValueFactory) {
     this.client = client;
     this.requestBuilder = new OpenSearchRequestBuilder(
-        indexName, maxResultWindow, settings,exprValueFactory);
+        indexName, maxResultWindow, settings, exprValueFactory);
   }
 
   @Override

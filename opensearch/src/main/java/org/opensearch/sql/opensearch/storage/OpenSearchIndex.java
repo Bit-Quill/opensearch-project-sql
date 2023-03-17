@@ -7,7 +7,6 @@
 package org.opensearch.sql.opensearch.storage;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +40,7 @@ public class OpenSearchIndex implements Table {
   public static final String METADATA_FIELD_MAXSCORE = "_maxscore";
   public static final String METADATA_FIELD_SORT = "_sort";
 
-  public static final java.util.Map<String, ExprType> METADATAFIELD_TYPE_MAP = ImmutableMap.of(
+  public static final java.util.Map<String, ExprType> METADATAFIELD_TYPE_MAP = Map.of(
       METADATA_FIELD_ID, ExprCoreType.STRING,
       METADATA_FIELD_INDEX, ExprCoreType.STRING,
       METADATA_FIELD_SCORE, ExprCoreType.FLOAT,

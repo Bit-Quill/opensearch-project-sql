@@ -3851,7 +3851,7 @@ Description
 
 The `SCORE()` function calculates the `_score` of any documents matching the enclosed relevance-based expression. The `SCORE()`
 function expects one argument with an optional second argument. The first argument is the relevance-based search expression.
-The second argument is an optional floating-point boost to the score (the default value is 1.0). 
+The second argument is an optional floating-point boost to the score (the default value is 1.0).
 
 The `SCORE()` function sets `track_scores=true` for OpenSearch requests.  Without it, `_score` fields may return `null` for some
 relevance-based search expressions.

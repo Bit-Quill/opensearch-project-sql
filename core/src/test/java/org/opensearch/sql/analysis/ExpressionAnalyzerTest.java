@@ -739,7 +739,8 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
     );
   }
 
-  @Test void scorequery_function_with_boost() {
+  @Test
+  void scorequery_function_with_boost() {
     assertAnalyzeEqual(
             DSL.scorequery(
                     DSL.namedArgument("RelevanceQuery",
