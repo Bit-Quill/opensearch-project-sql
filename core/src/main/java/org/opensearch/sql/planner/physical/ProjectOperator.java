@@ -38,6 +38,8 @@ public class ProjectOperator extends PhysicalPlan {
   @Getter
   private final List<NamedExpression> namedParseExpressions;
 
+  private long rowNum = 0;
+
   @Override
   public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
     return visitor.visitProject(this, context);

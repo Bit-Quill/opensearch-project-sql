@@ -60,6 +60,11 @@ public class ResourceMonitorPlan extends PhysicalPlan {
   }
 
   @Override
+  public String getRawResponse() {
+    return delegate.getRawResponse();
+  }
+
+  @Override
   public void close() {
     delegate.close();
   }

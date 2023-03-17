@@ -58,6 +58,11 @@ public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
     return getChild().stream().mapToLong(PhysicalPlan::getTotalHits).max().orElse(0);
   }
 
+  public String getRawResponse() {
+    return getChild().stream().map(PhysicalPlan::getRawResponse)
+        .filter(r -> r != null && !r.isEmpty()).findFirst().orElse("");
+  }
+
   public String toCursor() {
     throw new IllegalStateException(String.format("%s is not compatible with cursor feature",
         this.getClass().getSimpleName()));

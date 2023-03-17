@@ -9,6 +9,7 @@ package org.opensearch.sql.executor;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.common.response.ResponseListener;
@@ -83,6 +84,23 @@ public interface ExecutionEngine {
       private final String name;
       private final String alias;
       private final ExprType exprType;
+    }
+  }
+
+  @Data
+  //@Builder
+  class ResponseMetadata {
+    private long took = 0;
+    private boolean timeOut = false;
+    private long maxScore = 1; //or double?
+
+    @Data
+    //@Builder
+    public static class Shards {
+      private final long total = 0;
+      private final long successful = 0;
+      private final long skipped = 0;
+      private final long failed = 0;
     }
   }
 

@@ -50,6 +50,8 @@ public class PrometheusMetricScan extends TableScanOperator {
 
   private static final Logger LOG = LogManager.getLogger();
 
+  private String rawResponse;
+
   /**
    * Constructor.
    *
@@ -69,6 +71,7 @@ public class PrometheusMetricScan extends TableScanOperator {
         JSONObject responseObject = prometheusClient.queryRange(
             request.getPromQl(),
             request.getStartTime(), request.getEndTime(), request.getStep());
+        rawResponse  = responseObject.toString();
         return new PrometheusResponse(responseObject, prometheusResponseFieldNames,
             isQueryRangeFunctionScan).iterator();
       } catch (IOException e) {
@@ -76,6 +79,11 @@ public class PrometheusMetricScan extends TableScanOperator {
         throw new RuntimeException("Error fetching data from prometheus server. " + e.getMessage());
       }
     });
+  }
+
+  @Override
+  public String getRawResponse() {
+    return rawResponse;
   }
 
   @Override

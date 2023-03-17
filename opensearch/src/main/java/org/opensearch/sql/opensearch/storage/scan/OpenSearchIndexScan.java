@@ -52,7 +52,6 @@ public class OpenSearchIndexScan extends TableScanOperator {
   /** Search response for current batch. */
   private transient Iterator<ExprValue> iterator;
 
-  @Getter
   private String rawResponse;
 
   /**
@@ -111,6 +110,11 @@ public class OpenSearchIndexScan extends TableScanOperator {
   public long getTotalHits() {
     // ignore response.getTotalHits(), because response returns entire index, regardless of LIMIT
     return queryCount;
+  }
+
+  @Override
+  public String getRawResponse() {
+    return rawResponse;
   }
 
   protected OpenSearchResponse fetchNextBatch() {

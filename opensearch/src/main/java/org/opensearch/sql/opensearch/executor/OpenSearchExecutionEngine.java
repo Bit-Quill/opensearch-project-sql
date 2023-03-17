@@ -53,13 +53,7 @@ public class OpenSearchExecutionEngine implements ExecutionEngine {
               result.add(plan.next());
             }
 
-            String rawResponse;
-            try {
-              rawResponse = ((OpenSearchIndexScan) ((ProjectOperator) physicalPlan).getInput())
-                      .getRawResponse();
-            } catch (Exception e) {
-              rawResponse = "";
-            }
+            String rawResponse = plan.getRawResponse();
             Cursor qc = paginatedPlanCache.convertToCursor(plan);
 
             QueryResponse response = new QueryResponse(physicalPlan.schema(), result,

@@ -14,9 +14,16 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import lombok.experimental.UtilityClass;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
+
+import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
+import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
+import static org.opensearch.sql.data.type.ExprCoreType.UNDEFINED;
 
 /**
  * The definition of {@link ExprValue} factory.
@@ -205,5 +212,25 @@ public class ExprValueUtils {
 
   public static Boolean getBooleanValue(ExprValue exprValue) {
     return exprValue.booleanValue();
+  }
+
+  public static String jsonify(ExprValue value) {
+    if (value.type().equals(UNDEFINED)) {
+      return "\"NULL\"";
+    }
+    if (value.isNumber() || value.type().equals(BOOLEAN)) {
+      return String.format("%s", value.value());
+    }
+    if (value.type().equals(STRUCT)) {
+      return value.tupleValue().entrySet().stream()
+          .map(e -> String.format("\"%s\": %s", e.getKey(), jsonify(e.getValue())))
+              .collect(Collectors.joining(", ", "{ ", " }"));
+    }
+    if (value.type().equals(ARRAY)) {
+      return value.collectionValue().stream()
+          .map(ExprValueUtils::jsonify)
+              .collect(Collectors.joining(", ", "[ ", " ]"));
+    }
+    return String.format("\"%s\"", value);
   }
 }

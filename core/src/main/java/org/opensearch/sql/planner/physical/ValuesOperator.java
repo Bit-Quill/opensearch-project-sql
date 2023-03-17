@@ -15,8 +15,16 @@ import lombok.Getter;
 import lombok.ToString;
 import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.LiteralExpression;
+
+import static org.opensearch.sql.data.model.ExprValueUtils.jsonify;
+import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
+import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static org.opensearch.sql.data.type.ExprCoreType.STRING;
+import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
+import static org.opensearch.sql.data.type.ExprCoreType.UNDEFINED;
 
 /**
  * Physical operator for Values.
@@ -70,5 +78,4 @@ public class ValuesOperator extends PhysicalPlan {
                                            .collect(Collectors.toList());
     return new ExprCollectionValue(values);
   }
-
 }

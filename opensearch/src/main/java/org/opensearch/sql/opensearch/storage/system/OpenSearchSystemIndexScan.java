@@ -7,10 +7,14 @@
 package org.opensearch.sql.opensearch.storage.system;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.opensearch.request.system.OpenSearchSystemRequest;
 import org.opensearch.sql.storage.TableScanOperator;
 
@@ -33,11 +37,13 @@ public class OpenSearchSystemIndexScan extends TableScanOperator {
 
   private long totalHits = 0;
 
+  private List<ExprValue> rawResponse = List.of();
+
   @Override
   public void open() {
-    var response = request.search();
-    totalHits = response.size();
-    iterator = response.iterator();
+    rawResponse = request.search();
+    totalHits = rawResponse.size();
+    iterator = rawResponse.iterator();
   }
 
   @Override
@@ -53,6 +59,12 @@ public class OpenSearchSystemIndexScan extends TableScanOperator {
   @Override
   public long getTotalHits() {
     return totalHits;
+  }
+
+  @Override
+  public String getRawResponse() {
+    return rawResponse.stream().map(ExprValueUtils::jsonify)
+        .collect(Collectors.joining(", ", "[ ", " ]"));
   }
 
   @Override

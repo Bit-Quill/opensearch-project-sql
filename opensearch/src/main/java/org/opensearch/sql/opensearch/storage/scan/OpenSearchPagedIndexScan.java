@@ -27,6 +27,7 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
   private OpenSearchRequest request;
   private Iterator<ExprValue> iterator;
   private long totalHits = 0;
+  private String rawResponse;
 
   public OpenSearchPagedIndexScan(OpenSearchClient client,
                                   PagedRequestBuilder requestBuilder) {
@@ -54,6 +55,7 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
     super.open();
     request = requestBuilder.build();
     OpenSearchResponse response = client.search(request);
+    rawResponse = response.getRawResponse();
     if (!response.isEmpty()) {
       iterator = response.iterator();
       totalHits = response.getTotalHits();
@@ -66,6 +68,11 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
   public void close() {
     super.close();
     client.cleanup(request);
+  }
+
+  @Override
+  public String getRawResponse() {
+    return rawResponse;
   }
 
   @Override
