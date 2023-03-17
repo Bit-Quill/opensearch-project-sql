@@ -14,7 +14,6 @@ import com.facebook.presto.matching.Captures;
 import com.facebook.presto.matching.Pattern;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.planner.logical.LogicalNested;
 import org.opensearch.sql.planner.logical.LogicalPlan;
@@ -25,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Merge Filter --> Filter to the single Filter condition.
+ * Merge Nested --> Nested to the single Nested condition.
  */
 public class MergeNestedAndNested implements Rule<LogicalNested> {
 
@@ -36,7 +35,7 @@ public class MergeNestedAndNested implements Rule<LogicalNested> {
   private final Pattern<LogicalNested> pattern;
 
   /**
-   * Constructor of MergeFilterAndFilter.
+   * Constructor of MergeNestedAndNested.
    */
   public MergeNestedAndNested() {
     this.capture = Capture.newCapture();
@@ -45,16 +44,16 @@ public class MergeNestedAndNested implements Rule<LogicalNested> {
   }
 
   @Override
-  public LogicalPlan apply(LogicalNested filter,
+  public LogicalPlan apply(LogicalNested nested,
       Captures captures) {
-    LogicalNested childFilter = captures.get(capture);
+    LogicalNested childNested = captures.get(capture);
 
     List<Map<String, ReferenceExpression>> combinedArgs = new ArrayList<>();
-    combinedArgs.addAll(filter.getFields());
-    combinedArgs.addAll(childFilter.getFields());
+    combinedArgs.addAll(nested.getFields());
+    combinedArgs.addAll(childNested.getFields());
 
     return new LogicalNested(
-        childFilter.getChild().get(0),
-        combinedArgs, childFilter.getProjectList());
+        childNested.getChild().get(0),
+        combinedArgs, childNested.getProjectList());
   }
 }
