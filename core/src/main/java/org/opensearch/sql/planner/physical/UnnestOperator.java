@@ -7,6 +7,7 @@ package org.opensearch.sql.planner.physical;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -30,6 +31,7 @@ public class UnnestOperator extends PhysicalPlan {
   private final Set<String> fields; // Needs to be a Set to match legacy implementation
   @Getter
   List<Map<String, ExprValue>> result = new ArrayList<>();
+  List<String> nonNestedFields = new ArrayList<>();
   @EqualsAndHashCode.Exclude
   private ListIterator<Map<String, ExprValue>> flattenedResult = result.listIterator();
 
@@ -66,11 +68,6 @@ public class UnnestOperator extends PhysicalPlan {
   }
 
   @Override
-  public void open() {
-    super.open();
-  }
-
-  @Override
   public boolean hasNext() {
     return input.hasNext() || flattenedResult.hasNext();
   }
@@ -80,38 +77,61 @@ public class UnnestOperator extends PhysicalPlan {
   public ExprValue next() {
     if (!flattenedResult.hasNext()) {
       result.clear();
+      nonNestedFields.clear();
+
       ExprValue inputValue = input.next();
+      generateNonNestedFieldsMap(inputValue);
       for (String field : fields) {
-        result = flatten(field, inputValue, result);
+        result = flatten(field, inputValue, result, true);
       }
+
+//      for (String nonNestedField : nonNestedFields) {
+//        result = flatten(nonNestedField, inputValue, result, false);
+//      }
+
       if (result.isEmpty()) {
         return new ExprTupleValue(new LinkedHashMap<>());
       }
 
-//      addNonNestedFieldsToResult(inputValue, result);
       flattenedResult = result.listIterator();
     }
     return new ExprTupleValue(new LinkedHashMap<>(flattenedResult.next()));
   }
 
-//  public void addNonNestedFieldsToResult(ExprValue row, List<Map<String, ExprValue>> result) {
-//    // legacy does not currently support arrays. Later we may want to implement a cartesian product with
-//    //  PartiQL for non-nested type arrays. For now we only care about single layer object types.
-//
-//    // TODO we want to support arrays so that it's easy to implement partiql. We need a reference to all select items and then we don't care which are of nested type.
-//    //  this can help fix our issue with using PartiQL syntax,
-//    //   question, are we generating the same DSL for push down? In the valueMap all fields are being returned, not just the ones used in the SELECT clause.
-//    //    If we can get the list this far then doing the final product is automatic. Is this a problem with pushdown though? If the DSL is general enough that it
-//    //     returns all fields in the row than perhaps we just treat the qualified name as an alias in the project operator and as a field in the UnnestOperator.
-//    for (int i = 0; i < result.size(); i++) {
-//      for (var inputMap : row.tupleValue().entrySet()) {
-//        if (!result.get(i).containsKey(inputMap.getKey())) {
-//          var blah = result.get(i);
-//          result.get(i).put(inputMap.getKey(), inputMap.getValue());
-//        }
-//      }
-//    }
-//  }
+  public void generateNonNestedFieldsMap(ExprValue inputMap) {
+
+    for (Map.Entry<String, ExprValue> inputField : inputMap.tupleValue().entrySet()) {
+      boolean found = false;
+      for (String blah : this.fields) {
+        String stringCmp = new String(blah).split("\\.")[0];
+        if (stringCmp.equalsIgnoreCase(inputField.getKey())) {
+          break;
+        }
+      }
+
+      if (!found) {
+        boolean nestingComplete = false;
+        String nonNestedField = inputField.getKey();
+        ExprValue currentObj = inputField.getValue();
+        while (!nestingComplete) {
+          if (currentObj instanceof ExprTupleValue) {
+            for (var it : currentObj.tupleValue().entrySet()) {
+              currentObj = it.getValue();
+              nonNestedField += "." + it.getKey();
+              // We only care about the keys
+              break;
+            }
+          } else if (currentObj instanceof ExprCollectionValue) {
+            currentObj = currentObj.collectionValue().get(0);
+          } else {
+            nestingComplete = true;
+          }
+        }
+        this.nonNestedFields.add(nonNestedField);
+      }
+    } // TODO is it okay to have non nested field with same path as a nested type? probably not.
+  }
+
 
   /**
    * Simplifies the structure of row's source Map by flattening it,
@@ -134,7 +154,7 @@ public class UnnestOperator extends PhysicalPlan {
    */
   @SuppressWarnings("unchecked")
   private List<Map<String, ExprValue>> flatten(
-      String nestedField, ExprValue row, List<Map<String, ExprValue>> prevList
+      String nestedField, ExprValue row, List<Map<String, ExprValue>> prevList, boolean crossJoin
   ) {
     List<Map<String, ExprValue>> copy = new ArrayList<>();
     List<Map<String, ExprValue>> newList = new ArrayList<>();
@@ -147,15 +167,19 @@ public class UnnestOperator extends PhysicalPlan {
       return copy;
     }
 
-    // Generate cartesian product
-    for (Map<String, ExprValue> prevMap : prevList) {
-      for (Map<String, ExprValue> newMap : copy) {
-        newList.add(Stream.of(newMap, prevMap)
-            .flatMap(map -> map.entrySet().stream())
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                Map.Entry::getValue)));
+    if (crossJoin) {
+      // Generate cartesian product
+      for (Map<String, ExprValue> prevMap : prevList) {
+        for (Map<String, ExprValue> newMap : copy) {
+          newList.add(Stream.of(newMap, prevMap)
+              .flatMap(map -> map.entrySet().stream())
+              .collect(Collectors.toMap(
+                  Map.Entry::getKey,
+                  Map.Entry::getValue)));
+        }
       }
+    } else {
+      // TODO Implement
     }
     return newList;
   }
@@ -198,7 +222,14 @@ public class UnnestOperator extends PhysicalPlan {
     // Return final nested result
     if (StringUtils.substringAfterLast(field, ".").equals(nestedField)
         && currentObj != null) {
-      ret.add(Map.of(field, currentObj));
+//      if (nonNestedFields.isEmpty()) {
+        ret.add(Map.of(field, currentObj));
+//      } else {
+//        Map<String, ExprValue> entryMap = new HashMap<>();
+//        entryMap.putAll(this.nonNestedFields);
+//        entryMap.put(field, currentObj);
+//        ret.add(entryMap);
+//      }
     } else if (currentObj != null) {
       getNested(field, nestedField.substring(nestedField.indexOf(".") + 1), row, ret, currentObj);
     }

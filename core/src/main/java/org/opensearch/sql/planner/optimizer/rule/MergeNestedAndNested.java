@@ -14,6 +14,7 @@ import com.facebook.presto.matching.Captures;
 import com.facebook.presto.matching.Pattern;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.planner.logical.LogicalNested;
 import org.opensearch.sql.planner.logical.LogicalPlan;
@@ -52,19 +53,8 @@ public class MergeNestedAndNested implements Rule<LogicalNested> {
     combinedArgs.addAll(filter.getFields());
     combinedArgs.addAll(childFilter.getFields());
 
-//    if (filter.getProjectList() != null) {
-//      return new LogicalNested(
-//          childFilter.getChild().get(0),
-//          combinedArgs, filter.getProjectList());
-//    } else {
-      return new LogicalNested(
-          childFilter.getChild().get(0),
-          combinedArgs, null);
-//    }
-  }
-
-  @Override
-  public blahEnum planRoute(LogicalPlan match, LogicalPlan node) {
-    return (match != node) ? blahEnum.TERMINATE_RULES : blahEnum.CONTINUE_ITERATE;
+    return new LogicalNested(
+        childFilter.getChild().get(0),
+        combinedArgs, childFilter.getProjectList());
   }
 }
