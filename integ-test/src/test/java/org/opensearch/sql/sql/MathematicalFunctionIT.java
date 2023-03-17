@@ -138,6 +138,10 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
     result = executeQuery("select pow(-2, -3)");
     verifySchema(result, schema("pow(-2, -3)", null, "double"));
     verifyDataRows(result, rows(-0.125));
+
+    result = executeQuery("select pow(-1, 0.5)");
+    verifySchema(result, schema("pow(-1, 0.5)", null, "double"));
+    verifyDataRows(result, rows((Object) null));
   }
 
   @Test
