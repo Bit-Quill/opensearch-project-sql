@@ -15,6 +15,11 @@ import org.opensearch.sql.planner.logical.LogicalPlan;
  * @param <T> LogicalPlan.
  */
 public interface Rule<T> {
+  public enum blahEnum {
+    RE_ITERATE,
+    CONTINUE_ITERATE,
+    TERMINATE_RULES
+  }
 
   /**
    * Get the {@link Pattern}.
@@ -28,4 +33,8 @@ public interface Rule<T> {
    * @return the transfromed LogicalPlan.
    */
   LogicalPlan apply(T plan, Captures captures);
+
+  default blahEnum planRoute(LogicalPlan match, LogicalPlan node) {
+    return (match != node) ? blahEnum.RE_ITERATE : blahEnum.CONTINUE_ITERATE;
+  }
 }

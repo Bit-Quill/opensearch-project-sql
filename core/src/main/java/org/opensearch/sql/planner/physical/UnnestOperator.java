@@ -66,6 +66,11 @@ public class UnnestOperator extends PhysicalPlan {
   }
 
   @Override
+  public void open() {
+    super.open();
+  }
+
+  @Override
   public boolean hasNext() {
     return input.hasNext() || flattenedResult.hasNext();
   }
@@ -82,10 +87,31 @@ public class UnnestOperator extends PhysicalPlan {
       if (result.isEmpty()) {
         return new ExprTupleValue(new LinkedHashMap<>());
       }
+
+//      addNonNestedFieldsToResult(inputValue, result);
       flattenedResult = result.listIterator();
     }
     return new ExprTupleValue(new LinkedHashMap<>(flattenedResult.next()));
   }
+
+//  public void addNonNestedFieldsToResult(ExprValue row, List<Map<String, ExprValue>> result) {
+//    // legacy does not currently support arrays. Later we may want to implement a cartesian product with
+//    //  PartiQL for non-nested type arrays. For now we only care about single layer object types.
+//
+//    // TODO we want to support arrays so that it's easy to implement partiql. We need a reference to all select items and then we don't care which are of nested type.
+//    //  this can help fix our issue with using PartiQL syntax,
+//    //   question, are we generating the same DSL for push down? In the valueMap all fields are being returned, not just the ones used in the SELECT clause.
+//    //    If we can get the list this far then doing the final product is automatic. Is this a problem with pushdown though? If the DSL is general enough that it
+//    //     returns all fields in the row than perhaps we just treat the qualified name as an alias in the project operator and as a field in the UnnestOperator.
+//    for (int i = 0; i < result.size(); i++) {
+//      for (var inputMap : row.tupleValue().entrySet()) {
+//        if (!result.get(i).containsKey(inputMap.getKey())) {
+//          var blah = result.get(i);
+//          result.get(i).put(inputMap.getKey(), inputMap.getValue());
+//        }
+//      }
+//    }
+//  }
 
   /**
    * Simplifies the structure of row's source Map by flattening it,
