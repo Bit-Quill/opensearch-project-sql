@@ -134,16 +134,6 @@ STDDEV_SAMP:                        'STDDEV_SAMP';
 SUBSTRING:                          'SUBSTRING';
 TRIM:                               'TRIM';
 
-
-// Metadata fields can be ID
-
-META_INDEX:                         '_INDEX';
-META_ID:                            '_ID';
-META_SCORE:                         '_SCORE';
-META_MAXSCORE:                      '_MAXSCORE';
-META_SORT:                          '_SORT';
-
-
 // Keywords, but can be ID
 // Common Keywords, but can be ID
 
