@@ -103,10 +103,8 @@ class OpenSearchIndexScanQueryBuilder extends TableScanBuilder {
   @Override
   public boolean pushDownNested(LogicalNested nested) {
     indexScan.getRequestBuilder().pushDownNested(nested.getFields());
-    if (nested.getProjectList() != null) {
-      indexScan.getRequestBuilder().pushDownProjects(
-          findReferenceExpressions(nested.getProjectList()));
-    }
+    indexScan.getRequestBuilder().pushDownProjects(
+        findReferenceExpressions(nested.getProjectList()));
     // Return false intentionally to keep the original nested operator
     return false;
   }

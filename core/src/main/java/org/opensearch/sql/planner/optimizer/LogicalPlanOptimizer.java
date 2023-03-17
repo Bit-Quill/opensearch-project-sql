@@ -7,8 +7,6 @@
 package org.opensearch.sql.planner.optimizer;
 
 import static com.facebook.presto.matching.DefaultMatcher.DEFAULT_MATCHER;
-import static org.opensearch.sql.planner.optimizer.Rule.blahEnum.RE_ITERATE;
-import static org.opensearch.sql.planner.optimizer.Rule.blahEnum.TERMINATE_RULES;
 
 import com.facebook.presto.matching.Match;
 import java.util.Arrays;
@@ -17,7 +15,6 @@ import java.util.stream.Collectors;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.optimizer.rule.MergeFilterAndFilter;
 import org.opensearch.sql.planner.optimizer.rule.MergeNestedAndNested;
-import org.opensearch.sql.planner.optimizer.rule.MergeProjectAndNested;
 import org.opensearch.sql.planner.optimizer.rule.PushFilterUnderSort;
 import org.opensearch.sql.planner.optimizer.rule.read.CreateTableScanBuilder;
 import org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown;
@@ -62,7 +59,6 @@ public class LogicalPlanOptimizer {
         TableScanPushDown.PUSH_DOWN_LIMIT,
         TableScanPushDown.PUSH_DOWN_HIGHLIGHT,
         TableScanPushDown.PUSH_DOWN_NESTED,
-//        TableScanPushDown.PUSH_DOWN_NESTED_PROJECT_ADV,
         TableScanPushDown.PUSH_DOWN_PROJECT,
         new CreateTableWriteBuilder()));
   }
@@ -87,18 +83,14 @@ public class LogicalPlanOptimizer {
         Match match = DEFAULT_MATCHER.match(rule.pattern(), node);
         if (match.isPresent()) {
           node = rule.apply(match.value(), match.captures());
-          Rule.blahEnum e = rule.planRoute((LogicalPlan) match.value(), node);
 
           // For new TableScanPushDown impl, pattern match doesn't necessarily cause
           // push down to happen. So reiterate all rules against the node only if the node
           // is actually replaced by any rule.
           // TODO: may need to introduce fixed point or maximum iteration limit in future
-          if (e == RE_ITERATE) {
+          if (node != match.value()) {
             done = false;
           }
-//          if (e == TERMINATE_RULES) {
-//            break;
-//          }
         }
       }
     }

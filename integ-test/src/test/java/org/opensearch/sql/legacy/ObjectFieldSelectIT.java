@@ -12,9 +12,9 @@ import static org.opensearch.sql.util.MatcherUtils.schema;
 import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
 import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
-import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Assume;
 import org.junit.Test;
 import org.opensearch.sql.legacy.utils.StringUtils;
 
@@ -88,19 +88,16 @@ public class ObjectFieldSelectIT extends SQLIntegTestCase {
   public void testSelectObjectFieldOfArrayValuesItself() {
     JSONObject response = new JSONObject(query("SELECT accounts FROM %s"));
 
-    verifyDataRows(response,
-        rows(new JSONArray(List.of(new JSONObject("{\"id\":1}"),
-            new JSONObject("{\"id\":2}")))));
+    // Only the first element of the list of is returned.
+    verifyDataRows(response, rows(new JSONObject("{\"id\": 1}")));
   }
 
-  // TODO needs fallback mechanism or treat as nested function call alias.
-  //  can be completed after nested type derived in index scan from:
-  //  https://github.com/opensearch-project/sql/pull/1314
   @Test
   public void testSelectObjectFieldOfArrayValuesInnerFields() {
     JSONObject response = new JSONObject(query("SELECT accounts.id FROM %s"));
 
-    verifyDataRows(response, rows(new JSONArray(List.of(1,2))));
+    // Only the first element of the list of is returned.
+    verifyDataRows(response, rows(1));
   }
 
   private String query(String sql) {
