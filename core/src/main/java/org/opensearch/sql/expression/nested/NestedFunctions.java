@@ -90,9 +90,9 @@ public class NestedFunctions {
     doubleParamFunctionTypes.forEach(
         doubleParam -> functions.add(
             impl(
-              (v1, v2) -> {
-                return nullMissingFirstArgOnlyHandling(v1);
-              },
+                nullMissingHandling(
+                    (v1, v2) -> v1
+                ),
                 doubleParam.getLeft(), doubleParam.getMiddle(), doubleParam.getRight()
             )
         )
@@ -101,19 +101,5 @@ public class NestedFunctions {
     return define(BuiltinFunctionName.NESTED.getName(),
         functions
     );
-  }
-
-  /**
-   * Wrapper the binary ExprValue function with default
-   * NULL and MISSING handling for first arg only.
-   */
-  public static ExprValue nullMissingFirstArgOnlyHandling(ExprValue v1) {
-    if (v1.isMissing()) {
-      return ExprValueUtils.missingValue();
-    } else if (v1.isNull()) {
-      return ExprValueUtils.nullValue();
-    } else {
-      return v1;
-    }
   }
 }
