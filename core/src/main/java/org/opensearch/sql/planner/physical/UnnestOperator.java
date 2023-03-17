@@ -98,13 +98,16 @@ public class UnnestOperator extends PhysicalPlan {
     return new ExprTupleValue(new LinkedHashMap<>(flattenedResult.next()));
   }
 
+  /**
+   *
+   * @param inputMap
+   */
   public void generateNonNestedFieldsMap(ExprValue inputMap) {
 
     for (Map.Entry<String, ExprValue> inputField : inputMap.tupleValue().entrySet()) {
       boolean foundNestedField = false;
-      for (String blah : this.fields) {
-        String stringCmp = new String(blah).split("\\.")[0];
-        if (stringCmp.equalsIgnoreCase(inputField.getKey())) {
+      for (String field : this.fields) {
+        if ((field).split("\\.")[0].equalsIgnoreCase(inputField.getKey())) {
           foundNestedField = true;
           break;
         }
@@ -130,7 +133,7 @@ public class UnnestOperator extends PhysicalPlan {
         }
         this.nonNestedFields.add(nonNestedField);
       }
-    } // TODO is it okay to have non nested field with same path as a nested type? probably not.
+    }
   }
 
 

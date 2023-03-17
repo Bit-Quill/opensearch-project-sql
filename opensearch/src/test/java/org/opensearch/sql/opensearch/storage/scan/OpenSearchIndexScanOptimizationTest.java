@@ -263,7 +263,7 @@ class OpenSearchIndexScanOptimizationTest {
         project(
             nested(
             indexScanBuilder(
-                withNestedPushedDown(nested.getFields())), args, null), // TODO FIXME and line 259
+                withNestedPushedDown(nested.getFields())), args, null),
                 DSL.named("message.info",
                     DSL.nested(DSL.ref("message.info", STRING)))
         ),

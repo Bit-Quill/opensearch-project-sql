@@ -19,9 +19,6 @@ import org.opensearch.sql.expression.ReferenceExpression;
 @ToString
 public class LogicalNested extends LogicalPlan {
   private final List<Map<String, ReferenceExpression>> fields;
-  /**
-   * Project list is merged in from logical project at query optimization.
-   */
   private final List<NamedExpression> projectList;
 
   /**
