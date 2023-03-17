@@ -111,7 +111,6 @@ public class AstBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedPlan> {
     if (queryContext.limitClause() != null) {
       from = visit(queryContext.limitClause()).attach(from);
     }
-
     UnresolvedPlan result = project.attach(from);
     context.pop();
     return result;

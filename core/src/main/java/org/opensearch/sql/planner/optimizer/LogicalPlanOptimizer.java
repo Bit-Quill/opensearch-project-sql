@@ -68,7 +68,8 @@ public class LogicalPlanOptimizer {
    */
   public LogicalPlan optimize(LogicalPlan plan) {
     LogicalPlan optimized = internalOptimize(plan);
-    optimized.replaceChildPlans(optimized.getChild().stream().map(this::optimize).collect(
+    optimized.replaceChildPlans(
+      optimized.getChild().stream().map(this::optimize).collect(
         Collectors.toList()));
     return internalOptimize(optimized);
   }
