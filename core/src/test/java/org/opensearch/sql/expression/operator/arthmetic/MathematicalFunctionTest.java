@@ -1474,6 +1474,28 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
+   * Test pow/power with null outputs
+   */
+  @Test
+  public void pow_null_output() {
+    FunctionExpression pow = DSL.pow(DSL.literal(-2), DSL.literal((float) 1.5));
+    assertEquals(DOUBLE, pow.type());
+    assertTrue(pow.valueOf(valueEnv()).isNull());
+
+    pow = DSL.pow(DSL.literal(-2), DSL.literal(1.5));
+    assertEquals(DOUBLE, pow.type());
+    assertTrue(pow.valueOf(valueEnv()).isNull());
+
+    FunctionExpression power = DSL.power(DSL.literal(-2), DSL.literal((float) 1.5));
+    assertEquals(DOUBLE, power.type());
+    assertTrue(power.valueOf(valueEnv()).isNull());
+
+    power = DSL.power(DSL.literal(-2), DSL.literal(1.5));
+    assertEquals(DOUBLE, power.type());
+    assertTrue(power.valueOf(valueEnv()).isNull());
+  }
+
+  /**
    * Test pow/power with null value.
    */
   @Test
