@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
@@ -58,7 +60,7 @@ public interface ExecutionEngine {
     private final List<ExprValue> results;
     private final long total;
     private final Cursor cursor;
-    private final String rawResponse;
+    private final ResponseMetadata responseMetadata;
 
     /**
      * Constructor for Query Response.
@@ -71,7 +73,7 @@ public interface ExecutionEngine {
       this.results = results;
       this.total = 0;
       this.cursor = null;
-      this.rawResponse = "";
+      this.responseMetadata = new ResponseMetadata();
     }
   }
 
@@ -88,19 +90,26 @@ public interface ExecutionEngine {
   }
 
   @Data
-  //@Builder
+  @Accessors(chain = true)
   class ResponseMetadata {
     private long took = 0;
     private boolean timeOut = false;
     private long maxScore = 1; //or double?
+    private Shards shards = new Shards();
 
     @Data
-    //@Builder
+    @Accessors(chain = true)
     public static class Shards {
-      private final long total = 0;
-      private final long successful = 0;
-      private final long skipped = 0;
-      private final long failed = 0;
+      private long total = 0;
+      private long successful = 0;
+      private long skipped = 0;
+      private long failed = 0;
+
+      public Shards() {
+      }
+    }
+
+    public ResponseMetadata() {
     }
   }
 

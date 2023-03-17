@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.monitor.ResourceMonitor;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 import org.opensearch.sql.planner.physical.PhysicalPlanNodeVisitor;
@@ -60,8 +61,8 @@ public class ResourceMonitorPlan extends PhysicalPlan {
   }
 
   @Override
-  public String getRawResponse() {
-    return delegate.getRawResponse();
+  public ExecutionEngine.ResponseMetadata getResponseMetadata() {
+    return delegate.getResponseMetadata();
   }
 
   @Override

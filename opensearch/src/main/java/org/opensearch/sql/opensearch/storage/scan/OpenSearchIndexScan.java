@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
@@ -52,7 +53,7 @@ public class OpenSearchIndexScan extends TableScanOperator {
   /** Search response for current batch. */
   private transient Iterator<ExprValue> iterator;
 
-  private String rawResponse;
+  private ExecutionEngine.ResponseMetadata responseMetadata;
 
   /**
    * Constructor.
@@ -87,7 +88,7 @@ public class OpenSearchIndexScan extends TableScanOperator {
     request = requestBuilder.build();
     iterator = Collections.emptyIterator();
     queryCount = 0;
-    rawResponse = fetchNextBatch().getRawResponse();
+    responseMetadata = fetchNextBatch().getResponseMetadata();
   }
 
   @Override
@@ -113,8 +114,8 @@ public class OpenSearchIndexScan extends TableScanOperator {
   }
 
   @Override
-  public String getRawResponse() {
-    return rawResponse;
+  public ExecutionEngine.ResponseMetadata getResponseMetadata() {
+    return responseMetadata;
   }
 
   protected OpenSearchResponse fetchNextBatch() {

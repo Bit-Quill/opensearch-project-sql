@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.commons.lang3.NotImplementedException;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.request.PagedRequestBuilder;
@@ -27,7 +28,7 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
   private OpenSearchRequest request;
   private Iterator<ExprValue> iterator;
   private long totalHits = 0;
-  private String rawResponse;
+  private ExecutionEngine.ResponseMetadata responseMetadata;
 
   public OpenSearchPagedIndexScan(OpenSearchClient client,
                                   PagedRequestBuilder requestBuilder) {
@@ -55,7 +56,7 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
     super.open();
     request = requestBuilder.build();
     OpenSearchResponse response = client.search(request);
-    rawResponse = response.getRawResponse();
+    responseMetadata = response.getResponseMetadata();
     if (!response.isEmpty()) {
       iterator = response.iterator();
       totalHits = response.getTotalHits();
@@ -71,8 +72,8 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
   }
 
   @Override
-  public String getRawResponse() {
-    return rawResponse;
+  public ExecutionEngine.ResponseMetadata getResponseMetadata() {
+    return responseMetadata;
   }
 
   @Override

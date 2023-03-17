@@ -31,6 +31,7 @@ public class QueryResult implements Iterable<Object[]> {
   /**
    * Results which are collection of expression.
    */
+  @Getter
   private final Collection<ExprValue> exprValues;
 
   @Getter
@@ -39,9 +40,12 @@ public class QueryResult implements Iterable<Object[]> {
   @Getter
   private final long total;
 
+  @Getter
+  private final ExecutionEngine.ResponseMetadata responseMetadata;
 
   public QueryResult(ExecutionEngine.Schema schema, Collection<ExprValue> exprValues) {
-    this(schema, exprValues, Cursor.None, exprValues.size());
+    this(schema, exprValues, Cursor.None, exprValues.size(),
+        new ExecutionEngine.ResponseMetadata());
   }
 
   /**

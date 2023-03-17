@@ -30,23 +30,14 @@ public class PrometheusSystemTableScan extends TableScanOperator {
 
   private Iterator<ExprValue> iterator;
 
-  private List<ExprValue> rawResponse = List.of();
-
   @Override
   public void open() {
-    rawResponse = request.search();
-    iterator = rawResponse.iterator();
+    iterator = request.search().iterator();
   }
 
   @Override
   public boolean hasNext() {
     return iterator.hasNext();
-  }
-
-  @Override
-  public String getRawResponse() {
-    return rawResponse.stream().map(ExprValueUtils::jsonify)
-        .collect(Collectors.joining(", ", "[ ", " ]"));
   }
 
   @Override

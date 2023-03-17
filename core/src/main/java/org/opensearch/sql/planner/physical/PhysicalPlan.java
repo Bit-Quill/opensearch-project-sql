@@ -7,7 +7,6 @@
 package org.opensearch.sql.planner.physical;
 
 import java.util.Iterator;
-import java.util.List;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.planner.PlanNode;
@@ -58,9 +57,9 @@ public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
     return getChild().stream().mapToLong(PhysicalPlan::getTotalHits).max().orElse(0);
   }
 
-  public String getRawResponse() {
-    return getChild().stream().map(PhysicalPlan::getRawResponse)
-        .filter(r -> r != null && !r.isEmpty()).findFirst().orElse("");
+  public ExecutionEngine.ResponseMetadata getResponseMetadata() {
+    return getChild().stream().map(PhysicalPlan::getResponseMetadata)
+        .findFirst().orElse(new ExecutionEngine.ResponseMetadata());
   }
 
   public String toCursor() {

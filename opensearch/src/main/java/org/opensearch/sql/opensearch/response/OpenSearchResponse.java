@@ -20,6 +20,7 @@ import org.opensearch.search.aggregations.Aggregations;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 
 /**
@@ -44,9 +45,10 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
    */
   @EqualsAndHashCode.Exclude
   private final OpenSearchExprValueFactory exprValueFactory;
+
   @EqualsAndHashCode.Exclude
   @Getter
-  private String rawResponse;
+  private ExecutionEngine.ResponseMetadata responseMetadata;
 
   /**
    * Constructor of OpenSearchResponse.
@@ -56,7 +58,13 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
     this.hits = searchResponse.getHits();
     this.aggregations = searchResponse.getAggregations();
     this.exprValueFactory = exprValueFactory;
-    this.rawResponse = searchResponse.toString();
+    this.responseMetadata = new ExecutionEngine.ResponseMetadata().setShards(
+        new ExecutionEngine.ResponseMetadata.Shards()
+            .setTotal(searchResponse.getTotalShards())
+            .setSuccessful(searchResponse.getSuccessfulShards())
+            .setSkipped(searchResponse.getSkippedShards())
+            .setFailed(searchResponse.getFailedShards())
+    );
   }
 
   /**

@@ -18,9 +18,7 @@ import org.opensearch.sql.executor.Explain;
 import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.executor.protector.ExecutionProtector;
-import org.opensearch.sql.opensearch.storage.scan.OpenSearchIndexScan;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
-import org.opensearch.sql.planner.physical.ProjectOperator;
 import org.opensearch.sql.storage.TableScanOperator;
 
 /** OpenSearch execution engine implementation. */
@@ -53,11 +51,11 @@ public class OpenSearchExecutionEngine implements ExecutionEngine {
               result.add(plan.next());
             }
 
-            String rawResponse = plan.getRawResponse();
+            var responseMetadata = plan.getResponseMetadata();
             Cursor qc = paginatedPlanCache.convertToCursor(plan);
 
             QueryResponse response = new QueryResponse(physicalPlan.schema(), result,
-                plan.getTotalHits(), qc, rawResponse);
+                plan.getTotalHits(), qc, responseMetadata);
             listener.onResponse(response);
           } catch (Exception e) {
             listener.onFailure(e);

@@ -37,11 +37,9 @@ public class OpenSearchSystemIndexScan extends TableScanOperator {
 
   private long totalHits = 0;
 
-  private List<ExprValue> rawResponse = List.of();
-
   @Override
   public void open() {
-    rawResponse = request.search();
+    var rawResponse = request.search();
     totalHits = rawResponse.size();
     iterator = rawResponse.iterator();
   }
@@ -59,12 +57,6 @@ public class OpenSearchSystemIndexScan extends TableScanOperator {
   @Override
   public long getTotalHits() {
     return totalHits;
-  }
-
-  @Override
-  public String getRawResponse() {
-    return rawResponse.stream().map(ExprValueUtils::jsonify)
-        .collect(Collectors.joining(", ", "[ ", " ]"));
   }
 
   @Override
