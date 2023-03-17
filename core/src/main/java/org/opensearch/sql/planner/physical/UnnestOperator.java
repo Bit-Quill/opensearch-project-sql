@@ -85,9 +85,9 @@ public class UnnestOperator extends PhysicalPlan {
         result = flatten(field, inputValue, result, true);
       }
 
-//      for (String nonNestedField : nonNestedFields) {
-//        result = flatten(nonNestedField, inputValue, result, false);
-//      }
+      for (String nonNestedField : nonNestedFields) {
+        result = flatten(nonNestedField, inputValue, result, false);
+      }
 
       if (result.isEmpty()) {
         return new ExprTupleValue(new LinkedHashMap<>());
@@ -101,15 +101,16 @@ public class UnnestOperator extends PhysicalPlan {
   public void generateNonNestedFieldsMap(ExprValue inputMap) {
 
     for (Map.Entry<String, ExprValue> inputField : inputMap.tupleValue().entrySet()) {
-      boolean found = false;
+      boolean foundNestedField = false;
       for (String blah : this.fields) {
         String stringCmp = new String(blah).split("\\.")[0];
         if (stringCmp.equalsIgnoreCase(inputField.getKey())) {
+          foundNestedField = true;
           break;
         }
       }
 
-      if (!found) {
+      if (!foundNestedField) {
         boolean nestingComplete = false;
         String nonNestedField = inputField.getKey();
         ExprValue currentObj = inputField.getValue();
@@ -147,27 +148,28 @@ public class UnnestOperator extends PhysicalPlan {
    * <p>Return:
    * flattenedRow = {comment.likes: 2}
    *
-   * @param nestedField : Field to query in row
-   * @param row : Row returned from OS
-   * @param prevList : List of previous nested calls
-   * @return : List of nested select items or cartesian product of nested calls
+   * @param nestedField : Field to query in row.
+   * @param row : Row returned from OS.
+   * @param prevList : List of previous nested calls.
+   * @param supportArrays : When false we do not need to execute a cross join.
+   * @return : List of nested select items or cartesian product of nested calls.
    */
   @SuppressWarnings("unchecked")
   private List<Map<String, ExprValue>> flatten(
-      String nestedField, ExprValue row, List<Map<String, ExprValue>> prevList, boolean crossJoin
+      String nestedField, ExprValue row, List<Map<String, ExprValue>> prevList, boolean supportArrays
   ) {
     List<Map<String, ExprValue>> copy = new ArrayList<>();
     List<Map<String, ExprValue>> newList = new ArrayList<>();
 
     ExprValue nestedObj = null;
-    getNested(nestedField, nestedField, row, copy, nestedObj);
+    getNested(nestedField, nestedField, row, copy, nestedObj, supportArrays);
 
     // Only one field in select statement
     if (prevList.size() == 0) {
       return copy;
     }
 
-    if (crossJoin) {
+    if (supportArrays) {
       // Generate cartesian product
       for (Map<String, ExprValue> prevMap : prevList) {
         for (Map<String, ExprValue> newMap : copy) {
@@ -178,25 +180,32 @@ public class UnnestOperator extends PhysicalPlan {
                   Map.Entry::getValue)));
         }
       }
+      return newList;
     } else {
-      // TODO Implement
+      for (Map<String, ExprValue> resultsMap : this.result) {
+        for (Map<String, ExprValue> nonNestedMap : copy) {
+          resultsMap.putAll(nonNestedMap);
+        }
+      }
+      return this.result;
     }
-    return newList;
   }
 
   /**
    * Retrieve nested field(s) in row.
    *
-   * @param field : path for nested field.
-   * @param nestedField : current level to nested field path.
+   * @param field : Path for nested field.
+   * @param nestedField : Current level to nested field path.
    * @param row : Row to resolve nested field.
    * @param ret : List to add nested field to.
-   * @param nestedObj : object at current nested level.
+   * @param nestedObj : Object at current nested level.
+   * @param supportArrays : Only first index of arrays is supports when false.
    * @return : Object at current nested level.
    */
   private void getNested(
       String field, String nestedField, ExprValue row,
-      List<Map<String, ExprValue>> ret, ExprValue nestedObj
+      List<Map<String, ExprValue>> ret, ExprValue nestedObj,
+      boolean supportArrays
   ) {
     ExprValue currentObj = (nestedObj == null) ? row : nestedObj;
     String[] splitKeys = nestedField.split("\\.");
@@ -210,28 +219,30 @@ public class UnnestOperator extends PhysicalPlan {
       }
     } else if (currentObj instanceof ExprCollectionValue)  {
       ExprValue arrayObj = currentObj;
-      for (int x = 0; x < arrayObj.collectionValue().size(); x++) {
-        currentObj = arrayObj.collectionValue().get(x);
-        getNested(field, nestedField, row, ret, currentObj);
+      if (supportArrays) {
+        for (int x = 0; x < arrayObj.collectionValue().size(); x++) {
+          currentObj = arrayObj.collectionValue().get(x);
+          getNested(field, nestedField, row, ret, currentObj, supportArrays);
+          currentObj = null;
+        }
+      } else { // TODO remove when arrays are supported.
+        currentObj = arrayObj.collectionValue().get(0);
+        getNested(field, nestedField, row, ret, currentObj, supportArrays);
         currentObj = null;
       }
     } else { // Final recursion did not match nested field
-      currentObj = null;
+      if (field.equalsIgnoreCase(nestedField)) {
+        currentObj = null;
+      }
     }
 
     // Return final nested result
-    if (StringUtils.substringAfterLast(field, ".").equals(nestedField)
-        && currentObj != null) {
-//      if (nonNestedFields.isEmpty()) {
-        ret.add(Map.of(field, currentObj));
-//      } else {
-//        Map<String, ExprValue> entryMap = new HashMap<>();
-//        entryMap.putAll(this.nonNestedFields);
-//        entryMap.put(field, currentObj);
-//        ret.add(entryMap);
-//      }
+    if (currentObj != null
+        && (StringUtils.substringAfterLast(field, ".").equals(nestedField) || !field.contains("."))) {
+        ret.add(new HashMap<>(Map.of(field, currentObj)));
     } else if (currentObj != null) {
-      getNested(field, nestedField.substring(nestedField.indexOf(".") + 1), row, ret, currentObj);
+      getNested(field, nestedField.substring(nestedField.indexOf(".") + 1),
+          row, ret, currentObj, supportArrays);
     }
   }
 }
