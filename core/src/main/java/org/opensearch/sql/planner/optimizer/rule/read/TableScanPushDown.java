@@ -81,6 +81,13 @@ public class TableScanPushDown<T extends LogicalPlan> implements Rule<T> {
               scanBuilder()))
           .apply((nested, scanBuilder) -> scanBuilder.pushDownNested(nested));
 
+//  public static final Rule<?> PUSH_DOWN_NESTED_PROJECT_ADV =
+//      match(
+//          project(
+//          nested(
+//              scanBuilder())))
+//          .apply((project, scanBuilder) -> scanBuilder.pushDownProjectWithoutOperator(project));
+
 
   /** Pattern that matches a plan node. */
   private final WithPattern<T> pattern;
