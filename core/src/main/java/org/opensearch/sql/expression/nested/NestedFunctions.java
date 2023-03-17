@@ -13,14 +13,26 @@ import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
+import static org.opensearch.sql.expression.function.FunctionDSL.define;
+import static org.opensearch.sql.expression.function.FunctionDSL.impl;
+import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.DefaultFunctionResolver;
-import org.opensearch.sql.expression.function.FunctionDSL;
+import org.opensearch.sql.expression.function.FunctionBuilder;
+import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.expression.function.FunctionSignature;
+import org.opensearch.sql.expression.function.SerializableFunction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @UtilityClass
 public class NestedFunctions {
@@ -28,104 +40,67 @@ public class NestedFunctions {
     repository.register(nested());
   }
 
+  List<Pair<ExprCoreType, ExprCoreType>> singleParamFunctionTypes =
+      List.of(
+          Pair.of(STRING, STRING),
+          Pair.of(INTEGER, INTEGER),
+          Pair.of(LONG, LONG),
+          Pair.of(FLOAT, FLOAT),
+          Pair.of(DOUBLE, DOUBLE),
+          Pair.of(BOOLEAN, BOOLEAN),
+          Pair.of(STRUCT, STRUCT),
+          Pair.of(ARRAY, ARRAY)
+      );
+
+  List<Triple<ExprCoreType, ExprCoreType, ExprCoreType>> doubleParamFunctionTypes =
+      List.of(
+          Triple.of(STRING, STRING, ARRAY),
+          Triple.of(INTEGER, INTEGER, ARRAY),
+          Triple.of(LONG, LONG, ARRAY),
+          Triple.of(FLOAT, FLOAT, ARRAY),
+          Triple.of(DOUBLE, DOUBLE, ARRAY),
+          Triple.of(BOOLEAN, BOOLEAN, ARRAY),
+          Triple.of(STRUCT, STRUCT, ARRAY),
+          Triple.of(ARRAY, ARRAY, ARRAY),
+          Triple.of(STRING, STRING, STRUCT),
+          Triple.of(INTEGER, INTEGER, STRUCT),
+          Triple.of(LONG, LONG, STRUCT),
+          Triple.of(FLOAT, FLOAT, STRUCT),
+          Triple.of(DOUBLE, DOUBLE, STRUCT),
+          Triple.of(BOOLEAN, BOOLEAN, STRUCT),
+          Triple.of(STRUCT, STRUCT, STRUCT),
+          Triple.of(ARRAY, ARRAY, STRUCT)
+      );
+
   private static DefaultFunctionResolver nested() {
-    return FunctionDSL.define(BuiltinFunctionName.NESTED.getName(),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1) -> v1
-            ), STRING, STRING),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1) -> v1
-            ), INTEGER, INTEGER),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1) -> v1
-            ), LONG, LONG),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1) -> v1
-            ), FLOAT, FLOAT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1) -> v1
-            ), DOUBLE, DOUBLE),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1) -> v1
-            ), BOOLEAN, BOOLEAN),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1) -> v1
-            ), STRUCT, STRUCT),
-        FunctionDSL.impl(
-            FunctionDSL.nullMissingHandling(
-                (v1) -> v1
-            ), ARRAY, ARRAY),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, STRING, STRING, ARRAY),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, INTEGER, INTEGER, ARRAY),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, LONG, LONG, ARRAY),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, FLOAT, FLOAT, ARRAY),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, DOUBLE, DOUBLE, ARRAY),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, BOOLEAN, BOOLEAN, ARRAY),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, STRUCT, STRUCT, ARRAY),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, ARRAY, ARRAY, ARRAY),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, STRING, STRING, STRUCT),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, INTEGER, INTEGER, STRUCT),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, LONG, LONG, STRUCT),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, FLOAT, FLOAT, STRUCT),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, DOUBLE, DOUBLE, STRUCT),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, BOOLEAN, BOOLEAN, STRUCT),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, STRUCT, STRUCT, STRUCT),
-        FunctionDSL.impl(
-            (v1, v2) -> {
-              return nullMissingFirstArgOnlyHandling(v1);
-            }, ARRAY, ARRAY, STRUCT));
+
+    List<SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>> functions =
+        new ArrayList<>();
+    singleParamFunctionTypes.forEach(
+        singleParam -> functions.add(
+            impl(
+              nullMissingHandling(
+                  (v1) -> v1
+              ),
+                singleParam.getLeft(), singleParam.getRight()
+            )
+        )
+    );
+
+    doubleParamFunctionTypes.forEach(
+        doubleParam -> functions.add(
+            impl(
+              (v1, v2) -> {
+                return nullMissingFirstArgOnlyHandling(v1);
+              },
+                doubleParam.getLeft(), doubleParam.getMiddle(), doubleParam.getRight()
+            )
+        )
+    );
+
+    return define(BuiltinFunctionName.NESTED.getName(),
+        functions
+    );
   }
 
   /**
