@@ -99,8 +99,9 @@ public class UnnestOperator extends PhysicalPlan {
   }
 
   /**
-   *
-   * @param inputMap
+   * Generate list of non-nested fields that are in inputMap, but not in the member variable
+   * fields list.
+   * @param inputMap : Row to parse non-nested fields.
    */
   public void generateNonNestedFieldsMap(ExprValue inputMap) {
 
