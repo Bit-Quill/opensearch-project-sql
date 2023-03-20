@@ -218,9 +218,9 @@ class TimeStampDiffTest extends ExpressionTestBase {
   public void testTimestampdiff(String unit,
                                ExprValue datetimeExpr1,
                                ExprValue datetimeExpr2,
-                               int expected) {
+                               long expected) {
     FunctionExpression expr = timestampdiffQuery(unit, datetimeExpr1, datetimeExpr2);
-    assertEquals(expected, eval(expr));
+    assertEquals(expected, eval(expr).longValue());
   }
 
   private static Stream<Arguments> getUnits() {

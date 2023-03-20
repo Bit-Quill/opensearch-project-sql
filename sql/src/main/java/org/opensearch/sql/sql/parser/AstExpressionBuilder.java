@@ -61,8 +61,7 @@ import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.StringCont
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.StringLiteralContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TableFilterContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimeLiteralContext;
-import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimestampAddFunctionCallContext;
-import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimestampDiffFunctionCallContext;
+import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimestampFunctionCallContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimestampLiteralContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.WindowFunctionClauseContext;
 import static org.opensearch.sql.sql.parser.ParserUtils.createSortOption;
@@ -177,17 +176,10 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
 
   @Override
-  public UnresolvedExpression visitTimestampAddFunctionCall(TimestampAddFunctionCallContext ctx) {
+  public UnresolvedExpression visitTimestampFunctionCall(TimestampFunctionCallContext ctx) {
     return new Function(
-        ctx.timestampAddFunction().TIMESTAMPADD().toString(),
-        timestampAddFunctionArguments(ctx));
-  }
-
-  @Override
-  public UnresolvedExpression visitTimestampDiffFunctionCall(TimestampDiffFunctionCallContext ctx) {
-    return new Function(
-        ctx.timestampDiffFunction().TIMESTAMPDIFF().toString(),
-        timestampDiffFunctionArguments(ctx));
+        ctx.timestampFunction().timestampFunctionName().getText(),
+        timestampFunctionArguments(ctx));
   }
 
   @Override
@@ -594,6 +586,18 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     List<UnresolvedExpression> args = Arrays.asList(
         new Literal(ctx.getFormatFunction().getFormatType().getText(), DataType.STRING),
         visitFunctionArg(ctx.getFormatFunction().functionArg())
+    );
+    return args;
+  }
+
+  private List<UnresolvedExpression> timestampFunctionArguments(
+      TimestampFunctionCallContext ctx) {
+    List<UnresolvedExpression> args = Arrays.asList(
+        new Literal(
+            ctx.timestampFunction().simpleDateTimePart().getText(),
+            DataType.STRING),
+        visitFunctionArg(ctx.timestampFunction().firstArg),
+        visitFunctionArg(ctx.timestampFunction().secondArg)
     );
     return args;
   }
