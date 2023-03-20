@@ -47,18 +47,36 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
                   ImmutableMap.of("data", "2"),
                   ImmutableMap.of("data", "3")
               )
-          ),
-          "deep",
+          )
+      )
+  );
+
+  private final ExprValue nonNestedTestData = tupleValue(
+      ImmutableMap.of(
+          "message", "val"
+      )
+  );
+
+  private final ExprValue missingTupleData = tupleValue(
+      ImmutableMap.of(
+          "tuple",
+          tupleValue(
+              ImmutableMap.of("missing", "value")
+          )
+      )
+  );
+
+  private final ExprValue missingArrayData = tupleValue(
+      ImmutableMap.of(
+          "missing",
           collectionValue(
-              ImmutableList.of(
-                  "noValidKey"
-              )
+              List.of("value")
           )
       )
   );
 
   @Test
-  public void nested_one_field() {
+  public void nested_one_nested_field() {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
         .thenReturn(testData);
@@ -67,15 +85,15 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
     assertThat(
         execute(new UnnestOperator(inputPlan, fields)),
         contains(
-            tupleValue(ImmutableMap.of("message.info", "a")),
-            tupleValue(ImmutableMap.of("message.info", "b")),
-            tupleValue(ImmutableMap.of("message.info", "c"))
+            tupleValue(ImmutableMap.of("message.info", "a", "comment.data", "1")),
+            tupleValue(ImmutableMap.of("message.info", "b", "comment.data", "1")),
+            tupleValue(ImmutableMap.of("message.info", "c", "comment.data", "1"))
         )
     );
   }
 
   @Test
-  public void nested_two_field() {
+  public void nested_two_nested_field() {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
         .thenReturn(testData);
@@ -87,7 +105,8 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
                 "path", new ReferenceExpression("message", STRING)),
             Map.of(
                 "field", new ReferenceExpression("comment.data", STRING),
-                "path", new ReferenceExpression("comment", STRING)));
+                "path", new ReferenceExpression("comment", STRING))
+        );
 
     assertThat(
         execute(new UnnestOperator(inputPlan, fields)),
@@ -106,31 +125,45 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
   }
 
   @Test
-  public void nested_deepest_field_missing() {
+  public void non_nested_field_tests() {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
-        .thenReturn(testData);
+        .thenReturn(nonNestedTestData);
 
-    Set<String> fields = Set.of("deep.invalid");
-    assertTrue(
-        execute(new UnnestOperator(inputPlan, fields))
-            .get(0)
-            .tupleValue()
-            .size() == 0
+    Set<String> fields = Set.of("message");
+    assertThat(
+        execute(new UnnestOperator(inputPlan, fields)),
+        contains(
+            tupleValue(ImmutableMap.of("message", "val"))
+        )
     );
   }
 
   @Test
-  public void nested_missing_field() {
+  public void nested_missing_tuple_field() {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
-        .thenReturn(testData);
+        .thenReturn(missingTupleData);
     Set<String> fields = Set.of("message.invalid");
     assertTrue(
         execute(new UnnestOperator(inputPlan, fields))
         .get(0)
         .tupleValue()
         .size() == 0
+    );
+  }
+
+  @Test
+  public void nested_missing_array_field() {
+    when(inputPlan.hasNext()).thenReturn(true, false);
+    when(inputPlan.next())
+        .thenReturn(missingArrayData);
+    Set<String> fields = Set.of("missing.data");
+    assertTrue(
+        execute(new UnnestOperator(inputPlan, fields))
+            .get(0)
+            .tupleValue()
+            .size() == 0
     );
   }
 }

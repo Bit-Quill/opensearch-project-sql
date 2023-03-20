@@ -43,7 +43,7 @@ import org.opensearch.search.sort.SortBuilders;
 import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.DSL;
-import org.opensearch.sql.expression.Expression;
+import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
@@ -226,10 +226,18 @@ public class OpenSearchRequestBuilderTest {
   @Test
   void testPushDownNested() {
     List<Map<String, ReferenceExpression>> args = List.of(
-        Map.of("field", new ReferenceExpression("message.info", STRING))
+        Map.of(
+            "field", new ReferenceExpression("message.info", STRING),
+            "path", new ReferenceExpression("message", STRING)
+        )
     );
 
-    LogicalNested nested = new LogicalNested(null, args, null);
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression("message.info", DSL.nested(DSL.ref("message.info", STRING)), null)
+        );
+
+    LogicalNested nested = new LogicalNested(null, args, projectList);
     requestBuilder.pushDownNested(nested.getFields());
 
     NestedQueryBuilder nestedQuery = nestedQuery("message", matchAllQuery(), ScoreMode.None)
@@ -248,10 +256,22 @@ public class OpenSearchRequestBuilderTest {
   @Test
   void testPushDownMultipleNestedWithSamePath() {
     List<Map<String, ReferenceExpression>> args = List.of(
-        Map.of("field", new ReferenceExpression("message.info", STRING)),
-        Map.of("field", new ReferenceExpression("message.from", STRING))
+        Map.of(
+            "field", new ReferenceExpression("message.info", STRING),
+            "path", new ReferenceExpression("message", STRING)
+        ),
+        Map.of(
+            "field", new ReferenceExpression("message.from", STRING),
+            "path", new ReferenceExpression("message", STRING)
+            )
     );
-    LogicalNested nested = new LogicalNested(null, args, null);
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression("message.info", DSL.nested(DSL.ref("message.info", STRING)), null),
+            new NamedExpression("message.from", DSL.nested(DSL.ref("message.from", STRING)), null)
+        );
+
+    LogicalNested nested = new LogicalNested(null, args, projectList);
     requestBuilder.pushDownNested(nested.getFields());
 
     NestedQueryBuilder nestedQuery = nestedQuery("message", matchAllQuery(), ScoreMode.None)

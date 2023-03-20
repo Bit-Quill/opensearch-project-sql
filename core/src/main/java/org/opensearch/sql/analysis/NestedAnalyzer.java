@@ -5,6 +5,10 @@
 
 package org.opensearch.sql.analysis;
 
+import static org.opensearch.sql.data.type.ExprCoreType.STRING;
+
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.Alias;
@@ -14,12 +18,6 @@ import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.planner.logical.LogicalNested;
 import org.opensearch.sql.planner.logical.LogicalPlan;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
 /**
  * Analyze the Nested Function in the {@link AnalysisContext} to construct the {@link
@@ -38,19 +36,23 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
 
   @Override
   public LogicalPlan visitAlias(Alias node, AnalysisContext context) {
-    Map<String, ReferenceExpression> args = new HashMap<>();
-
-    if (node.getDelegated() instanceof Function &&
-        ((Function) node.getDelegated()).getFuncName().equalsIgnoreCase("nested")) {
+    if (node.getDelegated() instanceof Function
+        && ((Function) node.getDelegated()).getFuncName().equalsIgnoreCase("nested")) {
 
       List<UnresolvedExpression> expressions = ((Function) node.getDelegated()).getFuncArgs();
-      ReferenceExpression nestedField = (ReferenceExpression)expressionAnalyzer.analyze(expressions.get(0), context);
+      ReferenceExpression nestedField =
+          (ReferenceExpression)expressionAnalyzer.analyze(expressions.get(0), context);
+      Map<String, ReferenceExpression> args;
       if (expressions.size() == 2) {
-        args.put("field", nestedField);
-        args.put("path", (ReferenceExpression)expressionAnalyzer.analyze(expressions.get(1), context));
+        args = Map.of(
+            "field", nestedField,
+            "path", (ReferenceExpression)expressionAnalyzer.analyze(expressions.get(1), context)
+        );
       } else {
-        args.put("field", (ReferenceExpression)expressionAnalyzer.analyze(expressions.get(0), context));
-        args.put("path", generatePath(nestedField.toString()));
+        args = Map.of(
+            "field", (ReferenceExpression)expressionAnalyzer.analyze(expressions.get(0), context),
+            "path", generatePath(nestedField.toString())
+        );
       }
       return new LogicalNested(child, List.of(args), namedExpressions);
     }
