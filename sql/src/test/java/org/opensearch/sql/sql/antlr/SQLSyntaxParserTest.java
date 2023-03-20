@@ -640,6 +640,8 @@ class SQLSyntaxParserTest {
     assertNotNull(
         parser.parse("SELECT NESTED(FIELD.DAYOFWEEK) FROM TEST"));
     assertNotNull(
+        parser.parse("SELECT NESTED('FIELD.DAYOFWEEK') FROM TEST"));
+    assertNotNull(
         parser.parse("SELECT SUM(NESTED(FIELD.SUBFIELD)) FROM TEST"));
     assertNotNull(
         parser.parse("SELECT NESTED(FIELD.DAYOFWEEK, PATH) FROM TEST"));

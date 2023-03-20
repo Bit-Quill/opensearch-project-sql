@@ -378,10 +378,12 @@ nestedFunction
 
 nestedField
     : nestedIdent DOT nestedIdent (DOT nestedIdent)*
+    | stringLiteral
     ;
 
 nestedPath
     : nestedIdent (DOT nestedIdent)*
+    | stringLiteral
     ;
 
 highlightFunction
@@ -712,7 +714,7 @@ nestedIdent
 keywordsCanBeId
     : FULL
     | FIELD | D | T | TS // OD SQL and ODBC special
-    | COUNT | SUM | AVG | MAX | MIN
+    | COUNT | SUM | AVG | MAX | MIN | NESTED
     | FIRST | LAST
     | TYPE // TODO: Type is keyword required by relevancy function. Remove this when relevancy functions moved out
     ;
