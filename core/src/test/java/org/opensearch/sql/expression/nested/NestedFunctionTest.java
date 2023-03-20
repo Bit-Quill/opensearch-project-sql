@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
@@ -108,5 +109,9 @@ public class NestedFunctionTest extends ExpressionTestBase {
   public void test_null_and_missing_val() {
     assertEquals(nullMissingFirstArgOnlyHandling(nullValue()), nullValue());
     assertEquals(nullMissingFirstArgOnlyHandling(missingValue()), missingValue());
+    assertEquals(nullMissingFirstArgOnlyHandling(
+        ExprValueUtils.stringValue("val")),
+        ExprValueUtils.stringValue("val")
+    );
   }
 }

@@ -99,38 +99,50 @@ class DefaultImplementorTest {
         ImmutablePair.of(ref("name1", STRING), ref("name", STRING));
     Pair<Sort.SortOption, Expression> sortField =
         ImmutablePair.of(Sort.SortOption.DEFAULT_ASC, ref("name1", STRING));
-    List<List<Expression>> nestedArgs = List.of(
-        List.of(new ReferenceExpression("message.info", STRING))
-    );
-    Set<String> unnestArgs = Set.of("message.info");
     Integer limit = 1;
     Integer offset = 1;
+    List<Map<String, ReferenceExpression>> nestedArgs = List.of(
+        Map.of(
+            "field", new ReferenceExpression("message.info", STRING),
+            "path", new ReferenceExpression("message", STRING)
+        )
+    );
+    List<NamedExpression> nestedProjectList =
+        List.of(
+            new NamedExpression(
+                "message.info",
+                DSL.nested(DSL.ref("message.info", STRING)),
+                null
+            )
+        );
+    Set<String> unnestOperatorArgs = Set.of("message.info");
+
 
     LogicalPlan plan =
         project(
             nested(
-                limit(
-                    LogicalPlanDSL.dedupe(
-                        rareTopN(
-                            sort(
-                                eval(
-                                    remove(
-                                        rename(
-                                            aggregation(
-                                                filter(values(emptyList()), filterExpr),
-                                                aggregators,
-                                                groupByExprs),
-                                            mappings),
-                                        exclude),
-                                    newEvalField),
-                                sortField),
-                            CommandType.TOP,
-                            topByExprs,
-                            rareTopNField),
-                        dedupeField),
-                    limit,
-                offset),
-                nestedArgs),
+              limit(
+                  LogicalPlanDSL.dedupe(
+                      rareTopN(
+                          sort(
+                              eval(
+                                  remove(
+                                      rename(
+                                          aggregation(
+                                              filter(values(emptyList()), filterExpr),
+                                              aggregators,
+                                              groupByExprs),
+                                          mappings),
+                                      exclude),
+                                  newEvalField),
+                              sortField),
+                          CommandType.TOP,
+                          topByExprs,
+                          rareTopNField),
+                      dedupeField),
+                  limit,
+                  offset),
+            nestedArgs, nestedProjectList),
             include);
 
     PhysicalPlan actual = plan.accept(implementor, null);
@@ -161,7 +173,7 @@ class DefaultImplementorTest {
                       dedupeField),
                   limit,
                   offset),
-                unnestArgs),
+                unnestOperatorArgs),
             include),
         actual);
   }

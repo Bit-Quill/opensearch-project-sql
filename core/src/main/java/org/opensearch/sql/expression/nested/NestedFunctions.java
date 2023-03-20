@@ -17,6 +17,8 @@ import static org.opensearch.sql.expression.function.FunctionDSL.define;
 import static org.opensearch.sql.expression.function.FunctionDSL.impl;
 import static org.opensearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -30,9 +32,6 @@ import org.opensearch.sql.expression.function.FunctionBuilder;
 import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.function.FunctionSignature;
 import org.opensearch.sql.expression.function.SerializableFunction;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @UtilityClass
 public class NestedFunctions {
@@ -54,6 +53,7 @@ public class NestedFunctions {
 
   List<Triple<ExprCoreType, ExprCoreType, ExprCoreType>> doubleParamFunctionTypes =
       List.of(
+          Triple.of(STRING, STRING, STRING),
           Triple.of(STRING, STRING, ARRAY),
           Triple.of(INTEGER, INTEGER, ARRAY),
           Triple.of(LONG, LONG, ARRAY),
@@ -73,7 +73,6 @@ public class NestedFunctions {
       );
 
   private static DefaultFunctionResolver nested() {
-
     List<SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>> functions =
         new ArrayList<>();
     singleParamFunctionTypes.forEach(
@@ -90,9 +89,9 @@ public class NestedFunctions {
     doubleParamFunctionTypes.forEach(
         doubleParam -> functions.add(
             impl(
-                nullMissingHandling(
-                    (v1, v2) -> v1
-                ),
+                (v1, v2) -> {
+                  return nullMissingFirstArgOnlyHandling(v1);
+                },
                 doubleParam.getLeft(), doubleParam.getMiddle(), doubleParam.getRight()
             )
         )
@@ -101,5 +100,19 @@ public class NestedFunctions {
     return define(BuiltinFunctionName.NESTED.getName(),
         functions
     );
+  }
+
+  /**
+   * Wrapper the binary ExprValue function with default
+   * NULL and MISSING handling for first arg only.
+   */
+  public static ExprValue nullMissingFirstArgOnlyHandling(ExprValue v1) {
+    if (v1.isMissing()) {
+      return ExprValueUtils.missingValue();
+    } else if (v1.isNull()) {
+      return ExprValueUtils.nullValue();
+    } else {
+      return v1;
+    }
   }
 }

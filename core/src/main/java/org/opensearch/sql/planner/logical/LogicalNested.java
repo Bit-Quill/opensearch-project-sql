@@ -29,8 +29,7 @@ public class LogicalNested extends LogicalPlan {
       LogicalPlan childPlan,
       List<Map<String, ReferenceExpression>> fields,
       List<NamedExpression> projectList
-  )
-  {
+  ) {
     super(Collections.singletonList(childPlan));
     this.fields = fields;
     this.projectList = projectList;

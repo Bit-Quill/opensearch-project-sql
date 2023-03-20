@@ -27,7 +27,6 @@ import static org.opensearch.sql.ast.dsl.AstDSL.relation;
 import static org.opensearch.sql.ast.dsl.AstDSL.relationSubquery;
 import static org.opensearch.sql.ast.dsl.AstDSL.sort;
 import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
-import static org.opensearch.sql.ast.dsl.AstDSL.unnest;
 import static org.opensearch.sql.ast.dsl.AstDSL.values;
 import static org.opensearch.sql.utils.SystemIndexUtils.TABLE_INFO;
 import static org.opensearch.sql.utils.SystemIndexUtils.mappingTable;
@@ -40,8 +39,6 @@ import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.Literal;
-import org.opensearch.sql.ast.tree.Unnest;
-import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.exception.SemanticCheckException;
 
@@ -697,8 +694,7 @@ class AstBuilderTest extends AstBuilderTestBase {
   public void can_build_nested_select_field() {
     assertEquals(
         project(
-            unnest(function("nested", qualifiedName("message.info")))
-                .attach(relation("test")),
+            relation("test"),
             alias(
                 "message.info",
                 function("nested", qualifiedName("message.info")),
@@ -710,41 +706,5 @@ class AstBuilderTest extends AstBuilderTestBase {
             + "FROM test"
         )
     );
-  }
-
-  @Test
-  public void can_build_nested_select_fields() {
-    UnresolvedPlan unnest = unnest(function("nested", qualifiedName("message.info")));
-    ((Unnest)unnest).add(function("nested", qualifiedName("comment.data")));
-
-    assertEquals(
-        project(
-            unnest.attach(relation("test")
-            ),
-            alias(
-                "message.info",
-                function("nested",
-                    qualifiedName("message.info")
-                )
-            ),
-            alias(
-                "comment.data",
-                function("nested",
-                    qualifiedName("comment.data")
-                )
-            )
-        ),
-        buildAST("SELECT nested(message.info), nested(comment.data) FROM test")
-    );
-  }
-
-  @Test
-  public void select_clause_nested_condition_throws_semantic_exception() {
-    SemanticCheckException exception = assertThrows(SemanticCheckException.class,
-        () -> buildAST("SELECT nested(message, message.info = 'a') FROM test"));
-
-    assertEquals("Condition parameter for the nested "
-            + "function is invalid in a SELECT statement: 'nested(field | field, path)'",
-        exception.getMessage());
   }
 }

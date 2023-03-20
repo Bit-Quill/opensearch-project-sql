@@ -78,8 +78,7 @@ public class LogicalPlanDSL {
   public static LogicalPlan nested(
       LogicalPlan input,
       List<Map<String, ReferenceExpression>> nestedArgs,
-      List<NamedExpression> projectList)
-  {
+      List<NamedExpression> projectList) {
     return new LogicalNested(input, nestedArgs, projectList);
   }
 

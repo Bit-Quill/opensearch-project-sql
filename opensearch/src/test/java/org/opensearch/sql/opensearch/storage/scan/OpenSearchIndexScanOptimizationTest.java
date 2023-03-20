@@ -62,6 +62,7 @@ import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.HighlightExpression;
+import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder;
@@ -257,19 +258,25 @@ class OpenSearchIndexScanOptimizationTest {
             "path", new ReferenceExpression("message", STRING)
         )
     );
-    LogicalNested nested = new LogicalNested(null, args, null);
+
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression("message.info", DSL.nested(DSL.ref("message.info", STRING)), null)
+        );
+
+    LogicalNested nested = new LogicalNested(null, args, projectList);
 
     assertEqualsAfterOptimization(
         project(
             nested(
             indexScanBuilder(
-                withNestedPushedDown(nested.getFields())), args, null),
+                withNestedPushedDown(nested.getFields())), args, projectList),
                 DSL.named("message.info",
                     DSL.nested(DSL.ref("message.info", STRING)))
         ),
         project(
             nested(
-                relation("schema", table), args, null),
+                relation("schema", table), args, projectList),
             DSL.named("message.info",
                 DSL.nested(DSL.ref("message.info", STRING)))
         )

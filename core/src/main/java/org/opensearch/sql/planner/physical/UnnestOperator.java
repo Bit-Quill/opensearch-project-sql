@@ -29,7 +29,6 @@ public class UnnestOperator extends PhysicalPlan {
   private final PhysicalPlan input;
   @Getter
   private final Set<String> fields; // Needs to be a Set to match legacy implementation
-  @Getter
   List<Map<String, ExprValue>> result = new ArrayList<>();
   List<String> nonNestedFields = new ArrayList<>();
   @EqualsAndHashCode.Exclude
@@ -85,12 +84,12 @@ public class UnnestOperator extends PhysicalPlan {
         result = flatten(field, inputValue, result, true);
       }
 
-      for (String nonNestedField : nonNestedFields) {
-        result = flatten(nonNestedField, inputValue, result, false);
-      }
-
       if (result.isEmpty()) {
         return new ExprTupleValue(new LinkedHashMap<>());
+      }
+
+      for (String nonNestedField : nonNestedFields) {
+        result = flatten(nonNestedField, inputValue, result, false);
       }
 
       flattenedResult = result.listIterator();
@@ -120,12 +119,9 @@ public class UnnestOperator extends PhysicalPlan {
         ExprValue currentObj = inputField.getValue();
         while (!nestingComplete) {
           if (currentObj instanceof ExprTupleValue) {
-            for (var it : currentObj.tupleValue().entrySet()) {
-              currentObj = it.getValue();
-              nonNestedField += "." + it.getKey();
-              // We only care about the keys
-              break;
-            }
+            var it = currentObj.tupleValue().entrySet().iterator().next();
+            currentObj = it.getValue();
+            nonNestedField += "." + it.getKey();
           } else if (currentObj instanceof ExprCollectionValue) {
             currentObj = currentObj.collectionValue().get(0);
           } else {
@@ -160,7 +156,11 @@ public class UnnestOperator extends PhysicalPlan {
    */
   @SuppressWarnings("unchecked")
   private List<Map<String, ExprValue>> flatten(
-      String nestedField, ExprValue row, List<Map<String, ExprValue>> prevList, boolean supportArrays
+      String nestedField,
+      ExprValue row,
+      List<Map<String,
+      ExprValue>> prevList,
+      boolean supportArrays
   ) {
     List<Map<String, ExprValue>> copy = new ArrayList<>();
     List<Map<String, ExprValue>> newList = new ArrayList<>();
@@ -234,16 +234,16 @@ public class UnnestOperator extends PhysicalPlan {
         getNested(field, nestedField, row, ret, currentObj, supportArrays);
         currentObj = null;
       }
-    } else { // Final recursion did not match nested field
-      if (field.equalsIgnoreCase(nestedField)) {
-        currentObj = null;
-      }
+    } else {
+      currentObj = null;
     }
 
     // Return final nested result
     if (currentObj != null
-        && (StringUtils.substringAfterLast(field, ".").equals(nestedField) || !field.contains("."))) {
-        ret.add(new HashMap<>(Map.of(field, currentObj)));
+        && (StringUtils.substringAfterLast(field, ".").equals(nestedField)
+            || !field.contains("."))
+    ) {
+      ret.add(new HashMap<>(Map.of(field, currentObj)));
     } else if (currentObj != null) {
       getNested(field, nestedField.substring(nestedField.indexOf(".") + 1),
           row, ret, currentObj, supportArrays);
