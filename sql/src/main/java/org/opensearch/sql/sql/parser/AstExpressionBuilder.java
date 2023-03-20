@@ -164,10 +164,14 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     boolean conditionSet = false;
 
     if (ctx.nestedFunction().nestedField() != null) {
-      args.add(new QualifiedName(ctx.nestedFunction().nestedField().getText()));
+      args.add(new QualifiedName(
+          StringUtils.unquoteText(ctx.nestedFunction().nestedField().getText()))
+      );
     }
     if (ctx.nestedFunction().nestedPath() != null) {
-      args.add(new QualifiedName(ctx.nestedFunction().nestedPath().getText()));
+      args.add(new QualifiedName(
+          StringUtils.unquoteText(ctx.nestedFunction().nestedPath().getText()))
+      );
     }
     if (ctx.nestedFunction().expression() != null) {
       args.add(visit(ctx.nestedFunction().expression()));
