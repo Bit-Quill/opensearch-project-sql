@@ -1474,28 +1474,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test pow/power with null outputs
-   */
-  @Test
-  public void pow_null_output() {
-    FunctionExpression pow = DSL.pow(DSL.literal(-2), DSL.literal((float) 1.5));
-    assertEquals(DOUBLE, pow.type());
-    assertTrue(pow.valueOf(valueEnv()).isNull());
-
-    pow = DSL.pow(DSL.literal(-2), DSL.literal(1.5));
-    assertEquals(DOUBLE, pow.type());
-    assertTrue(pow.valueOf(valueEnv()).isNull());
-
-    FunctionExpression power = DSL.power(DSL.literal(-2), DSL.literal((float) 1.5));
-    assertEquals(DOUBLE, power.type());
-    assertTrue(power.valueOf(valueEnv()).isNull());
-
-    power = DSL.power(DSL.literal(-2), DSL.literal(1.5));
-    assertEquals(DOUBLE, power.type());
-    assertTrue(power.valueOf(valueEnv()).isNull());
-  }
-
-  /**
    * Test pow/power with null value.
    */
   @Test
@@ -1590,6 +1568,50 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
     assertEquals(DOUBLE, power.type());
     assertTrue(power.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test pow/power with null output.
+   */
+  @Test
+  public void pow_null_output() {
+    FunctionExpression pow = DSL.pow(DSL.literal((double) -2), DSL.literal(1.5));
+    assertEquals(pow.type(), DOUBLE);
+    assertEquals(String.format("pow(%s, %s)", (double) -2, 1.5), pow.toString());
+    assertTrue(pow.valueOf(valueEnv()).isNull());
+
+    pow = DSL.pow(DSL.literal((double) -2), DSL.literal((double) 2));
+    assertEquals(pow.type(), DOUBLE);
+    assertEquals(String.format("pow(%s, %s)",(double) -2, (double) 2), pow.toString());
+    assertThat(
+            pow.valueOf(valueEnv()),
+            allOf(hasType(DOUBLE), hasValue(Math.pow(-2, 2))));
+
+    pow = DSL.pow(DSL.literal((double) 2), DSL.literal((double) 1.5));
+    assertEquals(pow.type(), DOUBLE);
+    assertEquals(String.format("pow(%s, %s)", (double) 2, (double) 1.5), pow.toString());
+    assertThat(
+            pow.valueOf(valueEnv()),
+            allOf(hasType(DOUBLE), hasValue(Math.pow(2, 1.5))));
+
+    pow = DSL.pow(DSL.literal((float) -2), DSL.literal((float) 1.5));
+    assertEquals(pow.type(), DOUBLE);
+    assertEquals(String.format("pow(%s, %s)", (float) -2, (float) 1.5), pow.toString());
+    assertTrue(pow.valueOf(valueEnv()).isNull());
+
+    pow = DSL.pow(DSL.literal((float) -2), DSL.literal((float) 2));
+    assertEquals(pow.type(), DOUBLE);
+    assertEquals(String.format("pow(%s, %s)", (float) -2, (float) 2), pow.toString());
+    assertThat(
+            pow.valueOf(valueEnv()),
+            allOf(hasType(DOUBLE), hasValue(Math.pow((float) -2, (float) 2))));
+
+    pow = DSL.pow(DSL.literal((float) 2), DSL.literal((float) 1.5));
+    assertEquals(pow.type(), DOUBLE);
+    assertEquals(String.format("pow(%s, %s)", (float) 2, (float) 1.5), pow.toString());
+    assertThat(
+            pow.valueOf(valueEnv()),
+            allOf(hasType(DOUBLE), hasValue(Math.pow((float) 2, (float) 1.5))));
   }
 
   /**
