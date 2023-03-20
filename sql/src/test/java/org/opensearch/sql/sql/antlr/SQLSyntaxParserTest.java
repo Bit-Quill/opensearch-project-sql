@@ -610,8 +610,8 @@ class SQLSyntaxParserTest {
   
   @Test
   public void can_parse_timestampdiff_function() {
-    assertNotNull(parser.parse("SELECT TIMESTAMPDIFF(MINUTE, 1, '2003-01-02')"));
-    assertNotNull(parser.parse("SELECT TIMESTAMPDIFF(WEEK,1,'2003-01-02')"));
+    assertNotNull(parser.parse("SELECT TIMESTAMPDIFF(MINUTE, '2003-01-02', '2003-01-02')"));
+    assertNotNull(parser.parse("SELECT TIMESTAMPDIFF(WEEK,'2003-01-02','2003-01-02')"));
   }
 
   @Test

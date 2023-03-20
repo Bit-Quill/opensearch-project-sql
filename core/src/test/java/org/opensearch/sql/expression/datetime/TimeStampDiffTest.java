@@ -182,7 +182,7 @@ class TimeStampDiffTest extends ExpressionTestBase {
             "DAY",
             new ExprDatetimeValue("2020-02-28 00:00:00"),
             new ExprDatetimeValue("2020-03-01 00:00:00"),
-            2)
+            2),
 
         //Test around year change
         Arguments.of(
@@ -268,7 +268,7 @@ class TimeStampDiffTest extends ExpressionTestBase {
 
   @ParameterizedTest
   @MethodSource("getTimestampDiffInvalidArgs")
-  public void testTimestampAddWithInvalidArgs(String unit, String arg1, String arg2) {
+  public void testTimestampDiffWithInvalidArgs(String unit, String arg1, String arg2) {
     FunctionExpression expr = timestampdiffQuery(
         unit,
         new ExprDatetimeValue(arg1),

@@ -316,6 +316,11 @@ functionCall
 
 timestampAddFunction
     : TIMESTAMPADD LR_BRACKET simpleDateTimePart COMMA length=functionArg COMMA timestampExpr=functionArg RR_BRACKET
+    | timestampDiffFunction                                         #timestampDiffFunctionCall
+    ;
+
+timestampDiffFunction
+    : TIMESTAMPDIFF LR_BRACKET datetimePart COMMA firstTimestampExpr=functionArg COMMA secondTimestampExpr=functionArg RR_BRACKET
     ;
 
 getFormatFunction

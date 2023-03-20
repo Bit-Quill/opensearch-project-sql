@@ -76,6 +76,7 @@ import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.math3.analysis.function.Exp;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprDoubleValue;
@@ -235,6 +236,7 @@ public class DateTimeFunction {
     repository.register(timediff());
     repository.register(timestamp());
     repository.register(timestampadd());
+    repository.register(timestampdiff());
     repository.register(utc_date());
     repository.register(utc_time());
     repository.register(utc_timestamp());
@@ -913,6 +915,39 @@ public class DateTimeFunction {
                     amount,
                     time)),
             DATETIME, STRING, INTEGER, TIME));
+  }
+
+  private DefaultFunctionResolver timestampdiff() {
+    return define(BuiltinFunctionName.TIMESTAMPDIFF.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampDiff),
+            LONG, STRING, DATETIME, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampDiff),
+            LONG, STRING, DATETIME, TIMESTAMP)
+        );
+//        implWithProperties(
+//            nullMissingHandlingWithProperties(
+//                (functionProperties, part, startTime, endTime) -> exprTimestampDiffForTimeType(
+//                    functionProperties.getQueryStartClock(),
+//                    part,
+//                    startTime,
+//                    endTime)),
+//            DATETIME, STRING, DATETIME, TIME),
+//        implWithProperties(
+//            nullMissingHandlingWithProperties(
+//                (functionProperties, part, startTime, endTime) -> exprTimestampDiffForTimeType(
+//                    functionProperties.getQueryStartClock(),
+//                    part,
+//                    startTime,
+//                    endTime)),
+//            DATETIME, STRING, TIME, DATETIME),
+//        implWithProperties(
+//            nullMissingHandlingWithProperties(
+//                (functionProperties, part, startTime, endTime) -> exprTimestampDiffForTimeType(
+//                    functionProperties.getQueryStartClock(),
+//                    part,
+//                    startTime,
+//                    endTime)),
+//            DATETIME, STRING, TIME, TIME));
   }
 
   /**
@@ -1869,6 +1904,46 @@ public class DateTimeFunction {
         formatNow(clock).toLocalDate(),
         timeExpr.timeValue());
     return exprTimestampAdd(partExpr, amountExpr, new ExprDatetimeValue(datetime));
+  }
+
+  private ExprValue exprTimestampDiff(ExprValue partExpr, ExprValue startTimeExpr, ExprValue endTimeExpr) {
+    String part = partExpr.stringValue();
+    LocalDateTime startTime = startTimeExpr.datetimeValue();
+    LocalDateTime endTime = endTimeExpr.datetimeValue();
+    long returnVal;
+
+    switch (part) {
+      case "MICROSECOND":
+        returnVal = MICROS.between(startTime, endTime);
+        break;
+      case "SECOND":
+        returnVal = SECONDS.between(startTime, endTime);
+        break;
+      case "MINUTE":
+        returnVal = MINUTES.between(startTime, endTime);
+        break;
+      case "HOUR":
+        returnVal = HOURS.between(startTime, endTime);
+        break;
+      case "DAY":
+        returnVal = DAYS.between(startTime, endTime);
+        break;
+      case "WEEK":
+        returnVal = WEEKS.between(startTime, endTime);
+        break;
+      case "MONTH":
+        returnVal = MONTHS.between(startTime, endTime);
+        break;
+      case "QUARTER":
+        returnVal = MONTHS.between(startTime, endTime)/3;
+        break;
+      case "YEAR":
+        returnVal = YEARS.between(startTime, endTime);
+        break;
+      default:
+        return ExprNullValue.of();
+    }
+    return new ExprLongValue(returnVal);
   }
 
   /**
