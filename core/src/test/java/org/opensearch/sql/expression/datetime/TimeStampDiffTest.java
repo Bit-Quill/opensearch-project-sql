@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
+import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
@@ -21,6 +22,7 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
+import org.opensearch.sql.expression.function.FunctionProperties;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -103,7 +105,7 @@ class TimeStampDiffTest extends ExpressionTestBase {
             new ExprStringValue("2000-01-01 00:00:00"),
             -5),
 
-        //Test with different type arguments
+        //Test with mismatched argument types
         Arguments.of(
             "DAY",
             new ExprTimestampValue("2000-01-01 00:00:00"),
@@ -111,17 +113,17 @@ class TimeStampDiffTest extends ExpressionTestBase {
             5),
         Arguments.of(
             "DAY",
-            new ExprDatetimeValue("2000-01-06 00:00:00"),
+            new ExprDatetimeValue("2000-01-01 00:00:00"),
             new ExprTimestampValue("2000-01-06 00:00:00"),
             5),
         Arguments.of(
             "DAY",
-            new ExprDateValue("2000-01-06 00:00:00"),
+            new ExprDateValue("2000-01-01 00:00:00"),
             new ExprDatetimeValue("2000-01-06 00:00:00"),
             5),
         Arguments.of(
             "DAY",
-            new ExprStringValue("2000-01-06 00:00:00"),
+            new ExprStringValue("2000-01-01 00:00:00"),
             new ExprDateValue("2000-01-06 00:00:00"),
             5),
 
@@ -203,10 +205,12 @@ class TimeStampDiffTest extends ExpressionTestBase {
     );
   }
 
-  private static FunctionExpression timestampdiffQuery(String unit,
+  private static FunctionExpression timestampdiffQuery(FunctionProperties functionProperties,
+                                                       String unit,
                                                        ExprValue datetimeExpr1,
                                                       ExprValue datetimeExpr2) {
     return DSL.timestampdiff(
+        functionProperties,
         DSL.literal(unit),
         DSL.literal(datetimeExpr1),
         DSL.literal(datetimeExpr2)
@@ -219,7 +223,11 @@ class TimeStampDiffTest extends ExpressionTestBase {
                                ExprValue datetimeExpr1,
                                ExprValue datetimeExpr2,
                                long expected) {
-    FunctionExpression expr = timestampdiffQuery(unit, datetimeExpr1, datetimeExpr2);
+    FunctionExpression expr = timestampdiffQuery(
+        functionProperties,
+        unit,
+        datetimeExpr1,
+        datetimeExpr2);
     assertEquals(expected, eval(expr).longValue());
   }
 
@@ -237,22 +245,23 @@ class TimeStampDiffTest extends ExpressionTestBase {
     );
   }
 
+  //Test that Time arg uses today's date with all interval/part arguments
   @ParameterizedTest
   @MethodSource("getUnits")
   public void testTimestampDiffWithTimeType(String unit) {
     LocalDate dateToday = LocalDate.now();
     LocalTime timeArg = LocalTime.of(10, 11, 12);
     FunctionExpression expr = timestampdiffQuery(
+        functionProperties,
         unit,
         new ExprDatetimeValue(LocalDateTime.of(dateToday, timeArg)),
         new ExprTimeValue(timeArg)
     );
-    assertEquals(0, eval(expr));
+    assertEquals(0L, eval(expr).longValue());
   }
 
   private static Stream<Arguments> getTimestampDiffInvalidArgs() {
     return Stream.of(
-        Arguments.of("INVALID", "2023-01-01 10:11:12", "2000-01-01 10:11:12"),
         Arguments.of("SECOND", "2023-13-01 10:11:12", "2000-01-01 10:11:12"),
         Arguments.of("SECOND", "2023-01-40 10:11:12", "2000-01-01 10:11:12"),
         Arguments.of("SECOND", "2023-01-01 25:11:12", "2000-01-01 10:11:12"),
@@ -268,36 +277,51 @@ class TimeStampDiffTest extends ExpressionTestBase {
 
   @ParameterizedTest
   @MethodSource("getTimestampDiffInvalidArgs")
-  public void testTimestampDiffWithInvalidArgs(String unit, String arg1, String arg2) {
+  public void testTimestampDiffWithInvalidTimeArgs(String unit, String arg1, String arg2) {
     FunctionExpression expr = timestampdiffQuery(
+        functionProperties,
         unit,
-        new ExprDatetimeValue(arg1),
-        new ExprTimeValue(arg2)
+        new ExprStringValue(arg1),
+        new ExprStringValue(arg2)
     );
     assertThrows(SemanticCheckException.class, () -> eval(expr));
   }
 
+  @Test
+  public void testTimestampDiffWithInvalidPartReturnsNull() {
+    FunctionExpression expr = timestampdiffQuery(
+        functionProperties,
+            "INVALID",
+        new ExprStringValue("2023-01-01 10:11:12"),
+        new ExprStringValue("2000-01-01 10:11:12")
+    );
+    assertEquals(ExprNullValue.of(), eval(expr));
+  }
 
   //Test that different input types have the same result
   @Test
   public void testDifferentInputTypesHaveSameResult() {
     String part = "SECOND";
     FunctionExpression dateExpr = timestampdiffQuery(
+        functionProperties,
         part,
         new ExprDateValue("2000-01-01"),
         new ExprDateValue("2000-01-02"));
 
     FunctionExpression stringExpr = timestampdiffQuery(
+        functionProperties,
         part,
         new ExprStringValue("2000-01-01 00:00:00"),
         new ExprStringValue("2000-01-02 00:00:00"));
 
     FunctionExpression datetimeExpr = timestampdiffQuery(
+        functionProperties,
         part,
         new ExprDatetimeValue("2000-01-01 00:00:00"),
         new ExprDatetimeValue("2000-01-02 00:00:00"));
 
     FunctionExpression timestampExpr = timestampdiffQuery(
+        functionProperties,
         part,
         new ExprTimestampValue("2000-01-01 00:00:00"),
         new ExprTimestampValue("2000-01-02 00:00:00"));

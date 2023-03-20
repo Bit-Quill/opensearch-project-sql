@@ -919,35 +919,39 @@ public class DateTimeFunction {
 
   private DefaultFunctionResolver timestampdiff() {
     return define(BuiltinFunctionName.TIMESTAMPDIFF.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprTimestampDiff),
-            LONG, STRING, DATETIME, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprTimestampDiff),
-            LONG, STRING, DATETIME, TIMESTAMP)
+        implWithProperties(
+            nullMissingHandlingWithProperties(
+                (functionProperties, part, startTime, endTime) -> exprTimestampDiff(
+                    functionProperties.getQueryStartClock(),
+                    part,
+                    startTime,
+                    endTime)),
+            DATETIME, STRING, DATETIME, DATETIME),
+        implWithProperties(
+            nullMissingHandlingWithProperties(
+                (functionProperties, part, startTime, endTime) -> exprTimestampDiff(
+                    functionProperties.getQueryStartClock(),
+                    part,
+                    startTime,
+                    endTime)),
+            DATETIME, STRING, DATETIME, DATETIME),
+        implWithProperties(
+            nullMissingHandlingWithProperties(
+                (functionProperties, part, startTime, endTime) -> exprTimestampDiff(
+                    functionProperties.getQueryStartClock(),
+                    part,
+                    startTime,
+                    endTime)),
+            DATETIME, STRING, DATETIME, TIMESTAMP),
+        implWithProperties(
+            nullMissingHandlingWithProperties(
+                (functionProperties, part, startTime, endTime) -> exprTimestampDiff(
+                    functionProperties.getQueryStartClock(),
+                    part,
+                    startTime,
+                    endTime)),
+            DATETIME, STRING, TIMESTAMP, TIMESTAMP)
         );
-//        implWithProperties(
-//            nullMissingHandlingWithProperties(
-//                (functionProperties, part, startTime, endTime) -> exprTimestampDiffForTimeType(
-//                    functionProperties.getQueryStartClock(),
-//                    part,
-//                    startTime,
-//                    endTime)),
-//            DATETIME, STRING, DATETIME, TIME),
-//        implWithProperties(
-//            nullMissingHandlingWithProperties(
-//                (functionProperties, part, startTime, endTime) -> exprTimestampDiffForTimeType(
-//                    functionProperties.getQueryStartClock(),
-//                    part,
-//                    startTime,
-//                    endTime)),
-//            DATETIME, STRING, TIME, DATETIME),
-//        implWithProperties(
-//            nullMissingHandlingWithProperties(
-//                (functionProperties, part, startTime, endTime) -> exprTimestampDiffForTimeType(
-//                    functionProperties.getQueryStartClock(),
-//                    part,
-//                    startTime,
-//                    endTime)),
-//            DATETIME, STRING, TIME, TIME));
   }
 
   /**
@@ -1906,10 +1910,22 @@ public class DateTimeFunction {
     return exprTimestampAdd(partExpr, amountExpr, new ExprDatetimeValue(datetime));
   }
 
-  private ExprValue exprTimestampDiff(ExprValue partExpr, ExprValue startTimeExpr, ExprValue endTimeExpr) {
+  private ExprValue exprTimestampDiff(Clock queryStart, ExprValue partExpr, ExprValue startTimeExpr, ExprValue endTimeExpr) {
     String part = partExpr.stringValue();
-    LocalDateTime startTime = startTimeExpr.datetimeValue();
-    LocalDateTime endTime = endTimeExpr.datetimeValue();
+    LocalDateTime startTime;
+    LocalDateTime endTime;
+
+    //Fill in date parts if a time argument is provided
+    if (startTimeExpr instanceof ExprTimeValue) {
+     startTime = LocalDateTime.of(LocalDate.now(), startTimeExpr.timeValue());
+    } else {
+      startTime = startTimeExpr.datetimeValue();
+    }
+    if (endTimeExpr instanceof ExprTimeValue) {
+      endTime = LocalDateTime.of(LocalDate.now(), endTimeExpr.timeValue());
+    } else {
+      endTime = endTimeExpr.datetimeValue();
+    }
     long returnVal;
 
     switch (part) {
