@@ -132,7 +132,7 @@ public class NestedIT extends SQLIntegTestCase {
         rows("2017-10-12")
     );
     verifySchema(result,
-        schema("comments.data", null, "date"));
+        schema("comments.date", null, "date"));
   }
 
   @Test
