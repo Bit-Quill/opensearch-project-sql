@@ -901,6 +901,15 @@ public class DateTimeFunction {
             TIMESTAMP, TIMESTAMP, TIMESTAMP));
   }
 
+  /**
+   * Adds an interval of time to the provided DATE/DATETIME/TIME/TIMESTAMP/STRING argument.
+   * The interval of time added is determined by the given first and second arguments.
+   * The first argument is an interval type, and must be one of the tokens below...
+   * [MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR]
+   * The second argument is the amount of the interval type to be added.
+   * The third argument is the DATE/DATETIME/TIME/TIMESTAMP/STRING to add to.
+   * @return The DATETIME representing the summed DATE/DATETIME/TIME/TIMESTAMP and interval.
+   */
   private DefaultFunctionResolver timestampadd() {
     return define(BuiltinFunctionName.TIMESTAMPADD.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampAdd),
@@ -917,6 +926,14 @@ public class DateTimeFunction {
             DATETIME, STRING, INTEGER, TIME));
   }
 
+  /**
+   * Finds the difference between provided DATE/DATETIME/TIME/TIMESTAMP/STRING arguments.
+   * The first argument is an interval type, and must be one of the tokens below...
+   * [MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR]
+   * The second argument the DATE/DATETIME/TIME/TIMESTAMP/STRING representing the start time.
+   * The third argument is the DATE/DATETIME/TIME/TIMESTAMP/STRING representing the end time.
+   * @return A LONG representing the difference between arguments, using the given interval type.
+   */
   private DefaultFunctionResolver timestampdiff() {
     return define(BuiltinFunctionName.TIMESTAMPDIFF.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprTimestampDiff),
@@ -930,27 +947,11 @@ public class DateTimeFunction {
         implWithProperties(
             nullMissingHandlingWithProperties(
                 (functionProperties, part, startTime, endTime) -> exprTimestampDiffForTimeType(
-                    functionProperties.getQueryStartClock(),
+                    functionProperties,
                     part,
                     startTime,
                     endTime)),
-            DATETIME, STRING, TIME, TIME),
-        implWithProperties(
-            nullMissingHandlingWithProperties(
-                (functionProperties, part, startTime, endTime) -> exprTimestampDiffForTimeType(
-                    functionProperties.getQueryStartClock(),
-                    part,
-                    startTime,
-                    endTime)),
-            DATETIME, STRING, TIME, DATETIME),
-        implWithProperties(
-            nullMissingHandlingWithProperties(
-                (functionProperties, part, startTime, endTime) -> exprTimestampDiffForTimeType(
-                    functionProperties.getQueryStartClock(),
-                    part,
-                    startTime,
-                    endTime)),
-            DATETIME, STRING, DATETIME, TIME)
+            DATETIME, STRING, TIME, TIME)
     );
   }
 
@@ -1956,28 +1957,14 @@ public class DateTimeFunction {
         endTimeExpr.datetimeValue());
   }
 
-  private ExprValue exprTimestampDiffForTimeType(Clock queryStart,
+  private ExprValue exprTimestampDiffForTimeType(FunctionProperties fp,
                                                  ExprValue partExpr,
                                                  ExprValue startTimeExpr,
                                                  ExprValue endTimeExpr) {
-    String part = partExpr.stringValue();
-    LocalDateTime startTime;
-    LocalDateTime endTime;
-
-    //Fill in date parts if a time argument is provided
-    if (startTimeExpr instanceof ExprTimeValue) {
-      startTime = LocalDateTime.of(LocalDate.now(queryStart), startTimeExpr.timeValue());
-    } else {
-      startTime = startTimeExpr.datetimeValue();
-    }
-
-    if (endTimeExpr instanceof ExprTimeValue) {
-      endTime = LocalDateTime.of(LocalDate.now(queryStart), endTimeExpr.timeValue());
-    } else {
-      endTime = endTimeExpr.datetimeValue();
-    }
-
-    return getTimeDifference(part, startTime, endTime);
+    return getTimeDifference(
+        partExpr.stringValue(),
+        extractDateTime(startTimeExpr, fp),
+        extractDateTime(endTimeExpr, fp));
   }
 
   /**

@@ -224,7 +224,7 @@ class TimeStampDiffTest extends ExpressionTestBase {
   private static FunctionExpression timestampdiffQuery(FunctionProperties functionProperties,
                                                        String unit,
                                                        ExprValue datetimeExpr1,
-                                                      ExprValue datetimeExpr2) {
+                                                       ExprValue datetimeExpr2) {
     return DSL.timestampdiff(
         functionProperties,
         DSL.literal(unit),
