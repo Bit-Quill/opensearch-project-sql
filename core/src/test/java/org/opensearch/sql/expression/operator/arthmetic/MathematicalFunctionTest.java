@@ -1587,7 +1587,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test pow/power with edge cases
+   * Test pow/power with edge cases.
    */
   @Test
   public void pow_edge_cases() {
