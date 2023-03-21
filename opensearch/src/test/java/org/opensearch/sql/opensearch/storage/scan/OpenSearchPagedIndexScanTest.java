@@ -156,9 +156,9 @@ public class OpenSearchPagedIndexScanTest {
     OpenSearchPagedIndexScan indexScan = new OpenSearchPagedIndexScan(client, builder);
     indexScan.open();
     assertAll(
-        () -> assertEquals("(OpenSearchPagedIndexScan,index,cu-cursor)", indexScan.toCursor()),
-        () -> assertEquals("", indexScan.toCursor()),
-        () -> assertEquals("", indexScan.toCursor())
+        () -> assertEquals("(OpenSearchPagedIndexScan,index,cu-cursor)", indexScan.prepareToSerialization()),
+        () -> assertEquals("", indexScan.prepareToSerialization()),
+        () -> assertEquals("", indexScan.prepareToSerialization())
     );
   }
 }

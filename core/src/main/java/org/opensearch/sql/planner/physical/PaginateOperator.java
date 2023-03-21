@@ -5,24 +5,22 @@
 
 package org.opensearch.sql.planner.physical;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.executor.ExecutionEngine;
-import org.opensearch.sql.planner.physical.PhysicalPlan;
-import org.opensearch.sql.planner.physical.PhysicalPlanNodeVisitor;
-import org.opensearch.sql.planner.physical.ProjectOperator;
 
-@RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class PaginateOperator extends PhysicalPlan {
   @Getter
-  private final PhysicalPlan input;
+  private PhysicalPlan input;
 
   @Getter
-  private final int pageSize;
+  private int pageSize;
 
   /**
    * Which page is this?
@@ -30,9 +28,14 @@ public class PaginateOperator extends PhysicalPlan {
    * See usage.
    */
   @Getter
-  private final int pageIndex;
+  private int pageIndex = 0;
 
-  int numReturned = 0;
+  private int numReturned = 0;
+
+  public PaginateOperator() {
+    int a = 5;
+    // TODO validate that called only from deserializer
+  }
 
   /**
    * Page given physical plan, with pageSize elements per page, starting with the first page.
@@ -40,7 +43,15 @@ public class PaginateOperator extends PhysicalPlan {
   public PaginateOperator(PhysicalPlan input, int pageSize) {
     this.pageSize = pageSize;
     this.input = input;
-    this.pageIndex = 0;
+  }
+
+  /**
+   * Page given physical plan, with pageSize elements per page, starting with the given page.
+   */
+  public PaginateOperator(PhysicalPlan input, int pageSize, int pageIndex) {
+    this.pageSize = pageSize;
+    this.input = input;
+    this.pageIndex = pageIndex;
   }
 
   @Override
@@ -69,16 +80,18 @@ public class PaginateOperator extends PhysicalPlan {
   }
 
   @Override
-  public String toCursor() {
-    // Save cursor to read the next page.
-    // Could process node.getChild() here with another visitor -- one that saves the
-    // parameters for other physical operators -- ProjectOperator, etc.
-    // cursor format: n:<paginate(next-page, pagesize)>|<child>"
-    String child = getChild().get(0).toCursor();
+  public boolean writeExternal(ObjectOutput out) throws IOException {
+    PlanLoader loader = (in, engine) -> {
+      var pageSize = in.readInt();
+      var pageIndex = in.readInt();
+      var inputLoader = (PlanLoader) in.readObject();
+      var input = (PhysicalPlan) inputLoader.apply(in, engine);
+      return new PaginateOperator(input, pageSize, pageIndex);
+    };
+    out.writeObject(loader);
 
-    var nextPage = getPageIndex() + 1;
-    return child == null || child.isEmpty()
-        ? null : createSection("Paginate", Integer.toString(nextPage),
-            Integer.toString(getPageSize()), child);
+    out.writeInt(pageSize);
+    out.writeInt(pageIndex + 1);
+    return input.getPlanForSerialization().writeExternal(out);
   }
 }

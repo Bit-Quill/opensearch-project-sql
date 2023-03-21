@@ -5,8 +5,11 @@
 
 package org.opensearch.sql.opensearch.storage.scan;
 
+import java.io.IOException;
+import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.Iterator;
+
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.commons.lang3.NotImplementedException;
@@ -20,13 +23,18 @@ import org.opensearch.sql.storage.TableScanOperator;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @ToString(onlyExplicitlyIncluded = true)
 public class OpenSearchPagedIndexScan extends TableScanOperator {
-  private final OpenSearchClient client;
-  private final PagedRequestBuilder requestBuilder;
+  private OpenSearchClient client;
+  private PagedRequestBuilder requestBuilder;
   @EqualsAndHashCode.Include
   @ToString.Include
   private OpenSearchRequest request;
   private Iterator<ExprValue> iterator;
   private long totalHits = 0;
+
+  public OpenSearchPagedIndexScan() {
+    int a = 5;
+    // TODO validate that called only from deserializer
+  }
 
   public OpenSearchPagedIndexScan(OpenSearchClient client,
                                   PagedRequestBuilder requestBuilder) {
@@ -74,11 +82,18 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
   }
 
   @Override
-  public String toCursor() {
-    // TODO this assumes exactly one index is scanned.
-    var indexName = requestBuilder.getIndexName().getIndexNames()[0];
-    var cursor = request.toCursor();
-    return cursor == null || cursor.isEmpty()
-        ? "" : createSection("OpenSearchPagedIndexScan", indexName, cursor);
+  public boolean writeExternal(ObjectOutput out) throws IOException {
+    if (request.toCursor() == null || request.toCursor().isEmpty()) {
+      return false;
+    }
+    PlanLoader loader = (in, engine) -> {
+      var indexName = (String) in.readUTF();
+      var scrollId = (String) in.readUTF();
+      return engine.getTableScan(indexName, scrollId);
+    };
+    out.writeObject(loader);
+    out.writeUTF(requestBuilder.getIndexName().toString());
+    out.writeUTF(request.toCursor());
+    return true;
   }
 }

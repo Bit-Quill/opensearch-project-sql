@@ -92,13 +92,13 @@ public class PaginateOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void toCursor() {
     var plan = mock(PhysicalPlan.class);
-    when(plan.toCursor()).thenReturn("Great plan, Walter, reliable as a swiss watch!", "", null);
+    when(plan.prepareToSerialization()).thenReturn("Great plan, Walter, reliable as a swiss watch!", "", null);
     var po = new PaginateOperator(plan, 2);
     assertAll(
         () -> assertEquals("(Paginate,1,2,Great plan, Walter, reliable as a swiss watch!)",
-            po.toCursor()),
-        () -> assertNull(po.toCursor()),
-        () -> assertNull(po.toCursor())
+            po.prepareToSerialization()),
+        () -> assertNull(po.prepareToSerialization()),
+        () -> assertNull(po.prepareToSerialization())
     );
   }
 }

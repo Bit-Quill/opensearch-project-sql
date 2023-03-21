@@ -358,7 +358,7 @@ public class PaginatedPlanCacheTest {
   void convertToCursor_cant_convert() {
     var plan = mock(MockedTableScanOperator.class);
     assertEquals(Cursor.None, planCache.convertToCursor(plan));
-    when(plan.toCursor()).thenReturn("");
+    when(plan.prepareToCursorSerialization()).thenReturn("");
     assertEquals(Cursor.None, planCache.convertToCursor(
         new PaginateOperator(plan, 1, 2)));
   }
@@ -442,7 +442,7 @@ public class PaginatedPlanCacheTest {
     }
 
     @Override
-    public String toCursor() {
+    public void prepareToCursorSerialization() {
       return createSection("OpenSearchPagedIndexScan", testIndexName, testScroll);
     }
   }

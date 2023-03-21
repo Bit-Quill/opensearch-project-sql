@@ -116,7 +116,7 @@ class ResourceMonitorPlanTest {
 
   @Test
   void toCursorSuccess() {
-    monitorPlan.toCursor();
-    verify(plan, times(1)).toCursor();
+    monitorPlan.prepareToSerialization();
+    verify(plan, times(1)).prepareToSerialization();
   }
 }

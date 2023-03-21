@@ -6,12 +6,16 @@
 
 package org.opensearch.sql.opensearch.executor.protector;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.monitor.ResourceMonitor;
+import org.opensearch.sql.planner.SerializablePlan;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 import org.opensearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 
@@ -89,7 +93,13 @@ public class ResourceMonitorPlan extends PhysicalPlan {
   }
 
   @Override
-  public String toCursor() {
-    return delegate.toCursor();
+  public boolean writeExternal(ObjectOutput out) throws IOException {
+    // do nothing, we shouldn't serialize ResourceMonitorPlan
+    return delegate.writeExternal(out);
+  }
+
+  @Override
+  public SerializablePlan getPlanForSerialization() {
+    return delegate;
   }
 }

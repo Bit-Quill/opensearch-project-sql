@@ -213,7 +213,7 @@ class ProjectOperatorTest extends PhysicalPlanTestBase {
 
   @Test
   public void toCursor() {
-    when(inputPlan.toCursor()).thenReturn("inputPlan", "", null);
+    when(inputPlan.prepareToSerialization()).thenReturn("inputPlan", "", null);
     var project = DSL.named("response", DSL.ref("response", INTEGER));
     var npe = DSL.named("action", DSL.ref("action", STRING));
     var po = project(inputPlan, List.of(project), List.of(npe));
@@ -221,9 +221,9 @@ class ProjectOperatorTest extends PhysicalPlanTestBase {
     var expected = String.format("(Project,(namedParseExpressions,%s),(projectList,%s),%s)",
         serializer.serialize(npe), serializer.serialize(project), "inputPlan");
     assertAll(
-        () -> assertEquals(expected, po.toCursor()),
-        () -> assertNull(po.toCursor()),
-        () -> assertNull(po.toCursor())
+        () -> assertEquals(expected, po.prepareToSerialization()),
+        () -> assertNull(po.prepareToSerialization()),
+        () -> assertNull(po.prepareToSerialization())
     );
   }
 }
