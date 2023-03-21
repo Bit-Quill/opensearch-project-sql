@@ -101,9 +101,7 @@ import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.expression.When;
 import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
-import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.common.utils.StringUtils;
-import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.AlternateMultiMatchQueryContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.AndExpressionContext;
@@ -162,12 +160,22 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   public UnresolvedExpression visitNestedFunctionCall(NestedFunctionCallContext ctx) {
     List<UnresolvedExpression> args = new ArrayList();
 
-    args.add(new QualifiedName(
-        StringUtils.unquoteText(ctx.nestedFunction().nestedField().getText()))
+    args.add(
+        new QualifiedName(
+            ctx.nestedFunction().nestedField().nestedIdent().stream()
+                .map(RuleContext::getText)
+                .map(StringUtils::unquoteIdentifier)
+                .collect(Collectors.toList())
+        )
     );
     if (ctx.nestedFunction().nestedPath() != null) {
-      args.add(new QualifiedName(
-          StringUtils.unquoteText(ctx.nestedFunction().nestedPath().getText()))
+      args.add(
+        new QualifiedName(
+            ctx.nestedFunction().nestedPath().nestedIdent().stream()
+                .map(RuleContext::getText)
+                .map(StringUtils::unquoteIdentifier)
+                .collect(Collectors.toList())
+        )
       );
     }
 
@@ -516,13 +524,6 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
             .stream()
             .map(this::visitFunctionArg)
             .collect(Collectors.toList())
-    );
-  }
-
-  private Function buildNestedFunction(String functionName, List<String> arg) {
-    return new Function(
-        functionName,
-        List.of(new QualifiedName(arg))
     );
   }
 
