@@ -18,17 +18,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.executor.ExecutionEngine;
-import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.parse.ParseExpression;
-import org.opensearch.sql.expression.serialization.DefaultExpressionSerializer;
-import org.opensearch.sql.storage.StorageEngine;
 
 /**
  * Project the fields specified in {@link ProjectOperator#projectList} from input.
@@ -115,7 +111,7 @@ public class ProjectOperator extends PhysicalPlan {
 
   @SuppressWarnings("unchecked")
   @Override
-  public void writeExternal(ObjectOutput out) throws IOException {
+  public boolean writeExternal(ObjectOutput out) throws IOException {
     PlanLoader loader = (in, engine) -> {
       var projectList = (List<NamedExpression>) in.readObject();
       var namedParseExpressions = (List<NamedExpression>) in.readObject();
@@ -127,19 +123,6 @@ public class ProjectOperator extends PhysicalPlan {
 
     out.writeObject(projectList);
     out.writeObject(namedParseExpressions);
-    input.getPlanForSerialization().writeExternal(out);
+    return input.getPlanForSerialization().writeExternal(out);
   }
-
-  @Override
-  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    // nothing, everything done by loader
-  }
-/*
-  @SuppressWarnings("unchecked")
-  @Override
-  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    input = (PhysicalPlan) in.readObject();
-    projectList = (List<NamedExpression>) in.readObject();
-    namedParseExpressions = (List<NamedExpression>) in.readObject();
-  }*/
 }

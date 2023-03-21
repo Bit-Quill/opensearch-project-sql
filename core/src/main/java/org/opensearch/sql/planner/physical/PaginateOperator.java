@@ -11,13 +11,8 @@ import java.io.ObjectOutput;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.executor.ExecutionEngine;
-import org.opensearch.sql.executor.PaginatedPlanCache;
-import org.opensearch.sql.expression.NamedExpression;
-import org.opensearch.sql.planner.SerializablePlan;
-import org.opensearch.sql.storage.StorageEngine;
 
 @EqualsAndHashCode(callSuper = false)
 public class PaginateOperator extends PhysicalPlan {
@@ -95,13 +90,8 @@ public class PaginateOperator extends PhysicalPlan {
     return input.schema();
   }
 
-//  @Override
-//  public void prepareToSerialization(PaginatedPlanCache.SerializationContext context) {
-//    pageIndex++;
-//  }
-
   @Override
-  public void writeExternal(ObjectOutput out) throws IOException {
+  public boolean writeExternal(ObjectOutput out) throws IOException {
     PlanLoader loader = (in, engine) -> {
       var pageSize = in.readInt();
       var pageIndex = in.readInt();
@@ -113,21 +103,6 @@ public class PaginateOperator extends PhysicalPlan {
 
     out.writeInt(pageSize);
     out.writeInt(pageIndex + 1);
-    input.getPlanForSerialization().writeExternal(out);
+    return input.getPlanForSerialization().writeExternal(out);
   }
-
-  @Override
-  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    // nothing, everything done by loader
-  }
-/*
-  @Override
-  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    var loader = (PlanLoader) in.readObject();
-    this = loader.apply(in, engine);
-
-    input = (PhysicalPlan) in.readObject();
-    pageSize = in.readInt();
-    pageIndex = in.readInt();
-  }*/
 }

@@ -14,7 +14,6 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.monitor.ResourceMonitor;
 import org.opensearch.sql.planner.SerializablePlan;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
@@ -93,23 +92,10 @@ public class ResourceMonitorPlan extends PhysicalPlan {
     return delegate.getTotalHits();
   }
 
-//  @Override
-//  public void prepareToSerialization(PaginatedPlanCache.SerializationContext context) {
-//    delegate.prepareToSerialization(context);
-//  }
-
   @Override
-  public void writeExternal(ObjectOutput out) throws IOException {
+  public boolean writeExternal(ObjectOutput out) throws IOException {
     // do nothing, we shouldn't serialize ResourceMonitorPlan
-    // nor its delegate (instance of TableScanOperator).
-    delegate.writeExternal(out);
-  }
-
-  @Override
-  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    // do nothing, we shouldn't serialize ResourceMonitorPlan
-    // nor its delegate (instance of TableScanOperator).
-    delegate.readExternal(in);
+    return delegate.writeExternal(out);
   }
 
   @Override

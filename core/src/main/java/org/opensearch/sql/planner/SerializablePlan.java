@@ -5,39 +5,24 @@
 
 package org.opensearch.sql.planner;
 
-import org.opensearch.sql.storage.StorageEngine;
-
-import java.io.Externalizable;
 import java.io.IOException;
-import java.io.NotSerializableException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
-import java.util.function.BiFunction;
+import org.apache.commons.lang3.NotImplementedException;
+import org.opensearch.sql.storage.StorageEngine;
 
 /**
  * All instances of PhysicalPlan which needs to be serialized (in cursor feature) should
- * have a public no-arg constructor and override all given here methods.
+ * override all given here methods.
  */
-public abstract class SerializablePlan implements Externalizable {
+public abstract class SerializablePlan {
 
-//  /**
-//   * Prep
-//   * Each plan which supports serialization should override this method, to do at least nothing.
-//   */
-//  public void prepareToSerialization(PaginatedPlanCache.SerializationContext context) {
-//    throw new IllegalStateException(String.format("%s is not compatible with cursor feature",
-//        this.getClass().getSimpleName()));
-//    /* Non default implementation should be like reverse visitor
-//    context.setSomething(data);
-//    getChild().forEach(plan -> plan.prepareToSerialization(context));
-//    */
-//  }
-
-  @Override
-  public void writeExternal(ObjectOutput out) throws IOException {
-    throw new NotSerializableException();
+  // Copied from Externalizable
+  public boolean writeExternal(ObjectOutput out) throws IOException {
+    throw new NotImplementedException();
     /* Each plan which supports serialization should dump itself into the stream and go recursive.
+    TODO update comment
     out.writeSomething(data);
     for (var plan : getChild()) {
       plan.writeExternal(out.getPlanForSerialization());
@@ -45,16 +30,6 @@ public abstract class SerializablePlan implements Externalizable {
     */
   }
 
-  @Override
-  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    throw new NotSerializableException();
-    /* Each plan which supports serialization should load itself from the stream and go recursive.
-    this.data = in.readSomething();
-    for (var plan : getChild()) {
-      plan.readExternal(in);
-    }
-    */
-  }
 
   /**
    * TODO update comment

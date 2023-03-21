@@ -18,27 +18,20 @@ import java.io.Serializable;
 import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.opensearch.executor.Cursor;
 import org.opensearch.sql.planner.SerializablePlan;
 import org.opensearch.sql.planner.physical.PaginateOperator;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 import org.opensearch.sql.storage.StorageEngine;
-import org.opensearch.sql.storage.TableScanOperator;
 
-public class PaginatedPlanCache {
+public class PaginatedPlanCache implements AutoCloseable {
   public static final String CURSOR_PREFIX = "n:";
-  private final StorageEngine storageEngine;
+  //TODO remove - used in tests only
   public static final PaginatedPlanCache None = new PaginatedPlanCache(null);
 
   public PaginatedPlanCache(StorageEngine storageEngine) {
-    this.storageEngine = storageEngine;
     SerializationContext.engine = storageEngine;
   }
 
@@ -46,18 +39,33 @@ public class PaginatedPlanCache {
     return plan.accept(new CanPaginateVisitor(), null);
   }
 
+  // Actually called only once on server lifetime - on shutdown, so it does nothing.
+  @Override
+  public void close() throws Exception {
+    SerializationContext.engine = null;
+  }
+
   @Data
-  @AllArgsConstructor
   public static class SerializationContext implements Externalizable {
     private PaginateOperator plan;
     private static StorageEngine engine;
+    /**
+     * If exception is thrown we don't catch it, that means something really went wrong.
+     * But if we can't serialize the plan, we set this flag and should return an empty cursor.
+     * The only case when it could happen as of now - paging is finished and there is no scroll.
+     */
+    private boolean serializedSuccessfully = false;
 
     public SerializationContext() {
     }
 
+    public SerializationContext(PaginateOperator plan) {
+      this.plan = plan;
+    }
+
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-      plan.writeExternal(out);
+      serializedSuccessfully = plan.writeExternal(out);
     }
 
     @Override
@@ -73,9 +81,8 @@ public class PaginatedPlanCache {
   public Cursor convertToCursor(PhysicalPlan plan) {
     if (plan instanceof PaginateOperator) {
       var context = new SerializationContext((PaginateOperator) plan);
-      //plan.prepareToSerialization(context);
-      //return new Cursor(CURSOR_PREFIX + serialize(new Object[] { plan, context }));
-      return new Cursor(CURSOR_PREFIX + serialize(context));
+      var serialized = serialize(context);
+      return context.serializedSuccessfully ? new Cursor(CURSOR_PREFIX + serialized) : Cursor.None;
     } else {
       return Cursor.None;
     }
@@ -113,50 +120,11 @@ public class PaginatedPlanCache {
   }
 
   /**
-   * Compress serialized query plan.
-   * @param str string representing a query plan
-   * @return str compressed with gzip.
-   */
-  @SneakyThrows
-  public static String compress(String str) {
-    if (str == null || str.length() == 0) {
-      return null;
-    }
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    GZIPOutputStream gzip = new GZIPOutputStream(out);
-    gzip.write(str.getBytes());
-    gzip.close();
-    return HashCode.fromBytes(out.toByteArray()).toString();
-  }
-
-  /**
-   * Decompresses a query plan that was compress with {@link PaginatedPlanCache#compress}.
-   * @param input compressed query plan
-   * @return seria
-   */
-  @SneakyThrows
-  public static String decompress(String input) {
-    if (input == null || input.length() == 0) {
-      return null;
-    }
-    GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(
-        HashCode.fromString(input).asBytes()));
-    return new String(gzip.readAllBytes());
-  }
-
-  /**
    * Converts a cursor to a physical plan tree.
    */
   public PhysicalPlan convertToPlan(String cursor) {
     if (cursor.startsWith(CURSOR_PREFIX)) {
       try {
-        //var data = (Object[]) deserialize(cursor.substring(CURSOR_PREFIX.length()));
-        //var plan = (PhysicalPlan) data[0];
-        //var context = (SerializationContext) data[1];
-        //TableScanOperator scan = storageEngine.getTableScan(context.getIndexName(), context.getScrollId());
-
-        //Class.forName("PaginateOperator").getDeclaredConstructor()
-
         return ((SerializationContext) deserialize(cursor.substring(CURSOR_PREFIX.length()))).getPlan();
       } catch (Exception e) {
         throw new UnsupportedOperationException("Unsupported cursor", e);
