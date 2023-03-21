@@ -367,7 +367,7 @@ datetimePart
 
 nestedFunction
     : NESTED LR_BRACKET
-    (nestedField | nestedField COMMA nestedPath | nestedPath COMMA expression)
+    (nestedField | nestedField COMMA nestedPath)
     RR_BRACKET
     ;
 

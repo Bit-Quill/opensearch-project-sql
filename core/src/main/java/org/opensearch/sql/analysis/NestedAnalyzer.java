@@ -36,10 +36,14 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
 
   @Override
   public LogicalPlan visitAlias(Alias node, AnalysisContext context) {
-    if (node.getDelegated() instanceof Function
-        && ((Function) node.getDelegated()).getFuncName().equalsIgnoreCase("nested")) {
+    return node.getDelegated().accept(this, context);
+  }
 
-      List<UnresolvedExpression> expressions = ((Function) node.getDelegated()).getFuncArgs();
+  @Override
+  public LogicalPlan visitFunction(Function node, AnalysisContext context) {
+    if (node.getFuncName().equalsIgnoreCase("nested")) {
+
+      List<UnresolvedExpression> expressions = node.getFuncArgs();
       ReferenceExpression nestedField =
           (ReferenceExpression)expressionAnalyzer.analyze(expressions.get(0), context);
       Map<String, ReferenceExpression> args;

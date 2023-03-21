@@ -410,8 +410,6 @@ class AnalyzerTest extends AnalyzerTestBase {
     Map<String, ReferenceExpression> fieldPathMap = Map.of(
         "field", new ReferenceExpression("message.info", STRING),
         "path", new ReferenceExpression("message", STRING));
-    assertTrue(LogicalNested.getFieldFromMap(fieldPathMap).equals("message.info"));
-    assertTrue(LogicalNested.getPathFromMap(fieldPathMap).equals("message"));
   }
 
   @Test

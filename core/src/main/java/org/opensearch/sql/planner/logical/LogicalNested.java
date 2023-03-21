@@ -35,14 +35,6 @@ public class LogicalNested extends LogicalPlan {
     this.projectList = projectList;
   }
 
-  public static String getFieldFromMap(Map<String, ReferenceExpression> map) {
-    return map.get("field").toString();
-  }
-
-  public static String getPathFromMap(Map<String, ReferenceExpression> map) {
-    return map.get("path").toString();
-  }
-
   @Override
   public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
     return visitor.visitUnnest(this, context);

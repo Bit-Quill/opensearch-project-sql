@@ -39,6 +39,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.ast.Node;
 import org.opensearch.sql.ast.dsl.AstDSL;
@@ -231,7 +232,8 @@ class AstExpressionBuilderTest {
     );
   }
 
-  @Test
+  //TODO enable me when condition parameter is supported
+  @Disabled
   public void canBuildNestedFunctionWithConditionParam() {
     assertEquals(
         new Alias("message",

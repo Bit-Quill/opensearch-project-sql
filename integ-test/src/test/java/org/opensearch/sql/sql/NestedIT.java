@@ -5,6 +5,7 @@
 
 package org.opensearch.sql.sql;
 
+import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_EMPLOYEE_NESTED;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_MULTI_NESTED_TYPE;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_NESTED_TYPE_WITHOUT_ARRAYS;
@@ -27,6 +28,7 @@ public class NestedIT extends SQLIntegTestCase {
     loadIndex(Index.MULTI_NESTED);
     loadIndex(Index.NESTED);
     loadIndex(Index.NESTED_WITHOUT_ARRAYS);
+    loadIndex(Index.EMPLOYEE_NESTED);
   }
 
   @Test
@@ -98,7 +100,6 @@ public class NestedIT extends SQLIntegTestCase {
         rows("ZZ"));
   }
 
-
   @Test
   public void nested_function_with_array_of_multi_nested_field_test() {
     String query = "SELECT nested(message.author.name) FROM " + TEST_INDEX_MULTI_NESTED_TYPE;
@@ -112,5 +113,79 @@ public class NestedIT extends SQLIntegTestCase {
         rows("h"),
         rows("p"),
         rows("yy"));
+  }
+
+  @Test
+  public void nested_with_date_type() {
+    String query = "SELECT nested(comments.date) FROM " + TEST_INDEX_EMPLOYEE_NESTED;
+    JSONObject result = executeJdbcRequest(query);
+
+    assertEquals(8, result.getInt("total"));
+    verifyDataRows(result,
+        rows("2018-06-23"),
+        rows("2017-10-25"),
+        rows("2018-06-23"),
+        rows("2017-10-25"),
+        rows("2018-06-23"),
+        rows("2017-10-25"),
+        rows("2019-06-10"),
+        rows("2017-10-12")
+    );
+    verifySchema(result,
+        schema("comments.data", null, "date"));
+  }
+
+  @Test
+  public void nested_with_non_nested_type_test() {
+    String query = "SELECT nested(someField) FROM " + TEST_INDEX_NESTED_TYPE;
+
+    Exception exception = assertThrows(RuntimeException.class,
+        () -> executeJdbcRequest(query));
+    assertTrue(exception.getMessage().contains(
+            "{\n" +
+            "  \"error\": {\n" +
+            "    \"reason\": \"Invalid SQL query\",\n" +
+            "    \"details\": \"Illegal nested field name: someField\",\n" +
+            "    \"type\": \"IllegalArgumentException\"\n" +
+            "  },\n" +
+            "  \"status\": 400\n" +
+            "}"
+    ));
+  }
+
+  @Test
+  public void nested_missing_path() {
+    String query = "SELECT nested(message.invalid) FROM " + TEST_INDEX_MULTI_NESTED_TYPE;
+
+    Exception exception = assertThrows(RuntimeException.class,
+        () -> executeJdbcRequest(query));
+    assertTrue(exception.getMessage().contains("" +
+        "{\n" +
+        "  \"error\": {\n" +
+        "    \"reason\": \"Invalid SQL query\",\n" +
+        "    \"details\": \"can't resolve Symbol(namespace=FIELD_NAME, name=message.invalid) in type env\",\n" +
+        "    \"type\": \"SemanticCheckException\"\n" +
+        "  },\n" +
+        "  \"status\": 400\n" +
+        "}"
+    ));
+  }
+
+  @Test
+  public void nested_missing_path_argument() {
+    String query = "SELECT nested(message.author.name, invalid) FROM " + TEST_INDEX_MULTI_NESTED_TYPE;
+
+    Exception exception = assertThrows(RuntimeException.class,
+        () -> executeJdbcRequest(query));
+    assertTrue(exception.getMessage().contains("" +
+        "{\n" +
+        "  \"error\": {\n" +
+        "    \"reason\": \"Invalid SQL query\",\n" +
+        "    \"details\": \"can't resolve Symbol(namespace=FIELD_NAME, name=invalid) in type env\",\n" +
+        "    \"type\": \"SemanticCheckException\"\n" +
+        "  },\n" +
+        "  \"status\": 400\n" +
+        "}"
+    ));
   }
 }
