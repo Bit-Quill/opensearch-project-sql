@@ -61,9 +61,7 @@ class OpenSearchExecutionEngineTest {
 
   @Mock private Split split;
 
-  @Mock private static OpenSearchIndexScan fakeIndexScan;
-
-  @Mock private static ProjectOperator fakeProjectOperator;
+  @Mock private ProjectOperator fakeProjectOperator;
 
   @BeforeEach
   void setUp() {
