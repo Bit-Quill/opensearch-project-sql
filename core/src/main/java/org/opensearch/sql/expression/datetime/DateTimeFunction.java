@@ -919,39 +919,39 @@ public class DateTimeFunction {
 
   private DefaultFunctionResolver timestampdiff() {
     return define(BuiltinFunctionName.TIMESTAMPDIFF.getName(),
-        implWithProperties(
-            nullMissingHandlingWithProperties(
-                (functionProperties, part, startTime, endTime) -> exprTimestampDiff(
-                    functionProperties.getQueryStartClock(),
-                    part,
-                    startTime,
-                    endTime)),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampDiff),
             DATETIME, STRING, DATETIME, DATETIME),
-        implWithProperties(
-            nullMissingHandlingWithProperties(
-                (functionProperties, part, startTime, endTime) -> exprTimestampDiff(
-                    functionProperties.getQueryStartClock(),
-                    part,
-                    startTime,
-                    endTime)),
-            DATETIME, STRING, DATETIME, DATETIME),
-        implWithProperties(
-            nullMissingHandlingWithProperties(
-                (functionProperties, part, startTime, endTime) -> exprTimestampDiff(
-                    functionProperties.getQueryStartClock(),
-                    part,
-                    startTime,
-                    endTime)),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampDiff),
             DATETIME, STRING, DATETIME, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampDiff),
+            DATETIME, STRING, TIMESTAMP, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestampDiff),
+            DATETIME, STRING, TIMESTAMP, TIMESTAMP),
         implWithProperties(
             nullMissingHandlingWithProperties(
-                (functionProperties, part, startTime, endTime) -> exprTimestampDiff(
+                (functionProperties, part, startTime, endTime) -> exprTimestampDiffForTimeType(
                     functionProperties.getQueryStartClock(),
                     part,
                     startTime,
                     endTime)),
-            DATETIME, STRING, TIMESTAMP, TIMESTAMP)
-        );
+            DATETIME, STRING, TIME, TIME),
+        implWithProperties(
+            nullMissingHandlingWithProperties(
+                (functionProperties, part, startTime, endTime) -> exprTimestampDiffForTimeType(
+                    functionProperties.getQueryStartClock(),
+                    part,
+                    startTime,
+                    endTime)),
+            DATETIME, STRING, TIME, DATETIME),
+        implWithProperties(
+            nullMissingHandlingWithProperties(
+                (functionProperties, part, startTime, endTime) -> exprTimestampDiffForTimeType(
+                    functionProperties.getQueryStartClock(),
+                    part,
+                    startTime,
+                    endTime)),
+            DATETIME, STRING, DATETIME, TIME)
+    );
   }
 
   /**
@@ -1910,24 +1910,8 @@ public class DateTimeFunction {
     return exprTimestampAdd(partExpr, amountExpr, new ExprDatetimeValue(datetime));
   }
 
-  private ExprValue exprTimestampDiff(Clock queryStart, ExprValue partExpr, ExprValue startTimeExpr, ExprValue endTimeExpr) {
-    String part = partExpr.stringValue();
-    LocalDateTime startTime;
-    LocalDateTime endTime;
-
-    //Fill in date parts if a time argument is provided
-    if (startTimeExpr instanceof ExprTimeValue) {
-     startTime = LocalDateTime.of(LocalDate.now(), startTimeExpr.timeValue());
-    } else {
-      startTime = startTimeExpr.datetimeValue();
-    }
-    if (endTimeExpr instanceof ExprTimeValue) {
-      endTime = LocalDateTime.of(LocalDate.now(), endTimeExpr.timeValue());
-    } else {
-      endTime = endTimeExpr.datetimeValue();
-    }
+  private ExprValue getTimeDifference(String part, LocalDateTime startTime, LocalDateTime endTime) {
     long returnVal;
-
     switch (part) {
       case "MICROSECOND":
         returnVal = MICROS.between(startTime, endTime);
@@ -1951,7 +1935,7 @@ public class DateTimeFunction {
         returnVal = MONTHS.between(startTime, endTime);
         break;
       case "QUARTER":
-        returnVal = MONTHS.between(startTime, endTime)/3;
+        returnVal = MONTHS.between(startTime, endTime) / 3;
         break;
       case "YEAR":
         returnVal = YEARS.between(startTime, endTime);
@@ -1960,6 +1944,40 @@ public class DateTimeFunction {
         return ExprNullValue.of();
     }
     return new ExprLongValue(returnVal);
+  }
+
+  private ExprValue exprTimestampDiff(
+                                      ExprValue partExpr,
+                                      ExprValue startTimeExpr,
+                                      ExprValue endTimeExpr) {
+    return getTimeDifference(
+        partExpr.stringValue(),
+        startTimeExpr.datetimeValue(),
+        endTimeExpr.datetimeValue());
+  }
+
+  private ExprValue exprTimestampDiffForTimeType(Clock queryStart,
+                                                 ExprValue partExpr,
+                                                 ExprValue startTimeExpr,
+                                                 ExprValue endTimeExpr) {
+    String part = partExpr.stringValue();
+    LocalDateTime startTime;
+    LocalDateTime endTime;
+
+    //Fill in date parts if a time argument is provided
+    if (startTimeExpr instanceof ExprTimeValue) {
+      startTime = LocalDateTime.of(LocalDate.now(queryStart), startTimeExpr.timeValue());
+    } else {
+      startTime = startTimeExpr.datetimeValue();
+    }
+
+    if (endTimeExpr instanceof ExprTimeValue) {
+      endTime = LocalDateTime.of(LocalDate.now(queryStart), endTimeExpr.timeValue());
+    } else {
+      endTime = endTimeExpr.datetimeValue();
+    }
+
+    return getTimeDifference(part, startTime, endTime);
   }
 
   /**

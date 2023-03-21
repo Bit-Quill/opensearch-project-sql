@@ -6,6 +6,14 @@
 
 package org.opensearch.sql.expression.datetime;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -23,15 +31,6 @@ import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.function.FunctionProperties;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TimeStampDiffTest extends ExpressionTestBase {
 
@@ -87,6 +86,23 @@ class TimeStampDiffTest extends ExpressionTestBase {
             new ExprTimestampValue("2000-01-06 00:00:00"),
             new ExprTimestampValue("2000-01-01 00:00:00"),
             -5),
+
+        //Test Time
+        Arguments.of(
+            "SECOND",
+            new ExprTimeValue("00:00:00"),
+            new ExprTimeValue("00:00:00"),
+            0),
+        Arguments.of(
+            "SECOND",
+            new ExprTimeValue("00:00:00"),
+            new ExprTimeValue("00:00:01"),
+            1),
+        Arguments.of(
+            "SECOND",
+            new ExprTimeValue("00:00:01"),
+            new ExprTimeValue("00:00:00"),
+            -1),
 
         //Test String
         Arguments.of(
@@ -251,13 +267,22 @@ class TimeStampDiffTest extends ExpressionTestBase {
   public void testTimestampDiffWithTimeType(String unit) {
     LocalDate dateToday = LocalDate.now();
     LocalTime timeArg = LocalTime.of(10, 11, 12);
-    FunctionExpression expr = timestampdiffQuery(
+
+    FunctionExpression firstArgIsTimeExpr = timestampdiffQuery(
+        functionProperties,
+        unit,
+        new ExprTimeValue(timeArg),
+        new ExprDatetimeValue(LocalDateTime.of(dateToday, timeArg))
+    );
+    FunctionExpression secondArgIsTimeExpr = timestampdiffQuery(
         functionProperties,
         unit,
         new ExprDatetimeValue(LocalDateTime.of(dateToday, timeArg)),
         new ExprTimeValue(timeArg)
     );
-    assertEquals(0L, eval(expr).longValue());
+
+    assertEquals(0L, eval(firstArgIsTimeExpr).longValue());
+    assertEquals(0L, eval(secondArgIsTimeExpr).longValue());
   }
 
   private static Stream<Arguments> getTimestampDiffInvalidArgs() {
@@ -332,6 +357,7 @@ class TimeStampDiffTest extends ExpressionTestBase {
         () -> assertEquals(eval(dateExpr), eval(timestampExpr))
     );
   }
+
   private ExprValue eval(Expression expression) {
     return expression.valueOf();
   }

@@ -928,10 +928,6 @@ public class DSL {
     return compile(functionProperties, BuiltinFunctionName.TIMESTAMPADD, expressions);
   }
 
-  public static FunctionExpression timestampdiff(Expression... expressions) {
-    return timestampdiff(FunctionProperties.None, expressions);
-  }
-
   public static FunctionExpression timestampdiff(FunctionProperties functionProperties,
                                                 Expression... expressions) {
     return compile(functionProperties, BuiltinFunctionName.TIMESTAMPDIFF, expressions);

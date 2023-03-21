@@ -976,14 +976,13 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Test
   public void testTimstampdiff() throws  IOException {
     JSONObject result = executeQuery(
-        String.format("SELECT timestampdiff(WEEK, time0, datetime0) FROM %s LIMIT 3", TEST_INDEX_CALCS));
+        String.format("SELECT timestampdiff(DAY, time0, datetime0) FROM %s LIMIT 3", TEST_INDEX_CALCS));
 
     verifyDataRows(result,
         rows(38176),
         rows(38191),
         rows(38198));
   }
-
 
   @Test
   public void testTimeToSec() throws IOException {
