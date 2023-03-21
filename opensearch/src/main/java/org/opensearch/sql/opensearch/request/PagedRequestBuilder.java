@@ -5,8 +5,15 @@
 
 package org.opensearch.sql.opensearch.request;
 
-public interface PagedRequestBuilder {
-  OpenSearchRequest build();
+import lombok.Getter;
+import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 
-  OpenSearchRequest.IndexName getIndexName();
+public abstract class PagedRequestBuilder {
+
+  @Getter
+  protected OpenSearchExprValueFactory exprValueFactory;
+
+  abstract public OpenSearchRequest build();
+
+  abstract public OpenSearchRequest.IndexName getIndexName();
 }

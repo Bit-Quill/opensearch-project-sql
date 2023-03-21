@@ -82,8 +82,8 @@ class PhysicalPlanTest {
   @Test
   void toCursor() {
     var plan = mock(PhysicalPlan.class);
-    when(plan.toCursor()).then(CALLS_REAL_METHODS);
-    assertTrue(assertThrows(IllegalStateException.class, plan::toCursor)
+    when(plan.prepareToSerialization()).then(CALLS_REAL_METHODS);
+    assertTrue(assertThrows(IllegalStateException.class, plan::prepareToSerialization)
         .getMessage().contains("is not compatible with cursor feature"));
   }
 

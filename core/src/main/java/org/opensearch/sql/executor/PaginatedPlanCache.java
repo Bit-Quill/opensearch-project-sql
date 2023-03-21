@@ -8,37 +8,63 @@ package org.opensearch.sql.executor;
 import com.google.common.hash.HashCode;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
-import org.opensearch.sql.expression.NamedExpression;
-import org.opensearch.sql.expression.serialization.DefaultExpressionSerializer;
 import org.opensearch.sql.opensearch.executor.Cursor;
+import org.opensearch.sql.planner.SerializablePlan;
 import org.opensearch.sql.planner.physical.PaginateOperator;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
-import org.opensearch.sql.planner.physical.ProjectOperator;
 import org.opensearch.sql.storage.StorageEngine;
 import org.opensearch.sql.storage.TableScanOperator;
 
-@RequiredArgsConstructor
 public class PaginatedPlanCache {
   public static final String CURSOR_PREFIX = "n:";
   private final StorageEngine storageEngine;
   public static final PaginatedPlanCache None = new PaginatedPlanCache(null);
 
+  public PaginatedPlanCache(StorageEngine storageEngine) {
+    this.storageEngine = storageEngine;
+    SerializationContext.engine = storageEngine;
+  }
+
   public boolean canConvertToCursor(UnresolvedPlan plan) {
     return plan.accept(new CanPaginateVisitor(), null);
   }
 
-  @RequiredArgsConstructor
   @Data
-  static class SerializationContext {
-    private final PaginatedPlanCache cache;
+  @AllArgsConstructor
+  public static class SerializationContext implements Externalizable {
+    private PaginateOperator plan;
+    private static StorageEngine engine;
+
+    public SerializationContext() {
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+      plan.writeExternal(out);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+      var loader = (SerializablePlan.PlanLoader) in.readObject();
+      plan = (PaginateOperator) loader.apply(in, engine);
+    }
   }
 
   /**
@@ -46,14 +72,43 @@ public class PaginatedPlanCache {
    */
   public Cursor convertToCursor(PhysicalPlan plan) {
     if (plan instanceof PaginateOperator) {
-      var cursor = plan.toCursor();
-      if (cursor == null) {
-        return Cursor.None;
-      }
-      var raw = CURSOR_PREFIX + compress(cursor);
-      return new Cursor(raw.getBytes());
+      var context = new SerializationContext((PaginateOperator) plan);
+      //plan.prepareToSerialization(context);
+      //return new Cursor(CURSOR_PREFIX + serialize(new Object[] { plan, context }));
+      return new Cursor(CURSOR_PREFIX + serialize(context));
     } else {
       return Cursor.None;
+    }
+  }
+
+  public String serialize(Serializable object) {
+    try {
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      ObjectOutputStream objectOutput = new ObjectOutputStream(output);
+      objectOutput.writeObject(object);
+      objectOutput.flush();
+
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      GZIPOutputStream gzip = new GZIPOutputStream(out) { {
+        this.def.setLevel(Deflater.BEST_COMPRESSION);
+      } };
+      gzip.write(output.toByteArray());
+      gzip.close();
+      return HashCode.fromBytes(out.toByteArray()).toString();
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to serialize: " + object, e);
+    }
+  }
+
+  public Serializable deserialize(String code) {
+    try {
+      GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(
+          HashCode.fromString(code).asBytes()));
+      ByteArrayInputStream input = new ByteArrayInputStream(gzip.readAllBytes());
+      ObjectInputStream objectInput = new ObjectInputStream(input);
+      return (Serializable) objectInput.readObject();
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to deserialize object", e);
     }
   }
 
@@ -75,7 +130,7 @@ public class PaginatedPlanCache {
   }
 
   /**
-   * Decompresses a query plan that was compress with {@link PaginatedPlanCache.compress}.
+   * Decompresses a query plan that was compress with {@link PaginatedPlanCache#compress}.
    * @param input compressed query plan
    * @return seria
    */
@@ -90,76 +145,19 @@ public class PaginatedPlanCache {
   }
 
   /**
-   * Parse `NamedExpression`s from cursor.
-   * @param listToFill List to fill with data.
-   * @param cursor Cursor to parse.
-   * @return Remaining part of the cursor.
+   * Converts a cursor to a physical plan tree.
    */
-  private String parseNamedExpressions(List<NamedExpression> listToFill, String cursor) {
-    var serializer = new DefaultExpressionSerializer();
-    if (cursor.startsWith(")")) { //empty list
-      return cursor.substring(cursor.indexOf(',') + 1);
-    }
-    while (!cursor.startsWith("(")) {
-      listToFill.add((NamedExpression)
-          serializer.deserialize(cursor.substring(0,
-              Math.min(cursor.indexOf(','), cursor.indexOf(')')))));
-      cursor = cursor.substring(cursor.indexOf(',') + 1);
-    }
-    return cursor;
-  }
-
-  /**
-    * Converts a cursor to a physical plan tree.
-    */
   public PhysicalPlan convertToPlan(String cursor) {
     if (cursor.startsWith(CURSOR_PREFIX)) {
       try {
-        cursor = cursor.substring(CURSOR_PREFIX.length());
-        cursor = decompress(cursor);
+        //var data = (Object[]) deserialize(cursor.substring(CURSOR_PREFIX.length()));
+        //var plan = (PhysicalPlan) data[0];
+        //var context = (SerializationContext) data[1];
+        //TableScanOperator scan = storageEngine.getTableScan(context.getIndexName(), context.getScrollId());
 
-        // TODO Parse with ANTLR or serialize as JSON/XML
-        if (!cursor.startsWith("(Paginate,")) {
-          throw new UnsupportedOperationException("Unsupported cursor");
-        }
-        // TODO add checks for > 0
-        cursor = cursor.substring(cursor.indexOf(',') + 1);
-        final int currentPageIndex = Integer.parseInt(cursor, 0, cursor.indexOf(','), 10);
+        //Class.forName("PaginateOperator").getDeclaredConstructor()
 
-        cursor = cursor.substring(cursor.indexOf(',') + 1);
-        final int pageSize = Integer.parseInt(cursor, 0, cursor.indexOf(','), 10);
-
-        cursor = cursor.substring(cursor.indexOf(',') + 1);
-        if (!cursor.startsWith("(Project,")) {
-          throw new UnsupportedOperationException("Unsupported cursor");
-        }
-        cursor = cursor.substring(cursor.indexOf(',') + 1);
-        if (!cursor.startsWith("(namedParseExpressions,")) {
-          throw new UnsupportedOperationException("Unsupported cursor");
-        }
-
-        cursor = cursor.substring(cursor.indexOf(',') + 1);
-        List<NamedExpression> namedParseExpressions = new ArrayList<>();
-        cursor = parseNamedExpressions(namedParseExpressions, cursor);
-
-        List<NamedExpression> projectList = new ArrayList<>();
-        if (!cursor.startsWith("(projectList,")) {
-          throw new UnsupportedOperationException("Unsupported cursor");
-        }
-        cursor = cursor.substring(cursor.indexOf(',') + 1);
-        cursor = parseNamedExpressions(projectList, cursor);
-
-        if (!cursor.startsWith("(OpenSearchPagedIndexScan,")) {
-          throw new UnsupportedOperationException("Unsupported cursor");
-        }
-        cursor = cursor.substring(cursor.indexOf(',') + 1);
-        var indexName = cursor.substring(0, cursor.indexOf(','));
-        cursor = cursor.substring(cursor.indexOf(',') + 1);
-        var scrollId = cursor.substring(0, cursor.indexOf(')'));
-        TableScanOperator scan = storageEngine.getTableScan(indexName, scrollId);
-
-        return new PaginateOperator(new ProjectOperator(scan, projectList, namedParseExpressions),
-            pageSize, currentPageIndex);
+        return ((SerializationContext) deserialize(cursor.substring(CURSOR_PREFIX.length()))).getPlan();
       } catch (Exception e) {
         throw new UnsupportedOperationException("Unsupported cursor", e);
       }

@@ -23,31 +23,27 @@ import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseParser;
 
-public class InitialPageRequestBuilder implements PagedRequestBuilder {
+public class InitialPageRequestBuilder extends PagedRequestBuilder {
 
   @Getter
   private final OpenSearchRequest.IndexName indexName;
   private final SearchSourceBuilder sourceBuilder;
-  private final OpenSearchExprValueFactory exprValueFactory;
-  private final int querySize;
 
   /**
    * Constructor.
    * @param indexName index being scanned
-   * @param settings other settings
+   * @param pageSize page size
    * @param exprValueFactory value factory
    */
   // TODO accept indexName as string (same way as `OpenSearchRequestBuilder` does)?
   public InitialPageRequestBuilder(OpenSearchRequest.IndexName indexName,
                                    int pageSize,
-                                   Settings settings, // TODO: settings are not used - refactor?
                                    OpenSearchExprValueFactory exprValueFactory) {
     this.indexName = indexName;
     this.exprValueFactory = exprValueFactory;
-    this.querySize = pageSize;
     this.sourceBuilder = new SearchSourceBuilder()
         .from(0)
-        .size(querySize)
+        .size(pageSize)
         .timeout(DEFAULT_QUERY_TIMEOUT);
   }
 

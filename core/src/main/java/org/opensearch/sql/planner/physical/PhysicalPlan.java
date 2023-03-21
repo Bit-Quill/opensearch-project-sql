@@ -6,19 +6,26 @@
 
 package org.opensearch.sql.planner.physical;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Iterator;
 import java.util.List;
+
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.executor.ExecutionEngine;
+import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.planner.PlanNode;
+import org.opensearch.sql.planner.SerializablePlan;
 import org.opensearch.sql.storage.split.Split;
 
 /**
  * Physical plan.
  */
-public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
-    Iterator<ExprValue>,
-    AutoCloseable {
+public abstract class PhysicalPlan extends SerializablePlan
+    implements PlanNode<PhysicalPlan>, Iterator<ExprValue>, AutoCloseable {
   /**
    * Accept the {@link PhysicalPlanNodeVisitor}.
    *
@@ -56,22 +63,5 @@ public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
    */
   public long getTotalHits() {
     return getChild().stream().mapToLong(PhysicalPlan::getTotalHits).max().orElse(0);
-  }
-
-  public String toCursor() {
-    throw new IllegalStateException(String.format("%s is not compatible with cursor feature",
-        this.getClass().getSimpleName()));
-  }
-
-  /**
-   * Creates an S-expression that represents a plan node.
-   * @param plan Label for the plan.
-   * @param params List of serialized parameters. Including the child plans.
-   * @return A string that represents the plan called with those parameters.
-   */
-  protected String createSection(String plan, String... params) {
-    return "(" + plan + ","
-        + String.join(",", params)
-        + ")";
   }
 }

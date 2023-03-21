@@ -6,16 +6,21 @@
 package org.opensearch.sql.opensearch.request;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 
-@RequiredArgsConstructor
-public class SubsequentPageRequestBuilder implements PagedRequestBuilder {
+public class SubsequentPageRequestBuilder extends PagedRequestBuilder {
+
+  public SubsequentPageRequestBuilder(OpenSearchRequest.IndexName indexName,
+                                      String scrollId,
+                                      OpenSearchExprValueFactory factory) {
+    this.indexName = indexName;
+    this.scrollId = scrollId;
+    this.exprValueFactory = factory;
+  }
 
   @Getter
   private final OpenSearchRequest.IndexName indexName;
   private final String scrollId;
-  private final OpenSearchExprValueFactory exprValueFactory;
 
   @Override
   public OpenSearchRequest build() {

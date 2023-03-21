@@ -287,7 +287,7 @@ class OpenSearchExecutionEngineTest {
     }
 
     @Override
-    public String toCursor() {
+    public void prepareToCursorSerialization() {
       return "FakePaginatePlan";
     }
   }
