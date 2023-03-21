@@ -1580,7 +1580,18 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertEquals(String.format("pow(%s, %s)", (double) -2, 1.5), pow.toString());
     assertTrue(pow.valueOf(valueEnv()).isNull());
 
-    pow = DSL.pow(DSL.literal((double) -2), DSL.literal((double) 2));
+    pow = DSL.pow(DSL.literal((float) -2), DSL.literal((float) 1.5));
+    assertEquals(pow.type(), DOUBLE);
+    assertEquals(String.format("pow(%s, %s)", (float) -2, (float) 1.5), pow.toString());
+    assertTrue(pow.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test pow/power with edge cases
+   */
+  @Test
+  public void pow_edge_cases() {
+    FunctionExpression pow = DSL.pow(DSL.literal((double) -2), DSL.literal((double) 2));
     assertEquals(pow.type(), DOUBLE);
     assertEquals(String.format("pow(%s, %s)",(double) -2, (double) 2), pow.toString());
     assertThat(
@@ -1593,11 +1604,6 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
             pow.valueOf(valueEnv()),
             allOf(hasType(DOUBLE), hasValue(Math.pow(2, 1.5))));
-
-    pow = DSL.pow(DSL.literal((float) -2), DSL.literal((float) 1.5));
-    assertEquals(pow.type(), DOUBLE);
-    assertEquals(String.format("pow(%s, %s)", (float) -2, (float) 1.5), pow.toString());
-    assertTrue(pow.valueOf(valueEnv()).isNull());
 
     pow = DSL.pow(DSL.literal((float) -2), DSL.literal((float) 2));
     assertEquals(pow.type(), DOUBLE);
