@@ -7,16 +7,23 @@
 package org.opensearch.sql.analysis;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.opensearch.sql.analysis.DataSourceSchemaIdentifierNameResolver.DEFAULT_DATASOURCE_NAME;
 import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
+import org.opensearch.sql.DataSourceSchemaName;
 import org.opensearch.sql.analysis.symbol.Namespace;
 import org.opensearch.sql.analysis.symbol.Symbol;
 import org.opensearch.sql.analysis.symbol.SymbolTable;
@@ -51,6 +58,39 @@ public class AnalyzerTestBase {
 
   protected StorageEngine storageEngine() {
     return (dataSourceSchemaName, tableName) -> table;
+  }
+
+  protected StorageEngine prometheusStorageEngine() {
+    return new StorageEngine() {
+      @Override
+      public Collection<FunctionResolver> getFunctions() {
+        return Collections.singletonList(
+            new FunctionResolver() {
+
+              @Override
+              public Pair<FunctionSignature, FunctionBuilder> resolve(
+                  FunctionSignature unresolvedSignature) {
+                FunctionName functionName = FunctionName.of("query_range");
+                FunctionSignature functionSignature =
+                    new FunctionSignature(functionName, List.of(STRING, LONG, LONG, LONG));
+                return Pair.of(
+                    functionSignature,
+                    (functionProperties, args) ->
+                        new TestTableFunctionImplementation(functionName, args, table));
+              }
+
+              @Override
+              public FunctionName getFunctionName() {
+                return FunctionName.of("query_range");
+              }
+            });
+      }
+
+      @Override
+      public Table getTable(DataSourceSchemaName dataSourceSchemaName, String tableName) {
+        return table;
+      }
+    };
   }
 
   protected Table table() {
@@ -114,30 +154,11 @@ public class AnalyzerTestBase {
 
   protected DataSourceService dataSourceService = dataSourceService();
 
-  protected Analyzer analyzer = analyzer(expressionAnalyzer(), dataSourceService, table);
+  protected Analyzer analyzer = analyzer(expressionAnalyzer(), dataSourceService);
 
   protected Analyzer analyzer(ExpressionAnalyzer expressionAnalyzer,
-                      DataSourceService dataSourceService,
-                      Table table) {
+                      DataSourceService dataSourceService) {
     BuiltinFunctionRepository functionRepository = BuiltinFunctionRepository.getInstance();
-    functionRepository.register("prometheus", new FunctionResolver() {
-
-      @Override
-      public Pair<FunctionSignature, FunctionBuilder> resolve(
-          FunctionSignature unresolvedSignature) {
-        FunctionName functionName = FunctionName.of("query_range");
-        FunctionSignature functionSignature =
-            new FunctionSignature(functionName, List.of(STRING, LONG, LONG, LONG));
-        return Pair.of(functionSignature,
-            (functionProperties, args) -> new TestTableFunctionImplementation(functionName, args,
-                table));
-      }
-
-      @Override
-      public FunctionName getFunctionName() {
-        return FunctionName.of("query_range");
-      }
-    });
     return new Analyzer(expressionAnalyzer, dataSourceService, functionRepository);
   }
 
@@ -163,24 +184,46 @@ public class AnalyzerTestBase {
 
   private class DefaultDataSourceService implements DataSourceService {
 
-    private StorageEngine storageEngine = storageEngine();
-    private final DataSource dataSource
-        = new DataSource("prometheus", DataSourceType.PROMETHEUS, storageEngine);
+    private final DataSource opensearchDataSource = new DataSource(DEFAULT_DATASOURCE_NAME,
+        DataSourceType.OPENSEARCH, storageEngine());
+    private final DataSource prometheusDataSource
+        = new DataSource("prometheus", DataSourceType.PROMETHEUS, prometheusStorageEngine());
 
 
     @Override
-    public Set<DataSource> getDataSources() {
-      return ImmutableSet.of(dataSource);
+    public Set<DataSourceMetadata> getDataSourceMetadataSet() {
+      return Stream.of(opensearchDataSource, prometheusDataSource)
+          .map(ds -> new DataSourceMetadata(ds.getName(),
+              ds.getConnectorType(), ImmutableMap.of())).collect(Collectors.toSet());
     }
 
     @Override
     public DataSource getDataSource(String dataSourceName) {
-      return dataSource;
+      if ("prometheus".equals(dataSourceName)) {
+        return prometheusDataSource;
+      } else {
+        return opensearchDataSource;
+      }
     }
 
     @Override
-    public void addDataSource(DataSourceMetadata... metadatas) {
+    public void createDataSource(DataSourceMetadata... metadatas) {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void updateDataSource(DataSourceMetadata dataSourceMetadata) {
+
+    }
+
+    @Override
+    public void deleteDataSource(String dataSourceName) {
+
+    }
+
+    @Override
+    public void bootstrapDataSources() {
+
     }
 
     @Override

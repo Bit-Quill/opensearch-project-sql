@@ -29,6 +29,7 @@ import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.CountStarF
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.DataTypeFunctionCallContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.DateLiteralContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.DistinctCountFunctionCallContext;
+import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.ExtractFunctionCallContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.FilterClauseContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.FilteredAggregationFunctionCallContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.FunctionArgContext;
@@ -60,6 +61,7 @@ import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.StringCont
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.StringLiteralContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TableFilterContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimeLiteralContext;
+import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimestampAddFunctionCallContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.TimestampLiteralContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.WindowFunctionClauseContext;
 import static org.opensearch.sql.sql.parser.ParserUtils.createSortOption;
@@ -171,6 +173,14 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
     return new HighlightFunction(visit(ctx.highlightFunction().relevanceField()),
         builder.build());
+  }
+
+
+  @Override
+  public UnresolvedExpression visitTimestampAddFunctionCall(TimestampAddFunctionCallContext ctx) {
+    return new Function(
+        ctx.timestampAddFunction().TIMESTAMPADD().toString(),
+        timestampAddFunctionArguments(ctx));
   }
 
   @Override
@@ -502,6 +512,14 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     );
   }
 
+  @Override
+  public UnresolvedExpression visitExtractFunctionCall(ExtractFunctionCallContext ctx) {
+    return new Function(
+        ctx.extractFunction().EXTRACT().toString(),
+        getExtractFunctionArguments(ctx));
+  }
+
+
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {
     return new QualifiedName(
         identifiers.stream()
@@ -586,6 +604,18 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     return args;
   }
 
+  private List<UnresolvedExpression> timestampAddFunctionArguments(
+      TimestampAddFunctionCallContext ctx) {
+    List<UnresolvedExpression> args = Arrays.asList(
+        new Literal(
+            ctx.timestampAddFunction().simpleDateTimePart().getText(),
+            DataType.STRING),
+        visitFunctionArg(ctx.timestampAddFunction().length),
+        visitFunctionArg(ctx.timestampAddFunction().timestampExpr)
+    );
+    return args;
+  }
+
   /**
    * Adds support for multi_match alternate syntax like
    * MULTI_MATCH('query'='Dale', 'fields'='*name').
@@ -638,5 +668,14 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
         new Literal(StringUtils.unquoteText(ctx.query.getText()), DataType.STRING)));
     fillRelevanceArgs(ctx.relevanceArg(), builder);
     return builder.build();
+  }
+
+  private List<UnresolvedExpression> getExtractFunctionArguments(
+      ExtractFunctionCallContext ctx) {
+    List<UnresolvedExpression> args = Arrays.asList(
+        new Literal(ctx.extractFunction().datetimePart().getText(), DataType.STRING),
+        visitFunctionArg(ctx.extractFunction().functionArg())
+    );
+    return args;
   }
 }
