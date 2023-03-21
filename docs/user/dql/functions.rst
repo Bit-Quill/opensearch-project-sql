@@ -2735,9 +2735,10 @@ Description
 
 Usage: Returns a LONG representing the difference in time for the input arguments arguments. It takes an INTERVAL argument which determine the unit of time used to measure the difference and two additional arguments for the start and end times.
 If a TIME is provided as an argument, it will be converted to a DATETIME with the DATE portion filled in using the current date.
-Arguments will be automaically converted to a DATETIME/TIME/TIMESTAMP when appropriate.
+Arguments will be automatically converted to a DATETIME/TIME/TIMESTAMP when appropriate.
+Any argument that is a STRING must be formatted as a valid DATETIME.
 
-Argument type: INTERVAL, INTEGER, DATE/DATETIME/TIME/TIMESTAMP/STRING
+Argument type: INTERVAL, DATE/DATETIME/TIME/TIMESTAMP/STRING, DATE/DATETIME/TIME/TIMESTAMP/STRING
 INTERVAL must be one of the following tokens: [MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR]
 
 Examples::
