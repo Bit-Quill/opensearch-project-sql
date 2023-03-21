@@ -161,28 +161,17 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitNestedFunctionCall(NestedFunctionCallContext ctx) {
     List<UnresolvedExpression> args = new ArrayList();
-    boolean conditionSet = false;
 
-    if (ctx.nestedFunction().nestedField() != null) {
-      args.add(new QualifiedName(
-          StringUtils.unquoteText(ctx.nestedFunction().nestedField().getText()))
-      );
-    }
+    args.add(new QualifiedName(
+        StringUtils.unquoteText(ctx.nestedFunction().nestedField().getText()))
+    );
     if (ctx.nestedFunction().nestedPath() != null) {
       args.add(new QualifiedName(
           StringUtils.unquoteText(ctx.nestedFunction().nestedPath().getText()))
       );
     }
-    if (ctx.nestedFunction().expression() != null) {
-      args.add(visit(ctx.nestedFunction().expression()));
-      conditionSet = true;
-    }
 
-    if (!conditionSet) {
-      return new Alias(ctx.nestedFunction().nestedField().getText(),
-          new Function(NESTED.getName().getFunctionName(), args));
-    }
-    return new Alias(ctx.nestedFunction().nestedPath().getText(),
+    return new Alias(ctx.nestedFunction().nestedField().getText(),
         new Function(NESTED.getName().getFunctionName(), args));
   }
 

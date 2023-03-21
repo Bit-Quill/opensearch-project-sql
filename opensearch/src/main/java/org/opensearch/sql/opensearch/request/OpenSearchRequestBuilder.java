@@ -275,9 +275,14 @@ public class OpenSearchRequestBuilder {
   private Map<String, List<String>> groupFieldNamesByPath(
       List<Map<String, ReferenceExpression>> fields) {
     // TODO filter out reverse nested when supported - .filter(not(isReverseNested()))
-    return fields.stream().collect(Collectors.groupingBy(
-        LogicalNested::getPathFromMap,
-        mapping(LogicalNested::getFieldFromMap, toList()))
+    return fields.stream().collect(
+        Collectors.groupingBy(
+            m -> m.get("path").toString(),
+            mapping(
+                m -> m.get("field").toString(),
+                toList()
+            )
+        )
     );
   }
 

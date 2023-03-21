@@ -5,6 +5,7 @@
 
 package org.opensearch.sql.expression.function;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
@@ -40,6 +41,8 @@ public class OpenSearchFunctions {
     repository.register(match_phrase_prefix());
     repository.register(wildcard_query(BuiltinFunctionName.WILDCARD_QUERY));
     repository.register(wildcard_query(BuiltinFunctionName.WILDCARDQUERY));
+    // Functions supported in SELECT clause
+    repository.register(nested(BuiltinFunctionName.NESTED));
   }
 
   private static FunctionResolver match_bool_prefix() {
@@ -84,6 +87,11 @@ public class OpenSearchFunctions {
   private static FunctionResolver wildcard_query(BuiltinFunctionName wildcardQuery) {
     FunctionName funcName = wildcardQuery.getName();
     return new RelevanceFunctionResolver(funcName);
+  }
+
+  private static FunctionResolver nested(BuiltinFunctionName nested) {
+    FunctionName funcName = nested.getName();
+    return new NestedFunctionResolver(funcName);
   }
 
   public static class OpenSearchFunction extends FunctionExpression {
