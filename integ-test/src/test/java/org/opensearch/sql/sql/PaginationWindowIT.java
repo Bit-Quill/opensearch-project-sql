@@ -9,8 +9,8 @@ import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_PHRASE;
 
 import java.io.IOException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
 import org.opensearch.client.ResponseException;
 import org.opensearch.sql.legacy.SQLIntegTestCase;
 
@@ -20,7 +20,7 @@ public class PaginationWindowIT extends SQLIntegTestCase {
     loadIndex(Index.PHRASE);
   }
 
-  @AfterEach
+  @After
   void resetParams() throws IOException {
     resetMaxResultWindow(TEST_INDEX_PHRASE);
     resetQuerySizeLimit();
