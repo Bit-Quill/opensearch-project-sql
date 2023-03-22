@@ -33,6 +33,6 @@ public class NestedFunction extends OpenSearchFunctions.OpenSearchFunction {
 
   @Override
   public ExprType type() {
-    return this.arguments.get(0).type();
+    return  this.arguments.get(0).type();
   }
 }

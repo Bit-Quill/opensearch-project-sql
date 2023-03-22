@@ -216,7 +216,7 @@ class AstExpressionBuilderTest {
   public void canBuildNestedFunctionWithFieldParam() {
     assertEquals(
         new Alias("message.info",
-            function("nested", qualifiedName("message.info"))),
+            function("nested", qualifiedName("message","info"))),
         buildExprAst("nested(message.info)")
     );
   }
@@ -226,7 +226,7 @@ class AstExpressionBuilderTest {
     assertEquals(
         new Alias("message.info",
             function("nested",
-                qualifiedName("message.info"),
+                qualifiedName("message", "info"),
                 qualifiedName("message"))),
         buildExprAst("nested(message.info, message)")
     );

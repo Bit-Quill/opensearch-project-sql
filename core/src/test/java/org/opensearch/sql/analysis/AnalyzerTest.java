@@ -406,10 +406,6 @@ class AnalyzerTest extends AnalyzerTestBase {
                 function("nested", qualifiedName("message", "info")), null)
         )
     );
-
-    Map<String, ReferenceExpression> fieldPathMap = Map.of(
-        "field", new ReferenceExpression("message.info", STRING),
-        "path", new ReferenceExpression("message", STRING));
   }
 
   @Test
