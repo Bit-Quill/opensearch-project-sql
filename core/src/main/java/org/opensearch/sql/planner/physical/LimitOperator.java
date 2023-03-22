@@ -58,9 +58,7 @@ public class LimitOperator extends PhysicalPlan {
 
   @Override
   public boolean hasNext() {
-    var inNext = input.hasNext();
-    var cond = count < offset + limit;
-    return inNext && cond;
+    return input.hasNext() && count < offset + limit;
   }
 
   @Override
