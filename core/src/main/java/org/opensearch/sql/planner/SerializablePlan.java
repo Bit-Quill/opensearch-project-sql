@@ -20,7 +20,8 @@ public abstract class SerializablePlan {
 
   // Copied from Externalizable
   public boolean writeExternal(ObjectOutput out) throws IOException {
-    throw new NotImplementedException();
+    throw new NotImplementedException(String.format("%s is not serializable",
+        getClass().getSimpleName()));
     /* Each plan which supports serialization should dump itself into the stream and go recursive.
     TODO update comment
     out.writeSomething(data);

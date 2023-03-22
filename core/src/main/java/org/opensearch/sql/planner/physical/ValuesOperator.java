@@ -7,6 +7,9 @@
 package org.opensearch.sql.planner.physical;
 
 import com.google.common.collect.ImmutableList;
+
+import java.io.IOException;
+import java.io.ObjectOutput;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,4 +74,9 @@ public class ValuesOperator extends PhysicalPlan {
     return new ExprCollectionValue(values);
   }
 
+  @Override
+  public boolean writeExternal(ObjectOutput out) throws IOException {
+    // nothing to serialize, return false to get no cursor
+    return false;
+  }
 }

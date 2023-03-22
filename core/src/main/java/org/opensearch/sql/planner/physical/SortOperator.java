@@ -9,6 +9,8 @@ package org.opensearch.sql.planner.physical;
 import static org.opensearch.sql.ast.tree.Sort.NullOrder.NULL_FIRST;
 import static org.opensearch.sql.ast.tree.Sort.SortOrder.ASC;
 
+import java.io.IOException;
+import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -29,7 +31,7 @@ import org.opensearch.sql.planner.physical.SortOperator.Sorter.SorterBuilder;
 /**
  * Sort Operator.The input data is sorted by the sort fields in the {@link SortOperator#sortList}.
  * The sort field is specified by the {@link Expression} with {@link SortOption}.
- * The count indicate how many sorted result should been return.
+ * The count indicate how many sorted result should be return.
  */
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -47,7 +49,7 @@ public class SortOperator extends PhysicalPlan {
   /**
    * Sort Operator Constructor.
    * @param input input {@link PhysicalPlan}
-   * @param sortList list of sort sort field.
+   * @param sortList list of sort field.
    *                 The sort field is specified by the {@link Expression} with {@link SortOption}
    */
   public SortOperator(
@@ -133,5 +135,20 @@ public class SortOperator extends PhysicalPlan {
         return result.poll();
       }
     };
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public boolean writeExternal(ObjectOutput out) throws IOException {
+    PlanLoader loader = (in, engine) -> {
+      var sortList = (List<Pair<SortOption, Expression>>) in.readObject();
+      var inputLoader = (PlanLoader) in.readObject();
+      var input = (PhysicalPlan) inputLoader.apply(in, engine);
+      return new SortOperator(input, sortList);
+    };
+    out.writeObject(loader);
+
+    out.writeObject(sortList);
+    return input.getPlanForSerialization().writeExternal(out);
   }
 }

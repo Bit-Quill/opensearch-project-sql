@@ -7,6 +7,8 @@
 package org.opensearch.sql.planner.physical;
 
 import com.google.common.collect.ImmutableList;
+import java.io.IOException;
+import java.io.ObjectOutput;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -35,6 +37,14 @@ public class LimitOperator extends PhysicalPlan {
   private final Integer offset;
   private Integer count = 0;
 
+  // Consider using a copy constructor instead -- see usage
+  public LimitOperator(PhysicalPlan input, Integer limit, Integer offset, Integer count) {
+    this.input = input;
+    this.limit = limit;
+    this.offset = offset;
+    this.count = count;
+  }
+
   @Override
   public void open() {
     super.open();
@@ -48,7 +58,9 @@ public class LimitOperator extends PhysicalPlan {
 
   @Override
   public boolean hasNext() {
-    return input.hasNext() && count < offset + limit;
+    var inNext = input.hasNext();
+    var cond = count < offset + limit;
+    return inNext && cond;
   }
 
   @Override
@@ -67,4 +79,21 @@ public class LimitOperator extends PhysicalPlan {
     return ImmutableList.of(input);
   }
 
+  @Override
+  public boolean writeExternal(ObjectOutput out) throws IOException {
+    PlanLoader loader = (in, engine) -> {
+      var limit = in.readInt();
+      var offset = in.readInt();
+      var count = in.readInt();
+      var inputLoader = (PlanLoader) in.readObject();
+      var input = (PhysicalPlan) inputLoader.apply(in, engine);
+      return new LimitOperator(input, limit, offset, count);
+    };
+    out.writeObject(loader);
+
+    out.writeInt(limit);
+    out.writeInt(offset);
+    out.writeInt(count);
+    return input.getPlanForSerialization().writeExternal(out);
+  }
 }

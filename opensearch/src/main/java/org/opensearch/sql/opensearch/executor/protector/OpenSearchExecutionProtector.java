@@ -44,7 +44,7 @@ public class OpenSearchExecutionProtector extends ExecutionProtector {
 
   @Override
   public PhysicalPlan visitFilter(FilterOperator node, Object context) {
-    return new FilterOperator(visitInput(node.getInput(), context), node.getConditions());
+    return new FilterOperator(visitInput(node.getInput(), context), node);
   }
 
   @Override
@@ -133,7 +133,8 @@ public class OpenSearchExecutionProtector extends ExecutionProtector {
     return new LimitOperator(
         visitInput(node.getInput(), context),
         node.getLimit(),
-        node.getOffset());
+        node.getOffset(),
+        node.getCount());
   }
 
   @Override

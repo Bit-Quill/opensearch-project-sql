@@ -12,6 +12,8 @@ import static org.opensearch.sql.ast.tree.Sort.SortOrder.ASC;
 import static org.opensearch.sql.ast.tree.Sort.SortOrder.DESC;
 
 import com.google.common.collect.ImmutableList;
+
+import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -54,7 +56,7 @@ public class Sort extends UnresolvedPlan {
    * Sort Options.
    */
   @Data
-  public static class SortOption {
+  public static class SortOption implements Serializable {
 
     /**
      * Default ascending sort option, null first.
