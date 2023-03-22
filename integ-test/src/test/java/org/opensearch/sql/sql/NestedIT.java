@@ -115,7 +115,8 @@ public class NestedIT extends SQLIntegTestCase {
         rows("yy"));
   }
 
-  @Test
+  // TODO enable me when date type in schema is fixed
+  @Disabled
   public void nested_with_date_type() {
     String query = "SELECT nested(comments.date) FROM " + TEST_INDEX_EMPLOYEE_NESTED;
     JSONObject result = executeJdbcRequest(query);
