@@ -21,8 +21,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.stream.Stream;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.api.Test;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
@@ -58,11 +57,9 @@ public class NestedFunctionTest extends ExpressionTestBase {
 
   /**
    * Test single parameter nested function parameters.
-   * @param dataMap : Map of data to validate against.
    */
-  @ParameterizedTest
-  @MethodSource("generateValidData")
-  public void test_single_param_nested(Map<String, ExprValue> dataMap) {
+  @Test
+  public void test_single_param_nested() {
     for (var entry : dataMap.entrySet()) {
       FunctionExpression nested = DSL.nested(DSL.ref(entry.getKey(), entry.getValue().type()));
       assertEquals(entry.getValue(), nested.valueOf(env()));
@@ -71,11 +68,9 @@ public class NestedFunctionTest extends ExpressionTestBase {
 
   /**
    * Test double parameter nested function parameters with second parameter of type STRUCT.
-   * @param dataMap : Map of data to validate against.
    */
-  @ParameterizedTest
-  @MethodSource("generateValidData")
-  public void test_double_param_nested_struct(Map<String, ExprValue> dataMap) {
+  @Test
+  public void test_double_param_nested_struct() {
     for (var entry : dataMap.entrySet()) {
       FunctionExpression nested = DSL.nested(DSL.ref(entry.getKey(), entry.getValue().type()),
           DSL.ref("message", STRUCT));
@@ -85,11 +80,9 @@ public class NestedFunctionTest extends ExpressionTestBase {
 
   /**
    * Test double parameter nested function parameters with second parameter of type ARRAY.
-   * @param dataMap : Map of data to validate against.
    */
-  @ParameterizedTest
-  @MethodSource("generateValidData")
-  public void test_double_param_nested_array(Map<String, ExprValue> dataMap) {
+  @Test
+  public void test_double_param_nested_array() {
     for (var entry : dataMap.entrySet()) {
       FunctionExpression nested = DSL.nested(DSL.ref(entry.getKey(), entry.getValue().type()),
           DSL.ref("message", ARRAY));
