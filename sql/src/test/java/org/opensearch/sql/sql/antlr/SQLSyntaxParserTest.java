@@ -595,7 +595,7 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse("SELECT sec_to_time(6897)"));
     assertNotNull(parser.parse("SELECT sec_to_time(6897.123)"));
   }
-
+  
   @Test
   public void can_parse_last_day_function() {
     assertNotNull(parser.parse("SELECT last_day(\"2017-06-20\")"));
@@ -607,7 +607,7 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse("SELECT TIMESTAMPADD(MINUTE, 1, '2003-01-02')"));
     assertNotNull(parser.parse("SELECT TIMESTAMPADD(WEEK,1,'2003-01-02')"));
   }
-
+  
   @Test
   public void can_parse_to_seconds_function() {
     assertNotNull(parser.parse("SELECT to_seconds(\"2023-02-20\")"));

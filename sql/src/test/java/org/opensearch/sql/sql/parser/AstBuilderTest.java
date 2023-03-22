@@ -40,7 +40,6 @@ import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
-import org.opensearch.sql.exception.SemanticCheckException;
 
 class AstBuilderTest extends AstBuilderTestBase {
 
