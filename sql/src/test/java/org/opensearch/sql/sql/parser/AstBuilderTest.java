@@ -697,7 +697,7 @@ class AstBuilderTest extends AstBuilderTestBase {
             relation("test"),
             alias(
                 "message.info",
-                function("nested", qualifiedName("message.info")),
+                function("nested", qualifiedName("message", "info")),
                 null
             )
         ),
