@@ -13,7 +13,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -34,161 +37,147 @@ import org.opensearch.sql.expression.function.FunctionProperties;
 
 class TimeStampDiffTest extends ExpressionTestBase {
 
-  private static Stream<Arguments> getTestDataForTimestampDiff() {
+  //Helper function to create an argument based on a passed in interval type
+  private static ExprValue generateArg(String intervalType,
+                                       String argType,
+                                       LocalDateTime base,
+                                       int added) {
+    LocalDateTime arg;
+    switch (intervalType) {
+      case "MICROSECOND":
+        arg = base.plusNanos(added * 1000);
+        break;
+      case "SECOND":
+        arg = base.plusSeconds(added);
+        break;
+      case "MINUTE":
+        arg = base.plusMinutes(added);
+        break;
+      case "HOUR":
+        arg = base.plusHours(added);
+        break;
+      case "DAY":
+        arg = base.plusDays(added);
+        break;
+      case "WEEK":
+        arg = base.plusWeeks(added);
+        break;
+      case "MONTH":
+        arg = base.plusMonths(added);
+        break;
+      case "QUARTER":
+        arg = base.plusMonths(added * 3);
+        break;
+      case "YEAR":
+        arg = base.plusYears(added);
+        break;
+      default:
+        arg = null;
+    }
+
+    switch (argType) {
+      case "TIME":
+        return new ExprTimeValue(arg.toLocalTime());
+      case "TIMESTAMP":
+        return new ExprTimestampValue(arg.toInstant(ZoneOffset.UTC));
+      case "DATE":
+        return new ExprDateValue(arg.toLocalDate());
+      case "DATETIME":
+        return new ExprDatetimeValue(arg);
+      case "STRING":
+        return new ExprStringValue(String.format(
+            "%04d-%02d-%02d %02d:%02d:%02d.%06d",
+            arg.getYear(),
+            arg.getMonthValue(),
+            arg.getDayOfMonth(),
+            arg.getHour(),
+            arg.getMinute(),
+            arg.getSecond(),
+            arg.getNano() / 1000));
+      default:
+        return null;
+    }
+  }
+
+  //Generate test data to test all permutations for args (intervalType, arg1, arg2)
+  private static Stream<Arguments> getGeneralTestDataForTimestampDiff() {
+
+    //Needs to be initialized with a value to prevent a null pointer exception.
+    Stream<Arguments> testData = Stream.of(Arguments.of(
+        "DAY",
+        new ExprDateValue("2000-01-01 00:00:00"),
+        new ExprDateValue("2000-01-01"),
+        0));
+
+    final String[] timeIntervalTypes = {
+        "MICROSECOND",
+        "SECOND",
+        "MINUTE",
+        "HOUR"
+    };
+
+    final String[] dateIntervalTypes = {
+        "DAY",
+        "WEEK",
+        "MONTH",
+        "QUARTER",
+        "YEAR"
+    };
+
+
+    final String[] intervalTypes = ArrayUtils.addAll(timeIntervalTypes, dateIntervalTypes);
+
+    //TIME type not included here as it is a special case handled by a different test
+    final String[] expressionTypes = {
+        "DATE",
+        "DATETIME",
+        "TIMESTAMP",
+        "STRING"
+    };
+
+    final LocalDateTime baseDateTime = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
+    final int intervalDifference = 5;
+
+    //Iterate through each permutation of argument
+    for (String intervalType : intervalTypes) {
+      for (String firstArgExpressionType : expressionTypes) {
+        for (String secondArgExpressionType : expressionTypes) {
+
+          ExprValue firstArg = generateArg(intervalType, firstArgExpressionType, baseDateTime, 0);
+          ExprValue secondArg = generateArg(
+              intervalType,
+              secondArgExpressionType,
+              baseDateTime,
+              intervalDifference);
+
+          //If second arg is a DATE and you are using a unit of TIME to measure then expected is 0.
+          //The second arg is equal to baseDatetime in this case.
+          int expected = (
+              secondArgExpressionType == "DATE"
+              && Arrays.asList(timeIntervalTypes).contains(intervalType))
+              ? 0 : intervalDifference;
+
+          testData = Stream.concat(testData, Stream.of(
+              Arguments.of(
+                  intervalType,
+                  firstArg,
+                  secondArg,
+                  expected),
+              Arguments.of(
+                  intervalType,
+                  secondArg,
+                  firstArg,
+                  -expected)
+          ));
+        }
+      }
+    }
+
+    return testData;
+  }
+
+  private static Stream<Arguments> getCornerCaseTestDataForTimestampDiff() {
     return Stream.of(
-        //Test Date
-        Arguments.of(
-            "DAY",
-            new ExprDateValue("2000-01-01 00:00:00"),
-            new ExprDateValue("2000-01-01"),
-            0),
-        Arguments.of(
-            "DAY",
-            new ExprDateValue("2000-01-01"),
-            new ExprDateValue("2000-01-06"),
-            5),
-        Arguments.of(
-            "DAY",
-            new ExprDateValue("2000-01-06"),
-            new ExprDateValue("2000-01-01"),
-            -5),
-
-        //Test Datetime
-        Arguments.of(
-            "DAY",
-            new ExprDatetimeValue("2000-01-01 00:00:00"),
-            new ExprDatetimeValue("2000-01-01 00:00:00"),
-            0),
-        Arguments.of(
-            "DAY",
-            new ExprDatetimeValue("2000-01-01 00:00:00"),
-            new ExprDatetimeValue("2000-01-06 00:00:00"),
-            5),
-        Arguments.of(
-            "DAY",
-            new ExprDatetimeValue("2000-01-06 00:00:00"),
-            new ExprDatetimeValue("2000-01-01 00:00:00"),
-            -5),
-
-        //Test Timestamp
-        Arguments.of(
-            "DAY",
-            new ExprTimestampValue("2000-01-01 00:00:00"),
-            new ExprTimestampValue("2000-01-01 00:00:00"),
-            0),
-        Arguments.of(
-            "DAY",
-            new ExprTimestampValue("2000-01-01 00:00:00"),
-            new ExprTimestampValue("2000-01-06 00:00:00"),
-            5),
-        Arguments.of(
-            "DAY",
-            new ExprTimestampValue("2000-01-06 00:00:00"),
-            new ExprTimestampValue("2000-01-01 00:00:00"),
-            -5),
-
-        //Test Time
-        Arguments.of(
-            "SECOND",
-            new ExprTimeValue("00:00:00"),
-            new ExprTimeValue("00:00:00"),
-            0),
-        Arguments.of(
-            "SECOND",
-            new ExprTimeValue("00:00:00"),
-            new ExprTimeValue("00:00:01"),
-            1),
-        Arguments.of(
-            "SECOND",
-            new ExprTimeValue("00:00:01"),
-            new ExprTimeValue("00:00:00"),
-            -1),
-
-        //Test String
-        Arguments.of(
-            "DAY",
-            new ExprStringValue("2000-01-01 00:00:00"),
-            new ExprStringValue("2000-01-01 00:00:00"),
-            0),
-        Arguments.of(
-            "DAY",
-            new ExprStringValue("2000-01-01 00:00:00"),
-            new ExprStringValue("2000-01-06 00:00:00"),
-            5),
-        Arguments.of(
-            "DAY",
-            new ExprStringValue("2000-01-06 00:00:00"),
-            new ExprStringValue("2000-01-01 00:00:00"),
-            -5),
-
-        //Test with mismatched argument types
-        Arguments.of(
-            "DAY",
-            new ExprTimestampValue("2000-01-01 00:00:00"),
-            new ExprStringValue("2000-01-06 00:00:00"),
-            5),
-        Arguments.of(
-            "DAY",
-            new ExprDatetimeValue("2000-01-01 00:00:00"),
-            new ExprTimestampValue("2000-01-06 00:00:00"),
-            5),
-        Arguments.of(
-            "DAY",
-            new ExprDateValue("2000-01-01 00:00:00"),
-            new ExprDatetimeValue("2000-01-06 00:00:00"),
-            5),
-        Arguments.of(
-            "DAY",
-            new ExprStringValue("2000-01-01 00:00:00"),
-            new ExprDateValue("2000-01-06 00:00:00"),
-            5),
-
-        //Test for all interval options
-        Arguments.of(
-            "MICROSECOND",
-            new ExprDatetimeValue("2000-01-06 00:00:00"),
-            new ExprDatetimeValue("2000-01-06 00:00:00.000123"),
-            123),
-        Arguments.of(
-            "SECOND",
-            new ExprDatetimeValue("2000-01-06 00:00:00"),
-            new ExprDatetimeValue("2000-01-06 00:00:12"),
-            12),
-        Arguments.of(
-            "MINUTE",
-            new ExprDatetimeValue("2000-01-06 00:00:00"),
-            new ExprDatetimeValue("2000-01-06 00:11:12"),
-            11),
-        Arguments.of(
-            "HOUR",
-            new ExprDatetimeValue("2000-01-06 00:00:00"),
-            new ExprDatetimeValue("2000-01-06 10:11:12"),
-            10),
-        Arguments.of(
-            "DAY",
-            new ExprDatetimeValue("2000-01-01 00:00:00"),
-            new ExprDatetimeValue("2000-01-06 10:11:12"),
-            5),
-        Arguments.of(
-            "WEEK",
-            new ExprDatetimeValue("2000-01-01 00:00:00"),
-            new ExprDatetimeValue("2000-01-31 10:11:12"),
-            4),
-        Arguments.of(
-            "MONTH",
-            new ExprDatetimeValue("2000-01-01 00:00:00"),
-            new ExprDatetimeValue("2000-12-31 10:11:12"),
-            11),
-        Arguments.of(
-            "QUARTER",
-            new ExprDatetimeValue("2000-01-01 00:00:00"),
-            new ExprDatetimeValue("2000-12-31 10:11:12"),
-            3),
-        Arguments.of(
-            "YEAR",
-            new ExprDatetimeValue("1999-01-01 00:00:00"),
-            new ExprDatetimeValue("2000-12-31 10:11:12"),
-            1),
 
         //Test around Leap Year
         Arguments.of(
@@ -234,7 +223,7 @@ class TimeStampDiffTest extends ExpressionTestBase {
   }
 
   @ParameterizedTest
-  @MethodSource("getTestDataForTimestampDiff")
+  @MethodSource({"getGeneralTestDataForTimestampDiff", "getCornerCaseTestDataForTimestampDiff"})
   public void testTimestampdiff(String unit,
                                ExprValue datetimeExpr1,
                                ExprValue datetimeExpr2,
@@ -265,24 +254,28 @@ class TimeStampDiffTest extends ExpressionTestBase {
   @ParameterizedTest
   @MethodSource("getUnits")
   public void testTimestampDiffWithTimeType(String unit) {
-    LocalDate dateToday = LocalDate.now();
-    LocalTime timeArg = LocalTime.of(10, 11, 12);
+    LocalDateTime base = LocalDateTime.of(LocalDate.now(), LocalTime.of(10, 11, 12));
 
-    FunctionExpression firstArgIsTimeExpr = timestampdiffQuery(
-        functionProperties,
-        unit,
-        new ExprTimeValue(timeArg),
-        new ExprDatetimeValue(LocalDateTime.of(dateToday, timeArg))
-    );
-    FunctionExpression secondArgIsTimeExpr = timestampdiffQuery(
-        functionProperties,
-        unit,
-        new ExprDatetimeValue(LocalDateTime.of(dateToday, timeArg)),
-        new ExprTimeValue(timeArg)
-    );
+    ExprValue timeExpr = generateArg(unit, "TIME", base, 0);
+    ExprValue timestampExpr = generateArg(unit, "TIMESTAMP", base, 0);
+    ExprValue dateExpr = generateArg(unit, "TIMESTAMP", base, 0);
+    ExprValue datetimeExpr = generateArg(unit, "TIMESTAMP", base, 0);
+    ExprValue stringExpr = generateArg(unit, "TIMESTAMP", base, 0);
 
-    assertEquals(0L, eval(firstArgIsTimeExpr).longValue());
-    assertEquals(0L, eval(secondArgIsTimeExpr).longValue());
+    ExprValue[] expressions = {timeExpr, timestampExpr, dateExpr, datetimeExpr,stringExpr};
+
+    for (ExprValue arg1 : expressions) {
+      for (ExprValue arg2 : expressions) {
+        FunctionExpression funcExpr = timestampdiffQuery(
+            functionProperties,
+            unit,
+            arg1,
+            arg2
+        );
+
+        assertEquals(0L, eval(funcExpr).longValue());
+      }
+    }
   }
 
   private static Stream<Arguments> getTimestampDiffInvalidArgs() {
