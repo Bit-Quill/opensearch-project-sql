@@ -84,6 +84,7 @@ public class FilterOperator extends PhysicalPlan {
     return totalHits;
   }
 
+  // Probably we don't need this, because we do pushDownFilter in OpenSearchPagedIndexScanBuilder
   @Override
   public boolean writeExternal(ObjectOutput out) throws IOException {
     PlanLoader loader = (in, engine) -> {

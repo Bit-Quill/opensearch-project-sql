@@ -137,6 +137,7 @@ public class SortOperator extends PhysicalPlan {
     };
   }
 
+  // Probably we don't need this, because we do pushDownSort in OpenSearchPagedIndexScanBuilder
   @Override
   @SuppressWarnings("unchecked")
   public boolean writeExternal(ObjectOutput out) throws IOException {

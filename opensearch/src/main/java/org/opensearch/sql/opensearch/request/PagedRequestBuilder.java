@@ -8,7 +8,7 @@ package org.opensearch.sql.opensearch.request;
 import lombok.Getter;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 
-public abstract class PagedRequestBuilder {
+public abstract class PagedRequestBuilder extends PushDownRequestBuilder {
 
   @Getter
   protected OpenSearchExprValueFactory exprValueFactory;

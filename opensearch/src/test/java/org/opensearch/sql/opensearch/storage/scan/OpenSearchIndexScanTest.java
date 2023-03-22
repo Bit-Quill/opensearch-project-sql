@@ -311,7 +311,7 @@ class OpenSearchIndexScanTest {
     }
 
     PushDownAssertion pushDown(QueryBuilder query) {
-      indexScan.getRequestBuilder().pushDown(query);
+      indexScan.getRequestBuilder().pushDownFilter(query);
       return this;
     }
 

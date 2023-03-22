@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.lang3.NotImplementedException;
 import org.opensearch.sql.data.model.ExprValue;
@@ -24,6 +25,7 @@ import org.opensearch.sql.storage.TableScanOperator;
 @ToString(onlyExplicitlyIncluded = true)
 public class OpenSearchPagedIndexScan extends TableScanOperator {
   private OpenSearchClient client;
+  @Getter
   private PagedRequestBuilder requestBuilder;
   @EqualsAndHashCode.Include
   @ToString.Include

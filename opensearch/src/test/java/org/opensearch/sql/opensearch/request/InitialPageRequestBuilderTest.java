@@ -67,7 +67,7 @@ public class InitialPageRequestBuilderTest {
   @Test
   public void pushDown_not_supported() {
     assertAll(
-        () -> assertThrows(Throwable.class, () -> requestBuilder.pushDown(mock())),
+        () -> assertThrows(Throwable.class, () -> requestBuilder.pushDownFilter(mock())),
         () -> assertThrows(Throwable.class, () -> requestBuilder.pushDownAggregation(mock())),
         () -> assertThrows(Throwable.class, () -> requestBuilder.pushDownSort(mock())),
         () -> assertThrows(Throwable.class, () -> requestBuilder.pushDownLimit(1, 2)),

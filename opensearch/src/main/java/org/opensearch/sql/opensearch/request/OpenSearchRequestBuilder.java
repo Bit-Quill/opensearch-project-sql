@@ -39,11 +39,10 @@ import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseP
 /**
  * OpenSearch search request builder.
  */
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Getter
 @ToString
-// TODO make an interface which defines all pushDown functions?
-public class OpenSearchRequestBuilder {
+public class OpenSearchRequestBuilder extends PushDownRequestBuilder {
 
   /**
    * Default query timeout in minutes.
@@ -94,12 +93,12 @@ public class OpenSearchRequestBuilder {
                                   OpenSearchExprValueFactory exprValueFactory) {
     this.indexName = indexName;
     this.maxResultWindow = maxResultWindow;
-    this.sourceBuilder = new SearchSourceBuilder();
     this.exprValueFactory = exprValueFactory;
     this.querySize = settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT);
-    sourceBuilder.from(0);
-    sourceBuilder.size(querySize);
-    sourceBuilder.timeout(DEFAULT_QUERY_TIMEOUT);
+    this.sourceBuilder = new SearchSourceBuilder()
+        .from(0)
+        .size(querySize)
+        .timeout(DEFAULT_QUERY_TIMEOUT);
   }
 
   /**
@@ -124,7 +123,8 @@ public class OpenSearchRequestBuilder {
    *
    * @param query  query request
    */
-  public void pushDown(QueryBuilder query) {
+  @Override
+  public void pushDownFilter(QueryBuilder query) {
     QueryBuilder current = sourceBuilder.query();
 
     if (current == null) {
@@ -149,9 +149,10 @@ public class OpenSearchRequestBuilder {
    *
    * @param aggregationBuilder pair of aggregation query and aggregation parser.
    */
+  @Override
   public void pushDownAggregation(
       Pair<List<AggregationBuilder>, OpenSearchAggregationResponseParser> aggregationBuilder) {
-    aggregationBuilder.getLeft().forEach(builder -> sourceBuilder.aggregation(builder));
+    aggregationBuilder.getLeft().forEach(sourceBuilder::aggregation);
     sourceBuilder.size(0);
     exprValueFactory.setParser(aggregationBuilder.getRight());
   }
@@ -161,6 +162,7 @@ public class OpenSearchRequestBuilder {
    *
    * @param sortBuilders sortBuilders.
    */
+  @Override
   public void pushDownSort(List<SortBuilder<?>> sortBuilders) {
     // TODO: Sort by _doc is added when filter push down. Remove both logic once doctest fixed.
     if (isSortByDocOnly()) {
@@ -175,6 +177,7 @@ public class OpenSearchRequestBuilder {
   /**
    * Push down size (limit) and from (offset) to DSL request.
    */
+  @Override
   public void pushDownLimit(Integer limit, Integer offset) {
     querySize = limit;
     sourceBuilder.from(offset).size(limit);
@@ -184,6 +187,7 @@ public class OpenSearchRequestBuilder {
    * Add highlight to DSL requests.
    * @param field name of the field to highlight
    */
+  @Override
   public void pushDownHighlight(String field, Map<String, Literal> arguments) {
     String unquotedField = StringUtils.unquoteText(field);
     if (sourceBuilder.highlighter() != null) {
@@ -216,18 +220,15 @@ public class OpenSearchRequestBuilder {
   /**
    * Push down project list to DSL requets.
    */
+  @Override
   public void pushDownProjects(Set<ReferenceExpression> projects) {
-    final Set<String> projectsSet =
-        projects.stream().map(ReferenceExpression::getAttr).collect(Collectors.toSet());
-    sourceBuilder.fetchSource(projectsSet.toArray(new String[0]), new String[0]);
+    sourceBuilder.fetchSource(projects.stream().map(ReferenceExpression::getAttr)
+        .distinct().toArray(String[]::new), new String[0]);
   }
 
+  @Override
   public void pushTypeMapping(Map<String, ExprType> typeMapping) {
     exprValueFactory.setTypeMapping(typeMapping);
-  }
-
-  private boolean isBoolFilterQuery(QueryBuilder current) {
-    return (current instanceof BoolQueryBuilder);
   }
 
   private boolean isSortByDocOnly() {

@@ -524,7 +524,7 @@ class OpenSearchIndexScanOptimizationTest {
   }
 
   private Runnable withFilterPushedDown(QueryBuilder filteringCondition) {
-    return () -> verify(requestBuilder, times(1)).pushDown(filteringCondition);
+    return () -> verify(requestBuilder, times(1)).pushDownFilter(filteringCondition);
   }
 
   private Runnable withAggregationPushedDown(

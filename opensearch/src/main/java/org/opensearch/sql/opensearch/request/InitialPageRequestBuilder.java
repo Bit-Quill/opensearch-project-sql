@@ -5,17 +5,23 @@
 
 package org.opensearch.sql.opensearch.request;
 
+import static org.opensearch.search.sort.FieldSortBuilder.DOC_FIELD_NAME;
+import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder.DEFAULT_QUERY_TIMEOUT;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
+import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.search.aggregations.AggregationBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.opensearch.search.sort.SortBuilder;
+import org.opensearch.search.sort.SortBuilders;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.data.type.ExprType;
@@ -52,38 +58,62 @@ public class InitialPageRequestBuilder extends PagedRequestBuilder {
     return new OpenSearchScrollRequest(indexName, sourceBuilder, exprValueFactory);
   }
 
-  public void pushDown(QueryBuilder query) {
-    throw new UnsupportedOperationException("pushdown of a query is not supported");
+  @Override
+  public void pushDownFilter(QueryBuilder query) {
+    QueryBuilder current = sourceBuilder.query();
+
+    if (current == null) {
+      sourceBuilder.query(query);
+    } else {
+      if (isBoolFilterQuery(current)) {
+        ((BoolQueryBuilder) current).filter(query);
+      } else {
+        sourceBuilder.query(QueryBuilders.boolQuery()
+            .filter(current)
+            .filter(query));
+      }
+    }
+
+    if (sourceBuilder.sorts() == null) {
+      sourceBuilder.sort(DOC_FIELD_NAME, ASC); // Make sure consistent order
+    }
   }
 
-  public void pushDownAggregation(
-      Pair<List<AggregationBuilder>, OpenSearchAggregationResponseParser> aggregationBuilder) {
-
-    throw new UnsupportedOperationException("pagination of aggregation requests is not supported");
-  }
-
+  /**
+   * Push down sort to DSL request.
+   *
+   * @param sortBuilders sortBuilders.
+   */
+  @Override
   public void pushDownSort(List<SortBuilder<?>> sortBuilders) {
-    throw new UnsupportedOperationException("sorting of paged requests is not supported");
+    if (isSortByDocOnly()) {
+      sourceBuilder.sorts().clear();
+    }
 
-  }
-
-  public void pushDownLimit(Integer limit, Integer offset) {
-    throw new UnsupportedOperationException("limit of paged requests is not supported");
-  }
-
-  public void pushDownHighlight(String field, Map<String, Literal> arguments) {
-    throw new UnsupportedOperationException("highlight of paged requests is not supported");
+    for (SortBuilder<?> sortBuilder : sortBuilders) {
+      sourceBuilder.sort(sortBuilder);
+    }
   }
 
   /**
    * Push down project expression to OpenSearch.
    */
+  @Override
   public void pushDownProjects(Set<ReferenceExpression> projects) {
     sourceBuilder.fetchSource(projects.stream().map(ReferenceExpression::getAttr)
         .distinct().toArray(String[]::new), new String[0]);
   }
 
+  @Override
   public void pushTypeMapping(Map<String, ExprType> typeMapping) {
     exprValueFactory.setTypeMapping(typeMapping);
+  }
+
+  private boolean isSortByDocOnly() {
+    List<SortBuilder<?>> sorts = sourceBuilder.sorts();
+    if (sorts != null) {
+      return sorts.equals(Arrays.asList(SortBuilders.fieldSort(DOC_FIELD_NAME)));
+    }
+    return false;
   }
 }
