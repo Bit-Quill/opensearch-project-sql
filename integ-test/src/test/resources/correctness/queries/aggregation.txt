@@ -13,3 +13,11 @@ SELECT STDDEV_SAMP(AvgTicketPrice) FROM opensearch_dashboards_sample_data_flight
 SELECT COUNT(DISTINCT Origin), COUNT(DISTINCT Dest) FROM opensearch_dashboards_sample_data_flights
 SELECT COUNT(DISTINCT Origin) FROM (SELECT * FROM opensearch_dashboards_sample_data_flights) AS flights
 SELECT LOG(MAX(AvgTicketPrice) + MIN(AvgTicketPrice)) FROM opensearch_dashboards_sample_data_flights
+SELECT COUNT(*) AS count FROM opensearch_dashboards_sample_data_flights
+
+# These queries are implemented using aggregation
+SELECT ALL OriginWeather FROM opensearch_dashboards_sample_data_flights
+SELECT DISTINCT OriginWeather FROM opensearch_dashboards_sample_data_flights
+SELECT DISTINCT OriginWeather, FlightDelay FROM opensearch_dashboards_sample_data_flights
+SELECT DISTINCT SUBSTRING(OriginWeather, 1, 1) AS origin FROM opensearch_dashboards_sample_data_flights
+SELECT DISTINCT SUBSTRING(OriginWeather, 1, 1) AS origin, FlightDelay FROM opensearch_dashboards_sample_data_flights

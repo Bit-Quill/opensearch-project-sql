@@ -142,8 +142,13 @@ public class RestSqlAction extends BaseRestHandler {
                 }
             }
 
+            var logLine = (sqlRequest.fetchSize() != null && sqlRequest.fetchSize() > 0
+                    ? "fetch_size = " + sqlRequest.fetchSize() : "")
+                + (sqlRequest.cursor() != null ? "cursor = " + sqlRequest.cursor().substring(0, 10) + "..."
+                    : " query = " + QueryDataAnonymizer.anonymizeData(sqlRequest.getSql()));
+
             LOG.info("[{}] Incoming request {}: {}", QueryContext.getRequestId(), request.uri(),
-                    QueryDataAnonymizer.anonymizeData(sqlRequest.getSql()));
+                    logLine);
 
             Format format = SqlRequestParam.getFormat(request.params());
 

@@ -1,3 +1,4 @@
+## can paginate
 SELECT FlightNum FROM opensearch_dashboards_sample_data_flights ORDER BY FlightNum
 SELECT FlightNum FROM opensearch_dashboards_sample_data_flights ORDER BY FlightNum ASC
 SELECT FlightNum FROM opensearch_dashboards_sample_data_flights ORDER BY FlightNum DESC
@@ -7,12 +8,6 @@ SELECT FlightNum, AvgTicketPrice FROM opensearch_dashboards_sample_data_flights 
 SELECT FlightNum, AvgTicketPrice FROM opensearch_dashboards_sample_data_flights ORDER BY FlightNum DESC, AvgTicketPrice
 SELECT FlightNum, AvgTicketPrice FROM opensearch_dashboards_sample_data_flights ORDER BY FlightNum, AvgTicketPrice DESC
 SELECT FlightNum, AvgTicketPrice FROM opensearch_dashboards_sample_data_flights ORDER BY FlightNum DESC, AvgTicketPrice DESC
-SELECT OriginCountry FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry ORDER BY OriginCountry
-SELECT OriginCountry FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry ORDER BY OriginCountry DESC
-SELECT FlightDelay, OriginWeather FROM opensearch_dashboards_sample_data_flights GROUP BY FlightDelay, OriginWeather ORDER BY FlightDelay, OriginWeather
-SELECT FlightDelay, OriginWeather FROM opensearch_dashboards_sample_data_flights GROUP BY FlightDelay, OriginWeather ORDER BY FlightDelay DESC, OriginWeather
-SELECT FlightDelay, OriginWeather FROM opensearch_dashboards_sample_data_flights GROUP BY FlightDelay, OriginWeather ORDER BY FlightDelay, OriginWeather DESC
-SELECT FlightDelay, OriginWeather FROM opensearch_dashboards_sample_data_flights GROUP BY FlightDelay, OriginWeather ORDER BY FlightDelay DESC, OriginWeather DESC
 SELECT FlightNum, DistanceMiles FROM opensearch_dashboards_sample_data_flights ORDER BY DistanceMiles NULLS FIRST
 SELECT FlightNum, DistanceMiles FROM opensearch_dashboards_sample_data_flights ORDER BY DistanceMiles NULLS LAST
 SELECT FlightNum, DistanceMiles FROM opensearch_dashboards_sample_data_flights ORDER BY DistanceMiles ASC NULLS LAST

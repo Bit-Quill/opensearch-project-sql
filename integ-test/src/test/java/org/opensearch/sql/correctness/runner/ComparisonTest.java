@@ -80,11 +80,11 @@ public class ComparisonTest implements AutoCloseable {
    * @param querySet SQL queries
    * @return Test result report
    */
-  public TestReport verify(TestQuerySet querySet) {
+  public TestReport verify(TestQuerySet querySet, boolean canPaginate) {
     TestReport report = new TestReport();
     for (String sql : querySet) {
       try {
-        DBResult openSearchResult = thisConnection.select(sql);
+        DBResult openSearchResult = thisConnection.select(sql, canPaginate);
         report.addTestCase(compareWithOtherDb(sql, openSearchResult));
       } catch (Exception e) {
         report.addTestCase(new ErrorTestCase(nextId(), sql,
@@ -93,6 +93,11 @@ public class ComparisonTest implements AutoCloseable {
     }
     return report;
   }
+
+  public TestReport verify(TestQuerySet querySet) {
+    return verify(querySet, false);
+  }
+
 
   /**
    * Clean up test table.

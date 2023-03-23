@@ -117,8 +117,13 @@ public class JDBCConnection implements DBConnection {
   }
 
   @Override
-  public DBResult select(String query) {
-    try (Statement stmt = connection.createStatement()) {
+  public DBResult select(String query, boolean paginate) {
+    try (Statement stmt = paginate
+        ? connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)
+        : connection.createStatement()) {
+      if (paginate) {
+        stmt.setFetchSize(5);
+      }
       ResultSet resultSet = stmt.executeQuery(query);
       DBResult result = isOrderByQuery(query)
           ? DBResult.resultInOrder(databaseName) : DBResult.result(databaseName);

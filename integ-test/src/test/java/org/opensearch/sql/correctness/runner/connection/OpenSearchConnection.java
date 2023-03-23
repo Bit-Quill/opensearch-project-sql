@@ -65,8 +65,8 @@ public class OpenSearchConnection implements DBConnection {
   }
 
   @Override
-  public DBResult select(String query) {
-    return connection.select(query);
+  public DBResult select(String query, boolean paginate) {
+    return connection.select(query, paginate);
   }
 
   @Override

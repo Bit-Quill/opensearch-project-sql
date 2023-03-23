@@ -77,8 +77,8 @@ public abstract class CorrectnessTestBase extends RestIntegTestCase {
    * Execute the given queries and compare result with other database.
    * The queries will be considered as one test batch.
    */
-  protected void verify(String... queries) {
-    TestReport result = runner.verify(new TestQuerySet(queries));
+  protected void verify(boolean canPaginate, String... queries) {
+    TestReport result = runner.verify(new TestQuerySet(queries), canPaginate);
     TestSummary summary = result.getSummary();
     Assert.assertEquals(StringUtils.format(
         "Comparison test failed on queries: %s", new JSONObject(result).toString(2)),

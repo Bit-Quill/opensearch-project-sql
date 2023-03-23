@@ -47,7 +47,18 @@ public interface DBConnection {
    * @param query SQL query
    * @return result set
    */
-  DBResult select(String query);
+  default DBResult select(String query) {
+    return select(query, false);
+  }
+
+  /**
+   * Fetch data from database.
+   *
+   * @param query SQL query
+   * @param paginate Paginate
+   * @return result set
+   */
+  DBResult select(String query, boolean paginate);
 
   /**
    * Drop table.

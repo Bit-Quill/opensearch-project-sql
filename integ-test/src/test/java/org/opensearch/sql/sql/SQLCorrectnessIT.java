@@ -54,10 +54,11 @@ public class SQLCorrectnessIT extends CorrectnessTestBase {
   private void verifyQueries(Path file, Function<String, String> converter) {
     try {
       String[] queries = Files.lines(file)
-                              .filter(line -> !line.startsWith("#"))
+                              .filter(line -> !line.isEmpty() && !line.startsWith("#"))
                               .map(converter)
                               .toArray(String[]::new);
-      verify(queries);
+      var canPaginate = Files.lines(file).findFirst().orElse("").equals("## can paginate");
+      verify(canPaginate, queries);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to read file: " + file, e);
     }
