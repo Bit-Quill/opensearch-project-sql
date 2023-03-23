@@ -72,7 +72,9 @@ class TimeStampDiffTest extends ExpressionTestBase {
         arg = base.plusYears(added);
         break;
       default:
-        arg = null;
+        throw new SemanticCheckException(String.format(
+            "%s is not a valid interval type.",
+            intervalType));
     }
 
     switch (argType) {
@@ -95,7 +97,9 @@ class TimeStampDiffTest extends ExpressionTestBase {
             arg.getSecond(),
             arg.getNano() / 1000));
       default:
-        return null;
+        throw new SemanticCheckException(String.format(
+            "%s is not a valid ExprCoreValueType.",
+            argType));
     }
   }
 

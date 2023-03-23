@@ -2733,7 +2733,7 @@ TIMESTAMPDIFF
 Description
 >>>>>>>>>>>
 
-Usage: Returns a LONG representing the difference in time for the input arguments arguments. It takes an INTERVAL argument which determine the unit of time used to measure the difference and two additional arguments for the start and end times.
+Usage: TIMESTAMPDIFF(interval, start, end) returns the difference between the start and end date/times in interval units.
 If a TIME is provided as an argument, it will be converted to a DATETIME with the DATE portion filled in using the current date.
 Arguments will be automatically converted to a DATETIME/TIME/TIMESTAMP when appropriate.
 Any argument that is a STRING must be formatted as a valid DATETIME.
