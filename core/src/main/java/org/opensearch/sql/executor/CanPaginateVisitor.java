@@ -10,10 +10,26 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.Node;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
+import org.opensearch.sql.ast.expression.And;
+import org.opensearch.sql.ast.expression.Between;
+import org.opensearch.sql.ast.expression.Case;
+import org.opensearch.sql.ast.expression.Cast;
+import org.opensearch.sql.ast.expression.Compare;
+import org.opensearch.sql.ast.expression.EqualTo;
 import org.opensearch.sql.ast.expression.Field;
+import org.opensearch.sql.ast.expression.Function;
+import org.opensearch.sql.ast.expression.HighlightFunction;
+import org.opensearch.sql.ast.expression.In;
+import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.Literal;
+import org.opensearch.sql.ast.expression.Not;
+import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
+import org.opensearch.sql.ast.expression.RelevanceFieldList;
+import org.opensearch.sql.ast.expression.UnresolvedAttribute;
+import org.opensearch.sql.ast.expression.When;
 import org.opensearch.sql.ast.expression.WindowFunction;
+import org.opensearch.sql.ast.expression.Xor;
 import org.opensearch.sql.ast.tree.Filter;
 import org.opensearch.sql.ast.tree.Limit;
 import org.opensearch.sql.ast.tree.Project;
@@ -113,6 +129,86 @@ public class CanPaginateVisitor extends AbstractNodeVisitor<Boolean, Object> {
   @Override
   public Boolean visitChildren(Node node, Object context) {
     return Boolean.FALSE;
+  }
+
+  @Override
+  public Boolean visitEqualTo(EqualTo node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitRelevanceFieldList(RelevanceFieldList node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitInterval(Interval node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitCompare(Compare node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitNot(Not node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitOr(Or node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitAnd(And node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitXor(Xor node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitFunction(Function node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitIn(In node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitBetween(Between node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitCase(Case node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitWhen(When node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitCast(Cast node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitHighlightFunction(HighlightFunction node, Object context) {
+    return canPaginate(node, context);
+  }
+
+  @Override
+  public Boolean visitUnresolvedAttribute(UnresolvedAttribute node, Object context) {
+    return canPaginate(node, context);
   }
 
   @Override

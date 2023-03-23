@@ -9,11 +9,13 @@ import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.sql.ast.tree.Sort;
+import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.serialization.DefaultExpressionSerializer;
 import org.opensearch.sql.opensearch.storage.script.filter.FilterQueryBuilder;
 import org.opensearch.sql.opensearch.storage.script.sort.SortQueryBuilder;
 import org.opensearch.sql.planner.logical.LogicalFilter;
+import org.opensearch.sql.planner.logical.LogicalHighlight;
 import org.opensearch.sql.planner.logical.LogicalLimit;
 import org.opensearch.sql.planner.logical.LogicalProject;
 import org.opensearch.sql.planner.logical.LogicalSort;
@@ -71,6 +73,14 @@ public class OpenSearchPagedIndexScanBuilder extends TableScanBuilder {
     indexScan.getRequestBuilder().pushDownProjects(
         findReferenceExpressions(project.getProjectList()));
     return false;
+  }
+
+  @Override
+  public boolean pushDownHighlight(LogicalHighlight highlight) {
+    indexScan.getRequestBuilder().pushDownHighlight(
+        StringUtils.unquoteText(highlight.getHighlightField().toString()),
+        highlight.getArguments());
+    return true;
   }
 
   @Override

@@ -20,11 +20,14 @@ import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.search.aggregations.AggregationBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
+import org.opensearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.opensearch.search.sort.SortBuilder;
 import org.opensearch.search.sort.SortBuilders;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.common.setting.Settings;
+import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.type.ExprType;
+import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseParser;
@@ -92,6 +95,31 @@ public class InitialPageRequestBuilder extends PagedRequestBuilder {
 
     for (SortBuilder<?> sortBuilder : sortBuilders) {
       sourceBuilder.sort(sortBuilder);
+    }
+  }
+
+  @Override
+  public void pushDownHighlight(String field, Map<String, Literal> arguments) {
+    HighlightBuilder highlightBuilder;
+    String unquotedField = StringUtils.unquoteText(field);
+    if (sourceBuilder.highlighter() != null) {
+      // OS does not allow duplicates of highlight fields
+      if (sourceBuilder.highlighter().fields().stream()
+          .anyMatch(f -> f.name().equals(unquotedField))) {
+        throw new SemanticCheckException(String.format(
+            "Duplicate field %s in highlight", field));
+      }
+      highlightBuilder = sourceBuilder.highlighter().field(unquotedField);
+    } else {
+      highlightBuilder = new HighlightBuilder().field(unquotedField);
+      sourceBuilder.highlighter(highlightBuilder);
+    }
+
+    if (arguments.containsKey("pre_tags")) {
+      highlightBuilder.preTags(arguments.get("pre_tags").toString());
+    }
+    if (arguments.containsKey("post_tags")) {
+      highlightBuilder.postTags(arguments.get("post_tags").toString());
     }
   }
 
