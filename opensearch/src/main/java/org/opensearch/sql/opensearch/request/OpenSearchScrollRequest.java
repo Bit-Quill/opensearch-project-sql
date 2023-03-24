@@ -154,7 +154,6 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
    */
   @Override
   public String toCursor() {
-    // TODO: probably should serialize exprValueFactory here as well.
     return scrollId;
   }
 }

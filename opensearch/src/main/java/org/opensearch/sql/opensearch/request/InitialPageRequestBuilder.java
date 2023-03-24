@@ -17,37 +17,38 @@ import org.opensearch.search.aggregations.AggregationBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.opensearch.search.sort.SortBuilder;
 import org.opensearch.sql.ast.expression.Literal;
-import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseParser;
 
+/**
+ * This builder assists creating the initial OpenSearch paging (scrolling) request.
+ * It is used only on the first page (pagination request).
+ * Subsequent requests (cursor requests) use {@link ContinuePageRequestBuilder}.
+ */
 public class InitialPageRequestBuilder implements PagedRequestBuilder {
 
   @Getter
   private final OpenSearchRequest.IndexName indexName;
   private final SearchSourceBuilder sourceBuilder;
   private final OpenSearchExprValueFactory exprValueFactory;
-  private final int querySize;
 
   /**
    * Constructor.
-   * @param indexName index being scanned
-   * @param settings other settings
+   *
+   * @param indexName        index being scanned
    * @param exprValueFactory value factory
    */
   // TODO accept indexName as string (same way as `OpenSearchRequestBuilder` does)?
   public InitialPageRequestBuilder(OpenSearchRequest.IndexName indexName,
                                    int pageSize,
-                                   Settings settings, // TODO: settings are not used - refactor?
                                    OpenSearchExprValueFactory exprValueFactory) {
     this.indexName = indexName;
     this.exprValueFactory = exprValueFactory;
-    this.querySize = pageSize;
     this.sourceBuilder = new SearchSourceBuilder()
         .from(0)
-        .size(querySize)
+        .size(pageSize)
         .timeout(DEFAULT_QUERY_TIMEOUT);
   }
 

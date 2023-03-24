@@ -11,11 +11,13 @@ import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.executor.QueryId;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 
+/**
+ * ContinuePaginatedPlan represents cursor a request.
+ * It returns subsequent pages to the user (2nd page and all next).
+ * {@link PaginatedPlan}
+ */
 public class ContinuePaginatedPlan extends AbstractPlan {
 
-  public static final ContinuePaginatedPlan None
-      = new ContinuePaginatedPlan(QueryId.None, "", null,
-      null, null);
   private final String cursor;
   private final PaginatedQueryService queryService;
   private final PaginatedPlanCache paginatedPlanCache;
@@ -48,7 +50,6 @@ public class ContinuePaginatedPlan extends AbstractPlan {
   }
 
   @Override
-  // TODO why can't use listener given in the constructor?
   public void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener) {
     listener.onFailure(new UnsupportedOperationException(
         "Explain of a paged query continuation is not supported. "

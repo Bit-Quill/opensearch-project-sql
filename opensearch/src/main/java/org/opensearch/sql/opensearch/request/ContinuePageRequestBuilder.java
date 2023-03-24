@@ -9,8 +9,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 
+/**
+ * Builds a {@link ContinuePageRequest} to handle subsequent pagination/scroll/cursor requests.
+ * Initial search requests is handled by {@link InitialPageRequestBuilder}.
+ */
 @RequiredArgsConstructor
-public class SubsequentPageRequestBuilder implements PagedRequestBuilder {
+public class ContinuePageRequestBuilder implements PagedRequestBuilder {
 
   @Getter
   private final OpenSearchRequest.IndexName indexName;
@@ -19,6 +23,6 @@ public class SubsequentPageRequestBuilder implements PagedRequestBuilder {
 
   @Override
   public OpenSearchRequest build() {
-    return new ContinueScrollRequest(scrollId, exprValueFactory);
+    return new ContinuePageRequest(scrollId, exprValueFactory);
   }
 }

@@ -40,7 +40,7 @@ import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-public class ContinueScrollRequestTest {
+public class ContinuePageRequestTest {
 
   @Mock
   private Function<SearchRequest, SearchResponse> searchAction;
@@ -66,7 +66,7 @@ public class ContinueScrollRequestTest {
   private final String scroll = "scroll";
   private final String nextScroll = "nextScroll";
 
-  private final ContinueScrollRequest request = new ContinueScrollRequest(scroll, factory);
+  private final ContinuePageRequest request = new ContinuePageRequest(scroll, factory);
 
   @Test
   public void search_with_non_empty_response() {
@@ -118,7 +118,7 @@ public class ContinueScrollRequestTest {
     factory = mock();
     assertAll(
         () -> assertThrows(Throwable.class, request::getSourceBuilder),
-        () -> assertSame(factory, new ContinueScrollRequest("", factory).getExprValueFactory())
+        () -> assertSame(factory, new ContinuePageRequest("", factory).getExprValueFactory())
     );
   }
 }

@@ -29,6 +29,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -51,6 +53,7 @@ import org.opensearch.sql.storage.TableScanOperator;
 import org.opensearch.sql.storage.split.Split;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class OpenSearchExecutionEngineTest {
 
   @Mock private OpenSearchClient client;
@@ -77,7 +80,7 @@ class OpenSearchExecutionEngineTest {
   }
 
   @Test
-  void executeSuccessfully() {
+  void execute_successfully() {
     List<ExprValue> expected =
         Arrays.asList(
             tupleValue(of("name", "John", "age", 20)), tupleValue(of("name", "Allen", "age", 30)));
@@ -85,7 +88,7 @@ class OpenSearchExecutionEngineTest {
     when(protector.protect(plan)).thenReturn(plan);
 
     OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector,
-        PaginatedPlanCache.None);
+        new PaginatedPlanCache(null));
     List<ExprValue> actual = new ArrayList<>();
     executor.execute(
         plan,
@@ -107,7 +110,7 @@ class OpenSearchExecutionEngineTest {
   }
 
   @Test
-  void executeWithCursor() {
+  void execute_with_cursor() {
     List<ExprValue> expected =
         Arrays.asList(
             tupleValue(of("name", "John", "age", 20)), tupleValue(of("name", "Allen", "age", 30)));
@@ -115,7 +118,7 @@ class OpenSearchExecutionEngineTest {
     when(protector.protect(plan)).thenReturn(plan);
 
     OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector,
-        PaginatedPlanCache.None);
+        new PaginatedPlanCache(null));
     List<ExprValue> actual = new ArrayList<>();
     executor.execute(
         plan,
@@ -136,14 +139,14 @@ class OpenSearchExecutionEngineTest {
   }
 
   @Test
-  void executeWithFailure() {
+  void execute_with_failure() {
     PhysicalPlan plan = mock(PhysicalPlan.class);
     RuntimeException expected = new RuntimeException("Execution error");
     when(plan.hasNext()).thenThrow(expected);
     when(protector.protect(plan)).thenReturn(plan);
 
     OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector,
-        PaginatedPlanCache.None);
+        new PaginatedPlanCache(null));
     AtomicReference<Exception> actual = new AtomicReference<>();
     executor.execute(
         plan,
@@ -163,9 +166,9 @@ class OpenSearchExecutionEngineTest {
   }
 
   @Test
-  void explainSuccessfully() {
+  void explain_successfully() {
     OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector,
-        PaginatedPlanCache.None);
+        new PaginatedPlanCache(null));
     Settings settings = mock(Settings.class);
     when(settings.getSettingValue(QUERY_SIZE_LIMIT)).thenReturn(100);
     PhysicalPlan plan = new OpenSearchIndexScan(mock(OpenSearchClient.class),
@@ -189,9 +192,9 @@ class OpenSearchExecutionEngineTest {
   }
 
   @Test
-  void explainWithFailure() {
+  void explain_with_failure() {
     OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector,
-        PaginatedPlanCache.None);
+        new PaginatedPlanCache(null));
     PhysicalPlan plan = mock(PhysicalPlan.class);
     when(plan.accept(any(), any())).thenThrow(IllegalStateException.class);
 
@@ -212,7 +215,7 @@ class OpenSearchExecutionEngineTest {
   }
 
   @Test
-  void callAddSplitAndOpenInOrder() {
+  void call_add_split_and_open_in_order() {
     List<ExprValue> expected =
         Arrays.asList(
             tupleValue(of("name", "John", "age", 20)), tupleValue(of("name", "Allen", "age", 30)));
@@ -221,7 +224,7 @@ class OpenSearchExecutionEngineTest {
     when(executionContext.getSplit()).thenReturn(Optional.of(split));
 
     OpenSearchExecutionEngine executor = new OpenSearchExecutionEngine(client, protector,
-        PaginatedPlanCache.None);
+        new PaginatedPlanCache(null));
     List<ExprValue> actual = new ArrayList<>();
     executor.execute(
         plan,

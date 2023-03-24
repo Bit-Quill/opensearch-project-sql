@@ -10,6 +10,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+/**
+ * LogicalPaginate represents pagination operation for underlying plan.
+ */
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)

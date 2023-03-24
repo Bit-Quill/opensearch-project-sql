@@ -51,10 +51,8 @@ public class OpenSearchExecutionEngine implements ExecutionEngine {
               result.add(plan.next());
             }
 
-            Cursor qc = paginatedPlanCache.convertToCursor(plan);
-
             QueryResponse response = new QueryResponse(physicalPlan.schema(), result,
-                plan.getTotalHits(), qc);
+                plan.getTotalHits(), paginatedPlanCache.convertToCursor(plan));
             listener.onResponse(response);
           } catch (Exception e) {
             listener.onFailure(e);

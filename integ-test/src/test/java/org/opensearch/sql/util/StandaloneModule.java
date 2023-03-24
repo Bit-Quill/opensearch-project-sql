@@ -38,6 +38,10 @@ import org.opensearch.sql.sql.antlr.SQLSyntaxParser;
 import org.opensearch.sql.storage.StorageEngine;
 import org.opensearch.sql.util.ExecuteOnCallerThreadQueryManager;
 
+/**
+ * A utility class which registers SQL engine singletons as `OpenSearchPluginModule` does.
+ * It is needed to get access to those instances in test and validate their behavior.
+ */
 @RequiredArgsConstructor
 public class StandaloneModule extends AbstractModule {
 

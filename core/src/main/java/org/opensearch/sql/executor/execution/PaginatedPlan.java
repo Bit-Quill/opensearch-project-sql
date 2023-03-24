@@ -12,6 +12,12 @@ import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.QueryId;
 
+/**
+ * PaginatedPlan represents a page request. Dislike a regular QueryPlan,
+ * it returns paged response to the user and cursor, which allows to query
+ * next page.
+ * {@link ContinuePaginatedPlan}
+ */
 public class PaginatedPlan extends AbstractPlan {
   final UnresolvedPlan plan;
   final int fetchSize;
@@ -39,7 +45,6 @@ public class PaginatedPlan extends AbstractPlan {
   }
 
   @Override
-  // TODO why can't use listener given in the constructor?
   public void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener) {
     listener.onFailure(new NotImplementedException(
         "`explain` feature for paginated requests is not implemented yet."));

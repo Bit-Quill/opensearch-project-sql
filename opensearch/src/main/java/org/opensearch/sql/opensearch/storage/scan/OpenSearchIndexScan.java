@@ -28,7 +28,7 @@ import org.opensearch.sql.storage.TableScanOperator;
 public class OpenSearchIndexScan extends TableScanOperator {
 
   /** OpenSearch client. */
-  private final transient OpenSearchClient client;
+  private final OpenSearchClient client;
 
   /** Search request builder. */
   @EqualsAndHashCode.Include
@@ -50,7 +50,7 @@ public class OpenSearchIndexScan extends TableScanOperator {
   private Integer queryCount;
 
   /** Search response for current batch. */
-  private transient Iterator<ExprValue> iterator;
+  private Iterator<ExprValue> iterator;
 
   public OpenSearchIndexScan(OpenSearchClient client, OpenSearchRequestBuilder builder) {
     this.client = client;

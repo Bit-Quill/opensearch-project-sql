@@ -177,7 +177,7 @@ class OpenSearchIndexTest {
     LogicalPlan plan = index.createPagedScanBuilder(42);
     Integer maxResultWindow = index.getMaxResultWindow();
     PagedRequestBuilder builder = new InitialPageRequestBuilder(
-        new OpenSearchRequest.IndexName(indexName), maxResultWindow, settings, exprValueFactory);
+        new OpenSearchRequest.IndexName(indexName), maxResultWindow, exprValueFactory);
     assertEquals(new OpenSearchPagedIndexScan(client, builder), index.implement(plan));
   }
 

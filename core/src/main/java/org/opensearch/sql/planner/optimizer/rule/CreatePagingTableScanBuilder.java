@@ -18,8 +18,10 @@ import org.opensearch.sql.planner.optimizer.Rule;
 import org.opensearch.sql.storage.Table;
 import org.opensearch.sql.storage.read.TableScanBuilder;
 
-public class CreatePagingTableScanBuilder
-    implements Rule<LogicalRelation> {
+/**
+ * Rule to create a paged TableScanBuilder in pagination request.
+ */
+public class CreatePagingTableScanBuilder implements Rule<LogicalRelation> {
   /** Capture the table inside matched logical relation operator. */
   private final Capture<Table> capture;
 

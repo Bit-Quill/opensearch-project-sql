@@ -43,7 +43,7 @@ public class QueryPlanFactory
   private final PaginatedPlanCache paginatedPlanCache;
 
   /**
-   * NO_CONSUMER_RESPONSE_LISTENER should never been called. It is only used as constructor
+   * NO_CONSUMER_RESPONSE_LISTENER should never be called. It is only used as constructor
    * parameter of {@link QueryPlan}.
    */
   @VisibleForTesting
@@ -66,7 +66,7 @@ public class QueryPlanFactory
   /**
    * Create QueryExecution from Statement.
    */
-  public AbstractPlan create(
+  public AbstractPlan createContinuePaginatedPlan(
       Statement statement,
       Optional<ResponseListener<ExecutionEngine.QueryResponse>> queryListener,
       Optional<ResponseListener<ExecutionEngine.ExplainResponse>> explainListener) {
@@ -76,21 +76,20 @@ public class QueryPlanFactory
   /**
    * Creates a ContinuePaginatedPlan from a cursor.
    */
-  public AbstractPlan create(String cursor, boolean isExplain,
+  public AbstractPlan createContinuePaginatedPlan(String cursor, boolean isExplain,
       ResponseListener<ExecutionEngine.QueryResponse> queryResponseListener,
       ResponseListener<ExecutionEngine.ExplainResponse> explainListener) {
     QueryId queryId = QueryId.queryId();
-    var cpp = new ContinuePaginatedPlan(queryId, cursor, paginatedQueryService, paginatedPlanCache,
-        queryResponseListener);
-    return isExplain ? new ExplainPlan(queryId, cpp, explainListener) : cpp;
+    var plan = new ContinuePaginatedPlan(queryId, cursor, paginatedQueryService,
+        paginatedPlanCache, queryResponseListener);
+    return isExplain ? new ExplainPlan(queryId, plan, explainListener) : plan;
   }
 
   @Override
   public AbstractPlan visitQuery(
       Query node,
-      Pair<
-              Optional<ResponseListener<ExecutionEngine.QueryResponse>>,
-              Optional<ResponseListener<ExecutionEngine.ExplainResponse>>>
+      Pair<Optional<ResponseListener<ExecutionEngine.QueryResponse>>,
+           Optional<ResponseListener<ExecutionEngine.ExplainResponse>>>
           context) {
     Preconditions.checkArgument(
         context.getLeft().isPresent(), "[BUG] query listener must be not null");
@@ -113,17 +112,16 @@ public class QueryPlanFactory
   @Override
   public AbstractPlan visitExplain(
       Explain node,
-      Pair<
-              Optional<ResponseListener<ExecutionEngine.QueryResponse>>,
-              Optional<ResponseListener<ExecutionEngine.ExplainResponse>>>
+      Pair<Optional<ResponseListener<ExecutionEngine.QueryResponse>>,
+           Optional<ResponseListener<ExecutionEngine.ExplainResponse>>>
           context) {
     Preconditions.checkArgument(
         context.getRight().isPresent(), "[BUG] explain listener must be not null");
 
     return new ExplainPlan(
         QueryId.queryId(),
-        create(node.getStatement(), Optional.of(NO_CONSUMER_RESPONSE_LISTENER), Optional.empty()),
+        createContinuePaginatedPlan(node.getStatement(),
+            Optional.of(NO_CONSUMER_RESPONSE_LISTENER), Optional.empty()),
         context.getRight().get());
   }
-
 }

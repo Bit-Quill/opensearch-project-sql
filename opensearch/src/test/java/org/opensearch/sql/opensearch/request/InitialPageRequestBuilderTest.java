@@ -48,7 +48,7 @@ public class InitialPageRequestBuilderTest {
   @BeforeEach
   void setup() {
     requestBuilder = new InitialPageRequestBuilder(
-        indexName, pageSize, settings, exprValueFactory);
+        indexName, pageSize, exprValueFactory);
   }
 
   @Test

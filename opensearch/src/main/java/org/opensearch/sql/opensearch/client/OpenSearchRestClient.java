@@ -179,7 +179,7 @@ public class OpenSearchRestClient implements OpenSearchClient {
         ClearScrollRequest clearRequest = new ClearScrollRequest();
         clearRequest.addScrollId(scrollId);
         client.clearScroll(clearRequest, RequestOptions.DEFAULT);
-      } catch (Exception e) {
+      } catch (IOException e) {
         throw new IllegalStateException(
             "Failed to clean up resources for search request " + request, e);
       }

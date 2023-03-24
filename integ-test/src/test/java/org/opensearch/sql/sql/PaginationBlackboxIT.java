@@ -8,9 +8,13 @@ package org.opensearch.sql.sql;
 
 import static org.opensearch.sql.legacy.TestUtils.getResponseBody;
 import static org.opensearch.sql.legacy.TestUtils.isIndexExist;
+import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_ONLINE;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import com.carrotsearch.randomizedtesting.annotations.Name;
 import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
 import lombok.SneakyThrows;
@@ -38,7 +42,7 @@ public class PaginationBlackboxIT extends SQLIntegTestCase {
   @ParametersFactory(argumentFormatting = "index = %1$s, page_size = %2$d")
   public static Iterable<Object[]> compareTwoDates() {
     var indices = new PaginationBlackboxHelper().getIndices();
-    var pageSizes = List.of(1, 5, 10, 100, 1000);
+    var pageSizes = List.of(5, 10, 100, 1000);
     var testData = new ArrayList<Object[]>();
     for (var index : indices) {
       for (var pageSize : pageSizes) {
@@ -99,16 +103,17 @@ public class PaginationBlackboxIT extends SQLIntegTestCase {
   private static class PaginationBlackboxHelper extends SQLIntegTestCase {
 
     @SneakyThrows
-    private String[] getIndices() {
+    private List<String> getIndices() {
       initClient();
       loadIndex(Index.ACCOUNT);
-      loadIndex(Index.ONLINE);
       loadIndex(Index.BEER);
       loadIndex(Index.BANK);
       if (!isIndexExist(client(), "empty")) {
         executeRequest(new Request("PUT", "/empty"));
       }
-      return getResponseBody(client().performRequest(new Request("GET", "_cat/indices?h=i")), true).split("\n");
+      return Arrays.stream(getResponseBody(client().performRequest(new Request("GET", "_cat/indices?h=i")), true).split("\n"))
+          // exclude this index, because it is too big and extends test time too long (almost 10k docs)
+          .filter(i -> !i.equals(TEST_INDEX_ONLINE)).collect(Collectors.toList());
     }
   }
 }

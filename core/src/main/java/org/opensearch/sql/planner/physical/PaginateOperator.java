@@ -54,13 +54,6 @@ public class PaginateOperator extends PhysicalPlan {
   }
 
   @Override
-  public void open() {
-    super.open();
-    // TODO numReturned set to 0 for each new object. Do plans support re-opening?
-    numReturned = 0;
-  }
-
-  @Override
   public ExprValue next() {
     numReturned += 1;
     return input.next();
@@ -72,10 +65,6 @@ public class PaginateOperator extends PhysicalPlan {
 
   @Override
   public ExecutionEngine.Schema schema() {
-    // TODO remove assert or do in constructor
-    if (!(input instanceof ProjectOperator)) {
-      throw new UnsupportedOperationException();
-    }
     return input.schema();
   }
 

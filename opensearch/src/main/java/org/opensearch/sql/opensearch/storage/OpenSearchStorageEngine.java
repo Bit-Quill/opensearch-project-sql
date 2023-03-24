@@ -13,8 +13,8 @@ import org.opensearch.sql.DataSourceSchemaName;
 import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
+import org.opensearch.sql.opensearch.request.ContinuePageRequestBuilder;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
-import org.opensearch.sql.opensearch.request.SubsequentPageRequestBuilder;
 import org.opensearch.sql.opensearch.storage.scan.OpenSearchPagedIndexScan;
 import org.opensearch.sql.opensearch.storage.system.OpenSearchSystemIndex;
 import org.opensearch.sql.storage.StorageEngine;
@@ -43,7 +43,7 @@ public class OpenSearchStorageEngine implements StorageEngine {
   public TableScanOperator getTableScan(String indexName, String scrollId) {
     // TODO call `getTable` here?
     var index = new OpenSearchIndex(client, settings, indexName);
-    var requestBuilder = new SubsequentPageRequestBuilder(
+    var requestBuilder = new ContinuePageRequestBuilder(
         new OpenSearchRequest.IndexName(indexName),
         scrollId,
         new OpenSearchExprValueFactory(index.getFieldTypes()));

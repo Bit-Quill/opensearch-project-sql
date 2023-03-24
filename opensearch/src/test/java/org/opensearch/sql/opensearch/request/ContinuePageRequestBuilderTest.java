@@ -18,7 +18,7 @@ import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
-public class SubsequentPageRequestBuilderTest {
+public class ContinuePageRequestBuilderTest {
 
   @Mock
   private OpenSearchExprValueFactory exprValueFactory;
@@ -26,17 +26,17 @@ public class SubsequentPageRequestBuilderTest {
   private final OpenSearchRequest.IndexName indexName = new OpenSearchRequest.IndexName("test");
   private final String scrollId = "scroll";
 
-  private SubsequentPageRequestBuilder requestBuilder;
+  private ContinuePageRequestBuilder requestBuilder;
 
   @BeforeEach
   void setup() {
-    requestBuilder = new SubsequentPageRequestBuilder(indexName, scrollId, exprValueFactory);
+    requestBuilder = new ContinuePageRequestBuilder(indexName, scrollId, exprValueFactory);
   }
 
   @Test
   public void build() {
     assertEquals(
-        new ContinueScrollRequest(scrollId, exprValueFactory),
+        new ContinuePageRequest(scrollId, exprValueFactory),
         requestBuilder.build()
     );
   }

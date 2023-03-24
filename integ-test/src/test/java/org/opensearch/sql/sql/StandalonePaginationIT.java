@@ -5,6 +5,7 @@
 
 package org.opensearch.sql.sql;
 
+import static org.junit.Assert.fail;
 import static org.opensearch.sql.datasource.model.DataSourceMetadata.defaultOpenSearchDataSourceMetadata;
 import static org.opensearch.sql.legacy.TestUtils.getResponseBody;
 import static org.opensearch.sql.legacy.TestUtils.isIndexExist;
@@ -88,13 +89,11 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
       @Override
       public void onResponse(ExecutionEngine.QueryResponse response) {
         cursor = response.getCursor();
-        assertTrue(true);
       }
 
       @Override
       public void onFailure(Exception e) {
-
-        assertFalse(true);
+        fail();
       }
     };
 

@@ -19,8 +19,14 @@ import org.opensearch.search.builder.SearchSourceBuilder;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 
+/**
+ * Scroll (cursor) request is used to page the search. This request is not configurable and has
+ * no search query. It just handles paging through responses to the initial request.
+ * It is used on second and next pagination (cursor) requests.
+ * First (initial) request is handled by {@link InitialPageRequestBuilder}.
+ */
 @EqualsAndHashCode
-public class ContinueScrollRequest implements OpenSearchRequest {
+public class ContinuePageRequest implements OpenSearchRequest {
   final String initialScrollId;
 
   // ScrollId that OpenSearch returns after search.
@@ -34,7 +40,7 @@ public class ContinueScrollRequest implements OpenSearchRequest {
   @EqualsAndHashCode.Exclude
   private boolean scrollFinished = false;
 
-  public ContinueScrollRequest(String scrollId, OpenSearchExprValueFactory exprValueFactory) {
+  public ContinuePageRequest(String scrollId, OpenSearchExprValueFactory exprValueFactory) {
     this.initialScrollId = scrollId;
     this.exprValueFactory = exprValueFactory;
   }

@@ -5,21 +5,18 @@
 
 package org.opensearch.sql.executor.execution;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 import static org.opensearch.sql.executor.PaginatedPlanCacheTest.buildCursor;
 
 import java.util.Map;
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -50,31 +47,6 @@ public class ContinuePaginatedPlanTest {
     paginatedPlanCache = new PaginatedPlanCache(storageEngine);
     paginatedQueryService = new PaginatedQueryService(
         null, new DefaultExecutionEngine(), null);
-  }
-
-  @Test
-  public void none_plan_is_empty() {
-    var plan = ContinuePaginatedPlan.None;
-
-    assertAll(
-        () -> assertTrue(plan.getQueryId().getQueryId().isEmpty()),
-        () -> {
-          var cursor = (String) FieldUtils.readField(plan, "cursor", true);
-          assertTrue(cursor.isEmpty());
-        },
-        () -> {
-          var pqs = (PaginatedQueryService) FieldUtils.readField(plan, "queryService", true);
-          assertNull(pqs);
-        },
-        () -> {
-          var ppc = (PaginatedPlanCache) FieldUtils.readField(plan, "paginatedPlanCache", true);
-          assertNull(ppc);
-        },
-        () -> {
-          var rl = (ResponseListener<?>) FieldUtils.readField(plan, "queryResponseListener", true);
-          assertNull(rl);
-        }
-    );
   }
 
   @Test
@@ -117,7 +89,8 @@ public class ContinuePaginatedPlanTest {
   @Test
   public void explain_is_not_supported() {
     var listener = mock(ResponseListener.class);
-    ContinuePaginatedPlan.None.explain(listener);
+    mock(ContinuePaginatedPlan.class, withSettings().defaultAnswer(CALLS_REAL_METHODS))
+        .explain(listener);
     verify(listener).onFailure(any(UnsupportedOperationException.class));
   }
 }

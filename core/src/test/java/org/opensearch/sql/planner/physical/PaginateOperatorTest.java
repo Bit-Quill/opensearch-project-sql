@@ -13,11 +13,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.planner.physical.PhysicalPlanDSL.project;
@@ -25,6 +27,7 @@ import static org.opensearch.sql.planner.physical.PhysicalPlanDSL.project;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
+import org.opensearch.sql.data.model.ExprIntegerValue;
 import org.opensearch.sql.expression.DSL;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -40,11 +43,13 @@ public class PaginateOperatorTest extends PhysicalPlanTestBase {
   public void hasNext_a_page() {
     var plan = mock(PhysicalPlan.class);
     when(plan.hasNext()).thenReturn(true);
-    when(plan.next()).thenReturn(null);
+    when(plan.next()).thenReturn(new ExprIntegerValue(42)).thenReturn(null);
     var paginate = new PaginateOperator(plan, 1, 1);
     assertTrue(paginate.hasNext());
+    assertEquals(42, paginate.next().integerValue());
     paginate.next();
     assertFalse(paginate.hasNext());
+    assertNull(paginate.next());
   }
 
   @Test
@@ -80,8 +85,8 @@ public class PaginateOperatorTest extends PhysicalPlanTestBase {
 
   @Test
   public void schema_assert() {
-    assertThrows(Throwable.class,
-        () -> new PaginateOperator(mock(PhysicalPlan.class), 42).schema());
+    var plan = mock(PhysicalPlan.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
+    assertThrows(Throwable.class, () -> new PaginateOperator(plan, 42).schema());
   }
 
   @Test

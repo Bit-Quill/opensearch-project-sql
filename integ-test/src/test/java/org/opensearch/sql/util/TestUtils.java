@@ -8,6 +8,7 @@ package org.opensearch.sql.util;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.junit.Assert.assertTrue;
+import static org.opensearch.sql.executor.PaginatedPlanCache.CURSOR_PREFIX;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -37,6 +39,7 @@ import org.opensearch.client.Response;
 import org.opensearch.client.RestClient;
 import org.opensearch.common.xcontent.XContentType;
 import org.opensearch.rest.RestStatus;
+import org.opensearch.sql.legacy.cursor.CursorType;
 
 public class TestUtils {
 
@@ -842,12 +845,14 @@ public class TestUtils {
   }
 
   public static void verifyIsV1Cursor(JSONObject response) {
-    verifyCursor(response, List.of("d:", "j:", "a:"), "v1");
+    var legacyCursorPrefixes = Arrays.stream(CursorType.values())
+        .map(c -> c.toString() + ":").collect(Collectors.toList());
+    verifyCursor(response, legacyCursorPrefixes, "v1");
   }
 
 
   public static void verifyIsV2Cursor(JSONObject response) {
-    verifyCursor(response, List.of("n:"), "v2");
+    verifyCursor(response, List.of(CURSOR_PREFIX), "v2");
   }
 
   private static void verifyCursor(JSONObject response, List<String> validCursorPrefix, String engineName) {

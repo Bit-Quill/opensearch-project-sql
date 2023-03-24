@@ -5,7 +5,6 @@
 
 package org.opensearch.sql.executor;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.Node;
 import org.opensearch.sql.ast.expression.AllFields;
@@ -15,13 +14,14 @@ import org.opensearch.sql.ast.tree.Relation;
 /**
  * Use this unresolved plan visitor to check if a plan can be serialized by PaginatedPlanCache.
  * If plan.accept(new CanPaginateVisitor(...)) returns true,
- * then PaginatedPlanCache.convertToCursor will succeed.
- * Otherwise, it will fail.
+ * then PaginatedPlanCache.convertToCursor will succeed. Otherwise, it will fail.
+ * The purpose of this visitor is to activate legacy engine fallback mechanism.
  * Currently, the conditions are:
  * - only projection of a relation is supported.
  * - projection only has * (a.k.a. allFields).
  * - Relation only scans one table
  * - The table is an open search index.
+ * So it accepts only queries like `select * from $index`
  * See PaginatedPlanCache.canConvertToCursor for usage.
  */
 public class CanPaginateVisitor extends AbstractNodeVisitor<Boolean, Object> {
@@ -38,42 +38,6 @@ public class CanPaginateVisitor extends AbstractNodeVisitor<Boolean, Object> {
     // not the case.
     return Boolean.TRUE;
   }
-
-  /*
-  private Boolean canPaginate(Node node, Object context) {
-    AtomicBoolean result = new AtomicBoolean(true);
-    node.getChild().forEach(n -> result.set(result.get() && n.accept(this, context)));
-    return result.get();
-  }
-
-  For queries without `FROM` clause.
-  Required to overload `toCursor` function in `ValuesOperator` and modify cursor parsing.
-  @Override
-  public Boolean visitValues(Values node, Object context) {
-    return canPaginate(node, context);
-  }
-
-  For queries with LIMIT clause:
-  Required to overload `toCursor` function in `LimitOperator` and modify cursor parsing.
-  @Override
-  public Boolean visitLimit(Limit node, Object context) {
-    return canPaginate(node, context);
-  }
-
-  For queries with ORDER BY clause:
-  Required to overload `toCursor` function in `SortOperator` and modify cursor parsing.
-  @Override
-  public Boolean visitSort(Sort node, Object context) {
-    return canPaginate(node, context);
-  }
-
-  For queries with WHERE clause:
-  Required to overload `toCursor` function in `FilterOperator` and modify cursor parsing.
-  @Override
-  public Boolean visitFilter(Filter node, Object context) {
-    return canPaginate(node, context);
-  }
-  */
 
   @Override
   public Boolean visitChildren(Node node, Object context) {

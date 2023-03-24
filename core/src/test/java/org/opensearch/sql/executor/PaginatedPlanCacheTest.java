@@ -300,8 +300,8 @@ public class PaginatedPlanCacheTest {
   @ParameterizedTest
   @ValueSource(strings = {"pewpew", "asdkfhashdfjkgakgfwuigfaijkb", testCursor})
   void compress_decompress(String input) {
-    var compressed = PaginatedPlanCache.compress(input);
-    assertEquals(input, PaginatedPlanCache.decompress(compressed));
+    var compressed = compress(input);
+    assertEquals(input, decompress(compressed));
     if (input.length() > 200) {
       // Compression of short strings isn't profitable, because encoding into string and gzip
       // headers add more bytes than input string has.
@@ -313,10 +313,10 @@ public class PaginatedPlanCacheTest {
   // should never happen actually, at least for compress
   void compress_decompress_null_or_empty_string() {
     assertAll(
-        () -> assertNull(PaginatedPlanCache.compress(null)),
-        () -> assertNull(PaginatedPlanCache.compress("")),
-        () -> assertNull(PaginatedPlanCache.decompress(null)),
-        () -> assertNull(PaginatedPlanCache.decompress(""))
+        () -> assertTrue(compress(null).isEmpty()),
+        () -> assertTrue(compress("").isEmpty()),
+        () -> assertTrue(decompress(null).isEmpty()),
+        () -> assertTrue(decompress("").isEmpty())
     );
   }
 
@@ -324,7 +324,7 @@ public class PaginatedPlanCacheTest {
   // test added for coverage only
   void compress_throws() {
     var mock = Mockito.mockConstructionWithAnswer(GZIPOutputStream.class, invocation -> null);
-    assertThrows(Throwable.class, () -> PaginatedPlanCache.compress("\\_(`v`)_/"));
+    assertThrows(Throwable.class, () -> compress("\\_(`v`)_/"));
     mock.close();
   }
 
@@ -332,9 +332,9 @@ public class PaginatedPlanCacheTest {
   void decompress_throws() {
     assertAll(
         // from gzip - damaged header
-        () -> assertThrows(Throwable.class, () -> PaginatedPlanCache.decompress("00")),
+        () -> assertThrows(Throwable.class, () -> decompress("00")),
         // from HashCode::fromString
-        () -> assertThrows(Throwable.class, () -> PaginatedPlanCache.decompress("000"))
+        () -> assertThrows(Throwable.class, () -> decompress("000"))
     );
   }
 
@@ -356,6 +356,7 @@ public class PaginatedPlanCacheTest {
   }
 
   @Test
+  @SneakyThrows
   void convertToCursor_cant_convert() {
     var plan = mock(MockedTableScanOperator.class);
     assertEquals(Cursor.None, planCache.convertToCursor(plan));
@@ -367,7 +368,7 @@ public class PaginatedPlanCacheTest {
   @Test
   void converted_plan_is_executable() {
     // planCache.convertToPlan(buildCursor(Map.of()));
-    var plan = planCache.convertToPlan("n:" + PaginatedPlanCache.compress(testCursor));
+    var plan = planCache.convertToPlan("n:" + compress(testCursor));
     // TODO
   }
 
@@ -379,7 +380,7 @@ public class PaginatedPlanCacheTest {
 
   private static Stream<Arguments> generateIncorrectCursors() {
     return Stream.of(
-        PaginatedPlanCache.compress(testCursor), // a valid cursor, but without "n:" prefix
+        compress(testCursor), // a valid cursor, but without "n:" prefix
         "n:" + testCursor, // a valid, but uncompressed cursor
         buildCursor(Map.of("prefix", "g:")), // incorrect prefix
         buildCursor(Map.of("header: paginate", "ORDER BY")), // incorrect header
@@ -423,7 +424,7 @@ public class PaginatedPlanCacheTest {
     var cursor = String.format("(%s,%s,%s,(%s,(%s,%s),(%s,%s),(%s,%s,%s)))", headerPaginate,
         pageIndex, pageSize, headerProject, headerNpes, namedParseExpressions, headerProjectList,
         projectList, headerOspis, indexName, scrollId);
-    return prefix + PaginatedPlanCache.compress(cursor);
+    return prefix + compress(cursor);
   }
 
   private static class MockedTableScanOperator extends TableScanOperator {
@@ -446,5 +447,15 @@ public class PaginatedPlanCacheTest {
     public String toCursor() {
       return createSection("OpenSearchPagedIndexScan", testIndexName, testScroll);
     }
+  }
+
+  @SneakyThrows
+  private static String compress(String input) {
+    return new PaginatedPlanCache(null).compress(input);
+  }
+
+  @SneakyThrows
+  private static String decompress(String input) {
+    return new PaginatedPlanCache(null).decompress(input);
   }
 }

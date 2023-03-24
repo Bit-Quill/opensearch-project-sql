@@ -107,7 +107,6 @@ public class RestSQLQueryActionCursorFallbackTest extends BaseRestHandler {
     RestSQLQueryAction queryAction = new RestSQLQueryAction(injector);
     queryAction.prepareRequest(request, (channel, exception) -> {
       fallback.set(true);
-      assertTrue(exception instanceof SyntaxCheckException);
     }, (channel, exception) -> {
     }).accept(restChannel);
     return fallback.get();

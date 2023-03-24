@@ -13,7 +13,6 @@ import org.opensearch.sql.ast.statement.Statement;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.ExecutionEngine.ExplainResponse;
 import org.opensearch.sql.executor.ExecutionEngine.QueryResponse;
-import org.opensearch.sql.executor.QueryId;
 import org.opensearch.sql.executor.QueryManager;
 import org.opensearch.sql.executor.execution.AbstractPlan;
 import org.opensearch.sql.executor.execution.QueryPlanFactory;
@@ -68,8 +67,8 @@ public class SQLService {
       Optional<ResponseListener<ExplainResponse>> explainListener) {
     if (request.getCursor().isPresent()) {
       // Handle v2 cursor here -- legacy cursor was handled earlier.
-      return queryExecutionFactory.create(request.getCursor().get(), request.isExplainRequest(),
-          queryListener.orElse(null), explainListener.orElse(null));
+      return queryExecutionFactory.createContinuePaginatedPlan(request.getCursor().get(),
+          request.isExplainRequest(), queryListener.orElse(null), explainListener.orElse(null));
     } else {
       // 1.Parse query and convert parse tree (CST) to abstract syntax tree (AST)
       ParseTree cst = parser.parse(request.getQuery());
@@ -82,7 +81,8 @@ public class SQLService {
                       .fetchSize(request.getFetchSize())
                       .build()));
 
-      return queryExecutionFactory.create(statement, queryListener, explainListener);
+      return queryExecutionFactory.createContinuePaginatedPlan(
+          statement, queryListener, explainListener);
     }
   }
 }

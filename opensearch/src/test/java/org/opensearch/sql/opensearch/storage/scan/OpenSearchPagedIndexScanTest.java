@@ -32,10 +32,10 @@ import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
+import org.opensearch.sql.opensearch.request.ContinuePageRequestBuilder;
 import org.opensearch.sql.opensearch.request.InitialPageRequestBuilder;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.request.PagedRequestBuilder;
-import org.opensearch.sql.opensearch.request.SubsequentPageRequestBuilder;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,7 +54,7 @@ public class OpenSearchPagedIndexScanTest {
   void query_empty_result() {
     mockResponse(client);
     InitialPageRequestBuilder builder = new InitialPageRequestBuilder(
-        new OpenSearchRequest.IndexName("test"), 3, settings, exprValueFactory);
+        new OpenSearchRequest.IndexName("test"), 3, exprValueFactory);
     try (OpenSearchPagedIndexScan indexScan = new OpenSearchPagedIndexScan(client, builder)) {
       indexScan.open();
       assertFalse(indexScan.hasNext());
@@ -70,7 +70,7 @@ public class OpenSearchPagedIndexScanTest {
         employee(3, "Allen", "IT")});
 
     PagedRequestBuilder builder = new InitialPageRequestBuilder(
-        new OpenSearchRequest.IndexName("test"), 3, settings, exprValueFactory);
+        new OpenSearchRequest.IndexName("test"), 3, exprValueFactory);
     try (OpenSearchPagedIndexScan indexScan = new OpenSearchPagedIndexScan(client, builder)) {
       indexScan.open();
 
@@ -90,7 +90,7 @@ public class OpenSearchPagedIndexScanTest {
     }
     verify(client).cleanup(any());
 
-    builder = new SubsequentPageRequestBuilder(
+    builder = new ContinuePageRequestBuilder(
         new OpenSearchRequest.IndexName("test"), "scroll", exprValueFactory);
     try (OpenSearchPagedIndexScan indexScan = new OpenSearchPagedIndexScan(client, builder)) {
       indexScan.open();
@@ -107,7 +107,7 @@ public class OpenSearchPagedIndexScanTest {
         employee(2, "Smith", "HR"),
         employee(3, "Allen", "IT")});
 
-    SubsequentPageRequestBuilder builder = new SubsequentPageRequestBuilder(
+    ContinuePageRequestBuilder builder = new ContinuePageRequestBuilder(
         new OpenSearchRequest.IndexName("test"), "scroll", exprValueFactory);
     try (OpenSearchPagedIndexScan indexScan = new OpenSearchPagedIndexScan(client, builder)) {
       indexScan.open();
@@ -128,7 +128,7 @@ public class OpenSearchPagedIndexScanTest {
     }
     verify(client).cleanup(any());
 
-    builder = new SubsequentPageRequestBuilder(
+    builder = new ContinuePageRequestBuilder(
         new OpenSearchRequest.IndexName("test"), "scroll", exprValueFactory);
     try (OpenSearchPagedIndexScan indexScan = new OpenSearchPagedIndexScan(client, builder)) {
       indexScan.open();
