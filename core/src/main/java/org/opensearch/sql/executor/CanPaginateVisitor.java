@@ -33,9 +33,6 @@ public class CanPaginateVisitor extends AbstractNodeVisitor<Boolean, Object> {
       return Boolean.FALSE;
     }
 
-    // TODO use storageEngine from the calling PaginatedPlanCache to determine if
-    // node.getTableQualifiedName is provided by the storage engine. Return false if it's
-    // not the case.
     return Boolean.TRUE;
   }
 

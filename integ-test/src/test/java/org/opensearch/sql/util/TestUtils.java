@@ -846,7 +846,7 @@ public class TestUtils {
 
   public static void verifyIsV1Cursor(JSONObject response) {
     var legacyCursorPrefixes = Arrays.stream(CursorType.values())
-        .map(c -> c.toString() + ":").collect(Collectors.toList());
+        .map(c -> c.getId() + ":").collect(Collectors.toList());
     verifyCursor(response, legacyCursorPrefixes, "v1");
   }
 
