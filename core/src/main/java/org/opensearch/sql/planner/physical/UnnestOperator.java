@@ -8,6 +8,7 @@ package org.opensearch.sql.planner.physical;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -80,21 +81,56 @@ public class UnnestOperator extends PhysicalPlan {
 
       ExprValue inputValue = input.next();
       generateNonNestedFieldsMap(inputValue);
-      for (String field : fields) {
-        result = flatten(field, inputValue, result, true);
-      }
+        result = nestedFlatten(inputValue.tupleValue());
 
-      if (result.isEmpty()) {
-        return new ExprTupleValue(new LinkedHashMap<>());
-      }
+//      for (String field : fields) {
+//        result = flatten(field, inputValue, result, true);
+//      }
 
-      for (String nonNestedField : nonNestedFields) {
-        result = flatten(nonNestedField, inputValue, result, false);
-      }
+//      if (result.isEmpty()) {
+//        return new ExprTupleValue(new LinkedHashMap<>());
+//      }
+//
+//      for (String nonNestedField : nonNestedFields) {
+//        result = flatten(nonNestedField, inputValue, result, false);
+//      }
 
       flattenedResult = result.listIterator();
     }
     return new ExprTupleValue(new LinkedHashMap<>(flattenedResult.next()));
+  }
+
+  private List<Map<String, ExprValue>> nestedFlatten (Map<String, ExprValue> inputValue) {
+    List<Map<String, ExprValue>> result = new ArrayList<>();
+    LinkedHashMap<String, ExprValue> row;
+    Iterator<String> valueFieldsIterator = inputValue.keySet().iterator();
+
+    while (valueFieldsIterator.hasNext()) {
+      String path = valueFieldsIterator.next();
+      if (inputValue.get(path) instanceof  ExprCollectionValue) {
+        for(ExprValue map : inputValue.get(path).collectionValue()){
+          result = updateResult(result, addPathToKey(path, map.tupleValue()));
+        }
+      } else {
+        result= updateResult(result, addPathToKey(path, inputValue.get(path).tupleValue()));
+      }
+    }
+    return result;
+  }
+
+  private List<Map<String, ExprValue>> updateResult(
+      List<Map<String, ExprValue>> result,
+      Map<String, ExprValue> updatedValueMap) {
+    result.add(updatedValueMap);
+    return result;
+  }
+
+  private Map<String, ExprValue> addPathToKey (String path, Map<String, ExprValue> valueMap) {
+    for (Object key : valueMap.keySet().toArray()) {
+      valueMap.put(path.concat("." + key), valueMap.get(key));
+      valueMap.remove(key);
+    }
+    return valueMap;
   }
 
   /**
