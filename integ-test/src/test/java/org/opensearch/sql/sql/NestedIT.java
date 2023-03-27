@@ -116,6 +116,23 @@ public class NestedIT extends SQLIntegTestCase {
   }
 
   @Test
+  public void nested_function_multiple_fields_with_matched_and_mismatched_paths_test() {
+    String query =
+        "SELECT nested(message.author), nested(message.dayOfWeek), nested(message.info), nested(comment.data), "
+            + "nested(comment.likes) FROM " + TEST_INDEX_NESTED_TYPE;
+    JSONObject result = executeJdbcRequest(query);
+
+    assertEquals(6, result.getInt("total"));
+    verifyDataRows(result,
+        rows("e", 1, "a", "ab", 3),
+        rows("f", 2, "b", "aa", 2),
+        rows("g", 1, "c", "aa", 3),
+        rows("h", 4, "c", "ab", 1),
+        rows("i", 5, "a", "ab", 1),
+        rows("zz", 6, "zz", new JSONArray(List.of("aa", "bb")), 10));
+  }
+
+  @Test
   public void nested_with_non_nested_type_test() {
     String query = "SELECT nested(someField) FROM " + TEST_INDEX_NESTED_TYPE;
 

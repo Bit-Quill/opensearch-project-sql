@@ -5,8 +5,10 @@
 
 package org.opensearch.sql.planner.physical;
 
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -23,9 +25,6 @@ import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.expression.ReferenceExpression;
-
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
 
 @EqualsAndHashCode(callSuper = false)
 public class UnnestOperator extends PhysicalPlan {
@@ -44,18 +43,21 @@ public class UnnestOperator extends PhysicalPlan {
    * Constructor for UnnestOperator with list of map as arg.
    * @param input : PhysicalPlan input.
    * @param fields : List of all fields and paths for nested fields.
-   * @param groupedPathsAndFields : Map of fields grouped by their path.
    */
-  public UnnestOperator(
-      PhysicalPlan input,
-      List<Map<String, ReferenceExpression>> fields,
-      Map<String, List<String>> groupedPathsAndFields
-      ) {
+  public UnnestOperator(PhysicalPlan input, List<Map<String, ReferenceExpression>> fields) {
     this.input = input;
     this.fields = fields.stream()
         .map(m -> m.get("field").toString())
         .collect(Collectors.toSet());
-    this.groupedPathsAndFields = groupedPathsAndFields;
+    this.groupedPathsAndFields = fields.stream().collect(
+        Collectors.groupingBy(
+            m -> m.get("path").toString(),
+            mapping(
+                m -> m.get("field").toString(),
+                toList()
+            )
+        )
+    );
   }
 
   /**
@@ -172,7 +174,6 @@ public class UnnestOperator extends PhysicalPlan {
    * @param supportArrays : When false we do not need to execute a cross join.
    * @return : List of nested select items or cartesian product of nested calls.
    */
-  @SuppressWarnings("unchecked")
   private List<Map<String, ExprValue>> flatten(
       String nestedField,
       ExprValue row,
@@ -191,12 +192,12 @@ public class UnnestOperator extends PhysicalPlan {
       return copy;
     }
 
-    var resultIt = this.result.iterator();
-    Map<String, ExprValue> resultVal = resultIt.next();
-    if (!supportArrays || containSamePath(copy.get(0), resultVal)) {
+    if (!supportArrays || containSamePath(copy.get(0))) {
+      var resultIt = this.result.iterator();
+      Map<String, ExprValue> resultVal = resultIt.next();
       var copyIt = copy.iterator();
       Map<String, ExprValue> copyVal = copyIt.next();
-      for (int i = 0; i < this.result.size() || i < copy.size(); i++) {
+      for (int i = 0; i < this.result.size(); i++) {
         resultVal.putAll(copyVal);
         if (copyIt.hasNext()) {
           copyVal = copyIt.next();
@@ -226,17 +227,19 @@ public class UnnestOperator extends PhysicalPlan {
    * @param newMap : New map to add to result set.
    * @return : true if there is already a field added to result set with same path.
    */
-  boolean containSamePath(Map<String, ExprValue> newMap, Map<String, ExprValue> prevMap) {
-    var ret = false;
-    var newKey = newMap.keySet().iterator().next();
-    var prevKey = prevMap.keySet().iterator().next();
+  boolean containSamePath(Map<String, ExprValue> newMap) {
+    String newKey = newMap.keySet().iterator().next();
+    Map<String, ExprValue> resultMap = this.result.iterator().next();
     for (var entry : this.groupedPathsAndFields.entrySet()) {
-      if (entry.getValue().contains(newKey) && entry.getValue().contains(prevKey)) {
-        ret = true;
-        break;
+      if (entry.getValue().contains(newKey)) {
+        for (var map : resultMap.entrySet()) {
+          if (entry.getValue().contains(map.getKey())) {
+            return true;
+          }
+        }
       }
     }
-    return ret;
+    return false;
   }
 
 

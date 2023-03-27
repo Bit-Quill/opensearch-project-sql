@@ -317,10 +317,13 @@ class OpenSearchExecutionProtectorTest {
   @Test
   public void testVisitUnnest() {
     Set<String> args = Set.of("message.info");
+    Map<String, List<String>> groupedFieldsByPath =
+        Map.of("message", List.of("message.info"));
     UnnestOperator unnestOperator =
         new UnnestOperator(
             values(emptyList()),
-            args);
+            args,
+            groupedFieldsByPath);
 
     assertEquals(executionProtector.doProtect(unnestOperator),
         executionProtector.visitUnnest(unnestOperator, values(emptyList())));

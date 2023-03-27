@@ -116,6 +116,8 @@ class DefaultImplementorTest {
             )
         );
     Set<String> unnestOperatorArgs = Set.of("message.info");
+    Map<String, List<String>> groupedFieldsByPath =
+        Map.of("message", List.of("message.info"));
 
 
     LogicalPlan plan =
@@ -173,7 +175,7 @@ class DefaultImplementorTest {
                       dedupeField),
                   limit,
                   offset),
-                unnestOperatorArgs),
+                unnestOperatorArgs, groupedFieldsByPath),
             include),
         actual);
   }

@@ -51,6 +51,22 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
       )
   );
 
+  private final ExprValue testDataWithSamePath = tupleValue(
+      ImmutableMap.of(
+          "message",
+          collectionValue(
+              ImmutableList.of(
+                  ImmutableMap.of("info", "a"),
+                  ImmutableMap.of("info", "b"),
+                  ImmutableMap.of("info", "c"),
+                  ImmutableMap.of("id", "1"),
+                  ImmutableMap.of("id", "2"),
+                  ImmutableMap.of("id", "3")
+              )
+          )
+      )
+  );
+
   private final ExprValue nonNestedTestData = tupleValue(
       ImmutableMap.of(
           "message", "val"
@@ -82,8 +98,10 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
         .thenReturn(testData);
 
     Set<String> fields = Set.of("message.info");
+    Map<String, List<String>> groupedFieldsByPath =
+        Map.of("message", List.of("message.info"));
     assertThat(
-        execute(new UnnestOperator(inputPlan, fields)),
+        execute(new UnnestOperator(inputPlan, fields, groupedFieldsByPath)),
         contains(
             tupleValue(ImmutableMap.of("message.info", "a", "comment.data", "1")),
             tupleValue(ImmutableMap.of("message.info", "b", "comment.data", "1")),
@@ -125,14 +143,42 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
   }
 
   @Test
+  public void nested_two_nested_fields_with_same_path() {
+    when(inputPlan.hasNext()).thenReturn(true, false);
+    when(inputPlan.next())
+        .thenReturn(testDataWithSamePath);
+
+    List<Map<String, ReferenceExpression>> fields =
+        List.of(
+            Map.of(
+                "field", new ReferenceExpression("message.info", STRING),
+                "path", new ReferenceExpression("message", STRING)),
+            Map.of(
+                "field", new ReferenceExpression("message.id", STRING),
+                "path", new ReferenceExpression("message", STRING))
+        );
+
+    assertThat(
+        execute(new UnnestOperator(inputPlan, fields)),
+        contains(
+            tupleValue(ImmutableMap.of("message.info", "a", "message.id", "1")),
+            tupleValue(ImmutableMap.of("message.info", "b", "message.id", "2")),
+            tupleValue(ImmutableMap.of("message.info", "c", "message.id", "3"))
+        )
+    );
+  }
+
+  @Test
   public void non_nested_field_tests() {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
         .thenReturn(nonNestedTestData);
 
     Set<String> fields = Set.of("message");
+    Map<String, List<String>> groupedFieldsByPath =
+        Map.of("message", List.of("message.info"));
     assertThat(
-        execute(new UnnestOperator(inputPlan, fields)),
+        execute(new UnnestOperator(inputPlan, fields, groupedFieldsByPath)),
         contains(
             tupleValue(ImmutableMap.of("message", "val"))
         )
@@ -145,8 +191,10 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.next())
         .thenReturn(missingTupleData);
     Set<String> fields = Set.of("message.invalid");
+    Map<String, List<String>> groupedFieldsByPath =
+        Map.of("message", List.of("message.invalid"));
     assertTrue(
-        execute(new UnnestOperator(inputPlan, fields))
+        execute(new UnnestOperator(inputPlan, fields, groupedFieldsByPath))
         .get(0)
         .tupleValue()
         .size() == 0
@@ -159,8 +207,10 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.next())
         .thenReturn(missingArrayData);
     Set<String> fields = Set.of("missing.data");
+    Map<String, List<String>> groupedFieldsByPath =
+        Map.of("message", List.of("message.invalid"));
     assertTrue(
-        execute(new UnnestOperator(inputPlan, fields))
+        execute(new UnnestOperator(inputPlan, fields, groupedFieldsByPath))
             .get(0)
             .tupleValue()
             .size() == 0

@@ -16,6 +16,8 @@ import static org.opensearch.sql.expression.DSL.named;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
@@ -135,7 +137,9 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     }, null));
 
     Set<String> unnestArgs = Set.of("nested.test");
-    PhysicalPlan unnest = new UnnestOperator(plan, unnestArgs);
+    Map<String, List<String>> groupedFieldsByPath =
+        Map.of("nested", List.of("nested.test"));
+    PhysicalPlan unnest = new UnnestOperator(plan, unnestArgs, groupedFieldsByPath);
     assertNull(unnest.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
   }
