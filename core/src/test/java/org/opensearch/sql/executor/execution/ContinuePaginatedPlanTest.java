@@ -26,6 +26,7 @@ import org.opensearch.sql.executor.DefaultExecutionEngine;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.executor.QueryId;
+import org.opensearch.sql.executor.QueryService;
 import org.opensearch.sql.storage.StorageEngine;
 import org.opensearch.sql.storage.TableScanOperator;
 
@@ -34,7 +35,7 @@ public class ContinuePaginatedPlanTest {
 
   private static PaginatedPlanCache paginatedPlanCache;
 
-  private static PaginatedQueryService paginatedQueryService;
+  private static QueryService queryService;
 
   /**
    * Initialize the mocks.
@@ -45,8 +46,7 @@ public class ContinuePaginatedPlanTest {
     when(storageEngine.getTableScan(anyString(), anyString()))
         .thenReturn(mock(TableScanOperator.class));
     paginatedPlanCache = new PaginatedPlanCache(storageEngine);
-    paginatedQueryService = new PaginatedQueryService(
-        null, new DefaultExecutionEngine(), null);
+    queryService = new QueryService(null, new DefaultExecutionEngine(), null, null);
   }
 
   @Test
@@ -63,7 +63,7 @@ public class ContinuePaginatedPlanTest {
       }
     };
     var plan = new ContinuePaginatedPlan(QueryId.None, buildCursor(Map.of()),
-        paginatedQueryService, paginatedPlanCache, listener);
+        queryService, paginatedPlanCache, listener);
     plan.execute();
   }
 
@@ -82,7 +82,7 @@ public class ContinuePaginatedPlanTest {
       }
     };
     var plan = new ContinuePaginatedPlan(QueryId.None, buildCursor(Map.of("pageSize", "abc")),
-        paginatedQueryService, paginatedPlanCache, listener);
+        queryService, paginatedPlanCache, listener);
     plan.execute();
   }
 

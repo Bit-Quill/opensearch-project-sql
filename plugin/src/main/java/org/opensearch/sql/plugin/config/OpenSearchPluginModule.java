@@ -18,7 +18,6 @@ import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.executor.QueryManager;
 import org.opensearch.sql.executor.QueryService;
-import org.opensearch.sql.executor.execution.PaginatedQueryService;
 import org.opensearch.sql.executor.execution.QueryPlanFactory;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.monitor.ResourceMonitor;
@@ -108,9 +107,8 @@ public class OpenSearchPluginModule extends AbstractModule {
             new ExpressionAnalyzer(functionRepository), dataSourceService, functionRepository);
     Planner planner = new Planner(LogicalPlanOptimizer.create());
     Planner paginationPlanner = new Planner(LogicalPlanOptimizer.paginationCreate());
-    QueryService queryService = new QueryService(analyzer, executionEngine, planner);
-    PaginatedQueryService paginatedQueryService
-        = new PaginatedQueryService(analyzer, executionEngine, paginationPlanner);
-    return new QueryPlanFactory(queryService, paginatedQueryService, paginatedPlanCache);
+    QueryService queryService = new QueryService(
+        analyzer, executionEngine, planner, paginationPlanner);
+    return new QueryPlanFactory(queryService, paginatedPlanCache);
   }
 }

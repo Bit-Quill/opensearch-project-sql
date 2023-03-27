@@ -23,14 +23,16 @@ import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.DefaultExecutionEngine;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.QueryId;
+import org.opensearch.sql.executor.QueryService;
 import org.opensearch.sql.planner.Planner;
+import org.opensearch.sql.planner.logical.LogicalPaginate;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class PaginatedPlanTest {
 
-  private static PaginatedQueryService paginatedQueryService;
+  private static QueryService queryService;
 
   /**
    * Initialize the mocks.
@@ -38,11 +40,10 @@ public class PaginatedPlanTest {
   @BeforeAll
   public static void setUp() {
     var analyzer = mock(Analyzer.class);
-    when(analyzer.analyze(any(), any())).thenReturn(mock(LogicalPlan.class));
+    when(analyzer.analyze(any(), any())).thenReturn(mock(LogicalPaginate.class));
     var planner = mock(Planner.class);
     when(planner.plan(any())).thenReturn(mock(PhysicalPlan.class));
-    paginatedQueryService = new PaginatedQueryService(
-        analyzer, new DefaultExecutionEngine(), planner);
+    queryService = new QueryService(analyzer, new DefaultExecutionEngine(), null, planner);
   }
 
   @Test
@@ -59,7 +60,7 @@ public class PaginatedPlanTest {
       }
     };
     var plan = new PaginatedPlan(QueryId.None, mock(UnresolvedPlan.class), 10,
-        paginatedQueryService, listener);
+        queryService, listener);
     plan.execute();
   }
 
@@ -78,7 +79,7 @@ public class PaginatedPlanTest {
       }
     };
     var plan = new PaginatedPlan(QueryId.None, mock(UnresolvedPlan.class), 10,
-        new PaginatedQueryService(null, new DefaultExecutionEngine(), null), listener);
+        new QueryService(null, new DefaultExecutionEngine(), null, null), listener);
     plan.execute();
   }
 

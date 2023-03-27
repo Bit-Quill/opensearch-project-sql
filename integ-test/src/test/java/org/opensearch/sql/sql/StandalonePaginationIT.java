@@ -5,10 +5,7 @@
 
 package org.opensearch.sql.sql;
 
-import static org.junit.Assert.fail;
 import static org.opensearch.sql.datasource.model.DataSourceMetadata.defaultOpenSearchDataSourceMetadata;
-import static org.opensearch.sql.legacy.TestUtils.getResponseBody;
-import static org.opensearch.sql.legacy.TestUtils.isIndexExist;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -17,13 +14,11 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.opensearch.client.Request;
-import org.opensearch.client.Response;
 import org.opensearch.client.ResponseException;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.common.inject.Injector;
@@ -35,7 +30,7 @@ import org.opensearch.sql.datasource.DataSourceService;
 import org.opensearch.sql.datasource.DataSourceServiceImpl;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.PaginatedPlanCache;
-import org.opensearch.sql.executor.execution.PaginatedQueryService;
+import org.opensearch.sql.executor.QueryService;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.legacy.SQLIntegTestCase;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
@@ -43,6 +38,7 @@ import org.opensearch.sql.opensearch.client.OpenSearchRestClient;
 import org.opensearch.sql.opensearch.executor.Cursor;
 import org.opensearch.sql.opensearch.storage.OpenSearchDataSourceFactory;
 import org.opensearch.sql.opensearch.storage.OpenSearchIndex;
+import org.opensearch.sql.planner.PlanContext;
 import org.opensearch.sql.planner.logical.LogicalPaginate;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.logical.LogicalProject;
@@ -55,7 +51,7 @@ import org.opensearch.sql.util.StandaloneModule;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class StandalonePaginationIT extends SQLIntegTestCase {
 
-  private PaginatedQueryService paginatedQueryService;
+  private QueryService queryService;
 
   private PaginatedPlanCache paginatedPlanCache;
 
@@ -76,7 +72,7 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
     modules.add(new StandaloneModule(new InternalRestHighLevelClient(client()), defaultSettings(), dataSourceService));
     Injector injector = modules.createInjector();
 
-    paginatedQueryService = injector.getInstance(PaginatedQueryService.class);
+    queryService = injector.getInstance(QueryService.class);
     paginatedPlanCache = injector.getInstance(PaginatedPlanCache.class);
   }
 
@@ -117,13 +113,13 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
                 List.of()
     )));
     var firstResponder = new TestResponder();
-    paginatedQueryService.executePlan(p, firstResponder);
+    queryService.executePlan(p, PlanContext.emptyPlanContext(), firstResponder);
 
     // act 2, asserts in secondResponder
 
     PhysicalPlan plan = paginatedPlanCache.convertToPlan(firstResponder.getCursor().toString());
     var secondResponder = new TestResponder();
-    paginatedQueryService.executePlan(plan, secondResponder);
+    queryService.executePlan(plan, secondResponder);
 
     // act 3: confirm that there's no cursor.
   }

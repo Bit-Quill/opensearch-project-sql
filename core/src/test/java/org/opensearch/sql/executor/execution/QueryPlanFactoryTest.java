@@ -50,15 +50,12 @@ class QueryPlanFactoryTest {
   private ExecutionEngine.QueryResponse queryResponse;
 
   @Mock
-  private PaginatedQueryService paginatedQueryService;
-
-  @Mock
   private PaginatedPlanCache paginatedPlanCache;
   private QueryPlanFactory factory;
 
   @BeforeEach
   void init() {
-    factory = new QueryPlanFactory(queryService, paginatedQueryService, paginatedPlanCache);
+    factory = new QueryPlanFactory(queryService, paginatedPlanCache);
   }
 
   @Test
@@ -129,7 +126,7 @@ class QueryPlanFactoryTest {
   @Test
   public void createQueryWithFetchSizeWhichCanBePaged() {
     when(paginatedPlanCache.canConvertToCursor(plan)).thenReturn(true);
-    factory = new QueryPlanFactory(queryService, paginatedQueryService, paginatedPlanCache);
+    factory = new QueryPlanFactory(queryService, paginatedPlanCache);
     Statement query = new Query(plan, 10);
     AbstractPlan queryExecution =
         factory.createContinuePaginatedPlan(query, Optional.of(queryListener), Optional.empty());
@@ -139,7 +136,7 @@ class QueryPlanFactoryTest {
   @Test
   public void createQueryWithFetchSizeWhichCannotBePaged() {
     when(paginatedPlanCache.canConvertToCursor(plan)).thenReturn(false);
-    factory = new QueryPlanFactory(queryService, paginatedQueryService, paginatedPlanCache);
+    factory = new QueryPlanFactory(queryService, paginatedPlanCache);
     Statement query = new Query(plan, 10);
     assertThrows(UnsupportedCursorRequestException.class,
         () -> factory.createContinuePaginatedPlan(query,

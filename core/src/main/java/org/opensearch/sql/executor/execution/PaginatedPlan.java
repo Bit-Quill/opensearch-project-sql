@@ -11,6 +11,7 @@ import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.QueryId;
+import org.opensearch.sql.executor.QueryService;
 
 /**
  * PaginatedPlan represents a page request. Dislike a regular QueryPlan,
@@ -21,7 +22,7 @@ import org.opensearch.sql.executor.QueryId;
 public class PaginatedPlan extends AbstractPlan {
   final UnresolvedPlan plan;
   final int fetchSize;
-  final PaginatedQueryService queryService;
+  final QueryService queryService;
   final ResponseListener<ExecutionEngine.QueryResponse>
       queryResponseResponseListener;
 
@@ -29,7 +30,7 @@ public class PaginatedPlan extends AbstractPlan {
    * Create an abstract plan that can start paging a query.
    */
   public PaginatedPlan(QueryId queryId, UnresolvedPlan plan, int fetchSize,
-                       PaginatedQueryService queryService,
+                       QueryService queryService,
                        ResponseListener<ExecutionEngine.QueryResponse>
                            queryResponseResponseListener) {
     super(queryId);

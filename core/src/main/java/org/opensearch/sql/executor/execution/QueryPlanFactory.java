@@ -39,7 +39,6 @@ public class QueryPlanFactory
    * Query Service.
    */
   private final QueryService queryService;
-  private final PaginatedQueryService paginatedQueryService;
   private final PaginatedPlanCache paginatedPlanCache;
 
   /**
@@ -80,7 +79,7 @@ public class QueryPlanFactory
       ResponseListener<ExecutionEngine.QueryResponse> queryResponseListener,
       ResponseListener<ExecutionEngine.ExplainResponse> explainListener) {
     QueryId queryId = QueryId.queryId();
-    var plan = new ContinuePaginatedPlan(queryId, cursor, paginatedQueryService,
+    var plan = new ContinuePaginatedPlan(queryId, cursor, queryService,
         paginatedPlanCache, queryResponseListener);
     return isExplain ? new ExplainPlan(queryId, plan, explainListener) : plan;
   }
@@ -97,7 +96,7 @@ public class QueryPlanFactory
     if (node.getFetchSize() > 0) {
       if (paginatedPlanCache.canConvertToCursor(node.getPlan())) {
         return new PaginatedPlan(QueryId.queryId(), node.getPlan(), node.getFetchSize(),
-            paginatedQueryService,
+            queryService,
             context.getLeft().get());
       } else {
         // This should be picked up by the legacy engine.

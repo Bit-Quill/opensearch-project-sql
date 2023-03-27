@@ -26,12 +26,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.DefaultQueryManager;
-import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.ExecutionEngine.ExplainResponse;
 import org.opensearch.sql.executor.ExecutionEngine.ExplainResponseNode;
 import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.executor.QueryService;
-import org.opensearch.sql.executor.execution.PaginatedQueryService;
 import org.opensearch.sql.executor.execution.QueryPlanFactory;
 import org.opensearch.sql.sql.antlr.SQLSyntaxParser;
 import org.opensearch.sql.sql.domain.SQLQueryRequest;
@@ -52,16 +50,13 @@ class SQLServiceTest {
   private QueryService queryService;
 
   @Mock
-  private PaginatedQueryService paginatedQueryService;
-
-  @Mock
   private PaginatedPlanCache paginatedPlanCache;
 
   @BeforeEach
   public void setUp() {
     queryManager = DefaultQueryManager.defaultQueryManager();
     sqlService = new SQLService(new SQLSyntaxParser(), queryManager,
-        new QueryPlanFactory(queryService, paginatedQueryService, paginatedPlanCache));
+        new QueryPlanFactory(queryService, paginatedPlanCache));
   }
 
   @AfterEach
