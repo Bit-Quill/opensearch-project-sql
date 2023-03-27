@@ -451,6 +451,42 @@ class AnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void project_nested_deep_field_arg() {
+    List<Map<String, ReferenceExpression>> nestedArgs =
+        List.of(
+            Map.of(
+                "field", new ReferenceExpression("message.info.id", STRING),
+                "path", new ReferenceExpression("message.info", STRING)
+            )
+        );
+
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression(
+                "message.info.id",
+                DSL.nested(DSL.ref("message.info.id", STRING)),
+                null)
+        );
+
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.nested(
+                LogicalPlanDSL.relation("schema", table),
+                nestedArgs,
+                projectList),
+            DSL.named("message.info.id",
+                DSL.nested(DSL.ref("message.info.id", STRING)))
+        ),
+        AstDSL.projectWithArg(
+            AstDSL.relation("schema"),
+            AstDSL.defaultFieldsArgs(),
+            AstDSL.alias("message.info.id",
+                function("nested", qualifiedName("message", "info", "id")), null)
+        )
+    );
+  }
+
+  @Test
   public void project_highlight() {
     Map<String, Literal> args = new HashMap<>();
     args.put("pre_tags", new Literal("<mark>", DataType.STRING));

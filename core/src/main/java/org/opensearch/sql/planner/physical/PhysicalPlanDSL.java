@@ -108,6 +108,6 @@ public class PhysicalPlanDSL {
   }
 
   public static UnnestOperator unnest(PhysicalPlan input, Set<String> args) {
-    return new UnnestOperator(input, args);
+    return new UnnestOperator(input, args, null);
   }
 }

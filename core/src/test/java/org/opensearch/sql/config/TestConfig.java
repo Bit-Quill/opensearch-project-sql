@@ -58,6 +58,7 @@ public class TestConfig {
       .put("field_value2", ExprCoreType.STRING)
       .put("message", ExprCoreType.STRING)
       .put("message.info", ExprCoreType.STRING)
+      .put("message.info.id", ExprCoreType.STRING)
       .build();
 
   protected StorageEngine storageEngine() {
