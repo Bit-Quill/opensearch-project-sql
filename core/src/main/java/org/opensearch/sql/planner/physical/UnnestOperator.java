@@ -104,10 +104,6 @@ public class UnnestOperator extends PhysicalPlan {
         result = flatten(field, inputValue, result, true);
       }
 
-      if (result.isEmpty()) {
-        return new ExprTupleValue(new LinkedHashMap<>());
-      }
-
       for (String nonNestedField : nonNestedFields) {
         result = flatten(nonNestedField, inputValue, result, false);
       }
@@ -125,13 +121,10 @@ public class UnnestOperator extends PhysicalPlan {
   public void generateNonNestedFieldsMap(ExprValue inputMap) {
 
     for (Map.Entry<String, ExprValue> inputField : inputMap.tupleValue().entrySet()) {
-      boolean foundNestedField = false;
-      for (String field : this.fields) {
-        if ((field).split("\\.")[0].equalsIgnoreCase(inputField.getKey())) {
-          foundNestedField = true;
-          break;
-        }
-      }
+      boolean foundNestedField =
+        this.fields.stream().anyMatch(
+            field -> field.split("\\.")[0].equalsIgnoreCase(inputField.getKey())
+        );
 
       if (!foundNestedField) {
         boolean nestingComplete = false;
@@ -269,7 +262,7 @@ public class UnnestOperator extends PhysicalPlan {
       } else {
         currentObj = null;
       }
-    } else if (currentObj instanceof ExprCollectionValue)  {
+    } else {
       ExprValue arrayObj = currentObj;
       if (supportArrays) {
         for (int x = 0; x < arrayObj.collectionValue().size(); x++) {
@@ -282,8 +275,6 @@ public class UnnestOperator extends PhysicalPlan {
         getNested(field, nestedField, row, ret, currentObj, supportArrays);
         currentObj = null;
       }
-    } else {
-      currentObj = null;
     }
 
     // Return final nested result

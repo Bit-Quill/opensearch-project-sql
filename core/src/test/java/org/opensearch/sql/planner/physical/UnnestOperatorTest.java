@@ -7,7 +7,6 @@ package org.opensearch.sql.planner.physical;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.opensearch.sql.data.model.ExprValueUtils.collectionValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.tupleValue;
@@ -70,24 +69,6 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
   private final ExprValue nonNestedTestData = tupleValue(
       ImmutableMap.of(
           "message", "val"
-      )
-  );
-
-  private final ExprValue missingTupleData = tupleValue(
-      ImmutableMap.of(
-          "tuple",
-          tupleValue(
-              ImmutableMap.of("missing", "value")
-          )
-      )
-  );
-
-  private final ExprValue missingArrayData = tupleValue(
-      ImmutableMap.of(
-          "missing",
-          collectionValue(
-              List.of("value")
-          )
       )
   );
 
@@ -182,38 +163,6 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
         contains(
             tupleValue(ImmutableMap.of("message", "val"))
         )
-    );
-  }
-
-  @Test
-  public void nested_missing_tuple_field() {
-    when(inputPlan.hasNext()).thenReturn(true, false);
-    when(inputPlan.next())
-        .thenReturn(missingTupleData);
-    Set<String> fields = Set.of("message.invalid");
-    Map<String, List<String>> groupedFieldsByPath =
-        Map.of("message", List.of("message.invalid"));
-    assertTrue(
-        execute(new UnnestOperator(inputPlan, fields, groupedFieldsByPath))
-        .get(0)
-        .tupleValue()
-        .size() == 0
-    );
-  }
-
-  @Test
-  public void nested_missing_array_field() {
-    when(inputPlan.hasNext()).thenReturn(true, false);
-    when(inputPlan.next())
-        .thenReturn(missingArrayData);
-    Set<String> fields = Set.of("missing.data");
-    Map<String, List<String>> groupedFieldsByPath =
-        Map.of("message", List.of("message.invalid"));
-    assertTrue(
-        execute(new UnnestOperator(inputPlan, fields, groupedFieldsByPath))
-            .get(0)
-            .tupleValue()
-            .size() == 0
     );
   }
 }
