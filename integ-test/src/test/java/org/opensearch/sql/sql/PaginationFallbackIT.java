@@ -127,9 +127,5 @@ public class PaginationFallbackIT extends SQLIntegTestCase {
     verifyIsV1Cursor(response);
   }
 
-  private JSONObject executeQueryTemplate(String queryTemplate, String index) throws IOException {
-    var query = String.format(queryTemplate, index);
-    return new JSONObject(executeFetchQuery(query, 4, "jdbc"));
-  }
 
 }
