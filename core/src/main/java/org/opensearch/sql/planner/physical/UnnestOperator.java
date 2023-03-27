@@ -44,40 +44,30 @@ public class UnnestOperator extends PhysicalPlan {
    * Constructor for UnnestOperator with list of map as arg.
    * @param input : PhysicalPlan input.
    * @param fields : List of all fields and paths for nested fields.
+   * @param groupedPathsAndFields : Map of fields grouped by their path.
    */
-  public UnnestOperator(PhysicalPlan input, List<Map<String, ReferenceExpression>> fields) {
+  public UnnestOperator(
+      PhysicalPlan input,
+      List<Map<String, ReferenceExpression>> fields,
+      Map<String, List<String>> groupedPathsAndFields
+      ) {
     this.input = input;
     this.fields = fields.stream()
         .map(m -> m.get("field").toString())
         .collect(Collectors.toSet());
-    this.groupedPathsAndFields = groupFieldNamesByPath(fields);
-  }
-
-  /**
-   * Map all field names in nested queries that use same path.
-   * @param fields : Fields for nested queries.
-   * @return : Map of path and associated field names.
-   */
-  private Map<String, List<String>> groupFieldNamesByPath(
-      List<Map<String, ReferenceExpression>> fields) {
-    return fields.stream().collect(
-        Collectors.groupingBy(
-            m -> m.get("path").toString(),
-            mapping(
-                m -> m.get("field").toString(),
-                toList()
-            )
-        )
-    );
+    this.groupedPathsAndFields = groupedPathsAndFields;
   }
 
   /**
    * Constructor for UnnestOperator with Set of fields.
    * @param input : PhysicalPlan input.
    * @param fields : List of all fields for nested fields.
+   * @param groupedPathsAndFields : Map of fields grouped by their path.
    */
   public UnnestOperator(
-      PhysicalPlan input, Set<String> fields, Map<String, List<String>> groupedPathsAndFields
+      PhysicalPlan input,
+      Set<String> fields,
+      Map<String, List<String>> groupedPathsAndFields
   ) {
     this.input = input;
     this.fields = fields;
@@ -201,11 +191,11 @@ public class UnnestOperator extends PhysicalPlan {
       return copy;
     }
 
-    if (supportArrays || !containSamePath(copy.get(0))) {
+    var resultIt = this.result.iterator();
+    Map<String, ExprValue> resultVal = resultIt.next();
+    if (!supportArrays || containSamePath(copy.get(0), resultVal)) {
       var copyIt = copy.iterator();
       Map<String, ExprValue> copyVal = copyIt.next();
-      var resultIt = this.result.iterator();
-      Map<String, ExprValue> resultVal = resultIt.next();
       for (int i = 0; i < this.result.size() || i < copy.size(); i++) {
         resultVal.putAll(copyVal);
         if (copyIt.hasNext()) {
@@ -231,11 +221,17 @@ public class UnnestOperator extends PhysicalPlan {
     }
   }
 
-  boolean containSamePath(Map<String, ExprValue> newMap) {
+  /**
+   * Check if newMap field has any sharing paths in prevMap.
+   * @param newMap : New map to add to result set.
+   * @return : true if there is already a field added to result set with same path.
+   */
+  boolean containSamePath(Map<String, ExprValue> newMap, Map<String, ExprValue> prevMap) {
     var ret = false;
-    var key = newMap.keySet().iterator().next();
+    var newKey = newMap.keySet().iterator().next();
+    var prevKey = prevMap.keySet().iterator().next();
     for (var entry : this.groupedPathsAndFields.entrySet()) {
-      if (entry.getValue().contains(key)) {
+      if (entry.getValue().contains(newKey) && entry.getValue().contains(prevKey)) {
         ret = true;
         break;
       }
