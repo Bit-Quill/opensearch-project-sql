@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 
 @EqualsAndHashCode(callSuper = false)
@@ -30,6 +31,7 @@ public class UnnestOperator extends PhysicalPlan {
   private final PhysicalPlan input;
   @Getter
   private final Set<String> fields; // Needs to be a Set to match legacy implementation
+  private final boolean allFields;
   List<Map<String, ExprValue>> result = new ArrayList<>();
   List<String> nonNestedFields = new ArrayList<>();
   @EqualsAndHashCode.Exclude
@@ -45,6 +47,7 @@ public class UnnestOperator extends PhysicalPlan {
     this.fields = fields.stream()
         .map(m -> m.get("field").toString())
         .collect(Collectors.toSet());
+    this.allFields = false;
   }
 
   /**
@@ -55,6 +58,13 @@ public class UnnestOperator extends PhysicalPlan {
   public UnnestOperator(PhysicalPlan input, Set<String> fields) {
     this.input = input;
     this.fields = fields;
+    this.allFields = false;
+  }
+
+  public UnnestOperator(PhysicalPlan input, List<NamedExpression> projectList, boolean allFields) {
+    this.input = input;
+    this.fields = projectList.stream().map(field -> field.getName()).collect(Collectors.toSet());
+    this.allFields = allFields;
   }
 
   @Override
@@ -81,12 +91,12 @@ public class UnnestOperator extends PhysicalPlan {
 
       ExprValue inputValue = input.next();
       generateNonNestedFieldsMap(inputValue);
-        result = nestedFlatten(inputValue.tupleValue());
+      result = nestedFlatten(inputValue.tupleValue());
 
 //      for (String field : fields) {
 //        result = flatten(field, inputValue, result, true);
 //      }
-
+//
 //      if (result.isEmpty()) {
 //        return new ExprTupleValue(new LinkedHashMap<>());
 //      }
@@ -106,10 +116,14 @@ public class UnnestOperator extends PhysicalPlan {
     Iterator<String> valueFieldsIterator = inputValue.keySet().iterator();
 
     while (valueFieldsIterator.hasNext()) {
+      boolean add = false;
       String path = valueFieldsIterator.next();
       if (inputValue.get(path) instanceof  ExprCollectionValue) {
         for(ExprValue map : inputValue.get(path).collectionValue()){
           result = updateResult(result, addPathToKey(path, map.tupleValue()));
+          if (!add) {
+            add = true;
+          }
         }
       } else {
         result= updateResult(result, addPathToKey(path, inputValue.get(path).tupleValue()));
@@ -121,7 +135,25 @@ public class UnnestOperator extends PhysicalPlan {
   private List<Map<String, ExprValue>> updateResult(
       List<Map<String, ExprValue>> result,
       Map<String, ExprValue> updatedValueMap) {
-    result.add(updatedValueMap);
+    if (result.size() == 0) {
+      result.add(updatedValueMap);
+      return result;
+    }
+    if (result.get(0).keySet().equals(updatedValueMap.keySet())) {
+      result.add(updatedValueMap);
+      return result;
+    } else if (result.get(0).keySet().containsAll(updatedValueMap.keySet())) {
+      Map<String, ExprValue> newRow = new LinkedHashMap<>(result.get(0));
+      updatedValueMap.keySet().forEach(field -> newRow.put(field, updatedValueMap.get(field)));
+      result.add(newRow);
+      return result;
+    }
+    for (Map<String, ExprValue> resultVal : result) {
+      for (String key: updatedValueMap.keySet()) {
+        resultVal.put(key, updatedValueMap.get(key));
+      }
+    }
+
     return result;
   }
 
