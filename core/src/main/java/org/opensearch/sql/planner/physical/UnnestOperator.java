@@ -122,9 +122,9 @@ public class UnnestOperator extends PhysicalPlan {
 
     for (Map.Entry<String, ExprValue> inputField : inputMap.tupleValue().entrySet()) {
       boolean foundNestedField =
-        this.fields.stream().anyMatch(
+          this.fields.stream().anyMatch(
             field -> field.split("\\.")[0].equalsIgnoreCase(inputField.getKey())
-        );
+          );
 
       if (!foundNestedField) {
         boolean nestingComplete = false;
