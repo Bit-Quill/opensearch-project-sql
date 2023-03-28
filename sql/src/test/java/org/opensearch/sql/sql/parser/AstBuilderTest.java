@@ -706,4 +706,22 @@ class AstBuilderTest extends AstBuilderTestBase {
         )
     );
   }
+
+  @Test
+  public void can_build_nested_select_field_with_alias() {
+    assertEquals(
+        project(
+            relation("test"),
+            alias(
+                "message.info",
+                function("nested", qualifiedName("message", "info")),
+                "nest"
+            )
+        ),
+        buildAST("SELECT"
+            + " nested(message.info) as nest "
+            + "FROM test"
+        )
+    );
+  }
 }
