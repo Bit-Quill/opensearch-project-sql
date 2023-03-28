@@ -61,7 +61,7 @@ class OpenSearchIndexScanQueryBuilder extends TableScanBuilder {
     FilterQueryBuilder queryBuilder = new FilterQueryBuilder(
         new DefaultExpressionSerializer());
     QueryBuilder query = queryBuilder.build(filter.getCondition());
-    indexScan.getRequestBuilder().pushDown(query);
+    indexScan.getRequestBuilder().pushDownFilter(query);
     return true;
   }
 

@@ -106,7 +106,7 @@ public class OpenSearchRequestBuilderTest {
   @Test
   void test_push_down_query() {
     QueryBuilder query = QueryBuilders.termQuery("intA", 1);
-    requestBuilder.pushDown(query);
+    requestBuilder.pushDownFilter(query);
 
     assertEquals(
         new SearchSourceBuilder()
@@ -143,7 +143,7 @@ public class OpenSearchRequestBuilderTest {
   @Test
   void test_push_down_query_and_sort() {
     QueryBuilder query = QueryBuilders.termQuery("intA", 1);
-    requestBuilder.pushDown(query);
+    requestBuilder.pushDownFilter(query);
 
     FieldSortBuilder sortBuilder = SortBuilders.fieldSort("intA");
     requestBuilder.pushDownSort(List.of(sortBuilder));

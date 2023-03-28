@@ -14,7 +14,7 @@ import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
  * Initial search requests is handled by {@link InitialPageRequestBuilder}.
  */
 @RequiredArgsConstructor
-public class ContinuePageRequestBuilder implements PagedRequestBuilder {
+public class ContinuePageRequestBuilder extends PagedRequestBuilder {
 
   @Getter
   private final OpenSearchRequest.IndexName indexName;

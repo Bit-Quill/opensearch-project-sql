@@ -23,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.search.builder.SearchSourceBuilder;
-import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.ReferenceExpression;
@@ -35,9 +34,6 @@ public class InitialPageRequestBuilderTest {
 
   @Mock
   private OpenSearchExprValueFactory exprValueFactory;
-
-  @Mock
-  private Settings settings;
 
   private final int pageSize = 42;
 
@@ -67,11 +63,16 @@ public class InitialPageRequestBuilderTest {
   @Test
   public void pushDown_not_supported() {
     assertAll(
-        () -> assertThrows(Throwable.class, () -> requestBuilder.pushDown(mock())),
-        () -> assertThrows(Throwable.class, () -> requestBuilder.pushDownAggregation(mock())),
-        () -> assertThrows(Throwable.class, () -> requestBuilder.pushDownSort(mock())),
-        () -> assertThrows(Throwable.class, () -> requestBuilder.pushDownLimit(1, 2)),
-        () -> assertThrows(Throwable.class, () -> requestBuilder.pushDownHighlight("", Map.of()))
+        () -> assertThrows(UnsupportedOperationException.class,
+            () -> requestBuilder.pushDownFilter(mock())),
+        () -> assertThrows(UnsupportedOperationException.class,
+            () -> requestBuilder.pushDownAggregation(mock())),
+        () -> assertThrows(UnsupportedOperationException.class,
+            () -> requestBuilder.pushDownSort(mock())),
+        () -> assertThrows(UnsupportedOperationException.class,
+            () -> requestBuilder.pushDownLimit(1, 2)),
+        () -> assertThrows(UnsupportedOperationException.class,
+            () -> requestBuilder.pushDownHighlight("", Map.of()))
     );
   }
 
