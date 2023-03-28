@@ -13,10 +13,10 @@ import lombok.ToString;
 /**
  * LogicalPaginate represents pagination operation for underlying plan.
  */
-@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class LogicalPaginate extends LogicalPlan {
+  @Getter
   private final int pageSize;
 
   public LogicalPaginate(int pageSize, List<LogicalPlan> childPlans) {

@@ -52,8 +52,6 @@ public class PaginationBlackboxIT extends SQLIntegTestCase {
     return testData;
   }
 
-  // Test takes 3+ min due to a big amount of requests issued
-  // Skip 'online' index and/or page_size = 1 to get a significant speed-up
   @Test
   @SneakyThrows
   public void test_pagination_blackbox() {
