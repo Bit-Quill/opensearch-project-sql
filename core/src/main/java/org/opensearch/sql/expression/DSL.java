@@ -822,7 +822,11 @@ public class DSL {
   }
 
   public static FunctionExpression castTimestamp(Expression value) {
-    return compile(FunctionProperties.None, BuiltinFunctionName.CAST_TO_TIMESTAMP, value);
+    return castTimestamp(FunctionProperties.None, value);
+  }
+
+  public static FunctionExpression castTimestamp(FunctionProperties functionProperties, Expression value) {
+    return compile(functionProperties, BuiltinFunctionName.CAST_TO_TIMESTAMP, value);
   }
 
   public static FunctionExpression castDatetime(Expression value) {

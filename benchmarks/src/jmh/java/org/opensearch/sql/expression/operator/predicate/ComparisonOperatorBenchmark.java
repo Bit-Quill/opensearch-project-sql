@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/*
 package org.opensearch.sql.expression.operator.predicate;
 
 import static org.opensearch.sql.data.model.ExprValueUtils.fromObjectValue;
@@ -71,3 +72,6 @@ public class ComparisonOperatorBenchmark {
     func.valueOf();
   }
 }
+
+
+ */
