@@ -14,6 +14,7 @@ import static org.opensearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.caseWhen;
 import static org.opensearch.sql.ast.dsl.AstDSL.dateLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.doubleLiteral;
+import static org.opensearch.sql.ast.dsl.AstDSL.equalTo;
 import static org.opensearch.sql.ast.dsl.AstDSL.function;
 import static org.opensearch.sql.ast.dsl.AstDSL.highlight;
 import static org.opensearch.sql.ast.dsl.AstDSL.intLiteral;
@@ -38,10 +39,13 @@ import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.ast.Node;
 import org.opensearch.sql.ast.dsl.AstDSL;
+import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.DataType;
+import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
@@ -205,6 +209,40 @@ class AstExpressionBuilderTest {
     assertEquals(
         function("get_format", stringLiteral("DATE"), stringLiteral("USA")),
         buildExprAst("get_format(DATE,\"USA\")")
+    );
+  }
+
+  @Test
+  public void canBuildNestedFunctionWithFieldParam() {
+    assertEquals(
+        new Alias("message.info",
+            function("nested", qualifiedName("message","info"))),
+        buildExprAst("nested(message.info)")
+    );
+  }
+
+  @Test
+  public void canBuildNestedFunctionWithFieldAndPathParams() {
+    assertEquals(
+        new Alias("message.info",
+            function("nested",
+                qualifiedName("message", "info"),
+                qualifiedName("message"))),
+        buildExprAst("nested(message.info, message)")
+    );
+  }
+
+  //TODO enable me when condition parameter is supported
+  @Disabled
+  public void canBuildNestedFunctionWithConditionParam() {
+    assertEquals(
+        new Alias("message",
+            function("nested",
+                qualifiedName("message"),
+                function("=",
+                    qualifiedName("message", "info"),
+                    stringLiteral("a")))),
+        buildExprAst("nested(message, message.info = 'a')")
     );
   }
 

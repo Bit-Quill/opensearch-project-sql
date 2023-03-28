@@ -22,6 +22,7 @@ import static org.opensearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.filter;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.highlight;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.limit;
+import static org.opensearch.sql.planner.logical.LogicalPlanDSL.nested;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.project;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.relation;
 import static org.opensearch.sql.planner.logical.LogicalPlanDSL.sort;
@@ -29,6 +30,7 @@ import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.P
 import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.PUSH_DOWN_FILTER;
 import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.PUSH_DOWN_HIGHLIGHT;
 import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.PUSH_DOWN_LIMIT;
+import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.PUSH_DOWN_NESTED;
 import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.PUSH_DOWN_PROJECT;
 import static org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown.PUSH_DOWN_SORT;
 
@@ -60,6 +62,7 @@ import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.HighlightExpression;
+import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder;
@@ -68,6 +71,7 @@ import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseP
 import org.opensearch.sql.opensearch.response.agg.SingleValueParser;
 import org.opensearch.sql.opensearch.storage.OpenSearchIndexScan;
 import org.opensearch.sql.opensearch.storage.script.aggregation.AggregationQueryBuilder;
+import org.opensearch.sql.planner.logical.LogicalNested;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.optimizer.LogicalPlanOptimizer;
 import org.opensearch.sql.planner.optimizer.rule.read.CreateTableScanBuilder;
@@ -242,6 +246,39 @@ class OpenSearchIndexScanOptimizationTest {
                 DSL.literal("*"), Collections.emptyMap()),
                 DSL.named("highlight(*)",
                     new HighlightExpression(DSL.literal("*")))
+        )
+    );
+  }
+
+  @Test
+  void test_nested_push_down() {
+    List<Map<String, ReferenceExpression>> args = List.of(
+        Map.of(
+            "field", new ReferenceExpression("message.info", STRING),
+            "path", new ReferenceExpression("message", STRING)
+        )
+    );
+
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression("message.info", DSL.nested(DSL.ref("message.info", STRING)), null)
+        );
+
+    LogicalNested nested = new LogicalNested(null, args, projectList);
+
+    assertEqualsAfterOptimization(
+        project(
+            nested(
+            indexScanBuilder(
+                withNestedPushedDown(nested.getFields())), args, projectList),
+                DSL.named("message.info",
+                    DSL.nested(DSL.ref("message.info", STRING)))
+        ),
+        project(
+            nested(
+                relation("schema", table), args, projectList),
+            DSL.named("message.info",
+                DSL.nested(DSL.ref("message.info", STRING)))
         )
     );
   }
@@ -577,6 +614,10 @@ class OpenSearchIndexScanOptimizationTest {
     return () -> verify(requestBuilder, times(1)).pushDownHighlight(field, arguments);
   }
 
+  private Runnable withNestedPushedDown(List<Map<String, ReferenceExpression>> fields) {
+    return () -> verify(requestBuilder, times(1)).pushDownNested(fields);
+  }
+
   private static AggregationAssertHelper.AggregationAssertHelperBuilder aggregate(String aggName) {
     var aggBuilder = new AggregationAssertHelper.AggregationAssertHelperBuilder();
     aggBuilder.aggregateName = aggName;
@@ -607,6 +648,7 @@ class OpenSearchIndexScanOptimizationTest {
         PUSH_DOWN_SORT,
         PUSH_DOWN_LIMIT,
         PUSH_DOWN_HIGHLIGHT,
+        PUSH_DOWN_NESTED,
         PUSH_DOWN_PROJECT));
     return optimizer.optimize(plan);
   }
