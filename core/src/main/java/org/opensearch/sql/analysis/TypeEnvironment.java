@@ -68,6 +68,12 @@ public class TypeEnvironment implements Environment<Symbol, ExprType> {
     return result;
   }
 
+  public Map<String, ExprType> lookupNestedAllFields(Namespace namespace) {
+    Map<String, ExprType> result = new LinkedHashMap<>();
+    symbolTable.lookupNestedAllFields(namespace).forEach(result::putIfAbsent);
+    return result;
+  }
+
   /**
    * Define symbol with the type.
    *

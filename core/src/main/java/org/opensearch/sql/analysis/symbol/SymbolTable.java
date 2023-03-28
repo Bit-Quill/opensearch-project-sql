@@ -128,6 +128,15 @@ public class SymbolTable {
     return results;
   }
 
+  public Map<String, ExprType> lookupNestedAllFields(Namespace namespace) {
+    final LinkedHashMap<String, ExprType> allSymbols =
+        orderedTable.getOrDefault(namespace, new LinkedHashMap<>());
+    final LinkedHashMap<String, ExprType> results = new LinkedHashMap<>();
+    allSymbols.entrySet().stream()
+        .forEach(entry -> results.put(entry.getKey(), entry.getValue()));
+    return results;
+  }
+
   /**
    * Check if namespace map in empty (none definition).
    *

@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 
 @EqualsAndHashCode(callSuper = false)
@@ -34,6 +35,7 @@ public class UnnestOperator extends PhysicalPlan {
   private final Set<String> fields; // Needs to be a Set to match legacy implementation
   @Getter
   private final Map<String, List<String>> groupedPathsAndFields;
+  private final boolean allFields;
   List<Map<String, ExprValue>> result = new ArrayList<>();
   List<String> nonNestedFields = new ArrayList<>();
   @EqualsAndHashCode.Exclude
@@ -58,6 +60,24 @@ public class UnnestOperator extends PhysicalPlan {
             )
         )
     );
+    this.allFields = false;
+  }
+
+  public UnnestOperator(PhysicalPlan input, List<Map<String, ReferenceExpression>> fields, boolean allFields) {
+    this.input = input;
+    this.fields = fields.stream()
+        .map(m -> m.get("field").toString())
+        .collect(Collectors.toSet());
+    this.groupedPathsAndFields = fields.stream().collect(
+        Collectors.groupingBy(
+            m -> m.get("path").toString(),
+            mapping(
+                m -> m.get("field").toString(),
+                toList()
+            )
+        )
+    );
+    this.allFields = false;
   }
 
   /**
@@ -74,6 +94,7 @@ public class UnnestOperator extends PhysicalPlan {
     this.input = input;
     this.fields = fields;
     this.groupedPathsAndFields = groupedPathsAndFields;
+    this.allFields = false;
   }
 
   @Override

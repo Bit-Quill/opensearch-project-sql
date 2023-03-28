@@ -378,6 +378,7 @@ nestedFunction
 
 nestedField
     : nestedIdent DOT nestedIdent (DOT nestedIdent)*
+    | nestedIdent (DOT nestedIdent)* DOT STAR
     | stringLiteral
     ;
 
