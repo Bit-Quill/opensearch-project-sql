@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.executor.ExecutionEngine;
-import org.opensearch.sql.opensearch.executor.Cursor;
+import org.opensearch.sql.executor.pagination.Cursor;
 
 class QueryResultTest {
 

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.opensearch.executor.Cursor;
+import org.opensearch.sql.executor.pagination.Cursor;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 
 /**

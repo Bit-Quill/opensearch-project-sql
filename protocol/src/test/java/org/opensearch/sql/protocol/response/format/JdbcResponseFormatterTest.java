@@ -32,7 +32,7 @@ import org.opensearch.OpenSearchException;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.exception.SemanticCheckException;
-import org.opensearch.sql.opensearch.executor.Cursor;
+import org.opensearch.sql.executor.pagination.Cursor;
 import org.opensearch.sql.protocol.response.QueryResult;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)

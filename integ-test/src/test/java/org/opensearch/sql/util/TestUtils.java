@@ -8,7 +8,7 @@ package org.opensearch.sql.util;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.junit.Assert.assertTrue;
-import static org.opensearch.sql.executor.PaginatedPlanCache.CURSOR_PREFIX;
+import static org.opensearch.sql.executor.pagination.PaginatedPlanCache.CURSOR_PREFIX;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,17 +28,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import org.json.JSONObject;
-import org.junit.Assert;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.index.IndexRequest;
 import org.opensearch.client.Client;
 import org.opensearch.client.Request;
-import org.opensearch.client.RequestOptions;
 import org.opensearch.client.Response;
 import org.opensearch.client.RestClient;
 import org.opensearch.common.xcontent.XContentType;
-import org.opensearch.rest.RestStatus;
 import org.opensearch.sql.legacy.cursor.CursorType;
 
 public class TestUtils {

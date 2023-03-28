@@ -14,7 +14,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
-import static org.opensearch.sql.executor.PaginatedPlanCacheTest.buildCursor;
+import static org.opensearch.sql.executor.pagination.PaginatedPlanCacheTest.buildCursor;
 
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,9 +24,9 @@ import org.junit.jupiter.api.Test;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.executor.DefaultExecutionEngine;
 import org.opensearch.sql.executor.ExecutionEngine;
-import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.executor.QueryId;
 import org.opensearch.sql.executor.QueryService;
+import org.opensearch.sql.executor.pagination.PaginatedPlanCache;
 import org.opensearch.sql.storage.StorageEngine;
 import org.opensearch.sql.storage.TableScanOperator;
 

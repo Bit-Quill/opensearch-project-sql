@@ -15,7 +15,7 @@ import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.QueryEngineException;
 import org.opensearch.sql.executor.ExecutionEngine.Schema;
-import org.opensearch.sql.opensearch.executor.Cursor;
+import org.opensearch.sql.executor.pagination.Cursor;
 import org.opensearch.sql.opensearch.response.error.ErrorMessage;
 import org.opensearch.sql.opensearch.response.error.ErrorMessageFactory;
 import org.opensearch.sql.protocol.response.QueryResult;

@@ -28,8 +28,8 @@ import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.response.ResponseListener;
 import org.opensearch.sql.exception.UnsupportedCursorRequestException;
 import org.opensearch.sql.executor.ExecutionEngine;
-import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.executor.QueryService;
+import org.opensearch.sql.executor.pagination.PaginatedPlanCache;
 
 @ExtendWith(MockitoExtension.class)
 class QueryPlanFactoryTest {
