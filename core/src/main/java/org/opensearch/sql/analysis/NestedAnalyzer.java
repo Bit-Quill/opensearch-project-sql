@@ -44,17 +44,12 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
 
   @Override
   public LogicalPlan visitNestedAllFields(NestedAllFields node, AnalysisContext context) {
-    List<Map<String, ReferenceExpression>> fields = new ArrayList<>();
-    for (NamedExpression field : namedExpressions) {
-      if (field.getName().contains(node.getPath())) {
-        fields.add(Map.of(
-            "field", new ReferenceExpression(field.getName(), STRING),
-            "path", new ReferenceExpression(node.getPath(), STRING)
-        ));
-      }
-    }
-
-    return new LogicalNested(child, fields, namedExpressions);
+    Map<String, ReferenceExpression> args;
+    args = Map.of(
+        "field", new ReferenceExpression("*", STRING),
+        "path", new ReferenceExpression(node.getPath(), STRING)
+    );
+    return new LogicalNested(child, List.of(args), namedExpressions);
   }
 
   @Override

@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 
 @EqualsAndHashCode(callSuper = false)
@@ -63,17 +62,18 @@ public class UnnestOperator extends PhysicalPlan {
 
   public UnnestOperator(PhysicalPlan input, List<Map<String, ReferenceExpression>> fields, List projectList) {
     this.input = input;
-    this.fields =
-        (Set<String>) projectList.stream().map(e -> ((NamedExpression) e).getName()).collect(Collectors.toSet());
-    this.groupedPathsAndFields = fields.stream().collect(
-        Collectors.groupingBy(
-            m -> m.get("path").toString(),
-            mapping(
-                m -> m.get("field").toString(),
-                toList()
-            )
-        )
-    );
+    this.fields = (Set<String>) projectList.stream().map(e -> e.toString()).collect(Collectors.toSet());
+    this.groupedPathsAndFields = new HashMap<>();
+    List<String> paths = fields.stream().map(path -> path.get("path").getAttr()).collect(Collectors.toList());
+
+    for (String path : paths) {
+      this.groupedPathsAndFields.put(path, new ArrayList<>());
+      for (String field : this.fields) {
+        if (field.contains(path)) {
+          this.groupedPathsAndFields.get(path).add(field);
+        }
+      }
+    }
   }
 
   /**
