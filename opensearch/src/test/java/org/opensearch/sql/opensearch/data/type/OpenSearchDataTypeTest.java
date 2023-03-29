@@ -160,12 +160,15 @@ class OpenSearchDataTypeTest {
   public void types_but_clones_are_singletones_and_cached() {
     var type = OpenSearchDataType.of(MappingType.Object);
     var alsoType = OpenSearchDataType.of(MappingType.Object);
-    var typeWithProperties = OpenSearchDataType.of(MappingType.Object,
-        Map.of("subfield", OpenSearchDataType.of(INTEGER)), Map.of());
-    var typeWithFields = OpenSearchDataType.of(MappingType.Text,
-        Map.of(), Map.of("subfield", OpenSearchDataType.of(INTEGER)));
-
+    Map<String, Object> properties = Map.of("properties", Map.of("number", Map.of("type", "integer")));
+    var typeWithProperties = OpenSearchDataType.of(
+        MappingType.Object,
+        properties);
+    var typeWithFields = OpenSearchDataType.of(
+        MappingType.Text,
+        Map.of());
     var cloneType = type.cloneEmpty();
+
     assertAll(
         () -> assertSame(type, alsoType),
         () -> assertNotSame(type, cloneType),
@@ -182,7 +185,7 @@ class OpenSearchDataTypeTest {
         () -> assertSame(OpenSearchDataType.of(MappingType.Ip),
             OpenSearchIpType.of()),
         () -> assertNotSame(OpenSearchTextType.of(),
-            OpenSearchTextType.of(Map.of("subfield", OpenSearchDataType.of(INTEGER)))),
+            OpenSearchTextType.of(Map.of("properties", OpenSearchDataType.of(INTEGER)))),
         () -> assertSame(OpenSearchDataType.of(INTEGER), OpenSearchDataType.of(INTEGER)),
         () -> assertSame(OpenSearchDataType.of(STRING), OpenSearchDataType.of(STRING)),
         () -> assertSame(OpenSearchDataType.of(STRUCT), OpenSearchDataType.of(STRUCT)),
@@ -220,9 +223,10 @@ class OpenSearchDataTypeTest {
   // cloneEmpty doesn't clone properties and fields.
   // Fields are cloned by OpenSearchTextType::cloneEmpty, because it is used in that type only.
   public void cloneEmpty() {
-    var type = OpenSearchDataType.of(MappingType.Object,
-        Map.of("val", OpenSearchDataType.of(INTEGER)),
-        Map.of("words", OpenSearchDataType.of(STRING)));
+    var type = OpenSearchDataType.of(
+        MappingType.Object,
+        Map.of("val", OpenSearchDataType.of(INTEGER))
+    );
     var clone = type.cloneEmpty();
     var textClone = textKeywordType.cloneEmpty();
 
@@ -281,18 +285,18 @@ class OpenSearchDataTypeTest {
     var objectType = OpenSearchDataType.of(MappingType.Object);
     assertAll(
         () -> assertEquals(9, flattened.size()),
-        () -> assertTrue(flattened.get("type").getProperties().isEmpty()),
-        () -> assertTrue(flattened.get("type.subtype").getProperties().isEmpty()),
-        () -> assertTrue(flattened.get("type.subtype.subsubtype").getProperties().isEmpty()),
+        () -> assertTrue(flattened.get("mapping").getProperties().isEmpty()),
+        () -> assertTrue(flattened.get("mapping.submapping").getProperties().isEmpty()),
+        () -> assertTrue(flattened.get("mapping.submapping.submapping").getProperties().isEmpty()),
 
-        () -> assertEquals(objectType, flattened.get("type")),
-        () -> assertEquals(objectType, flattened.get("type.subtype")),
-        () -> assertEquals(objectType, flattened.get("type.subtype.subsubtype")),
+        () -> assertEquals(objectType, flattened.get("mapping")),
+        () -> assertEquals(objectType, flattened.get("mapping.submapping")),
+        () -> assertEquals(objectType, flattened.get("mapping.submapping.submapping")),
 
         () -> assertEquals(OpenSearchDataType.of(MappingType.Keyword),
-            flattened.get("type.keyword")),
+            flattened.get("mapping.keyword")),
         () -> assertEquals(OpenSearchDataType.of(MappingType.Text),
-            flattened.get("type.text")),
+            flattened.get("mapping.text")),
 
         () -> assertEquals(OpenSearchGeoPointType.of(),
             flattened.get("type.subtype.geo_point")),
@@ -357,29 +361,57 @@ class OpenSearchDataTypeTest {
     );
   }
 
-  private Map<String, OpenSearchDataType> getSampleMapping() {
-    var textWithKeywordType = OpenSearchTextType.of(Map.of("keyword",
-        OpenSearchDataType.of(MappingType.Keyword)));
+  private Map<String, OpenSearchDataType> getSampleMapping_old() {
+    var textWithKeywordType =
+        OpenSearchTextType.of(Map.of(
+            "keyword",
+            OpenSearchDataType.of(MappingType.Keyword)));
 
-    var subsubsubtypes = Map.of(
+    Map<String, Object> subsubsubtypes = Map.of(
         "textWithKeywordType", textWithKeywordType,
         "INTEGER", OpenSearchDataType.of(INTEGER));
 
-    var subsubtypes = Map.of(
-        "subsubtype", OpenSearchDataType.of(MappingType.Object,
-            subsubsubtypes, Map.of()),
-        "textWithFieldsType", OpenSearchDataType.of(MappingType.Text, Map.of(),
+    Map<String, Object> subsubtypes = Map.of(
+        "subsubtype", OpenSearchDataType.of(MappingType.Object, subsubsubtypes),
+        "textWithFieldsType", OpenSearchDataType.of(MappingType.Text,
             Map.of("words", OpenSearchDataType.of(MappingType.Keyword))),
         "geo_point", OpenSearchGeoPointType.of());
 
-    var subtypes = Map.of(
-        "subtype", OpenSearchDataType.of(MappingType.Object,
-            subsubtypes, Map.of()),
+    Map<String, Object> subtypes = Map.of(
+        "subtype", OpenSearchDataType.of(MappingType.Object, subsubtypes),
         "keyword", OpenSearchDataType.of(MappingType.Keyword),
         "text", OpenSearchDataType.of(MappingType.Text));
 
-    var type = OpenSearchDataType.of(MappingType.Object, subtypes, Map.of());
+    var type = OpenSearchDataType.of(MappingType.Object, subtypes);
     return Map.of("type", type);
+  }
+
+  private Map<String, OpenSearchDataType> getSampleMapping() {
+    Map<String, Object> subsubmapping = Map.of(
+        "properties", Map.of(
+            "subsubmappingtext", Map.of("type", "text"),
+            "INTEGER", Map.of("type", "integer")
+        )
+    );
+
+    Map<String, Object> submapping = Map.of(
+        "properties", Map.of(
+            "subsubmapping", subsubmapping,
+            "textWithFieldsType", Map.of("type", "text", "fieldsType", true),
+            "geo_point", Map.of("type", "geo_point")
+        )
+    );
+
+    Map<String, Object> types = Map.of(
+        "properties", Map.of(
+            "submapping", submapping,
+            "keyword", Map.of("type", "keyword"),
+            "text", Map.of("type", "text")
+        )
+    );
+
+    var mapping = OpenSearchDataType.of(MappingType.Object, types);
+    return Map.of("mapping", mapping);
   }
 
   @Test

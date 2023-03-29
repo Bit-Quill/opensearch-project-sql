@@ -29,8 +29,9 @@ public class IndexMapping {
 
   @SuppressWarnings("unchecked")
   public IndexMapping(MappingMetadata metaData) {
-    this.fieldMappings = parseMapping((Map<String, Object>) metaData.getSourceAsMap()
-        .getOrDefault("properties", null));
+    this.fieldMappings = OpenSearchDataType.parseMapping(
+        (Map<String, Object>) metaData.getSourceAsMap().getOrDefault("properties", null)
+    );
   }
 
   /**
@@ -42,27 +43,30 @@ public class IndexMapping {
     return fieldMappings.size();
   }
 
-  @SuppressWarnings("unchecked")
-  private Map<String, OpenSearchDataType> parseMapping(Map<String, Object> indexMapping) {
-    Map<String, OpenSearchDataType> result = new LinkedHashMap<>();
-    if (indexMapping != null) {
-      indexMapping.forEach((k, v) -> {
-        var innerMap = (Map<String, Object>)v;
-        // TODO: confirm that only `object` mappings can omit `type` field.
-        var type = ((String) innerMap.getOrDefault("type", "object")).replace("_", "");
-        if (!EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.MappingType.class, type)) {
-          // unknown type, e.g. `alias`
-          // TODO resolve alias reference
-          return;
-        }
-        // TODO read formats for date type
-        result.put(k, OpenSearchDataType.of(
-            EnumUtils.getEnumIgnoreCase(OpenSearchDataType.MappingType.class, type),
-            parseMapping((Map<String, Object>) innerMap.getOrDefault("properties", null)),
-            parseMapping((Map<String, Object>) innerMap.getOrDefault("fields", null))
-            ));
-      });
-    }
-    return result;
-  }
+//  @SuppressWarnings("unchecked")
+//  private Map<String, OpenSearchDataType> parseMapping(Map<String, Object> indexMapping) {
+//    Map<String, OpenSearchDataType> result = new LinkedHashMap<>();
+//    if (indexMapping != null) {
+//      indexMapping.forEach((k, v) -> {
+//        var innerMap = (Map<String, Object>)v;
+//        // by default, the type is treated as an Object if "type" is not provided
+//        var type = ((String) innerMap
+//            .getOrDefault(
+//                "type",
+//                "object"))
+//            .replace("_", "");
+//        if (!EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.MappingType.class, type)) {
+//          // unknown type, e.g. `alias`
+//          // TODO resolve alias reference
+//          return;
+//        }
+//        // create OpenSearchDataType
+//        result.put(k, OpenSearchDataType.of(
+//            EnumUtils.getEnumIgnoreCase(OpenSearchDataType.MappingType.class, type),
+//            innerMap)
+//        );
+//      });
+//    }
+//    return result;
+//  }
 }

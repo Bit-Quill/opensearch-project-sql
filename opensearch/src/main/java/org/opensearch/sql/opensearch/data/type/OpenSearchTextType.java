@@ -23,6 +23,11 @@ public class OpenSearchTextType extends OpenSearchDataType {
 
   private static final OpenSearchTextType instance = new OpenSearchTextType();
 
+  // text could have fields
+  // a read-only collection
+  @EqualsAndHashCode.Exclude
+  Map<String, OpenSearchDataType> fields = ImmutableMap.of();
+
   private OpenSearchTextType() {
     super(MappingType.Text);
     exprCoreType = UNKNOWN;
@@ -33,9 +38,18 @@ public class OpenSearchTextType extends OpenSearchDataType {
    * @param fields Fields to set for the new type.
    * @return A new type object.
    */
+//  public static OpenSearchTextType of() {
+//    var res = new OpenSearchTextType();
+//    if (fields instanceof Map<String, OpenSearchDataType>) {
+//
+//    }
+//    res.fields = ImmutableMap.copyOf(fields);
+//    return res;
+//  }
+
   public static OpenSearchTextType of(Map<String, OpenSearchDataType> fields) {
     var res = new OpenSearchTextType();
-    res.fields = ImmutableMap.copyOf(fields);
+    res.fields = fields;
     return res;
   }
 
@@ -59,7 +73,7 @@ public class OpenSearchTextType extends OpenSearchDataType {
 
   @Override
   protected OpenSearchDataType cloneEmpty() {
-    return OpenSearchTextType.of(fields);
+    return OpenSearchTextType.of(ImmutableMap.copyOf(this.fields));
   }
 
   /**

@@ -34,7 +34,10 @@ public class OpenSearchDataType implements ExprType, Serializable {
     Ip("ip", ExprCoreType.UNKNOWN),
     GeoPoint("geo_point", ExprCoreType.UNKNOWN),
     Binary("binary", ExprCoreType.UNKNOWN),
-    Date("date", ExprCoreType.TIMESTAMP),
+    Date("date", ExprCoreType.DATE),
+    Time("date", ExprCoreType.TIME),
+    Datetime("date", ExprCoreType.TIMESTAMP),
+    Timestamp("date", ExprCoreType.TIMESTAMP),
     Object("object", ExprCoreType.STRUCT),
     Nested("nested", ExprCoreType.ARRAY),
     Byte("byte", ExprCoreType.BYTE),
@@ -102,51 +105,71 @@ public class OpenSearchDataType implements ExprType, Serializable {
    * @param mappingType A mapping type.
    * @return An instance or inheritor of `OpenSearchDataType`.
    */
-  public static OpenSearchDataType of(MappingType mappingType) {
+  public static OpenSearchDataType of(MappingType mappingType, Map<String, Object> innerMap) {
     var res = instances.getOrDefault(mappingType.toString(), null);
-    if (res != null) {
-      return res;
+    if (res == null) {
+      res = new OpenSearchDataType(mappingType);
     }
-    ExprCoreType exprCoreType = mappingType.getExprCoreType();
-    if (exprCoreType == ExprCoreType.UNKNOWN) {
-      switch (mappingType) {
+    switch (mappingType) {
+      case Object:
+      case Nested:
+        if (innerMap.isEmpty()) {
+          return res;
+        }
+        var im = innerMap.getOrDefault("properties", Map.of());
+        Map<String, OpenSearchDataType> properties =
+            parseMapping((Map<String, Object>) innerMap.getOrDefault("properties", Map.of()));
+        OpenSearchDataType objectDataType = res.cloneEmpty();
+        objectDataType.properties = properties;
+        return objectDataType;
+      case Text:
         // TODO update these 2 below #1038 https://github.com/opensearch-project/sql/issues/1038
-        case Text: return OpenSearchTextType.of();
-        case GeoPoint: return OpenSearchGeoPointType.of();
-        case Binary: return OpenSearchBinaryType.of();
-        case Ip: return OpenSearchIpType.of();
-        default:
-          throw new IllegalArgumentException(mappingType.toString());
-      }
+        return OpenSearchTextType.of();
+//            (Map<String, Object>) innerMap.getOrDefault("fields", Map.of()));
+      case GeoPoint: return OpenSearchGeoPointType.of();
+      case Binary: return OpenSearchBinaryType.of();
+      case Ip: return OpenSearchIpType.of();
+      case Date: return OpenSearchDateType.of(
+          (String) innerMap.getOrDefault("format", ""));
+      default:
+        return res;
     }
-    res = new OpenSearchDataType(mappingType);
-    res.exprCoreType = exprCoreType;
-    return res;
+  }
+
+  public static Map<String, OpenSearchDataType> parseMapping(Map<String, Object> indexMapping) {
+    Map<String, OpenSearchDataType> result = new LinkedHashMap<>();
+    if (indexMapping != null) {
+      indexMapping.forEach((k, v) -> {
+        var innerMap = (Map<String, Object>)v;
+        // by default, the type is treated as an Object if "type" is not provided
+        var type = ((String) innerMap
+            .getOrDefault(
+                "type",
+                "object"))
+            .replace("_", "");
+        if (!EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.MappingType.class, type)) {
+          // unknown type, e.g. `alias`
+          // TODO resolve alias reference
+          return;
+        }
+        // create OpenSearchDataType
+        result.put(k, OpenSearchDataType.of(
+            EnumUtils.getEnumIgnoreCase(OpenSearchDataType.MappingType.class, type),
+            innerMap)
+        );
+      });
+    }
+    return result;
   }
 
   /**
    * A constructor function which builds proper `OpenSearchDataType` for given mapping `Type`.
    * Designed to be called by the mapping parser only (and tests).
    * @param mappingType A mapping type.
-   * @param properties Properties to set.
-   * @param fields Fields to set.
    * @return An instance or inheritor of `OpenSearchDataType`.
    */
-  public static OpenSearchDataType of(MappingType mappingType,
-                                      Map<String, OpenSearchDataType> properties,
-                                      Map<String, OpenSearchDataType> fields) {
-    var res = of(mappingType);
-    if (!properties.isEmpty() || !fields.isEmpty()) {
-      // Clone to avoid changing the singleton instance.
-      res = res.cloneEmpty();
-      res.properties = ImmutableMap.copyOf(properties);
-      res.fields = ImmutableMap.copyOf(fields);
-    }
-    return res;
-  }
-
-  protected OpenSearchDataType(MappingType mappingType) {
-    this.mappingType = mappingType;
+  public static OpenSearchDataType of(MappingType mappingType) {
+    return of(mappingType, Map.of());
   }
 
   /**
@@ -165,11 +188,13 @@ public class OpenSearchDataType implements ExprType, Serializable {
     return new OpenSearchDataType((ExprCoreType) type);
   }
 
-  protected OpenSearchDataType(ExprCoreType type) {
-    this.exprCoreType = type;
+  protected OpenSearchDataType(MappingType mappingType) {
+    this.mappingType = mappingType;
+    this.exprCoreType = mappingType.getExprCoreType();
   }
 
-  protected OpenSearchDataType() {
+  protected OpenSearchDataType(ExprCoreType type) {
+    this.exprCoreType = type;
   }
 
   // For datatypes with properties (example: object and nested types)
@@ -177,11 +202,6 @@ public class OpenSearchDataType implements ExprType, Serializable {
   @Getter
   @EqualsAndHashCode.Exclude
   Map<String, OpenSearchDataType> properties = ImmutableMap.of();
-
-  // text could have fields
-  // a read-only collection
-  @EqualsAndHashCode.Exclude
-  Map<String, OpenSearchDataType> fields = ImmutableMap.of();
 
   @Override
   // Called when building TypeEnvironment and when serializing PPL response
@@ -209,16 +229,16 @@ public class OpenSearchDataType implements ExprType, Serializable {
    * @return A cloned object.
    */
   protected OpenSearchDataType cloneEmpty() {
-    var copy = new OpenSearchDataType();
-    copy.mappingType = mappingType;
-    copy.exprCoreType = exprCoreType;
-    return copy;
+    if (this.mappingType == null) {
+      return new OpenSearchDataType(this.exprCoreType);
+    }
+    return new OpenSearchDataType(this.mappingType);
   }
 
   /**
    * Flattens mapping tree into a single layer list of objects (pairs of name-types actually),
    * which don't have nested types.
-   * See {@link OpenSearchDataTypeTest#traverseAndFlatten() test} for example.
+   * See OpenSearchDataTypeTest#traverseAndFlatten() test for example.
    * @param tree A list of `OpenSearchDataType`s - map between field name and its type.
    * @return A list of all `OpenSearchDataType`s from given map on the same nesting level (1).
    *         Nested object names are prefixed by names of their host.

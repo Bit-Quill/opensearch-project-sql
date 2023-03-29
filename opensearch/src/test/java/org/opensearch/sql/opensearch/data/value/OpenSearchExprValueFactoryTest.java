@@ -412,7 +412,7 @@ class OpenSearchExprValueFactoryTest {
   private static class TestType extends OpenSearchDataType {
 
     public TestType() {
-      mappingType = null;
+      super(MappingType.Invalid);
     }
 
     @Override
