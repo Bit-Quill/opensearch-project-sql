@@ -7,6 +7,7 @@ package org.opensearch.sql.analysis;
 
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -43,12 +44,17 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
 
   @Override
   public LogicalPlan visitNestedAllFields(NestedAllFields node, AnalysisContext context) {
-    Map<String, ReferenceExpression> args;
-    args = Map.of(
-        "field", new ReferenceExpression("*", STRING),
-        "path", new ReferenceExpression(node.getPath(), STRING)
-    );
-    return new LogicalNested(child, List.of(args), namedExpressions);
+    List<Map<String, ReferenceExpression>> fields = new ArrayList<>();
+    for (NamedExpression field : namedExpressions) {
+      if (field.getName().contains(node.getPath())) {
+        fields.add(Map.of(
+            "field", new ReferenceExpression(field.getName(), STRING),
+            "path", new ReferenceExpression(node.getPath(), STRING)
+        ));
+      }
+    }
+
+    return new LogicalNested(child, fields, namedExpressions);
   }
 
   @Override
