@@ -23,7 +23,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.*;
 import static org.opensearch.sql.expression.DSL.literal;
 
 @Warmup(iterations = 1)
-@Measurement(iterations = 2)
+@Measurement(iterations = 3)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
@@ -44,12 +44,16 @@ public class DatetimeBenchmark {
 
     @Benchmark
     public void testCast() {
-        run(DSL::castTimestamp);
+        for (int i = 0; i < 1000; i++) {
+            run(DSL::castTimestamp);
+        }
     }
 
     @Benchmark
     public void testTimestamp() {
-        run(DSL::timestamp);
+        for (int i = 0; i < 1000; i++) {
+            run(DSL::timestamp);
+        }
     }
 
     private void run(BiFunction<FunctionProperties, Expression, FunctionExpression> dsl) {
