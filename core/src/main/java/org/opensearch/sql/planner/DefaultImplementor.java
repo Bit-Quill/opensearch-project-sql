@@ -99,7 +99,7 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
   @Override
   public PhysicalPlan visitUnnest(LogicalNested node, C context) {
     if (node.getFields().get(0).get("field").getAttr().equals("*")) {
-      return new NestedOperator(visitChild(node,context), node.getFields(), true);
+      return new NestedOperator(visitChild(node,context), node.getFields(), node.getProjectList());
     }
     return new NestedOperator(visitChild(node, context), node.getFields());
   }

@@ -44,7 +44,6 @@ public class NestedOperator extends PhysicalPlan {
   private List<Map<String, ExprValue>> result = new ArrayList<>();
   @EqualsAndHashCode.Exclude
   private List<String> nonNestedFields = new ArrayList<>();
-  private final boolean allFields;
   @EqualsAndHashCode.Exclude
   private ListIterator<Map<String, ExprValue>> flattenedResult = result.listIterator();
 
@@ -67,14 +66,12 @@ public class NestedOperator extends PhysicalPlan {
             )
         )
     );
-    this.allFields = false;
   }
 
-  public NestedOperator(PhysicalPlan input, List<Map<String, ReferenceExpression>> fields, boolean allFields) {
+  public NestedOperator(PhysicalPlan input, List<Map<String, ReferenceExpression>> fields, List projectList) {
     this.input = input;
-    this.fields = fields.stream()
-        .map(m -> m.get("field").toString())
-        .collect(Collectors.toSet());
+    this.fields =
+        (Set<String>) projectList.stream().map(e -> ((NamedExpression) e).getName()).collect(Collectors.toSet());
     this.groupedPathsAndFields = fields.stream().collect(
         Collectors.groupingBy(
             m -> m.get("path").toString(),
@@ -84,7 +81,6 @@ public class NestedOperator extends PhysicalPlan {
             )
         )
     );
-    this.allFields = false;
   }
 
   /**
@@ -101,7 +97,6 @@ public class NestedOperator extends PhysicalPlan {
     this.input = input;
     this.fields = fields;
     this.groupedPathsAndFields = groupedPathsAndFields;
-    this.allFields = false;
   }
 
   @Override
