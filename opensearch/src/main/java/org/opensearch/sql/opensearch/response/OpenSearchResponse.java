@@ -96,7 +96,12 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
           .map(hit -> {
             ExprValue docData = exprValueFactory.construct(hit.getSourceAsString());
             if (hit.getHighlightFields().isEmpty()) {
-              return docData;
+              if (hit.getInnerHits() == null) {
+                return docData;
+              } else {
+                Map<String, Object> rowSource = hit.getSourceAsMap();
+                return ExprValueUtils.tupleValue(rowSource);
+              }
             } else {
               ImmutableMap.Builder<String, ExprValue> builder = new ImmutableMap.Builder<>();
               builder.putAll(docData.tupleValue());
