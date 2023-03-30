@@ -60,11 +60,24 @@ public class UnnestOperator extends PhysicalPlan {
     );
   }
 
-  public UnnestOperator(PhysicalPlan input, List<Map<String, ReferenceExpression>> fields, List projectList) {
+  /**
+   * Constructor for UnnestOperator only when ".*" is included in the
+   * argument for the nested function
+   *
+   * @param input : PhysicalPlan input.
+   * @param fields : List of all fields and paths for nested fields.
+   * @param projectList : ProjectList to allow the operator to extract all fields
+   */
+  public UnnestOperator(
+      PhysicalPlan input,
+      List<Map<String, ReferenceExpression>> fields,
+      List projectList) {
     this.input = input;
-    this.fields = (Set<String>) projectList.stream().map(e -> e.toString()).collect(Collectors.toSet());
+    this.fields = (Set<String>) projectList.stream()
+        .map(e -> e.toString()).collect(Collectors.toSet());
     this.groupedPathsAndFields = new HashMap<>();
-    List<String> paths = fields.stream().map(path -> path.get("path").getAttr()).collect(Collectors.toList());
+    List<String> paths = fields.stream().map(path -> path.get("path")
+        .getAttr()).collect(Collectors.toList());
 
     for (String path : paths) {
       this.groupedPathsAndFields.put(path, new ArrayList<>());
