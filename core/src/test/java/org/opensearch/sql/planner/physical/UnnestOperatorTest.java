@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 
 @ExtendWith(MockitoExtension.class)
@@ -162,6 +163,37 @@ class UnnestOperatorTest extends PhysicalPlanTestBase {
         execute(new UnnestOperator(inputPlan, fields, groupedFieldsByPath)),
         contains(
             tupleValue(ImmutableMap.of("message", "val"))
+        )
+    );
+  }
+
+  @Test
+  public void nested_with_wildcard() {
+    when(inputPlan.hasNext()).thenReturn(true, false);
+    when(inputPlan.next())
+        .thenReturn(testDataWithSamePath);
+
+    List<Map<String, ReferenceExpression>> fields =
+        List.of(
+            Map.of(
+                "field", new ReferenceExpression("*", STRING),
+                "path", new ReferenceExpression("message", STRING)),
+            Map.of(
+                "field", new ReferenceExpression("*", STRING),
+                "path", new ReferenceExpression("comment", STRING))
+        );
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression("message.info", null, null),
+            new NamedExpression("message.id", null, null)
+        );
+
+    assertThat(
+        execute(new UnnestOperator(inputPlan, fields, projectList)),
+        contains(
+            tupleValue(ImmutableMap.of("message.info", "a", "message.id", "1")),
+            tupleValue(ImmutableMap.of("message.info", "b", "message.id", "2")),
+            tupleValue(ImmutableMap.of("message.info", "c", "message.id", "3"))
         )
     );
   }
