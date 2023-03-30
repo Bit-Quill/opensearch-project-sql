@@ -6,21 +6,22 @@
 package org.opensearch.sql.planner.physical;
 
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.executor.ExecutionEngine;
 
 @EqualsAndHashCode(callSuper = false)
+@RequiredArgsConstructor
 public class PaginateOperator extends PhysicalPlan {
   @Getter
-  private PhysicalPlan input;
+  private final PhysicalPlan input;
 
   @Getter
-  private int pageSize;
+  private final int pageSize;
 
   /**
    * Which page is this?
@@ -31,19 +32,6 @@ public class PaginateOperator extends PhysicalPlan {
   private int pageIndex = 0;
 
   private int numReturned = 0;
-
-  public PaginateOperator() {
-    int a = 5;
-    // TODO validate that called only from deserializer
-  }
-
-  /**
-   * Page given physical plan, with pageSize elements per page, starting with the first page.
-   */
-  public PaginateOperator(PhysicalPlan input, int pageSize) {
-    this.pageSize = pageSize;
-    this.input = input;
-  }
 
   /**
    * Page given physical plan, with pageSize elements per page, starting with the given page.

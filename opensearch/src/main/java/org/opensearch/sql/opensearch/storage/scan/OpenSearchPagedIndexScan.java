@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.Iterator;
-
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.apache.commons.lang3.NotImplementedException;
 import org.opensearch.sql.data.model.ExprValue;
@@ -22,25 +22,15 @@ import org.opensearch.sql.storage.TableScanOperator;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @ToString(onlyExplicitlyIncluded = true)
+@RequiredArgsConstructor
 public class OpenSearchPagedIndexScan extends TableScanOperator {
-  private OpenSearchClient client;
-  private PagedRequestBuilder requestBuilder;
+  private final OpenSearchClient client;
+  private final PagedRequestBuilder requestBuilder;
   @EqualsAndHashCode.Include
   @ToString.Include
   private OpenSearchRequest request;
   private Iterator<ExprValue> iterator;
   private long totalHits = 0;
-
-  public OpenSearchPagedIndexScan() {
-    int a = 5;
-    // TODO validate that called only from deserializer
-  }
-
-  public OpenSearchPagedIndexScan(OpenSearchClient client,
-                                  PagedRequestBuilder requestBuilder) {
-    this.client = client;
-    this.requestBuilder = requestBuilder;
-  }
 
   @Override
   public String explain() {

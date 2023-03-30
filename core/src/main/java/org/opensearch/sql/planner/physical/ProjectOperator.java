@@ -8,9 +8,7 @@ package org.opensearch.sql.planner.physical;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
@@ -31,25 +30,14 @@ import org.opensearch.sql.expression.parse.ParseExpression;
  */
 @ToString
 @EqualsAndHashCode(callSuper = false)
+@RequiredArgsConstructor
 public class ProjectOperator extends PhysicalPlan {
   @Getter
-  private PhysicalPlan input;
+  private final PhysicalPlan input;
   @Getter
-  private List<NamedExpression> projectList;
+  private final List<NamedExpression> projectList;
   @Getter
-  private List<NamedExpression> namedParseExpressions;
-
-  public ProjectOperator() {
-    int a = 5;
-    // TODO validate that called only from deserializer
-  }
-
-  public ProjectOperator(PhysicalPlan input, List<NamedExpression> projectList,
-                         List<NamedExpression> namedParseExpressions) {
-    this.input = input;
-    this.projectList = projectList;
-    this.namedParseExpressions = namedParseExpressions;
-  }
+  private final List<NamedExpression> namedParseExpressions;
 
   @Override
   public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {

@@ -6,17 +6,9 @@
 
 package org.opensearch.sql.planner.physical;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Iterator;
-import java.util.List;
-
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.executor.ExecutionEngine;
-import org.opensearch.sql.executor.PaginatedPlanCache;
 import org.opensearch.sql.planner.PlanNode;
 import org.opensearch.sql.planner.SerializablePlan;
 import org.opensearch.sql.storage.split.Split;
