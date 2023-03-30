@@ -9,26 +9,18 @@ import com.google.common.hash.HashCode;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.io.Externalizable;
-import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.zip.Deflater;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 import lombok.Data;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
-import org.opensearch.sql.expression.NamedExpression;
-import org.opensearch.sql.expression.serialization.DefaultExpressionSerializer;
 import org.opensearch.sql.planner.SerializablePlan;
 import org.opensearch.sql.planner.physical.PaginateOperator;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
@@ -38,27 +30,25 @@ import org.opensearch.sql.storage.StorageEngine;
  * This class is entry point to paged requests. It is responsible to cursor serialization
  * and deserialization.
  */
-public class PaginatedPlanCache implements AutoCloseable {
+@RequiredArgsConstructor
+public class PaginatedPlanCache {
   public static final String CURSOR_PREFIX = "n:";
 
-  public PaginatedPlanCache(StorageEngine storageEngine) {
-    SerializationContext.engine = storageEngine;
-  }
+  private final StorageEngine engine;
 
   public boolean canConvertToCursor(UnresolvedPlan plan) {
     return plan.accept(new CanPaginateVisitor(), null);
   }
 
-  // Actually called only once on server lifetime - on shutdown, so it does nothing.
-  @Override
-  public void close() throws Exception {
-    SerializationContext.engine = null;
-  }
-
+  /**
+   * An auxiliary class, which provides an entry point for serialization and deserialization of
+   * the plan tree. It doesn't serialize itself, it calls {@link SerializablePlan#writeExternal}
+   * of the given plan. For deserialization, it loads a {@link SerializablePlan.PlanLoader} and
+   * invokes it.
+   */
   @Data
-  public static class SerializationContext implements Externalizable {
+  class SerializationContext implements Externalizable {
     private PaginateOperator plan;
-    private static StorageEngine engine;
     /**
      * If exception is thrown we don't catch it, that means something really went wrong.
      * But if we can't serialize the plan, we set this flag and should return an empty cursor.
@@ -86,9 +76,9 @@ public class PaginatedPlanCache implements AutoCloseable {
   }
 
   /**
-   * Converts a physical plan tree to a cursor. May cache plan related data somewhere.
+   * Converts a physical plan tree to a cursor.
    */
-  public Cursor convertToCursor(PhysicalPlan plan) throws IOException {
+  public Cursor convertToCursor(PhysicalPlan plan){
     if (plan instanceof PaginateOperator) {
       var context = new SerializationContext((PaginateOperator) plan);
       var serialized = serialize(context);
@@ -97,6 +87,11 @@ public class PaginatedPlanCache implements AutoCloseable {
     return Cursor.None;
   }
 
+  /**
+   * Serializes and compresses the object.
+   * @param object The object.
+   * @return Encoded binary data.
+   */
   public String serialize(Serializable object) {
     try {
       ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -105,17 +100,24 @@ public class PaginatedPlanCache implements AutoCloseable {
       objectOutput.flush();
 
       ByteArrayOutputStream out = new ByteArrayOutputStream();
+      // GZIP provides 35-45%, lzma from apache commons-compress has few % better compression
       GZIPOutputStream gzip = new GZIPOutputStream(out) { {
         this.def.setLevel(Deflater.BEST_COMPRESSION);
       } };
       gzip.write(output.toByteArray());
       gzip.close();
+
       return HashCode.fromBytes(out.toByteArray()).toString();
     } catch (IOException e) {
       throw new IllegalStateException("Failed to serialize: " + object, e);
     }
   }
 
+  /**
+   * Decompresses and deserializes the binary data.
+   * @param code Encoded binary data.
+   * @return An object.
+   */
   public Serializable deserialize(String code) {
     try {
       GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(
@@ -136,7 +138,8 @@ public class PaginatedPlanCache implements AutoCloseable {
       throw new UnsupportedOperationException("Unsupported cursor");
     }
     try {
-      return ((SerializationContext) deserialize(cursor.substring(CURSOR_PREFIX.length()))).getPlan();
+      return ((SerializationContext) deserialize(cursor.substring(CURSOR_PREFIX.length())))
+          .getPlan();
     } catch (Exception e) {
       throw new UnsupportedOperationException("Unsupported cursor", e);
     }
