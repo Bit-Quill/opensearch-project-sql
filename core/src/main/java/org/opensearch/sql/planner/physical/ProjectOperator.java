@@ -8,10 +8,14 @@ package org.opensearch.sql.planner.physical;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.io.ObjectOutput;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
@@ -21,8 +25,10 @@ import lombok.ToString;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.expression.NamedExpression;
+import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.parse.ParseExpression;
 
 /**
@@ -101,16 +107,29 @@ public class ProjectOperator extends PhysicalPlan {
   @Override
   public boolean writeExternal(ObjectOutput out) throws IOException {
     PlanLoader loader = (in, engine) -> {
-      var projectList = (List<NamedExpression>) in.readObject();
-      var namedParseExpressions = (List<NamedExpression>) in.readObject();
+      var projectsStr = in.readUTF();
+      var projects = AccessController.doPrivileged((PrivilegedAction<Map<String, ExprType>>) () ->
+          (Map<String, ExprType>) new GsonBuilder().create().fromJson(projectsStr, Map.class));
+      var projectList = projects.entrySet().stream()
+          .map(e -> new NamedExpression(e.getKey(),
+              new ReferenceExpression(e.getKey(), e.getValue())))
+          .collect(Collectors.toList());
       var inputLoader = (PlanLoader) in.readObject();
       var input = (PhysicalPlan) inputLoader.apply(in, engine);
-      return new ProjectOperator(input, projectList, namedParseExpressions);
+      return new ProjectOperator(input, projectList, List.of());
     };
     out.writeObject(loader);
 
-    out.writeObject(projectList);
-    out.writeObject(namedParseExpressions);
+    // Other types of Expressions are not supported and filtered out before
+    var projects = projectList.stream().map(ne -> (ReferenceExpression)ne.getDelegated())
+        .collect(Collectors.toMap(ReferenceExpression::getAttr, ReferenceExpression::type));
+
+    // Being converted to json, this data can be compressed better than
+    // list of NE or list of RE or name-type map
+    out.writeUTF(
+        AccessController.doPrivileged((PrivilegedAction<String>) () ->
+            new GsonBuilder().create().toJson(projects)
+    ));
     return input.getPlanForSerialization().writeExternal(out);
   }
 }
