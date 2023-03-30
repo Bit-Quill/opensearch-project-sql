@@ -9,6 +9,7 @@ package org.opensearch.sql.sql;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_CALCS;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_PEOPLE2;
+import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DATE_FORMATS;
 import static org.opensearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 import static org.opensearch.sql.util.MatcherUtils.rows;
 import static org.opensearch.sql.util.MatcherUtils.schema;
@@ -55,7 +56,7 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     loadIndex(Index.BANK);
     loadIndex(Index.CALCS);
     loadIndex(Index.PEOPLE2);
-    loadIndex(Index.CALCS);
+    loadIndex(Index.DATE_FORMATS);
   }
 
   // Integration test framework sets for OpenSearch instance a random timezone.
@@ -1476,6 +1477,12 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     String timestampFormat = "%f %H %h %I %i %p %r %S %s %T";
     String timestampFormatted = "012345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15";
     verifyTimeFormat(timestamp, "timestamp", timestampFormat, timestampFormatted);
+  }
+
+  @Test
+  public void testReadingDateFormats() throws IOException {
+    String query = String.format("SELECT * FROM %s", TEST_INDEX_DATE_FORMATS);
+    executeQuery(query);
   }
 
   protected JSONObject executeQuery(String query) throws IOException {
