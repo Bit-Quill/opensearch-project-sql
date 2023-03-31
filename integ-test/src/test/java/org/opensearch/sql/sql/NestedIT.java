@@ -313,4 +313,23 @@ public class NestedIT extends SQLIntegTestCase {
         "}"
     ));
   }
+
+  @Test
+  public void test_nested_where_with_and_conditional() {
+    String query = "SELECT nested(message.info), nested(message.author) FROM " + TEST_INDEX_NESTED_TYPE
+        + " WHERE nested(message, message.info = 'a' AND message.author = 'e')";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(1, result.getInt("total"));
+    verifyDataRows(result, rows("a", "e"));
+  }
+
+  @Test
+  public void test_nested_where_as_predicate_expression() {
+    String query = "SELECT nested(message.info) FROM " + TEST_INDEX_NESTED_TYPE
+        + " WHERE nested(message.info) = 'a'";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(2, result.getInt("total"));
+    // Returns whole array with each containing 'message.info'. Maybe not how we want to handle in future.
+    verifyDataRows(result, rows("a"), rows(new JSONArray(List.of("c", "a"))));
+  }
 }

@@ -7,9 +7,15 @@
 package org.opensearch.sql.opensearch.storage.script.filter.lucene;
 
 import com.google.common.collect.ImmutableMap;
+
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+
+import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.sql.data.model.ExprBooleanValue;
 import org.opensearch.sql.data.model.ExprByteValue;
 import org.opensearch.sql.data.model.ExprDateValue;
@@ -32,6 +38,7 @@ import org.opensearch.sql.expression.NamedArgumentExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.expression.nested.NestedFunction;
 import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 
 /**
@@ -53,7 +60,12 @@ public abstract class LuceneQuery {
         && (func.getArguments().get(0) instanceof ReferenceExpression)
         && (func.getArguments().get(1) instanceof LiteralExpression
         || literalExpressionWrappedByCast(func))
-        || isMultiParameterQuery(func);
+        || isMultiParameterQuery(func)
+        || isNestedFunction(func);
+  }
+
+  private boolean isNestedFunction(FunctionExpression func) {
+    return (func instanceof NestedFunction || func.getArguments().get(0) instanceof NestedFunction);
   }
 
   /**
@@ -97,6 +109,44 @@ public abstract class LuceneQuery {
         .valueOf() : cast((FunctionExpression) expr);
     return doBuild(ref.getAttr(), ref.type(), literalValue);
   }
+
+  public QueryBuilder build(FunctionExpression func, BiFunction<BoolQueryBuilder, QueryBuilder,
+        QueryBuilder> accumulator) {
+    BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+    if (func.getArguments().get(0) instanceof FunctionExpression
+        || func.getFunctionName().equals(BuiltinFunctionName.NESTED)) { // Is predicate expression
+      // TODO If function contains conditional we should throw exception.
+      FunctionExpression f = (FunctionExpression) func.getArguments().get(0);
+      ExprValue literalValue = func.getArguments().get(1).valueOf();
+      QueryBuilder ret = doBuild(func);
+//      QueryBuilder ret = doBuildNested(f, literalValue);
+      accumulator.apply(boolQuery, ret);
+    }
+//    else { // Syntax: 'WHERE nested(path, conditional)'
+//      // TODO need good way to loop through predicates
+//      int conditionalParameterSize = ((FunctionExpression)func.getArguments().get(1)).getArguments().size();
+//      ArrayList<QueryBuilder> queries = new ArrayList<>();
+//      ReferenceExpression path = (ReferenceExpression)func.getArguments().get(0);
+//
+//      // Conditional with only one predicate.
+//      if (((FunctionExpression)func.getArguments().get(1)).getArguments().get(0) instanceof ReferenceExpression
+//          && ((FunctionExpression)func.getArguments().get(1)).getArguments().get(1) instanceof LiteralExpression) {
+//        queries.add(doBuild((FunctionExpression)func.getArguments().get(1), path));
+//      } else {
+//        // Multiple predicates. Only enters if more than one predicate.
+//        for (int i = 0; i < ((FunctionExpression)func.getArguments().get(1)).getArguments().size(); i++) {
+//          FunctionExpression expr = (FunctionExpression) ((FunctionExpression)func.getArguments().get(1)).getArguments().get(i);
+//          queries.add(doBuild(expr, path));
+//        }
+//      }
+//
+//      for (QueryBuilder query : queries) {
+//        accumulator.apply(boolQuery, query);
+//      }
+//    }
+    return boolQuery;
+  }
+
 
   private ExprValue cast(FunctionExpression castFunction) {
     return castMap.get(castFunction.getFunctionName()).apply(
@@ -219,6 +269,17 @@ public abstract class LuceneQuery {
    * @return            query
    */
   protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
+    throw new UnsupportedOperationException(
+        "Subclass doesn't implement this and build method either");
+  }
+
+  protected QueryBuilder doBuild(FunctionExpression func) {
+    throw new UnsupportedOperationException(
+        "Subclass doesn't implement this and build method either");
+  }
+
+  // TODO Maybe overload doBuild for override in NestedQuery?
+  protected QueryBuilder doBuildNested(FunctionExpression fieldName, ExprValue literal) {
     throw new UnsupportedOperationException(
         "Subclass doesn't implement this and build method either");
   }

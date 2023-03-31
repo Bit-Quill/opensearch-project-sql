@@ -19,6 +19,7 @@ import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.index.query.ScriptQueryBuilder;
 import org.opensearch.script.Script;
+import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionNodeVisitor;
 import org.opensearch.sql.expression.FunctionExpression;
@@ -26,6 +27,7 @@ import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.LikeQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.LuceneQuery;
+import org.opensearch.sql.opensearch.storage.script.filter.lucene.NestedQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.RangeQuery;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.RangeQuery.Comparison;
 import org.opensearch.sql.opensearch.storage.script.filter.lucene.TermQuery;
@@ -63,6 +65,7 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
           .put(BuiltinFunctionName.MATCH_PHRASE.getName(), new MatchPhraseQuery())
           .put(BuiltinFunctionName.MATCHPHRASE.getName(), new MatchPhraseQuery())
           .put(BuiltinFunctionName.MATCHPHRASEQUERY.getName(), new MatchPhraseQuery())
+          .put(BuiltinFunctionName.NESTED.getName(), new NestedQuery())
           .put(BuiltinFunctionName.QUERY.getName(), new QueryQuery())
           .put(BuiltinFunctionName.MATCH_QUERY.getName(), new MatchQuery())
           .put(BuiltinFunctionName.MATCHQUERY.getName(), new MatchQuery())
@@ -98,7 +101,16 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
         return buildBoolQuery(func, context, BoolQueryBuilder::mustNot);
       default: {
         LuceneQuery query = luceneQueries.get(name);
-        if (query != null && query.canSupport(func)) {
+        if (!(query instanceof NestedQuery) && func.getArguments().get(0) instanceof FunctionExpression) {
+          LuceneQuery innerQuery = luceneQueries.get(((FunctionExpression)func.getArguments().get(0)).getFunctionName());
+          return innerQuery.build(func, BoolQueryBuilder::filter);
+        // Nested used in predicate expression with syntax 'WHERE nested(field | field, path) = ...'
+        //TODO Can we interpret nested used in predicate expression as NestedQuery?
+        } else if (query instanceof NestedQuery) {
+          // TODO Throw exception if does not have conditional parameter.
+          return query.build(func, BoolQueryBuilder::filter);
+        } else
+          if (query != null && query.canSupport(func)) {
           return query.build(func);
         }
         return buildScriptQuery(func);
