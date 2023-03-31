@@ -14,7 +14,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
-import static org.opensearch.sql.executor.pagination.PaginatedPlanCacheTest.buildCursor;
 
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,6 +26,7 @@ import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.QueryId;
 import org.opensearch.sql.executor.QueryService;
 import org.opensearch.sql.executor.pagination.PaginatedPlanCache;
+import org.opensearch.sql.planner.physical.PhysicalPlan;
 import org.opensearch.sql.storage.StorageEngine;
 import org.opensearch.sql.storage.TableScanOperator;
 
@@ -51,6 +51,8 @@ public class ContinuePaginatedPlanTest {
 
   @Test
   public void can_execute_plan() {
+    var planCache = mock(PaginatedPlanCache.class);
+    when(planCache.convertToPlan(anyString())).thenReturn(mock(PhysicalPlan.class));
     var listener = new ResponseListener<ExecutionEngine.QueryResponse>() {
       @Override
       public void onResponse(ExecutionEngine.QueryResponse response) {
@@ -62,13 +64,11 @@ public class ContinuePaginatedPlanTest {
         fail();
       }
     };
-    var plan = new ContinuePaginatedPlan(QueryId.None, buildCursor(Map.of()),
-        queryService, paginatedPlanCache, listener);
+    var plan = new ContinuePaginatedPlan(QueryId.None, "", queryService, planCache, listener);
     plan.execute();
   }
 
   @Test
-  // Same as previous test, but with malformed cursor
   public void can_handle_error_while_executing_plan() {
     var listener = new ResponseListener<ExecutionEngine.QueryResponse>() {
       @Override
@@ -81,8 +81,8 @@ public class ContinuePaginatedPlanTest {
         assertNotNull(e);
       }
     };
-    var plan = new ContinuePaginatedPlan(QueryId.None, buildCursor(Map.of("pageSize", "abc")),
-        queryService, paginatedPlanCache, listener);
+    var plan = new ContinuePaginatedPlan(QueryId.None, "", queryService,
+        paginatedPlanCache, listener);
     plan.execute();
   }
 

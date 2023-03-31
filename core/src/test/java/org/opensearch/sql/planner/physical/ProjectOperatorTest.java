@@ -11,10 +11,16 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.iterableWithSize;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static org.opensearch.sql.data.model.ExprValueUtils.stringValue;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
@@ -23,9 +29,13 @@ import static org.opensearch.sql.planner.physical.PhysicalPlanDSL.project;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.List;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprTupleValue;
@@ -33,7 +43,8 @@ import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.expression.DSL;
-import org.opensearch.sql.expression.serialization.DefaultExpressionSerializer;
+import org.opensearch.sql.planner.SerializablePlan;
+import org.opensearch.sql.storage.StorageEngine;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectOperatorTest extends PhysicalPlanTestBase {
@@ -212,18 +223,41 @@ class ProjectOperatorTest extends PhysicalPlanTestBase {
   }
 
   @Test
-  public void toCursor() {
-    when(inputPlan.prepareToSerialization()).thenReturn("inputPlan", "", null);
-    var project = DSL.named("response", DSL.ref("response", INTEGER));
-    var npe = DSL.named("action", DSL.ref("action", STRING));
-    var po = project(inputPlan, List.of(project), List.of(npe));
-    var serializer = new DefaultExpressionSerializer();
-    var expected = String.format("(Project,(namedParseExpressions,%s),(projectList,%s),%s)",
-        serializer.serialize(npe), serializer.serialize(project), "inputPlan");
-    assertAll(
-        () -> assertEquals(expected, po.prepareToSerialization()),
-        () -> assertNull(po.prepareToSerialization()),
-        () -> assertNull(po.prepareToSerialization())
-    );
+  @SneakyThrows
+  public void writeExternal_serializes_child_plan_too() {
+    var plan = mock(PhysicalPlan.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
+    var paginate = new ProjectOperator(plan, List.of(), List.of());
+    var out = mock(ObjectOutput.class);
+    doReturn(true, false).when(plan).writeExternal(out);
+    assertTrue(paginate.writeExternal(out));
+    assertFalse(paginate.writeExternal(out));
+    verify(plan, times(2)).writeExternal(out);
+    verify(plan, times(2)).getPlanForSerialization();
+  }
+
+  @Test
+  @SneakyThrows
+  public void writeExternal_serializes_loader() {
+    var plan = mock(PhysicalPlan.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
+    var projects = List.of(DSL.named("action", DSL.ref("action", STRING)));
+    var project = new ProjectOperator(plan, projects, List.of());
+    var out = mock(ObjectOutput.class);
+    doReturn(true).when(plan).writeExternal(out);
+
+    var captor = ArgumentCaptor.forClass(Object.class);
+    assertTrue(project.writeExternal(out));
+    verify(out, times(2)).writeObject(captor.capture());
+    verify(plan).writeExternal(out);
+
+    assertEquals(projects, captor.getAllValues().get(1));
+
+    var in = mock(ObjectInput.class);
+    var engine = mock(StorageEngine.class);
+    var childLoader = mock(SerializablePlan.PlanLoader.class);
+    when(childLoader.apply(in, engine)).thenReturn(plan);
+    when(in.readObject()).thenReturn(projects, childLoader);
+    var loader = (SerializablePlan.PlanLoader) captor.getAllValues().get(0);
+    var deserialized = loader.apply(in, engine);
+    assertEquals(deserialized, project);
   }
 }

@@ -21,6 +21,8 @@ import static org.opensearch.sql.common.setting.Settings.Key.QUERY_SIZE_LIMIT;
 import static org.opensearch.sql.data.model.ExprValueUtils.tupleValue;
 import static org.opensearch.sql.executor.ExecutionEngine.QueryResponse;
 
+import java.io.IOException;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -288,11 +290,6 @@ class OpenSearchExecutionEngineTest {
     public ExecutionEngine.Schema schema() {
       return input.schema();
     }
-
-    @Override
-    public void prepareToCursorSerialization() {
-      return "FakePaginatePlan";
-    }
   }
 
   @RequiredArgsConstructor
@@ -338,6 +335,11 @@ class OpenSearchExecutionEngineTest {
     @Override
     public String explain() {
       return "explain";
+    }
+
+    @Override
+    public boolean writeExternal(ObjectOutput out) throws IOException {
+      return true;
     }
   }
 }

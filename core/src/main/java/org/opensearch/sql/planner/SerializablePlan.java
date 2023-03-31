@@ -5,6 +5,7 @@
 
 package org.opensearch.sql.planner;
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -15,12 +16,11 @@ import org.opensearch.sql.storage.StorageEngine;
 /**
  * All instances of PhysicalPlan which needs to be serialized (in cursor feature) should
  * override all given here methods.
- *
  * This class can't implement Externalizable, because deserialization of Externalizable objects
  * works the following way:
  * 1. A new object created with no-arg constructor (no PhysicalPlan has it)
  * 2. Object loads data from the stream.
- * Externalizable interface was split into two pars: serialization is kept with
+ * {@link Externalizable} interface was split into two pars: serialization is kept with
  * {@link #writeExternal}, but deserialization is provided by {@link PlanLoader}.
  */
 public abstract class SerializablePlan {
@@ -40,11 +40,9 @@ public abstract class SerializablePlan {
     throw new NotImplementedException();
   }
 
-
   /**
    * Override to return child or delegated plan, so parent plan should skip this one
    * for serialization, but it should try to serialize grandchild plan.
-   *
    * Imagine plan structure like this
    *    A         -> this
    *    `- B      -> child
@@ -66,7 +64,7 @@ public abstract class SerializablePlan {
    */
   @FunctionalInterface
   public interface PlanLoader extends Serializable {
-     SerializablePlan apply(ObjectInput in, StorageEngine engine)
-         throws IOException, ClassNotFoundException;
+    SerializablePlan apply(ObjectInput in, StorageEngine engine)
+        throws IOException, ClassNotFoundException;
   }
 }

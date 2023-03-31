@@ -8,10 +8,14 @@ package org.opensearch.sql.opensearch.executor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ObjectOutput;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -115,8 +119,15 @@ class ResourceMonitorPlanTest {
   }
 
   @Test
-  void toCursorSuccess() {
-    monitorPlan.prepareToSerialization();
-    verify(plan, times(1)).prepareToSerialization();
+  @SneakyThrows
+  void writeExternal() {
+    ObjectOutput out = mock();
+    monitorPlan.writeExternal(out);
+    verify(plan, times(1)).writeExternal(out);
+  }
+
+  @Test
+  void getPlanForSerialization() {
+    assertEquals(plan, monitorPlan.getPlanForSerialization());
   }
 }
