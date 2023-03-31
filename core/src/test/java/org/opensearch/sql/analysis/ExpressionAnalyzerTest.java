@@ -19,6 +19,7 @@ import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.opensearch.sql.ast.dsl.AstDSL.unresolvedArg;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
+import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
 import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
@@ -27,6 +28,7 @@ import static org.opensearch.sql.expression.DSL.ref;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,7 @@ import org.opensearch.sql.analysis.symbol.Symbol;
 import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.DataType;
+import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
@@ -43,10 +46,12 @@ import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
+import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.window.aggregation.AggregateWindowFunction;
 
 class ExpressionAnalyzerTest extends AnalyzerTestBase {
@@ -624,6 +629,15 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         analyze(function("now")), analyze(function("now")));
     var referenceValue = analyze(function("now")).valueOf();
     assertTrue(values.stream().noneMatch(v -> v.valueOf() == referenceValue));
+  }
+
+  @Test
+  public void nested_function_with_objects_as_arguments() {
+    analysisContext.push();
+    analysisContext.peek().define(DSL.ref("field", STRUCT));
+    assertThrows(IllegalArgumentException.class,
+        () -> expressionAnalyzer.analyze(function("nested",
+            new QualifiedName(List.of("field", "subfield"))), analysisContext));
   }
 
   protected Expression analyze(UnresolvedExpression unresolvedExpression) {

@@ -8,8 +8,6 @@ package org.opensearch.sql.analysis;
 
 import static org.opensearch.sql.ast.dsl.AstDSL.and;
 import static org.opensearch.sql.ast.dsl.AstDSL.compare;
-import static org.opensearch.sql.expression.function.BuiltinFunctionName.GTE;
-import static org.opensearch.sql.expression.function.BuiltinFunctionName.LTE;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -51,6 +49,7 @@ import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.expression.Xor;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.model.ExprValueUtils;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
@@ -182,6 +181,20 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Override
   public Expression visitFunction(Function node, AnalysisContext context) {
     FunctionName functionName = FunctionName.of(node.getFuncName());
+
+    if (functionName.getFunctionName().equals("nested")) {
+      List<String> argsParts = ((QualifiedName) node.getFuncArgs().get(0)).getParts();
+      String path = argsParts.subList(0, argsParts.size() - 1).stream()
+          .collect(Collectors.joining("."));
+
+      ReferenceExpression ref = DSL.ref(path,
+          context.peek().resolve(new Symbol(Namespace.FIELD_NAME, path)));
+      if (ref.type().equals(ExprCoreType.STRUCT)) {
+        throw new IllegalArgumentException("Nested function does not support arguments of "
+            + "type object. The argument with path \"" + path + "\" is of type object");
+      }
+    }
+
     List<Expression> arguments =
         node.getFuncArgs().stream()
             .map(unresolvedExpression -> analyze(unresolvedExpression, context))
