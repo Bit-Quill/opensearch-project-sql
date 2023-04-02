@@ -10,6 +10,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -86,14 +87,9 @@ public class NestedOperator extends PhysicalPlan {
     List<String> paths = fields.stream().map(path -> path.get("path")
         .getAttr()).collect(Collectors.toList());
 
-    for (String path : paths) {
-      this.groupedPathsAndFields.put(path, new ArrayList<>());
-      for (String field : this.fields) {
-        if (field.contains(path)) {
-          this.groupedPathsAndFields.get(path).add(field);
-        }
-      }
-    }
+    paths.forEach(path ->this.groupedPathsAndFields.put(path,
+        this.fields.stream().filter(field -> field.contains(path))
+            .collect(Collectors.toList())));
   }
 
   /**

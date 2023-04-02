@@ -24,7 +24,7 @@ public class NestedAllFields extends UnresolvedExpression {
   private final String path;
 
   public NestedAllFields(String path) {
-    this.path = path.split("[.][*]")[0];
+    this.path = path.split("\\.\\*")[0];
   }
 
   @Override

@@ -202,15 +202,21 @@ public class AstBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedPlan> {
     UnresolvedExpression expr = visitAstExpression(ctx.expression());
 
     if (expr instanceof Alias) {
-      List funcArgsParts = ((QualifiedName) ((Function) ((Alias) expr)
-          .getDelegated()).getFuncArgs().get(0)).getParts();
-      if (funcArgsParts.get(funcArgsParts.size() - 1).equals("*")) {
-        return new NestedAllFields(((Alias) expr).getName());
+      Alias aliasExpr = (Alias) expr;
+
+      if (aliasExpr.getDelegated() instanceof Function) {
+        Function delegated = (Function) aliasExpr.getDelegated();
+        List funcArgsParts = ((QualifiedName) delegated.getFuncArgs().get(0)).getParts();
+
+        if (funcArgsParts.get(funcArgsParts.size() - 1).equals("*")
+            && delegated.getFuncName().equals("nested")) {
+          return new NestedAllFields(aliasExpr.getName());
+        }
       }
       if (ctx.alias() != null) {
         return new Alias(
-            ((Alias) expr).getName(),
-            ((Alias) expr).getDelegated(),
+            aliasExpr.getName(),
+            aliasExpr.getDelegated(),
             StringUtils.unquoteIdentifier(ctx.alias().getText())
         );
       } else {
