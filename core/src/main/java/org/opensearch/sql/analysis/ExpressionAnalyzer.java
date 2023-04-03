@@ -25,6 +25,7 @@ import org.opensearch.sql.analysis.symbol.Namespace;
 import org.opensearch.sql.analysis.symbol.Symbol;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.AggregateFunction;
+import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.And;
 import org.opensearch.sql.ast.expression.Between;
@@ -188,6 +189,14 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
             .collect(Collectors.toList());
     return (Expression) repository.compile(context.getFunctionProperties(),
         functionName, arguments);
+  }
+
+  @Override
+  public Expression visitAlias(Alias node, AnalysisContext context) {
+    return new NamedExpression(
+        node.getName(),
+        node.getDelegated().accept(this, context),
+        node.getAlias());
   }
 
   @SuppressWarnings("unchecked")
