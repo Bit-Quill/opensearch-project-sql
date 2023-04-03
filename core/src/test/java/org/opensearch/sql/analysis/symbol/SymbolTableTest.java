@@ -112,4 +112,25 @@ public class SymbolTableTest {
     assertEquals(expectedType, actualType.get());
   }
 
+  @Test
+  public void lookupNestedAllFields() {
+    symbolTable.store(new Symbol(Namespace.FIELD_NAME, "active"), BOOLEAN);
+    symbolTable.store(new Symbol(Namespace.FIELD_NAME, "active.manager"), STRING);
+    symbolTable.store(new Symbol(Namespace.FIELD_NAME, "active.manager.name"), STRING);
+    symbolTable.store(new Symbol(Namespace.FIELD_NAME, "s.address"), BOOLEAN);
+
+    Map<String, ExprType> typeByName =
+        symbolTable.lookupNestedAllFields(Namespace.FIELD_NAME);
+
+    assertThat(
+        typeByName,
+        allOf(
+            aMapWithSize(4),
+            hasEntry("active", BOOLEAN),
+            hasEntry("active.manager", STRING),
+            hasEntry("active.manager.name", STRING),
+            hasEntry("s.address", BOOLEAN)
+        )
+    );
+  }
 }

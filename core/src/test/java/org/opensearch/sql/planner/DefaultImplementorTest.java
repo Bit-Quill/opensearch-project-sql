@@ -181,6 +181,49 @@ class DefaultImplementorTest {
   }
 
   @Test
+  public void visitUnnestWithStarInArgument() {
+    NamedExpression include = named("age", ref("age", INTEGER));
+    Expression filterExpr = literal(ExprBooleanValue.of(true));
+    List<Map<String, ReferenceExpression>> nestedArgs = List.of(
+        Map.of(
+            "field", new ReferenceExpression("*", STRING),
+            "path", new ReferenceExpression("message", STRING)
+        )
+    );
+    List<NamedExpression> nestedProjectList =
+        List.of(
+            new NamedExpression(
+                "message.info",
+                DSL.nested(DSL.ref("message.info", STRING)),
+                null
+            )
+        );
+    Set<String> unnestOperatorArgs = Set.of("message.info");
+    Map<String, List<String>> groupedFieldsByPath =
+        Map.of("message", List.of("message.info"));
+
+
+    LogicalPlan plan =
+        project(
+            nested(
+                filter(values(emptyList()), filterExpr),
+                nestedArgs, nestedProjectList),
+            include);
+
+    PhysicalPlan actual = plan.accept(implementor, null);
+
+    assertEquals(
+        PhysicalPlanDSL.project(
+            PhysicalPlanDSL.unnest(
+                PhysicalPlanDSL.filter(
+                    PhysicalPlanDSL.values(emptyList()),
+                    filterExpr),
+                unnestOperatorArgs, groupedFieldsByPath),
+            include),
+        actual);
+  }
+
+  @Test
   public void visitRelationShouldThrowException() {
     assertThrows(UnsupportedOperationException.class,
         () -> new LogicalRelation("test", table).accept(implementor, null));

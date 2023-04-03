@@ -204,6 +204,9 @@ public class AstBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedPlan> {
     if (expr instanceof Alias) {
       Alias aliasExpr = (Alias) expr;
 
+      if (!(aliasExpr.getDelegated() instanceof Function)) {
+        throw new IllegalArgumentException();
+      }
       if (aliasExpr.getDelegated() instanceof Function) {
         Function delegated = (Function) aliasExpr.getDelegated();
         List funcArgsParts = ((QualifiedName) delegated.getFuncArgs().get(0)).getParts();

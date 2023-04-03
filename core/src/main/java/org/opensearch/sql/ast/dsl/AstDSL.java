@@ -30,6 +30,7 @@ import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.Let;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.Map;
+import org.opensearch.sql.ast.expression.NestedAllFields;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.ParseMethod;
@@ -337,6 +338,10 @@ public class AstDSL {
 
   public AllFields allFields() {
     return AllFields.of();
+  }
+
+  public NestedAllFields nestedAllFields(String path) {
+    return new NestedAllFields(path);
   }
 
   public Field field(UnresolvedExpression field) {

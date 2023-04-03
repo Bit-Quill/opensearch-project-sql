@@ -87,7 +87,7 @@ public class NestedOperator extends PhysicalPlan {
     List<String> paths = fields.stream().map(path -> path.get("path")
         .getAttr()).collect(Collectors.toList());
 
-    paths.forEach(path ->this.groupedPathsAndFields.put(path,
+    paths.forEach(path -> this.groupedPathsAndFields.put(path,
         this.fields.stream().filter(field -> field.contains(path))
             .collect(Collectors.toList())));
   }
