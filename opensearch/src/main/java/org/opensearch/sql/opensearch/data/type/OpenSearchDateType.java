@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.joda.time.DateTime;
 import org.opensearch.sql.data.type.ExprType;
 
@@ -29,42 +30,70 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
 
   // a read-only collection of relations
+  @Getter
   @EqualsAndHashCode.Exclude
-  DateTimeFormatter format;
+  DateTimeFormatter formatter;
+
+  @Getter
+  @EqualsAndHashCode.Exclude
+  String formatString;
 
   private OpenSearchDateType() {
     super(MappingType.Date);
-    exprCoreType = UNKNOWN;
+    //TODO: Figure out how to apply the correct exprcoretype
+    // (Maybe do whatever I initially did for timestampadd???
+    //exprCoreType = UNKNOWN;
   }
 
   /**
    * Create a Date type which has a LinkedHashMap defining all formats
    * @return A new type object.
    */
-  public static OpenSearchDateType of(String format) {
+  public static OpenSearchDateType create(String format) {
     var res = new OpenSearchDateType();
 
+    //TODO: Temp. Refactor this to exist in DateTimeFormatters.java
+    DateTimeFormatter predefinedPattern = DateTimeFormatter
+        .ofPattern("yyyy-MM-dd HH:mm:ss");
+    final Map<String, DateTimeFormatter> NAMED_FORMATTERS = ImmutableMap.<String, DateTimeFormatter>builder()
+        .put("date_optional_time", predefinedPattern)
+        .put("epoch_millis", predefinedPattern)
+        .put("epoch_second", predefinedPattern)
+        .build();
+
+    //TODO: Filter out named formatters vs user defined here
     // Initialize the format based on the given string
     try {
       if (format.contains("||")) {
         DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
         for (String token: format.split("\\|\\|")) {
-          builder.appendPattern(token);
+          //Use either a predefined formatter, or a user defined one.
+          if (NAMED_FORMATTERS.containsKey(token)){
+            builder.append(NAMED_FORMATTERS.get(token));
+          } else {
+            builder.appendPattern(token);
+          }
         }
-        res.format = builder.toFormatter();
+        res.formatter = builder.toFormatter();
       } else {
-        res.format = DateTimeFormatter.ofPattern(format);
+        if (NAMED_FORMATTERS.containsKey(format)){
+          res.formatter= NAMED_FORMATTERS.get(format);
+        } else {
+          res.formatter = DateTimeFormatter.ofPattern(format);
+        }
+
       }
     } catch (IllegalArgumentException iae) {
       // invalid format - skipping
       // TODO: warn the user that the format is illegal in the mapping
     }
+    res.formatString = format;
     return res;
   }
 
   public static OpenSearchDateType of(DateTimeFormatter format) {
     var res = new OpenSearchDateType();
-    res.format = format;
+    res.formatter = format;
     return res;
   }
 
@@ -84,6 +113,9 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   @Override
   protected OpenSearchDataType cloneEmpty() {
-    return OpenSearchDateType.of(this.format);
+    if (this.mappingType == null) {
+      return new OpenSearchDataType(this.exprCoreType);
+    }
+    return OpenSearchDateType.create(this.formatString);
   }
 }

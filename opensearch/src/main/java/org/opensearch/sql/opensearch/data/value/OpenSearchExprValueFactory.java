@@ -12,18 +12,26 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
-import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER;
+import static org.opensearch.sql.utils.DateTimeFormatters.SQL_LITERAL_DATE_TIME_FORMAT;
+import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_DATE_OPTIONAL_TIME_FORMATTER;
+import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_HOUR_MINUTE_SECOND_FORMATTER;
+import static org.opensearch.sql.utils.DateTimeFormatters.EPOCH_MILLIS_FORMATTER;
+//import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,10 +54,12 @@ import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchDateType;
 import org.opensearch.sql.opensearch.data.utils.Content;
 import org.opensearch.sql.opensearch.data.utils.ObjectContent;
 import org.opensearch.sql.opensearch.data.utils.OpenSearchJsonContent;
 import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseParser;
+import org.opensearch.sql.utils.DateTimeFormatters;
 
 /**
  * Construct ExprValue from OpenSearch response.
@@ -83,40 +93,48 @@ public class OpenSearchExprValueFactory {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-  private final Map<ExprType, Function<Content, ExprValue>> typeActionMap =
-      new ImmutableMap.Builder<ExprType, Function<Content, ExprValue>>()
+  private static DateTimeFormatterBuilder dateTimeFormatterbuilder =
+      new DateTimeFormatterBuilder()
+          .appendOptional(SQL_LITERAL_DATE_TIME_FORMAT)
+          .appendOptional(STRICT_DATE_OPTIONAL_TIME_FORMATTER)
+          .appendOptional(STRICT_HOUR_MINUTE_SECOND_FORMATTER)
+          .appendOptional(EPOCH_MILLIS_FORMATTER);
+
+  private final Map<ExprType, BiFunction<Content, ExprType, ExprValue>> typeActionMap =
+      new ImmutableMap.Builder<ExprType, BiFunction<Content, ExprType, ExprValue>>()
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Integer),
-              c -> new ExprIntegerValue(c.intValue()))
+              (c, dt) -> new ExprIntegerValue(c.intValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Long),
-              c -> new ExprLongValue(c.longValue()))
+              (c, dt) -> new ExprLongValue(c.longValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Short),
-              c -> new ExprShortValue(c.shortValue()))
+              (c, dt) -> new ExprShortValue(c.shortValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Byte),
-              c -> new ExprByteValue(c.byteValue()))
+              (c, dt) -> new ExprByteValue(c.byteValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Float),
-              c -> new ExprFloatValue(c.floatValue()))
+              (c, dt) -> new ExprFloatValue(c.floatValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Double),
-              c -> new ExprDoubleValue(c.doubleValue()))
+              (c, dt) -> new ExprDoubleValue(c.doubleValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Text),
-              c -> new OpenSearchExprTextValue(c.stringValue()))
+              (c, dt) -> new OpenSearchExprTextValue(c.stringValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword),
-              c -> new ExprStringValue(c.stringValue()))
+              (c, dt) -> new ExprStringValue(c.stringValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Boolean),
-              c -> ExprBooleanValue.of(c.booleanValue()))
-          .put(OpenSearchDataType.of(TIMESTAMP), this::parseTimestamp)
-          .put(OpenSearchDataType.of(DATE),
-              c -> new ExprDateValue(parseTimestamp(c).dateValue().toString()))
+              (c, dt) -> ExprBooleanValue.of(c.booleanValue()))
+          .put(OpenSearchDataType.of(TIMESTAMP),
+              (c, dt) -> parseTimestamp(c, dt))
+          .put(OpenSearchDateType.create(""),
+              (c, dt) -> new ExprDateValue(parseTimestamp(c, dt).dateValue().toString()))
           .put(OpenSearchDataType.of(TIME),
-              c -> new ExprTimeValue(parseTimestamp(c).timeValue().toString()))
+              (c, dt) -> new ExprTimeValue(parseTimestamp(c, dt).timeValue().toString()))
           .put(OpenSearchDataType.of(DATETIME),
-              c -> new ExprDatetimeValue(parseTimestamp(c).datetimeValue()))
+              (c, dt) -> new ExprDatetimeValue(parseTimestamp(c, dt).datetimeValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Ip),
-              c -> new OpenSearchExprIpValue(c.stringValue()))
+              (c, dt) -> new OpenSearchExprIpValue(c.stringValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.GeoPoint),
-              c -> new OpenSearchExprGeoPointValue(c.geoValue().getLeft(),
+              (c, dt) -> new OpenSearchExprGeoPointValue(c.geoValue().getLeft(),
                   c.geoValue().getRight()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Binary),
-              c -> new OpenSearchExprBinaryValue(c.stringValue()))
+              (c, dt) -> new OpenSearchExprBinaryValue(c.stringValue()))
           .build();
 
   /**
@@ -171,7 +189,7 @@ public class OpenSearchExprValueFactory {
       return parseArray(content, field);
     } else {
       if (typeActionMap.containsKey(type)) {
-        return typeActionMap.get(type).apply(content);
+        return typeActionMap.get(type).apply(content, type);
       } else {
         throw new IllegalStateException(
             String.format(
@@ -195,11 +213,14 @@ public class OpenSearchExprValueFactory {
    *   docs</a>
    * The customized date_format is not supported.
    */
-  private ExprValue constructTimestamp(String value) {
-    try {
+  private ExprValue constructTimestamp(String value, DateTimeFormatter formatter) {
+      try {
+      DateTimeFormatter datetimeFormatter = dateTimeFormatterbuilder
+          .appendOptional(formatter)
+          .toFormatter();
       return new ExprTimestampValue(
           // Using OpenSearch DateFormatters for now.
-          DateFormatters.from(DATE_TIME_FORMATTER.parse(value)).toInstant());
+          DateFormatters.from(datetimeFormatter.parse(value)).toInstant());
     } catch (DateTimeParseException e) {
       throw new IllegalStateException(
           String.format(
@@ -208,11 +229,14 @@ public class OpenSearchExprValueFactory {
     }
   }
 
-  private ExprValue parseTimestamp(Content value) {
-    if (value.isNumber()) {
-      return new ExprTimestampValue(Instant.ofEpochMilli(value.longValue()));
+  private ExprValue parseTimestamp(Content value, ExprType type) {
+
+    if (((OpenSearchDateType)type).getFormatString().equals("epoch_millis")
+        || ((OpenSearchDateType)type).getFormatString().equals("epoch_second") ) {
+      //TODO: Add support for Epoch Second
+      return new ExprTimestampValue(Instant.ofEpochMilli(Long.valueOf(value.stringValue())));
     } else if (value.isString()) {
-      return constructTimestamp(value.stringValue());
+      return constructTimestamp(value.stringValue(), ((OpenSearchDateType)type).getFormatter());
     } else {
       return new ExprTimestampValue((Instant) value.objectValue());
     }
