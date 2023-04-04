@@ -86,8 +86,6 @@ public class NestedIT extends SQLIntegTestCase {
     verifyDataRows(result, rows(19));
   }
 
-  // TODO not currently supported by legacy, should we add implementation in AstBuilder?
-  @Disabled
   public void nested_function_in_a_function_in_select_test() {
     String query = "SELECT upper(nested(message.info)) FROM " +
         TEST_INDEX_NESTED_TYPE_WITHOUT_ARRAYS;
@@ -98,7 +96,22 @@ public class NestedIT extends SQLIntegTestCase {
         rows("B"),
         rows("C"),
         rows("C"),
+        rows("A"),
         rows("ZZ"));
+  }
+
+  public void nested_function_in_two_functions_in_select_test() {
+    String query = "SELECT add(1, abs(nested(message.dayOfWeek))) FROM " +
+        TEST_INDEX_NESTED_TYPE_WITHOUT_ARRAYS;
+    JSONObject result = executeJdbcRequest(query);
+
+    verifyDataRows(result,
+        rows(2),
+        rows(3),
+        rows(2),
+        rows(5),
+        rows(6),
+        rows(7));
   }
 
   @Test
