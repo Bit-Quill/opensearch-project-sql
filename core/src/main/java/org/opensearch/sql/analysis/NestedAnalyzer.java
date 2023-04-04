@@ -42,8 +42,9 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
 
   @Override
   public LogicalPlan visitFunction(Function node, AnalysisContext context) {
-    if (node.getFuncName().equalsIgnoreCase(BuiltinFunctionName.NESTED.name())) {
+    node = getNestedFunctionNode(node);
 
+    if (node != null) {
       List<UnresolvedExpression> expressions = node.getFuncArgs();
       ReferenceExpression nestedField =
           (ReferenceExpression)expressionAnalyzer.analyze(expressions.get(0), context);
@@ -61,6 +62,31 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
       }
       return new LogicalNested(child, List.of(args), namedExpressions);
     }
+    return null;
+  }
+
+  private Function getNestedFunctionNode(Function node) {
+    if (node.getFuncName().equalsIgnoreCase(BuiltinFunctionName.NESTED.name())) {
+      return node;
+    } else {
+      for (UnresolvedExpression arg: node.getFuncArgs()) {
+        if (arg instanceof Alias && ((Alias) arg).getDelegated() instanceof Function) {
+          Function func = ((Function) ((Alias) arg).getDelegated());
+          if (func.getFuncName().equalsIgnoreCase(BuiltinFunctionName.NESTED.name())) {
+            return func;
+          }
+        }
+
+        // Get NESTED node when it's an argument of a function that's an argument of a function
+        if (arg instanceof Function) {
+          Function func = getNestedFunctionNode((Function) arg);
+          if (func != null) {
+            return func;
+          }
+        }
+      }
+    }
+
     return null;
   }
 
