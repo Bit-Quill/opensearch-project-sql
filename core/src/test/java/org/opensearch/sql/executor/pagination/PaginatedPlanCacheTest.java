@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,10 +19,13 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.time.Instant;
 import lombok.SneakyThrows;
@@ -180,20 +184,17 @@ public class PaginatedPlanCacheTest {
 
   @Test
   @SneakyThrows
-  void unset_engine_on_close() {
-    var plan = mock(PaginateOperator.class);
-    when(plan.writeExternal(any())).then((Answer<Boolean>) invocation -> {
-      SerializablePlan.PlanLoader loader = (in, engine) -> {
-        assertNull(engine);
-        return mock(PaginateOperator.class);
-      };
-      ObjectOutput out = invocation.getArgument(0);
-      out.writeObject(loader);
-      return true;
-    });
-    var context = new PaginatedPlanCache.SerializationContext(plan);
-    planCache.close();
-    planCache.deserialize(planCache.serialize(context));
+  void resolveObject() {
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    ObjectOutputStream objectOutput = new ObjectOutputStream(output);
+    objectOutput.writeObject("Hello, world!");
+    objectOutput.flush();
+
+    var cds = planCache.getCursorDeserializationStream(
+        new ByteArrayInputStream(output.toByteArray()));
+    assertEquals(storageEngine, cds.resolveObject("engine"));
+    var object = new Object();
+    assertSame(object, cds.resolveObject(object));
   }
 
   // Helpers and auxiliary classes section below

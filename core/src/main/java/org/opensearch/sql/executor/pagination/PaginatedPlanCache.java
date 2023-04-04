@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Externalizable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
@@ -19,6 +20,8 @@ import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.planner.SerializablePlan;
 import org.opensearch.sql.planner.physical.PaginateOperator;
@@ -29,27 +32,15 @@ import org.opensearch.sql.storage.StorageEngine;
  * This class is entry point to paged requests. It is responsible to cursor serialization
  * and deserialization.
  */
-public class PaginatedPlanCache implements AutoCloseable {
+@RequiredArgsConstructor
+public class PaginatedPlanCache {
   public static final String CURSOR_PREFIX = "n:";
 
-  /**
-   * See {@link SerializationContext#engine}.
-   */
-  public PaginatedPlanCache(StorageEngine engine) {
-    SerializationContext.engine = engine;
-  }
+  // TODO get engine from GUICE if possible
+  private final StorageEngine engine;
 
   public boolean canConvertToCursor(UnresolvedPlan plan) {
     return plan.accept(new CanPaginateVisitor(), null);
-  }
-
-  /**
-   * Actually this happens only on OpenSearch node shutdown, because lifetime of PaginatedPlanCache
-   * is equals to SQL plugin lifetime.
-   */
-  @Override
-  public void close() throws Exception {
-    SerializationContext.engine = null;
   }
 
   /**
@@ -61,16 +52,6 @@ public class PaginatedPlanCache implements AutoCloseable {
   @Data
   public static class SerializationContext implements Externalizable {
     private PaginateOperator plan;
-    // TODO get engine from GUICE if possible
-    /**
-     * We have to make {@link PaginatedPlanCache.SerializationContext} a non-static class, we can
-     * avoid setting engine statically, but in that case deserialization fails with exception
-     * 'no default (no-arg) constructor', even if it has one. This is caused because default
-     * constructor ofr a non-static class isn't available from outside (from serialization engine).
-     * The engine is not being serialized, but it is required for deserialization.
-     * See usages of {@link SerializablePlan.PlanLoader}, especially in `OpenSearchPagedIndexScan`.
-     */
-    private static StorageEngine engine;
     /**
      * If exception is thrown we don't catch it, that means something really went wrong.
      * But if we can't serialize the plan, we set this flag and should return an empty cursor.
@@ -93,6 +74,7 @@ public class PaginatedPlanCache implements AutoCloseable {
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
       var loader = (SerializablePlan.PlanLoader) in.readObject();
+      var engine = (StorageEngine) ((CursorDeserializationStream) in).resolveObject("engine");
       plan = (PaginateOperator) loader.apply(in, engine);
     }
   }
@@ -144,7 +126,7 @@ public class PaginatedPlanCache implements AutoCloseable {
     try {
       GZIPInputStream gzip = new GZIPInputStream(
           new ByteArrayInputStream(HashCode.fromString(code).asBytes()));
-      ObjectInputStream objectInput = new ObjectInputStream(
+      ObjectInputStream objectInput = new CursorDeserializationStream(
           new ByteArrayInputStream(gzip.readAllBytes()));
       return (Serializable) objectInput.readObject();
     } catch (Exception e) {
@@ -164,6 +146,25 @@ public class PaginatedPlanCache implements AutoCloseable {
           .getPlan();
     } catch (Exception e) {
       throw new UnsupportedOperationException("Unsupported cursor", e);
+    }
+  }
+
+  /**
+   * This function is used in testing only, to get access to {@link CursorDeserializationStream}.
+   */
+  protected CursorDeserializationStream getCursorDeserializationStream(InputStream in)
+      throws IOException {
+    return new CursorDeserializationStream(in);
+  }
+
+  class CursorDeserializationStream extends ObjectInputStream {
+    public CursorDeserializationStream(InputStream in) throws IOException {
+      super(in);
+    }
+
+    @Override
+    protected Object resolveObject(Object obj) throws IOException {
+      return obj.equals("engine") ? engine : obj;
     }
   }
 }
