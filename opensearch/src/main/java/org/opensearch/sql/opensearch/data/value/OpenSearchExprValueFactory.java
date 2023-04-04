@@ -15,8 +15,6 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.utils.DateTimeFormatters.SQL_LITERAL_DATE_TIME_FORMAT;
 import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_DATE_OPTIONAL_TIME_FORMATTER;
 import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_HOUR_MINUTE_SECOND_FORMATTER;
-import static org.opensearch.sql.utils.DateTimeFormatters.EPOCH_MILLIS_FORMATTER;
-//import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -97,8 +95,7 @@ public class OpenSearchExprValueFactory {
       new DateTimeFormatterBuilder()
           .appendOptional(SQL_LITERAL_DATE_TIME_FORMAT)
           .appendOptional(STRICT_DATE_OPTIONAL_TIME_FORMATTER)
-          .appendOptional(STRICT_HOUR_MINUTE_SECOND_FORMATTER)
-          .appendOptional(EPOCH_MILLIS_FORMATTER);
+          .appendOptional(STRICT_HOUR_MINUTE_SECOND_FORMATTER);
 
   private final Map<ExprType, BiFunction<Content, ExprType, ExprValue>> typeActionMap =
       new ImmutableMap.Builder<ExprType, BiFunction<Content, ExprType, ExprValue>>()
@@ -231,11 +228,14 @@ public class OpenSearchExprValueFactory {
 
   private ExprValue parseTimestamp(Content value, ExprType type) {
 
-    if (((OpenSearchDateType)type).getFormatString().equals("epoch_millis")
-        || ((OpenSearchDateType)type).getFormatString().equals("epoch_second") ) {
-      //TODO: Add support for Epoch Second
-      return new ExprTimestampValue(Instant.ofEpochMilli(Long.valueOf(value.stringValue())));
+    if (value.isNumber()) {
+      return new ExprTimestampValue(Instant.ofEpochMilli(value.longValue()));
     } else if (value.isString()) {
+      if(((OpenSearchDateType)type).getFormatString().equals("epoch_millis")
+          || ((OpenSearchDateType)type).getFormatString().equals("epoch_second")) {
+
+      }
+      //TODO: DEAL WITH OTHER FORMATS
       return constructTimestamp(value.stringValue(), ((OpenSearchDateType)type).getFormatter());
     } else {
       return new ExprTimestampValue((Instant) value.objectValue());
