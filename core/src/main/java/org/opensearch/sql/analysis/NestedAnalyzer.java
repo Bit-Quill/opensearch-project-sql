@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.Function;
+import org.opensearch.sql.ast.expression.NestedAllFields;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.expression.NamedExpression;
@@ -41,6 +42,17 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
   @Override
   public LogicalPlan visitAlias(Alias node, AnalysisContext context) {
     return node.getDelegated().accept(this, context);
+  }
+
+
+  @Override
+  public LogicalPlan visitNestedAllFields(NestedAllFields node, AnalysisContext context) {
+    Map<String, ReferenceExpression> args;
+    args = Map.of(
+        "field", new ReferenceExpression("*", STRING),
+        "path", new ReferenceExpression(node.getPath(), STRING)
+    );
+    return new LogicalNested(child, List.of(args), namedExpressions);
   }
 
   @Override

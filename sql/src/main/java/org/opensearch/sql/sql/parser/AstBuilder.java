@@ -21,12 +21,15 @@ import static org.opensearch.sql.utils.SystemIndexUtils.mappingTable;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.Function;
+import org.opensearch.sql.ast.expression.NestedAllFields;
+import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.tree.Filter;
 import org.opensearch.sql.ast.tree.Limit;
@@ -198,7 +201,21 @@ public class AstBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedPlan> {
     String name = StringUtils.unquoteIdentifier(getTextInQuery(ctx.expression(), query));
     UnresolvedExpression expr = visitAstExpression(ctx.expression());
 
-    if (ctx.alias() == null) {
+    if (expr instanceof Alias) {
+      List funcArgsParts = ((QualifiedName) ((Function) ((Alias) expr).getDelegated()).getFuncArgs().get(0)).getParts();
+      if (funcArgsParts.get(funcArgsParts.size() - 1).equals("*")) {
+        return new NestedAllFields(((Alias) expr).getName());
+      }
+      if (ctx.alias() != null) {
+        return new Alias(
+            ((Alias) expr).getName(),
+            ((Alias) expr).getDelegated(),
+            StringUtils.unquoteIdentifier(ctx.alias().getText())
+        );
+      } else {
+        return expr;
+      }
+    } else if (ctx.alias() == null) {
       return new Alias(name, expr);
     } else {
       String alias = StringUtils.unquoteIdentifier(ctx.alias().getText());

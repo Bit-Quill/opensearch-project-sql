@@ -17,6 +17,7 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.Field;
+import org.opensearch.sql.ast.expression.NestedAllFields;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.data.type.ExprType;
@@ -24,6 +25,8 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
+import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.expression.nested.NestedFunction;
 
 /**
  * Analyze the select list in the {@link AnalysisContext} to construct the list of
@@ -98,6 +101,21 @@ public class SelectExpressionAnalyzer
     Map<String, ExprType> lookupAllFields = environment.lookupAllFields(Namespace.FIELD_NAME);
     return lookupAllFields.entrySet().stream().map(entry -> DSL.named(entry.getKey(),
         new ReferenceExpression(entry.getKey(), entry.getValue()))).collect(Collectors.toList());
+  }
+
+  @Override
+  public List<NamedExpression> visitNestedAllFields(NestedAllFields node,
+                                                    AnalysisContext context) {
+    TypeEnvironment environment = context.peek();
+    Map<String, ExprType> lookupAllFields = environment.lookupNestedAllFields(Namespace.FIELD_NAME);
+
+    return lookupAllFields.entrySet().stream()
+        .filter(field -> field.getKey().contains(node.getPath().concat(".")))
+        .map(entry -> DSL.named(entry.getKey(),
+            new NestedFunction(
+                new FunctionName("nested"),
+                List.of(new ReferenceExpression(entry.getKey(), entry.getValue())))))
+        .collect(Collectors.toList());
   }
 
   /**
