@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -45,7 +46,7 @@ public class PaginatedPlanCache {
       return new Cursor(CURSOR_PREFIX
           + serialize(((SerializablePlan) plan).getPlanForSerialization()));
       // ClassCastException thrown when a plan in the tree doesn't implement SerializablePlan
-    } catch (ClassCastException | NoCursorException e) {
+    } catch (NotSerializableException | ClassCastException | NoCursorException e) {
       return Cursor.None;
     }
   }
@@ -55,7 +56,7 @@ public class PaginatedPlanCache {
    * @param object The object.
    * @return Encoded binary data.
    */
-  protected String serialize(Serializable object) {
+  protected String serialize(Serializable object) throws NotSerializableException {
     try {
       ByteArrayOutputStream output = new ByteArrayOutputStream();
       ObjectOutputStream objectOutput = new ObjectOutputStream(output);
@@ -71,6 +72,8 @@ public class PaginatedPlanCache {
       gzip.close();
 
       return HashCode.fromBytes(out.toByteArray()).toString();
+    } catch (NotSerializableException e) {
+      throw e;
     } catch (IOException e) {
       throw new IllegalStateException("Failed to serialize: " + object, e);
     }

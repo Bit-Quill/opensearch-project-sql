@@ -111,6 +111,9 @@ public class PaginatedPlanCacheTest {
   @Test
   void serialize_throws() {
     assertThrows(Throwable.class, () -> serialize(new NotSerializableTestClass()));
+    var testObj = new TestOperator();
+    testObj.throwIoOnWrite = true;
+    assertThrows(Throwable.class, () -> serialize(testObj));
   }
 
   @Test
@@ -127,7 +130,7 @@ public class PaginatedPlanCacheTest {
   @SneakyThrows
   void convertToCursor_returns_no_cursor_if_cant_serialize() {
     var plan = new TestOperator(42);
-    plan.throwNoCursor = true;
+    plan.throwNoCursorOnWrite = true;
     assertAll(
         () -> assertThrows(NoCursorException.class, () -> serialize(plan)),
         () -> assertEquals(Cursor.None, planCache.convertToCursor(plan))
@@ -154,6 +157,7 @@ public class PaginatedPlanCacheTest {
   }
 
   @Test
+  @SneakyThrows
   void serialize_and_deserialize() {
     var plan = new TestOperator(42);
     var roundTripPlan = planCache.deserialize(planCache.serialize(plan));
@@ -189,7 +193,8 @@ public class PaginatedPlanCacheTest {
 
   public static class TestOperator extends PhysicalPlan implements SerializablePlan {
     private int field;
-    private boolean throwNoCursor = false;
+    private boolean throwNoCursorOnWrite = false;
+    private boolean throwIoOnWrite = false;
 
     public TestOperator() {
     }
@@ -205,8 +210,11 @@ public class PaginatedPlanCacheTest {
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-      if (throwNoCursor) {
+      if (throwNoCursorOnWrite) {
         throw new NoCursorException();
+      }
+      if (throwIoOnWrite) {
+        throw new IOException();
       }
       out.writeInt(field);
     }
