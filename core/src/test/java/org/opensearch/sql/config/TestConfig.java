@@ -61,6 +61,9 @@ public class TestConfig {
       .put("message.info.id", ExprCoreType.STRING)
       .put("comment", ExprCoreType.STRING)
       .put("comment.data", ExprCoreType.STRING)
+      .put("comment", ExprCoreType.STRING)
+      .put("comment.data", ExprCoreType.STRING)
+      .put("comment.likes", ExprCoreType.STRING)
       .build();
 
   protected StorageEngine storageEngine() {

@@ -413,16 +413,20 @@ class AnalyzerTest extends AnalyzerTestBase {
     List<Map<String, ReferenceExpression>> nestedArgs =
         List.of(
             Map.of(
-                "field", new ReferenceExpression("message.info", STRING),
-                "path", new ReferenceExpression("message", STRING)
+                "field", new ReferenceExpression("*", STRING),
+                "path", new ReferenceExpression("comment", STRING)
             )
         );
 
     List<NamedExpression> projectList =
         List.of(
             new NamedExpression(
-                "message.info",
-                DSL.nested(DSL.ref("message.info", STRING)),
+                "comment.data",
+                DSL.nested(DSL.ref("comment.data", STRING)),
+                null),
+            new NamedExpression(
+                "comment.likes",
+                DSL.nested(DSL.ref("comment.likes", STRING)),
                 null)
         );
 
@@ -432,13 +436,15 @@ class AnalyzerTest extends AnalyzerTestBase {
                 LogicalPlanDSL.relation("schema", table),
                 nestedArgs,
                 projectList),
-            DSL.named("message.info",
-                DSL.nested(DSL.ref("message.info", STRING)))
+            DSL.named("comment.data",
+                DSL.nested(DSL.ref("comment.data", STRING))),
+            DSL.named("comment.likes",
+                DSL.nested(DSL.ref("comment.likes", STRING)))
         ),
         AstDSL.projectWithArg(
             AstDSL.relation("schema"),
             AstDSL.defaultFieldsArgs(),
-            AstDSL.nestedAllFields("message")
+            AstDSL.nestedAllFields("comment")
         )
     );
   }
