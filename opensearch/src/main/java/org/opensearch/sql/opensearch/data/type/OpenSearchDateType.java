@@ -107,30 +107,12 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * @return A new type object.
    */
   public static OpenSearchDateType create(String format) {
-    //var res = new OpenSearchDateType();
-
-    //TODO: Temp. Refactor this to exist in DateTimeFormatters.java
-    DateTimeFormatter predefinedPattern = DateTimeFormatter
-        .ofPattern("yyyy-MM-dd HH:mm:ss");
-    final Map<String, DateTimeFormatter> NAMED_FORMATTERS = ImmutableMap.<String, DateTimeFormatter>builder()
-        .put("date_optional_time", predefinedPattern)
-        .put("epoch_millis", predefinedPattern)
-        .put("epoch_second", predefinedPattern)
-        .build();
 
     //TODO: Filter out named formatters vs user defined here
     // Initialize the format based on the given string
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
     try {
       if (format.contains("||")) {
-//        for (String token: format.split("\\|\\|")) {
-//          //Use either a predefined formatter, or a user defined one.
-//          if (NAMED_FORMATTERS.containsKey(token)){
-//            builder.append(NAMED_FORMATTERS.get(token));
-//          } else {
-//            builder.appendPattern(token);
-//          }
-//        }
         for (String token: format.split("\\|\\|")) {
           //try to append a pattern
           try {
@@ -139,14 +121,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
             //do nothing
           }
         }
-//      } else {
-//        if (NAMED_FORMATTERS.containsKey(format)){
-//          builder.append(NAMED_FORMATTERS.get(format));
-//        } else {
-//          builder.append(DateTimeFormatter.ofPattern(format));
-//        }
-//
-//      }
     } else {
       builder.append(DateTimeFormatter.ofPattern(format));
       try {
