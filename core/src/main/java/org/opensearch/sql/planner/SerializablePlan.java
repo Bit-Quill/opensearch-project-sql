@@ -8,63 +8,64 @@ package org.opensearch.sql.planner;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
-import java.io.Serializable;
 import org.apache.commons.lang3.NotImplementedException;
-import org.opensearch.sql.storage.StorageEngine;
+import org.opensearch.sql.executor.pagination.PaginatedPlanCache;
 
 /**
- * All instances of PhysicalPlan which needs to be serialized (in cursor feature) should
- * override all given here methods.
- * This class can't implement Externalizable, because deserialization of Externalizable objects
- * works the following way:
- * 1. A new object created with no-arg constructor (no PhysicalPlan has it)
- * 2. Object loads data from the stream.
- * {@link Externalizable} interface was split into two pars: serialization is kept with
- * {@link #writeExternal}, but deserialization is provided by {@link PlanLoader}.
+ * All subtypes of PhysicalPlan which needs to be serialized (in cursor, for pagination feature)
+ * should follow one of the following options.
+ * <ul>
+ *   <li>Both:
+ *     <ul>
+ *       <li>Override both methods from {@link Externalizable}.</li>
+ *       <li>Define a public no-arg constructor.</li>
+ *     </ul>
+ *   </li>
+ *   <li>
+ *     Overwrite {@link #getPlanForSerialization} to return
+ *     another instance of {@link SerializablePlan}.
+ *   </li>
+ * </ul>
  */
-public abstract class SerializablePlan {
+public interface SerializablePlan extends Externalizable {
 
-  // Copied from Externalizable
   /**
-   *  Each plan which supports serialization should dump itself into the stream and go recursive.
-   *  It is good to create and dump a {@link PlanLoader} here as well. See usage samples.
-   *  <pre>{@code
-   *  out.writeSomething(data);
-   *  for (var plan : getChild()) {
-   *    plan.getPlanForSerialization().writeExternal(out);
-   *  }
-   *  }</pre>
-  */
-  public boolean writeExternal(ObjectOutput out) throws IOException {
-    throw new NotImplementedException();
+   * Argument is an instance of {@link PaginatedPlanCache.CursorDeserializationStream}.
+   */
+  @Override
+  default void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    throw new NotImplementedException(String.format("`readExternal` is not implemented in %s",
+        getClass().getSimpleName()));
+  }
+
+  /**
+   * Each plan which has as a child plan should do.
+   * <pre>{@code
+   * out.writeObject(input.getPlanForSerialization());
+   * }</pre>
+   */
+  @Override
+  default void writeExternal(ObjectOutput out) throws IOException {
+    throw new NotImplementedException(String.format("`readExternal` is not implemented in %s",
+        getClass().getSimpleName()));
   }
 
   /**
    * Override to return child or delegated plan, so parent plan should skip this one
    * for serialization, but it should try to serialize grandchild plan.
    * Imagine plan structure like this
+   * <pre>
    *    A         -> this
    *    `- B      -> child
    *      `- C    -> this
+   * </pre>
    * In that case only plans A and C should be attempted to serialize.
    * It is needed to skip a `ResourceMonitorPlan` instance only, actually.
    * @return Next plan for serialization.
    */
-  public SerializablePlan getPlanForSerialization() {
+  default SerializablePlan getPlanForSerialization() {
     return this;
-  }
-
-  /**
-   * Each plan should serialize an instance of this function.
-   * The function deserializes and creates a new instance of that plan type.
-   * A loader of a plan X could be defined only in scope of X, because only X
-   * knows how to create a new X.
-   * Deserialization should match with serialization given in {@link #writeExternal}.
-   */
-  @FunctionalInterface
-  public interface PlanLoader extends Serializable {
-    SerializablePlan apply(ObjectInput in, StorageEngine engine)
-        throws IOException, ClassNotFoundException;
   }
 }

@@ -18,6 +18,7 @@ public class ContinuePageRequestBuilder extends PagedRequestBuilder {
 
   @Getter
   private final OpenSearchRequest.IndexName indexName;
+  @Getter
   private final String scrollId;
   private final OpenSearchExprValueFactory exprValueFactory;
 

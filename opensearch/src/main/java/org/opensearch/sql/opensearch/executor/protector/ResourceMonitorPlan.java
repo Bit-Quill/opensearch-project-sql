@@ -6,9 +6,6 @@
 
 package org.opensearch.sql.opensearch.executor.protector;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +22,7 @@ import org.opensearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 @ToString
 @RequiredArgsConstructor
 @EqualsAndHashCode
-public class ResourceMonitorPlan extends PhysicalPlan {
+public class ResourceMonitorPlan extends PhysicalPlan implements SerializablePlan {
 
   /**
    * How many method calls to delegate's next() to perform resource check once.
@@ -92,14 +89,9 @@ public class ResourceMonitorPlan extends PhysicalPlan {
     return delegate.getTotalHits();
   }
 
-  @Override
-  public boolean writeExternal(ObjectOutput out) throws IOException {
-    // do nothing, we shouldn't serialize ResourceMonitorPlan
-    return delegate.writeExternal(out);
-  }
 
   @Override
   public SerializablePlan getPlanForSerialization() {
-    return delegate;
+    return (SerializablePlan) delegate;
   }
 }

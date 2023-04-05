@@ -7,27 +7,20 @@ package org.opensearch.sql.executor.pagination;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.time.Instant;
+import java.util.List;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,14 +29,13 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.stubbing.Answer;
 import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.exception.NoCursorException;
 import org.opensearch.sql.planner.SerializablePlan;
-import org.opensearch.sql.planner.physical.PaginateOperator;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
+import org.opensearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 import org.opensearch.sql.storage.StorageEngine;
-import org.opensearch.sql.storage.TableScanOperator;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class PaginatedPlanCacheTest {
@@ -55,8 +47,6 @@ public class PaginatedPlanCacheTest {
   @BeforeEach
   void setUp() {
     storageEngine = mock(StorageEngine.class);
-    when(storageEngine.getTableScan(anyString(), anyString()))
-        .thenReturn(new MockedTableScanOperator());
     planCache = new PaginatedPlanCache(storageEngine);
   }
 
@@ -136,11 +126,11 @@ public class PaginatedPlanCacheTest {
   @Test
   @SneakyThrows
   void convertToCursor_returns_no_cursor_if_cant_serialize() {
-    var plan = mock(PaginateOperator.class);
-    doReturn(false, true).when(plan).writeExternal(any());
+    var plan = new TestOperator(42);
+    plan.throwNoCursor = true;
     assertAll(
-        () -> assertEquals(Cursor.None, planCache.convertToCursor(plan)),
-        () -> assertNotEquals(Cursor.None, planCache.convertToCursor(plan))
+        () -> assertThrows(NoCursorException.class, () -> serialize(plan)),
+        () -> assertEquals(Cursor.None, planCache.convertToCursor(plan))
     );
   }
 
@@ -165,21 +155,19 @@ public class PaginatedPlanCacheTest {
 
   @Test
   void serialize_and_deserialize() {
-    var plan = new TestPaginateOperator(42);
-    var context = new PaginatedPlanCache.SerializationContext(plan);
-    var roundTripPlan = ((PaginatedPlanCache.SerializationContext)
-        planCache.deserialize(planCache.serialize(context))).getPlan();
+    var plan = new TestOperator(42);
+    var roundTripPlan = planCache.deserialize(planCache.serialize(plan));
     assertEquals(roundTripPlan, plan);
     assertNotSame(roundTripPlan, plan);
   }
 
   @Test
   void convertToCursor_and_convertToPlan() {
-    var plan = new TestPaginateOperator(42);
-    var roundTripPlan = (TestPaginateOperator)
+    var plan = new TestOperator(100500);
+    var roundTripPlan = (SerializablePlan)
         planCache.convertToPlan(planCache.convertToCursor(plan).toString());
-    assertEquals(roundTripPlan, plan);
-    assertNotSame(roundTripPlan, plan);
+    assertEquals(plan, roundTripPlan);
+    assertNotSame(plan, roundTripPlan);
   }
 
   @Test
@@ -199,30 +187,40 @@ public class PaginatedPlanCacheTest {
 
   // Helpers and auxiliary classes section below
 
-  public static class TestPaginateOperator extends PaginateOperator {
-    private final int field;
+  public static class TestOperator extends PhysicalPlan implements SerializablePlan {
+    private int field;
+    private boolean throwNoCursor = false;
 
-    public TestPaginateOperator(int value) {
-      super(null, 0, 0);
+    public TestOperator() {
+    }
+
+    public TestOperator(int value) {
       field = value;
     }
 
     @Override
-    public boolean writeExternal(ObjectOutput out) throws IOException {
-      PlanLoader loader = (in, engine) -> new TestPaginateOperator(in.readInt());
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+      field = in.readInt();
+    }
 
-      out.writeObject(loader);
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+      if (throwNoCursor) {
+        throw new NoCursorException();
+      }
       out.writeInt(field);
-      return true;
     }
 
     @Override
     public boolean equals(Object o) {
-      return field == ((TestPaginateOperator) o).field;
+      return field == ((TestOperator) o).field;
     }
-  }
 
-  private static class MockedTableScanOperator extends TableScanOperator {
+    @Override
+    public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
+      return null;
+    }
+
     @Override
     public boolean hasNext() {
       return false;
@@ -234,11 +232,12 @@ public class PaginatedPlanCacheTest {
     }
 
     @Override
-    public String explain() {
+    public List<PhysicalPlan> getChild() {
       return null;
     }
   }
 
+  @SneakyThrows
   private String serialize(Serializable input) {
     return planCache.serialize(input);
   }

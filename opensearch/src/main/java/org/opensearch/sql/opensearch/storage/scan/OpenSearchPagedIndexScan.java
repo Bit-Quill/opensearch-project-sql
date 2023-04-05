@@ -6,31 +6,44 @@
 package org.opensearch.sql.opensearch.storage.scan;
 
 import java.io.IOException;
+import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.Iterator;
 import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.lang3.NotImplementedException;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.exception.NoCursorException;
+import org.opensearch.sql.executor.pagination.PaginatedPlanCache;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
+import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
+import org.opensearch.sql.opensearch.request.ContinuePageRequestBuilder;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.request.PagedRequestBuilder;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
+import org.opensearch.sql.opensearch.storage.OpenSearchIndex;
+import org.opensearch.sql.opensearch.storage.OpenSearchStorageEngine;
+import org.opensearch.sql.planner.SerializablePlan;
 import org.opensearch.sql.storage.TableScanOperator;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @ToString(onlyExplicitlyIncluded = true)
-@RequiredArgsConstructor
-public class OpenSearchPagedIndexScan extends TableScanOperator {
-  private final OpenSearchClient client;
-  private final PagedRequestBuilder requestBuilder;
+public class OpenSearchPagedIndexScan extends TableScanOperator implements SerializablePlan {
+  private OpenSearchClient client;
+  @Getter
+  private PagedRequestBuilder requestBuilder;
   @EqualsAndHashCode.Include
   @ToString.Include
   private OpenSearchRequest request;
   private Iterator<ExprValue> iterator;
   private long totalHits = 0;
+
+  public OpenSearchPagedIndexScan(OpenSearchClient client, PagedRequestBuilder requestBuilder) {
+    this.client = client;
+    this.requestBuilder = requestBuilder;
+  }
 
   @Override
   public String explain() {
@@ -71,19 +84,32 @@ public class OpenSearchPagedIndexScan extends TableScanOperator {
     return totalHits;
   }
 
+  /** Don't use, it is for deserialization needs only. */
+  @Deprecated
+  public OpenSearchPagedIndexScan() {
+  }
+
   @Override
-  public boolean writeExternal(ObjectOutput out) throws IOException {
+  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    var engine = (OpenSearchStorageEngine) ((PaginatedPlanCache.CursorDeserializationStream) in)
+        .resolveObject("engine");
+    var indexName = (String) in.readUTF();
+    var scrollId = (String) in.readUTF();
+    client = engine.getClient();
+    var index = new OpenSearchIndex(client, engine.getSettings(), indexName);
+    requestBuilder = new ContinuePageRequestBuilder(
+        new OpenSearchRequest.IndexName(indexName),
+        scrollId,
+        new OpenSearchExprValueFactory(index.getFieldOpenSearchTypes()));
+  }
+
+  @Override
+  public void writeExternal(ObjectOutput out) throws IOException {
     if (request.toCursor() == null || request.toCursor().isEmpty()) {
-      return false;
+      throw new NoCursorException();
     }
-    PlanLoader loader = (in, engine) -> {
-      var indexName = (String) in.readUTF();
-      var scrollId = (String) in.readUTF();
-      return engine.getTableScan(indexName, scrollId);
-    };
-    out.writeObject(loader);
+
     out.writeUTF(requestBuilder.getIndexName().toString());
     out.writeUTF(request.toCursor());
-    return true;
   }
 }

@@ -15,7 +15,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
-import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -28,7 +27,6 @@ import org.opensearch.sql.executor.QueryService;
 import org.opensearch.sql.executor.pagination.PaginatedPlanCache;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 import org.opensearch.sql.storage.StorageEngine;
-import org.opensearch.sql.storage.TableScanOperator;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class ContinuePaginatedPlanTest {
@@ -43,8 +41,6 @@ public class ContinuePaginatedPlanTest {
   @BeforeAll
   public static void setUp() {
     var storageEngine = mock(StorageEngine.class);
-    when(storageEngine.getTableScan(anyString(), anyString()))
-        .thenReturn(mock(TableScanOperator.class));
     paginatedPlanCache = new PaginatedPlanCache(storageEngine);
     queryService = new QueryService(null, new DefaultExecutionEngine(), null, null);
   }

@@ -28,6 +28,11 @@ public class SerializablePlanTest {
   }
 
   @Test
+  void readExternal_throws() {
+    assertThrows(Throwable.class, () -> plan.readExternal(null));
+  }
+
+  @Test
   void getPlanForSerialization_defaults_to_self() {
     assertSame(plan, plan.getPlanForSerialization());
   }

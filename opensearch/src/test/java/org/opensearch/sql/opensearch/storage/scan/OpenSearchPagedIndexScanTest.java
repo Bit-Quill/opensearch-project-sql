@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -23,17 +22,21 @@ import static org.opensearch.sql.opensearch.storage.scan.OpenSearchIndexScanTest
 import static org.opensearch.sql.opensearch.storage.scan.OpenSearchIndexScanTest.mockResponse;
 
 import com.google.common.collect.ImmutableMap;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Map;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.exception.NoCursorException;
+import org.opensearch.sql.executor.pagination.PaginatedPlanCache;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
@@ -42,8 +45,7 @@ import org.opensearch.sql.opensearch.request.InitialPageRequestBuilder;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.request.PagedRequestBuilder;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
-import org.opensearch.sql.planner.SerializablePlan;
-import org.opensearch.sql.storage.StorageEngine;
+import org.opensearch.sql.opensearch.storage.OpenSearchStorageEngine;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -152,48 +154,62 @@ public class OpenSearchPagedIndexScanTest {
 
   @Test
   @SneakyThrows
+  void serialization() {
+    PagedRequestBuilder builder = mock();
+    OpenSearchRequest request = mock();
+    OpenSearchResponse response = mock();
+    when(request.toCursor()).thenReturn("cu-cursor");
+    when(builder.build()).thenReturn(request);
+    var indexName = new OpenSearchRequest.IndexName("index");
+    when(builder.getIndexName()).thenReturn(indexName);
+    when(client.search(any())).thenReturn(response);
+    OpenSearchPagedIndexScan indexScan = new OpenSearchPagedIndexScan(client, builder);
+    indexScan.open();
+
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    ObjectOutputStream objectOutput = new ObjectOutputStream(output);
+    objectOutput.writeObject(indexScan);
+    objectOutput.flush();
+
+    when(client.getIndexMappings(any())).thenReturn(Map.of());
+    OpenSearchStorageEngine engine = mock();
+    when(engine.getClient()).thenReturn(client);
+    when(engine.getSettings()).thenReturn(mock());
+    ObjectInputStream objectInput = new PaginatedPlanCache(engine)
+        .getCursorDeserializationStream(new ByteArrayInputStream(output.toByteArray()));
+    var roundTripScan = (OpenSearchPagedIndexScan) objectInput.readObject();
+    roundTripScan.open();
+
+    // indexScan's request could be a OpenSearchScrollRequest or a ContinuePageRequest, but
+    // roundTripScan's request is always a ContinuePageRequest
+    // Thus, we can't compare those scans
+    //assertEquals(indexScan, roundTripScan);
+    // But we can validate that index name and scroll was serialized-deserialized correctly
+    assertEquals(indexName, roundTripScan.getRequestBuilder().getIndexName());
+    assertTrue(roundTripScan.getRequestBuilder() instanceof ContinuePageRequestBuilder);
+    assertEquals("cu-cursor",
+        ((ContinuePageRequestBuilder) roundTripScan.getRequestBuilder()).getScrollId());
+  }
+
+  @Test
+  @SneakyThrows
   void dont_serialize_if_no_cursor() {
     PagedRequestBuilder builder = mock();
     OpenSearchRequest request = mock();
     OpenSearchResponse response = mock();
     when(builder.build()).thenReturn(request);
-    when(builder.getIndexName()).thenReturn(new OpenSearchRequest.IndexName("index"));
-    when(client.search(request)).thenReturn(response);
-    OpenSearchPagedIndexScan indexScan = new OpenSearchPagedIndexScan(client, builder);
-    indexScan.open();
-    when(request.toCursor()).thenReturn("");
-    ObjectOutput stream = mock();
-    assertFalse(indexScan.writeExternal(stream));
-    when(request.toCursor()).thenReturn(null);
-    assertFalse(indexScan.writeExternal(stream));
-    when(request.toCursor()).thenReturn("cu-cursor");
-    assertTrue(indexScan.writeExternal(stream));
-  }
-
-  @Test
-  @SneakyThrows
-  void serialization() {
-    PagedRequestBuilder builder = mock();
-    OpenSearchRequest request = mock();
-    OpenSearchResponse response = mock();
-    when(builder.build()).thenReturn(request);
-    when(builder.getIndexName()).thenReturn(new OpenSearchRequest.IndexName("index"));
-    when(client.search(request)).thenReturn(response);
-    when(request.toCursor()).thenReturn("cu-cursor");
+    when(client.search(any())).thenReturn(response);
     OpenSearchPagedIndexScan indexScan = new OpenSearchPagedIndexScan(client, builder);
     indexScan.open();
 
-    ObjectOutput out = mock();
-    assertTrue(indexScan.writeExternal(out));
-    var captor = ArgumentCaptor.forClass(SerializablePlan.PlanLoader.class);
-    verify(out).writeObject(captor.capture());
-    verify(out, times(2)).writeUTF(anyString());
-    var loader = captor.getValue();
-
-    ObjectInput in = mock();
-    when(in.readUTF()).thenReturn("index", "scroll");
-    StorageEngine engine = mock();
-    loader.apply(in, engine);
-    verify(engine).getTableScan("index", "scroll");
+    when(request.toCursor()).thenReturn(null, "");
+    for (int i = 0; i < 2; i++) {
+      assertThrows(NoCursorException.class, () -> {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutput = new ObjectOutputStream(output);
+        objectOutput.writeObject(indexScan);
+        objectOutput.flush();
+      });
+    }
   }
 }

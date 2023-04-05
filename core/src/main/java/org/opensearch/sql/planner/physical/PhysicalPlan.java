@@ -10,13 +10,12 @@ import java.util.Iterator;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.planner.PlanNode;
-import org.opensearch.sql.planner.SerializablePlan;
 import org.opensearch.sql.storage.split.Split;
 
 /**
  * Physical plan.
  */
-public abstract class PhysicalPlan extends SerializablePlan
+public abstract class PhysicalPlan
     implements PlanNode<PhysicalPlan>, Iterator<ExprValue>, AutoCloseable {
   /**
    * Accept the {@link PhysicalPlanNodeVisitor}.

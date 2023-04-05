@@ -5,18 +5,17 @@
 
 package org.opensearch.sql.planner.physical;
 
-import java.io.IOException;
-import java.io.ObjectOutput;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.executor.ExecutionEngine;
+import org.opensearch.sql.planner.SerializablePlan;
 
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public class PaginateOperator extends PhysicalPlan {
+public class PaginateOperator extends PhysicalPlan implements SerializablePlan {
   @Getter
   private final PhysicalPlan input;
 
@@ -67,19 +66,9 @@ public class PaginateOperator extends PhysicalPlan {
     return input.schema();
   }
 
+  /** No need to serialize a PaginateOperator, it actually does nothing - it is a wrapper. */
   @Override
-  public boolean writeExternal(ObjectOutput out) throws IOException {
-    PlanLoader loader = (in, engine) -> {
-      var pageSize = in.readInt();
-      var pageIndex = in.readInt();
-      var inputLoader = (PlanLoader) in.readObject();
-      var input = (PhysicalPlan) inputLoader.apply(in, engine);
-      return new PaginateOperator(input, pageSize, pageIndex);
-    };
-    out.writeObject(loader);
-
-    out.writeInt(pageSize);
-    out.writeInt(pageIndex + 1);
-    return input.getPlanForSerialization().writeExternal(out);
+  public SerializablePlan getPlanForSerialization() {
+    return (SerializablePlan) input;
   }
 }

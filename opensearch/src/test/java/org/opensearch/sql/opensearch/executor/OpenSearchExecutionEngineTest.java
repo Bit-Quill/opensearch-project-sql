@@ -22,6 +22,7 @@ import static org.opensearch.sql.data.model.ExprValueUtils.tupleValue;
 import static org.opensearch.sql.executor.ExecutionEngine.QueryResponse;
 
 import java.io.IOException;
+import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +50,7 @@ import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.executor.protector.OpenSearchExecutionProtector;
 import org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder;
 import org.opensearch.sql.opensearch.storage.scan.OpenSearchIndexScan;
+import org.opensearch.sql.planner.SerializablePlan;
 import org.opensearch.sql.planner.physical.PaginateOperator;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 import org.opensearch.sql.storage.TableScanOperator;
@@ -293,11 +295,19 @@ class OpenSearchExecutionEngineTest {
   }
 
   @RequiredArgsConstructor
-  private static class FakePhysicalPlan extends TableScanOperator {
+  private static class FakePhysicalPlan extends TableScanOperator implements SerializablePlan {
     private final Iterator<ExprValue> it;
     private boolean hasOpen;
     private boolean hasClosed;
     private boolean hasSplit;
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+    }
 
     @Override
     public void open() {
@@ -335,11 +345,6 @@ class OpenSearchExecutionEngineTest {
     @Override
     public String explain() {
       return "explain";
-    }
-
-    @Override
-    public boolean writeExternal(ObjectOutput out) throws IOException {
-      return true;
     }
   }
 }
