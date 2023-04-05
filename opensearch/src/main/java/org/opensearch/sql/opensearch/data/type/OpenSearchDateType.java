@@ -11,12 +11,15 @@ import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 import com.google.common.collect.ImmutableMap;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.joda.time.DateTime;
+import lombok.Setter;
+import org.opensearch.common.time.DateFormatter;
 import org.opensearch.sql.data.type.ExprType;
 
 /**
@@ -31,10 +34,12 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   // a read-only collection of relations
   @Getter
+  @Setter
   @EqualsAndHashCode.Exclude
   DateTimeFormatter formatter;
 
   @Getter
+  @Setter
   @EqualsAndHashCode.Exclude
   String formatString;
 
@@ -42,7 +47,59 @@ public class OpenSearchDateType extends OpenSearchDataType {
     super(MappingType.Date);
     //TODO: Figure out how to apply the correct exprcoretype
     // (Maybe do whatever I initially did for timestampadd???
+    this.formatter = null;
+    this.formatString = "";
     //exprCoreType = UNKNOWN;
+  }
+
+  private OpenSearchDateType(DateTimeFormatter formatterArg, String formatStringArg) {
+    super(MappingType.Date);
+    //TODO: Figure out how to apply the correct exprcoretype
+    // (Maybe do whatever I initially did for timestampadd???
+    this.formatter = formatterArg;
+    this.formatString = formatStringArg;
+  }
+
+  public static List<String> getFormatList(String formats) {
+    if (formats == null || formats.isEmpty()) {
+      return List.of();
+    }
+    return Arrays.stream(formats.split("\\|\\|")).map(String::trim).collect(Collectors.toList());
+  }
+
+//  public static List<DateFormatter> getNamedFormatters() {
+//    return getFormatList(formatString).stream().filter(f -> {
+//          try {
+//            DateTimeFormatter.ofPattern(f);
+//            return false;
+//          } catch (Exception e) {
+//            return true;
+//          }
+//        })
+//        .map(DateFormatter::forPattern).collect(Collectors.toList());
+//  }
+
+  public List<DateFormatter> getNamedFormatters(String formats) {
+    return getFormatList(formats).stream().filter(f -> {
+          try {
+            DateTimeFormatter.ofPattern(f);
+            return false;
+          } catch (Exception e) {
+            return true;
+          }
+        })
+        .map(DateFormatter::forPattern).collect(Collectors.toList());
+  }
+
+  public List<DateTimeFormatter> getRegularFormatters() {
+    return getFormatList(formatString).stream().map(f -> {
+          try {
+            return DateTimeFormatter.ofPattern(f);
+          } catch (Exception e) {
+            return null;
+          }
+        })
+        .filter(Objects::nonNull).collect(Collectors.toList());
   }
 
   /**
@@ -50,7 +107,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * @return A new type object.
    */
   public static OpenSearchDateType create(String format) {
-    var res = new OpenSearchDateType();
+    //var res = new OpenSearchDateType();
 
     //TODO: Temp. Refactor this to exist in DateTimeFormatters.java
     DateTimeFormatter predefinedPattern = DateTimeFormatter
@@ -63,31 +120,47 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
     //TODO: Filter out named formatters vs user defined here
     // Initialize the format based on the given string
+    DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
     try {
       if (format.contains("||")) {
-        DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+//        for (String token: format.split("\\|\\|")) {
+//          //Use either a predefined formatter, or a user defined one.
+//          if (NAMED_FORMATTERS.containsKey(token)){
+//            builder.append(NAMED_FORMATTERS.get(token));
+//          } else {
+//            builder.appendPattern(token);
+//          }
+//        }
         for (String token: format.split("\\|\\|")) {
-          //Use either a predefined formatter, or a user defined one.
-          if (NAMED_FORMATTERS.containsKey(token)){
-            builder.append(NAMED_FORMATTERS.get(token));
-          } else {
+          //try to append a pattern
+          try {
             builder.appendPattern(token);
+          } catch (IllegalArgumentException e) {
+            //do nothing
           }
         }
-        res.formatter = builder.toFormatter();
-      } else {
-        if (NAMED_FORMATTERS.containsKey(format)){
-          res.formatter= NAMED_FORMATTERS.get(format);
-        } else {
-          res.formatter = DateTimeFormatter.ofPattern(format);
-        }
-
+//      } else {
+//        if (NAMED_FORMATTERS.containsKey(format)){
+//          builder.append(NAMED_FORMATTERS.get(format));
+//        } else {
+//          builder.append(DateTimeFormatter.ofPattern(format));
+//        }
+//
+//      }
+    } else {
+      builder.append(DateTimeFormatter.ofPattern(format));
+      try {
+        builder.append(DateTimeFormatter.ofPattern(format));
+      } catch (IllegalArgumentException e) {
+        //do nothing
       }
+    }
     } catch (IllegalArgumentException iae) {
       // invalid format - skipping
       // TODO: warn the user that the format is illegal in the mapping
     }
-    res.formatString = format;
+
+    var res = new OpenSearchDateType(builder.toFormatter(), format);
     return res;
   }
 

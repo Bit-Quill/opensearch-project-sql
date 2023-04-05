@@ -19,10 +19,16 @@ import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_HOUR_MINUTE_SEC
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+
+import java.time.DateTimeException;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -33,6 +39,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
 import org.opensearch.common.time.DateFormatters;
 import org.opensearch.sql.data.model.ExprBooleanValue;
 import org.opensearch.sql.data.model.ExprByteValue;
@@ -226,17 +233,65 @@ public class OpenSearchExprValueFactory {
     }
   }
 
+  // returns java.time.format.Parsed
+  private TemporalAccessor parseTimestampString(String value, OpenSearchDateType dt) {
+    if (dt == null) {
+      return null;
+    }
+    for (var formatter : dt.getRegularFormatters()) {
+      try {
+        return formatter.parse(value);
+      } catch (Exception ignored) {
+        // nothing to do, try another format
+      }
+    }
+    for (var formatter : dt.getNamedFormatters(dt.getFormatString())) {
+      try {
+        return formatter.parse(value);
+      } catch (Exception ignored) {
+        // nothing to do, try another format
+      }
+    }
+    return null;
+  }
+
   private ExprValue parseTimestamp(Content value, ExprType type) {
 
+    OpenSearchDateType dt = (OpenSearchDateType) type;
     if (value.isNumber()) {
       return new ExprTimestampValue(Instant.ofEpochMilli(value.longValue()));
     } else if (value.isString()) {
-      if(((OpenSearchDateType)type).getFormatString().equals("epoch_millis")
-          || ((OpenSearchDateType)type).getFormatString().equals("epoch_second")) {
-
+      TemporalAccessor parsed = parseTimestampString(value.stringValue(),dt);
+      if (parsed == null) { // failed to parse or no formats given
+        return constructTimestamp(value.stringValue(), dt.getFormatter());
       }
-      //TODO: DEAL WITH OTHER FORMATS
-      return constructTimestamp(value.stringValue(), ((OpenSearchDateType)type).getFormatter());
+      try {
+        return new ExprTimestampValue(Instant.from(parsed));
+      } catch (DateTimeException ignored) {
+        // nothing to do, try another type
+      }
+      // TODO return not ExprTimestampValue
+      try {
+        return new ExprTimestampValue(new ExprDateValue(LocalDate.from(parsed)).timestampValue());
+      } catch (DateTimeException ignored) {
+        // nothing to do, try another type
+      }
+      try {
+        return new ExprTimestampValue(new ExprDatetimeValue(LocalDateTime.from(parsed)).timestampValue());
+      } catch (DateTimeException ignored) {
+        // nothing to do, try another type
+      }
+      try {
+        return new ExprTimestampValue(new ExprTimeValue(LocalTime.from(parsed)).timestampValue());
+      } catch (DateTimeException ignored) {
+        // nothing to do, try another type
+      }
+      // TODO throw exception
+      LogManager.getLogger(OpenSearchExprValueFactory.class).error(
+          String.format("Can't recognize parsed value: %s, %s", parsed, parsed.getClass()));
+      return new ExprStringValue(value.stringValue());
+//      //TODO: DEAL WITH USER FORMATS
+//      return constructTimestamp(value.stringValue(), ((OpenSearchDateType)type).getFormatter());
     } else {
       return new ExprTimestampValue((Instant) value.objectValue());
     }
