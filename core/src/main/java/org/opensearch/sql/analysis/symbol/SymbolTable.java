@@ -128,6 +128,14 @@ public class SymbolTable {
     return results;
   }
 
+  /**
+   * Look up all top level symbols in the namespace.
+   * this function is used only when ".*" is in the path of the argument
+   * for the nested function
+   *
+   * @param namespace     a namespace
+   * @return              all symbols in the namespace map
+   */
   public Map<String, ExprType> lookupNestedAllFields(Namespace namespace) {
     final LinkedHashMap<String, ExprType> allSymbols =
         orderedTable.getOrDefault(namespace, new LinkedHashMap<>());
