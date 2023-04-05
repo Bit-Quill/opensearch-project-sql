@@ -8,6 +8,7 @@ package org.opensearch.sql.expression.function;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
@@ -41,7 +42,7 @@ public class OpenSearchFunctions {
     repository.register(wildcard_query(BuiltinFunctionName.WILDCARD_QUERY));
     repository.register(wildcard_query(BuiltinFunctionName.WILDCARDQUERY));
     // Functions supported in SELECT clause
-    repository.register(nested(BuiltinFunctionName.NESTED));
+    repository.register(nested());
   }
 
   private static FunctionResolver match_bool_prefix() {
@@ -88,10 +89,35 @@ public class OpenSearchFunctions {
     return new RelevanceFunctionResolver(funcName);
   }
 
-  private static FunctionResolver nested(BuiltinFunctionName nested) {
-    FunctionName funcName = nested.getName();
-    return new NestedFunctionResolver(funcName);
+  private static FunctionResolver nested() {
+    return new FunctionResolver() {
+      @Override
+      public Pair<FunctionSignature, FunctionBuilder> resolve(
+          FunctionSignature unresolvedSignature) {
+        return Pair.of(unresolvedSignature,
+            (functionProperties, arguments) ->
+            new FunctionExpression(BuiltinFunctionName.NESTED.getName(), arguments) {
+              @Override
+              public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
+                return valueEnv.resolve(getArguments().get(0));
+              }
+
+              @Override
+              public ExprType type() {
+                return getArguments().get(0).type();
+              }
+            });
+      }
+
+      @Override
+      public FunctionName getFunctionName() {
+        return BuiltinFunctionName.NESTED.getName();
+      }
+    };
   }
+
+
+
 
   public static class OpenSearchFunction extends FunctionExpression {
     private final FunctionName functionName;

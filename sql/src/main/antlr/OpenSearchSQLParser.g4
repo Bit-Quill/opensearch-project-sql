@@ -312,7 +312,6 @@ functionCall
     | extractFunction                                               #extractFunctionCall
     | getFormatFunction                                             #getFormatFunctionCall
     | timestampFunction                                             #timestampFunctionCall
-    | nestedFunction                                                #nestedFunctionCall
     ;
 
 timestampFunction
@@ -370,22 +369,6 @@ datetimePart
     | complexDateTimePart
     ;
 
-nestedFunction
-    : NESTED LR_BRACKET
-    (nestedField | nestedField COMMA nestedPath)
-    RR_BRACKET
-    ;
-
-nestedField
-    : nestedIdent DOT nestedIdent (DOT nestedIdent)*
-    | stringLiteral
-    ;
-
-nestedPath
-    : nestedIdent (DOT nestedIdent)*
-    | stringLiteral
-    ;
-
 highlightFunction
     : HIGHLIGHT LR_BRACKET relevanceField (COMMA highlightArg)* RR_BRACKET
     ;
@@ -404,6 +387,7 @@ scalarFunctionName
     | textFunctionName
     | flowControlFunctionName
     | systemFunctionName
+    | nestedFunctionName
     ;
 
 specificFunction
@@ -574,6 +558,10 @@ systemFunctionName
     : TYPEOF
     ;
 
+nestedFunctionName
+    : NESTED
+    ;
+
 singleFieldRelevanceFunctionName
     : MATCH | MATCHQUERY | MATCH_QUERY
     | MATCH_PHRASE | MATCHPHRASE | MATCHPHRASEQUERY
@@ -698,14 +686,6 @@ qualifiedName
 
 ident
     : DOT? ID
-    | BACKTICK_QUOTE_ID
-    | keywordsCanBeId
-    | scalarFunctionName
-    ;
-
-
-nestedIdent
-    : ID
     | BACKTICK_QUOTE_ID
     | keywordsCanBeId
     | scalarFunctionName
