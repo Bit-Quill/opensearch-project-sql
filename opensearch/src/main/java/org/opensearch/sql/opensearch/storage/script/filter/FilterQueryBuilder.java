@@ -109,7 +109,7 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
         } else if (query instanceof NestedQuery) {
           // TODO Throw exception if does not have conditional parameter.
           return query.build(func, BoolQueryBuilder::filter);
-        } else
+        }
           if (query != null && query.canSupport(func)) {
           return query.build(func);
         }

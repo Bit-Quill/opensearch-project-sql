@@ -113,21 +113,38 @@ public abstract class LuceneQuery {
   public QueryBuilder build(FunctionExpression func, BiFunction<BoolQueryBuilder, QueryBuilder,
         QueryBuilder> accumulator) {
     BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-    if (func.getArguments().get(0) instanceof FunctionExpression
-        || func.getFunctionName().equals(BuiltinFunctionName.NESTED)) { // Is predicate expression
-      // TODO If function contains conditional we should throw exception.
-      FunctionExpression f = (FunctionExpression) func.getArguments().get(0);
-      ExprValue literalValue = func.getArguments().get(1).valueOf();
+    FunctionExpression funcOrMultipleFuncs = (FunctionExpression) func.getArguments().get(1);
+    if (func instanceof NestedFunction) {
+      switch(funcOrMultipleFuncs.getFunctionName().getFunctionName()) {
+        case "and":
+        case "or":
+        case "not":
+          for (var f : func.getArguments()) {
+            switch (funcOrMultipleFuncs.getFunctionName().getFunctionName()) {
+              case "and":
+                accumulator.apply(boolQuery, doBuild(func));
+              case "or":
+                accumulator.apply(boolQuery, doBuild(func));
+              case "not":
+                accumulator.apply(boolQuery, doBuild(func));
+              default:
+            }
+          }
+        break;
+
+        default:
+          accumulator.apply(boolQuery, doBuild(func));
+      }
+
+//      for (int i = 0; i < ((FunctionExpression)func.getArguments().get(1)).getArguments().size(); i++) {
+////        FunctionExpression expr = (FunctionExpression) ((FunctionExpression)func.getArguments().get(1)).getArguments().get(i);
+//        accumulator.apply(boolQuery, doBuild(func));
+//      }
+    } else if (func.getArguments().get(0) instanceof NestedFunction) { // Is predicate expression
+      // TODO If function doesnt contains conditional we should throw exception.
       QueryBuilder ret = doBuild(func);
-//      QueryBuilder ret = doBuildNested(f, literalValue);
       accumulator.apply(boolQuery, ret);
     }
-//    else { // Syntax: 'WHERE nested(path, conditional)'
-//      // TODO need good way to loop through predicates
-//      int conditionalParameterSize = ((FunctionExpression)func.getArguments().get(1)).getArguments().size();
-//      ArrayList<QueryBuilder> queries = new ArrayList<>();
-//      ReferenceExpression path = (ReferenceExpression)func.getArguments().get(0);
-//
 //      // Conditional with only one predicate.
 //      if (((FunctionExpression)func.getArguments().get(1)).getArguments().get(0) instanceof ReferenceExpression
 //          && ((FunctionExpression)func.getArguments().get(1)).getArguments().get(1) instanceof LiteralExpression) {
@@ -145,6 +162,11 @@ public abstract class LuceneQuery {
 //      }
 //    }
     return boolQuery;
+  }
+
+  void blahInnerFuncs(FunctionExpression func, BiFunction<BoolQueryBuilder, QueryBuilder,
+      QueryBuilder> accumulator) {
+
   }
 
 
@@ -274,12 +296,6 @@ public abstract class LuceneQuery {
   }
 
   protected QueryBuilder doBuild(FunctionExpression func) {
-    throw new UnsupportedOperationException(
-        "Subclass doesn't implement this and build method either");
-  }
-
-  // TODO Maybe overload doBuild for override in NestedQuery?
-  protected QueryBuilder doBuildNested(FunctionExpression fieldName, ExprValue literal) {
     throw new UnsupportedOperationException(
         "Subclass doesn't implement this and build method either");
   }
