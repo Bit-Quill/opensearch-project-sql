@@ -103,12 +103,12 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
         LuceneQuery query = luceneQueries.get(name);
         if (!(query instanceof NestedQuery) && func.getArguments().get(0) instanceof FunctionExpression) {
           LuceneQuery innerQuery = luceneQueries.get(((FunctionExpression)func.getArguments().get(0)).getFunctionName());
-          return innerQuery.build(func, BoolQueryBuilder::filter);
+          return innerQuery.build(func);
         // Nested used in predicate expression with syntax 'WHERE nested(field | field, path) = ...'
         //TODO Can we interpret nested used in predicate expression as NestedQuery?
         } else if (query instanceof NestedQuery) {
           // TODO Throw exception if does not have conditional parameter.
-          return query.build(func, BoolQueryBuilder::filter);
+          return query.build(func);
         }
           if (query != null && query.canSupport(func)) {
           return query.build(func);
