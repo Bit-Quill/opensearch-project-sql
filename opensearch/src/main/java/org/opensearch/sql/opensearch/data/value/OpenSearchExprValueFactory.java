@@ -124,14 +124,8 @@ public class OpenSearchExprValueFactory {
               (c, dt) -> new ExprStringValue(c.stringValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Boolean),
               (c, dt) -> ExprBooleanValue.of(c.booleanValue()))
-          .put(OpenSearchDataType.of(TIMESTAMP),
-              (c, dt) -> parseTimestamp(c, dt))
           .put(OpenSearchDateType.create(""),
-              (c, dt) -> new ExprDateValue(parseTimestamp(c, dt).dateValue().toString()))
-          .put(OpenSearchDataType.of(TIME),
-              (c, dt) -> new ExprTimeValue(parseTimestamp(c, dt).timeValue().toString()))
-          .put(OpenSearchDataType.of(DATETIME),
-              (c, dt) -> new ExprDatetimeValue(parseTimestamp(c, dt).datetimeValue()))
+              (c, dt) -> parseTimestamp(c, dt))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Ip),
               (c, dt) -> new OpenSearchExprIpValue(c.stringValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.GeoPoint),
@@ -265,24 +259,27 @@ public class OpenSearchExprValueFactory {
       if (parsed == null) { // failed to parse or no formats given
         return constructTimestamp(value.stringValue(), dt.getFormatter());
       }
+      // Try Timestamp
       try {
         return new ExprTimestampValue(Instant.from(parsed));
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
-      // TODO return not ExprTimestampValue
+      //Try Date
       try {
-        return new ExprTimestampValue(new ExprDateValue(LocalDate.from(parsed)).timestampValue());
+        return new ExprDateValue(LocalDate.from(parsed));
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
+      //Try Datetime
       try {
-        return new ExprTimestampValue(new ExprDatetimeValue(LocalDateTime.from(parsed)).timestampValue());
+        return new ExprDatetimeValue(LocalDateTime.from(parsed));
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
+      //Try Time
       try {
-        return new ExprTimestampValue(new ExprTimeValue(LocalTime.from(parsed)).timestampValue());
+        return new ExprTimeValue(LocalTime.from(parsed));
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
