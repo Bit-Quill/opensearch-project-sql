@@ -38,8 +38,6 @@ import org.opensearch.sql.expression.NamedArgumentExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.FunctionName;
-import org.opensearch.sql.expression.nested.NestedFunction;
-import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 
 /**
  * Lucene query abstraction that builds Lucene query from function expression.
@@ -65,7 +63,8 @@ public abstract class LuceneQuery {
   }
 
   private boolean isNestedFunction(FunctionExpression func) {
-    return (func instanceof NestedFunction || func.getArguments().get(0) instanceof NestedFunction);
+    return (func.getFunctionName().getFunctionName().equalsIgnoreCase("nested")
+        || ((FunctionExpression)func.getArguments().get(0)).getFunctionName().getFunctionName().equalsIgnoreCase("nested"));
   }
 
   /**
@@ -114,7 +113,7 @@ public abstract class LuceneQuery {
         QueryBuilder> accumulator) {
     BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
     FunctionExpression funcOrMultipleFuncs = (FunctionExpression) func.getArguments().get(1);
-    if (func instanceof NestedFunction) {
+    if (func.getFunctionName().getFunctionName().equalsIgnoreCase("nested")) {
       switch(funcOrMultipleFuncs.getFunctionName().getFunctionName()) {
         case "and":
         case "or":
@@ -140,7 +139,7 @@ public abstract class LuceneQuery {
 ////        FunctionExpression expr = (FunctionExpression) ((FunctionExpression)func.getArguments().get(1)).getArguments().get(i);
 //        accumulator.apply(boolQuery, doBuild(func));
 //      }
-    } else if (func.getArguments().get(0) instanceof NestedFunction) { // Is predicate expression
+    } else if (((FunctionExpression)func.getArguments().get(0)).getFunctionName().getFunctionName().equalsIgnoreCase("nested")) { // Is predicate expression
       // TODO If function doesnt contains conditional we should throw exception.
       QueryBuilder ret = doBuild(func);
       accumulator.apply(boolQuery, ret);

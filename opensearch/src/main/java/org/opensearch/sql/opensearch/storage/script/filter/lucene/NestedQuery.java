@@ -8,25 +8,20 @@ package org.opensearch.sql.opensearch.storage.script.filter.lucene;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchTextType.convertTextToKeyword;
 
 import org.apache.lucene.search.join.ScoreMode;
-import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.NestedQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.index.query.TermQueryBuilder;
-import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
-import org.opensearch.sql.expression.nested.NestedFunction;
-
-import java.util.function.BiFunction;
 
 
 public class NestedQuery extends LuceneQuery {
   @Override
   protected QueryBuilder doBuild(FunctionExpression func) {
-    if (func instanceof NestedFunction) { // Predicate
+    if (func.getFunctionName().getFunctionName().equalsIgnoreCase("nested")) { // Predicate
       ReferenceExpression nestedPath = (ReferenceExpression) func.getArguments().get(0);
       ReferenceExpression nestedField = (ReferenceExpression) ((FunctionExpression)func.getArguments().get(1)).getArguments().get(0);
       ExprValue literal = ((FunctionExpression)func.getArguments().get(1)).getArguments().get(1).valueOf();
