@@ -11,11 +11,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.Function;
-import org.opensearch.sql.ast.expression.NestedAllFields;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.expression.NamedExpression;
@@ -44,20 +45,19 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
     return node.getDelegated().accept(this, context);
   }
 
-
-  @Override
-  public LogicalPlan visitNestedAllFields(NestedAllFields node, AnalysisContext context) {
-    Map<String, ReferenceExpression> args;
-    args = Map.of(
-        "field", new ReferenceExpression("*", STRING),
-        "path", new ReferenceExpression(node.getPath(), STRING)
-    );
-    return new LogicalNested(child, List.of(args), namedExpressions);
-  }
-
   @Override
   public LogicalPlan visitFunction(Function node, AnalysisContext context) {
     if (node.getFuncName().equalsIgnoreCase(BuiltinFunctionName.NESTED.name())) {
+      List<String> funcArgParts = ((QualifiedName) node.getFuncArgs().get(0)).getParts();
+      if (funcArgParts.get(funcArgParts.size() - 1).equals("*")) {
+        String path = String.join(".",
+            funcArgParts.stream().filter(part -> !part.equals("*")).collect(Collectors.toList()));
+        Map<String, ReferenceExpression> args = Map.of(
+            "field", new ReferenceExpression(path.concat(".*"), STRING),
+            "path", new ReferenceExpression(path, STRING)
+        );
+        return new LogicalNested(child, List.of(args), namedExpressions);
+      }
 
       List<UnresolvedExpression> expressions = node.getFuncArgs();
       validateArgs(expressions);

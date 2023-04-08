@@ -39,9 +39,6 @@ import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.Literal;
-import org.opensearch.sql.ast.expression.NestedAllFields;
-import org.opensearch.sql.ast.expression.QualifiedName;
-import org.opensearch.sql.ast.tree.Project;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 
 class AstBuilderTest extends AstBuilderTestBase {

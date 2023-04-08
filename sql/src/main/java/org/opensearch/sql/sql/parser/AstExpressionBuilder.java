@@ -9,7 +9,6 @@ package org.opensearch.sql.sql.parser;
 import static org.opensearch.sql.ast.dsl.AstDSL.between;
 import static org.opensearch.sql.ast.dsl.AstDSL.not;
 import static org.opensearch.sql.ast.dsl.AstDSL.qualifiedName;
-import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.LIKE;
@@ -488,12 +487,19 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
   private Function buildFunction(String functionName,
                                  List<FunctionArgContext> arg) {
+    List<UnresolvedExpression> args = arg
+        .stream()
+        .map(this::visitFunctionArg)
+        .collect(Collectors.toList());
+
+    if (functionName.equals("nested") && args.get(0) instanceof Literal) {
+      UnresolvedExpression firstArg = args.get(0);
+      args.set(0, new QualifiedName(List.of(firstArg.toString().split("\\."))));
+    }
+
     return new Function(
         functionName,
-        arg
-            .stream()
-            .map(this::visitFunctionArg)
-            .collect(Collectors.toList())
+        args
     );
   }
 

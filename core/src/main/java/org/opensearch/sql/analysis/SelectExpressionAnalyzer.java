@@ -7,6 +7,7 @@
 package org.opensearch.sql.analysis;
 
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.Field;
-import org.opensearch.sql.ast.expression.NestedAllFields;
+import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.data.type.ExprType;
@@ -25,8 +26,6 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
-import org.opensearch.sql.expression.function.FunctionName;
-import org.opensearch.sql.expression.nested.NestedFunction;
 
 /**
  * Analyze the select list in the {@link AnalysisContext} to construct the list of
@@ -61,6 +60,19 @@ public class SelectExpressionAnalyzer
 
   @Override
   public List<NamedExpression> visitAlias(Alias node, AnalysisContext context) {
+    if (node.getDelegated() instanceof Function
+        && ((Function) node.getDelegated()).getFuncName().equals("nested")
+        && node.getName().contains(".*")) {
+      List<String> path = new ArrayList<>();
+      ((QualifiedName) ((Function) node.getDelegated()).getFuncArgs().get(0)).getParts().forEach(part -> {
+        if (!part.equals("*")){
+          path.add(part);
+        }
+      });
+
+      return getNestedAllFields(String.join(".", path), context);
+    }
+
     Expression expr = referenceIfSymbolDefined(node, context);
     return Collections.singletonList(DSL.named(
         unqualifiedNameIfFieldOnly(node, context),
@@ -103,18 +115,19 @@ public class SelectExpressionAnalyzer
         new ReferenceExpression(entry.getKey(), entry.getValue()))).collect(Collectors.toList());
   }
 
-  @Override
-  public List<NamedExpression> visitNestedAllFields(NestedAllFields node,
+  private List<NamedExpression> getNestedAllFields(String path,
                                                     AnalysisContext context) {
     TypeEnvironment environment = context.peek();
-    Map<String, ExprType> lookupAllFields = environment.lookupNestedAllFields(Namespace.FIELD_NAME);
+    Map<String, ExprType> lookupNestedAllFields = environment.lookupNestedAllFields(Namespace.FIELD_NAME);
 
-    return lookupAllFields.entrySet().stream()
-        .filter(field -> field.getKey().contains(node.getPath().concat(".")))
+    return lookupNestedAllFields.entrySet().stream()
+        .filter(field -> field.getKey().contains(path.concat("."))
+            && field.getKey().split("\\.").length - path.split("\\.").length == 1)
         .map(entry -> DSL.named(entry.getKey(),
-            new NestedFunction(
-                new FunctionName("nested"),
-                List.of(new ReferenceExpression(entry.getKey(), entry.getValue())))))
+            new Function(
+                "nested",
+                List.of(new QualifiedName(List.of(entry.getKey().split("\\.")))))
+                .accept(expressionAnalyzer, context)))
         .collect(Collectors.toList());
   }
 

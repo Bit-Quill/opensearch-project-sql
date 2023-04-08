@@ -207,7 +207,7 @@ public class NestedOperator extends PhysicalPlan {
       return copy;
     }
 
-    if (containSamePath(copy.get(0))) {
+    if (!copy.isEmpty() && containSamePath(copy.get(0))) {
       var resultIt = this.result.iterator();
       Map<String, ExprValue> resultVal = resultIt.next();
       var copyIt = copy.iterator();
