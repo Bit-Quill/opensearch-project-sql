@@ -56,7 +56,12 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
             "field", new ReferenceExpression(path.concat(".*"), STRING),
             "path", new ReferenceExpression(path, STRING)
         );
-        return new LogicalNested(child, List.of(args), namedExpressions);
+        if (child instanceof LogicalNested) {
+          ((LogicalNested)child).addFields(args);
+          return child;
+        } else {
+          return new LogicalNested(child, new ArrayList<>(Arrays.asList(args)), namedExpressions);
+        }
       }
 
       List<UnresolvedExpression> expressions = node.getFuncArgs();

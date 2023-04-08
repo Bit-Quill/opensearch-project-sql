@@ -24,7 +24,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.expression.FunctionExpression;
+import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
+import org.opensearch.sql.expression.function.OpenSearchFunctions;
 
 /**
  * The NestedOperator evaluates the {@link NestedOperator#fields} and
@@ -82,7 +85,14 @@ public class NestedOperator extends PhysicalPlan {
       List projectList) {
     this.input = input;
     this.fields = (Set<String>) projectList.stream()
-        .map(e -> e.toString()).collect(Collectors.toSet());
+        .map(e -> {
+          if(((NamedExpression) e).getDelegated() instanceof FunctionExpression) {
+            return ((ReferenceExpression) ((FunctionExpression) ((NamedExpression) e).getDelegated())
+                .getArguments().get(0)).getAttr();
+          } else {
+            return e.toString();
+          }
+        }).collect(Collectors.toSet());
     this.groupedPathsAndFields = new HashMap<>();
     List<String> paths = fields.stream().map(path -> path.get("path")
         .getAttr()).collect(Collectors.toList());
