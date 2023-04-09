@@ -98,29 +98,24 @@ public class OpenSearchDateType extends OpenSearchDataType {
     //TODO: Filter out named formatters vs user defined here
     // Initialize the format based on the given string
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
-    try {
-      if (format.contains("||")) {
-        for (String token: format.split("\\|\\|")) {
-          //try to append a pattern
-          try {
-            builder.appendPattern(token);
-          } catch (IllegalArgumentException e) {
-            //do nothing
-          }
+
+    if (format.contains("||")) {
+      for (String token: format.split("\\|\\|")) {
+        //try to append a pattern
+        try {
+          builder.appendPattern(token);
+        } catch (IllegalArgumentException e) {
+          //do nothing
         }
+      }
     } else {
-      builder.append(DateTimeFormatter.ofPattern(format));
       try {
         builder.append(DateTimeFormatter.ofPattern(format));
       } catch (IllegalArgumentException e) {
         //do nothing
       }
     }
-    } catch (IllegalArgumentException iae) {
-      // invalid format - skipping
-      // TODO: warn the user that the format is illegal in the mapping
-    }
-
+    
     var res = new OpenSearchDateType(builder.toFormatter(), format);
     return res;
   }
