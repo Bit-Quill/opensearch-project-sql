@@ -125,7 +125,6 @@ public class OpenSearchDataType implements ExprType, Serializable {
       case Text:
         // TODO update these 2 below #1038 https://github.com/opensearch-project/sql/issues/1038
         return OpenSearchTextType.of();
-//            (Map<String, Object>) innerMap.getOrDefault("fields", Map.of()));F
       case GeoPoint: return OpenSearchGeoPointType.of();
       case Binary: return OpenSearchBinaryType.of();
       case Ip: return OpenSearchIpType.of();

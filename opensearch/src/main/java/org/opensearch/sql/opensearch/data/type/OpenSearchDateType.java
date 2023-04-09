@@ -67,18 +67,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
     return Arrays.stream(formats.split("\\|\\|")).map(String::trim).collect(Collectors.toList());
   }
 
-//  public static List<DateFormatter> getNamedFormatters() {
-//    return getFormatList(formatString).stream().filter(f -> {
-//          try {
-//            DateTimeFormatter.ofPattern(f);
-//            return false;
-//          } catch (Exception e) {
-//            return true;
-//          }
-//        })
-//        .map(DateFormatter::forPattern).collect(Collectors.toList());
-//  }
-
   public List<DateFormatter> getNamedFormatters(String formats) {
     return getFormatList(formats).stream().filter(f -> {
           try {
@@ -107,7 +95,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * @return A new type object.
    */
   public static OpenSearchDateType create(String format) {
-
     //TODO: Filter out named formatters vs user defined here
     // Initialize the format based on the given string
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();

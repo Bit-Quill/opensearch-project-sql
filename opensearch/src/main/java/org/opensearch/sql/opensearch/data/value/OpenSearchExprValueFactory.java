@@ -6,12 +6,8 @@
 
 package org.opensearch.sql.opensearch.data.value;
 
-import static org.opensearch.sql.data.type.ExprCoreType.DATE;
-import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
-import static org.opensearch.sql.data.type.ExprCoreType.TIME;
-import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.utils.DateTimeFormatters.SQL_LITERAL_DATE_TIME_FORMAT;
 import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_DATE_OPTIONAL_TIME_FORMATTER;
 import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_HOUR_MINUTE_SECOND_FORMATTER;
@@ -19,7 +15,6 @@ import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_HOUR_MINUTE_SEC
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -30,13 +25,11 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -64,7 +57,6 @@ import org.opensearch.sql.opensearch.data.utils.Content;
 import org.opensearch.sql.opensearch.data.utils.ObjectContent;
 import org.opensearch.sql.opensearch.data.utils.OpenSearchJsonContent;
 import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseParser;
-import org.opensearch.sql.utils.DateTimeFormatters;
 
 /**
  * Construct ExprValue from OpenSearch response.
@@ -124,6 +116,7 @@ public class OpenSearchExprValueFactory {
               (c, dt) -> new ExprStringValue(c.stringValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Boolean),
               (c, dt) -> ExprBooleanValue.of(c.booleanValue()))
+          //Handles the creation of DATE, TIME, TIMESTAMP
           .put(OpenSearchDateType.create(""),
               (c, dt) -> parseTimestamp(c, dt))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Ip),
