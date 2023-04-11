@@ -97,6 +97,7 @@ public class QueryService {
    * Translate {@link LogicalPlan} to {@link PhysicalPlan}.
    */
   public PhysicalPlan plan(LogicalPlan plan) {
-    return planner.plan(plan);
+    var ret = planner.plan(plan);
+    return ret;
   }
 }
