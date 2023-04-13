@@ -52,8 +52,8 @@ public class OpenSearchDateType extends OpenSearchDataType {
     //exprCoreType = UNKNOWN;
   }
 
-  private OpenSearchDateType(DateTimeFormatter formatterArg, String formatStringArg) {
-    super(MappingType.Date);
+  private OpenSearchDateType(DateTimeFormatter formatterArg, String formatStringArg, MappingType mappingType) {
+    super(mappingType);
     //TODO: Figure out how to apply the correct exprcoretype
     // (Maybe do whatever I initially did for timestampadd???
     this.formatter = formatterArg;
@@ -94,7 +94,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * Create a Date type which has a LinkedHashMap defining all formats
    * @return A new type object.
    */
-  public static OpenSearchDateType create(String format) {
+  public static OpenSearchDateType create(String format, MappingType mappingType) {
     //TODO: Filter out named formatters vs user defined here
     // Initialize the format based on the given string
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
@@ -115,8 +115,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
         //do nothing
       }
     }
-    
-    var res = new OpenSearchDateType(builder.toFormatter(), format);
+    var res = new OpenSearchDateType(builder.toFormatter(), format, mappingType);
     return res;
   }
 
@@ -145,6 +144,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
     if (this.mappingType == null) {
       return new OpenSearchDataType(this.exprCoreType);
     }
-    return OpenSearchDateType.create(this.formatString);
+    return OpenSearchDateType.create(this.formatString, this.mappingType);
   }
 }

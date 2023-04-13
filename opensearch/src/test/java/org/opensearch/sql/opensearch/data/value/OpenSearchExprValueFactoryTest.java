@@ -51,6 +51,7 @@ import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchDateType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 import org.opensearch.sql.opensearch.data.utils.OpenSearchJsonContent;
 
@@ -65,10 +66,10 @@ class OpenSearchExprValueFactoryTest {
           .put("floatV", OpenSearchDataType.of(FLOAT))
           .put("doubleV", OpenSearchDataType.of(DOUBLE))
           .put("stringV", OpenSearchDataType.of(STRING))
-          .put("dateV", OpenSearchDataType.of(DATE))
-          .put("datetimeV", OpenSearchDataType.of(DATETIME))
-          .put("timeV", OpenSearchDataType.of(TIME))
-          .put("timestampV", OpenSearchDataType.of(TIMESTAMP))
+          .put("dateV", OpenSearchDateType.create("", OpenSearchDataType.MappingType.Date))
+          .put("datetimeV", OpenSearchDateType.create("", OpenSearchDataType.MappingType.Datetime))
+          .put("timeV", OpenSearchDateType.create("", OpenSearchDataType.MappingType.Time))
+          .put("timestampV", OpenSearchDateType.create("", OpenSearchDataType.MappingType.Timestamp))
           .put("boolV", OpenSearchDataType.of(BOOLEAN))
           .put("structV", OpenSearchDataType.of(STRUCT))
           .put("structV.id", OpenSearchDataType.of(INTEGER))

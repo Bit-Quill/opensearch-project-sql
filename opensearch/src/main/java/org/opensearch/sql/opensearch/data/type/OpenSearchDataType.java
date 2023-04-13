@@ -8,6 +8,7 @@ package org.opensearch.sql.opensearch.data.type;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.function.BiConsumer;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.commons.lang3.EnumUtils;
+import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 
@@ -36,7 +38,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
     Binary("binary", ExprCoreType.UNKNOWN),
     Date("date", ExprCoreType.DATE),
     Time("date", ExprCoreType.TIME),
-    Datetime("date", ExprCoreType.TIMESTAMP),
+    Datetime("date", ExprCoreType.DATETIME),
     Timestamp("date", ExprCoreType.TIMESTAMP),
     Object("object", ExprCoreType.STRUCT),
     Nested("nested", ExprCoreType.ARRAY),
@@ -128,8 +130,12 @@ public class OpenSearchDataType implements ExprType, Serializable {
       case GeoPoint: return OpenSearchGeoPointType.of();
       case Binary: return OpenSearchBinaryType.of();
       case Ip: return OpenSearchIpType.of();
-      case Date: return OpenSearchDateType.create(
-          (String) innerMap.getOrDefault("format", ""));
+      case Date:
+      case Time:
+      case Datetime:
+      case Timestamp:
+        return OpenSearchDateType.create(
+          (String) innerMap.getOrDefault("format", ""), mappingType);
       default:
         return res;
     }
@@ -171,6 +177,22 @@ public class OpenSearchDataType implements ExprType, Serializable {
     return of(mappingType, Map.of());
   }
 
+  public static MappingType getDateTimeMapping(ExprType coreType){
+    if (coreType.equals(ExprCoreType.DATE)) {
+      return MappingType.Date;
+    }
+    if (coreType.equals(ExprCoreType.TIME)) {
+      return MappingType.Time;
+    }
+    if (coreType.equals(ExprCoreType.DATETIME)) {
+      return MappingType.Datetime;
+    }
+    if (coreType.equals(ExprCoreType.TIMESTAMP)) {
+      return MappingType.Timestamp;
+    }
+    return null;
+  }
+
   /**
    * A constructor function which builds proper `OpenSearchDataType` for given {@link ExprType}.
    * @param type A type.
@@ -184,7 +206,17 @@ public class OpenSearchDataType implements ExprType, Serializable {
     if (res != null) {
       return res;
     }
-    return new OpenSearchDataType((ExprCoreType) type);
+
+    //Time types must be handled differently because all datetime exprCoreTypes
+    // map to an OpenSearchDateType object
+    if (type.equals(ExprCoreType.TIMESTAMP)
+        || type.equals(ExprCoreType.DATETIME)
+        || type.equals(ExprCoreType.DATE)
+        || type.equals(ExprCoreType.TIME)) {
+        return OpenSearchDataType.of(getDateTimeMapping(type), Map.of());
+    } else {
+        return new OpenSearchDataType((ExprCoreType) type);
+    }
   }
 
   protected OpenSearchDataType(MappingType mappingType) {
@@ -216,7 +248,12 @@ public class OpenSearchDataType implements ExprType, Serializable {
   @Override
   // Called when serializing SQL response
   public String legacyTypeName() {
-    if (mappingType == null) {
+    if (mappingType == null
+        || mappingType.exprCoreType.equals(ExprCoreType.DATE)
+        || mappingType.exprCoreType.equals(ExprCoreType.DATETIME)
+        || mappingType.exprCoreType.equals(ExprCoreType.TIME)
+        || mappingType.exprCoreType.equals(ExprCoreType.TIMESTAMP)
+    ) {
       return exprCoreType.typeName();
     }
     return mappingType.toString().toUpperCase();
