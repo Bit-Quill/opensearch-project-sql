@@ -213,7 +213,7 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
         Index.BANK.getName()));
 
     verifySchema(response,
-        schema("birthdate", null, "timestamp"),
+        schema("birthdate", null, "date"),
         schema("count(*)", "count", "integer"));
     verifyDataRows(response,
         rows("2018-06-23 00:00:00", 1));
@@ -229,7 +229,7 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
         Index.BANK.getName()));
 
     verifySchema(response,
-        schema("birthdate", "birth", "timestamp"),
+        schema("birthdate", "birth", "date"),
         schema("count(*)", "count", "integer"));
     verifyDataRows(response,
         rows("2018-06-23 00:00:00", 1));
