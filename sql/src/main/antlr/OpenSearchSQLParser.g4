@@ -340,7 +340,6 @@ functionCall
     | extractFunction                                               #extractFunctionCall
     | getFormatFunction                                             #getFormatFunctionCall
     | timestampFunction                                             #timestampFunctionCall
-    | nestedFunction                                                #nestedFunctionCall
     ;
 
 timestampFunction
@@ -396,22 +395,6 @@ complexDateTimePart
 datetimePart
     : simpleDateTimePart
     | complexDateTimePart
-    ;
-
-nestedFunction
-    : NESTED LR_BRACKET
-    (nestedField | nestedField COMMA nestedPath | nestedPath COMMA expression)
-    RR_BRACKET
-    ;
-
-nestedField
-    : nestedIdent DOT nestedIdent (DOT nestedIdent)*
-    | stringLiteral
-    ;
-
-nestedPath
-    : nestedIdent (DOT nestedIdent)*
-    | stringLiteral
     ;
 
 highlightFunction
@@ -845,18 +828,10 @@ ident
     | scalarFunctionName
     ;
 
-
-nestedIdent
-    : ID
-    | BACKTICK_QUOTE_ID
-    | keywordsCanBeId
-    | scalarFunctionName
-    ;
-
 keywordsCanBeId
     : FULL
     | FIELD | D | T | TS // OD SQL and ODBC special
-    | COUNT | SUM | AVG | MAX | MIN | NESTED
+    | COUNT | SUM | AVG | MAX | MIN
     | FIRST | LAST
     | TYPE // TODO: Type is keyword required by relevancy function. Remove this when relevancy functions moved out
     ;
