@@ -324,12 +324,36 @@ public class NestedIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void test_nested_where_as_predicate_expression() {
+  public void test_nested_in_select_and_where_as_predicate_expression() {
     String query = "SELECT nested(message.info) FROM " + TEST_INDEX_NESTED_TYPE
         + " WHERE nested(message.info) = 'a'";
     JSONObject result = executeJdbcRequest(query);
+    assertEquals(3, result.getInt("total"));
+    verifyDataRows(
+        result,
+        rows("a"),
+        rows("c"),
+        rows("a")
+    );
+  }
+
+  @Test
+  public void test_nested_in_where_as_predicate_expression() {
+    String query = "SELECT message.info FROM " + TEST_INDEX_NESTED_TYPE
+        + " WHERE nested(message.info) = 'a'";
+    JSONObject result = executeJdbcRequest(query);
     assertEquals(2, result.getInt("total"));
-    // Returns whole array with each containing 'message.info'. Maybe not how we want to handle in future.
-    verifyDataRows(result, rows("a"), rows(new JSONArray(List.of("c", "a"))));
+    // Only first index of array is returned. Second index has 'a'
+    verifyDataRows(result, rows("a"), rows("c"));
+  }
+
+  @Test
+  public void test_nested_in_where_as_predicate_expression_with_relevance_query() {
+    String query = "SELECT message.info, someField FROM " + TEST_INDEX_NESTED_TYPE
+        + " WHERE nested(message.info) = 'a' AND match(someField, 'b')";
+    JSONObject result = executeJdbcRequest(query);
+    assertEquals(2, result.getInt("total"));
+    // Only first index of array is returned. Second index has 'a'
+    verifyDataRows(result, rows("a", "b"), rows("c", "b"));
   }
 }

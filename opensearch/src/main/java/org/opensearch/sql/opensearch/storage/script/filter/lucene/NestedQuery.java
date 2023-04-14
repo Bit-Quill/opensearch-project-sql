@@ -14,6 +14,7 @@ import org.opensearch.index.query.NestedQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.index.query.TermQueryBuilder;
+import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.expression.Expression;
@@ -26,47 +27,46 @@ import org.opensearch.sql.expression.function.BuiltinFunctionName;
 public class NestedQuery extends LuceneQuery {
   @Override
   public QueryBuilder build(FunctionExpression func) {
-    // TODO If function doesnt contains conditional we should throw exception.
     BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
     // WHERE nested(message, message.info = '' AND comment.data = '')
     if (func.getFunctionName().getFunctionName().equalsIgnoreCase(BuiltinFunctionName.NESTED.name())) {
-      // TODO recursion
-//      for (Expression arg : ((FunctionExpression)func.getArguments().get(1)).getArguments()) {
         switch (((FunctionExpression)func.getArguments().get(1)).getFunctionName().getFunctionName()) {
           case "and":
-            otherRetFunc(((FunctionExpression)func.getArguments().get(1)), BoolQueryBuilder::must, boolQuery);
+            applyInnerQueryOrRecurse(((FunctionExpression)func.getArguments().get(1)), BoolQueryBuilder::must, boolQuery);
             break;
           case "or":
-            otherRetFunc(((FunctionExpression)func.getArguments().get(1)), BoolQueryBuilder::should, boolQuery);
+            applyInnerQueryOrRecurse(((FunctionExpression)func.getArguments().get(1)), BoolQueryBuilder::should, boolQuery);
             break;
           case "not":
-            otherRetFunc(((FunctionExpression)func.getArguments().get(1)), BoolQueryBuilder::mustNot, boolQuery);
+            applyInnerQueryOrRecurse(((FunctionExpression)func.getArguments().get(1)), BoolQueryBuilder::mustNot, boolQuery);
             break;
           default:
-            otherRetFunc(((FunctionExpression)func.getArguments().get(1)), BoolQueryBuilder::filter, boolQuery);
+            applyInnerQueryOrRecurse(((FunctionExpression)func.getArguments().get(1)), BoolQueryBuilder::filter, boolQuery);
         }
-//      }
-      // Default way
+      // No recursion for operators needed
     } else if (func.getArguments().get(0) instanceof ReferenceExpression) { // TODO can this be handled in just the else?
-      finalRetFunc(func, BoolQueryBuilder::filter, boolQuery);
+      applyInnerQuery(func, BoolQueryBuilder::filter, boolQuery);
     } else if (func.getArguments().get(0) instanceof FunctionExpression &&
         ((FunctionExpression)func.getArguments().get(0)).getFunctionName().getFunctionName().equalsIgnoreCase("nested")) { // Is predicate expression
-      finalRetFunc(func, BoolQueryBuilder::filter, boolQuery);
+      applyInnerQuery(func, BoolQueryBuilder::filter, boolQuery);
     }
     return boolQuery;
   }
 
-  private QueryBuilder otherRetFunc(FunctionExpression func, BiFunction<BoolQueryBuilder, QueryBuilder,
+  private QueryBuilder applyInnerQueryOrRecurse(FunctionExpression func, BiFunction<BoolQueryBuilder, QueryBuilder,
         QueryBuilder> accumulator, BoolQueryBuilder boolQuery) {
-    if (func.getFunctionName().getFunctionName().equalsIgnoreCase("nested")) { // Predicate
+    if (func.getFunctionName().getFunctionName().equalsIgnoreCase("nested")) {
       ReferenceExpression nestedPath = (ReferenceExpression) func.getArguments().get(0);
       ReferenceExpression nestedField = (ReferenceExpression) ((FunctionExpression)func.getArguments().get(1)).getArguments().get(0);
       ExprValue literal = ((FunctionExpression)func.getArguments().get(1)).getArguments().get(1).valueOf();
-      String fieldName = convertTextToKeyword(nestedField.toString(), nestedField.type()); // type?
+      String fieldName = convertTextToKeyword(nestedField.toString(), nestedField.type());
       TermQueryBuilder termQuery = QueryBuilders.termQuery(fieldName, value(literal));
       NestedQueryBuilder ret = QueryBuilders.nestedQuery(nestedPath.toString(), termQuery, ScoreMode.None);
       return ret;
-    } else if (func.getArguments().get(0) instanceof ReferenceExpression) {// TODO fillmein
+    } else if (func.getArguments().get(0) instanceof ReferenceExpression) {
+      // innerNestedQuery
+      // nested(message, message.info = 'a' AND comment.data = 'ab' OR message.dayOfWeek = 1)
+      // nested(message, message.info = 'a' AND message.dayOfWeek = 1)
       ReferenceExpression field = (ReferenceExpression)func.getArguments().get(0);
       String fieldName = convertTextToKeyword(field.toString(), field.type());// function ret type?
       TermQueryBuilder termQuery = QueryBuilders.termQuery(fieldName, value(func.getArguments().get(1).valueOf()));
@@ -79,62 +79,60 @@ public class NestedQuery extends LuceneQuery {
       NestedQueryBuilder nestedQueryBuilder =  QueryBuilders.nestedQuery(getNestedPathString(field), termQuery, ScoreMode.None);
       return nestedQueryBuilder;
     } else { // Syntax: recursion...
-      for (Expression blah : func.getArguments()) {
-        if (blah instanceof FunctionExpression) {
-          switch (((FunctionExpression)blah).getFunctionName().getFunctionName()) {
+      for (Expression arg : func.getArguments()) {
+        if (arg instanceof FunctionExpression) {
+          switch (((FunctionExpression)arg).getFunctionName().getFunctionName()) {
             case "and":
-              var prev = otherRetFunc(((FunctionExpression)blah), BoolQueryBuilder::must, QueryBuilders.boolQuery());
-              accumulator.apply(boolQuery, prev);
+              accumulator.apply(boolQuery, applyInnerQueryOrRecurse(((FunctionExpression)arg), BoolQueryBuilder::must, QueryBuilders.boolQuery()));
               break;
             case "or":
-              var prev1 = otherRetFunc(((FunctionExpression)blah), BoolQueryBuilder::should, QueryBuilders.boolQuery());
-              accumulator.apply(boolQuery, prev1);
+              accumulator.apply(boolQuery, applyInnerQueryOrRecurse(((FunctionExpression)arg), BoolQueryBuilder::should, QueryBuilders.boolQuery()));
               break;
             case "not":
-              var prev2 = otherRetFunc(((FunctionExpression)blah), BoolQueryBuilder::mustNot, QueryBuilders.boolQuery());
-              accumulator.apply(boolQuery, prev2);
+              accumulator.apply(boolQuery, applyInnerQueryOrRecurse(((FunctionExpression)arg), BoolQueryBuilder::mustNot, QueryBuilders.boolQuery()));
               break;
             default:
-              var prev3 = otherRetFunc(((FunctionExpression)blah), BoolQueryBuilder::filter, QueryBuilders.boolQuery());
-              accumulator.apply(boolQuery, prev3);
+              accumulator.apply(boolQuery, applyInnerQueryOrRecurse(((FunctionExpression)arg), BoolQueryBuilder::filter, QueryBuilders.boolQuery()));
           }
-//          build((FunctionExpression) blah);
-        }
-        else {
-          var hm = 1;
+        } else {
+          // Throw exception? Shouldn't get here.
         }
       }
     }
     return boolQuery;
   }
 
-  private QueryBuilder finalRetFunc(FunctionExpression func, BiFunction<BoolQueryBuilder, QueryBuilder,
+  private QueryBuilder applyInnerQuery(FunctionExpression func, BiFunction<BoolQueryBuilder, QueryBuilder,
       QueryBuilder> accumulator, BoolQueryBuilder boolQuery) {
-    if (func.getFunctionName().getFunctionName().equalsIgnoreCase("nested")) { // Predicate
+    if (func.getFunctionName().getFunctionName().equalsIgnoreCase("nested")) { // Not sure if we need this case anymore.
       ReferenceExpression nestedPath = (ReferenceExpression) func.getArguments().get(0);
       ReferenceExpression nestedField = (ReferenceExpression) ((FunctionExpression)func.getArguments().get(1)).getArguments().get(0);
       ExprValue literal = ((FunctionExpression)func.getArguments().get(1)).getArguments().get(1).valueOf();
-      String fieldName = convertTextToKeyword(nestedField.toString(), nestedField.type()); // type?
+      String fieldName = convertTextToKeyword(nestedField.toString(), nestedField.type());
       TermQueryBuilder termQuery = QueryBuilders.termQuery(fieldName, value(literal));
       NestedQueryBuilder ret = QueryBuilders.nestedQuery(nestedPath.toString(), termQuery, ScoreMode.None);
       return accumulator.apply(boolQuery, ret);
-    } else if (func.getArguments().get(0) instanceof ReferenceExpression) {// TODO fillmein
+    } else if (func.getArguments().get(0) instanceof ReferenceExpression) {
+      // innerNestedQuery
+      // nested(message, message.info = 'a' AND comment.data = 'ab' OR message.dayOfWeek = 1)
       ReferenceExpression field = (ReferenceExpression)func.getArguments().get(0);
       String fieldName = convertTextToKeyword(field.toString(), field.type());// function ret type?
       TermQueryBuilder termQuery = QueryBuilders.termQuery(fieldName, value(func.getArguments().get(1).valueOf()));
       NestedQueryBuilder nestedQueryBuilder =  QueryBuilders.nestedQuery(getNestedPathString(field), termQuery, ScoreMode.None);
       return accumulator.apply(boolQuery, nestedQueryBuilder);
-    } else if (func.getArguments().get(1) instanceof LiteralExpression) { // Syntax: 'WHERE nested(message.info) = 'a'
+    } else if (func.getArguments().get(1) instanceof LiteralExpression) {
+      // Syntax: 'WHERE nested(message.info) = 'a'
+      // nestedFunctionAsPredicateExpression
       ReferenceExpression field = (ReferenceExpression)((FunctionExpression)func.getArguments().get(0)).getArguments().get(0);
       String fieldName = convertTextToKeyword(field.toString(), field.type());// function ret type?
       TermQueryBuilder termQuery = QueryBuilders.termQuery(fieldName, value(func.getArguments().get(1).valueOf()));
       NestedQueryBuilder nestedQueryBuilder = QueryBuilders.nestedQuery(getNestedPathString(field), termQuery, ScoreMode.None);
       return accumulator.apply(boolQuery, nestedQueryBuilder);
     } else {
+      // Error? Shouldn't get here.
       return null;
     }
   }
-
 
   private String getNestedPathString(ReferenceExpression field) {
     String ret = "";

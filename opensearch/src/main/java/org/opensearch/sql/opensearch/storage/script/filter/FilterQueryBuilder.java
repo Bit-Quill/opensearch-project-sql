@@ -101,11 +101,13 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
         return buildBoolQuery(func, context, BoolQueryBuilder::mustNot);
       default: {
         LuceneQuery query = luceneQueries.get(name);
-        if (!(query instanceof NestedQuery) && func.getArguments().get(0) instanceof FunctionExpression) {
+        // Nested used in predicate expression with syntax 'WHERE nested(field | field, path) = ...'
+        if (func.getArguments().get(0) instanceof FunctionExpression
+            && ((FunctionExpression)func.getArguments().get(0)).getFunctionName().getFunctionName().equalsIgnoreCase(BuiltinFunctionName.NESTED.name())) {
           LuceneQuery innerQuery = luceneQueries.get(((FunctionExpression)func.getArguments().get(0)).getFunctionName());
           return innerQuery.build(func);
-        // Nested used in predicate expression with syntax 'WHERE nested(field | field, path) = ...'
           // containsInnerNestedQuery()
+          // innerQuery.buildPredicateExpression()
         } else if (query instanceof NestedQuery) {
           // TODO Throw exception if does not have conditional parameter.
           return query.build(func);

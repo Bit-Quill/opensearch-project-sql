@@ -63,8 +63,9 @@ public abstract class LuceneQuery {
   }
 
   private boolean isNestedFunction(FunctionExpression func) {
-    return (func.getFunctionName().getFunctionName().equalsIgnoreCase("nested")
-        || ((FunctionExpression)func.getArguments().get(0)).getFunctionName().getFunctionName().equalsIgnoreCase("nested"));
+    return ((func.getArguments().get(0) instanceof FunctionExpression
+        && ((FunctionExpression)func.getArguments().get(0)).getFunctionName().getFunctionName().equalsIgnoreCase("nested"))
+        || func.getFunctionName().getFunctionName().equalsIgnoreCase("nested"));
   }
 
   /**
