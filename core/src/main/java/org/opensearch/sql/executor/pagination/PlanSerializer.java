@@ -118,14 +118,31 @@ public class PlanSerializer {
     return new CursorDeserializationStream(in);
   }
 
+  /**
+   * A placeholder in the object serialization stream for an instance of
+   * a StorageEngine. An instance is written out by {@see OpenSearchPagedIndexScan}
+   * During deserialization, CustomDeserializationStream replaces an instance
+   * StorageEnginePlaceHolder with an instance of a StorageEngine.
+   */
+  public static class StorageEnginePlaceHolder implements Serializable {
+
+    public StorageEnginePlaceHolder() {
+      // Required to support serialization API.
+    }
+  }
+
   public class CursorDeserializationStream extends ObjectInputStream {
     public CursorDeserializationStream(InputStream in) throws IOException {
       super(in);
+      enableResolveObject(true);
     }
 
     @Override
     public Object resolveObject(Object obj) throws IOException {
-      return obj.equals("engine") ? engine : obj;
+      if (obj instanceof StorageEnginePlaceHolder) {
+        return engine;
+      }
+      return super.resolveObject(obj);
     }
   }
 }

@@ -184,7 +184,7 @@ public class PlanSerializerTest {
 
     var cds = planCache.getCursorDeserializationStream(
         new ByteArrayInputStream(output.toByteArray()));
-    assertEquals(storageEngine, cds.resolveObject("engine"));
+    assertEquals(storageEngine, cds.resolveObject(new PlanSerializer.StorageEnginePlaceHolder()));
     var object = new Object();
     assertSame(object, cds.resolveObject(object));
   }

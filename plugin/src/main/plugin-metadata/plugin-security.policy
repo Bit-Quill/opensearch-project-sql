@@ -15,4 +15,7 @@ grant {
 
   // ml-commons client
   permission java.lang.RuntimePermission "setContextClassLoader";
+
+  // query serialization
+  permission java.io.SerializablePermission "enableSubstitution";
 };

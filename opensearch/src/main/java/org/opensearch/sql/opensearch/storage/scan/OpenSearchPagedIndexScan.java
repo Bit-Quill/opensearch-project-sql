@@ -91,10 +91,9 @@ public class OpenSearchPagedIndexScan extends TableScanOperator implements Seria
 
   @Override
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    var engine = (OpenSearchStorageEngine) ((PlanSerializer.CursorDeserializationStream) in)
-        .resolveObject("engine");
-    var indexName = (String) in.readUTF();
-    var scrollId = (String) in.readUTF();
+    var engine = (OpenSearchStorageEngine) in.readObject();
+    var indexName = in.readUTF();
+    var scrollId = in.readUTF();
     client = engine.getClient();
     var index = new OpenSearchIndex(client, engine.getSettings(), indexName);
     requestBuilder = new ContinuePageRequestBuilder(
@@ -109,6 +108,7 @@ public class OpenSearchPagedIndexScan extends TableScanOperator implements Seria
       throw new NoCursorException();
     }
 
+    out.writeObject(new PlanSerializer.StorageEnginePlaceHolder());
     out.writeUTF(requestBuilder.getIndexName().toString());
     out.writeUTF(request.toCursor());
   }
