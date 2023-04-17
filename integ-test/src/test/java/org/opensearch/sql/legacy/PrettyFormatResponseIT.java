@@ -27,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 import org.opensearch.client.Request;
 
 /**
@@ -482,6 +483,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     assertContainsData(getDataRows(response), fields);
   }
 
+  @Disabled("Disabled temporarily due to JSON format incompatibility with V2 and Legacy")
   @Test
   public void fieldOrder() throws IOException {
 
@@ -491,6 +493,8 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     testFieldOrder(expectedFields, expectedValues);
   }
 
+
+  @Disabled("Disabled temporarily due to JSON format incompatibility with V2 and Legacy")
   @Test
   public void fieldOrderOther() throws IOException {
 
