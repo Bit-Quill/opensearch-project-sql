@@ -153,6 +153,8 @@ public class OpenSearchDataType implements ExprType, Serializable {
             .getOrDefault(
                 "type",
                 "object"))
+            //TODO: Remove following line for 3.0 release. Temporary fix to prevent a breaking change.
+            .replace("date", "timestamp")
             .replace("_", "");
         if (!EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.MappingType.class, type)) {
           // unknown type, e.g. `alias`
