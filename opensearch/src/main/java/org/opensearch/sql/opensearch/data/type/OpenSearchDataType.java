@@ -252,8 +252,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
   @Override
   // Called when serializing SQL response
   public String legacyTypeName() {
-    if (mappingType == null
-    ) {
+    if (mappingType == null || mappingType.toString().equalsIgnoreCase("DATE")) {
       return exprCoreType.typeName();
     }
     return mappingType.toString().toUpperCase();

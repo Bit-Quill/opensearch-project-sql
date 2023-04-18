@@ -118,13 +118,13 @@ public class OpenSearchExprValueFactory {
               (c, dt) -> ExprBooleanValue.of(c.booleanValue()))
           //Handles the creation of DATE, TIME, TIMESTAMP
           .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Time),
-              (c, dt) -> parseTimestamp(c, dt))
+              (c, dt) -> new ExprTimeValue(parseTimestamp(c, dt).timeValue()))
           .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Date),
-              (c, dt) -> parseTimestamp(c, dt))
+              (c, dt) -> new ExprDateValue(parseTimestamp(c, dt).dateValue()))
           .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Timestamp),
               (c, dt) -> parseTimestamp(c, dt))
           .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Datetime),
-              (c, dt) -> parseTimestamp(c, dt))
+              (c, dt) -> new ExprDatetimeValue(parseTimestamp(c, dt).datetimeValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Ip),
               (c, dt) -> new OpenSearchExprIpValue(c.stringValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.GeoPoint),
@@ -252,18 +252,7 @@ public class OpenSearchExprValueFactory {
 
     OpenSearchDateType dt = (OpenSearchDateType) type;
     if (value.isNumber()) {
-      switch (type.typeName()) {
-        case "TIMESTAMP":
-          return new ExprTimestampValue(Instant.ofEpochMilli(value.longValue()));
-        case "TIME":
-          return new ExprTimeValue(new ExprTimestampValue(Instant.ofEpochMilli(value.longValue())).timeValue());
-        case "DATE":
-          return new ExprDateValue(new ExprTimestampValue(Instant.ofEpochMilli(value.longValue())).dateValue());
-        case "DATETIME":
-          return new ExprDatetimeValue(new ExprTimestampValue(Instant.ofEpochMilli(value.longValue())).datetimeValue());
-        default:
-          return null;
-      }
+      return new ExprTimestampValue(Instant.ofEpochMilli(value.longValue()));
     } else if (value.isString()) {
       TemporalAccessor parsed = parseTimestampString(value.stringValue(),dt);
       if (parsed == null) { // failed to parse or no formats given
@@ -277,19 +266,19 @@ public class OpenSearchExprValueFactory {
       }
       //Try Date
       try {
-        return new ExprDateValue(LocalDate.from(parsed));
+        return new ExprTimestampValue(new ExprDateValue(LocalDate.from(parsed)).timestampValue());
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
       //Try Datetime
       try {
-        return new ExprDatetimeValue(LocalDateTime.from(parsed));
+        return new ExprTimestampValue(new ExprDatetimeValue(LocalDateTime.from(parsed)).timestampValue());
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
       //Try Time
       try {
-        return new ExprTimeValue(LocalTime.from(parsed));
+        return new ExprTimestampValue(new ExprTimeValue(LocalTime.from(parsed)).timestampValue());
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
