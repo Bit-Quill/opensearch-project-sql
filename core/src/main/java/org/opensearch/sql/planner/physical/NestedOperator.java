@@ -86,9 +86,9 @@ public class NestedOperator extends PhysicalPlan {
     this.input = input;
     this.fields = (Set<String>) projectList.stream()
         .map(e -> {
-          if(((NamedExpression) e).getDelegated() instanceof FunctionExpression) {
-            return ((ReferenceExpression) ((FunctionExpression) ((NamedExpression) e).getDelegated())
-                .getArguments().get(0)).getAttr();
+          if (((NamedExpression) e).getDelegated() instanceof FunctionExpression) {
+            return ((ReferenceExpression) ((FunctionExpression) ((NamedExpression) e)
+                .getDelegated()).getArguments().get(0)).getAttr();
           } else {
             return e.toString();
           }

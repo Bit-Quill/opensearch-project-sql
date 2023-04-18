@@ -64,11 +64,12 @@ public class SelectExpressionAnalyzer
         && ((Function) node.getDelegated()).getFuncName().equals("nested")
         && node.getName().contains(".*")) {
       List<String> path = new ArrayList<>();
-      ((QualifiedName) ((Function) node.getDelegated()).getFuncArgs().get(0)).getParts().forEach(part -> {
-        if (!part.equals("*")){
-          path.add(part);
-        }
-      });
+      ((QualifiedName) ((Function) node.getDelegated()).getFuncArgs().get(0))
+          .getParts().forEach(part -> {
+            if (!part.equals("*")) {
+              path.add(part);
+            }
+          });
 
       return getNestedAllFields(String.join(".", path), context);
     }
@@ -119,7 +120,8 @@ public class SelectExpressionAnalyzer
   private List<NamedExpression> getNestedAllFields(String path,
                                                    AnalysisContext context) {
     TypeEnvironment environment = context.peek();
-    Map<String, ExprType> lookupNestedAllFields = environment.lookupNestedAllFields(Namespace.FIELD_NAME);
+    Map<String, ExprType> lookupNestedAllFields =
+        environment.lookupNestedAllFields(Namespace.FIELD_NAME);
 
     return lookupNestedAllFields.entrySet().stream()
         .filter(field -> field.getKey().contains(path.concat("."))
