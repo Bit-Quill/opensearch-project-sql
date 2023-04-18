@@ -25,8 +25,10 @@ import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseP
  * Builds a {@link ContinuePageRequest} to handle subsequent pagination/scroll/cursor requests.
  * Initial search requests is handled by {@link InitialPageRequestBuilder}.
  */
-public class ContinuePageRequestBuilder extends PagedRequestBuilder {
+public class ContinuePageRequestBuilder implements PushDownRequestBuilder {
 
+  public static final String PUSH_DOWN_NOT_SUPPORTED =
+      "Cursor requests don't support any push down";
   @Getter
   private final OpenSearchRequest.IndexName indexName;
   @Getter
@@ -52,47 +54,47 @@ public class ContinuePageRequestBuilder extends PagedRequestBuilder {
 
   @Override
   public void pushDownFilter(QueryBuilder query) {
-    throw new UnsupportedOperationException("Cursor requests don't support any push down");
+    throw new UnsupportedOperationException(PUSH_DOWN_NOT_SUPPORTED);
   }
 
   @Override
   public void pushDownAggregation(Pair<List<AggregationBuilder>,
                                       OpenSearchAggregationResponseParser> aggregationBuilder) {
-    throw new UnsupportedOperationException("Cursor requests don't support any push down");
+    throw new UnsupportedOperationException(ContinuePageRequestBuilder.PUSH_DOWN_NOT_SUPPORTED);
   }
 
   @Override
   public void pushDownSort(List<SortBuilder<?>> sortBuilders) {
-    throw new UnsupportedOperationException("Cursor requests don't support any push down");
+    throw new UnsupportedOperationException(PUSH_DOWN_NOT_SUPPORTED);
   }
 
   @Override
   public void pushDownLimit(Integer limit, Integer offset) {
-    throw new UnsupportedOperationException("Cursor requests don't support any push down");
+    throw new UnsupportedOperationException(PUSH_DOWN_NOT_SUPPORTED);
   }
 
   @Override
   public void pushDownHighlight(String field, Map<String, Literal> arguments) {
-    throw new UnsupportedOperationException("Cursor requests don't support any push down");
+    throw new UnsupportedOperationException(PUSH_DOWN_NOT_SUPPORTED);
   }
 
   @Override
   public void pushDownProjects(Set<ReferenceExpression> projects) {
-    throw new UnsupportedOperationException("Cursor requests don't support any push down");
+    throw new UnsupportedOperationException(PUSH_DOWN_NOT_SUPPORTED);
   }
 
   @Override
   public void pushTypeMapping(Map<String, OpenSearchDataType> typeMapping) {
-    throw new UnsupportedOperationException("Cursor requests don't support any push down");
+    throw new UnsupportedOperationException(PUSH_DOWN_NOT_SUPPORTED);
   }
 
   @Override
   public void pushDownNested(List<Map<String, ReferenceExpression>> nestedArgs) {
-    throw new UnsupportedOperationException("Cursor requests don't support any push down");
+    throw new UnsupportedOperationException(ContinuePageRequestBuilder.PUSH_DOWN_NOT_SUPPORTED);
   }
 
   @Override
   public void pushDownTrackedScore(boolean trackScores) {
-    throw new UnsupportedOperationException("Cursor requests don't support any push down");
+    throw new UnsupportedOperationException(ContinuePageRequestBuilder.PUSH_DOWN_NOT_SUPPORTED);
   }
 }

@@ -75,7 +75,7 @@ class OpenSearchIndexScanTest {
   @Test
   void query_empty_result() {
     mockResponse(client);
-    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, settings,
+    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, settings,
         "test", 3, exprValueFactory)) {
       indexScan.open();
       assertAll(
@@ -93,7 +93,7 @@ class OpenSearchIndexScanTest {
         employee(2, "Smith", "HR"),
         employee(3, "Allen", "IT")});
 
-    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, settings,
+    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, settings,
         "employees", 10, exprValueFactory)) {
       indexScan.open();
 
@@ -120,7 +120,7 @@ class OpenSearchIndexScanTest {
         new ExprValue[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
         new ExprValue[]{employee(3, "Allen", "IT")});
 
-    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, settings,
+    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, settings,
         "employees", 10, exprValueFactory)) {
       indexScan.open();
 
@@ -149,7 +149,7 @@ class OpenSearchIndexScanTest {
         employee(3, "Allen", "IT"),
         employee(4, "Bob", "HR")});
 
-    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, settings,
+    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, settings,
         "employees", 10, exprValueFactory)) {
       indexScan.getRequestBuilder().pushDownLimit(3, 0);
       indexScan.open();
@@ -177,7 +177,7 @@ class OpenSearchIndexScanTest {
         new ExprValue[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
         new ExprValue[]{employee(3, "Allen", "IT"), employee(4, "Bob", "HR")});
 
-    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, settings,
+    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, settings,
         "employees", 2, exprValueFactory)) {
       indexScan.getRequestBuilder().pushDownLimit(3, 0);
       indexScan.open();
@@ -208,7 +208,7 @@ class OpenSearchIndexScanTest {
         employee(4, "Bob", "HR")});
     when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(2);
 
-    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, settings,
+    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, settings,
         "employees", 10, exprValueFactory)) {
       indexScan.open();
 
@@ -276,7 +276,7 @@ class OpenSearchIndexScanTest {
         new ExprValue[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
         new ExprValue[]{employee(3, "Allen", "IT"), employee(4, "Bob", "HR")});
 
-    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, settings,
+    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, settings,
         "test", 2, exprValueFactory)) {
       indexScan.getRequestBuilder().pushDownLimit(3, 0);
       indexScan.open();
@@ -284,7 +284,7 @@ class OpenSearchIndexScanTest {
       indexScan.getRequestBuilder().pushDownHighlight("name", args);
       indexScan.getRequestBuilder().pushDownHighlight("name", args);
     } catch (SemanticCheckException e) {
-      assertTrue(e.getClass().equals(SemanticCheckException.class));
+      assertEquals(e.getClass(), SemanticCheckException.class);
     }
     verify(client).cleanup(any());
   }
@@ -303,7 +303,7 @@ class OpenSearchIndexScanTest {
                              OpenSearchExprValueFactory valueFactory,
                              Settings settings) {
       this.client = client;
-      this.indexScan = new OpenSearchIndexScan(client, settings,
+      this.indexScan = OpenSearchIndexScan.create(client, settings,
           "test", 10000, valueFactory);
       this.response = mock(OpenSearchResponse.class);
       this.factory = valueFactory;

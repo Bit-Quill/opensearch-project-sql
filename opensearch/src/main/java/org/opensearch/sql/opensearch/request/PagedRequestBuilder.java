@@ -6,7 +6,5 @@
 package org.opensearch.sql.opensearch.request;
 
 public abstract class PagedRequestBuilder implements PushDownRequestBuilder {
-  public abstract OpenSearchRequest build();
 
-  public abstract OpenSearchRequest.IndexName getIndexName();
 }

@@ -21,7 +21,7 @@ import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.request.ContinuePageRequestBuilder;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
-import org.opensearch.sql.opensearch.request.PagedRequestBuilder;
+import org.opensearch.sql.opensearch.request.PushDownRequestBuilder;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 import org.opensearch.sql.opensearch.storage.OpenSearchIndex;
 import org.opensearch.sql.opensearch.storage.OpenSearchStorageEngine;
@@ -33,14 +33,14 @@ import org.opensearch.sql.storage.TableScanOperator;
 public class OpenSearchPagedIndexScan extends TableScanOperator implements SerializablePlan {
   private OpenSearchClient client;
   @Getter
-  private PagedRequestBuilder requestBuilder;
+  private PushDownRequestBuilder requestBuilder;
   @EqualsAndHashCode.Include
   @ToString.Include
   private OpenSearchRequest request;
   private Iterator<ExprValue> iterator;
   private long totalHits = 0;
 
-  public OpenSearchPagedIndexScan(OpenSearchClient client, PagedRequestBuilder requestBuilder) {
+  public OpenSearchPagedIndexScan(OpenSearchClient client, PushDownRequestBuilder requestBuilder) {
     this.client = client;
     this.requestBuilder = requestBuilder;
   }

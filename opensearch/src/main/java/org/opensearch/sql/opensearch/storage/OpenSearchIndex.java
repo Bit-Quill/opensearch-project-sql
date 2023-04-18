@@ -26,8 +26,6 @@ import org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder;
 import org.opensearch.sql.opensearch.request.system.OpenSearchDescribeIndexRequest;
 import org.opensearch.sql.opensearch.storage.scan.OpenSearchIndexScan;
 import org.opensearch.sql.opensearch.storage.scan.OpenSearchIndexScanBuilder;
-import org.opensearch.sql.opensearch.storage.scan.OpenSearchPagedIndexScan;
-import org.opensearch.sql.opensearch.storage.scan.OpenSearchPagedIndexScanBuilder;
 import org.opensearch.sql.planner.DefaultImplementor;
 import org.opensearch.sql.planner.logical.LogicalAD;
 import org.opensearch.sql.planner.logical.LogicalML;
@@ -179,8 +177,9 @@ public class OpenSearchIndex implements Table {
     Map<String, OpenSearchDataType> allFields = new HashMap<>();
     getReservedFieldTypes().forEach((k, v) -> allFields.put(k, OpenSearchDataType.of(v)));
     allFields.putAll(getFieldOpenSearchTypes());
-    OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, settings, indexName,
-        getMaxResultWindow(), new OpenSearchExprValueFactory(allFields));
+    final var requestBuilder = new OpenSearchRequestBuilder(
+        indexName, getMaxResultWindow(), settings, new OpenSearchExprValueFactory(allFields));
+    OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, requestBuilder);
     return new OpenSearchIndexScanBuilder(indexScan);
   }
 
@@ -188,8 +187,8 @@ public class OpenSearchIndex implements Table {
   public TableScanBuilder createPagedScanBuilder(int pageSize) {
     var requestBuilder = new InitialPageRequestBuilder(indexName, pageSize, settings,
         new OpenSearchExprValueFactory(getFieldOpenSearchTypes()));
-    var indexScan = new OpenSearchPagedIndexScan(client, requestBuilder);
-    return new OpenSearchPagedIndexScanBuilder(indexScan);
+    var indexScan = new OpenSearchIndexScan(client, requestBuilder);
+    return new OpenSearchIndexScanBuilder(indexScan);
   }
 
   @VisibleForTesting

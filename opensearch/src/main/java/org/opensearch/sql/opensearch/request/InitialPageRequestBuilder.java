@@ -29,7 +29,7 @@ import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseP
  * It is used only on the first page (pagination request).
  * Subsequent requests (cursor requests) use {@link ContinuePageRequestBuilder}.
  */
-public class InitialPageRequestBuilder extends PagedRequestBuilder {
+public class InitialPageRequestBuilder implements PushDownRequestBuilder {
 
   @Getter
   private final OpenSearchRequest.IndexName indexName;

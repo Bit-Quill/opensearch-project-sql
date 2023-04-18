@@ -50,6 +50,7 @@ import org.opensearch.sql.executor.pagination.PlanSerializer;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.executor.protector.OpenSearchExecutionProtector;
+import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.storage.scan.OpenSearchIndexScan;
 import org.opensearch.sql.planner.SerializablePlan;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
@@ -178,7 +179,7 @@ class OpenSearchExecutionEngineTest {
     when(settings.getSettingValue(SQL_CURSOR_KEEP_ALIVE))
         .thenReturn(TimeValue.timeValueMinutes(1));
 
-    PhysicalPlan plan = new OpenSearchIndexScan(mock(OpenSearchClient.class), settings,
+    PhysicalPlan plan = OpenSearchIndexScan.create(mock(OpenSearchClient.class), settings,
         "test", 10000, mock(OpenSearchExprValueFactory.class));
 
     AtomicReference<ExplainResponse> result = new AtomicReference<>();

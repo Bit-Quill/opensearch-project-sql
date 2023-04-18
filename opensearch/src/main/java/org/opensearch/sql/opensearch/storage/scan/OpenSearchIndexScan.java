@@ -17,6 +17,7 @@ import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.request.OpenSearchRequest;
 import org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder;
+import org.opensearch.sql.opensearch.request.PushDownRequestBuilder;
 import org.opensearch.sql.opensearch.response.OpenSearchResponse;
 import org.opensearch.sql.storage.TableScanOperator;
 
@@ -34,7 +35,7 @@ public class OpenSearchIndexScan extends TableScanOperator {
   @EqualsAndHashCode.Include
   @Getter
   @ToString.Include
-  private final OpenSearchRequestBuilder requestBuilder;
+  private final PushDownRequestBuilder requestBuilder;
 
   /** Search request. */
   @EqualsAndHashCode.Include
@@ -55,33 +56,26 @@ public class OpenSearchIndexScan extends TableScanOperator {
   /**
    * Constructor.
    */
-  public OpenSearchIndexScan(OpenSearchClient client, Settings settings,
+  public static OpenSearchIndexScan create(OpenSearchClient client, Settings settings,
                              String indexName, Integer maxResultWindow,
                              OpenSearchExprValueFactory exprValueFactory) {
-    this(
-            client,
-            settings,
-            new OpenSearchRequest.IndexName(indexName),
-            maxResultWindow,
-            exprValueFactory
-    );
+    final var requestBuilder = new OpenSearchRequestBuilder(
+        new OpenSearchRequest.IndexName(indexName), maxResultWindow, settings, exprValueFactory);
+    return new OpenSearchIndexScan(client, requestBuilder);
   }
 
-  /**
-   * Constructor.
-   */
-  public OpenSearchIndexScan(OpenSearchClient client, Settings settings,
-                             OpenSearchRequest.IndexName indexName, Integer maxResultWindow,
-                             OpenSearchExprValueFactory exprValueFactory) {
+
+  public OpenSearchIndexScan(OpenSearchClient client, PushDownRequestBuilder requestBuilder) {
     this.client = client;
-    this.requestBuilder = new OpenSearchRequestBuilder(
-        indexName, maxResultWindow, settings, exprValueFactory);
+    this.requestBuilder = requestBuilder;
   }
 
   @Override
   public void open() {
     super.open();
-    querySize = requestBuilder.getQuerySize();
+    // TODO refactor the class to either make querySize work with paged requests or
+    // avoid this
+    querySize = ((OpenSearchRequestBuilder)requestBuilder).getQuerySize();
     request = requestBuilder.build();
     iterator = Collections.emptyIterator();
     queryCount = 0;

@@ -45,4 +45,8 @@ public interface PushDownRequestBuilder {
   void pushDownNested(List<Map<String, ReferenceExpression>> nestedArgs);
 
   void pushDownTrackedScore(boolean trackScores);
+
+  OpenSearchRequest build();
+
+  OpenSearchRequest.IndexName getIndexName();
 }
