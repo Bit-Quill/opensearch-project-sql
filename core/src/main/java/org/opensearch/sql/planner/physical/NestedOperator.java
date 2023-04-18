@@ -10,6 +10,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -24,6 +25,8 @@ import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.expression.FunctionExpression;
+import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 
 /**
@@ -66,6 +69,37 @@ public class NestedOperator extends PhysicalPlan {
             )
         )
     );
+  }
+
+  /**
+   * Constructor for UnnestOperator only when ".*" is included in the
+   * argument for the nested function
+   *
+   * @param input : PhysicalPlan input.
+   * @param fields : List of all fields and paths for nested fields.
+   * @param projectList : ProjectList to allow the operator to extract all fields
+   */
+  public NestedOperator(
+      PhysicalPlan input,
+      List<Map<String, ReferenceExpression>> fields,
+      List projectList) {
+    this.input = input;
+    this.fields = (Set<String>) projectList.stream()
+        .map(e -> {
+          if(((NamedExpression) e).getDelegated() instanceof FunctionExpression) {
+            return ((ReferenceExpression) ((FunctionExpression) ((NamedExpression) e).getDelegated())
+                .getArguments().get(0)).getAttr();
+          } else {
+            return e.toString();
+          }
+        }).collect(Collectors.toSet());
+    this.groupedPathsAndFields = new HashMap<>();
+    List<String> paths = fields.stream().map(path -> path.get("path")
+        .getAttr()).collect(Collectors.toList());
+
+    paths.forEach(path -> this.groupedPathsAndFields.put(path,
+        this.fields.stream().filter(field -> field.contains(path))
+            .collect(Collectors.toList())));
   }
 
   /**

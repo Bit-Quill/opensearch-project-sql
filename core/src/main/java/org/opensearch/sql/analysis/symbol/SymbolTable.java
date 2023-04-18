@@ -129,6 +129,23 @@ public class SymbolTable {
   }
 
   /**
+   * Look up all top level symbols in the namespace.
+   * this function is used only when ".*" is in the path of the argument
+   * for the nested function
+   *
+   * @param namespace     a namespace
+   * @return              all symbols in the namespace map
+   */
+  public Map<String, ExprType> lookupNestedAllFields(Namespace namespace) {
+    final LinkedHashMap<String, ExprType> allSymbols =
+        orderedTable.getOrDefault(namespace, new LinkedHashMap<>());
+    final LinkedHashMap<String, ExprType> results = new LinkedHashMap<>();
+    allSymbols.entrySet().stream()
+        .forEach(entry -> results.put(entry.getKey(), entry.getValue()));
+    return results;
+  }
+
+  /**
    * Check if namespace map in empty (none definition).
    *
    * @param namespace a namespace

@@ -7,6 +7,7 @@
 package org.opensearch.sql.analysis;
 
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.Field;
+import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.data.type.ExprType;
@@ -58,6 +60,19 @@ public class SelectExpressionAnalyzer
 
   @Override
   public List<NamedExpression> visitAlias(Alias node, AnalysisContext context) {
+    if (node.getDelegated() instanceof Function
+        && ((Function) node.getDelegated()).getFuncName().equals("nested")
+        && node.getName().contains(".*")) {
+      List<String> path = new ArrayList<>();
+      ((QualifiedName) ((Function) node.getDelegated()).getFuncArgs().get(0)).getParts().forEach(part -> {
+        if (!part.equals("*")){
+          path.add(part);
+        }
+      });
+
+      return getNestedAllFields(String.join(".", path), context);
+    }
+
     Expression expr = referenceIfSymbolDefined(node, context);
     return Collections.singletonList(DSL.named(
         unqualifiedNameIfFieldOnly(node, context),
@@ -98,6 +113,24 @@ public class SelectExpressionAnalyzer
     Map<String, ExprType> lookupAllFields = environment.lookupAllFields(Namespace.FIELD_NAME);
     return lookupAllFields.entrySet().stream().map(entry -> DSL.named(entry.getKey(),
         new ReferenceExpression(entry.getKey(), entry.getValue()))).collect(Collectors.toList());
+  }
+
+
+  private List<NamedExpression> getNestedAllFields(String path,
+                                                   AnalysisContext context) {
+    TypeEnvironment environment = context.peek();
+    Map<String, ExprType> lookupNestedAllFields = environment.lookupNestedAllFields(Namespace.FIELD_NAME);
+
+    return lookupNestedAllFields.entrySet().stream()
+        .filter(field -> field.getKey().contains(path.concat("."))
+            // Don't include fields that are more than one nested level
+            && field.getKey().split("\\.").length - path.split("\\.").length == 1)
+        .map(entry -> DSL.named(entry.getKey(),
+            new Function(
+                "nested",
+                List.of(new QualifiedName(List.of(entry.getKey().split("\\.")))))
+                .accept(expressionAnalyzer, context)))
+        .collect(Collectors.toList());
   }
 
   /**

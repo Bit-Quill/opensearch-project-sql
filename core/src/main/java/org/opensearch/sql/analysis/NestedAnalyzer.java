@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.Alias;
@@ -46,6 +47,21 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
   @Override
   public LogicalPlan visitFunction(Function node, AnalysisContext context) {
     if (node.getFuncName().equalsIgnoreCase(BuiltinFunctionName.NESTED.name())) {
+      List<String> funcArgParts = ((QualifiedName) node.getFuncArgs().get(0)).getParts();
+      if (funcArgParts.get(funcArgParts.size() - 1).equals("*")) {
+        String path = String.join(".",
+            funcArgParts.stream().filter(part -> !part.equals("*")).collect(Collectors.toList()));
+        Map<String, ReferenceExpression> args = Map.of(
+            "field", new ReferenceExpression(path.concat(".*"), STRING),
+            "path", new ReferenceExpression(path, STRING)
+        );
+        if (child instanceof LogicalNested) {
+          ((LogicalNested)child).addFields(args);
+          return child;
+        } else {
+          return new LogicalNested(child, new ArrayList<>(Arrays.asList(args)), namedExpressions);
+        }
+      }
 
       List<UnresolvedExpression> expressions = node.getFuncArgs();
       validateArgs(expressions);
