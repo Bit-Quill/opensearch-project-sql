@@ -9,12 +9,9 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import com.google.common.collect.ImmutableMap;
-
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
-import lombok.Setter;
 import org.opensearch.sql.data.type.ExprType;
 
 /**
@@ -29,8 +26,7 @@ public class OpenSearchTextType extends OpenSearchDataType {
   // text could have fields
   // a read-only collection
   @EqualsAndHashCode.Exclude
-  @Setter
-  Map<String, OpenSearchDataType> fields = new LinkedHashMap<>();
+  Map<String, OpenSearchDataType> fields = ImmutableMap.of();
 
   private OpenSearchTextType() {
     super(MappingType.Text);
@@ -53,7 +49,7 @@ public class OpenSearchTextType extends OpenSearchDataType {
 
   public static OpenSearchTextType of(Map<String, OpenSearchDataType> fields) {
     var res = new OpenSearchTextType();
-    res.fields.putAll(fields);
+    res.fields = fields;
     return res;
   }
 
