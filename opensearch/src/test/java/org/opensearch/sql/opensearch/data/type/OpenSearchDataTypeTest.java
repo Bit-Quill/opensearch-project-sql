@@ -159,7 +159,7 @@ class OpenSearchDataTypeTest {
 
   @Test
   // All types without `fields` and `properties` are singletones unless cloned.
-  public void types_but_clones_are_singletones_and_cached() {
+  public void types_but_clones_are_singletons_and_cached() {
     var type = OpenSearchDataType.of(MappingType.Object);
     var alsoType = OpenSearchDataType.of(MappingType.Object);
     Map<String, Object> properties = Map.of("properties", Map.of("number", Map.of("type", "integer")));
