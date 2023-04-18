@@ -37,9 +37,9 @@ public class OpenSearchDataType implements ExprType, Serializable {
     GeoPoint("geo_point", ExprCoreType.UNKNOWN),
     Binary("binary", ExprCoreType.UNKNOWN),
     Date("date", ExprCoreType.DATE),
-    Time("time", ExprCoreType.TIME),
-    Datetime("datetime", ExprCoreType.DATETIME),
-    Timestamp("timestamp", ExprCoreType.TIMESTAMP),
+    Time("date", ExprCoreType.TIME),
+    Datetime("date", ExprCoreType.DATETIME),
+    Timestamp("date", ExprCoreType.TIMESTAMP),
     Object("object", ExprCoreType.STRUCT),
     Nested("nested", ExprCoreType.ARRAY),
     Byte("byte", ExprCoreType.BYTE),
@@ -211,7 +211,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
       return res;
     }
 
-    //Time types must be handled differently because all datetime exprCoreTypes
+    //datetime types must be handled differently because all datetime exprCoreTypes
     // map to an OpenSearchDateType object
     if (type.equals(ExprCoreType.TIMESTAMP)
         || type.equals(ExprCoreType.DATETIME)
@@ -253,10 +253,6 @@ public class OpenSearchDataType implements ExprType, Serializable {
   // Called when serializing SQL response
   public String legacyTypeName() {
     if (mappingType == null
-//        || mappingType.exprCoreType.equals(ExprCoreType.DATE)
-//        || mappingType.exprCoreType.equals(ExprCoreType.DATETIME)
-//        || mappingType.exprCoreType.equals(ExprCoreType.TIME)
-//        || mappingType.exprCoreType.equals(ExprCoreType.TIMESTAMP)
     ) {
       return exprCoreType.typeName();
     }
