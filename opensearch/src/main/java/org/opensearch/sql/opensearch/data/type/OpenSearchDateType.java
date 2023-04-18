@@ -26,7 +26,7 @@ import org.opensearch.sql.data.type.ExprType;
  * Of type join with relations. See
  * <a href="https://opensearch.org/docs/latest/opensearch/supported-field-types/join/">doc</a>
  */
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 public class OpenSearchDateType extends OpenSearchDataType {
 
   private static final OpenSearchDateType instance = new OpenSearchDateType();
@@ -44,18 +44,13 @@ public class OpenSearchDateType extends OpenSearchDataType {
   String formatString;
 
   private OpenSearchDateType() {
-    super(MappingType.Date);
-    //TODO: Figure out how to apply the correct exprcoretype
-    // (Maybe do whatever I initially did for timestampadd???
+    super(MappingType.Timestamp);
     this.formatter = null;
     this.formatString = "";
-    //exprCoreType = UNKNOWN;
   }
 
   private OpenSearchDateType(DateTimeFormatter formatterArg, String formatStringArg, MappingType mappingType) {
     super(mappingType);
-    //TODO: Figure out how to apply the correct exprcoretype
-    // (Maybe do whatever I initially did for timestampadd???
     this.formatter = formatterArg;
     this.formatString = formatStringArg;
   }
