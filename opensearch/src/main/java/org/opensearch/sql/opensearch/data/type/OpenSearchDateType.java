@@ -44,7 +44,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
   String formatString;
 
   private OpenSearchDateType() {
-    super(MappingType.Timestamp);
+    super(MappingType.Date);
     this.formatter = null;
     this.formatString = "";
   }

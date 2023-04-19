@@ -117,12 +117,12 @@ public class OpenSearchExprValueFactory {
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Boolean),
               (c, dt) -> ExprBooleanValue.of(c.booleanValue()))
           //Handles the creation of DATE, TIME, TIMESTAMP
-          .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Time),
-              (c, dt) -> new ExprTimeValue(parseTimestamp(c, dt).timeValue()))
-          .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Date),
-              (c, dt) -> new ExprDateValue(parseTimestamp(c, dt).dateValue()))
           .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Timestamp),
               (c, dt) -> parseTimestamp(c, dt))
+          .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Date),
+              (c, dt) -> new ExprDateValue(parseTimestamp(c, dt).dateValue().toString()))
+          .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Time),
+              (c, dt) -> new ExprTimeValue(parseTimestamp(c, dt).timeValue().toString()))
           .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Datetime),
               (c, dt) -> new ExprDatetimeValue(parseTimestamp(c, dt).datetimeValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Ip),
