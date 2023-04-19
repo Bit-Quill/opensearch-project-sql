@@ -49,7 +49,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   public OpenSearchDateType(ExprCoreType type) {
     super(type);
-    this.mappingType = MappingType.Date;
+    //this.mappingType = MappingType.Date;
     this.formatter = null;
     this.formatString = "";
   }
