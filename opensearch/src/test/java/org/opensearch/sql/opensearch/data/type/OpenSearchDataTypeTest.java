@@ -101,7 +101,7 @@ class OpenSearchDataTypeTest {
         Arguments.of(MappingType.ScaledFloat, "scaled_float", DOUBLE),
         Arguments.of(MappingType.Double, "double", DOUBLE),
         Arguments.of(MappingType.Boolean, "boolean", BOOLEAN),
-        Arguments.of(MappingType.Date, "date", DATE),
+        Arguments.of(MappingType.Date, "date", TIMESTAMP),
         Arguments.of(MappingType.Object, "object", STRUCT),
         Arguments.of(MappingType.Nested, "nested", ARRAY),
         Arguments.of(MappingType.GeoPoint, "geo_point",
@@ -238,9 +238,9 @@ class OpenSearchDataTypeTest {
         () -> assertEquals(type, clone),
         // read private field `fields`
         //TODO: Remove below commented out case?
-//        () -> assertTrue(
-//            ((Map<String, OpenSearchDataType>) FieldUtils.readField(clone, "fields", true))
-//                .isEmpty()),
+        () -> assertTrue(
+            ((Map<String, OpenSearchDataType>) FieldUtils.readField(clone, "fields", true))
+                .isEmpty()),
         () -> assertTrue(clone.getProperties().isEmpty()),
         () -> assertEquals(textKeywordType, textClone),
         () -> assertEquals(FieldUtils.readField(textKeywordType, "fields", true),
@@ -291,26 +291,24 @@ class OpenSearchDataTypeTest {
         () -> assertEquals(9, flattened.size()),
         () -> assertTrue(flattened.get("mapping").getProperties().isEmpty()),
         () -> assertTrue(flattened.get("mapping.submapping").getProperties().isEmpty()),
-//        () -> assertTrue(flattened.get("mapping.submapping.submapping").getProperties().isEmpty()),
+        () -> assertTrue(flattened.get("mapping.submapping.submapping").getProperties().isEmpty()),
 
         () -> assertEquals(objectType, flattened.get("mapping")),
         () -> assertEquals(objectType, flattened.get("mapping.submapping")),
-//        () -> assertEquals(objectType, flattened.get("mapping.submapping.submapping")),
+        () -> assertEquals(objectType, flattened.get("mapping.submapping.submapping")),
 
         () -> assertEquals(OpenSearchDataType.of(MappingType.Keyword),
             flattened.get("mapping.keyword")),
         () -> assertEquals(OpenSearchDataType.of(MappingType.Text),
-            flattened.get("mapping.text"))
-
- //       () -> assertEquals(OpenSearchGeoPointType.of(),
- //           flattened.get("type.subtype.geo_point")),
- //       () -> assertEquals(OpenSearchTextType.of(),
- //           flattened.get("type.subtype.textWithFieldsType")),
-//
- //       () -> assertEquals(OpenSearchTextType.of(),
- //           flattened.get("type.subtype.subsubtype.textWithKeywordType")),
- //       () -> assertEquals(OpenSearchDataType.of(INTEGER),
- //           flattened.get("type.subtype.subsubtype.INTEGER"))
+            flattened.get("mapping.text")),
+        () -> assertEquals(OpenSearchGeoPointType.of(),
+            flattened.get("type.subtype.geo_point")),
+        () -> assertEquals(OpenSearchTextType.of(),
+            flattened.get("type.subtype.textWithFieldsType")),
+        () -> assertEquals(OpenSearchTextType.of(),
+            flattened.get("type.subtype.subsubtype.textWithKeywordType")),
+        () -> assertEquals(OpenSearchDataType.of(INTEGER),
+            flattened.get("type.subtype.subsubtype.INTEGER"))
     );
   }
 
@@ -426,6 +424,6 @@ class OpenSearchDataTypeTest {
     assertEquals(FLOAT, OpenSearchDataType.of(MappingType.HalfFloat).getExprType());
     assertEquals(DOUBLE, OpenSearchDataType.of(MappingType.Double).getExprType());
     assertEquals(DOUBLE, OpenSearchDataType.of(MappingType.ScaledFloat).getExprType());
-    assertEquals(DATE, OpenSearchDataType.of(MappingType.Date).getExprType());
+    assertEquals(TIMESTAMP, OpenSearchDataType.of(MappingType.Date).getExprType());
   }
 }

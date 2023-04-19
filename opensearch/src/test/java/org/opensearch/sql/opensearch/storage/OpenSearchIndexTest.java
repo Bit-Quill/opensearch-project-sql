@@ -149,7 +149,7 @@ class OpenSearchIndexTest {
               hasEntry("gender", ExprCoreType.BOOLEAN),
               hasEntry("family", ExprCoreType.ARRAY),
               hasEntry("employer", ExprCoreType.STRUCT),
-              hasEntry("birthday", ExprCoreType.DATE),
+              hasEntry("birthday", ExprCoreType.TIMESTAMP),
               hasEntry("id1", ExprCoreType.BYTE),
               hasEntry("id2", ExprCoreType.SHORT),
               hasEntry("blob", (ExprType) OpenSearchDataType.of(MappingType.Binary))
