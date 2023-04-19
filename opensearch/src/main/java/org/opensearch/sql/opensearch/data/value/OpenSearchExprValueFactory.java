@@ -51,6 +51,7 @@ import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
+import org.opensearch.sql.expression.function.FunctionProperties;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDateType;
 import org.opensearch.sql.opensearch.data.utils.Content;
@@ -251,10 +252,14 @@ public class OpenSearchExprValueFactory {
   private ExprValue formatReturn(OpenSearchDataType.MappingType enumType, ExprTimestampValue unformatted) {
     if (enumType.equals(OpenSearchDataType.MappingType.Date)) {
       return new ExprDateValue(unformatted.dateValue());
-    } else {
-      //TODO: Support other types
-      return unformatted;
     }
+    if (enumType.equals(OpenSearchDataType.MappingType.Datetime)) {
+      return new ExprDatetimeValue(unformatted.datetimeValue());
+    }
+    if (enumType.equals(OpenSearchDataType.MappingType.Time)) {
+      return new ExprTimeValue(unformatted.timeValue().toString());
+    }
+    return unformatted;
   }
 
   private ExprValue parseTimestamp(Content value, ExprType type) {
@@ -287,7 +292,7 @@ public class OpenSearchExprValueFactory {
       }
       //Try Time
       try {
-        return formatReturn(enumType, new ExprTimestampValue(new ExprTimeValue(LocalTime.from(parsed)).timestampValue()));
+        return formatReturn(enumType, new ExprTimestampValue(new ExprTimeValue(LocalTime.from(parsed)).timestampValue(new FunctionProperties())));
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
