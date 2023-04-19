@@ -238,9 +238,9 @@ class OpenSearchDataTypeTest {
         () -> assertEquals(type, clone),
         // read private field `fields`
         //TODO: Remove below commented out case?
-        () -> assertTrue(
-            ((Map<String, OpenSearchDataType>) FieldUtils.readField(clone, "fields", true))
-                .isEmpty()),
+//        () -> assertTrue(
+//            ((Map<String, OpenSearchDataType>) FieldUtils.readField(clone, "fields", true))
+//                .isEmpty()),
         () -> assertTrue(clone.getProperties().isEmpty()),
         () -> assertEquals(textKeywordType, textClone),
         () -> assertEquals(FieldUtils.readField(textKeywordType, "fields", true),

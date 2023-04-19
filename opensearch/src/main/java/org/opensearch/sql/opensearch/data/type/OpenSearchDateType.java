@@ -6,20 +6,18 @@
 package org.opensearch.sql.opensearch.data.type;
 
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
-import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 
-import com.google.common.collect.ImmutableMap;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.opensearch.common.time.DateFormatter;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 
 /**
@@ -45,6 +43,12 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   private OpenSearchDateType() {
     super(MappingType.Date);
+    this.formatter = null;
+    this.formatString = "";
+  }
+
+  public OpenSearchDateType(ExprCoreType type) {
+    super(type);
     this.formatter = null;
     this.formatString = "";
   }

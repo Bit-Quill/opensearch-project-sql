@@ -8,7 +8,6 @@ package org.opensearch.sql.opensearch.data.type;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,7 +15,6 @@ import java.util.function.BiConsumer;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.commons.lang3.EnumUtils;
-import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 
@@ -36,10 +34,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
     Ip("ip", ExprCoreType.UNKNOWN),
     GeoPoint("geo_point", ExprCoreType.UNKNOWN),
     Binary("binary", ExprCoreType.UNKNOWN),
-    Timestamp("date", ExprCoreType.TIMESTAMP),
     Date("date", ExprCoreType.TIMESTAMP),
-    Time("date", ExprCoreType.TIMESTAMP),
-    Datetime("date", ExprCoreType.TIMESTAMP),
     Object("object", ExprCoreType.STRUCT),
     Nested("nested", ExprCoreType.ARRAY),
     Byte("byte", ExprCoreType.BYTE),
@@ -134,9 +129,6 @@ public class OpenSearchDataType implements ExprType, Serializable {
       case Binary: return OpenSearchBinaryType.of();
       case Ip: return OpenSearchIpType.of();
       case Date:
-      case Time:
-      case Datetime:
-      case Timestamp:
         return OpenSearchDateType.create(
           (String) innerMap.getOrDefault("format", ""), mappingType);
       default:
@@ -154,8 +146,6 @@ public class OpenSearchDataType implements ExprType, Serializable {
             .getOrDefault(
                 "type",
                 "object"))
-            //TODO: Remove following line for 3.0 release. Temporary fix to prevent a breaking change.
-//            .replace("date", "timestamp")
             .replace("_", "");
         if (!EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.MappingType.class, type)) {
           // unknown type, e.g. `alias`
@@ -182,21 +172,21 @@ public class OpenSearchDataType implements ExprType, Serializable {
     return of(mappingType, Map.of());
   }
 
-  public static MappingType getDateTimeMapping(ExprType coreType){
-    if (coreType.equals(ExprCoreType.DATE)) {
-      return MappingType.Date;
-    }
-    if (coreType.equals(ExprCoreType.TIME)) {
-      return MappingType.Time;
-    }
-    if (coreType.equals(ExprCoreType.DATETIME)) {
-      return MappingType.Datetime;
-    }
-    if (coreType.equals(ExprCoreType.TIMESTAMP)) {
-      return MappingType.Timestamp;
-    }
-    return null;
-  }
+//  public static MappingType getDateTimeMapping(ExprType coreType){
+//    if (coreType.equals(ExprCoreType.DATE)) {
+//      return MappingType.Date;
+//    }
+//    if (coreType.equals(ExprCoreType.TIME)) {
+//      return MappingType.Time;
+//    }
+//    if (coreType.equals(ExprCoreType.DATETIME)) {
+//      return MappingType.Datetime;
+//    }
+//    if (coreType.equals(ExprCoreType.TIMESTAMP)) {
+//      return MappingType.Timestamp;
+//    }
+//    return null;
+//  }
 
   /**
    * A constructor function which builds proper `OpenSearchDataType` for given {@link ExprType}.
@@ -211,14 +201,14 @@ public class OpenSearchDataType implements ExprType, Serializable {
     if (res != null) {
       return res;
     }
-
     //datetime types must be handled differently because all datetime exprCoreTypes
     // map to an OpenSearchDateType object
     if (type.equals(ExprCoreType.TIMESTAMP)
         || type.equals(ExprCoreType.DATETIME)
         || type.equals(ExprCoreType.DATE)
         || type.equals(ExprCoreType.TIME)) {
-        return OpenSearchDataType.of(getDateTimeMapping(type), Map.of());
+      //TODO: Consider passing in exprCoretype instead?
+        return new OpenSearchDateType((ExprCoreType) type);
     } else {
         return new OpenSearchDataType((ExprCoreType) type);
     }
@@ -253,7 +243,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
   @Override
   // Called when serializing SQL response
   public String legacyTypeName() {
-    if (mappingType == null || mappingType.toString().equalsIgnoreCase("DATE")) {
+    if (mappingType == null) {
       return exprCoreType.typeName();
     }
     return mappingType.toString().toUpperCase();
