@@ -119,12 +119,12 @@ public class OpenSearchExprValueFactory {
           //Handles the creation of DATE, TIME, TIMESTAMP
           .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Timestamp),
               (c, dt) -> parseTimestamp(c, dt))
-          .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Date),
-              (c, dt) -> new ExprDateValue(parseTimestamp(c, dt).dateValue().toString()))
-          .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Time),
-              (c, dt) -> new ExprTimeValue(parseTimestamp(c, dt).timeValue().toString()))
-          .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Datetime),
-              (c, dt) -> new ExprDatetimeValue(parseTimestamp(c, dt).datetimeValue()))
+//          .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Date),
+//              (c, dt) -> new ExprDateValue(parseTimestamp(c, dt).dateValue().toString()))
+//          .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Time),
+//              (c, dt) -> new ExprTimeValue(parseTimestamp(c, dt).timeValue().toString()))
+//          .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Datetime),
+//              (c, dt) -> new ExprDatetimeValue(parseTimestamp(c, dt).datetimeValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Ip),
               (c, dt) -> new OpenSearchExprIpValue(c.stringValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.GeoPoint),
@@ -248,11 +248,20 @@ public class OpenSearchExprValueFactory {
     return null;
   }
 
-  private ExprValue parseTimestamp(Content value, ExprType type) {
+  private ExprValue formatReturn(OpenSearchDataType.MappingType enumType, ExprTimestampValue unformatted) {
+    if (enumType.equals(OpenSearchDataType.MappingType.Date)) {
+      return new ExprDateValue(unformatted.dateValue());
+    } else {
+      //TODO: Support other types
+      return unformatted;
+    }
+  }
 
+  private ExprValue parseTimestamp(Content value, ExprType type) {
     OpenSearchDateType dt = (OpenSearchDateType) type;
+    OpenSearchDataType.MappingType enumType = dt.getMappingType();
     if (value.isNumber()) {
-      return new ExprTimestampValue(Instant.ofEpochMilli(value.longValue()));
+      return formatReturn(enumType, new ExprTimestampValue(Instant.ofEpochMilli(value.longValue())));
     } else if (value.isString()) {
       TemporalAccessor parsed = parseTimestampString(value.stringValue(),dt);
       if (parsed == null) { // failed to parse or no formats given
@@ -260,25 +269,25 @@ public class OpenSearchExprValueFactory {
       }
       // Try Timestamp
       try {
-        return new ExprTimestampValue(Instant.from(parsed));
+        return formatReturn(enumType, new ExprTimestampValue(Instant.from(parsed)));
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
       //Try Date
       try {
-        return new ExprTimestampValue(new ExprDateValue(LocalDate.from(parsed)).timestampValue());
+        return formatReturn(enumType, new ExprTimestampValue(new ExprDateValue(LocalDate.from(parsed)).timestampValue()));
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
       //Try Datetime
       try {
-        return new ExprTimestampValue(new ExprDatetimeValue(LocalDateTime.from(parsed)).timestampValue());
+        return formatReturn(enumType, new ExprTimestampValue(new ExprDatetimeValue(LocalDateTime.from(parsed)).timestampValue()));
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
       //Try Time
       try {
-        return new ExprTimestampValue(new ExprTimeValue(LocalTime.from(parsed)).timestampValue());
+        return formatReturn(enumType, new ExprTimestampValue(new ExprTimeValue(LocalTime.from(parsed)).timestampValue()));
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }

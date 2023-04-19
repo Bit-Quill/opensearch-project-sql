@@ -37,9 +37,9 @@ public class OpenSearchDataType implements ExprType, Serializable {
     GeoPoint("geo_point", ExprCoreType.UNKNOWN),
     Binary("binary", ExprCoreType.UNKNOWN),
     Timestamp("date", ExprCoreType.TIMESTAMP),
-    Date("date", ExprCoreType.DATE),
-    Time("date", ExprCoreType.TIME),
-    Datetime("date", ExprCoreType.DATETIME),
+    Date("date", ExprCoreType.TIMESTAMP),
+    Time("date", ExprCoreType.TIMESTAMP),
+    Datetime("date", ExprCoreType.TIMESTAMP),
     Object("object", ExprCoreType.STRUCT),
     Nested("nested", ExprCoreType.ARRAY),
     Byte("byte", ExprCoreType.BYTE),
@@ -70,6 +70,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
   }
 
   @EqualsAndHashCode.Exclude
+  @Getter
   protected MappingType mappingType;
 
   // resolved ExprCoreType
