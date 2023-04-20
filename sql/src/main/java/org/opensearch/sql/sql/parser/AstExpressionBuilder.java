@@ -89,6 +89,7 @@ import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.IntervalUnit;
 import org.opensearch.sql.ast.expression.Literal;
+import org.opensearch.sql.ast.expression.NestedAllFields;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
@@ -101,6 +102,7 @@ import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
+import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.AlternateMultiMatchQueryContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.AndExpressionContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.ColumnNameContext;
@@ -503,19 +505,20 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
   private Function buildFunction(String functionName,
                                  List<FunctionArgContext> arg) {
-    List<UnresolvedExpression> args = arg
-        .stream()
-        .map(this::visitFunctionArg)
-        .collect(Collectors.toList());
-
-    if (functionName.equals("nested") && args.get(0) instanceof Literal) {
-      UnresolvedExpression firstArg = args.get(0);
-      args.set(0, new QualifiedName(List.of(firstArg.toString().split("\\."))));
+    if (functionName.equals("nested")
+        && arg.get(0).getChild(0) instanceof OpenSearchSQLParser.NestedAllFieldsContext) {
+      return new Function(
+          functionName,
+          List.of(new NestedAllFields(arg.get(0).getText()))
+      );
     }
 
     return new Function(
         functionName,
-        args
+        arg
+            .stream()
+            .map(this::visitFunctionArg)
+            .collect(Collectors.toList())
     );
   }
 

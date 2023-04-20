@@ -316,7 +316,7 @@ public class NestedIT extends SQLIntegTestCase {
 
   @Test
   public void nested_function_all_subfields() {
-    String query = "SELECT nested('message.*') FROM " + TEST_INDEX_NESTED_TYPE;
+    String query = "SELECT nested(message.*) FROM " + TEST_INDEX_NESTED_TYPE;
     JSONObject result = executeJdbcRequest(query);
 
     assertEquals(6, result.getInt("total"));
@@ -335,7 +335,7 @@ public class NestedIT extends SQLIntegTestCase {
 
   @Test
   public void nested_function_all_subfields_and_specified_subfield() {
-    String query = "SELECT nested('message.*'), nested(comment.data) FROM "
+    String query = "SELECT nested(message.*), nested(comment.data) FROM "
         + TEST_INDEX_NESTED_TYPE;
     JSONObject result = executeJdbcRequest(query);
 
@@ -356,7 +356,7 @@ public class NestedIT extends SQLIntegTestCase {
 
   @Test
   public void nested_function_all_subfields_for_two_nested_fields() {
-    String query = "SELECT nested('message.*'), nested('comment.*') FROM "
+    String query = "SELECT nested(message.*), nested(comment.*) FROM "
         + TEST_INDEX_NESTED_TYPE;
     JSONObject result = executeJdbcRequest(query);
 
@@ -378,7 +378,7 @@ public class NestedIT extends SQLIntegTestCase {
 
   @Test
   public void nested_function_all_subfields_and_non_nested_field() {
-    String query = "SELECT nested('message.*'), myNum FROM " + TEST_INDEX_NESTED_TYPE;
+    String query = "SELECT nested(message.*), myNum FROM " + TEST_INDEX_NESTED_TYPE;
     JSONObject result = executeJdbcRequest(query);
 
     assertEquals(6, result.getInt("total"));

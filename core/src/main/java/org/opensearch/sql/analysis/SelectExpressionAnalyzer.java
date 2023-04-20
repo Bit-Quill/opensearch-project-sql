@@ -7,7 +7,6 @@
 package org.opensearch.sql.analysis;
 
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +18,7 @@ import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Function;
+import org.opensearch.sql.ast.expression.NestedAllFields;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.data.type.ExprType;
@@ -61,17 +61,10 @@ public class SelectExpressionAnalyzer
   @Override
   public List<NamedExpression> visitAlias(Alias node, AnalysisContext context) {
     if (node.getDelegated() instanceof Function
-        && ((Function) node.getDelegated()).getFuncName().equals("nested")
-        && node.getName().contains(".*")) {
-      List<String> path = new ArrayList<>();
-      ((QualifiedName) ((Function) node.getDelegated()).getFuncArgs().get(0))
-          .getParts().forEach(part -> {
-            if (!part.equals("*")) {
-              path.add(part);
-            }
-          });
-
-      return getNestedAllFields(String.join(".", path), context);
+        && ((Function) node.getDelegated()).getFuncArgs().get(0) instanceof NestedAllFields) {
+      return getNestedAllFields(
+          ((NestedAllFields) ((Function) node.getDelegated()).getFuncArgs().get(0)).getPath(),
+          context);
     }
 
     Expression expr = referenceIfSymbolDefined(node, context);

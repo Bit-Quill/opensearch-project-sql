@@ -704,6 +704,11 @@ functionArgs
 
 functionArg
     : expression
+    | nestedAllFields
+    ;
+
+nestedAllFields
+    : expression DOT STAR
     ;
 
 relevanceArg
