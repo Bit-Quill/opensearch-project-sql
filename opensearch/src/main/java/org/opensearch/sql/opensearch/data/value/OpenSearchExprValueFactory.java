@@ -119,6 +119,14 @@ public class OpenSearchExprValueFactory {
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Boolean),
               (c, dt) -> ExprBooleanValue.of(c.booleanValue()))
           //Handles the creation of DATE, TIME, TIMESTAMP
+          .put(OpenSearchDataType.of(ExprCoreType.TIMESTAMP),
+              (c, dt) -> parseTimestamp(c, dt))
+          .put(OpenSearchDataType.of(ExprCoreType.TIME),
+              (c, dt) -> parseTimestamp(c, dt))
+          .put(OpenSearchDataType.of(ExprCoreType.DATETIME),
+              (c, dt) -> parseTimestamp(c, dt))
+          .put(OpenSearchDataType.of(ExprCoreType.DATE),
+              (c, dt) -> parseTimestamp(c, dt))
           .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Date),
               (c, dt) -> parseTimestamp(c, dt))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Ip),
@@ -258,8 +266,16 @@ public class OpenSearchExprValueFactory {
   }
 
   private ExprValue parseTimestamp(Content value, ExprType type) {
-    OpenSearchDateType dt = (OpenSearchDateType) type;
-    ExprType returnFormat = dt.getExprType();
+    OpenSearchDateType dt;
+    ExprType returnFormat;
+    if (type instanceof OpenSearchDateType){
+       dt = (OpenSearchDateType) type;
+      returnFormat = dt.getExprType();
+    }else{
+      dt = OpenSearchDateType.of();
+      returnFormat = type;
+    }
+
     if (value.isNumber()) {
       return formatReturn(returnFormat, new ExprTimestampValue(Instant.ofEpochMilli(value.longValue())));
     } else if (value.isString()) {

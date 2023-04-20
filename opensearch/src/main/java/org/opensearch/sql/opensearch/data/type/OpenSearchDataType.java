@@ -201,17 +201,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
     if (res != null) {
       return res;
     }
-    //datetime types must be handled differently because all datetime exprCoreTypes
-    // map to an OpenSearchDateType object
-    if (type.equals(ExprCoreType.TIMESTAMP)
-        || type.equals(ExprCoreType.DATETIME)
-        || type.equals(ExprCoreType.DATE)
-        || type.equals(ExprCoreType.TIME)) {
-      //TODO: Consider passing in exprCoretype instead?
-        return new OpenSearchDateType((ExprCoreType) type);
-    } else {
-        return new OpenSearchDataType((ExprCoreType) type);
-    }
+      return new OpenSearchDataType((ExprCoreType) type);
   }
 
   protected OpenSearchDataType(MappingType mappingType) {
