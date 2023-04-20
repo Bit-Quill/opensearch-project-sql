@@ -281,7 +281,7 @@ public class OpenSearchExprValueFactory {
     } else if (value.isString()) {
       TemporalAccessor parsed = parseTimestampString(value.stringValue(),dt);
       if (parsed == null) { // failed to parse or no formats given
-        return constructTimestamp(value.stringValue(), dt.getFormatter());
+        return formatReturn(returnFormat, (ExprTimestampValue)constructTimestamp(value.stringValue(), dt.getFormatter()));
       }
       // Try Timestamp
       try {
@@ -314,7 +314,7 @@ public class OpenSearchExprValueFactory {
 //      //TODO: DEAL WITH USER FORMATS
 //      return constructTimestamp(value.stringValue(), ((OpenSearchDateType)type).getFormatter());
     } else {
-      return new ExprTimestampValue((Instant) value.objectValue());
+      return formatReturn(returnFormat, new ExprTimestampValue((Instant) value.objectValue()));
     }
   }
 
