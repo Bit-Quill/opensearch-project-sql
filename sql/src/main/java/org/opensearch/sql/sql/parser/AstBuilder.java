@@ -27,6 +27,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.Function;
+import org.opensearch.sql.ast.expression.NestedAllFields;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.tree.Filter;
 import org.opensearch.sql.ast.tree.Limit;
@@ -198,6 +199,9 @@ public class AstBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedPlan> {
     String name = StringUtils.unquoteIdentifier(getTextInQuery(ctx.expression(), query));
     UnresolvedExpression expr = visitAstExpression(ctx.expression());
 
+    if (expr instanceof NestedAllFields) {
+      return expr;
+    }
     if (ctx.alias() == null) {
       return new Alias(name, expr);
     } else {

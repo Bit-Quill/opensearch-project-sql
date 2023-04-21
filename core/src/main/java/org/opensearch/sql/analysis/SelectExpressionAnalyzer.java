@@ -62,9 +62,7 @@ public class SelectExpressionAnalyzer
   public List<NamedExpression> visitAlias(Alias node, AnalysisContext context) {
     if (node.getDelegated() instanceof Function
         && ((Function) node.getDelegated()).getFuncArgs().get(0) instanceof NestedAllFields) {
-      return getNestedAllFields(
-          ((NestedAllFields) ((Function) node.getDelegated()).getFuncArgs().get(0)).getPath(),
-          context);
+      return ((Function) node.getDelegated()).getFuncArgs().get(0).accept(this, context);
     }
 
     Expression expr = referenceIfSymbolDefined(node, context);
@@ -109,9 +107,10 @@ public class SelectExpressionAnalyzer
         new ReferenceExpression(entry.getKey(), entry.getValue()))).collect(Collectors.toList());
   }
 
-
-  private List<NamedExpression> getNestedAllFields(String path,
+  @Override
+  public List<NamedExpression> visitNestedAllFields(NestedAllFields node,
                                                    AnalysisContext context) {
+    String path = node.getPath();
     TypeEnvironment environment = context.peek();
     Map<String, ExprType> lookupNestedAllFields =
         environment.lookupNestedAllFields(Namespace.FIELD_NAME);

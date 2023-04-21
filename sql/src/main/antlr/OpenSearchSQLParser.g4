@@ -303,6 +303,7 @@ expressions
 expressionAtom
     : constant                                                      #constantExpressionAtom
     | columnName                                                    #fullColumnNameExpressionAtom
+    | nestedAllFields                                               #nestedAllFieldsExpressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | LR_BRACKET expression RR_BRACKET                              #nestedExpressionAtom
     | left=expressionAtom
@@ -329,6 +330,7 @@ nullNotnull
 
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs RR_BRACKET         #scalarFunctionCall
+
     | specificFunction                                              #specificFunctionCall
     | windowFunctionClause                                          #windowFunctionCall
     | aggregateFunction                                             #aggregateFunctionCall
@@ -704,11 +706,6 @@ functionArgs
 
 functionArg
     : expression
-    | nestedAllFields
-    ;
-
-nestedAllFields
-    : expression DOT STAR
     ;
 
 relevanceArg
@@ -816,6 +813,10 @@ tableName
 
 columnName
     : qualifiedName
+    ;
+
+nestedAllFields
+    : ident DOT STAR
     ;
 
 alias

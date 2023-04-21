@@ -100,6 +100,7 @@ import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.expression.When;
 import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
+import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser;
@@ -149,6 +150,12 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitNestedExpressionAtom(NestedExpressionAtomContext ctx) {
     return visit(ctx.expression()); // Discard parenthesis around
+  }
+
+  @Override
+  public UnresolvedExpression visitNestedAllFieldsExpressionAtom(
+      OpenSearchSQLParser.NestedAllFieldsExpressionAtomContext ctx) {
+    return new NestedAllFields(ctx.nestedAllFields().getText());
   }
 
   @Override
@@ -505,14 +512,6 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
   private Function buildFunction(String functionName,
                                  List<FunctionArgContext> arg) {
-    if (functionName.equals("nested")
-        && arg.get(0).getChild(0) instanceof OpenSearchSQLParser.NestedAllFieldsContext) {
-      return new Function(
-          functionName,
-          List.of(new NestedAllFields(arg.get(0).getText()))
-      );
-    }
-
     return new Function(
         functionName,
         arg
