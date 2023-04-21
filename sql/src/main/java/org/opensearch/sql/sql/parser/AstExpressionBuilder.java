@@ -153,9 +153,11 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   }
 
   @Override
-  public UnresolvedExpression visitNestedAllFieldsExpressionAtom(
-      OpenSearchSQLParser.NestedAllFieldsExpressionAtomContext ctx) {
-    return new NestedAllFields(ctx.nestedAllFields().getText());
+  public UnresolvedExpression visitNestedAllFunctionCall(
+      OpenSearchSQLParser.NestedAllFunctionCallContext ctx) {
+    return new Function(
+        ctx.nestedFunctionName().getText(),
+        List.of(new NestedAllFields(ctx.nestedAllFields().getText())));
   }
 
   @Override

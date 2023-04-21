@@ -303,7 +303,6 @@ expressions
 expressionAtom
     : constant                                                      #constantExpressionAtom
     | columnName                                                    #fullColumnNameExpressionAtom
-    | nestedAllFields                                               #nestedAllFieldsExpressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | LR_BRACKET expression RR_BRACKET                              #nestedExpressionAtom
     | left=expressionAtom
@@ -329,8 +328,8 @@ nullNotnull
     ;
 
 functionCall
-    : scalarFunctionName LR_BRACKET functionArgs RR_BRACKET         #scalarFunctionCall
-
+    : nestedFunctionName LR_BRACKET nestedAllFields RR_BRACKET      #nestedAllFunctionCall
+    | scalarFunctionName LR_BRACKET functionArgs RR_BRACKET         #scalarFunctionCall
     | specificFunction                                              #specificFunctionCall
     | windowFunctionClause                                          #windowFunctionCall
     | aggregateFunction                                             #aggregateFunctionCall
