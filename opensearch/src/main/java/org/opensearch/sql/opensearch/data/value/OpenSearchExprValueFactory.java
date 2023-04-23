@@ -268,9 +268,12 @@ public class OpenSearchExprValueFactory {
   private ExprValue parseTimestamp(Content value, ExprType type) {
     OpenSearchDateType dt;
     ExprType returnFormat;
-    if (type instanceof OpenSearchDateType){
-       dt = (OpenSearchDateType) type;
+    if (type instanceof OpenSearchDateType) {
+      dt = (OpenSearchDateType) type;
       returnFormat = dt.getExprType();
+    } else if (type instanceof OpenSearchDataType){
+      dt = OpenSearchDateType.of();
+      returnFormat = ((OpenSearchDataType) type).getExprType();
     }else{
       dt = OpenSearchDateType.of();
       returnFormat = type;
