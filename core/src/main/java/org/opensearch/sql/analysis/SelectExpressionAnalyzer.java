@@ -61,6 +61,7 @@ public class SelectExpressionAnalyzer
   @Override
   public List<NamedExpression> visitAlias(Alias node, AnalysisContext context) {
     if (node.getDelegated() instanceof Function
+        && !((Function) node.getDelegated()).getFuncArgs().isEmpty()
         && ((Function) node.getDelegated()).getFuncArgs().get(0) instanceof NestedAllFields) {
       return ((Function) node.getDelegated()).getFuncArgs().get(0).accept(this, context);
     }

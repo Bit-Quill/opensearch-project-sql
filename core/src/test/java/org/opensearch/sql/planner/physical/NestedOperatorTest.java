@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 
 @ExtendWith(MockitoExtension.class)
@@ -254,6 +255,49 @@ class NestedOperatorTest extends PhysicalPlanTestBase {
         );
     assertThat(
         execute(new NestedOperator(inputPlan, fields)),
+        contains(
+            tupleValue(
+                new LinkedHashMap<>() {{
+                  put("message.info", "a");
+                  put("message.id", "1");
+                }}
+            ),
+            tupleValue(
+                new LinkedHashMap<>() {{
+                  put("message.info", "b");
+                  put("message.id", "2");
+                }}
+            ),
+            tupleValue(
+                new LinkedHashMap<>() {{
+                  put("message.info", "c");
+                  put("message.id", "3");
+                }}
+            )
+        )
+    );
+  }
+
+  @Test
+  public void nested_with_wildcard() {
+    when(inputPlan.hasNext()).thenReturn(true, false);
+    when(inputPlan.next())
+        .thenReturn(testDataWithSamePath);
+
+    List<Map<String, ReferenceExpression>> fields =
+        List.of(
+            Map.of(
+                "field", new ReferenceExpression("*", STRING),
+                "path", new ReferenceExpression("message", STRING))
+        );
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression("message.info", null, null),
+            new NamedExpression("message.id", null, null)
+        );
+
+    assertThat(
+        execute(new NestedOperator(inputPlan, fields, projectList)),
         contains(
             tupleValue(
                 new LinkedHashMap<>() {{

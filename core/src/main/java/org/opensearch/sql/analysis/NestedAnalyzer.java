@@ -47,36 +47,33 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
   @Override
   public LogicalPlan visitFunction(Function node, AnalysisContext context) {
     if (node.getFuncName().equalsIgnoreCase(BuiltinFunctionName.NESTED.name())) {
-      if (node.getFuncArgs().get(0) instanceof NestedAllFields) {
+      Map<String, ReferenceExpression> args;
+
+      if (!node.getFuncArgs().isEmpty()
+          && node.getFuncArgs().get(0) instanceof NestedAllFields) {
         String path = ((NestedAllFields) node.getFuncArgs().get(0)).getPath();
-        Map<String, ReferenceExpression> args = Map.of(
+        args = Map.of(
             "field", new ReferenceExpression(path.concat(".*"), STRING),
             "path", new ReferenceExpression(path, STRING)
         );
-        if (child instanceof LogicalNested) {
-          ((LogicalNested)child).addFields(args);
-          return child;
+      } else {
+        List<UnresolvedExpression> expressions = node.getFuncArgs();
+        validateArgs(expressions);
+        ReferenceExpression nestedField =
+            (ReferenceExpression) expressionAnalyzer.analyze(expressions.get(0), context);
+        if (expressions.size() == 2) {
+          args = Map.of(
+              "field", nestedField,
+              "path", (ReferenceExpression) expressionAnalyzer.analyze(expressions.get(1), context)
+          );
         } else {
-          return new LogicalNested(child, new ArrayList<>(Arrays.asList(args)), namedExpressions);
+          args = Map.of(
+              "field", (ReferenceExpression) expressionAnalyzer.analyze(expressions.get(0), context),
+              "path", generatePath(nestedField.toString())
+          );
         }
       }
 
-      List<UnresolvedExpression> expressions = node.getFuncArgs();
-      validateArgs(expressions);
-      ReferenceExpression nestedField =
-          (ReferenceExpression)expressionAnalyzer.analyze(expressions.get(0), context);
-      Map<String, ReferenceExpression> args;
-      if (expressions.size() == 2) {
-        args = Map.of(
-            "field", nestedField,
-            "path", (ReferenceExpression)expressionAnalyzer.analyze(expressions.get(1), context)
-        );
-      } else {
-        args = Map.of(
-            "field", (ReferenceExpression)expressionAnalyzer.analyze(expressions.get(0), context),
-            "path", generatePath(nestedField.toString())
-        );
-      }
       if (child instanceof LogicalNested) {
         ((LogicalNested)child).addFields(args);
         return child;
