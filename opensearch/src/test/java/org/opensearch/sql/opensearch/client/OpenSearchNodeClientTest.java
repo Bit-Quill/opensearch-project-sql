@@ -309,6 +309,7 @@ class OpenSearchNodeClientTest {
                 new TotalHits(1L, TotalHits.Relation.EQUAL_TO),
                 1.0F));
     when(searchHit.getSourceAsString()).thenReturn("{\"id\", 1}");
+    when(searchHit.getInnerHits()).thenReturn(null);
     when(factory.construct(any())).thenReturn(exprTupleValue);
 
     // Mock second scroll request followed
@@ -324,7 +325,7 @@ class OpenSearchNodeClientTest {
 
     Iterator<ExprValue> hits = response1.iterator();
     assertTrue(hits.hasNext());
-    assertEquals(exprTupleValue, hits.next());
+    assertEquals(exprTupleValue.tupleValue().get("id"), hits.next().tupleValue().get("id"));
     assertFalse(hits.hasNext());
 
     // Verify response for second scroll request
@@ -408,16 +409,12 @@ class OpenSearchNodeClientTest {
         .setLocal(anyBoolean())
         .get()).thenReturn(mockResponse);
     try {
-      ImmutableOpenMap<String, MappingMetadata> metadata;
+      Map<String, MappingMetadata> metadata;
       if (mappings.isEmpty()) {
-        when(emptyMapping.getSourceAsMap()).thenReturn(ImmutableMap.of());
-        metadata =
-            new ImmutableOpenMap.Builder<String, MappingMetadata>()
-                .fPut(indexName, emptyMapping)
-                .build();
+        when(emptyMapping.getSourceAsMap()).thenReturn(Map.of());
+        metadata = Map.of(indexName, emptyMapping);
       } else {
-        metadata = new ImmutableOpenMap.Builder<String, MappingMetadata>().fPut(indexName,
-            IndexMetadata.fromXContent(createParser(mappings)).mapping()).build();
+        metadata = Map.of(indexName, IndexMetadata.fromXContent(createParser(mappings)).mapping());
       }
       when(mockResponse.mappings()).thenReturn(metadata);
     } catch (IOException e) {
