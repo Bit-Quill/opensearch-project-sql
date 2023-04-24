@@ -47,8 +47,8 @@ public class OpenSearchDateType extends OpenSearchDataType {
     this.formatString = "";
   }
 
-  private OpenSearchDateType(DateTimeFormatter formatterArg, String formatStringArg, MappingType mappingType) {
-    super(mappingType);
+  private OpenSearchDateType(String formatStringArg) {
+    super(MappingType.Date);
     this.formatString = formatStringArg;
   }
 
@@ -86,28 +86,28 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * Create a Date type which has a LinkedHashMap defining all formats
    * @return A new type object.
    */
-  public static OpenSearchDateType create(String format, MappingType mappingType) {
+  public static OpenSearchDateType create(String format) {
     //TODO: Filter out named formatters vs user defined here
     // Initialize the format based on the given string
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
-
-    if (format.contains("||")) {
-      for (String token: format.split("\\|\\|")) {
-        //try to append a pattern
-        try {
-          builder.appendPattern(token);
-        } catch (IllegalArgumentException e) {
-          //do nothing
-        }
-      }
-    } else {
-      try {
-        builder.append(DateTimeFormatter.ofPattern(format));
-      } catch (IllegalArgumentException e) {
-        //do nothing
-      }
-    }
-    var res = new OpenSearchDateType(builder.toFormatter(), format, mappingType);
+//
+//    if (format.contains("||")) {
+//      for (String token: format.split("\\|\\|")) {
+//        //try to append a pattern
+//        try {
+//          builder.appendPattern(token);
+//        } catch (IllegalArgumentException e) {
+//          //do nothing
+//        }
+//      }
+//    } else {
+//      try {
+//        builder.append(DateTimeFormatter.ofPattern(format));
+//      } catch (IllegalArgumentException e) {
+//        //do nothing
+//      }
+//    }
+    var res = new OpenSearchDateType(format);
     return res;
   }
 
@@ -135,6 +135,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
     if (this.mappingType == null) {
       return new OpenSearchDataType(this.exprCoreType);
     }
-    return OpenSearchDateType.create(this.formatString, this.mappingType);
+    return OpenSearchDateType.create(this.formatString);
   }
 }

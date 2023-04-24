@@ -127,7 +127,7 @@ public class OpenSearchExprValueFactory {
               (c, dt) -> parseTimestamp(c, dt))
           .put(OpenSearchDataType.of(ExprCoreType.DATE),
               (c, dt) -> parseTimestamp(c, dt))
-          .put(OpenSearchDateType.create("", OpenSearchDataType.MappingType.Date),
+          .put(OpenSearchDateType.create(""),
               (c, dt) -> parseTimestamp(c, dt))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Ip),
               (c, dt) -> new OpenSearchExprIpValue(c.stringValue()))

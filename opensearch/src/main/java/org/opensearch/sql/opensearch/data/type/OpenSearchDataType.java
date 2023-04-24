@@ -130,7 +130,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
       case Ip: return OpenSearchIpType.of();
       case Date:
         return OpenSearchDateType.create(
-          (String) innerMap.getOrDefault("format", ""), mappingType);
+          (String) innerMap.getOrDefault("format", ""));
       default:
         return res;
     }
