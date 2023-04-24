@@ -33,32 +33,22 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
 
   // a read-only collection of relations
-  @Getter
-  @Setter
-  @EqualsAndHashCode.Exclude
-  DateTimeFormatter formatter;
 
-  @Getter
-  @Setter
   @EqualsAndHashCode.Exclude
   String formatString;
 
   private OpenSearchDateType() {
     super(MappingType.Date);
-    this.formatter = null;
     this.formatString = "";
   }
 
   public OpenSearchDateType(ExprCoreType type) {
     super(type);
-    //this.mappingType = MappingType.Date;
-    this.formatter = null;
     this.formatString = "";
   }
 
   private OpenSearchDateType(DateTimeFormatter formatterArg, String formatStringArg, MappingType mappingType) {
     super(mappingType);
-    this.formatter = formatterArg;
     this.formatString = formatStringArg;
   }
 
@@ -123,7 +113,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   public static OpenSearchDateType of(DateTimeFormatter format) {
     var res = new OpenSearchDateType();
-    res.formatter = format;
     return res;
   }
 

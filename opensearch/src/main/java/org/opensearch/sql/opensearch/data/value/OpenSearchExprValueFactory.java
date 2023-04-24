@@ -214,10 +214,9 @@ public class OpenSearchExprValueFactory {
    *   docs</a>
    * The customized date_format is not supported.
    */
-  private ExprValue constructTimestamp(String value, DateTimeFormatter formatter) {
+  private ExprValue constructTimestamp(String value) {
       try {
       DateTimeFormatter datetimeFormatter = dateTimeFormatterbuilder
-          .appendOptional(formatter)
           .toFormatter();
       return new ExprTimestampValue(
           // Using OpenSearch DateFormatters for now.
@@ -284,7 +283,7 @@ public class OpenSearchExprValueFactory {
     } else if (value.isString()) {
       TemporalAccessor parsed = parseTimestampString(value.stringValue(),dt);
       if (parsed == null) { // failed to parse or no formats given
-        return formatReturn(returnFormat, (ExprTimestampValue)constructTimestamp(value.stringValue(), dt.getFormatter()));
+        return formatReturn(returnFormat, (ExprTimestampValue)constructTimestamp(value.stringValue()));
       }
       // Try Timestamp
       try {
