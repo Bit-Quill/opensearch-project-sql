@@ -29,6 +29,8 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   private static final OpenSearchDateType instance = new OpenSearchDateType();
 
+  private static final String FORMAT_DELIMITER = "\\|\\|";
+
 
   // a read-only collection of relations
   @Getter
@@ -60,15 +62,15 @@ public class OpenSearchDateType extends OpenSearchDataType {
     this.formatString = formatStringArg;
   }
 
-  public static List<String> getFormatList(String formats) {
-    if (formats == null || formats.isEmpty()) {
+  public List<String> getFormatList() {
+    if (formatString == null) {
       return List.of();
     }
-    return Arrays.stream(formats.split("\\|\\|")).map(String::trim).collect(Collectors.toList());
+    return Arrays.stream(formatString.split(FORMAT_DELIMITER)).map(String::trim).collect(Collectors.toList());
   }
 
-  public List<DateFormatter> getNamedFormatters(String formats) {
-    return getFormatList(formats).stream().filter(f -> {
+  public List<DateFormatter> getNamedFormatters() {
+    return getFormatList().stream().filter(f -> {
           try {
             DateTimeFormatter.ofPattern(f);
             return false;
@@ -80,7 +82,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
   }
 
   public List<DateTimeFormatter> getRegularFormatters() {
-    return getFormatList(formatString).stream().map(f -> {
+    return getFormatList().stream().map(f -> {
           try {
             return DateTimeFormatter.ofPattern(f);
           } catch (Exception e) {

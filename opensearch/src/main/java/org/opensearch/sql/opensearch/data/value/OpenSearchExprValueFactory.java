@@ -242,7 +242,7 @@ public class OpenSearchExprValueFactory {
         // nothing to do, try another format
       }
     }
-    for (var formatter : dt.getNamedFormatters(dt.getFormatString())) {
+    for (var formatter : dt.getNamedFormatters()) {
       try {
         return formatter.parse(value);
       } catch (Exception ignored) {

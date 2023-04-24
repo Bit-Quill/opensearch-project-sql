@@ -172,22 +172,6 @@ public class OpenSearchDataType implements ExprType, Serializable {
     return of(mappingType, Map.of());
   }
 
-//  public static MappingType getDateTimeMapping(ExprType coreType){
-//    if (coreType.equals(ExprCoreType.DATE)) {
-//      return MappingType.Date;
-//    }
-//    if (coreType.equals(ExprCoreType.TIME)) {
-//      return MappingType.Time;
-//    }
-//    if (coreType.equals(ExprCoreType.DATETIME)) {
-//      return MappingType.Datetime;
-//    }
-//    if (coreType.equals(ExprCoreType.TIMESTAMP)) {
-//      return MappingType.Timestamp;
-//    }
-//    return null;
-//  }
-
   /**
    * A constructor function which builds proper `OpenSearchDataType` for given {@link ExprType}.
    * @param type A type.
