@@ -13,8 +13,10 @@ import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_DATE_OPTIONAL_T
 import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_HOUR_MINUTE_SECOND_FORMATTER;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterators;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -334,15 +336,20 @@ public class OpenSearchExprValueFactory {
    */
   private ExprValue parseArray(Content content, String prefix) {
     List<ExprValue> result = new ArrayList<>();
-    content.array().forEachRemaining(v -> {
-      // ExprCoreType.ARRAY does not indicate inner elements type. OpenSearch nested will be an
-      // array of structs, otherwise parseArray currently only supports array of strings.
-      if (v.isString()) {
-        result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(STRING))));
-      } else {
-        result.add(parse(v, prefix, Optional.of(STRUCT)));
-      }
-    });
+    // ExprCoreType.ARRAY does not indicate inner elements type.
+    if (Iterators.size(content.array()) == 1 && content.objectValue() instanceof JsonNode) {
+      result.add(parse(content, prefix, Optional.of(STRUCT)));
+    } else {
+      content.array().forEachRemaining(v -> {
+        // ExprCoreType.ARRAY does not indicate inner elements type. OpenSearch nested will be an
+        // array of structs, otherwise parseArray currently only supports array of strings.
+        if (v.isString()) {
+          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(STRING))));
+        } else {
+          result.add(parse(v, prefix, Optional.of(STRUCT)));
+        }
+      });
+    }
     return new ExprCollectionValue(result);
   }
 

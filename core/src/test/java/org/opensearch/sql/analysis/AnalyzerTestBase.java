@@ -12,8 +12,6 @@ import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -114,6 +112,10 @@ public class AnalyzerTestBase {
       public PhysicalPlan implement(LogicalPlan plan) {
         throw new UnsupportedOperationException();
       }
+
+      public Map<String, ExprType> getReservedFieldTypes() {
+        return ImmutableMap.of("_test", STRING);
+      }
     });
   }
 
@@ -187,10 +189,21 @@ public class AnalyzerTestBase {
 
 
     @Override
-    public Set<DataSourceMetadata> getDataSourceMetadataSet() {
+    public Set<DataSourceMetadata> getDataSourceMetadata(boolean isDefaultDataSourceRequired) {
       return Stream.of(opensearchDataSource, prometheusDataSource)
           .map(ds -> new DataSourceMetadata(ds.getName(),
-              ds.getConnectorType(), ImmutableMap.of())).collect(Collectors.toSet());
+              ds.getConnectorType(),Collections.emptyList(),
+              ImmutableMap.of())).collect(Collectors.toSet());
+    }
+
+    @Override
+    public DataSourceMetadata getDataSourceMetadata(String name) {
+      return null;
+    }
+
+    @Override
+    public void createDataSource(DataSourceMetadata metadata) {
+      throw new UnsupportedOperationException("unsupported operation");
     }
 
     @Override
@@ -203,28 +216,18 @@ public class AnalyzerTestBase {
     }
 
     @Override
-    public void createDataSource(DataSourceMetadata... metadatas) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void updateDataSource(DataSourceMetadata dataSourceMetadata) {
 
     }
 
     @Override
     public void deleteDataSource(String dataSourceName) {
-
     }
 
     @Override
-    public void bootstrapDataSources() {
-
-    }
-
-    @Override
-    public void clear() {
-      throw new UnsupportedOperationException();
+    public Boolean dataSourceExists(String dataSourceName) {
+      return dataSourceName.equals(DEFAULT_DATASOURCE_NAME)
+          || dataSourceName.equals("prometheus");
     }
   }
 
