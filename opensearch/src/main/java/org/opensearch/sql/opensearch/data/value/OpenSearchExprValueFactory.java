@@ -291,12 +291,6 @@ public class OpenSearchExprValueFactory {
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
-      //Try Date
-      try {
-        return formatReturn(returnFormat, new ExprTimestampValue(new ExprDateValue(LocalDate.from(parsed)).timestampValue()));
-      } catch (DateTimeException ignored) {
-        // nothing to do, try another type
-      }
       //Try Datetime
       try {
         return formatReturn(returnFormat, new ExprTimestampValue(new ExprDatetimeValue(LocalDateTime.from(parsed)).timestampValue()));
@@ -306,6 +300,12 @@ public class OpenSearchExprValueFactory {
       //Try Time
       try {
         return formatReturn(returnFormat, new ExprTimestampValue(new ExprTimeValue(LocalTime.from(parsed)).timestampValue(new FunctionProperties())));
+      } catch (DateTimeException ignored) {
+        // nothing to do, try another type
+      }
+      //Try Date
+      try {
+        return formatReturn(returnFormat, new ExprTimestampValue(new ExprDateValue(LocalDate.from(parsed)).timestampValue()));
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
