@@ -33,19 +33,6 @@ public class OpenSearchTextType extends OpenSearchDataType {
     exprCoreType = UNKNOWN;
   }
 
-  /**
-   * Create a Text type which has fields.
-   * @param fields Fields to set for the new type.
-   * @return A new type object.
-   */
-  //public static OpenSearchTextType of() {
-  //  var res = new OpenSearchTextType();
-  //  if (fields instanceof Map<String, OpenSearchDataType>) {
-  //  }
-  //  res.fields = ImmutableMap.copyOf(fields);
-  //  return res;
-  //}
-
   public static OpenSearchTextType of(Map<String, OpenSearchDataType> fields) {
     var res = new OpenSearchTextType();
     res.fields = fields;

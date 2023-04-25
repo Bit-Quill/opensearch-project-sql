@@ -245,11 +245,6 @@ class OpenSearchDataTypeTest {
     assertAll(
         // can compare because `properties` and `fields` are marked as @EqualsAndHashCode.Exclude
         () -> assertEquals(type, clone),
-        // read private field `fields`
-        //TODO: Remove below commented out case due to type refactor?
-        //() -> assertTrue(
-        //    ((Map<String, OpenSearchDataType>) FieldUtils.readField(clone, "fields", true))
-        //        .isEmpty()),
         () -> assertTrue(clone.getProperties().isEmpty()),
         () -> assertEquals(textKeywordType, textClone),
         () -> assertEquals(FieldUtils.readField(textKeywordType, "fields", true),

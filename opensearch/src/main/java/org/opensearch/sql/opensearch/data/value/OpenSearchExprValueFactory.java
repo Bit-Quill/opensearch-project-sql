@@ -8,9 +8,7 @@ package org.opensearch.sql.opensearch.data.value;
 
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
-import static org.opensearch.sql.utils.DateTimeFormatters.SQL_LITERAL_DATE_TIME_FORMAT;
-import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_DATE_OPTIONAL_TIME_FORMATTER;
-import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_HOUR_MINUTE_SECOND_FORMATTER;
+import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -94,12 +92,6 @@ public class OpenSearchExprValueFactory {
   private static final String TOP_PATH = "";
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-  private static DateTimeFormatterBuilder dateTimeFormatterbuilder =
-      new DateTimeFormatterBuilder()
-          .appendOptional(SQL_LITERAL_DATE_TIME_FORMAT)
-          .appendOptional(STRICT_DATE_OPTIONAL_TIME_FORMATTER)
-          .appendOptional(STRICT_HOUR_MINUTE_SECOND_FORMATTER);
 
   private final Map<ExprType, BiFunction<Content, ExprType, ExprValue>> typeActionMap =
       new ImmutableMap.Builder<ExprType, BiFunction<Content, ExprType, ExprValue>>()
@@ -219,11 +211,9 @@ public class OpenSearchExprValueFactory {
    */
   private ExprValue constructTimestamp(String value) {
     try {
-      DateTimeFormatter datetimeFormatter = dateTimeFormatterbuilder
-          .toFormatter();
       return new ExprTimestampValue(
           // Using OpenSearch DateFormatters for now.
-          DateFormatters.from(datetimeFormatter.parse(value)).toInstant());
+          DateFormatters.from(DATE_TIME_FORMATTER.parse(value)).toInstant());
     } catch (DateTimeParseException e) {
       throw new IllegalStateException(
           String.format(
