@@ -99,6 +99,37 @@ public class OpenSearchDataType implements ExprType, Serializable {
   }
 
   /**
+   * Parses index mapping and maps it to a Data type in the SQL plugin.
+   * @param indexMapping An input with keys and objects that need to be mapped to a data type.
+   * @return The mapping.
+   */
+  public static Map<String, OpenSearchDataType> parseMapping(Map<String, Object> indexMapping) {
+    Map<String, OpenSearchDataType> result = new LinkedHashMap<>();
+    if (indexMapping != null) {
+      indexMapping.forEach((k, v) -> {
+        var innerMap = (Map<String, Object>)v;
+        // by default, the type is treated as an Object if "type" is not provided
+        var type = ((String) innerMap
+            .getOrDefault(
+                "type",
+                "object"))
+            .replace("_", "");
+        if (!EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.MappingType.class, type)) {
+          // unknown type, e.g. `alias`
+          // TODO resolve alias reference
+          return;
+        }
+        // create OpenSearchDataType
+        result.put(k, OpenSearchDataType.of(
+            EnumUtils.getEnumIgnoreCase(OpenSearchDataType.MappingType.class, type),
+            innerMap)
+        );
+      });
+    }
+    return result;
+  }
+
+  /**
    * A constructor function which builds proper `OpenSearchDataType` for given mapping `Type`.
    * @param mappingType A mapping type.
    * @return An instance or inheritor of `OpenSearchDataType`.
@@ -136,32 +167,6 @@ public class OpenSearchDataType implements ExprType, Serializable {
     }
   }
 
-  public static Map<String, OpenSearchDataType> parseMapping(Map<String, Object> indexMapping) {
-    Map<String, OpenSearchDataType> result = new LinkedHashMap<>();
-    if (indexMapping != null) {
-      indexMapping.forEach((k, v) -> {
-        var innerMap = (Map<String, Object>)v;
-        // by default, the type is treated as an Object if "type" is not provided
-        var type = ((String) innerMap
-            .getOrDefault(
-                "type",
-                "object"))
-            .replace("_", "");
-        if (!EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.MappingType.class, type)) {
-          // unknown type, e.g. `alias`
-          // TODO resolve alias reference
-          return;
-        }
-        // create OpenSearchDataType
-        result.put(k, OpenSearchDataType.of(
-            EnumUtils.getEnumIgnoreCase(OpenSearchDataType.MappingType.class, type),
-            innerMap)
-        );
-      });
-    }
-    return result;
-  }
-
   /**
    * A constructor function which builds proper `OpenSearchDataType` for given mapping `Type`.
    * Designed to be called by the mapping parser only (and tests).
@@ -185,7 +190,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
     if (res != null) {
       return res;
     }
-      return new OpenSearchDataType((ExprCoreType) type);
+    return new OpenSearchDataType((ExprCoreType) type);
   }
 
   protected OpenSearchDataType(MappingType mappingType) {

@@ -47,41 +47,56 @@ public class OpenSearchDateType extends OpenSearchDataType {
     this.formatString = formatStringArg;
   }
 
+  /**
+   * Retrieves and splits a user defined format string from the mapping into a list of formats.
+   * @return A list of format names and user defined formats.
+   */
   public List<String> getFormatList() {
-    return Arrays.stream(formatString.split(FORMAT_DELIMITER)).map(String::trim).collect(Collectors.toList());
+    return Arrays.stream(formatString.split(FORMAT_DELIMITER))
+        .map(String::trim)
+        .collect(Collectors.toList());
   }
 
+
+  /**
+   * Retrieves named formatters defined by OpenSearch.
+   * @return a list of DateFormatters that can be used to parse a Date/Time/Timestamp.
+   */
   public List<DateFormatter> getNamedFormatters() {
     return getFormatList().stream().filter(f -> {
-          try {
-            DateTimeFormatter.ofPattern(f);
-            return false;
-          } catch (Exception e) {
-            return true;
-          }
-        })
-        .map(DateFormatter::forPattern).collect(Collectors.toList());
+      try {
+        DateTimeFormatter.ofPattern(f);
+        return false;
+      } catch (Exception e) {
+        return true;
+      }
+    }).map(DateFormatter::forPattern).collect(Collectors.toList());
   }
 
+
+  /**
+   * Creates DateTimeFormatters based on a custom user format defined in the index mapping.
+   * @return a list of DateTimeFormatters that can be used to parse a Date/Time/Timestamp.
+   */
   public List<DateTimeFormatter> getRegularFormatters() {
     return getFormatList().stream().map(f -> {
-          try {
-            return DateTimeFormatter.ofPattern(f);
-          } catch (Exception e) {
-            return null;
-          }
-        })
-        .filter(Objects::nonNull).collect(Collectors.toList());
+      try {
+        return DateTimeFormatter.ofPattern(f);
+      } catch (Exception e) {
+        return null;
+      }
+    }).filter(Objects::nonNull).collect(Collectors.toList());
   }
 
   /**
-   * Create a Date type which has a LinkedHashMap defining all formats
+   * Create a Date type which has a LinkedHashMap defining all formats.
    * @return A new type object.
    */
   public static OpenSearchDateType create(String format) {
     var res = new OpenSearchDateType(format);
     return res;
   }
+
   public static OpenSearchDateType of() {
     return OpenSearchDateType.instance;
   }

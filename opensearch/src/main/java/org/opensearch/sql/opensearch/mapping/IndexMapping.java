@@ -27,6 +27,10 @@ public class IndexMapping {
   @Getter
   private final Map<String, OpenSearchDataType> fieldMappings;
 
+  /**
+   * Maps each column in the index definition to an OpenSearchSQL datatype.
+   * @param metaData The metadata retrieved from the index mapping defined by the user.
+   */
   @SuppressWarnings("unchecked")
   public IndexMapping(MappingMetadata metaData) {
     this.fieldMappings = OpenSearchDataType.parseMapping(
@@ -42,31 +46,4 @@ public class IndexMapping {
   public int size() {
     return fieldMappings.size();
   }
-
-//  @SuppressWarnings("unchecked")
-//  private Map<String, OpenSearchDataType> parseMapping(Map<String, Object> indexMapping) {
-//    Map<String, OpenSearchDataType> result = new LinkedHashMap<>();
-//    if (indexMapping != null) {
-//      indexMapping.forEach((k, v) -> {
-//        var innerMap = (Map<String, Object>)v;
-//        // by default, the type is treated as an Object if "type" is not provided
-//        var type = ((String) innerMap
-//            .getOrDefault(
-//                "type",
-//                "object"))
-//            .replace("_", "");
-//        if (!EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.MappingType.class, type)) {
-//          // unknown type, e.g. `alias`
-//          // TODO resolve alias reference
-//          return;
-//        }
-//        // create OpenSearchDataType
-//        result.put(k, OpenSearchDataType.of(
-//            EnumUtils.getEnumIgnoreCase(OpenSearchDataType.MappingType.class, type),
-//            innerMap)
-//        );
-//      });
-//    }
-//    return result;
-//  }
 }

@@ -218,7 +218,7 @@ public class OpenSearchExprValueFactory {
    * The customized date_format is not supported.
    */
   private ExprValue constructTimestamp(String value) {
-      try {
+    try {
       DateTimeFormatter datetimeFormatter = dateTimeFormatterbuilder
           .toFormatter();
       return new ExprTimestampValue(
@@ -276,11 +276,15 @@ public class OpenSearchExprValueFactory {
     }
 
     if (value.isNumber()) {
-      return formatReturn(returnFormat, new ExprTimestampValue(Instant.ofEpochMilli(value.longValue())));
+      return formatReturn(
+          returnFormat,
+          new ExprTimestampValue(Instant.ofEpochMilli(value.longValue())));
     } else if (value.isString()) {
       TemporalAccessor parsed = parseTimestampString(value.stringValue(),dt);
       if (parsed == null) { // failed to parse or no formats given
-        return formatReturn(returnFormat, (ExprTimestampValue)constructTimestamp(value.stringValue()));
+        return formatReturn(
+            returnFormat,
+            (ExprTimestampValue)constructTimestamp(value.stringValue()));
       }
       // Try Timestamp
       try {

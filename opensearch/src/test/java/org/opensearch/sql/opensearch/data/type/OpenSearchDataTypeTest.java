@@ -57,7 +57,7 @@ class OpenSearchDataTypeTest {
   private static final String formatString = "epoch_millis || yyyyMMDD";
 
   private static final OpenSearchDateType dateType = OpenSearchDateType.create(formatString);
-  
+
   @Test
   public void isCompatible() {
     assertTrue(STRING.isCompatible(textType));
@@ -169,7 +169,9 @@ class OpenSearchDataTypeTest {
   public void types_but_clones_are_singletons_and_cached() {
     var type = OpenSearchDataType.of(MappingType.Object);
     var alsoType = OpenSearchDataType.of(MappingType.Object);
-    Map<String, Object> properties = Map.of("properties", Map.of("number", Map.of("type", "integer")));
+    Map<String, Object> properties = Map.of(
+        "properties",
+        Map.of("number", Map.of("type", "integer")));
     var typeWithProperties = OpenSearchDataType.of(
         MappingType.Object,
         properties);
@@ -244,10 +246,10 @@ class OpenSearchDataTypeTest {
         // can compare because `properties` and `fields` are marked as @EqualsAndHashCode.Exclude
         () -> assertEquals(type, clone),
         // read private field `fields`
-        //TODO: Remove below commented out case?
-//        () -> assertTrue(
-//            ((Map<String, OpenSearchDataType>) FieldUtils.readField(clone, "fields", true))
-//                .isEmpty()),
+        //TODO: Remove below commented out case due to type refactor?
+        //() -> assertTrue(
+        //    ((Map<String, OpenSearchDataType>) FieldUtils.readField(clone, "fields", true))
+        //        .isEmpty()),
         () -> assertTrue(clone.getProperties().isEmpty()),
         () -> assertEquals(textKeywordType, textClone),
         () -> assertEquals(FieldUtils.readField(textKeywordType, "fields", true),
@@ -298,7 +300,8 @@ class OpenSearchDataTypeTest {
         () -> assertEquals(9, flattened.size()),
         () -> assertTrue(flattened.get("mapping").getProperties().isEmpty()),
         () -> assertTrue(flattened.get("mapping.submapping").getProperties().isEmpty()),
-        () -> assertTrue(flattened.get("mapping.submapping.subsubmapping").getProperties().isEmpty()),
+        () -> assertTrue(
+            flattened.get("mapping.submapping.subsubmapping").getProperties().isEmpty()),
 
         () -> assertEquals(objectType, flattened.get("mapping")),
         () -> assertEquals(objectType, flattened.get("mapping.submapping")),
@@ -418,7 +421,8 @@ class OpenSearchDataTypeTest {
   @Test
   public void test_getNamedFormatters() {
     List<DateTimeFormatter> userFormatters = dateType.getRegularFormatters();
-    assertEquals(userFormatters.get(0).toString() , DateTimeFormatter.ofPattern("yyyyMMDD").toString());
+    assertEquals(
+        userFormatters.get(0).toString(), DateTimeFormatter.ofPattern("yyyyMMDD").toString());
   }
 
   @Test
