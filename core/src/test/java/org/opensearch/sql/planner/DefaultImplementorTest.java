@@ -251,4 +251,29 @@ class DefaultImplementorTest {
     };
     assertEquals(tableWriteOperator, logicalPlan.accept(implementor, null));
   }
+
+  @Test
+  public void visitNestedWithStarShouldReturnNestedOperator() {
+    List<Map<String, ReferenceExpression>> nestedArgs = List.of(
+        Map.of(
+            "field", new ReferenceExpression("message.*", STRING),
+            "path", new ReferenceExpression("message", STRING)
+        )
+    );
+    List<NamedExpression> nestedProjectList = List.of(
+        new NamedExpression(
+            "message.info",
+            DSL.nested(DSL.ref("message.info", STRING)),
+            null
+        )
+    );
+    LogicalPlan logicalPlan = project(nested(values(), nestedArgs, nestedProjectList));
+    PhysicalPlan physicalPlan = PhysicalPlanDSL.project(
+        PhysicalPlanDSL.nested(PhysicalPlanDSL.values(),
+            Set.of("message.info"),
+            Map.of("message", List.of("message.info")))
+    );
+
+    assertEquals(physicalPlan, logicalPlan.accept(implementor, null));
+  }
 }

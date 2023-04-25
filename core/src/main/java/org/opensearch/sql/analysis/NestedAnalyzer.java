@@ -64,11 +64,13 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
         if (expressions.size() == 2) {
           args = Map.of(
               "field", nestedField,
-              "path", (ReferenceExpression) expressionAnalyzer.analyze(expressions.get(1), context)
+              "path", (ReferenceExpression) expressionAnalyzer
+                  .analyze(expressions.get(1), context)
           );
         } else {
           args = Map.of(
-              "field", (ReferenceExpression) expressionAnalyzer.analyze(expressions.get(0), context),
+              "field", (ReferenceExpression) expressionAnalyzer
+                  .analyze(expressions.get(0), context),
               "path", generatePath(nestedField.toString())
           );
         }

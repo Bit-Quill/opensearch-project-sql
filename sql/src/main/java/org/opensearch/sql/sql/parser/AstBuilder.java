@@ -199,9 +199,6 @@ public class AstBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedPlan> {
     String name = StringUtils.unquoteIdentifier(getTextInQuery(ctx.expression(), query));
     UnresolvedExpression expr = visitAstExpression(ctx.expression());
 
-    if (expr instanceof NestedAllFields) {
-      return expr;
-    }
     if (ctx.alias() == null) {
       return new Alias(name, expr);
     } else {
