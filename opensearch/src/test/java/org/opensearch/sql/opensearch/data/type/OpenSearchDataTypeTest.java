@@ -31,6 +31,8 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.MappingType;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -41,6 +43,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.opensearch.common.time.DateFormatter;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 
@@ -51,6 +54,10 @@ class OpenSearchDataTypeTest {
   private static final OpenSearchDataType textKeywordType =
       OpenSearchTextType.of(Map.of("words", OpenSearchTextType.of(MappingType.Keyword)));
 
+  private static final String formatString = "epoch_millis || yyyyMMDD";
+
+  private static final OpenSearchDateType dateType = OpenSearchDateType.create(formatString);
+  
   @Test
   public void isCompatible() {
     assertTrue(STRING.isCompatible(textType));
@@ -178,7 +185,7 @@ class OpenSearchDataTypeTest {
         () -> assertNotSame(type, typeWithFields),
         () -> assertNotSame(typeWithProperties, typeWithProperties.cloneEmpty()),
         () -> assertNotSame(typeWithFields, typeWithFields.cloneEmpty()),
-        //TODO: Rework OpenSearchTextType.of() function, then allow lines below to run.
+        () -> assertNotSame(dateType, dateType.cloneEmpty()),
         () -> assertSame(OpenSearchDataType.of(MappingType.Text),
             OpenSearchTextType.of()),
         () -> assertSame(OpenSearchDataType.of(MappingType.Binary),
@@ -400,5 +407,22 @@ class OpenSearchDataTypeTest {
     assertEquals(DOUBLE, OpenSearchDataType.of(MappingType.Double).getExprType());
     assertEquals(DOUBLE, OpenSearchDataType.of(MappingType.ScaledFloat).getExprType());
     assertEquals(TIMESTAMP, OpenSearchDataType.of(MappingType.Date).getExprType());
+  }
+
+  @Test
+  public void test_getRegularFormatters() {
+    List<DateFormatter> definedFormatters = dateType.getNamedFormatters();
+    assertEquals(definedFormatters.get(0), DateFormatter.forPattern("epoch_millis"));
+  }
+
+  @Test
+  public void test_getNamedFormatters() {
+    List<DateTimeFormatter> userFormatters = dateType.getRegularFormatters();
+    assertEquals(userFormatters.get(0).toString() , DateTimeFormatter.ofPattern("yyyyMMDD").toString());
+  }
+
+  @Test
+  public void test_shouldCastFunction() {
+    assertFalse(dateType.shouldCast(DATE));
   }
 }

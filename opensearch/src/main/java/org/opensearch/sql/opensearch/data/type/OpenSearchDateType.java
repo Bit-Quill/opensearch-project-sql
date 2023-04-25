@@ -42,20 +42,12 @@ public class OpenSearchDateType extends OpenSearchDataType {
     this.formatString = "";
   }
 
-  public OpenSearchDateType(ExprCoreType type) {
-    super(type);
-    this.formatString = "";
-  }
-
   private OpenSearchDateType(String formatStringArg) {
     super(MappingType.Date);
     this.formatString = formatStringArg;
   }
 
   public List<String> getFormatList() {
-    if (formatString == null) {
-      return List.of();
-    }
     return Arrays.stream(formatString.split(FORMAT_DELIMITER)).map(String::trim).collect(Collectors.toList());
   }
 
@@ -87,42 +79,11 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * @return A new type object.
    */
   public static OpenSearchDateType create(String format) {
-    //TODO: Filter out named formatters vs user defined here
-    // Initialize the format based on the given string
-    DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
-//
-//    if (format.contains("||")) {
-//      for (String token: format.split("\\|\\|")) {
-//        //try to append a pattern
-//        try {
-//          builder.appendPattern(token);
-//        } catch (IllegalArgumentException e) {
-//          //do nothing
-//        }
-//      }
-//    } else {
-//      try {
-//        builder.append(DateTimeFormatter.ofPattern(format));
-//      } catch (IllegalArgumentException e) {
-//        //do nothing
-//      }
-//    }
     var res = new OpenSearchDateType(format);
     return res;
   }
-
-  public static OpenSearchDateType of(DateTimeFormatter format) {
-    var res = new OpenSearchDateType();
-    return res;
-  }
-
   public static OpenSearchDateType of() {
     return OpenSearchDateType.instance;
-  }
-
-  @Override
-  public List<ExprType> getParent() {
-    return List.of(STRING);
   }
 
   @Override
@@ -132,9 +93,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   @Override
   protected OpenSearchDataType cloneEmpty() {
-    if (this.mappingType == null) {
-      return new OpenSearchDataType(this.exprCoreType);
-    }
     return OpenSearchDateType.create(this.formatString);
   }
 }

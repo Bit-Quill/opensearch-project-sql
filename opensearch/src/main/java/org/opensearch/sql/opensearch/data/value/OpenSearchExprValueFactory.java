@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
@@ -233,9 +234,6 @@ public class OpenSearchExprValueFactory {
 
   // returns java.time.format.Parsed
   private TemporalAccessor parseTimestampString(String value, OpenSearchDateType dt) {
-    if (dt == null) {
-      return null;
-    }
     for (var formatter : dt.getRegularFormatters()) {
       try {
         return formatter.parse(value);
@@ -272,12 +270,9 @@ public class OpenSearchExprValueFactory {
     if (type instanceof OpenSearchDateType) {
       dt = (OpenSearchDateType) type;
       returnFormat = dt.getExprType();
-    } else if (type instanceof OpenSearchDataType){
+    } else {
       dt = OpenSearchDateType.of();
       returnFormat = ((OpenSearchDataType) type).getExprType();
-    }else{
-      dt = OpenSearchDateType.of();
-      returnFormat = type;
     }
 
     if (value.isNumber()) {
@@ -295,19 +290,28 @@ public class OpenSearchExprValueFactory {
       }
       //Try Datetime
       try {
-        return formatReturn(returnFormat, new ExprTimestampValue(new ExprDatetimeValue(LocalDateTime.from(parsed)).timestampValue()));
+        return formatReturn(
+            returnFormat,
+            new ExprTimestampValue(
+                new ExprDatetimeValue(LocalDateTime.from(parsed)).timestampValue()));
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
       //Try Time
       try {
-        return formatReturn(returnFormat, new ExprTimestampValue(new ExprTimeValue(LocalTime.from(parsed)).timestampValue(new FunctionProperties())));
+        return formatReturn(
+            returnFormat,
+            new ExprTimestampValue(
+                new ExprTimeValue(LocalTime.from(parsed))
+                    .timestampValue(new FunctionProperties(Instant.EPOCH, ZoneOffset.UTC))));
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
       //Try Date
       try {
-        return formatReturn(returnFormat, new ExprTimestampValue(new ExprDateValue(LocalDate.from(parsed)).timestampValue()));
+        return formatReturn(
+            returnFormat,
+            new ExprTimestampValue(new ExprDateValue(LocalDate.from(parsed)).timestampValue()));
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
@@ -315,8 +319,6 @@ public class OpenSearchExprValueFactory {
       LogManager.getLogger(OpenSearchExprValueFactory.class).error(
           String.format("Can't recognize parsed value: %s, %s", parsed, parsed.getClass()));
       return new ExprStringValue(value.stringValue());
-//      //TODO: DEAL WITH USER FORMATS
-//      return constructTimestamp(value.stringValue(), ((OpenSearchDateType)type).getFormatter());
     } else {
       return formatReturn(returnFormat, new ExprTimestampValue((Instant) value.objectValue()));
     }

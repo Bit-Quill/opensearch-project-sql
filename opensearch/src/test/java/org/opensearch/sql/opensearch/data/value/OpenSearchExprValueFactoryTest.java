@@ -68,10 +68,14 @@ class OpenSearchExprValueFactoryTest {
           .put("floatV", OpenSearchDataType.of(FLOAT))
           .put("doubleV", OpenSearchDataType.of(DOUBLE))
           .put("stringV", OpenSearchDataType.of(STRING))
-          .put("dateV", OpenSearchDateType.create(""))
-          .put("datetimeV", OpenSearchDateType.create(""))
-          .put("timeV", OpenSearchDateType.create(""))
-          .put("timestampV", OpenSearchDateType.create(""))
+          .put("dateV", OpenSearchDataType.of(DATE))
+          .put("datetimeV", OpenSearchDataType.of(DATETIME))
+          .put("timeV", OpenSearchDataType.of(TIME))
+          .put("timestampV", OpenSearchDataType.of(TIMESTAMP))
+          .put("userDatetimeV", OpenSearchDateType.create("yyyy,MM,DD,HH,mm,ss"))
+          .put("userDateV", OpenSearchDateType.create("epoch_millis || yyyy,MM,DD"))
+          .put("userTimeV", OpenSearchDateType.create("HH,mm,ss"))
+          .put("badDateFormatV", OpenSearchDateType.create("MM,DD"))
           .put("boolV", OpenSearchDataType.of(BOOLEAN))
           .put("structV", OpenSearchDataType.of(STRUCT))
           .put("structV.id", OpenSearchDataType.of(INTEGER))
@@ -220,6 +224,18 @@ class OpenSearchExprValueFactoryTest {
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
         constructFromObject("timestampV", Instant.ofEpochMilli(1420070400001L)));
     assertEquals(
+        new ExprTimestampValue("2015-01-01 10:11:12"),
+        constructFromObject("userDatetimeV", "2015,01,01,10,11,12"));
+    assertEquals(
+        new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
+        constructFromObject("userDateV", "1420070400001"));
+    assertEquals(
+        new ExprTimestampValue("2015-01-01 00:00:00"),
+        constructFromObject("userDateV", "2015,01,01"));
+    assertEquals(
+        new ExprTimestampValue("1970-01-01 10:11:12"),
+        constructFromObject("userTimeV", "10,11,12"));
+    assertEquals(
         new ExprTimestampValue("2015-01-01 12:10:30"),
         constructFromObject("timestampV", "2015-01-01 12:10:30"));
     assertEquals(
@@ -242,6 +258,20 @@ class OpenSearchExprValueFactoryTest {
         "Construct ExprTimestampValue from \"2015-01-01 12:10\" failed, "
             + "unsupported date format.",
         exception.getMessage());
+
+    exception = assertThrows(
+        IllegalStateException.class, () -> tupleValue("{\"userDateV\":\"2015,12,10\"}"));
+    assertEquals(
+        "Construct ExprTimestampValue from \"2015,12,10\" failed, "
+            + "unsupported date format.",
+        exception.getMessage());
+  }
+
+  @Test
+  public void constructDateFromInvalidInputFailsToParse() {
+    assertEquals(
+        new ExprStringValue("11,22"),
+        constructFromObject("badDateFormatV", "11,22"));
   }
 
   @Test
