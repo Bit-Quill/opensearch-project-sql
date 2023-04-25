@@ -768,14 +768,95 @@ Expected Response (OpenSearch-JSON):
 ### 6.1 Parser Syntax
 
 ```antlrv4
+fromClause
+    : FROM relation
+      (joinClause)? // for same-table joins and lateral joins  
+      (whereClause)?
+      (groupByClause)?
+      (havingClause)?
+      (orderByClause)? // Place it under FROM for now but actually not necessary ex. A UNION B ORDER BY
+    ;
 
+relation
+    : tableName (AS? alias)?                                                #tableAsRelation
+    | LR_BRACKET subquery=querySpecification RR_BRACKET AS? alias           #subqueryAsRelation
+    ;
+
+joinClause
+    // | (INNER | CROSS)? JOIN LATERAL? tableName (AS? alias)?
+    : JOIN tableName (AS? alias)?
+        (
+            ON expression
+          | USING LR_BRACKET expression RR_BRACKET
+        )?                                                                  #innerJoin
+    // | STRAIGHT_JOIN tableSourceItem (ON expression)?                #straightJoin
+    // | (LEFT | RIGHT) OUTER? JOIN LATERAL? tableSourceItem
+    //     (
+    //       ON expression
+    //       | USING '(' uidList ')'
+    //     )                                                           #outerJoin
+    // | NATURAL ((LEFT | RIGHT) OUTER?)? JOIN tableSourceItem         #naturalJoin
+    ;
 ```
+
+The above grammer supports our two cases: 
+
+#### 6.1.1. Same-table JOIN using the `has_parent` relation:
+```sql
+FROM table AS tableAlias
+JOIN table AS joinTableAlias USING (relation.parent)
+```
+Where `relation` is the data field mapped as a `join` type, with parent:child, and we want to join on the parent documents
+in the relation. Note: if the relation is ambiguous (because more than one relationship is defined for the `parent`), this
+syntax will report an error. 
+
+#### 6.1.2. Same-table JOIN using the `has_child` relation:
+```sql
+FROM table AS tableAlias
+JOIN table AS joinTableAlias USING (relation.child)
+```
+Where `relation` is the data field mapped as a `join` type, with `parent:child`, and we want to join on the children documents
+in the relation. Note: if the relation is ambiguous (because more than one relationship is defined for the `child`), this
+syntax will report an error.
+
+#### 6.1.3. Same-table JOIN using either `has_parnet` or `has_child` relation:
+```sql
+FROM table AS tableAlias
+JOIN table AS joinTableAlias ON (joinTableAlias.relation.parent = tableAlias.relation.child)
+```
+Where `relation` is the data field mapped as a `join` type, with `parent:child`, and we want to join on parent documents using
+the index scan `tableAlias` abd child documents using the index scan `joinTableAlias`.  Note: this syntax is more explicit
+that the above syntax and can be used when there are multiple relations defined in the index mapping.  
+
+#### 6.1.4. Same-table JOIN using `parent_id` relation:
+```sql
+FROM table AS tableAlias
+JOIN table AS joinTableAlias ON (joinTableAlias.relation.parent = 'myId')
+```
+Where `relation` is the data field mapped as a `join` type, and we want to join on the parent documents with `_id` equal
+to the string `myId`. 
 
 ### 6.1 Presentation
 
 The following diagram explains the proposed sequence to create JOIN request to OpenSearch
 
 `DEBUG`: reference for [mermaid.js](http://mermaid-js.github.io/mermaid/#/)
+
+```mermaid
+stateDiagram
+    [*] --> SQLParser
+    SQLParser --> AstExpressionBuilder
+    state AstExpressionBuilder {
+      direction LR 
+      nodeVisitor --> visitJoinExpression
+    }
+    AstExpressionBuilder --> QueryService
+    QueryService --> Analyzer
+    Analyzer --> Planner
+    Planner --> RequestBuilder
+    RequestBuilder --> [*]
+```
+
 
 ```mermaid
 sequenceDiagram
