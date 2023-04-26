@@ -33,6 +33,11 @@ public class OpenSearchTextType extends OpenSearchDataType {
     exprCoreType = UNKNOWN;
   }
 
+  /**
+   * Constructs a Text Type using the passed in fields argument.
+   * @param fields The fields to be used to construct the text type.
+   * @return A new OpenSeachTextTypeObject
+   */
   public static OpenSearchTextType of(Map<String, OpenSearchDataType> fields) {
     var res = new OpenSearchTextType();
     res.fields = fields;

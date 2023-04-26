@@ -311,7 +311,8 @@ public class OpenSearchExprValueFactory {
             String.format("Can't recognize parsed value: %s, %s", parsed, parsed.getClass()));
         throw new IllegalStateException(
             String.format(
-                "Construct ExprTimestampValue from \"%s\" failed, unsupported date format.", value),
+                "Construct ExprTimestampValue from \"%s\" failed, unsupported date format.",
+                value.stringValue()),
             ignored);
       }
     } else {
