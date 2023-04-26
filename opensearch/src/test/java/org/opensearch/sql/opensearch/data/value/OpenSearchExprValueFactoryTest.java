@@ -265,13 +265,13 @@ class OpenSearchExprValueFactoryTest {
         "Construct ExprTimestampValue from \"2015,12,10\" failed, "
             + "unsupported date format.",
         exception.getMessage());
-  }
 
-  @Test
-  public void constructDateFromInvalidInputFailsToParse() {
+    exception = assertThrows(
+        IllegalStateException.class, () -> tupleValue("{\"badDateFormatV\":\"11,22\"}"));
     assertEquals(
-        new ExprStringValue("11,22"),
-        constructFromObject("badDateFormatV", "11,22"));
+        "Construct ExprTimestampValue from \"11,22\" failed, "
+            + "unsupported date format.",
+        exception.getMessage());
   }
 
   @Test

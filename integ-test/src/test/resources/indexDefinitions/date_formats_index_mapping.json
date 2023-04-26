@@ -272,14 +272,6 @@
         "type" : "date",
         "format" : "strict_week_date_time_no_millis"
       },
-      "weekyear" : {
-        "type" : "date",
-        "format" : "weekyear"
-      },
-      "strict_weekyear" : {
-        "type" : "date",
-        "format" : "strict_weekyear"
-      },
       "weekyear_week" : {
         "type" : "date",
         "format" : "weekyear_week"
@@ -295,22 +287,6 @@
       "strict_weekyear_week_day" : {
         "type" : "date",
         "format" : "strict_weekyear_week_day"
-      },
-      "year" : {
-        "type" : "date",
-        "format" : "year"
-      },
-      "strict_year" : {
-        "type" : "date",
-        "format" : "strict_year"
-      },
-      "year_month" : {
-        "type" : "date",
-        "format" : "year_month"
-      },
-      "strict_year_month" : {
-        "type" : "date",
-        "format" : "strict_year_month"
       },
       "year_month_day" : {
         "type" : "date",

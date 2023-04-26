@@ -133,25 +133,9 @@
 {"index": {}}
 {"name": "strict_week_date_time_no_millis", "strict_week_date_time_no_millis": "1984-W15-4T09:07:42Z"}
 {"index": {}}
-{"name": "weekyear", "weekyear": "1984"}
-{"index": {}}
-{"name": "strict_weekyear", "strict_weekyear": "1984"}
-{"index": {}}
-{"name": "weekyear_week", "weekyear_week": "1984-W15"}
-{"index": {}}
-{"name": "strict_weekyear_week", "strict_weekyear_week": "1984-W15"}
-{"index": {}}
 {"name": "weekyear_week_day", "weekyear_week_day": "1984-W15-4"}
 {"index": {}}
 {"name": "strict_weekyear_week_day", "strict_weekyear_week_day": "1984-W15-4"}
-{"index": {}}
-{"name": "year", "year": "1984"}
-{"index": {}}
-{"name": "strict_year", "strict_year": "1984"}
-{"index": {}}
-{"name": "year_month", "year_month": "1984-04"}
-{"index": {}}
-{"name": "strict_year_month", "strict_year_month": "1984-04"}
 {"index": {}}
 {"name": "year_month_day", "year_month_day": "1984-04-12"}
 {"index": {}}

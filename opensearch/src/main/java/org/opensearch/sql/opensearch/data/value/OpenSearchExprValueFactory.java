@@ -307,12 +307,13 @@ public class OpenSearchExprValueFactory {
             returnFormat,
             new ExprTimestampValue(new ExprDateValue(LocalDate.from(parsed)).timestampValue()));
       } catch (DateTimeException ignored) {
-        // nothing to do, try another type
+        LogManager.getLogger(OpenSearchExprValueFactory.class).error(
+            String.format("Can't recognize parsed value: %s, %s", parsed, parsed.getClass()));
+        throw new IllegalStateException(
+            String.format(
+                "Construct ExprTimestampValue from \"%s\" failed, unsupported date format.", value),
+            ignored);
       }
-      // TODO throw exception
-      LogManager.getLogger(OpenSearchExprValueFactory.class).error(
-          String.format("Can't recognize parsed value: %s, %s", parsed, parsed.getClass()));
-      return new ExprStringValue(value.stringValue());
     } else {
       return formatReturn(returnFormat, new ExprTimestampValue((Instant) value.objectValue()));
     }
