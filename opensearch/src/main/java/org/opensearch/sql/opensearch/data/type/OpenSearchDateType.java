@@ -5,19 +5,13 @@
 
 package org.opensearch.sql.opensearch.data.type;
 
-import static org.opensearch.sql.data.type.ExprCoreType.STRING;
-
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import org.opensearch.common.time.DateFormatter;
-import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 
 /**
