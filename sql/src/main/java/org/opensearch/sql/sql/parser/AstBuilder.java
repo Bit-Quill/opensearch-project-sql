@@ -27,7 +27,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.Function;
-import org.opensearch.sql.ast.expression.NestedAllFields;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.tree.Filter;
 import org.opensearch.sql.ast.tree.Limit;

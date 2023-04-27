@@ -80,6 +80,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.AggregateFunction;
 import org.opensearch.sql.ast.expression.AllFields;
+import org.opensearch.sql.ast.expression.AllTupleFields;
 import org.opensearch.sql.ast.expression.And;
 import org.opensearch.sql.ast.expression.Case;
 import org.opensearch.sql.ast.expression.Cast;
@@ -89,7 +90,6 @@ import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.IntervalUnit;
 import org.opensearch.sql.ast.expression.Literal;
-import org.opensearch.sql.ast.expression.NestedAllFields;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
@@ -100,7 +100,6 @@ import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.expression.When;
 import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
-import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser;
@@ -157,7 +156,7 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
       OpenSearchSQLParser.NestedAllFunctionCallContext ctx) {
     return new Function(
         ctx.nestedFunctionName().getText(),
-        List.of(new NestedAllFields(ctx.nestedAllFields().getText())));
+        List.of(new AllTupleFields(ctx.allTupleFields().getText())));
   }
 
   @Override

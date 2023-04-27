@@ -16,9 +16,9 @@ import org.opensearch.sql.analysis.symbol.Namespace;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
+import org.opensearch.sql.ast.expression.AllTupleFields;
 import org.opensearch.sql.ast.expression.Field;
 import org.opensearch.sql.ast.expression.Function;
-import org.opensearch.sql.ast.expression.NestedAllFields;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.data.type.ExprType;
@@ -62,7 +62,7 @@ public class SelectExpressionAnalyzer
   public List<NamedExpression> visitAlias(Alias node, AnalysisContext context) {
     if (node.getDelegated() instanceof Function
         && !((Function) node.getDelegated()).getFuncArgs().isEmpty()
-        && ((Function) node.getDelegated()).getFuncArgs().get(0) instanceof NestedAllFields) {
+        && ((Function) node.getDelegated()).getFuncArgs().get(0) instanceof AllTupleFields) {
       return ((Function) node.getDelegated()).getFuncArgs().get(0).accept(this, context);
     }
 
@@ -109,14 +109,14 @@ public class SelectExpressionAnalyzer
   }
 
   @Override
-  public List<NamedExpression> visitNestedAllFields(NestedAllFields node,
+  public List<NamedExpression> visitAllTupleFields(AllTupleFields node,
                                                    AnalysisContext context) {
     String path = node.getPath();
     TypeEnvironment environment = context.peek();
-    Map<String, ExprType> lookupNestedAllFields =
-        environment.lookupNestedAllFields(Namespace.FIELD_NAME);
+    Map<String, ExprType> lookupAllTupleFields =
+        environment.lookupAllTupleFields(Namespace.FIELD_NAME);
 
-    return lookupNestedAllFields.entrySet().stream()
+    return lookupAllTupleFields.entrySet().stream()
         .filter(field -> field.getKey().contains(path.concat("."))
             // Don't include fields that are more than one nested level
             && field.getKey().split("\\.").length - path.split("\\.").length == 1)

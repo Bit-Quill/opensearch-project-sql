@@ -19,11 +19,11 @@ import org.opensearch.sql.ast.Node;
  */
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class NestedAllFields extends UnresolvedExpression {
+public class AllTupleFields extends UnresolvedExpression {
   @Getter
   private final String path;
 
-  public NestedAllFields(String path) {
+  public AllTupleFields(String path) {
     this.path = path.split("\\.\\*")[0];
   }
 
@@ -34,6 +34,6 @@ public class NestedAllFields extends UnresolvedExpression {
 
   @Override
   public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-    return nodeVisitor.visitNestedAllFields(this, context);
+    return nodeVisitor.visitAllTupleFields(this, context);
   }
 }

@@ -136,7 +136,7 @@ public class SymbolTable {
    * @param namespace     a namespace
    * @return              all symbols in the namespace map
    */
-  public Map<String, ExprType> lookupNestedAllFields(Namespace namespace) {
+  public Map<String, ExprType> lookupAllTupleFields(Namespace namespace) {
     final LinkedHashMap<String, ExprType> allSymbols =
         orderedTable.getOrDefault(namespace, new LinkedHashMap<>());
     final LinkedHashMap<String, ExprType> results = new LinkedHashMap<>();

@@ -14,8 +14,8 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.Alias;
+import org.opensearch.sql.ast.expression.AllTupleFields;
 import org.opensearch.sql.ast.expression.Function;
-import org.opensearch.sql.ast.expression.NestedAllFields;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.expression.NamedExpression;
@@ -50,8 +50,8 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
       Map<String, ReferenceExpression> args;
 
       if (!node.getFuncArgs().isEmpty()
-          && node.getFuncArgs().get(0) instanceof NestedAllFields) {
-        String path = ((NestedAllFields) node.getFuncArgs().get(0)).getPath();
+          && node.getFuncArgs().get(0) instanceof AllTupleFields) {
+        String path = ((AllTupleFields) node.getFuncArgs().get(0)).getPath();
         args = Map.of(
             "field", new ReferenceExpression(path.concat(".*"), STRING),
             "path", new ReferenceExpression(path, STRING)

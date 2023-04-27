@@ -328,7 +328,7 @@ nullNotnull
     ;
 
 functionCall
-    : nestedFunctionName LR_BRACKET nestedAllFields RR_BRACKET      #nestedAllFunctionCall
+    : nestedFunctionName LR_BRACKET allTupleFields RR_BRACKET       #nestedAllFunctionCall
     | scalarFunctionName LR_BRACKET functionArgs RR_BRACKET         #scalarFunctionCall
     | specificFunction                                              #specificFunctionCall
     | windowFunctionClause                                          #windowFunctionCall
@@ -814,7 +814,7 @@ columnName
     : qualifiedName
     ;
 
-nestedAllFields
+allTupleFields
     : ident DOT STAR
     ;
 

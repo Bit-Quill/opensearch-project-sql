@@ -37,9 +37,9 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.AllFields;
+import org.opensearch.sql.ast.expression.AllTupleFields;
 import org.opensearch.sql.ast.expression.DataType;
 import org.opensearch.sql.ast.expression.Literal;
-import org.opensearch.sql.ast.expression.NestedAllFields;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 
 class AstBuilderTest extends AstBuilderTestBase {
@@ -94,7 +94,7 @@ class AstBuilderTest extends AstBuilderTestBase {
             relation("test"),
             alias("nested(field.*)",
                 function("nested",
-                    new NestedAllFields("field.*")
+                    new AllTupleFields("field.*")
                 )
             )
         ),

@@ -14,6 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.ast.expression.AggregateFunction;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
+import org.opensearch.sql.ast.expression.AllTupleFields;
 import org.opensearch.sql.ast.expression.And;
 import org.opensearch.sql.ast.expression.Argument;
 import org.opensearch.sql.ast.expression.Between;
@@ -30,7 +31,6 @@ import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.Let;
 import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.ast.expression.Map;
-import org.opensearch.sql.ast.expression.NestedAllFields;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.ParseMethod;
@@ -378,8 +378,8 @@ public class AstDSL {
     return new Alias(name, expr, alias);
   }
 
-  public NestedAllFields nestedAllFields(String name) {
-    return new NestedAllFields(name);
+  public AllTupleFields allTupleFields(String name) {
+    return new AllTupleFields(name);
   }
 
   public static List<UnresolvedExpression> exprList(UnresolvedExpression... exprList) {

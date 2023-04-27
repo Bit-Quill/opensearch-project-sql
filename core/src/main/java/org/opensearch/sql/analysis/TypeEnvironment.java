@@ -90,9 +90,9 @@ public class TypeEnvironment implements Environment<Symbol, ExprType> {
    * @param namespace     a namespace
    * @return              all symbols in the namespace
    */
-  public Map<String, ExprType> lookupNestedAllFields(Namespace namespace) {
+  public Map<String, ExprType> lookupAllTupleFields(Namespace namespace) {
     Map<String, ExprType> result = new LinkedHashMap<>();
-    symbolTable.lookupNestedAllFields(namespace).forEach(result::putIfAbsent);
+    symbolTable.lookupAllTupleFields(namespace).forEach(result::putIfAbsent);
     return result;
   }
 
