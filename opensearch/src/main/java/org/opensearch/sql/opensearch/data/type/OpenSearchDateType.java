@@ -6,6 +6,7 @@
 package org.opensearch.sql.opensearch.data.type;
 
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -15,8 +16,7 @@ import org.opensearch.common.time.DateFormatter;
 import org.opensearch.sql.data.type.ExprType;
 
 /**
- * Of type join with relations. See
- * <a href="https://opensearch.org/docs/latest/opensearch/supported-field-types/join/">doc</a>
+ * Date type with support for predefined and custom formats read from the index mapping.
  */
 @EqualsAndHashCode(callSuper = true)
 public class OpenSearchDateType extends OpenSearchDataType {
@@ -24,9 +24,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
   private static final OpenSearchDateType instance = new OpenSearchDateType();
 
   private static final String FORMAT_DELIMITER = "\\|\\|";
-
-
-  // a read-only collection of relations
 
   @EqualsAndHashCode.Exclude
   String formatString;
@@ -60,8 +57,9 @@ public class OpenSearchDateType extends OpenSearchDataType {
     return getFormatList().stream().filter(f -> {
       try {
         DateTimeFormatter.ofPattern(f);
+        //TODO: Filter off of a constant list of formats
         return false;
-      } catch (Exception e) {
+      } catch (IllegalArgumentException e) {
         return true;
       }
     }).map(DateFormatter::forPattern).collect(Collectors.toList());
@@ -76,7 +74,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
     return getFormatList().stream().map(f -> {
       try {
         return DateTimeFormatter.ofPattern(f);
-      } catch (Exception e) {
+      } catch (IllegalArgumentException e) {
         return null;
       }
     }).filter(Objects::nonNull).collect(Collectors.toList());
@@ -87,8 +85,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * @return A new type object.
    */
   public static OpenSearchDateType create(String format) {
-    var res = new OpenSearchDateType(format);
-    return res;
+    return new OpenSearchDateType(format);
   }
 
   public static OpenSearchDateType of() {

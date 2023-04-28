@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.lucene.index.LeafReaderContext;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;

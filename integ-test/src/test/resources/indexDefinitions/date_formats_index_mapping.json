@@ -304,13 +304,17 @@
         "type" : "date",
         "format": "HH:mm:ss"
       },
-      "yyyy-MM-dd||uuuu-DDD" : {
+      "yyyy-MM-dd||epoch_millis" : {
         "type" : "date",
-        "format": "yyyy-MM-dd||uuuu-DDD"
+        "format": "yyyy-MM-dd||epoch_millis"
       },
       "hour_minute_second||t_time" : {
         "type" : "date",
         "format": "hour_minute_second||t_time"
+      },
+      "MM////dd////yyyy||HH----mm----ss" : {
+        "type" : "date",
+        "format": "MM////dd////yyyy||HH----mm----ss"
       }
     }
   }

@@ -1283,7 +1283,10 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Test
   public void testReadingDateFormats() throws IOException {
     String query = String.format("SELECT * FROM %s", TEST_INDEX_DATE_FORMATS);
-    executeQuery(query);
+    JSONObject result = executeQuery(query);
+    verifyDataRows(result,
+        rows("2000-03-01"),
+        rows("10:11:12"));
   }
 
   protected JSONObject executeQuery(String query) throws IOException {
