@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.function.BiFunction;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
+import org.opensearch.common.time.DateFormatter;
 import org.opensearch.common.time.DateFormatters;
 import org.opensearch.sql.data.model.ExprBooleanValue;
 import org.opensearch.sql.data.model.ExprByteValue;
@@ -222,17 +224,17 @@ public class OpenSearchExprValueFactory {
 
   // returns java.time.format.Parsed
   private TemporalAccessor parseTimestampString(String value, OpenSearchDateType dt) {
-    for (var formatter : dt.getRegularFormatters()) {
+    for (DateTimeFormatter formatter : dt.getRegularFormatters()) {
       try {
         return formatter.parse(value);
-      } catch (Exception ignored) {
+      } catch (DateTimeParseException  ignored) {
         // nothing to do, try another format
       }
     }
-    for (var formatter : dt.getNamedFormatters()) {
+    for (DateFormatter formatter : dt.getNamedFormatters()) {
       try {
         return formatter.parse(value);
-      } catch (Exception ignored) {
+      } catch (IllegalArgumentException  ignored) {
         // nothing to do, try another format
       }
     }
@@ -256,9 +258,11 @@ public class OpenSearchExprValueFactory {
     OpenSearchDateType dt;
     ExprType returnFormat;
     if (type instanceof OpenSearchDateType) {
+      //Case when an OpenSearchDateType is passed in
       dt = (OpenSearchDateType) type;
       returnFormat = dt.getExprType();
     } else {
+      //Case when an OpenSearchDataType.of(<ExprCoreType>) is passed in
       dt = OpenSearchDateType.of();
       returnFormat = ((OpenSearchDataType) type).getExprType();
     }
@@ -267,7 +271,9 @@ public class OpenSearchExprValueFactory {
       return formatReturn(
           returnFormat,
           new ExprTimestampValue(Instant.ofEpochMilli(value.longValue())));
-    } else if (value.isString()) {
+    }
+
+    if (value.isString()) {
       TemporalAccessor parsed = parseTimestampString(value.stringValue(),dt);
       if (parsed == null) { // failed to parse or no formats given
         return formatReturn(
@@ -313,9 +319,8 @@ public class OpenSearchExprValueFactory {
                 value.stringValue()),
             ignored);
       }
-    } else {
-      return formatReturn(returnFormat, new ExprTimestampValue((Instant) value.objectValue()));
     }
+    return formatReturn(returnFormat, new ExprTimestampValue((Instant) value.objectValue()));
   }
 
   private ExprValue parseStruct(Content content, String prefix) {

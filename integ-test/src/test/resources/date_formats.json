@@ -145,6 +145,14 @@
 {"index": {}}
 {"name": "HH:mm:ss", "HH:mm:ss": "09:07:42"}
 {"index": {}}
-{"name": "yyyy-MM-dd||uuuu-DDD", "yyyy-MM-dd||uuuu-DDD": "1984-04-12"}
+{"name": "yyyy-MM-dd||epoch_millis-FirstFormat", "yyyy-MM-dd||epoch_millis": "1984-04-12"}
 {"index": {}}
-{"name": "hour_minute_second||t_time", "hour_minute_second||t_time": "09:07:42"}
+{"name": "yyyy-MM-dd||epoch_millis-SecondFormat", "yyyy-MM-dd||epoch_millis": "450608862000.123456"}
+{"index": {}}
+{"name": "hour_minute_second||t_time-FirstFormat", "hour_minute_second||t_time": "09:07:42"}
+{"index": {}}
+{"name": "hour_minute_second||t_time-SecondFormat", "hour_minute_second||t_time": "T09:07:42.000Z"}
+{"index": {}}
+{"name": "MM////dd////yyyy", "MM////dd////yyyy||HH----mm----ss": "03////01////2000"}
+{"index": {}}
+{"name": "HH----mm----ss", "MM////dd////yyyy||HH----mm----ss": "10----11----12"}
