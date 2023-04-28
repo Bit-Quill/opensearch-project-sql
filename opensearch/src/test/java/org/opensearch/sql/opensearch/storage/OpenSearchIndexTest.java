@@ -12,8 +12,10 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
@@ -41,7 +43,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opensearch.common.unit.TimeValue;
 import org.opensearch.sql.ast.tree.Sort;
 import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.data.model.ExprBooleanValue;
@@ -112,6 +113,7 @@ class OpenSearchIndexTest {
         OpenSearchDataType.of(MappingType.Keyword))));
     schema.put("age", INTEGER);
     index.create(schema);
+    verify(client).createIndex(any(), any());
   }
 
   @Test
@@ -203,14 +205,11 @@ class OpenSearchIndexTest {
 
   @Test
   void implementRelationOperatorOnly() {
-    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
-    when(settings.getSettingValue(Settings.Key.SQL_CURSOR_KEEP_ALIVE))
-        .thenReturn(TimeValue.timeValueMinutes(1));
     when(client.getIndexMaxResultWindows("test")).thenReturn(Map.of("test", 10000));
-
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
     LogicalPlan plan = index.createScanBuilder();
     Integer maxResultWindow = index.getMaxResultWindow();
-    assertEquals(OpenSearchIndexScan.create(client, settings, indexName,
+    assertEquals(OpenSearchIndexScan.create(client, indexName, settings,
         maxResultWindow, exprValueFactory), index.implement(index.optimize(plan)));
   }
 
@@ -220,24 +219,18 @@ class OpenSearchIndexTest {
 
   @Test
   void implementRelationOperatorWithOptimization() {
-    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
-    when(settings.getSettingValue(Settings.Key.SQL_CURSOR_KEEP_ALIVE))
-        .thenReturn(TimeValue.timeValueMinutes(1));
     when(client.getIndexMaxResultWindows("test")).thenReturn(Map.of("test", 10000));
-
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
     LogicalPlan plan = index.createScanBuilder();
     Integer maxResultWindow = index.getMaxResultWindow();
-    assertEquals(OpenSearchIndexScan.create(client, settings, indexName,
-            maxResultWindow, exprValueFactory), index.implement(plan));
+    assertEquals(OpenSearchIndexScan.create(client, indexName, settings,
+        maxResultWindow, exprValueFactory), index.implement(plan));
   }
 
   @Test
   void implementOtherLogicalOperators() {
-    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
-    when(settings.getSettingValue(Settings.Key.SQL_CURSOR_KEEP_ALIVE))
-        .thenReturn(TimeValue.timeValueMinutes(1));
     when(client.getIndexMaxResultWindows("test")).thenReturn(Map.of("test", 10000));
-
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
     NamedExpression include = named("age", ref("age", INTEGER));
     ReferenceExpression exclude = ref("name", STRING);
     ReferenceExpression dedupeField = ref("name", STRING);
@@ -277,7 +270,7 @@ class OpenSearchIndexTest {
                     PhysicalPlanDSL.eval(
                         PhysicalPlanDSL.remove(
                             PhysicalPlanDSL.rename(
-                                OpenSearchIndexScan.create(client, settings, indexName,
+                                OpenSearchIndexScan.create(client, indexName, settings,
                                     maxResultWindow, exprValueFactory),
                                 mappings),
                             exclude),

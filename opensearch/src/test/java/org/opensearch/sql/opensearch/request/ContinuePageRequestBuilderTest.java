@@ -26,7 +26,7 @@ import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
-public class ContinuePageRequestBuilderTest {
+class ContinuePageRequestBuilderTest {
 
   @Mock
   private OpenSearchExprValueFactory exprValueFactory;
@@ -41,27 +41,20 @@ public class ContinuePageRequestBuilderTest {
 
   @BeforeEach
   void setup() {
-    when(settings.getSettingValue(Settings.Key.SQL_CURSOR_KEEP_ALIVE))
-        .thenReturn(TimeValue.timeValueMinutes(1));
-    requestBuilder = new ContinuePageRequestBuilder(
-        indexName, scrollId, settings, exprValueFactory);
+    var timeout = TimeValue.timeValueMinutes(1);
+    requestBuilder = new ContinuePageRequestBuilder(scrollId, timeout, exprValueFactory);
   }
 
   @Test
-  public void build() {
+  void build() {
     assertEquals(
         new ContinuePageRequest(scrollId, TimeValue.timeValueMinutes(1), exprValueFactory),
-        requestBuilder.build()
+        requestBuilder.build(null, 0, null)
     );
   }
 
   @Test
-  public void getIndexName() {
-    assertEquals(indexName, requestBuilder.getIndexName());
-  }
-
-  @Test
-  public void pushDown_not_supported() {
+  void pushDown_not_supported() {
     assertAll(
         () -> assertThrows(UnsupportedOperationException.class,
             () -> requestBuilder.pushDownFilter(mock())),

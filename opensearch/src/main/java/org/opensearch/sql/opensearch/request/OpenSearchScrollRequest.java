@@ -65,7 +65,7 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
   public OpenSearchScrollRequest(IndexName indexName,
                                  TimeValue scrollTimeout,
                                  SearchSourceBuilder sourceBuilder,
-                                 OpenSearchExprValueFactory exprValueFactory) {
+                                 OpenSearchExprValueFactory exprValueFactory, Integer size) {
     this.indexName = indexName;
     this.scrollTimeout = scrollTimeout;
     this.sourceBuilder = sourceBuilder;
@@ -88,7 +88,8 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
         : List.of();
 
     var response = new OpenSearchResponse(openSearchResponse, exprValueFactory, includes);
-    if (!(needClean = response.isEmpty())) {
+    needClean = response.isEmpty();
+    if (!needClean) {
       setScrollId(openSearchResponse.getScrollId());
     }
     return response;

@@ -42,7 +42,6 @@ import org.opensearch.sql.ast.expression.Literal;
 import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
-import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.opensearch.client.OpenSearchClient;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
@@ -67,7 +66,7 @@ class OpenSearchIndexScanTest {
 
   @BeforeEach
   void setup() {
-    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+    lenient().when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
     when(settings.getSettingValue(Settings.Key.SQL_CURSOR_KEEP_ALIVE))
         .thenReturn(TimeValue.timeValueMinutes(1));
   }
@@ -75,8 +74,8 @@ class OpenSearchIndexScanTest {
   @Test
   void query_empty_result() {
     mockResponse(client);
-    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, settings,
-        "test", 3, exprValueFactory)) {
+    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, "test", settings,
+        3, exprValueFactory)) {
       indexScan.open();
       assertAll(
           () -> assertFalse(indexScan.hasNext()),
@@ -93,8 +92,8 @@ class OpenSearchIndexScanTest {
         employee(2, "Smith", "HR"),
         employee(3, "Allen", "IT")});
 
-    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, settings,
-        "employees", 10, exprValueFactory)) {
+    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, "employees", settings,
+        10, exprValueFactory)) {
       indexScan.open();
 
       assertAll(
@@ -114,14 +113,16 @@ class OpenSearchIndexScanTest {
     verify(client).cleanup(any());
   }
 
+  final static OpenSearchRequest.IndexName EMPLOYEES_INDEX
+      = new OpenSearchRequest.IndexName("employees");
   @Test
   void query_all_results_with_scroll() {
     mockResponse(client,
         new ExprValue[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
         new ExprValue[]{employee(3, "Allen", "IT")});
 
-    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, settings,
-        "employees", 10, exprValueFactory)) {
+    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, "employees", settings,
+        10, exprValueFactory)) {
       indexScan.open();
 
       assertAll(
@@ -149,9 +150,10 @@ class OpenSearchIndexScanTest {
         employee(3, "Allen", "IT"),
         employee(4, "Bob", "HR")});
 
-    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, settings,
-        "employees", 10, exprValueFactory)) {
-      indexScan.getRequestBuilder().pushDownLimit(3, 0);
+    OpenSearchRequestBuilder builder = new OpenSearchRequestBuilder(0, exprValueFactory);
+    builder.pushDownLimit(3, 0);
+    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, EMPLOYEES_INDEX, settings,
+        10, builder)) {
       indexScan.open();
 
       assertAll(
@@ -176,10 +178,10 @@ class OpenSearchIndexScanTest {
     mockResponse(client,
         new ExprValue[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
         new ExprValue[]{employee(3, "Allen", "IT"), employee(4, "Bob", "HR")});
-
-    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, settings,
-        "employees", 2, exprValueFactory)) {
-      indexScan.getRequestBuilder().pushDownLimit(3, 0);
+    final var requestuilder = new OpenSearchRequestBuilder(10, exprValueFactory);
+    requestuilder.pushDownLimit(3, 0);
+    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client, EMPLOYEES_INDEX, settings,
+        2, requestuilder)) {
       indexScan.open();
 
       assertAll(
@@ -208,8 +210,8 @@ class OpenSearchIndexScanTest {
         employee(4, "Bob", "HR")});
     when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(2);
 
-    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, settings,
-        "employees", 10, exprValueFactory)) {
+    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, "employees", settings,
+        10, exprValueFactory)) {
       indexScan.open();
 
       assertAll(
@@ -270,32 +272,14 @@ class OpenSearchIndexScanTest {
             highlightBuilder);
   }
 
-  @Test
-  void push_down_highlight_with_repeating_fields() {
-    mockResponse(client,
-        new ExprValue[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
-        new ExprValue[]{employee(3, "Allen", "IT"), employee(4, "Bob", "HR")});
-
-    try (OpenSearchIndexScan indexScan = OpenSearchIndexScan.create(client, settings,
-        "test", 2, exprValueFactory)) {
-      indexScan.getRequestBuilder().pushDownLimit(3, 0);
-      indexScan.open();
-      Map<String, Literal> args = new HashMap<>();
-      indexScan.getRequestBuilder().pushDownHighlight("name", args);
-      indexScan.getRequestBuilder().pushDownHighlight("name", args);
-    } catch (SemanticCheckException e) {
-      assertEquals(e.getClass(), SemanticCheckException.class);
-    }
-    verify(client).cleanup(any());
-  }
-
   private PushDownAssertion assertThat() {
     return new PushDownAssertion(client, exprValueFactory, settings);
   }
 
   private static class PushDownAssertion {
     private final OpenSearchClient client;
-    private final OpenSearchIndexScan indexScan;
+    private final OpenSearchRequestBuilder requestBuilder;
+    private final Settings settings;
     private final OpenSearchResponse response;
     private final OpenSearchExprValueFactory factory;
 
@@ -303,20 +287,21 @@ class OpenSearchIndexScanTest {
                              OpenSearchExprValueFactory valueFactory,
                              Settings settings) {
       this.client = client;
-      this.indexScan = OpenSearchIndexScan.create(client, settings,
-          "test", 10000, valueFactory);
+      this.requestBuilder = new OpenSearchRequestBuilder(30, valueFactory);
+      this.settings = settings;
+
       this.response = mock(OpenSearchResponse.class);
       this.factory = valueFactory;
       when(response.isEmpty()).thenReturn(true);
     }
 
     PushDownAssertion pushDown(QueryBuilder query) {
-      indexScan.getRequestBuilder().pushDownFilter(query);
+      requestBuilder.pushDownFilter(query);
       return this;
     }
 
     PushDownAssertion pushDownHighlight(String query, Map<String, Literal> arguments) {
-      indexScan.getRequestBuilder().pushDownHighlight(query, arguments);
+      requestBuilder.pushDownHighlight(query, arguments);
       return this;
     }
 
@@ -327,6 +312,8 @@ class OpenSearchIndexScanTest {
           .highlighter(highlight)
           .sort(DOC_FIELD_NAME, ASC);
       when(client.search(request)).thenReturn(response);
+      var indexScan = new OpenSearchIndexScan(client, EMPLOYEES_INDEX, settings,
+          10000, requestBuilder);
       indexScan.open();
       return this;
     }
@@ -337,6 +324,8 @@ class OpenSearchIndexScanTest {
              .query(expected)
              .sort(DOC_FIELD_NAME, ASC);
       when(client.search(request)).thenReturn(response);
+      var indexScan = new OpenSearchIndexScan(client, EMPLOYEES_INDEX, settings,
+          10000, requestBuilder);
       indexScan.open();
       return this;
     }

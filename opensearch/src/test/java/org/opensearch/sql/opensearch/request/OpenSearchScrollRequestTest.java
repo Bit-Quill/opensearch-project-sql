@@ -67,7 +67,7 @@ class OpenSearchScrollRequestTest {
 
   private final OpenSearchScrollRequest request = new OpenSearchScrollRequest(
       new OpenSearchRequest.IndexName("test"), TimeValue.timeValueMinutes(1),
-      new SearchSourceBuilder(), factory);
+      new SearchSourceBuilder(), factory, 0);
 
   @Test
   void searchRequest() {
@@ -108,8 +108,8 @@ class OpenSearchScrollRequestTest {
         new OpenSearchRequest.IndexName("test"),
         TimeValue.timeValueMinutes(1),
         sourceBuilder,
-        factory
-    );
+        factory,
+        0);
 
     String[] includes = {"_id", "_index"};
     when(sourceBuilder.fetchSource()).thenReturn(fetchSourceContext);
@@ -129,8 +129,8 @@ class OpenSearchScrollRequestTest {
         new OpenSearchRequest.IndexName("test"),
         TimeValue.timeValueMinutes(1),
         sourceBuilder,
-        factory
-    );
+        factory,
+        0);
 
     when(sourceBuilder.fetchSource()).thenReturn(null);
     when(searchAction.apply(any())).thenReturn(searchResponse);
@@ -148,8 +148,8 @@ class OpenSearchScrollRequestTest {
         new OpenSearchRequest.IndexName("test"),
         TimeValue.timeValueMinutes(1),
         sourceBuilder,
-        factory
-    );
+        factory,
+        0);
 
     when(sourceBuilder.fetchSource()).thenReturn(fetchSourceContext);
     when(fetchSourceContext.includes()).thenReturn(null);

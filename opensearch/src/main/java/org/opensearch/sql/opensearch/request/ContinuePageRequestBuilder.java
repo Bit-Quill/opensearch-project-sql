@@ -23,33 +23,35 @@ import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseP
 
 /**
  * Builds a {@link ContinuePageRequest} to handle subsequent pagination/scroll/cursor requests.
- * Initial search requests is handled by {@link InitialPageRequestBuilder}.
  */
 public class ContinuePageRequestBuilder implements PushDownRequestBuilder {
 
   public static final String PUSH_DOWN_NOT_SUPPORTED =
       "Cursor requests don't support any push down";
-  @Getter
-  private final OpenSearchRequest.IndexName indexName;
+
   @Getter
   private final String scrollId;
-  private final TimeValue scrollTimeout;
   private final OpenSearchExprValueFactory exprValueFactory;
+  private final TimeValue scrollTimeout;
 
   /** Constructor. */
-  public ContinuePageRequestBuilder(OpenSearchRequest.IndexName indexName,
-                                    String scrollId,
-                                    Settings settings,
+  public ContinuePageRequestBuilder(String scrollId, TimeValue scrollTimeout,
                                     OpenSearchExprValueFactory exprValueFactory) {
-    this.indexName = indexName;
     this.scrollId = scrollId;
-    this.scrollTimeout = settings.getSettingValue(Settings.Key.SQL_CURSOR_KEEP_ALIVE);
+    this.scrollTimeout = scrollTimeout;
     this.exprValueFactory = exprValueFactory;
   }
 
   @Override
-  public OpenSearchRequest build() {
+  public  OpenSearchRequest build(OpenSearchRequest.IndexName indexName,
+                                  int maxResultWindow,
+                                  Settings settings) {
     return new ContinuePageRequest(scrollId, scrollTimeout, exprValueFactory);
+  }
+
+  @Override
+  public int getQuerySize() {
+    throw new UnsupportedOperationException("QuerySize is unknown");
   }
 
   @Override
@@ -95,6 +97,11 @@ public class ContinuePageRequestBuilder implements PushDownRequestBuilder {
 
   @Override
   public void pushDownTrackedScore(boolean trackScores) {
+    throw new UnsupportedOperationException(ContinuePageRequestBuilder.PUSH_DOWN_NOT_SUPPORTED);
+  }
+
+  @Override
+  public void pushDownPageSize(int pageSize) {
     throw new UnsupportedOperationException(ContinuePageRequestBuilder.PUSH_DOWN_NOT_SUPPORTED);
   }
 }

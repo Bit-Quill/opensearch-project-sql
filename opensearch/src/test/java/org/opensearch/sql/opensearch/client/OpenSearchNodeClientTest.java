@@ -29,7 +29,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +86,8 @@ class OpenSearchNodeClientTest {
 
   private static final String TEST_MAPPING_FILE = "mappings/accounts.json";
   private static final String TEST_MAPPING_SETTINGS_FILE = "mappings/accounts2.json";
+
+  private static final int size = 0;
 
   @Mock(answer = RETURNS_DEEP_STUBS)
   private NodeClient nodeClient;
@@ -327,7 +328,7 @@ class OpenSearchNodeClientTest {
     // Verify response for first scroll request
     OpenSearchScrollRequest request = new OpenSearchScrollRequest(
         new OpenSearchRequest.IndexName("test"), TimeValue.timeValueMinutes(1),
-        new SearchSourceBuilder(), factory);
+        new SearchSourceBuilder(), factory, 0);
     OpenSearchResponse response1 = client.search(request);
     assertFalse(response1.isEmpty());
 
@@ -362,7 +363,7 @@ class OpenSearchNodeClientTest {
 
     OpenSearchScrollRequest request = new OpenSearchScrollRequest(
         new OpenSearchRequest.IndexName("test"), TimeValue.timeValueMinutes(1),
-        new SearchSourceBuilder(), factory);
+        new SearchSourceBuilder(), factory, size);
     request.setScrollId("scroll123");
     // Enforce cleaning by setting a private field.
     FieldUtils.writeField(request, "needClean", true, true);
@@ -379,7 +380,7 @@ class OpenSearchNodeClientTest {
   void cleanup_without_scrollId() {
     OpenSearchScrollRequest request = new OpenSearchScrollRequest(
         new OpenSearchRequest.IndexName("test"), TimeValue.timeValueMinutes(1),
-        new SearchSourceBuilder(), factory);
+        new SearchSourceBuilder(), factory, size);
     client.cleanup(request);
     verify(nodeClient, never()).prepareClearScroll();
   }
@@ -391,7 +392,7 @@ class OpenSearchNodeClientTest {
 
     OpenSearchScrollRequest request = new OpenSearchScrollRequest(
         new OpenSearchRequest.IndexName("test"), TimeValue.timeValueMinutes(1),
-        new SearchSourceBuilder(), factory);
+        new SearchSourceBuilder(), factory, size);
     request.setScrollId("scroll123");
     // Enforce cleaning by setting a private field.
     FieldUtils.writeField(request, "needClean", true, true);

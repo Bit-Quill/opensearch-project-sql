@@ -74,6 +74,7 @@ import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.function.OpenSearchFunctions;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 import org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder;
 import org.opensearch.sql.opensearch.response.agg.CompositeAggregationParser;
 import org.opensearch.sql.opensearch.response.agg.OpenSearchAggregationResponseParser;
@@ -101,13 +102,15 @@ class OpenSearchIndexScanOptimizationTest {
   @Mock
   private OpenSearchRequestBuilder requestBuilder;
 
+  @Mock
+  private OpenSearchExprValueFactory valueFactory;
+
   private Runnable[] verifyPushDownCalls = {};
 
   @BeforeEach
   void setUp() {
-    indexScanBuilder = new OpenSearchIndexScanBuilder(indexScan);
+    indexScanBuilder = new OpenSearchIndexScanBuilder(t -> indexScan, requestBuilder);
     when(table.createScanBuilder()).thenReturn(indexScanBuilder);
-    when(indexScan.getRequestBuilder()).thenReturn(requestBuilder);
   }
 
   @Test
@@ -678,12 +681,12 @@ class OpenSearchIndexScanOptimizationTest {
 
   private OpenSearchIndexScanBuilder indexScanBuilder(Runnable... verifyPushDownCalls) {
     this.verifyPushDownCalls = verifyPushDownCalls;
-    return new OpenSearchIndexScanBuilder(new OpenSearchIndexScanQueryBuilder(indexScan));
+    return new OpenSearchIndexScanBuilder(t -> indexScan, new OpenSearchIndexScanQueryBuilder(requestBuilder));
   }
 
   private OpenSearchIndexScanBuilder indexScanAggBuilder(Runnable... verifyPushDownCalls) {
     this.verifyPushDownCalls = verifyPushDownCalls;
-    return new OpenSearchIndexScanBuilder(new OpenSearchIndexScanAggregationBuilder(indexScan));
+    return new OpenSearchIndexScanBuilder(t -> indexScan, new OpenSearchIndexScanAggregationBuilder(requestBuilder));
   }
 
   private void assertEqualsAfterOptimization(LogicalPlan expected, LogicalPlan actual) {
