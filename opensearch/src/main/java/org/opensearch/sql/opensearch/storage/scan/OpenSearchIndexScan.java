@@ -155,14 +155,15 @@ public class OpenSearchIndexScan extends TableScanOperator implements Serializab
   public void readExternal(ObjectInput in) throws IOException {
     var serializedName = in.readUTF();
     var scrollId = in.readUTF();
+    querySize = in.readInt();
 
     var engine = (OpenSearchStorageEngine) ((PlanSerializer.CursorDeserializationStream) in)
         .resolveObject("engine");
 
     indexName = new OpenSearchRequest.IndexName(serializedName);
-    var index = new OpenSearchIndex(client, settings, indexName.toString());
     client = engine.getClient();
     settings = engine.getSettings();
+    var index = new OpenSearchIndex(client, settings, indexName.toString());
     maxResultWindow = index.getMaxResultWindow();
 
     TimeValue scrollTimeout = settings.getSettingValue(Settings.Key.SQL_CURSOR_KEEP_ALIVE);
@@ -178,5 +179,6 @@ public class OpenSearchIndexScan extends TableScanOperator implements Serializab
 
     out.writeUTF(indexName.toString());
     out.writeUTF(request.toCursor());
+    out.writeInt(querySize);
   }
 }

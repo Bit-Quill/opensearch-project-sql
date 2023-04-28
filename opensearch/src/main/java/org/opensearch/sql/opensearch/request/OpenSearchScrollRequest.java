@@ -65,7 +65,7 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
   public OpenSearchScrollRequest(IndexName indexName,
                                  TimeValue scrollTimeout,
                                  SearchSourceBuilder sourceBuilder,
-                                 OpenSearchExprValueFactory exprValueFactory, Integer size) {
+                                 OpenSearchExprValueFactory exprValueFactory) {
     this.indexName = indexName;
     this.scrollTimeout = scrollTimeout;
     this.sourceBuilder = sourceBuilder;

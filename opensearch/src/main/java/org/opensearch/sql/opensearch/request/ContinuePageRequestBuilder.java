@@ -51,7 +51,7 @@ public class ContinuePageRequestBuilder implements PushDownRequestBuilder {
 
   @Override
   public int getQuerySize() {
-    throw new UnsupportedOperationException("QuerySize is unknown");
+    return Integer.MAX_VALUE;
   }
 
   @Override

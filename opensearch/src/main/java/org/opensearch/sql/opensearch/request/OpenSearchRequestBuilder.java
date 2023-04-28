@@ -66,7 +66,6 @@ public class OpenSearchRequestBuilder implements PushDownRequestBuilder {
   /**
    * Query size of the request -- how many rows will be returned.
    */
-  @Getter
   private int querySize = 0;
 
   /**
@@ -94,6 +93,10 @@ public class OpenSearchRequestBuilder implements PushDownRequestBuilder {
     this.exprValueFactory = exprValueFactory;
   }
 
+  @Override
+  public int getQuerySize() {
+    return pageSize.orElse(querySize);
+  }
   /**
    * Build DSL request.
    *
@@ -109,7 +112,7 @@ public class OpenSearchRequestBuilder implements PushDownRequestBuilder {
       if (startFrom + size > maxResultWindow) {
         sourceBuilder.size(maxResultWindow - startFrom);
         return new OpenSearchScrollRequest(
-            indexName, scrollTimeout, sourceBuilder, exprValueFactory, size);
+            indexName, scrollTimeout, sourceBuilder, exprValueFactory);
       } else {
         sourceBuilder.from(startFrom);
         sourceBuilder.size(size);
@@ -121,7 +124,7 @@ public class OpenSearchRequestBuilder implements PushDownRequestBuilder {
       }
       sourceBuilder.size(pageSize.get());
       return new OpenSearchScrollRequest(indexName, scrollTimeout,
-          sourceBuilder, exprValueFactory, size);
+          sourceBuilder, exprValueFactory);
     }
   }
 
