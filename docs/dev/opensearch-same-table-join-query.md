@@ -23,6 +23,10 @@ cases for same-table JOINs.
 ## 2. References
 
 * [[FEATURE] Support for subqueries or chaining of queries](https://github.com/opensearch-project/sql/issues/1441)
+* [[BUG] implicit join returns wrong results](https://github.com/opensearch-project/sql/issues/683)
+* [[FEATURE] Allow individual shards to be targeted during query execution](https://github.com/opensearch-project/sql/issues/1478)
+  * [Support for _routing field in SQL queries](https://github.com/opendistro-for-elasticsearch/sql/issues/1151)
+* [Nested Design](https://github.com/Bit-Quill/opensearch-project-sql/pull/262)
 * [opensearch.org: Join field type](https://opensearch.org/docs/latest/field-types/join/)
 * [PariQL](https://partiql.org/)
 
@@ -34,6 +38,8 @@ cases for same-table JOINs.
 
 ### 3.1 Out of Scope
 
+* Fix for implicit JOINs [[BUG] implicit join returns wrong results](https://github.com/opensearch-project/sql/issues/683)
+* Fix for _shard or _routing [[FEATURE] Allow individual shards to be targeted during query execution](https://github.com/opensearch-project/sql/issues/1478)
 * Performance on the OpenSearch side
 * Multiple-shard queries using `join`
 * `join` using lateral-table support [PartiQL support in OpenSearch SQL V2](https://github.com/opensearch-project/sql/issues/1104)
@@ -57,7 +63,7 @@ cases for same-table JOINs.
 
 Use Cases have examples that is defined in the Annex.
 
-### 4.1 Case SELECT... FROM... JOIN on parent relation
+### 4.1 Case SELECT... FROM... JOIN ON parent relation
 
 Summary:
 
@@ -159,7 +165,7 @@ Expected Response (OpenSearch-JSON):
 }
 ```
 
-### 4.2 Case SELECT... FROM... JOIN... WHERE on parent relation
+### 4.2 Case SELECT... FROM... JOIN ON... WHERE parent relation
 
 Summary:
 
@@ -711,6 +717,7 @@ Expected Response (OpenSearch-JSON):
 }
 ```
 
+TODO: Explicit case using `USING`
 
 ### 4.X *Case X*
 
@@ -739,16 +746,16 @@ Expected Response (OpenSearch-JSON):
 |------------------------------------------------------------------------|--------------|-------|
 | Table alias                                                            | dependency   | *     |
 | [Implicit joins](https://github.com/opensearch-project/sql/issues/683) | dependency   | *     |
+| Including routing_id API option                                        | must have    | *     |
 | Update datatype to accept joins type                                   | must have    | P0    |
 | Check for semantic errors on mapping                                   | must have    | P0    |
-| Including routing_id API option                                        | must have    | P0    |
 | Add parser support for JOIN...USING...                                 | must have    | P0    |
 | Allow for parent-child joins                                           | must have    | P0    |
 | Allow for child-parent joins                                           | must have    | P0    |
-| Retrieve inner_hits                                                    | should have  | P0/P1 |
+| Retrieve inner_hits                                                    | must have    | P0    |
 | Allow for parent_id joins                                              | nice to have | P1    |
-| Aggregation on children                                                | nice to have | P1    |
-| Sorting on children                                                    | nice to have | P1    |
+| Aggregation on children                                                | nice to have | P2    |
+| Sorting on children                                                    | nice to have | P2    |
 | Documentation for same-table Joins                                     | must have    | P0    |
 
 _Phase `*`_ denotes dependencies that must be completed prior to starting this work.
@@ -756,18 +763,18 @@ _Phase `*`_ denotes dependencies that must be completed prior to starting this w
 ### 5.1 Release Schedule
 
 | Release                                                                     | Dependency   | Effort |
-|-----------------------------------------------------------------------------|--------------|--------|
-| Phase 0 - containing basic support for parent-child mapping<br/>Allows for  | must have    | P0     |
-| Check for semantic errors on mapping                                        | must have    | P0     |
-| Including routing_id API option                                             | must have    | P0     |
-| Add parser support for JOIN...USING...                                      | must have    | P0     |
-| Allow for parent-child joins                                                | must have    | P0     |
-| Allow for child-parent joins                                                | must have    | P0     |
-| Retrieve inner_hits                                                         | should have  | P0/P1  |
-| Allow for parent_id joins                                                   | nice to have | P1     |
-| Aggregation on children                                                     | nice to have | P1     |
-| Sorting on children                                                         | nice to have | P1     |
-| Documentation for same-table Joins                                          | must have    | P0     |
+|-----------------------------------------------------------------------------|--------------|-------|
+| Phase 0 - containing basic support for parent-child mapping<br/>Allows for  | must have    | P0    |
+| Check for semantic errors on mapping                                        | must have    | P0    |
+| Including routing_id API option                                             | must have    | P0    |
+| Add parser support for JOIN...USING...                                      | must have    | P0    |
+| Allow for parent-child joins                                                | must have    | P0    |
+| Allow for child-parent joins                                                | must have    | P0    |
+| Retrieve inner_hits                                                         | must have    | P0    |
+| Allow for parent_id joins                                                   | nice to have | P1    |
+| Aggregation on children                                                     | nice to have | P1    |
+| Sorting on children                                                         | nice to have | P1    |
+| Documentation for same-table Joins                                          | must have    | P0    |
 
 ## 6. High-Level Design
 
@@ -959,15 +966,19 @@ sequenceDiagram
     Table->>TypeEnvironment: define
     Relation->>TypeEnvironment: define(node.alias)
     Relation->>Analyzer: LogicalRelation
-    Analyzer->>JoinRelation: visitJointRelation(Relation)
-    JoinRelation->>Relation: getParentRelation
+    Analyzer->>JoinRelation: visitJoinRelation
+    JoinRelation->>TypeEnvironment: getOpenSearchJoinType
+    TypeEnvironment->>JoinRelation: OpenSearchJoinType
     JoinRelation->>JoinRelation: setJoinRelationContext
-    Relation->>JoinRelation: LogicalRelation
-    JoinRelation->>Analyzer: LogicalRelation
+    JoinRelation->>Analyzer: <<LogicalRelation>>
+    Analyzer->>Analyzer: LogicalRelation.attach(<<LogicalJoinRelation>>)
     Analyzer->>SQLService: LogicalPlan
 ```
 
 ### 6.5 Logical Plan Changes
+
+TODO: This is the first diagram for section 6
+TODO: verify whether the optimizer removes the filter/sort or if that's done on push_down/plan
 
 ```mermaid
 stateDiagram-v2
@@ -980,8 +991,8 @@ direction LR
         logState1: LogicalProject
         logState2: LogicalSort
         logState3: LogicalFilter
-        logState4: LogicalRelation
-        logState5: LogicalJoinRelation
+        logState4: LogicalJoinRelation
+        logState5: LogicalRelation
 
         logState1 --> logState2
         logState2 --> logState3
@@ -1023,7 +1034,13 @@ and need to create an `OpenSearchDataType` for joins.
 
 ### 7.1 Presentation
 
-*TODO: This needs work...*
+ER diagram for how Analyzer creates the type environment(s) - table and relations
+ 
+```mermaid
+classDiagram
+    class TypeEnvironment {
+    }
+```
 
 ```mermaid
 classDiagram
@@ -1043,19 +1060,6 @@ classDiagram
         -validateArgs(List~UnresolvedExpression~ args)
         -generatePath(String field) ReferenceExpression
     }
-    
-    class HasParentJoinRelationAnalyzer {
-    }
-    
-    class HasChildJoinRelationAnalyzer {
-    } 
-    
-    class ByParentIdJoinRelationAnalyzer {
-    } 
-    
-    JoinRelationAnalyzer <|-- HasParentJoinRelationAnalyzer 
-    JoinRelationAnalyzer <|-- HasChildJoinRelationAnalyzer 
-    JoinRelationAnalyzer <|-- ByParentIdJoinRelationAnalyzer 
 ```
 
 ```mermaid
@@ -1066,6 +1070,19 @@ classDiagram
         +addFields(Map~String_ReferenceExpression~ fields)
         +accept(LogicalPlanNodeVisitor~R_C~ visitor, C context) ~R_C~ R
     }
+    
+    class LogicalHasParentJoinRelation {
+    }
+    
+    class LogicalHasChildJoinRelation {
+    } 
+    
+    class LogicalByParentIdJoinRelation {
+    } 
+    
+    LogicalJoinRelation <|-- LogicalHasParentJoinRelation 
+    LogicalJoinRelation <|-- LogicalHasChildJoinRelation 
+    LogicalJoinRelation <|-- LogicalByParentIdJoinRelation 
 ```
 
 ```mermaid
