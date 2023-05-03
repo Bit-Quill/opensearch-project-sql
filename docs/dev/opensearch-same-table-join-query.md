@@ -24,11 +24,13 @@ cases for same-table JOINs.
 
 * [[FEATURE] Support for subqueries or chaining of queries](https://github.com/opensearch-project/sql/issues/1441)
 * [opensearch.org: Join field type](https://opensearch.org/docs/latest/field-types/join/)
+* [PariQL](https://partiql.org/)
 
 ## 3. Assumptions/Dependencies
 
 * _shard must be defined for any query using a same-table join
-* 
+* Same-Table joins requires that the following work is complete:
+  * Table/Indices can be aliased, for example: `SELECT t.fieldA, t.fieldB FROM table t WHERE t.fieldA = t.fieldB`
 
 ### 3.1 Out of Scope
 
@@ -46,10 +48,10 @@ solution to expand support for `lateral` tables and enable `lateral join` and `l
 
 ### 3.3. Storage Type
 
-`reference to opensearch doc`
-`Describe how to define the JOIN-relation`
-`What the datatype can do`
-`What the datatype cannot do`
+* `reference to opensearch doc`
+* `Describe how to define the JOIN-relation`
+* `What the datatype can do`
+* `What the datatype cannot do`
 
 ## 4. Use Cases
 
@@ -733,19 +735,23 @@ Expected Response (OpenSearch-JSON):
 ## 5. Functional Requirements
 
 
-| Feature                                | Priority     | Phase |
-|----------------------------------------|--------------|-------|
-| Update datatype to accept joins type   | must have    | P0    |
-| Check for semantic errors on mapping   | must have    | P0    |
-| Including routing_id API option        | must have    | P0    |
-| Add parser support for JOIN...USING... | must have    | P0    |
-| Allow for parent-child joins           | must have    | P0    |
-| Allow for child-parent joins           | must have    | P0    |
-| Retrieve inner_hits                    | should have  | P0/P1 |
-| Allow for parent_id joins              | nice to have | P1    |
-| Aggregation on children                | nice to have | P1    |
-| Sorting on children                    | nice to have | P1    |
-| Documentation for same-table Joins     | must have    | P0    |
+| Feature                                                                | Priority     | Phase |
+|------------------------------------------------------------------------|--------------|-------|
+| Table alias                                                            | dependency   | *     |
+| [Implicit joins](https://github.com/opensearch-project/sql/issues/683) | dependency   | *     |
+| Update datatype to accept joins type                                   | must have    | P0    |
+| Check for semantic errors on mapping                                   | must have    | P0    |
+| Including routing_id API option                                        | must have    | P0    |
+| Add parser support for JOIN...USING...                                 | must have    | P0    |
+| Allow for parent-child joins                                           | must have    | P0    |
+| Allow for child-parent joins                                           | must have    | P0    |
+| Retrieve inner_hits                                                    | should have  | P0/P1 |
+| Allow for parent_id joins                                              | nice to have | P1    |
+| Aggregation on children                                                | nice to have | P1    |
+| Sorting on children                                                    | nice to have | P1    |
+| Documentation for same-table Joins                                     | must have    | P0    |
+
+_Phase `*`_ denotes dependencies that must be completed prior to starting this work.  
 
 ### 5.1 Release Schedule
 
@@ -799,7 +805,11 @@ joinClause
     ;
 ```
 
-The above grammer supports our two cases: 
+The above grammar contains commented out grammar that may be useful for future JOIN work, and was copied from the ANSI-SQL-92
+documentation.  For example, the `JOIN LATERAL ON | USING` grammar may be useful for lateral joins that will be discussed
+briefly in the document below. 
+
+The above grammar supports the following use-cases: 
 
 #### 6.1.1. Same-table JOIN using the `has_parent` relation:
 ```sql
@@ -840,73 +850,248 @@ to the string `myId`.
 
 The following diagram explains the proposed sequence to create JOIN request to OpenSearch
 
-`DEBUG`: reference for [mermaid.js](http://mermaid-js.github.io/mermaid/#/)
+`TODO`: reference for [mermaid.js](http://mermaid-js.github.io/mermaid/#/)
 
 ```mermaid
-stateDiagram
-    [*] --> SQLParser
-    SQLParser --> AstExpressionBuilder
-    state AstExpressionBuilder {
-      direction LR 
-      nodeVisitor --> visitJoinExpression
+stateDiagram-v2
+    [*] --> SQLService
+    state SQLService {
+      direction LR
+      SQLQueryRequest --> ParseTree: OpenSearchSQLParser.parse
+      ParseTree --> AbstractSyntaxTree: accept
+      SQLQueryRequest --> Statement: AstStatementBuilder.build
+      Statement --> AbstractSyntaxTree: AstBuilder.build
+      AbstractSyntaxTree --> UnresolvedPlan: QueryPlanFactory.executeQueryPlan
     }
-    AstExpressionBuilder --> QueryService
-    QueryService --> Analyzer
-    Analyzer --> Planner
-    Planner --> RequestBuilder
-    RequestBuilder --> [*]
+    SQLService --> QueryManager
+    QueryManager --> QueryService
+    state QueryService {
+      direction LR 
+      UnresolvedQueryPlan --> LogicalPlan: Analyzer.analyze()
+      LogicalPlan --> ExecuteSplitPlan: executePlan()
+      LogicalPlan --> OptimizedLogicalPlan: LogicalPlanOptimizer.optimize()
+      OptimizedLogicalPlan --> PhysicalPlan: Planner.plan()
+    }
+    QueryService --> ExecutionEngine
+    state ExecutionEngine {
+      direction LR 
+      PlannedPhysicalPlan --> ProtectedPhysicalPlan: ExecutionProtector.protect()
+      ProtectedPhysicalPlan --> OpenSearchRequest: OpenSearchClient.build()
+      ExecutionContext --> OpenSearchRequest: split.add()
+      OpenSearchRequest --> QueryResponse: open()
+    }
+    ExecutionEngine --> ResponseListener
+    state ResponseListener {
+      direction LR
+      clientResponse --> QueryResult
+      QueryResult --> jsonResponse: JsonResponseFormatter.buildJsonObject
+    }
+    ResponseListener --> [*]
 ```
 
+### 6.2 Elements
+
+| Element               | Responsibility                                                | Class                     |
+|-----------------------|---------------------------------------------------------------|---------------------------|
+| SQLService            | Service to create an UnresolvedPlan from the Parser and Query | same                      |
+| SQLQueryRequest       | Stores the raw query (as a string)                            | same                      |
+| ParseTree             | Parse Tree from ANTLR                                         | same                      |
+| Statement             | Query request with context                                    | same                      |
+| AbstractSyntaxTree    | Query as a parsed tree                                        | same                      |
+| QueryManager          | Middle Manager for executing query plan                       | OpenSearchQueryManager    |
+| QueryService          | Service to create a physical plan                             | same                      |
+| UnresolvedQueryPlan   | Query Plan with unresolved nodes                              | Project                   |
+| LogicalPlan           | Logical Plan verifies logical components of the plan          | LogicalProject            | 
+| ExecuteSplitPlan      | Execution context in case of split storage                    | Split                     | 
+| OptimizedLogicalPlan  | The logical plan is optimized for execution (refactored)      | LogicalProject            |
+| ExecutionEngine       | The engine responsible for storage access control             | OpenSearchExecutionEngine |
+| OpenSearchRequest     | Part of the OpenSearch client request                         | same                      |
+| OpenSearchResponse    | Part of the OpenSearch client request                         | same                      |
+| ResponseListener      | Service responsible for resolving the REST client action      | same                      |
+| QueryResult           | Response object from the REST client                          | same                      |
+| JsonResponseFormatter | Service responsible for creating a JSON formatted response    | same                      | 
+
+### 6.3 Parse Tree Changes
+
+We need to accept JOIN grammar, including `JOIN USING` and `JOIN ON` syntax in the `FROM` clause.  
+
+```mermaid
+sequenceDiagram
+    participant AstBuilder
+    participant FromClauseContext
+    participant TableContext
+    participant JoinTableContext
+
+    %% node visitor
+    AstBuilder->>FromClauseContext: visitFromClause()
+    activate FromClauseContext
+    FromClauseContext->>TableContext: visitTableAsRelation()
+    activate TableContext
+    TableContext->>FromClauseContext: Relation
+    deactivate TableContext
+    FromClauseContext->>JoinTableContext: visitJoinTableAsRelation()
+    activate JoinTableContext
+    JoinTableContext->>FromClauseContext: Relation.attach(JoinRelation)
+    deactivate JoinTableContext
+    FromClauseContext->>AstBuilder: UnresolvedPlan
+    deactivate FromClauseContext
+```
+
+### 6.4 Logical Plan Relation Visitor
 
 ```mermaid
 sequenceDiagram
     participant SQLService
-    participant ParserBaseRoot
-    participant AstExpressionBuilder
-    participant QueryService
     participant Analyzer
-    participant Unnested
-    participant ExpressionAnalyzer
-    participant Planner
-    participant DefaultImplementor
-    participant AggregationQueryBuilder
+    participant JoinRelation
+    participant Relation
+    participant DataSourceService
+    participant Table
+    participant TypeEnvironment
 
-SQLService->>ParserBaseRoot:visitRoot
-  ParserBaseRoot->>AstExpressionBuilder:visitNestedFunction
-  AstExpressionBuilder-->>ParserBaseRoot:Function
-ParserBaseRoot-->>SQLService:UnresolvedPlan
-
-SQLService->>QueryService:analyze
-  QueryService->>Analyzer:visitProject
-    Analyzer->>Unnested:accept
-      Unnested->>ExpressionAnalyzer:visitFunction
-        ExpressionAnalyzer-->>Unnested:Function
-      Unnested-->>Analyzer:LogicalNested
-    Analyzer-->>QueryService:UnresolvedPlan
-  QueryService->>Planner:plan
-    Planner->>DefaultImplementor:visitProject
-      DefaultImplementor->>AggregationQueryBuilder:buildAggregationBuilder
-        AggregationQueryBuilder-->>DefaultImplementor:NestedAggregationBuilder:MetricParser
-      DefaultImplementor->>OpenSearchRequestBuilder:pushDownAggregation
-    DefaultImplementor-->>Planner:PhysicalPlan
-  Planner-->>QueryService:PhysicalPlan
-QueryService-->>SQLService:PhysicalPlan
-
+    SQLService->>Analyzer: analyze
+    Analyzer->>Relation: visitRelation
+    Relation->>DataSourceService: getTable
+    DataSourceService-->>Relation: Table
+    Relation->>Table: getFieldTypes
+    Table->>TypeEnvironment: define
+    Relation->>Table: getReservedFieldTypes
+    Table->>TypeEnvironment: define
+    Relation->>TypeEnvironment: define(node.alias)
+    Relation->>Analyzer: LogicalRelation
+    Analyzer->>JoinRelation: visitJointRelation(Relation)
+    JoinRelation->>Relation: getParentRelation
+    JoinRelation->>JoinRelation: setJoinRelationContext
+    Relation->>JoinRelation: LogicalRelation
+    JoinRelation->>Analyzer: LogicalRelation
+    Analyzer->>SQLService: LogicalPlan
 ```
 
-### 6.1 Presentation
+### 6.5 Logical Plan Changes
 
-### 6.2 Elements
+```mermaid
+stateDiagram-v2
+direction LR
+    LogicalPlan --> OptimizedLogicalPlan: Optimize
+    OptimizedLogicalPlan --> PhysicalPlan: push down OP
 
-### 6.3 Entity-Relation
+    state "Logical Plan" as LogicalPlan
+    state LogicalPlan {
+        logState1: LogicalProject
+        logState2: LogicalSort
+        logState3: LogicalFilter
+        logState4: LogicalRelation
+        logState5: LogicalJoinRelation
 
+        logState1 --> logState2
+        logState2 --> logState3
+        logState3 --> logState4
+        logState4 --> logState5
+    }
 
+    state "Optimized Logical Plan" as OptimizedLogicalPlan
+    state OptimizedLogicalPlan {
+        optState1: LogicalProject
+        optState2: LogicalSort
+        optState3: LogicalFilter
+        optState4: LogicalJoinRelation
+        optState5: OpenSearchIndexScanBuilder
 
-### 6.4 Entities
+        optState1 --> optState2
+        optState2 --> optState3
+        optState3 --> optState4
+        optState4 --> optState5
+    }
+
+    state "Physical Plan" as PhysicalPlan
+    state PhysicalPlan {
+        phyState1: ProjectOperator
+        phyState2: InnerHitsOperator
+        phyState3: OpenSearchIndexScan
+
+        phyState1 --> phyState2
+        phyState2 --> phyState3
+    }
+```
 
 ## 7. Detailed-Design Architecture
 
+The LogicalPlan will contain an extra Node called the LogicalJoinRelation, which stores the context
+on how the table is self-joined.  We may need to define specific 'types' based on the type 
+of relationship: parent-child, child-parent, or parent_id.  We will need access to the join datatype
+and need to create an `OpenSearchDataType` for joins. 
+
 ### 7.1 Presentation
+
+*TODO: This needs work...*
+
+```mermaid
+classDiagram
+    class OpenSearchJoinType {
+    }
+```
+
+```mermaid
+classDiagram
+    class JoinRelationAnalyzer {
+        -List~NamedExpression~ namedExpressions
+        -ExpressionAnalyzer expressionAnalyzer
+        -LogicalPlan child
+        +analyze(UnresolvedExpression projectItem, AnalysisContext context) LogicalPlan
+        +visitAlias(Alias node, AnalysisContext context) LogicalPlan
+        +visitFunction(Function node, AnalysisContext context) LogicalPlan
+        -validateArgs(List~UnresolvedExpression~ args)
+        -generatePath(String field) ReferenceExpression
+    }
+    
+    class HasParentJoinRelationAnalyzer {
+    }
+    
+    class HasChildJoinRelationAnalyzer {
+    } 
+    
+    class ByParentIdJoinRelationAnalyzer {
+    } 
+    
+    JoinRelationAnalyzer <|-- HasParentJoinRelationAnalyzer 
+    JoinRelationAnalyzer <|-- HasChildJoinRelationAnalyzer 
+    JoinRelationAnalyzer <|-- ByParentIdJoinRelationAnalyzer 
+```
+
+```mermaid
+classDiagram
+    class LogicalJoinRelation {
+        -List~Map~String_ReferenceExpression~~ fields
+        -List~NamedExpression~ projectList
+        +addFields(Map~String_ReferenceExpression~ fields)
+        +accept(LogicalPlanNodeVisitor~R_C~ visitor, C context) ~R_C~ R
+    }
+```
+
+```mermaid
+classDiagram
+    class InnerHitsOperator {
+        -PhysicalPlan input
+        -Set~String~ fields
+        -Map~String_List~String~~ groupedPathsAndFields
+        -List~Map~String_ExprValue~~ result
+        -ListIterator~Map~String_ExprValue~~ flattenedResult
+
+        +accept(PhysicalPlanNodeVisitor~R_C~ visitor, C context) ~R_C~ R
+        +getChild() List~PhysicalPlan~
+        +hasNext() boolean
+        +next() ExprValue
+        +generateNonNestedFieldsMap(ExprValue inputMap)
+        -flatten(String nestedField, ExprValue row, List~Map~String_ExprValue~~ prevList) List~Map~String_ExprValue~~
+        -containsSamePath(Map~String_ExprValue~ newMap) boolean
+        -getNested(String field, String nestedField, ExprValue row, List~Map~String_ExprValue~~ ret, ExptValue nestedObj)
+    }
+    
+    InnerHitsOperator <|-- NestedOperator
+    InnerHitsOperator <|-- HasParentJoinOperator
+    InnerHitsOperator <|-- HasChildJoinOperator
+    InnerHitsOperator <|-- ByParentIdJoinOperator
+```
 
 ### 7.2 Elements
 
