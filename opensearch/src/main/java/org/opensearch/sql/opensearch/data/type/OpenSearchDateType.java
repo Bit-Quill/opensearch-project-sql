@@ -65,21 +65,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
     }).map(DateFormatter::forPattern).collect(Collectors.toList());
   }
 
-
-  /**
-   * Creates DateTimeFormatters based on a custom user format defined in the index mapping.
-   * @return a list of DateTimeFormatters that can be used to parse a Date/Time/Timestamp.
-   */
-  public List<DateTimeFormatter> getRegularFormatters() {
-    return getFormatList().stream().map(f -> {
-      try {
-        return DateTimeFormatter.ofPattern(f);
-      } catch (IllegalArgumentException e) {
-        return null;
-      }
-    }).filter(Objects::nonNull).collect(Collectors.toList());
-  }
-
   /**
    * Create a Date type which has a LinkedHashMap defining all formats.
    * @return A new type object.

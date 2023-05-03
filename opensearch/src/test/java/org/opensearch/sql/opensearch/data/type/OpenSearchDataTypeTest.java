@@ -414,13 +414,6 @@ class OpenSearchDataTypeTest {
   }
 
   @Test
-  public void test_getNamedFormatters() {
-    List<DateTimeFormatter> userFormatters = dateType.getRegularFormatters();
-    assertEquals(
-        userFormatters.get(0).toString(), DateTimeFormatter.ofPattern("yyyyMMDD").toString());
-  }
-
-  @Test
   public void test_shouldCastFunction() {
     assertFalse(dateType.shouldCast(DATE));
   }

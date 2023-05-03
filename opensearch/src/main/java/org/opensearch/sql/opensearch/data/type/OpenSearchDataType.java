@@ -135,17 +135,15 @@ public class OpenSearchDataType implements ExprType, Serializable {
    * @return An instance or inheritor of `OpenSearchDataType`.
    */
   public static OpenSearchDataType of(MappingType mappingType, Map<String, Object> innerMap) {
-    var res = instances.getOrDefault(mappingType.toString(), null);
-    if (res == null) {
-      res = new OpenSearchDataType(mappingType);
-    }
+    OpenSearchDataType res = instances.getOrDefault(mappingType.toString(),
+        new OpenSearchDataType(mappingType)
+    );
     switch (mappingType) {
       case Object:
       case Nested:
         if (innerMap.isEmpty()) {
           return res;
         }
-        var im = innerMap.getOrDefault("properties", Map.of());
         Map<String, OpenSearchDataType> properties =
             parseMapping((Map<String, Object>) innerMap.getOrDefault("properties", Map.of()));
         OpenSearchDataType objectDataType = res.cloneEmpty();

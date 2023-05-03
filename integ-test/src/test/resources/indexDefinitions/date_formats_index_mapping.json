@@ -293,17 +293,13 @@
         "type" : "date",
         "format": "HH:mm:ss"
       },
-      "yyyy-MM-dd||epoch_millis" : {
+      "yyyy-MM-dd_OR_epoch_millis" : {
         "type" : "date",
         "format": "yyyy-MM-dd||epoch_millis"
       },
-      "hour_minute_second||t_time" : {
+      "hour_minute_second_OR_t_time" : {
         "type" : "date",
         "format": "hour_minute_second||t_time"
-      },
-      "MM////dd////yyyy||HH----mm----ss" : {
-        "type" : "date",
-        "format": "MM////dd////yyyy||HH----mm----ss"
       }
     }
   }

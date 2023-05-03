@@ -18,10 +18,8 @@ import com.google.common.collect.Iterators;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
@@ -222,15 +220,7 @@ public class OpenSearchExprValueFactory {
     }
   }
 
-  // returns java.time.format.Parsed
   private TemporalAccessor parseTimestampString(String value, OpenSearchDateType dt) {
-    for (DateTimeFormatter formatter : dt.getRegularFormatters()) {
-      try {
-        return formatter.parse(value);
-      } catch (DateTimeParseException  ignored) {
-        // nothing to do, try another format
-      }
-    }
     for (DateFormatter formatter : dt.getNamedFormatters()) {
       try {
         return formatter.parse(value);
@@ -283,15 +273,6 @@ public class OpenSearchExprValueFactory {
       // Try Timestamp
       try {
         return formatReturn(returnFormat, new ExprTimestampValue(Instant.from(parsed)));
-      } catch (DateTimeException ignored) {
-        // nothing to do, try another type
-      }
-      //Try Datetime
-      try {
-        return formatReturn(
-            returnFormat,
-            new ExprTimestampValue(
-                new ExprDatetimeValue(LocalDateTime.from(parsed)).timestampValue()));
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
