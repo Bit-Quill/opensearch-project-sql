@@ -264,11 +264,11 @@ public class OpenSearchExprValueFactory {
     }
 
     if (value.isString()) {
-      TemporalAccessor parsed = parseTimestampString(value.stringValue(),dt);
+      TemporalAccessor parsed = parseTimestampString(value.stringValue(), dt);
       if (parsed == null) { // failed to parse or no formats given
         return formatReturn(
             returnFormat,
-            (ExprTimestampValue)constructTimestamp(value.stringValue()));
+            (ExprTimestampValue) constructTimestamp(value.stringValue()));
       }
       // Try Timestamp
       try {
@@ -276,32 +276,9 @@ public class OpenSearchExprValueFactory {
       } catch (DateTimeException ignored) {
         // nothing to do, try another type
       }
-      //Try Time
-      try {
-        return formatReturn(
-            returnFormat,
-            new ExprTimestampValue(
-                new ExprTimeValue(LocalTime.from(parsed))
-                    .timestampValue(new FunctionProperties(Instant.EPOCH, ZoneOffset.UTC))));
-      } catch (DateTimeException ignored) {
-        // nothing to do, try another type
-      }
-      //Try Date
-      try {
-        return formatReturn(
-            returnFormat,
-            new ExprTimestampValue(new ExprDateValue(LocalDate.from(parsed)).timestampValue()));
-      } catch (DateTimeException ignored) {
-        LogManager.getLogger(OpenSearchExprValueFactory.class).error(
-            String.format("Can't recognize parsed value: %s, %s", parsed, parsed.getClass()));
-        throw new IllegalStateException(
-            String.format(
-                "Construct ExprTimestampValue from \"%s\" failed, unsupported date format.",
-                value.stringValue()),
-            ignored);
-      }
+      return constructTimestamp(value.stringValue());
     }
-    return formatReturn(returnFormat, new ExprTimestampValue((Instant) value.objectValue()));
+    return new ExprTimestampValue((Instant) value.objectValue());
   }
 
   private ExprValue parseStruct(Content content, String prefix) {
