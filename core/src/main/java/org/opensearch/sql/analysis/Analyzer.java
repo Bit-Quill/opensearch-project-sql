@@ -220,34 +220,11 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   public LogicalPlan visitFilter(Filter node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
     Expression condition = expressionAnalyzer.analyze(node.getCondition(), context);
-    verifySupportsCondition(condition);
 
     ExpressionReferenceOptimizer optimizer =
         new ExpressionReferenceOptimizer(expressionAnalyzer.getRepository(), child);
     Expression optimized = optimizer.optimize(condition, context);
     return new LogicalFilter(child, optimized);
-  }
-
-  /**
-   * Ensure NESTED function is not used in WHERE, GROUP BY, and HAVING clauses.
-   * Fallback to legacy engine. Can remove when support is added for NESTED function in WHERE,
-   * GROUP BY, ORDER BY, and HAVING clauses.
-   * @param condition : Filter condition
-   */
-  private void verifySupportsCondition(Expression condition) {
-    if (condition instanceof FunctionExpression) {
-      if (((FunctionExpression) condition).getFunctionName().getFunctionName().equalsIgnoreCase(
-          BuiltinFunctionName.NESTED.name()
-      )) {
-        throw new SyntaxCheckException(
-            "Falling back to legacy engine. Nested function is not supported in WHERE,"
-                + " GROUP BY, and HAVING clauses."
-        );
-      }
-      ((FunctionExpression)condition).getArguments().stream()
-          .forEach(e -> verifySupportsCondition(e)
-      );
-    }
   }
 
   /**
@@ -300,7 +277,6 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
 
     for (UnresolvedExpression expr : node.getGroupExprList()) {
       NamedExpression resolvedExpr = namedExpressionAnalyzer.analyze(expr, context);
-      verifySupportsCondition(resolvedExpr.getDelegated());
       groupbyBuilder.add(resolvedExpr);
     }
     ImmutableList<NamedExpression> groupBys = groupbyBuilder.build();

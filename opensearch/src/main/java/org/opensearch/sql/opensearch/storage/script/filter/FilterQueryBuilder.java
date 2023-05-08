@@ -25,6 +25,7 @@ import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionNodeVisitor;
 import org.opensearch.sql.expression.FunctionExpression;
+import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.FunctionName;
@@ -123,6 +124,10 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
 
         // example: WHERE nested(foo.bar, nested(zoo.blah, condition))
 
+        if (func.getArguments().size() == 1) { // Syntax: nested(field | field, path) OPERATOR LITERAL
+          LuceneQuery query = luceneQueries.get(name);
+          return query.build(func);
+        }
         if (func.getArguments().size() > 1) {
           Expression secondArgument = func.getArguments().get(1);
           if (secondArgument instanceof FunctionExpression) {
@@ -140,9 +145,41 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
         if (query != null && query.canSupport(func)) {
           return query.build(func);
         }
+        if (query != null && query.isNestedFunction(func)) {
+          QueryBuilder outerQuery = query.buildNested(func);
+          boolean hasPathParam = (((FunctionExpression)func.getArguments().get(0)).getArguments().size() == 2);
+          String pathStr = !hasPathParam ?
+              getNestedPathString((ReferenceExpression) ((FunctionExpression)func.getArguments().get(0)).getArguments().get(0)) :
+              ((FunctionExpression)func.getArguments().get(0)).getArguments().get(0).toString();
+          NestedQuery innerQuery = (NestedQuery) luceneQueries.get(((FunctionExpression)func.getArguments().get(0)).getFunctionName());
+          return innerQuery.adInnerQuery(outerQuery, pathStr);
+        }
+
+        // Nested used in predicate expression with syntax 'WHERE nested(field | field, path) = ...'
+        if (func.getArguments().get(0) instanceof FunctionExpression
+            && ((FunctionExpression)func.getArguments().get(0)).getFunctionName().getFunctionName().equalsIgnoreCase(BuiltinFunctionName.NESTED.name())) {
+          LuceneQuery innerQuery = luceneQueries.get(((FunctionExpression)func.getArguments().get(0)).getFunctionName());
+          return innerQuery.build(func);
+          // containsInnerNestedQuery()
+          // innerQuery.buildPredicateExpression()
+        } else if (query instanceof NestedQuery) {
+          // TODO Throw exception if does not have conditional parameter.
+          return query.build(func);
+        }
         return buildScriptQuery(func);
       }
     }
+  }
+
+  private boolean funcArgsIsPredicateExpression(FunctionExpression func) {
+    func.getArguments().stream().forEach(
+        a -> {
+          if (a instanceof FunctionExpression) {
+            funcArgsIsPredicateExpression((FunctionExpression) a);
+          }
+        }
+    );
+    return false;
   }
 
   private String getNestedPathString(ReferenceExpression field) {

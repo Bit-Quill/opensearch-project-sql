@@ -8,6 +8,7 @@ package org.opensearch.sql.opensearch.storage.script.filter.lucene;
 
 import com.google.common.collect.ImmutableMap;
 
+import java.sql.Ref;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -58,11 +59,10 @@ public abstract class LuceneQuery {
         && (func.getArguments().get(0) instanceof ReferenceExpression)
         && (func.getArguments().get(1) instanceof LiteralExpression
         || literalExpressionWrappedByCast(func))
-        || isMultiParameterQuery(func)
-        || isNestedFunction(func);
+        || isMultiParameterQuery(func);
   }
 
-  private boolean isNestedFunction(FunctionExpression func) {
+  public boolean isNestedFunction(FunctionExpression func) {
     return ((func.getArguments().get(0) instanceof FunctionExpression
         && ((FunctionExpression)func.getArguments().get(0)).getFunctionName().getFunctionName().equalsIgnoreCase("nested"))
         || func.getFunctionName().getFunctionName().equalsIgnoreCase("nested"));
@@ -110,6 +110,16 @@ public abstract class LuceneQuery {
     return doBuild(ref.getAttr(), ref.type(), literalValue);
   }
 
+  public QueryBuilder buildNested(FunctionExpression func) {
+    FunctionExpression ref = (FunctionExpression) func.getArguments().get(0);
+    Expression expr = func.getArguments().get(1);
+    ExprValue literalValue = expr instanceof LiteralExpression ? expr
+        .valueOf() : cast((FunctionExpression) expr);
+
+    ReferenceExpression funcExpr = (ReferenceExpression) ref.getArguments().get(0);
+
+    return doBuild(funcExpr.getAttr(), ref.type(), literalValue);
+  }
 
   private ExprValue cast(FunctionExpression castFunction) {
     return castMap.get(castFunction.getFunctionName()).apply(
