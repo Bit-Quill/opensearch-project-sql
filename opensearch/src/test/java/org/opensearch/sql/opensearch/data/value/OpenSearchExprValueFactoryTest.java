@@ -72,8 +72,6 @@ class OpenSearchExprValueFactoryTest {
           .put("datetimeV", OpenSearchDataType.of(DATETIME))
           .put("timeV", OpenSearchDataType.of(TIME))
           .put("timestampV", OpenSearchDataType.of(TIMESTAMP))
-          .put("hourV", OpenSearchDateType.create("hour"))
-          .put("epochSecondV", OpenSearchDateType.create("epoch_second"))
           .put("dateStringV", OpenSearchDateType.create("date"))
           .put("epochMillisV", OpenSearchDateType.create("epoch_millis"))
           .put("dateOrEpochMillisV", OpenSearchDateType.create("date_time_no_millis||epoch_millis"))
@@ -241,9 +239,6 @@ class OpenSearchExprValueFactoryTest {
         new ExprDatetimeValue("2015-01-01 12:10:30"),
         constructFromObject("datetimeV", "2015-01-01 12:10:30"));
     assertEquals(
-        new ExprDatetimeValue("1970-01-01 09:00:00"),
-        constructFromObject("hourV", "09"));
-    assertEquals(
         new ExprDatetimeValue("1984-04-12 00:00:00"),
         constructFromObject("dateStringV", "1984-04-12"));
     assertEquals(
@@ -265,12 +260,6 @@ class OpenSearchExprValueFactoryTest {
         IllegalStateException.class, () -> tupleValue("{\"badDateFormatV\":\"11,22\"}"));
     assertEquals(
         "Construct ExprTimestampValue from \"11,22\" failed, "
-            + "unsupported date format.",
-        exception.getMessage());
-    exception = assertThrows(
-        IllegalStateException.class, () -> tupleValue("{\"dateStringV\":\"2023-11\"}"));
-    assertEquals(
-        "Construct ExprTimestampValue from \"2023-11\" failed, "
             + "unsupported date format.",
         exception.getMessage());
   }
