@@ -86,4 +86,13 @@ public class QueryDataAnonymizerTest {
                 "UNION SELECT identifier, identifier FROM table )";
         Assert.assertEquals(expectedQuery, QueryDataAnonymizer.anonymizeData(query));
     }
+
+    @Test
+    public void match() {
+        String query = "SELECT * FROM calcs WHERE match(str1, '1', boost=4.0, analyzer=\"standard\") LIMIT 1";
+        String expectedQuery = "( SELECT * FROM table WHERE MATCH(identifier, identifier, identifier, identifier) LIMIT number )";
+        Assert.assertEquals(expectedQuery, QueryDataAnonymizer.anonymizeData(query));
+    }
+
+
 }
