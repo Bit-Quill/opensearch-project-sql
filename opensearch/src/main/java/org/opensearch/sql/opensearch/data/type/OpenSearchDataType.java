@@ -105,27 +105,30 @@ public class OpenSearchDataType implements ExprType, Serializable {
    */
   public static Map<String, OpenSearchDataType> parseMapping(Map<String, Object> indexMapping) {
     Map<String, OpenSearchDataType> result = new LinkedHashMap<>();
-    if (indexMapping != null) {
-      indexMapping.forEach((k, v) -> {
-        var innerMap = (Map<String, Object>)v;
-        // by default, the type is treated as an Object if "type" is not provided
-        var type = ((String) innerMap
-            .getOrDefault(
-                "type",
-                "object"))
-            .replace("_", "");
-        if (!EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.MappingType.class, type)) {
-          // unknown type, e.g. `alias`
-          // TODO resolve alias reference
-          return;
-        }
-        // create OpenSearchDataType
-        result.put(k, OpenSearchDataType.of(
-            EnumUtils.getEnumIgnoreCase(OpenSearchDataType.MappingType.class, type),
-            innerMap)
-        );
-      });
+
+    if (indexMapping == null) {
+      return result;
     }
+
+    indexMapping.forEach((k, v) -> {
+      var innerMap = (Map<String, Object>)v;
+      // by default, the type is treated as an Object if "type" is not provided
+      var type = ((String) innerMap
+          .getOrDefault(
+              "type",
+              "object"))
+          .replace("_", "");
+      if (!EnumUtils.isValidEnumIgnoreCase(OpenSearchDataType.MappingType.class, type)) {
+        // unknown type, e.g. `alias`
+        // TODO resolve alias reference
+        return;
+      }
+      // create OpenSearchDataType
+      result.put(k, OpenSearchDataType.of(
+          EnumUtils.getEnumIgnoreCase(OpenSearchDataType.MappingType.class, type),
+          innerMap)
+      );
+    });
     return result;
   }
 
@@ -140,6 +143,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
     );
     switch (mappingType) {
       case Object:
+        // TODO: use Object type once it has been added
       case Nested:
         if (innerMap.isEmpty()) {
           return res;
@@ -232,10 +236,8 @@ public class OpenSearchDataType implements ExprType, Serializable {
    * @return A cloned object.
    */
   protected OpenSearchDataType cloneEmpty() {
-    if (this.mappingType == null) {
-      return new OpenSearchDataType(this.exprCoreType);
-    }
-    return new OpenSearchDataType(this.mappingType);
+    return this.mappingType == null
+        ? new OpenSearchDataType(this.exprCoreType) : new OpenSearchDataType(this.mappingType);
   }
 
   /**

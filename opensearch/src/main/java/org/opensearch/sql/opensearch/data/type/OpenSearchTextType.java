@@ -18,7 +18,6 @@ import org.opensearch.sql.data.type.ExprType;
  * The type of a text value. See
  * <a href="https://opensearch.org/docs/latest/opensearch/supported-field-types/text/">doc</a>
  */
-@EqualsAndHashCode(callSuper = false)
 public class OpenSearchTextType extends OpenSearchDataType {
 
   private static final OpenSearchTextType instance = new OpenSearchTextType();
@@ -64,7 +63,7 @@ public class OpenSearchTextType extends OpenSearchDataType {
 
   @Override
   protected OpenSearchDataType cloneEmpty() {
-    return OpenSearchTextType.of(ImmutableMap.copyOf(this.fields));
+    return OpenSearchTextType.of(Map.copyOf(this.fields));
   }
 
   /**
