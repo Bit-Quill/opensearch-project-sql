@@ -8,17 +8,20 @@ relation.
 This proposal is to outline the limits of a same-table (ie same-index) join relation from SQL grammar, and provide use
 cases for same-table JOINs.
 
-# Table of Contents
-
-`TODO`
-
 # Same-Table Joins Query Design
 
-`TODO`: Overview of problem and what JOIN relations are aiming to solve
+OpenSearch provides a schema-flexible indexing solution with a 'join' object type (see: [join fields](https://opensearch.org/docs/latest/field-types/join/)) 
+that allows users to simulate join relations. There are a couple of restrictions on the join field relations: mainly,
+only one relation is allowed per index, and the relations are parent-child relations. 
+
+Joins in a SQL context aim to join relations between two separate tables, and merge them into a single result table. OpenSearch
+can do the same relation join within a single index. This proposal provides syntax to join data within a single index
+together into a single result set.  
 
 ## 1. Motivation
 
-`TODO`: Use cases, and SQL statements
+[[FEATURE] Support for subqueries or chaining of queries](https://github.com/opensearch-project/sql/issues/1441) describes
+an example use-case where we may want to join logs within a single index that have a common request or application identifier.
 
 ## 2. References
 
@@ -61,7 +64,8 @@ cases for same-table JOINs.
 
 ## 4. Use Cases
 
-Use Cases have examples that is defined in the Annex.
+Use Cases with examples for all the ways the join field can be accessed in OpenSearch. Each use case contains examples, 
+with data and mappings defined in the Annex.  
 
 ### 4.1 Case SELECT... FROM... JOIN ON parent relation
 
@@ -165,7 +169,125 @@ Expected Response (OpenSearch-JSON):
 }
 ```
 
-### 4.2 Case SELECT... FROM... JOIN ON... WHERE parent relation
+### 4.2 Case SELECT... FROM... JOIN USING parent relation
+
+Summary:
+The JOIN USING syntax is a shortcut syntax for the ON (relation.parent) syntax, and only works when the relation only contains
+a single parent: child relation.  If multiple relations are defined, the USING syntax is ambiguous and a semantic error
+needs to throw for the user to correct the syntax.
+
+The results of this example are exactly the same as case 4.1, but only works with a mapping that is simplified.  The following
+mapping change is needed from the demo mapping provided in annex A. 
+
+Mapping data:
+```json
+      "house_relation": {
+        "type": "join",
+        "relations": {
+          "house": "member"
+        }
+      },
+```
+
+Example query (SQL):
+```sql
+SELECT *
+FROM got AS m
+JOIN got as h USING house_relation
+WHERE h.house.name = "Targaryan"
+```
+
+Expected Request to OpenSearch:
+```json
+{
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "has_parent": {
+                        "parent_type": "house",
+                        "query": {
+                            "match": {
+                                "house.name": "Targaryen"
+                            }
+                        }
+                    }
+                },
+                {
+                    "term": {
+                        "house_relation": "member"
+                    }
+                }
+            ]
+        }
+    },
+    "_source": {
+        "includes": [],
+        "excludes": []
+    }
+}
+```
+
+Expected Response (OpenSearch-JSON):
+```json
+{
+    "took": 5,
+    "timed_out": false,
+    "_shards": {
+        "total": 1,
+        "successful": 1,
+        "skipped": 0,
+        "failed": 0
+    },
+    "hits": {
+        "total": {
+            "value": 1,
+            "relation": "eq"
+        },
+        "max_score": 1.0,
+        "hits": [
+            {
+                "_index": "got-joins",
+                "_id": "4",
+                "_score": 1.0,
+                "_routing": "1",
+                "_source": {
+                    "house_relation": {
+                        "name": "member",
+                        "parent": "1"
+                    },
+                    "name": {
+                        "firstname": "Daenerys",
+                        "lastname": "Targaryen"
+                    },
+                    "nickname": "Daenerys \"Stormborn\"",
+                    "gender": "F",
+                    "parents": {
+                        "father": "Aerys",
+                        "mother": "Rhaella"
+                    },
+                    "titles": [
+                        {
+                            "title": "Mother Of Dragons"
+                        },
+                        {
+                            "title": "Queen Of The Andals"
+                        },
+                        {
+                            "title": "Breaker Of Chains"
+                        },
+                        {
+                            "title": "Khaleesi"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
+```
+
+### 4.3 Case SELECT... FROM... JOIN ON... WHERE parent relation
 
 Summary:
 
@@ -327,7 +449,7 @@ Expected Response (OpenSearch-JSON):
 }
 ```
 
-### 4.3 Case SELECT... FROM... JOIN... WHERE on child relation
+### 4.4 Case SELECT... FROM... JOIN... WHERE on child relation
 
 Summary:
 
@@ -452,7 +574,7 @@ Expected Response (OpenSearch-JSON):
 }
 ```
 
-### 4.4 Case SELECT... FROM... JOIN ON (parent _id)
+### 4.6 Case SELECT... FROM... JOIN ON (parent _id)
 
 Summary:
 
@@ -523,7 +645,7 @@ Expected Response (OpenSearch-JSON):
 ```
 
 
-### 4.5 Case JOIN on multiple children
+### 4.7 Case JOIN on multiple children
 
 Summary:
 
@@ -607,7 +729,7 @@ Expected Request to OpenSearch:
 }
 ```
 
-### 4.6 Case JOIN ON Children and Grandchildren
+### 4.8 Case JOIN ON Children and Grandchildren
 
 Summary:
 
@@ -716,8 +838,6 @@ Expected Response (OpenSearch-JSON):
     }
 }
 ```
-
-TODO: Explicit case using `USING`
 
 ### 4.X *Case X*
 
@@ -857,128 +977,10 @@ to the string `myId`.
 
 The following diagram explains the proposed sequence to create JOIN request to OpenSearch
 
-`TODO`: reference for [mermaid.js](http://mermaid-js.github.io/mermaid/#/)
+### 6.1 Logical Plan Changes - Presentation
 
-```mermaid
-stateDiagram-v2
-    [*] --> SQLService
-    state SQLService {
-      direction LR
-      SQLQueryRequest --> ParseTree: OpenSearchSQLParser.parse
-      ParseTree --> AbstractSyntaxTree: accept
-      SQLQueryRequest --> Statement: AstStatementBuilder.build
-      Statement --> AbstractSyntaxTree: AstBuilder.build
-      AbstractSyntaxTree --> UnresolvedPlan: QueryPlanFactory.executeQueryPlan
-    }
-    SQLService --> QueryManager
-    QueryManager --> QueryService
-    state QueryService {
-      direction LR 
-      UnresolvedQueryPlan --> LogicalPlan: Analyzer.analyze()
-      LogicalPlan --> ExecuteSplitPlan: executePlan()
-      LogicalPlan --> OptimizedLogicalPlan: LogicalPlanOptimizer.optimize()
-      OptimizedLogicalPlan --> PhysicalPlan: Planner.plan()
-    }
-    QueryService --> ExecutionEngine
-    state ExecutionEngine {
-      direction LR 
-      PlannedPhysicalPlan --> ProtectedPhysicalPlan: ExecutionProtector.protect()
-      ProtectedPhysicalPlan --> OpenSearchRequest: OpenSearchClient.build()
-      ExecutionContext --> OpenSearchRequest: split.add()
-      OpenSearchRequest --> QueryResponse: open()
-    }
-    ExecutionEngine --> ResponseListener
-    state ResponseListener {
-      direction LR
-      clientResponse --> QueryResult
-      QueryResult --> jsonResponse: JsonResponseFormatter.buildJsonObject
-    }
-    ResponseListener --> [*]
-```
-
-### 6.2 Elements
-
-| Element               | Responsibility                                                | Class                     |
-|-----------------------|---------------------------------------------------------------|---------------------------|
-| SQLService            | Service to create an UnresolvedPlan from the Parser and Query | same                      |
-| SQLQueryRequest       | Stores the raw query (as a string)                            | same                      |
-| ParseTree             | Parse Tree from ANTLR                                         | same                      |
-| Statement             | Query request with context                                    | same                      |
-| AbstractSyntaxTree    | Query as a parsed tree                                        | same                      |
-| QueryManager          | Middle Manager for executing query plan                       | OpenSearchQueryManager    |
-| QueryService          | Service to create a physical plan                             | same                      |
-| UnresolvedQueryPlan   | Query Plan with unresolved nodes                              | Project                   |
-| LogicalPlan           | Logical Plan verifies logical components of the plan          | LogicalProject            | 
-| ExecuteSplitPlan      | Execution context in case of split storage                    | Split                     | 
-| OptimizedLogicalPlan  | The logical plan is optimized for execution (refactored)      | LogicalProject            |
-| ExecutionEngine       | The engine responsible for storage access control             | OpenSearchExecutionEngine |
-| OpenSearchRequest     | Part of the OpenSearch client request                         | same                      |
-| OpenSearchResponse    | Part of the OpenSearch client request                         | same                      |
-| ResponseListener      | Service responsible for resolving the REST client action      | same                      |
-| QueryResult           | Response object from the REST client                          | same                      |
-| JsonResponseFormatter | Service responsible for creating a JSON formatted response    | same                      | 
-
-### 6.3 Parse Tree Changes
-
-We need to accept JOIN grammar, including `JOIN USING` and `JOIN ON` syntax in the `FROM` clause.
-
-```mermaid
-sequenceDiagram
-    participant AstBuilder
-    participant FromClauseContext
-    participant TableContext
-    participant JoinTableContext
-
-    %% node visitor
-    AstBuilder->>FromClauseContext: visitFromClause()
-    activate FromClauseContext
-    FromClauseContext->>TableContext: visitTableAsRelation()
-    activate TableContext
-    TableContext->>FromClauseContext: Relation
-    deactivate TableContext
-    FromClauseContext->>JoinTableContext: visitJoinTableAsRelation()
-    activate JoinTableContext
-    JoinTableContext->>FromClauseContext: Relation.attach(JoinRelation)
-    deactivate JoinTableContext
-    FromClauseContext->>AstBuilder: UnresolvedPlan
-    deactivate FromClauseContext
-```
-
-### 6.4 Logical Plan Relation Visitor
-
-```mermaid
-sequenceDiagram
-    participant SQLService
-    participant Analyzer
-    participant JoinRelation
-    participant Relation
-    participant DataSourceService
-    participant Table
-    participant TypeEnvironment
-
-    SQLService->>Analyzer: analyze
-    Analyzer->>Relation: visitRelation
-    Relation->>DataSourceService: getTable
-    DataSourceService-->>Relation: Table
-    Relation->>Table: getFieldTypes
-    Table->>TypeEnvironment: define
-    Relation->>Table: getReservedFieldTypes
-    Table->>TypeEnvironment: define
-    Relation->>TypeEnvironment: define(node.alias)
-    Relation->>Analyzer: LogicalRelation
-    Analyzer->>JoinRelation: visitJoinRelation
-    JoinRelation->>TypeEnvironment: getOpenSearchJoinType
-    TypeEnvironment->>JoinRelation: OpenSearchJoinType
-    JoinRelation->>JoinRelation: setJoinRelationContext
-    JoinRelation->>Analyzer: <<LogicalRelation>>
-    Analyzer->>Analyzer: LogicalRelation.attach(<<LogicalJoinRelation>>)
-    Analyzer->>SQLService: LogicalPlan
-```
-
-### 6.5 Logical Plan Changes
-
-TODO: This is the first diagram for section 6
-TODO: verify whether the optimizer removes the filter/sort or if that's done on push_down/plan
+The following diagram shows the placement of the `LogicalJoinRelation` as part of the Logical Plan, and the `InnerHitsOperator` 
+(name is pending) as part of the physical plan. 
 
 ```mermaid
 stateDiagram-v2
@@ -1025,6 +1027,67 @@ direction LR
     }
 ```
 
+### 6.2 Parse Tree Changes
+
+We need to accept JOIN grammar, including `JOIN USING` and `JOIN ON` syntax in the `FROM` clause.  The following diagram
+show how the ASTBuilder constructs the `LogicalRelation` object (containing a `Table` or `OpenSearchIndex` object) from 
+the Relation clause, which is similar to how the `LogicalJoinRelation` object is constructed from the JoinRelation clause.   
+
+```mermaid
+sequenceDiagram
+    participant AstBuilder
+    participant FromClauseContext
+    participant TableContext
+    participant JoinTableContext
+
+    %% node visitor
+    AstBuilder->>FromClauseContext: visitFromClause()
+    activate FromClauseContext
+    FromClauseContext->>TableContext: visitTableAsRelation()
+    activate TableContext
+    TableContext->>FromClauseContext: Relation
+    deactivate TableContext
+    FromClauseContext->>JoinTableContext: visitJoinTableAsRelation()
+    activate JoinTableContext
+    JoinTableContext->>FromClauseContext: Relation.attach(JoinRelation)
+    deactivate JoinTableContext
+    FromClauseContext->>AstBuilder: UnresolvedPlan
+    deactivate FromClauseContext
+```
+
+### 6.3 Logical Plan Relation Visitor
+
+The following sequence diagram shows what the 
+
+```mermaid
+sequenceDiagram
+    participant SQLService
+    participant Analyzer
+    participant JoinRelation
+    participant Relation
+    participant DataSourceService
+    participant Table
+    participant TypeEnvironment
+
+    SQLService->>Analyzer: analyze
+    Analyzer->>Relation: visitRelation
+    Relation->>DataSourceService: getTable
+    DataSourceService-->>Relation: Table
+    Relation->>Table: getFieldTypes
+    Table->>TypeEnvironment: define
+    Relation->>Table: getReservedFieldTypes
+    Table->>TypeEnvironment: define
+    Relation->>TypeEnvironment: define(node.alias)
+    Relation->>Analyzer: LogicalRelation
+    Analyzer->>JoinRelation: visitJoinRelation
+    JoinRelation->>TypeEnvironment: getOpenSearchJoinType
+    TypeEnvironment->>JoinRelation: OpenSearchJoinType
+    JoinRelation->>JoinRelation: setJoinRelationContext
+    JoinRelation->>Analyzer: <<LogicalRelation>>
+    Analyzer->>Analyzer: LogicalRelation.attach(<<LogicalJoinRelation>>)
+    Analyzer->>SQLService: LogicalPlan
+```
+
 ## 7. Detailed-Design Architecture
 
 The LogicalPlan will contain an extra Node called the LogicalJoinRelation, which stores the context
@@ -1034,19 +1097,57 @@ and need to create an `OpenSearchDataType` for joins.
 
 ### 7.1 Presentation
 
-ER diagram for how Analyzer creates the type environment(s) - table and relations
- 
+ER diagram for how AnalyzerContext contains the TypeEnvironment(s).  The TypeEnvironment defined the 
+types (indices and symbols) for each relation environment.  There may be multiple
+relations, in the case of joins.  A lateral join will be on the same index or relation, but
+the symbol table will be different (through aliasing or otherwise).
+
+The lateralJoin field is new, and will create a separate LogicalJoin node in the Logical Plan. 
+
 ```mermaid
-classDiagram
-    class TypeEnvironment {
+erDiagram
+    TypeEnvironment {
+        TypeEnvironment parent
+        TypeEnvironment lateralJoin
+        SymbolTable symbolTable
+        SymbolTable reservedSymbolTable        
     }
+    AnalysisContext {
+        TypeEnvironment environment
+        List namedParseExpressions
+        FunctionProperties functionProperties
+    }
+    AnalysisContext ||--|| TypeEnvironment : contains-root
+    TypeEnvironment ||--o| parent-TypeEnvironment : contains-parent
+    parent-TypeEnvironment ||--o| another-TypeEnvironment : contains-parent
+    parent-TypeEnvironment ||--o| join-TypeEnvironment : contains-lateralJoin
+    
 ```
+
+The 'Join' type is defined by OpenSearch, and contains the `relation` field
+that holds the various parent-child relations.  Note that there can only be 
+a single parent, but the parent can have child, or even grand-child relations. 
 
 ```mermaid
 classDiagram
     class OpenSearchJoinType {
+        <<OpenSearchDataType>>
+        MappingType mappingType = MappingType.Join
+        ExprCoreType exprCoreType = ExprCoreType.JOIN
+        OpenSearchRelation parentRelation 
     }
+    
+    class OpenSearchRelation {
+        String relationName
+        List<OpenSearchRelation> childrenRelations
+    }
+    
+    OpenSearchJoinType --> OpenSearchRelation
 ```
+
+The `JoinRelationAnalyzer` creates the `LogicalJoinRelation` from the `Relation` AST nodes. 
+There may be more than one `LogicalJoinRelation` created, but they will always
+exist as parents to the `LogicalRelation`. 
 
 ```mermaid
 classDiagram
@@ -1062,28 +1163,43 @@ classDiagram
     }
 ```
 
+The LogicalJoinRelation will be of one of 3 types, depending on how the relation is queried
+in OpenSearch.  It will use either the `has_parent`, `has_child`, or `parent_id` 
+relation queries.  Regardless, these 
+
 ```mermaid
 classDiagram
     class LogicalJoinRelation {
-        -List~Map~String_ReferenceExpression~~ fields
         -List~NamedExpression~ projectList
-        +addFields(Map~String_ReferenceExpression~ fields)
         +accept(LogicalPlanNodeVisitor~R_C~ visitor, C context) ~R_C~ R
     }
     
     class LogicalHasParentJoinRelation {
+        <<LogicalJoinRelation>>
+        parent
     }
     
     class LogicalHasChildJoinRelation {
+        <<LogicalJoinRelation>>
+        child
     } 
     
     class LogicalByParentIdJoinRelation {
+        <<LogicalJoinRelation>>
+        parent
+        id
     } 
     
     LogicalJoinRelation <|-- LogicalHasParentJoinRelation 
     LogicalJoinRelation <|-- LogicalHasChildJoinRelation 
     LogicalJoinRelation <|-- LogicalByParentIdJoinRelation 
 ```
+
+The `LogicalJoinRelation` transforms into a `JoinOperator` during the logical-to-physical plan.
+The `JoinOperator` takes the form of an `InnerHitsOperator`, as the inner_hits for each join 
+relation need to be considered and flattened into the result hits.  This is the same operation 
+as the current `NestedOperator`.  The flattening algorithm can be refactored out of the `NestedOperator`
+and re-purposed into the `InnerHitsOperator`. 
 
 ```mermaid
 classDiagram
@@ -1098,10 +1214,10 @@ classDiagram
         +getChild() List~PhysicalPlan~
         +hasNext() boolean
         +next() ExprValue
-        +generateNonNestedFieldsMap(ExprValue inputMap)
+        +generateFlatennedFieldsMap(ExprValue inputMap)
         -flatten(String nestedField, ExprValue row, List~Map~String_ExprValue~~ prevList) List~Map~String_ExprValue~~
         -containsSamePath(Map~String_ExprValue~ newMap) boolean
-        -getNested(String field, String nestedField, ExprValue row, List~Map~String_ExprValue~~ ret, ExptValue nestedObj)
+        -getInnerHitFields(String field, String innerHitField, ExprValue row, List~Map~String_ExprValue~~ ret, ExprValue obj)
     }
     
     InnerHitsOperator <|-- NestedOperator
