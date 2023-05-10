@@ -1,4 +1,3 @@
-SELECT FlightNum FROM opensearch_dashboards_sample_data_flights ORDER BY FlightNum
 SELECT FlightNum FROM opensearch_dashboards_sample_data_flights ORDER BY FlightNum ASC
 SELECT FlightNum FROM opensearch_dashboards_sample_data_flights ORDER BY FlightNum DESC
 SELECT FlightNum FROM opensearch_dashboards_sample_data_flights ORDER BY FlightNum asc

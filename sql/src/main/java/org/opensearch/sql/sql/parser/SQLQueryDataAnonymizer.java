@@ -19,6 +19,7 @@ import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.planner.logical.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -97,27 +98,16 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
     @Override
     public String visitAggregation(Aggregation node, String context) {
         String child = node.getChild().get(0).accept(this, context);
-        //final String group = visitExpressionList(node.getGroupExprList());
-        return StringUtils.format("%s", child//,
-                //String.join(" ", visitExpressionList(node.getAggExprList()), groupBy(group)).trim()
-        );
-    }
-
-    /**
-     * Build {@link LogicalRareTopN}.
-     */
-    @Override
-    public String visitRareTopN(RareTopN node, String context) {
-        final String child = node.getChild().get(0).accept(this, context);
-        List<Argument> options = node.getNoOfResults();
-        Integer noOfResults = (Integer) options.get(0).getValue().getValue();
-        String fields = visitFieldList(node.getFields());
-        String group = visitExpressionList(node.getGroupExprList());
-        return StringUtils.format("%s | %s %d %s", child,
-                node.getCommandType().name().toLowerCase(),
-                noOfResults,
-                String.join(" ", fields, groupBy(group)).trim()
-        );
+        final String group = visitExpressionList(node.getGroupExprList());
+        return StringUtils.format("%s %s", child,
+                String.join(" ", groupBy(group)).trim());
+        /*
+        String child = node.getChild().get(0).accept(this, context);
+        final String group = visitExpressionList(node.getGroupExprList());
+        return Objects.equals(group, "") ?
+                StringUtils.format("%s", child) :
+                StringUtils.format("%s GROUP BY %s", child, group);
+         */
     }
 
     /**
@@ -128,7 +118,7 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
         String fields = visitExpressionList(node.getProjectList());
         String child = node.getChild().get(0).accept(this, context);
 
-        return StringUtils.format("( SELECT %s %s )", fields, child);
+        return child == null ? StringUtils.format("( SELECT %s )", fields) : StringUtils.format("( SELECT %s %s )", fields, child);
     }
 
     /**
@@ -143,12 +133,12 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
     }
 
     private String visitFieldList(List<Field> fieldList) {
-        return fieldList.stream().map(this::visitExpression).collect(Collectors.joining(","));
+        return fieldList.stream().map(this::visitExpression).collect(Collectors.joining(", "));
     }
 
     private String visitExpressionList(List<UnresolvedExpression> expressionList) {
         return expressionList.isEmpty() ? "" :
-                expressionList.stream().map(this::visitExpression).collect(Collectors.joining(","));
+                expressionList.stream().map(this::visitExpression).collect(Collectors.joining(", "));
     }
 
     private String visitExpression(UnresolvedExpression expression) {
@@ -156,7 +146,7 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
     }
 
     private String groupBy(String groupBy) {
-        return Strings.isNullOrEmpty(groupBy) ? "" : StringUtils.format("BY %s", groupBy);
+        return Strings.isNullOrEmpty(groupBy) ? "" : StringUtils.format("GROUP BY %s", groupBy);
     }
 
     public String analyze(UnresolvedExpression unresolved, String context) {
@@ -167,18 +157,12 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
     public String visitLiteral(Literal node, String context) {
         switch (node.getType()) {
             case STRING:
-                return "\'string_literal\'";
+                return "'string_literal'";
             case BOOLEAN:
                 return "boolean_literal";
-            case INTEGER:
-            case LONG:
-            case SHORT:
-            case FLOAT:
-            case DOUBLE:
+            default:
                 return "number";
         }
-
-        return "identifier";
     }
 
     @Override
@@ -192,33 +176,33 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
     public String visitAnd(And node, String context) {
         String left = node.getLeft().accept(this, context);
         String right = node.getRight().accept(this, context);
-        return StringUtils.format("%s and %s", left, right);
+        return StringUtils.format("%s AND %s", left, right);
     }
 
     @Override
     public String visitOr(Or node, String context) {
         String left = node.getLeft().accept(this, context);
         String right = node.getRight().accept(this, context);
-        return StringUtils.format("%s or %s", left, right);
+        return StringUtils.format("%s OR %s", left, right);
     }
 
     @Override
     public String visitXor(Xor node, String context) {
         String left = node.getLeft().accept(this, context);
         String right = node.getRight().accept(this, context);
-        return StringUtils.format("%s xor %s", left, right);
+        return StringUtils.format("%s XOR %s", left, right);
     }
 
     @Override
     public String visitNot(Not node, String context) {
         String expr = node.getExpression().accept(this, context);
-        return StringUtils.format("not %s", expr);
+        return StringUtils.format("NOT %s", expr);
     }
 
     @Override
     public String visitAggregateFunction(AggregateFunction node, String context) {
         String arg = node.getField().accept(this, context);
-        return StringUtils.format("%s(%s)", node.getFuncName(), arg);
+        return StringUtils.format("%s(%s)", node.getFuncName().toUpperCase(), arg);
     }
 
     @Override
@@ -229,7 +213,7 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
         //.collect(Collectors.joining(","));
         List<String> arithmetic = List.of("+", "-", "*", "/", "%", "=", "!=", "<", "<=", ">", ">="); // find rest of functions
         return arithmetic.contains(node.getFuncName()) ? StringUtils.format("%s %s %s", arguments.get(0), node.getFuncName(), arguments.get(1)) :
-                StringUtils.format("%s(%s)", node.getFuncName(), String.join(",", arguments));
+                StringUtils.format("%s(%s)", node.getFuncName().toUpperCase(), String.join(", ", arguments));
     }
 
     @Override
@@ -241,13 +225,14 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
 
     @Override
     public String visitField(Field node, String context) {
-        return node.getField().toString();
+        return "identifier";
     }
 
     @Override
     public String visitAlias(Alias node, String context) {
         String expr = node.getDelegated().accept(this, context);
-        return StringUtils.format("%s", expr);
+        String alias = node.getAlias();
+        return alias == null ? StringUtils.format("%s", expr) : StringUtils.format("%s AS %s", expr, alias);
     }
 
     @Override
@@ -259,5 +244,10 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
     public String visitLimit(Limit node, String context) {
         String child = node.getChild().get(0).accept(this, context);
         return node.getOffset() == 0 ? StringUtils.format("%s LIMIT number", child) : StringUtils.format("%s LIMIT number, number", child);
+    }
+
+    @Override
+    public String visitQualifiedName(QualifiedName node, String context) {
+        return "identifier";
     }
 }

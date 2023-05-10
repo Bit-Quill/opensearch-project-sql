@@ -52,7 +52,7 @@ public class QueryDataAnonymizer {
                             new AstStatementBuilder(
                                     new AstBuilder(query),
                                     AstStatementBuilder.StatementBuilderContext.builder().build()));
-            SQLQueryDataAnonymizer2 anonymizer = new SQLQueryDataAnonymizer2();
+            SQLQueryDataAnonymizer anonymizer = new SQLQueryDataAnonymizer();
             resultQuery = anonymizer.anonymizeStatement(statement);
         }
 
