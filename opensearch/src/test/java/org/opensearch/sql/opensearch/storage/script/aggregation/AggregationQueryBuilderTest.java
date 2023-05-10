@@ -14,6 +14,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.opensearch.sql.common.utils.StringUtils.format;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
+import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
@@ -50,8 +51,10 @@ import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.aggregation.AvgAggregator;
 import org.opensearch.sql.expression.aggregation.CountAggregator;
+import org.opensearch.sql.expression.aggregation.MaxAggregator;
 import org.opensearch.sql.expression.aggregation.NamedAggregator;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchDateType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 import org.opensearch.sql.opensearch.storage.serialization.ExpressionSerializer;
 
@@ -145,6 +148,30 @@ class AggregationQueryBuilderTest {
         containsInAnyOrder(
             map("avg(age)", OpenSearchDataType.of(INTEGER)),
             map("name", OpenSearchDataType.of(STRING))
+        ));
+  }
+
+  @Test
+  void should_build_type_mapping_for_datetime_type() {
+    assertThat(
+        buildTypeMapping(Arrays.asList(
+                named("avg(datetime)", new AvgAggregator(Arrays.asList(ref("datetime", DATETIME)), DATETIME))),
+            Arrays.asList(named("datetime", ref("datetime", DATETIME)))),
+        containsInAnyOrder(
+            map("avg(datetime)", OpenSearchDateType.of()),
+            map("datetime", OpenSearchDateType.of())
+        ));
+  }
+
+  @Test
+  void should_build_type_mapping_for_timestamp_type() {
+    assertThat(
+        buildTypeMapping(Arrays.asList(
+                named("avg(timestamp)", new AvgAggregator(Arrays.asList(ref("timestamp", TIMESTAMP)), TIMESTAMP))),
+            Arrays.asList(named("timestamp", ref("timestamp", TIMESTAMP)))),
+        containsInAnyOrder(
+            map("avg(timestamp)", OpenSearchDateType.of()),
+            map("timestamp", OpenSearchDateType.of())
         ));
   }
 
@@ -588,6 +615,8 @@ class AggregationQueryBuilderTest {
             named("count(a)", new CountAggregator(Arrays.asList(ref("a", INTEGER)), INTEGER))),
         Arrays.asList(named(span(ref("age", INTEGER), literal(1), "invalid_unit")))));
   }
+
+
 
   @SneakyThrows
   private String buildQuery(List<NamedAggregator> namedAggregatorList,

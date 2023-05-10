@@ -106,12 +106,8 @@ public class OpenSearchExprValueFactory {
               (c, dt) -> new ExprStringValue(c.stringValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Boolean),
               (c, dt) -> ExprBooleanValue.of(c.booleanValue()))
-          //Handles the creation of DATE, TIME, TIMESTAMP
-          .put(OpenSearchDataType.of(ExprCoreType.TIMESTAMP),
-              (c, dt) -> parseTimestamp(c, dt))
+          //Handles the creation of DATE, TIME
           .put(OpenSearchDataType.of(ExprCoreType.TIME),
-              (c, dt) -> parseTimestamp(c, dt))
-          .put(OpenSearchDataType.of(ExprCoreType.DATETIME),
               (c, dt) -> parseTimestamp(c, dt))
           .put(OpenSearchDataType.of(ExprCoreType.DATE),
               (c, dt) -> parseTimestamp(c, dt))
@@ -229,9 +225,6 @@ public class OpenSearchExprValueFactory {
   private ExprValue formatReturn(ExprType formatType, ExprTimestampValue unformatted) {
     if (formatType.equals(ExprCoreType.DATE)) {
       return new ExprDateValue(unformatted.dateValue());
-    }
-    if (formatType.equals(ExprCoreType.DATETIME)) {
-      return new ExprDatetimeValue(unformatted.datetimeValue());
     }
     if (formatType.equals(ExprCoreType.TIME)) {
       return new ExprTimeValue(unformatted.timeValue().toString());

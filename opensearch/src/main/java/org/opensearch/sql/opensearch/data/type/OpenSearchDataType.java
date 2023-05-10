@@ -161,9 +161,6 @@ public class OpenSearchDataType implements ExprType, Serializable {
       case GeoPoint: return OpenSearchGeoPointType.of();
       case Binary: return OpenSearchBinaryType.of();
       case Ip: return OpenSearchIpType.of();
-      case Date:
-        return OpenSearchDateType.create(
-          (String) innerMap.getOrDefault("format", ""));
       default:
         return res;
     }
