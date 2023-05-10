@@ -50,9 +50,9 @@ an example use-case where we may want to join logs within a single index that ha
 
 ### 3.2 Design Decisions
 
-* JOIN-relations architecture is built to work in combination with the `nested` and `object` data types.  This allows enables
-  both same-table joins and nested object (using PartiQL) to share execution paths and syntax.  This also enables a shared
-  solution to expand support for `lateral` tables and enable `lateral join` and `lateral nested` queries.
+* JOIN-relations architecture is built to work in combination with the `nested` and `object` data types.  This architecture allows
+  both same-table joins and nested object (using PartiQL) to share execution paths and syntax.  This shared
+  solution can expand support for `lateral` tables and enable `lateral join` and `lateral nested` queries.
     * see [Add support for PArtiQL in V2 engine](https://github.com/opensearch-project/sql/issues/1104)
 
 ### 3.3. Storage Type
@@ -289,7 +289,7 @@ Expected Response (OpenSearch-JSON):
 
 ### 4.3 Case SELECT... FROM... JOIN ON... WHERE parent relation
 
-Summary:
+Summary: In this case, we are joining from `child` to `parent` using the `has_parent` relation query. 
 
 Example query (SQL):
 ```sql
@@ -451,7 +451,7 @@ Expected Response (OpenSearch-JSON):
 
 ### 4.4 Case SELECT... FROM... JOIN... WHERE on child relation
 
-Summary:
+Summary: In this case, we are joining from `parent` to `child` using the `has_child` relation query.
 
 Example query (SQL):
 ```sql
@@ -576,7 +576,8 @@ Expected Response (OpenSearch-JSON):
 
 ### 4.6 Case SELECT... FROM... JOIN ON (parent _id)
 
-Summary:
+Summary: In this case, we are joining from `child` to `parent` on a specific `_id` using the `parent_id` relation query.
+This finds a specific document id as the parent.  
 
 Example query (SQL):
 ```sql
@@ -647,9 +648,10 @@ Expected Response (OpenSearch-JSON):
 
 ### 4.7 Case JOIN on multiple children
 
-Summary:
+Summary: In this case, we have multiple children of `house` (children are `member`, `retainer` and `vassel_house`), and
+we are joining the `house` table with each of these children. 
 
-Note, the Mapping file contains:
+Note, the Mapping file in the Annex contains:
 ```json
 {
   "mappings": {
@@ -731,7 +733,8 @@ Expected Request to OpenSearch:
 
 ### 4.8 Case JOIN ON Children and Grandchildren
 
-Summary:
+Summary: In this case, we have a child of a child of the `house`. Child is `vassel_house`, and the child of `vassel_house`
+is `vassel`. We are doing two joins from table to table to table. 
 
 Example query (SQL):
 ```sql
@@ -838,26 +841,6 @@ Expected Response (OpenSearch-JSON):
     }
 }
 ```
-
-### 4.X *Case X*
-
-Summary:
-
-Example query (SQL):
-```sql
-
-```
-
-Expected Request to OpenSearch:
-```json
-
-```
-
-Expected Response (OpenSearch-JSON):
-```json
-
-```
-
 
 ## 5. Functional Requirements
 
@@ -973,11 +956,11 @@ JOIN table AS joinTableAlias ON (joinTableAlias.relation.parent = 'myId')
 Where `relation` is the data field mapped as a `join` type, and we want to join on the parent documents with `_id` equal
 to the string `myId`.
 
-### 6.1 Presentation
+### 6.2 Presentations
 
 The following diagram explains the proposed sequence to create JOIN request to OpenSearch
 
-### 6.1 Logical Plan Changes - Presentation
+#### 6.2.1 Logical Plan Changes
 
 The following diagram shows the placement of the `LogicalJoinRelation` as part of the Logical Plan, and the `InnerHitsOperator` 
 (name is pending) as part of the physical plan. 
@@ -985,8 +968,8 @@ The following diagram shows the placement of the `LogicalJoinRelation` as part o
 ```mermaid
 stateDiagram-v2
 direction LR
-    LogicalPlan --> OptimizedLogicalPlan: Optimize
-    OptimizedLogicalPlan --> PhysicalPlan: push down OP
+    LogicalPlan --> OptimizedLogicalPlan: Create IndexScanBuilder
+    OptimizedLogicalPlan --> PhysicalPlan: Build Query
 
     state "Logical Plan" as LogicalPlan
     state LogicalPlan {
@@ -1027,7 +1010,7 @@ direction LR
     }
 ```
 
-### 6.2 Parse Tree Changes
+#### 6.2.2 Parse Tree Changes
 
 We need to accept JOIN grammar, including `JOIN USING` and `JOIN ON` syntax in the `FROM` clause.  The following diagram
 show how the ASTBuilder constructs the `LogicalRelation` object (containing a `Table` or `OpenSearchIndex` object) from 
@@ -1055,7 +1038,7 @@ sequenceDiagram
     deactivate FromClauseContext
 ```
 
-### 6.3 Logical Plan Relation Visitor
+#### 6.2.3 Logical Plan Relation Visitor
 
 The following sequence diagram shows what the 
 
@@ -1225,8 +1208,6 @@ classDiagram
     InnerHitsOperator <|-- HasChildJoinOperator
     InnerHitsOperator <|-- ByParentIdJoinOperator
 ```
-
-### 7.2 Elements
 
 # Annex
 

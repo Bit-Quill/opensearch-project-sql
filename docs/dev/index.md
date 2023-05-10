@@ -55,8 +55,8 @@
   + [Relevancy Search](opensearch-relevancy-search.md): OpenSearch relevancy search functions
   + [Sub Queries](opensearch-nested-field-subquery.md): support sub queries on OpenSearch nested field
   + [Pagination](opensearch-pagination.md): pagination implementation by OpenSearch scroll API
-  + [Prometheus](datasource-prometheus.md): Prometheus query federation
   + [Join Field Type](opensearch-same-table-join-query.md): Same-Table Joins using the OpenSearch join field type
++ [Prometheus](datasource-prometheus.md): Prometheus query federation
 + **File System**
   + [Querying S3](datasource-query-s3.md): S3 query federation proposal
 
