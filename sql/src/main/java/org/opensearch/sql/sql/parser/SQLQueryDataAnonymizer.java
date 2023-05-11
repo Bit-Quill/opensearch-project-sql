@@ -17,6 +17,7 @@ import org.opensearch.sql.ast.statement.Statement;
 import org.opensearch.sql.ast.tree.*;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.planner.logical.*;
+import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser;
 
 import java.util.List;
 import java.util.Objects;
@@ -35,9 +36,12 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
      *
      * @return ppl query string with all user data replace with "***"
      */
+    /*
     public String anonymizeData(UnresolvedPlan plan) {
         return plan.accept(this, null);
     }
+     */
+
 
     public String anonymizeStatement(Statement plan) {
         return plan.accept(this, null);
@@ -72,7 +76,7 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
     public String visitFilter(Filter node, String context) {
         String child = node.getChild().get(0).accept(this, context);
         String condition = visitExpression(node.getCondition());
-        return StringUtils.format("%s WHERE %s", child, condition);
+        return StringUtils.format("%s GROUP BY %s", child, condition);
     }
 
     /**
@@ -99,8 +103,9 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
     public String visitAggregation(Aggregation node, String context) {
         String child = node.getChild().get(0).accept(this, context);
         final String group = visitExpressionList(node.getGroupExprList());
-        return StringUtils.format("%s %s", child,
-                String.join(" ", groupBy(group)).trim());
+        //final String group2 = (node.getGroupExprList()).stream().map(this::visitExpression).collect(Collectors.joining(", "));
+        return Objects.equals(group, "") ? StringUtils.format("%s", child) : StringUtils.format("%s %s", child, groupBy(group));
+
         /*
         String child = node.getChild().get(0).accept(this, context);
         final String group = visitExpressionList(node.getGroupExprList());
@@ -146,7 +151,7 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
     }
 
     private String groupBy(String groupBy) {
-        return Strings.isNullOrEmpty(groupBy) ? "" : StringUtils.format("GROUP BY %s", groupBy);
+        return StringUtils.format("GROUP BY %s", groupBy);
     }
 
     public String analyze(UnresolvedExpression unresolved, String context) {
@@ -225,7 +230,10 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
 
     @Override
     public String visitField(Field node, String context) {
-        return "identifier";
+        // Adds ASC if no order is provided
+        return Objects.equals(node.getFieldArgs().get(0).getValue().toString(), "true")
+                ? StringUtils.format("identifier ASC")
+                : StringUtils.format("identifier DESC");
     }
 
     @Override

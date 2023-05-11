@@ -1,3 +1,27 @@
+SELECT COUNT(*) FROM opensearch_dashboards_sample_data_flights WHERE FlightTimeMin > 0
+SELECT COUNT(1) FROM opensearch_dashboards_sample_data_flights WHERE FlightTimeMin > 0
+SELECT SUM(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights WHERE FlightTimeMin > 0
+SELECT AVG(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights WHERE FlightTimeMin > 0
+SELECT COUNT(*) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry
+SELECT COUNT(FlightNum) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry
+SELECT COUNT(FlightDelay) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry
+SELECT COUNT(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry
+SELECT AVG(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry
+SELECT SUM(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry
+SELECT OriginCountry, COUNT(*) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry
+SELECT OriginCountry, ABS(COUNT(*)) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry
+SELECT OriginCountry, AVG(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry
+SELECT OriginCountry, SUM(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry
+SELECT OriginCountry, AVG(FlightDelayMin) + SUM(FlightDelayMin) as Total FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry
+SELECT OriginCountry, COUNT(*), AVG(FlightDelayMin), SUM(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry
+SELECT COUNT(*), AVG(FlightDelayMin), SUM(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry, OriginCityName
+SELECT OriginCountry, COUNT(*), AVG(FlightDelayMin), SUM(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry, OriginCityName
+SELECT OriginCountry, OriginCityName, COUNT(*) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry, OriginCityName
+SELECT OriginCountry, OriginCityName, AVG(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry, OriginCityName
+SELECT OriginCountry, OriginCityName, SUM(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry, OriginCityName
+SELECT AvgTicketPrice, COUNT(*), AVG(AvgTicketPrice), SUM(AvgTicketPrice) FROM opensearch_dashboards_sample_data_flights GROUP BY AvgTicketPrice
+SELECT ABS(AvgTicketPrice), COUNT(*), AVG(AvgTicketPrice), SUM(AvgTicketPrice) FROM opensearch_dashboards_sample_data_flights GROUP BY AvgTicketPrice
+SELECT FlightDelayMin, COUNT(*), AVG(FlightDelayMin), SUM(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights GROUP BY FlightDelayMin
 SELECT OriginCountry, OriginCityName, AVG(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights GROUP BY 1, 2
 SELECT OriginCountry, OriginCityName, AVG(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights GROUP BY OriginCountry, 2
 SELECT OriginCountry, OriginCityName, AVG(FlightDelayMin) FROM opensearch_dashboards_sample_data_flights GROUP BY 1, OriginCityName

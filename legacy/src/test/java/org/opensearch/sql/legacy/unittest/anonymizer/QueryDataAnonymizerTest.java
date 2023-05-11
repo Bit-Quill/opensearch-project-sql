@@ -40,14 +40,14 @@ public class QueryDataAnonymizerTest {
     static String projectDirectory = absolutePath.substring(0, absolutePath.length() - RELATIVE_PATH_LENGTH);
     static String TEST_DATA_LOCATION = "integ-test/src/test/resources/correctness/queries/";
     static List<String> testDataFiles = Arrays.asList(
-            //"aggregation",
-            //"filter",
-            //"groupby",
-            //"joins",
-            "orderby"
-            //"select",
-            //"subqueries",
-            //"window"
+            "aggregation",
+            "filter",
+            "groupby",
+            "joins",
+            "orderby",
+            "select",
+            "subqueries",
+            "window"
     );
 
     private final String queryData;
