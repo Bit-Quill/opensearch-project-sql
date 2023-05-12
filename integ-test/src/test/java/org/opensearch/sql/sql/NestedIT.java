@@ -356,4 +356,27 @@ public class NestedIT extends SQLIntegTestCase {
     // Only first index of array is returned. Second index has 'a'
     verifyDataRows(result, rows("a", "b"), rows("c", "b"));
   }
+
+  @Test
+  public void test_nested_in_wxpression_with_relevance_query() {
+    String query = "select nested(message.info) from " + TEST_INDEX_NESTED_TYPE
+        + " WHERE nested(message.info) = 'a' OR nested(message.info) = 'b' AND nested(message.dayOfWeek) = 4";
+    for (int i = 0; i < 100000; i++) {
+      JSONObject result = executeJdbcRequest(query);
+    }
+//    assertEquals(3, result.getInt("total"));
+//    verifyDataRows(result, rows("a"), rows("c"), rows("a"));
+  }
+
+  @Test
+  public void test_nested_in_wxpression_with_relevaquery() {
+    String query = "select nested(message.info) from " + TEST_INDEX_NESTED_TYPE
+        + " WHERE nested(message, message.info = 'a' OR message.info = 'b' AND message.dayOfWeek = 4)";
+    for (int i = 0; i < 100000; i++) {
+      JSONObject result = executeJdbcRequest(query);
+    }
+//    assertEquals(3, result.getInt("total"));
+//    verifyDataRows(result, rows("a"), rows("c"), rows("a"));
+  }
 }
+

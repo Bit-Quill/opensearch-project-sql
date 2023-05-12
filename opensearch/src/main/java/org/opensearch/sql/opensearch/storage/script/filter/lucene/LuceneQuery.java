@@ -60,6 +60,7 @@ public abstract class LuceneQuery {
         && (func.getArguments().get(1) instanceof LiteralExpression
         || literalExpressionWrappedByCast(func))
         || isMultiParameterQuery(func);
+    // TODO need to add support for WHERE nested(path, condition) AND/OR.. nested(path, condition)?
   }
 
   public boolean isNestedFunction(FunctionExpression func) {
