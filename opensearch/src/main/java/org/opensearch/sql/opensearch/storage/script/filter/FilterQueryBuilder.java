@@ -8,6 +8,7 @@ package org.opensearch.sql.opensearch.storage.script.filter;
 
 import static java.util.Collections.emptyMap;
 import static org.opensearch.script.Script.DEFAULT_SCRIPT_TYPE;
+import static org.opensearch.sql.analysis.NestedAnalyzer.validateWhereArgs;
 import static org.opensearch.sql.opensearch.storage.script.ExpressionScriptEngine.EXPRESSION_LANG_NAME;
 
 import com.google.common.collect.ImmutableMap;
@@ -100,43 +101,22 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
       case "not":
         return buildBoolQuery(func, context, BoolQueryBuilder::mustNot);
       case "nested":
-        // nested (field, condition)
-        // example: WHERE message.info = 'a' OR message.info = 'b'
-        // => bool { must { bool { should { term(message.info, 'a') , term(message.info, 'b') } } }
-
-        // example: WHERE nested(message.info) = 'a' OR nested(message.info) = 'b'
-        // => bool { must { bool { should { term( nested { term { message.info} } }, 'a') , term( nested { term { message.info} } }, 'b') } } }
-        // => bool { must { bool { nested { bool { must { term( message.info, 'a') , term( message.info, 'b') } } }
-
-        // example: WHERE nested(message.info, message.info = 'a' OR message.info = 'b' ...)
-        // => bool { must { bool { nested { bool { must { term( message.info, 'a') , term( message.info, 'b') } } }
-
-        // => bool { must { nested { bool { should { term() , term() } } } }
-        // example: WHERE nested(message.info, message.age > 20 OR message.info = 'b' ...)
-        // example: WHERE nested(message.info.name, message.info.name = 'a') OR nested(message.info.address, message.info.address = 'b')
-
-        // WHERE nested(message, message.info.name, message.info.name = "Andrew" OR message.comment = "SECOND")
-        // WHERE (nested(message.info.name) = "Andrew" AND nested(message.comment) = "FIRST") OR (nested(message.info.name) = "Guian" AND nested(message.comment = "SECOND"))
-
-        // example: WHERE nested(foo.bar, nested(zoo.blah, condition))
-
-        if (func.getArguments().size() > 1) {
-          Expression secondArgument = func.getArguments().get(1);
-          if (secondArgument instanceof FunctionExpression) {
-            ReferenceExpression path = (ReferenceExpression)func.getArguments().get(0);
-            FunctionExpression condition = (FunctionExpression)func.getArguments().get(1);
-            QueryBuilder queryBuilder = visitFunction(condition, context);
-            NestedQueryBuilder
-                nestedQueryBuilder = QueryBuilders.nestedQuery(path.toString(), queryBuilder, ScoreMode.None);
-            return nestedQueryBuilder;
-          }
+        validateWhereArgs(func.getArguments());
+        Expression secondArgument = func.getArguments().get(1);
+        if (secondArgument instanceof FunctionExpression) {
+          ReferenceExpression path = (ReferenceExpression)func.getArguments().get(0);
+          FunctionExpression condition = (FunctionExpression)func.getArguments().get(1);
+          QueryBuilder queryBuilder = visitFunction(condition, context);
+          NestedQueryBuilder
+              nestedQueryBuilder = QueryBuilders.nestedQuery(path.toString(), queryBuilder, ScoreMode.None);
+          return nestedQueryBuilder;
         }
-        // else, this doesn't have a condition so we need to just call nested without a queryBuilder
       default: {
         LuceneQuery query = luceneQueries.get(name);
         if (query != null && query.canSupport(func)) {
           return query.build(func);
         } else if (query != null && query.isNestedFunction(func)) {
+          validateWhereArgs(func.getArguments());
           QueryBuilder outerQuery = query.buildNested(func);
           boolean hasPathParam = (((FunctionExpression)func.getArguments().get(0)).getArguments().size() == 2);
           String pathStr = !hasPathParam ?
@@ -148,17 +128,6 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
         return buildScriptQuery(func);
       }
     }
-  }
-
-  private boolean funcArgsIsPredicateExpression(FunctionExpression func) {
-    func.getArguments().stream().forEach(
-        a -> {
-          if (a instanceof FunctionExpression) {
-            funcArgsIsPredicateExpression((FunctionExpression) a);
-          }
-        }
-    );
-    return false;
   }
 
   private String getNestedPathString(ReferenceExpression field) {
