@@ -122,8 +122,6 @@ sequenceDiagram
     participant OpenSearchIndexScanQueryBuilder
     participant FilterQueryBuilder
 
-sequenceDiagram
-
 %% Flattening
 TableScanPushDown->>+OpenSearchIndexScanQueryBuilder:pushDownFilter
   OpenSearchIndexScanQueryBuilder->>+FilterQueryBuilder:build
@@ -137,27 +135,27 @@ OpenSearchIndexScanQueryBuilder-->>-TableScanPushDown:LogicalPlan
 ### 2.? Syntax option 1 object tree
 ```mermaid
 graph TB;
-A[Function: NESTED\n<hr>arguments]-->B1[ReferenceExpression:\nmessage]
-A-->B2[Function: OR\n<hr>arguments]
-B2-->C1[Function: =\n<hr>arguments]
-B2-->C2[Function: AND\n<hr>arguments]
-
-C1-->D1[ReferenceExpression:\nmessage.info]
-C1-->D2[LiteralExpression:\na]
-
-C2-->D3[Function: =\n<hr>arguments]
-C2-->D4[Function: >\n<hr>arguments]
-
-D3-->E1[ReferenceExpression:\nmessage.info]
-D3-->E2[LiteralExpression:\nb]
-D4-->E3[ReferenceExpression:\nmessage.dayOfWeek]
-D4-->E4[LiteralExpression:\n4]
+    A[Function: NESTED\n<hr>arguments]-->B1[ReferenceExpression:\nmessage]
+    A-->B2[Function: OR\n<hr>arguments]
+    B2-->C1[Function: =\n<hr>arguments]
+    B2-->C2[Function: AND\n<hr>arguments]
+    
+    C1-->D1[ReferenceExpression:\nmessage.info]
+    C1-->D2[LiteralExpression:\na]
+    
+    C2-->D3[Function: =\n<hr>arguments]
+    C2-->D4[Function: >\n<hr>arguments]
+    
+    D3-->E1[ReferenceExpression:\nmessage.info]
+    D3-->E2[LiteralExpression:\nb]
+    D4-->E3[ReferenceExpression:\nmessage.dayOfWeek]
+    D4-->E4[LiteralExpression:\n4]
 ```
 
 ### 2.? Syntax option 1 Filter push down sequence
 ```mermaid
 stateDiagram-v2
-  ﻿direction LR
+  direction LR
 
   NestedNode --> OrFuncNode
   OrFuncNode --> OrFuncNode1
@@ -262,26 +260,26 @@ Output DSL:
 
 ```mermaid
 graph TB;
-A[Function: OR\n<hr>arguments]-->B1[Function: NESTED\n<hr>arguments]
-A-->B2[Function: AND\n<hr>arguments]
-B1-->C1[Function: =\n<hr>arguments]
-B2-->C2[Function: NESTED\n<hr>arguments]
-B2-->C3[Function: NESTED\n<hr>arguments]
-
-C1-->D1[ReferenceExpression:\nmessage.info]
-C1-->D2[LiteralExpression:\na]
-C2-->D3[Function: =\n<hr>arguments]
-C3-->D4[Function: >\n<hr>arguments]
-
-D3-->E1[ReferenceExpression:\nmessage.info]
-D3-->E2[LiteralExpression:\nb]
-D4-->E3[ReferenceExpression:\nmessage.dayOfWeek]
-D4-->E4[LiteralExpression:\n4]
+    A[Function: OR\n<hr>arguments]-->B1[Function: NESTED\n<hr>arguments]
+    A-->B2[Function: AND\n<hr>arguments]
+    B1-->C1[Function: =\n<hr>arguments]
+    B2-->C2[Function: NESTED\n<hr>arguments]
+    B2-->C3[Function: NESTED\n<hr>arguments]
+    
+    C1-->D1[ReferenceExpression:\nmessage.info]
+    C1-->D2[LiteralExpression:\na]
+    C2-->D3[Function: =\n<hr>arguments]
+    C3-->D4[Function: >\n<hr>arguments]
+    
+    D3-->E1[ReferenceExpression:\nmessage.info]
+    D3-->E2[LiteralExpression:\nb]
+    D4-->E3[ReferenceExpression:\nmessage.dayOfWeek]
+    D4-->E4[LiteralExpression:\n4]
 ```
 
 ```mermaid
 stateDiagram-v2
-  ﻿direction LR
+  direction LR
 
   OrFuncNode --> OrFuncNode1
   OrFuncNode --> OrFuncNode2
