@@ -17,6 +17,6 @@ public class AstBuilderTestBase {
 
   protected UnresolvedPlan buildAST(String query) {
     ParseTree parseTree = parser.parse(query);
-    return parseTree.accept(new AstBuilder(query));
+    return parseTree.accept(new AstBuilder(new AstExpressionBuilder(), query));
   }
 }

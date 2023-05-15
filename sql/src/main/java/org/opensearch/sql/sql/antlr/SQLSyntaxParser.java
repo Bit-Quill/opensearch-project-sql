@@ -19,6 +19,14 @@ import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser;
  */
 public class SQLSyntaxParser implements Parser {
 
+  public OpenSearchSQLParser createParser(String query) {
+    OpenSearchSQLLexer lexer = new OpenSearchSQLLexer(new CaseInsensitiveCharStream(query));
+    OpenSearchSQLParser parser = new OpenSearchSQLParser(new CommonTokenStream(lexer));
+    parser.addErrorListener(new SyntaxAnalysisErrorListener());
+    //parser.setTrace(true);
+    return parser;
+  }
+
   /**
    * Parse a SQL query by ANTLR parser.
    * @param query   a SQL query
@@ -26,10 +34,7 @@ public class SQLSyntaxParser implements Parser {
    */
   @Override
   public ParseTree parse(String query) {
-    OpenSearchSQLLexer lexer = new OpenSearchSQLLexer(new CaseInsensitiveCharStream(query));
-    OpenSearchSQLParser parser = new OpenSearchSQLParser(new CommonTokenStream(lexer));
-    parser.addErrorListener(new SyntaxAnalysisErrorListener());
-    return parser.root();
+    return createParser(query).root();
   }
 
 }

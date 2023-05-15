@@ -14,10 +14,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.opensearch.sql.ast.statement.Statement;
 import org.opensearch.sql.legacy.rewriter.identifier.AnonymizeSensitiveDataRule;
 import org.opensearch.sql.sql.antlr.SQLSyntaxParser;
-import org.opensearch.sql.sql.parser.AstBuilder;
-import org.opensearch.sql.sql.parser.AstStatementBuilder;
-import org.opensearch.sql.sql.parser.SQLQueryDataAnonymizer;
-import org.opensearch.sql.sql.parser.SQLQueryDataAnonymizer2;
+import org.opensearch.sql.sql.parser.*;
 
 /**
  * Utility class to mask sensitive information in incoming SQL queries
@@ -50,7 +47,7 @@ public class QueryDataAnonymizer {
             Statement statement =
                     cst.accept(
                             new AstStatementBuilder(
-                                    new AstBuilder(query),
+                                    new AstBuilder(new AstExpressionBuilder(), query),
                                     AstStatementBuilder.StatementBuilderContext.builder().build()));
             SQLQueryDataAnonymizer anonymizer = new SQLQueryDataAnonymizer();
             resultQuery = anonymizer.anonymizeStatement(statement);

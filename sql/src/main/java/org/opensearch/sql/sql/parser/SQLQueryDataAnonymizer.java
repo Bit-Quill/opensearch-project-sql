@@ -76,7 +76,7 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
     public String visitFilter(Filter node, String context) {
         String child = node.getChild().get(0).accept(this, context);
         String condition = visitExpression(node.getCondition());
-        return StringUtils.format("%s GROUP BY %s", child, condition);
+        return StringUtils.format("%s WHERE/HAVING %s", child, condition);
     }
 
     /**
@@ -207,7 +207,8 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
     @Override
     public String visitAggregateFunction(AggregateFunction node, String context) {
         String arg = node.getField().accept(this, context);
-        return StringUtils.format("%s(%s)", node.getFuncName().toUpperCase(), arg);
+        boolean distinct = node.getDistinct();
+        return distinct ? StringUtils.format("%s(DISTINCT %s)", node.getFuncName().toUpperCase(), arg) : StringUtils.format("%s(%s)", node.getFuncName().toUpperCase(), arg);
     }
 
     @Override
@@ -232,7 +233,7 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
     public String visitField(Field node, String context) {
         // Adds ASC if no order is provided
         return Objects.equals(node.getFieldArgs().get(0).getValue().toString(), "true")
-                ? StringUtils.format("identifier ASC")
+                ? StringUtils.format("identifier")
                 : StringUtils.format("identifier DESC");
     }
 
@@ -257,5 +258,12 @@ public class SQLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
     @Override
     public String visitQualifiedName(QualifiedName node, String context) {
         return "identifier";
+    }
+
+    @Override
+    public String visitRelationSubquery(RelationSubquery node, String context) {
+        String child = node.getChild().get(0).accept(this, context);
+        String alias = node.getAliasAsTableName();
+        return Objects.equals(alias, "") ? StringUtils.format("FROM %s", child) : StringUtils.format("FROM %s AS %s", child, alias);
     }
 }
