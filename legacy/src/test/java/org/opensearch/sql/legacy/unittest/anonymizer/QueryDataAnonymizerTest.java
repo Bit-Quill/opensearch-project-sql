@@ -6,26 +6,15 @@
 
 package org.opensearch.sql.legacy.unittest.anonymizer;
 
-import com.alibaba.druid.sql.SQLUtils;
-import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.opensearch.sql.ast.statement.Statement;
-import org.opensearch.sql.common.antlr.CaseInsensitiveCharStream;
-import org.opensearch.sql.common.antlr.SyntaxAnalysisErrorListener;
-import org.opensearch.sql.legacy.rewriter.identifier.AnonymizeSensitiveDataRule;
-import org.opensearch.sql.legacy.utils.Util;
 import org.opensearch.sql.sql.antlr.SQLSyntaxParser;
-import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLLexer;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser;
-import org.opensearch.sql.sql.parser.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.opensearch.sql.legacy.utils.QueryDataAnonymizer.anonymizeData;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLLexer.*;
 
 @RunWith(Parameterized.class)
@@ -63,24 +53,14 @@ public class QueryDataAnonymizerTest {
         this.queryData = queryData;
     }
 
-    public String anonymizeData(String query) {
+    public String anonymizeNewData(String query) {
         SQLSyntaxParser parser = new SQLSyntaxParser();
 
-        //ParseTree cst = parser.parse(query);
         OpenSearchSQLParser cstParser = parser.createParser(query);
         AnonymizerListener anonymizer = new AnonymizerListener();
         cstParser.addParseListener(anonymizer);
         cstParser.root();
         return anonymizer.getAnonymizedQueryString();
-    }
-
-    public String legacyAnonymizeData(String query) {
-        AnonymizeSensitiveDataRule rule = new AnonymizeSensitiveDataRule();
-        SQLQueryExpr sqlExpr = (SQLQueryExpr) Util.toSqlExpr(query);
-        rule.rewrite(sqlExpr);
-        return SQLUtils.toMySqlString(sqlExpr).replaceAll("0", "number")
-                .replaceAll("false", "boolean_literal")
-                .replaceAll("[\\n][\\t]+", " ");
     }
 
     public static List<String> loadData(String dataLocation) throws IOException {
@@ -102,7 +82,7 @@ public class QueryDataAnonymizerTest {
 
     @Test
     public void shouldReturnCorrectSum() {
-        assertEquals(legacyAnonymizeData(queryData), anonymizeData(queryData));
+        assertEquals(anonymizeData(queryData), anonymizeNewData(queryData));
     }
 
     public class AnonymizerListener implements ParseTreeListener {
@@ -115,14 +95,15 @@ public class QueryDataAnonymizerTest {
 
         @Override
         public void visitTerminal(TerminalNode node) {
-            System.out.println(node.getText() + " | " + node.getSymbol().getType());
-            if (node.getSymbol().getType() == RR_BRACKET ||
-                    node.getSymbol().getType() == LR_BRACKET ||
-                    previousType == LR_BRACKET ||
-                    previousType == -1 ||
-                    node.getSymbol().getType() == COMMA) {
+            System.out.println(node.getText());
 
-            } else {
+            if (node.getSymbol().getType() != RR_BRACKET &&
+                    (node.getSymbol().getType() != LR_BRACKET || previousType == FROM) &&
+                    node.getSymbol().getType() != COMMA &&
+                    node.getSymbol().getType() != DOT &&
+                    previousType != LR_BRACKET &&
+                    previousType != DOT &&
+                    previousType != -1) {
                 anonymizedQueryString += " ";
             }
 
@@ -139,12 +120,13 @@ public class QueryDataAnonymizerTest {
                     anonymizedQueryString += "number";
                     break;
                 case STRING_LITERAL:
-                    anonymizedQueryString += "string_literal";
+                    anonymizedQueryString += "'string_literal'";
                     break;
                 case -1:
+                    // end of file
                     break;
                 default:
-                    anonymizedQueryString += node.getText();
+                    anonymizedQueryString += node.getText().toUpperCase();
             }
             previousType = node.getSymbol().getType();
         }

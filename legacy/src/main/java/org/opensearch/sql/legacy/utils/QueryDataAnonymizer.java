@@ -10,16 +10,16 @@ import static org.opensearch.sql.legacy.utils.Util.toSqlExpr;
 
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.opensearch.sql.ast.statement.Statement;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.opensearch.sql.legacy.rewriter.identifier.AnonymizeSensitiveDataRule;
-import org.opensearch.sql.sql.antlr.SQLSyntaxParser;
-import org.opensearch.sql.sql.parser.*;
 
 /**
  * Utility class to mask sensitive information in incoming SQL queries
  */
 public class QueryDataAnonymizer {
+
+    private static final Logger LOG = LogManager.getLogger(QueryDataAnonymizer.class);
 
     /**
      * This method is used to anonymize sensitive data in SQL query.
@@ -32,27 +32,17 @@ public class QueryDataAnonymizer {
     public static String anonymizeData(String query) {
         String resultQuery;
         try {
-            throw new Exception();
-            /*
             AnonymizeSensitiveDataRule rule = new AnonymizeSensitiveDataRule();
             SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(query);
             rule.rewrite(sqlExpr);
             resultQuery = SQLUtils.toMySqlString(sqlExpr).replaceAll("0", "number")
                     .replaceAll("false", "boolean_literal")
                     .replaceAll("[\\n][\\t]+", " ");
-             */
         } catch (Exception e) {
-            SQLSyntaxParser parser = new SQLSyntaxParser();
-            ParseTree cst = parser.parse(query);
-            Statement statement =
-                    cst.accept(
-                            new AstStatementBuilder(
-                                    new AstBuilder(new AstExpressionBuilder(), query),
-                                    AstStatementBuilder.StatementBuilderContext.builder().build()));
-            SQLQueryDataAnonymizer anonymizer = new SQLQueryDataAnonymizer();
-            resultQuery = anonymizer.anonymizeStatement(statement);
+            LOG.warn("Caught an exception when anonymizing sensitive data.");
+            LOG.debug("String {} failed anonymization.", query);
+            resultQuery = "Failed to anonymize data.";
         }
-
         return resultQuery;
     }
 }
