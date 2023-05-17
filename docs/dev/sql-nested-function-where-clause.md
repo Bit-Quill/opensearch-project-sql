@@ -303,7 +303,7 @@ stateDiagram-v2
 
   state "Function: =" as OrFuncNode1 {
     state "visitFunction(=)" as OrFuncNode1VisitFunc
-    state "'nested': {\n&nbsp'query': {\n&nbsp&nbsp&nbsp'term'\n&nbsp&nbsp&nbsp&nbsp'message.info': {\n&nbsp&nbsp&nbsp&nbsp&nbsp'value': 'a',\n&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp...\n}}}" as OrFuncNode1DSL
+    state "'nested': {\n&nbsp'query': {\n&nbsp&nbsp&nbsp'term'\n&nbsp&nbsp&nbsp&nbsp'message.info': {\n&nbsp&nbsp&nbsp&nbsp&nbsp'value': 'a',\n&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp}}}" as OrFuncNode1DSL
 
 
     OrFuncNode1VisitFunc --> OrFuncNode1DSL
@@ -321,14 +321,14 @@ stateDiagram-v2
 
   state "Function: =" as AndFuncNode1 {
     state "visitFunction(=)" as AndFuncNode1VisitFunc
-    state "'nested': {\n&nbsp'query': {\n&nbsp&nbsp&nbsp'term'\n&nbsp&nbsp&nbsp&nbsp'message.info': {\n&nbsp&nbsp&nbsp&nbsp&nbsp'value': 'b',\n&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp...\n}}}" as AndFuncNode1DSL
+    state "'nested': {\n&nbsp'query': {\n&nbsp&nbsp&nbsp'term'\n&nbsp&nbsp&nbsp&nbsp'message.info': {\n&nbsp&nbsp&nbsp&nbsp&nbsp'value': 'b',\n&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp}}}" as AndFuncNode1DSL
 
     AndFuncNode1VisitFunc --> AndFuncNode1DSL
   }
 
   state "Function: >" as AndFuncNode2 {
     state "visitFunction(>)" as AndFuncNode2VisitFunc
-    state "'nested': {\n&nbsp'query': {\n&nbsp&nbsp&nbsp'range'\n&nbsp&nbsp&nbsp&nbsp'message.dayOfWeek': {\n&nbsp&nbsp&nbsp&nbsp&nbsp'from': 4,\n&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp...\n}}}" as AndFuncNode2DSL
+    state "'nested': {\n&nbsp'query': {\n&nbsp&nbsp&nbsp'range'\n&nbsp&nbsp&nbsp&nbsp'message.dayOfWeek': {\n&nbsp&nbsp&nbsp&nbsp&nbsp'from': 4,\n&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp}}}" as AndFuncNode2DSL
 
     AndFuncNode2VisitFunc --> AndFuncNode2DSL
   }
