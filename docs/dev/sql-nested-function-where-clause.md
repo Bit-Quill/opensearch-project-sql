@@ -256,25 +256,27 @@ After pushing down the filter object tree we have a DSL query to push to OpenSea
 ### 2.3 Syntax option 2 Object Tree to DSL
 The following example illustrates the object tree that is built from the example query. Rather than have the boolean logic specified within the `nested` function, we have the `nested` function used in a predicate expression.
 
-Example Query: `SELECT * FROM nested_objects WHERE nested(message.info = 'a') OR nested(message.info = 'b') AND nested(message.dayOfWeek > 4);`
+Example Query: `SELECT * FROM nested_objects WHERE nested(message.info) = 'a' OR nested(message.info) = 'b' AND nested(message.dayOfWeek) > 4;`
 
 ```mermaid
 graph TB;
-    A[Function: OR\n<hr>arguments]-->B1[Function: NESTED\n<hr>arguments]
+    A[Function: OR\n<hr>arguments]-->B1[Function: =\n<hr>arguments]
     A-->B2[Function: AND\n<hr>arguments]
-    B1-->C1[Function: =\n<hr>arguments]
-    B2-->C2[Function: NESTED\n<hr>arguments]
-    B2-->C3[Function: NESTED\n<hr>arguments]
+    
+    B1-->C1[Function: NESTED\n<hr>arguments]
+    B1-->C2[LiteralExpression:\na]
+    
+    B2-->C3[Function: =\n<hr>arguments]
+    B2-->C4[Function: >\n<hr>arguments]
     
     C1-->D1[ReferenceExpression:\nmessage.info]
-    C1-->D2[LiteralExpression:\na]
-    C2-->D3[Function: =\n<hr>arguments]
-    C3-->D4[Function: >\n<hr>arguments]
+    C3-->D2[Function: NESTED\n<hr>arguments]
+    C3-->D3[LiteralExpression:\nb]
+    C4-->D4[Function: NESTED\n<hr>arguments]
+    C4-->D5[LiteralExpression:\n4]
     
-    D3-->E1[ReferenceExpression:\nmessage.info]
-    D3-->E2[LiteralExpression:\nb]
-    D4-->E3[ReferenceExpression:\nmessage.dayOfWeek]
-    D4-->E4[LiteralExpression:\n4]
+    D2-->E1[ReferenceExpression:\nmessage.info]
+    D4-->E2[ReferenceExpression:\nmessage.dayOfWeek]
 ```
 
 #### Syntax Option 2 Filter Push Down Sequence
