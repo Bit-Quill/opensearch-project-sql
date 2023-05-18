@@ -1,6 +1,6 @@
 ## Description
 
-The `nested` function when used in the `WHERE` clause of an SQL statement filters documents of `nested` object type based on field properties. Two syntax options are available to users see section [1.1 Syntax](#11-syntax), both syntax options achieve the goal of filtering with a `nested` field, an `Operator` and a `Literal` value. Both syntax options produce different DSL to push to OpenSearch based on the `AND/OR/NOT` boolean queries residing inside a `nested` query or vice versa. See section [4?]() for examples depicting this alternate DSL creation. Testing large groups of push down execution times for identical queries using the different syntax options showed a nominal difference of approximately 3% for Syntax option 2.
+The `nested` function when used in the `WHERE` clause of an SQL statement filters documents of `nested` object type based on field properties. Two syntax options are available to users, see section [1.1 Syntax](#11-syntax). Both syntax options achieve the goal of filtering a `nested` field with an `Operator` and a `Literal` value. Although semantically the syntax options can produce the same query, they will produce different DSL to push to OpenSearch. This difference is based on the `AND/OR/NOT` boolean queries residing inside a `nested` query or vice versa. See section [2.2](#22-syntax-option-1-object-tree-to-dsl) and [2.3](#23-syntax-option-2-object-tree-to-dsl) for examples depicting this alternate DSL creation. Testing large groups of push down execution times for identical queries using the different syntax options showed a nominal difference of approximately 3% for Syntax option 2.
 
 ## Table of Contents
 1. [Overview](#1-overview)
@@ -18,9 +18,10 @@ The `nested` function when used in the `WHERE` clause of an SQL statement filter
 ## 1 Overview
 ### 1.1 Syntax
 
-The nested function has two syntax options when used in the `WHERE` clause of an SQL statement. Both syntax options a
+The nested function has two syntax options when used in the `WHERE` clause of an SQL statement. Both syntax options can produce the same OpenSearch response, but will form different DSL used in the query.
 1. `nested(path, condition)`
 2. `nested(field | field, path) OPERATOR LITERAL`
+
 
 ### 1.2 Changes To Core
 - **FilterQueryBuilder:** Added logic to handle `nested` functions in `WHERE` clause as predicate expression and `FunctionExpression`.
@@ -87,12 +88,13 @@ Both queries produce same response from OpenSearch.
 }
 ```
 
+
 ### 1.4 Example Queries
 
 A basic nested function in the `SELECT` clause. This example filters the `nested` object `message` and the inner field `info` with the value of `a`.
 - `SELECT * FROM nested_objects WHERE nested(message.info) = 'a' OR nested(message.author) = 'elm';`
 
-The same above query but using syntax option 1. The response from OpenSearch will be the same, but the DSL used in the query will differ.
+Using the same query as above but with syntax option 1, the response from OpenSearch will be the same, but the DSL used in the query will differ.
 - `SELECT * FROM nested_objects WHERE nested(message, message.info = 'a' OR messate.author = 'elm');`
 
 This example has a nested function in the `SELECT` clause and the `WHERE` clause of the query. Using the `nested` function in the `SELECT` clause will flatten the response nested objects from OpenSearch.
@@ -100,6 +102,7 @@ This example has a nested function in the `SELECT` clause and the `WHERE` clause
 
 When using syntax option 1 we need separate function calls when the `path` is not identical. This query exemplifies how a user can use multiple queries with differing `path` values. 
 - `SELECT * FROM nested_objects WHERE nested(message, message.info = 'a') OR nested(comment, comment.data = '123');`
+
 
 ## 2 Architecture Diagrams
 ### 2.1 Sequence Diagram for filter Push Down
@@ -120,6 +123,7 @@ TableScanPushDown->>+OpenSearchIndexScanQueryBuilder:pushDownFilter
   FilterQueryBuilder-->>-OpenSearchIndexScanQueryBuilder:QueryBuilder
 OpenSearchIndexScanQueryBuilder-->>-TableScanPushDown:LogicalPlan
 ```
+
 
 ### 2.2 Syntax Option 1 Object Tree to DSL
 The following example illustrates the object tree that is built from the example query. This query's object tree will impact the structure of the DSL to be pushed to OpenSearch.
@@ -144,6 +148,7 @@ graph TB;
     D4-->E3[ReferenceExpression:\nmessage.dayOfWeek]
     D4-->E4[LiteralExpression:\n4]
 ```
+
 
 #### Syntax Option 1 Filter Push Down Sequence
 This diagram illustrates the steps the SQL plugin does to translate the object tree to DSL for execution in OpenSearch. Notice that the `nested` function forms the outer portion of the DSL query.
@@ -207,6 +212,7 @@ stateDiagram-v2
   }
 ```
 
+
 #### Syntax Option 1 Output Query
 After pushing down the filter object tree we have a DSL query to push to OpenSearch. This query forms the boolean logic inside the `nested` query. This mirrors the syntax option chosen which has the condition specified inside the `nested` function.
 
@@ -253,6 +259,7 @@ After pushing down the filter object tree we have a DSL query to push to OpenSea
 }
 ```
 
+
 ### 2.3 Syntax option 2 Object Tree to DSL
 The following example illustrates the object tree that is built from the example query. Rather than have the boolean logic specified within the `nested` function, we have the `nested` function used in a predicate expression.
 
@@ -278,6 +285,7 @@ graph TB;
     D2-->E1[ReferenceExpression:\nmessage.info]
     D4-->E2[ReferenceExpression:\nmessage.dayOfWeek]
 ```
+
 
 #### Syntax Option 2 Filter Push Down Sequence
 This diagram illustrates the steps the SQL plugin goes through to translate the object tree to DSL for execution in OpenSearch. Notice that the boolean operations(`should/filter`) form the outer potion of the DSL query. 
@@ -333,6 +341,7 @@ stateDiagram-v2
     AndFuncNode2VisitFunc --> AndFuncNode2DSL
   }
 ```
+
 
 #### Syntax Option 2 Output Query
 After pushing down the filter object tree we have a DSL query to push to OpenSearch. This query forms the boolean logic as the outer portion of the query and has nested queries used inside. This mirrors the syntax option chosen which has the boolean operators forming a predicate expression with the `nested` functions in the SQL query.
@@ -391,9 +400,11 @@ After pushing down the filter object tree we have a DSL query to push to OpenSea
 }
 ```
 
+
 ## Additional Info
 ### Demo Video
 TBD
+
 
 ### Release Schedule
 See Issues Tracked under [Issue 1111](https://github.com/opensearch-project/sql/issues/1111) for related PR's and information.
