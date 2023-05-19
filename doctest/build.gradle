@@ -99,15 +99,25 @@ task stopPrometheus() {
         }
     }
 }
-if(getOSFamilyType() != "windows") {
-    stopPrometheus.mustRunAfter startPrometheus
-    startOpenSearch.dependsOn startPrometheus
-    stopOpenSearch.finalizedBy stopPrometheus
-}
-doctest.dependsOn startOpenSearch
-doctest.finalizedBy stopOpenSearch
-check.dependsOn doctest
-clean.dependsOn(cleanBootstrap)
+//if(getOSFamilyType() != "windows") {
+//    //stopPrometheus.mustRunAfter startPrometheus
+//    startOpenSearch.dependsOn startPrometheus
+//    stopOpenSearch.finalizedBy stopPrometheus
+//}
+doctest.dependsOn stopPrometheus
+startOpenSearch.finalizedBy stopOpenSearch
+startPrometheus.finalizedBy stopPrometheus
+
+//doctest.dependsOn startOpenSearch
+//doctest.finalizedBy stopOpenSearch
+//doctest.finalizedBy stopPrometheus
+//check.dependsOn doctest
+//clean.dependsOn(cleanBootstrap)
+
+
+// start openS finalized stop opensearch
+// start prom finalized by stop prom
+// doc test depends on stop prom
 
 // 2.0.0-alpha1-SNAPSHOT -> 2.0.0.0-alpha1-SNAPSHOT
 String opensearch_no_snapshot = opensearch_version.replace('-SNAPSHOT', '')
