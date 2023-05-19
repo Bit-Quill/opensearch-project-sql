@@ -71,7 +71,7 @@ public class SQLService {
     Statement statement =
         cst.accept(
             new AstStatementBuilder(
-                new AstBuilder(new AstExpressionBuilder(), request.getQuery()),
+                new AstBuilder(request.getQuery()),
                 AstStatementBuilder.StatementBuilderContext.builder()
                     .isExplain(request.isExplainRequest())
                     .build()));

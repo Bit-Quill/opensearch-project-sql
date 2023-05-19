@@ -25,6 +25,14 @@ public class AnonymizerListener implements ParseTreeListener {
   private int previousType = -1;
 
   @Override
+  public void enterEveryRule(ParserRuleContext ctx) {
+  }
+
+  @Override
+  public void exitEveryRule(ParserRuleContext ctx) {
+  }
+
+  @Override
   public void visitTerminal(TerminalNode node) {
     if (node.getSymbol().getType() != RR_BRACKET
         && (node.getSymbol().getType() != LR_BRACKET || previousType == FROM)
@@ -63,14 +71,6 @@ public class AnonymizerListener implements ParseTreeListener {
 
   @Override
   public void visitErrorNode(ErrorNode node) {
-  }
-
-  @Override
-  public void enterEveryRule(ParserRuleContext ctx) {
-  }
-
-  @Override
-  public void exitEveryRule(ParserRuleContext ctx) {
   }
 
   public String getAnonymizedQueryString() {

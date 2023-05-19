@@ -48,7 +48,7 @@ import org.opensearch.sql.sql.parser.context.ParsingContext;
 @RequiredArgsConstructor
 public class AstBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedPlan> {
 
-  private final AstExpressionBuilder expressionBuilder;
+  private final AstExpressionBuilder expressionBuilder = new AstExpressionBuilder();
 
   /**
    * Parsing context stack that contains context for current query parsing.

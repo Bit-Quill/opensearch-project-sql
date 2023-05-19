@@ -31,11 +31,14 @@ public class SQLSyntaxParser implements Parser {
   @Override
   public ParseTree parse(String query) {
     AnonymizerListener anonymizer = new AnonymizerListener();
+
     OpenSearchSQLLexer lexer = new OpenSearchSQLLexer(new CaseInsensitiveCharStream(query));
     OpenSearchSQLParser parser = new OpenSearchSQLParser(new CommonTokenStream(lexer));
     parser.addErrorListener(new SyntaxAnalysisErrorListener());
     parser.addParseListener(anonymizer);
+    ParseTree parseTree = parser.root();
+
     LOG.info("New Engine Request Query: {}", anonymizer.getAnonymizedQueryString());
-    return parser.root();
+    return parseTree;
   }
 }
