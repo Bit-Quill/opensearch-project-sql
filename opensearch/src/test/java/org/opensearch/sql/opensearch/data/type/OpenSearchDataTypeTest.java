@@ -54,9 +54,9 @@ class OpenSearchDataTypeTest {
   private static final OpenSearchDataType textKeywordType =
       OpenSearchTextType.of(Map.of("words", OpenSearchTextType.of(MappingType.Keyword)));
 
-  private static final String formatString = "epoch_millis || yyyyMMDD";
+  private static final String emptyFormatString = "";
 
-  private static final OpenSearchDateType dateType = OpenSearchDateType.create(formatString);
+  private static final OpenSearchDateType dateType = OpenSearchDateType.create(emptyFormatString);
 
   @Test
   public void isCompatible() {
@@ -405,12 +405,6 @@ class OpenSearchDataTypeTest {
     assertEquals(DOUBLE, OpenSearchDataType.of(MappingType.Double).getExprType());
     assertEquals(DOUBLE, OpenSearchDataType.of(MappingType.ScaledFloat).getExprType());
     assertEquals(TIMESTAMP, OpenSearchDataType.of(MappingType.Date).getExprType());
-  }
-
-  @Test
-  public void test_getRegularFormatters() {
-    List<DateFormatter> definedFormatters = dateType.getNamedFormatters();
-    assertEquals(definedFormatters.get(0), DateFormatter.forPattern("epoch_millis"));
   }
 
   @Test

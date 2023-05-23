@@ -68,10 +68,11 @@ class OpenSearchExprValueFactoryTest {
           .put("floatV", OpenSearchDataType.of(FLOAT))
           .put("doubleV", OpenSearchDataType.of(DOUBLE))
           .put("stringV", OpenSearchDataType.of(STRING))
-          .put("dateV", OpenSearchDataType.of(DATE))
-          .put("datetimeV", OpenSearchDateType.of())
-          .put("timeV", OpenSearchDateType.of(TIME))
-          .put("timestampV", OpenSearchDateType.of())
+          .put("dateV", OpenSearchDateType.create("date"))
+          .put("datetimeV", OpenSearchDateType.of(DATETIME))
+          .put("timeV", OpenSearchDateType.create("hour_minute_second"))
+          .put("timestampV", OpenSearchDateType.of(TIMESTAMP))
+          .put("datetimeDefaultV", OpenSearchDateType.of())
           .put("dateStringV", OpenSearchDateType.create("date"))
           .put("epochMillisV", OpenSearchDateType.create("epoch_millis"))
           .put("dateOrEpochMillisV", OpenSearchDateType.create("date_time_no_millis||epoch_millis"))
@@ -197,7 +198,24 @@ class OpenSearchExprValueFactoryTest {
   }
 
   @Test
-  public void constructDate() {
+  public void constructDates() {
+    ExprValue dateV = constructFromObject("dateV","2015-01-01");
+    assertEquals(new ExprDateValue("2015-01-01"), dateV);
+
+    ExprValue dateStringV = constructFromObject("dateStringV", "1984-04-12");
+    assertEquals(new ExprDateValue("1984-04-12"), dateStringV);
+  }
+
+  @Test
+  public void constructTimes() {
+    ExprValue timeV = constructFromObject("timeV","12:10:30");
+    assertTrue(timeV.isDateTime());
+    assertTrue(timeV instanceof ExprTimeValue);
+    assertEquals(new ExprTimeValue("12:10:30"), timeV);
+  }
+
+  @Test
+  public void constructDatetime() {
     assertEquals(
         new ExprTimestampValue("2015-01-01 00:00:00"),
         tupleValue("{\"timestampV\":\"2015-01-01\"}").get("timestampV"));
@@ -214,10 +232,6 @@ class OpenSearchExprValueFactoryTest {
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
         tupleValue("{\"timestampV\":1420070400001}").get("timestampV"));
     assertEquals(
-        new ExprTimeValue("19:36:22"),
-        tupleValue("{\"timestampV\":\"19:36:22\"}").get("timestampV"));
-
-    assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
         constructFromObject("timestampV", 1420070400001L));
     assertEquals(
@@ -230,34 +244,38 @@ class OpenSearchExprValueFactoryTest {
         new ExprTimestampValue("2015-01-01 12:10:30"),
         constructFromObject("timestampV", "2015-01-01 12:10:30"));
     assertEquals(
-        new ExprDateValue("2015-01-01"),
-        constructFromObject("dateV","2015-01-01"));
-    assertEquals(
-        new ExprTimeValue("12:10:30"),
-        constructFromObject("timeV","12:10:30"));
-    assertEquals(
         new ExprDatetimeValue("2015-01-01 12:10:30"),
         constructFromObject("datetimeV", "2015-01-01 12:10:30"));
     assertEquals(
-        new ExprDatetimeValue("1984-04-12 00:00:00"),
-        constructFromObject("dateStringV", "1984-04-12"));
+        new ExprDatetimeValue("2015-01-01 12:10:30"),
+        constructFromObject("datetimeDefaultV", "2015-01-01 12:10:30"));
     assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
         constructFromObject("dateOrEpochMillisV", "1420070400001"));
+
+    // case: timestamp-formatted field, but it only gets a time: should match a time
+    assertEquals(
+        new ExprTimeValue("19:36:22"),
+        tupleValue("{\"timestampV\":\"19:36:22\"}").get("timestampV"));
+
+    // case: timestamp-formatted field, but it only gets a date: should match a date
+    assertEquals(
+        new ExprDateValue("2011-03-03"),
+        tupleValue("{\"timestampV\":\"2011-03-03\"}").get("timestampV"));
   }
 
   @Test
   public void constructDateFromUnsupportedFormatThrowException() {
-    IllegalStateException exception =
-        assertThrows(
-            IllegalStateException.class, () -> tupleValue("{\"timestampV\":\"2015-01-01 12:10\"}"));
+    IllegalArgumentException exception =
+        assertThrows(IllegalArgumentException.class,
+            () -> constructFromObject("timestampV", "2015-01-01 12:10"));
     assertEquals(
         "Construct ExprTimestampValue from \"2015-01-01 12:10\" failed, "
             + "unsupported date format.",
         exception.getMessage());
 
     exception = assertThrows(
-        IllegalStateException.class, () -> tupleValue("{\"badDateFormatV\":\"11,22\"}"));
+        IllegalArgumentException.class, () -> tupleValue("{\"badDateFormatV\":\"11,22\"}"));
     assertEquals(
         "Construct ExprTimestampValue from \"11,22\" failed, "
             + "unsupported date format.",
