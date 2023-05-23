@@ -19,7 +19,6 @@ import org.opensearch.sql.executor.execution.QueryPlanFactory;
 import org.opensearch.sql.sql.antlr.SQLSyntaxParser;
 import org.opensearch.sql.sql.domain.SQLQueryRequest;
 import org.opensearch.sql.sql.parser.AstBuilder;
-import org.opensearch.sql.sql.parser.AstExpressionBuilder;
 import org.opensearch.sql.sql.parser.AstStatementBuilder;
 
 /**
