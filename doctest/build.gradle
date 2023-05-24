@@ -56,6 +56,7 @@ task startPrometheus(type: SpawnProcessTask) {
 
 //evaluationDependsOn(':')
 task startOpenSearch(type: SpawnProcessTask) {
+    mustRunAfter()
     if( getOSFamilyType() == "windows") {
         command "${path}\\gradlew.bat -p ${plugin_path} runRestTestCluster"
     }
@@ -105,6 +106,7 @@ task stopPrometheus() {
 //    stopOpenSearch.finalizedBy stopPrometheus
 //}
 doctest.dependsOn stopPrometheus
+startPrometheus.dependsOn stopPrometheus
 startOpenSearch.finalizedBy stopOpenSearch
 startPrometheus.finalizedBy stopPrometheus
 
