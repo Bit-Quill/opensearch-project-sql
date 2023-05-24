@@ -219,7 +219,7 @@ public class OpenSearchExprValueFactory {
     // TODO: Check custom formatters too
 
     // if no named formatters are available, use the default
-    if (dateType.getAllNamedFormatters().size() == 0) {
+    if (dateType.getAllNamedFormatters().size() == 0 || dateType.getAllCustomFormatters().size() > 0) {
       try {
         parsed = DateFormatters.from(DATE_TIME_FORMATTER.parse(value)).toInstant();
       } catch (DateTimeParseException e) {

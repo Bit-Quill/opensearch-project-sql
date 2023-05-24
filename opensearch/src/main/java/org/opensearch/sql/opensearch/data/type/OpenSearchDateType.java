@@ -167,6 +167,16 @@ public class OpenSearchDateType extends OpenSearchDataType {
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
 
+  public List<DateFormatter> getAllCustomFormatters() {
+    if (formatString.isEmpty()) {
+      return List.of();
+    }
+
+    return getFormatList().stream()
+        .filter(formatString -> FormatNames.forName(formatString) == null)
+        .map(DateFormatter::forPattern).collect(Collectors.toList());
+  }
+
   /**
    * Retrieves a list of named formatters that format for dates.
    *
@@ -176,7 +186,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
     return getFormatList().stream()
         .filter(formatString -> {
           FormatNames namedFormat = FormatNames.forName(formatString);
-          return SUPPORTED_NAMED_DATE_FORMATS.contains(namedFormat);
+          return namedFormat != null && SUPPORTED_NAMED_DATE_FORMATS.contains(namedFormat);
         })
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
@@ -190,7 +200,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
     return getFormatList().stream()
         .filter(formatString -> {
           FormatNames namedFormat = FormatNames.forName(formatString);
-          return SUPPORTED_NAMED_TIME_FORMATS.contains(namedFormat);
+          return namedFormat != null && SUPPORTED_NAMED_TIME_FORMATS.contains(namedFormat);
         })
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
@@ -205,6 +215,10 @@ public class OpenSearchDateType extends OpenSearchDataType {
     List<DateFormatter> namedFormatters = getAllNamedFormatters();
 
     if (namedFormatters.isEmpty()) {
+      return ExprCoreType.TIMESTAMP;
+    }
+
+    if (!getAllCustomFormatters().isEmpty()) {
       // TODO: support custom format in <issue#>
       return ExprCoreType.TIMESTAMP;
     }

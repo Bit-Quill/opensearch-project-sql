@@ -1285,7 +1285,7 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     JSONObject result = executeQuery(query);
     verifyDataRows(result,
         rows("1970-01-01 09:07:42", // HH:mm:ss
-            "1984-04-12 00:00:00", // date
+            "1984-04-12",          // date
             "1984-04-12 09:07:42", // date_optional_time
             "1984-04-12 09:07:42", // strict_date_hour_minute_second_fraction
             "1984-04-12 09:07:00", // date_hour_minute
@@ -1298,14 +1298,14 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
             "1984-04-12 09:07:42", // strict_date_hour_minute_second_millis
             "1984-04-12 00:00:00", // yyyy-MM-dd_OR_epoch_millis
             "1984-04-12 09:07:42", // strict_basic_week_date_time
-            "1984-04-12 00:00:00", // strict_date
+            "1984-04-12",          // strict_date
             "1984-04-12 09:07:42", // week_date_time_no_millis
             "1984-04-12 09:07:42", // date_hour_minute_second_millis
             "1984-04-12 09:07:42", // strict_ordinal_date_time_no_millis
             "1984-04-12 09:07:42.000123456", // strict_date_optional_time_nanos
-            "1984-04-12 00:00:00", // strict_year_month_day
+            "1984-04-12",          // strict_year_month_day
             "1984-04-12 09:07:42", // ordinal_date_time_no_millis
-            "1984-04-12 00:00:00", // year_month_day
+            "1984-04-12",          // year_month_day
             "1984-04-12 09:07:00", // strict_date_hour_minute
             "1984-04-12 09:07:42", // strict_week_date_time_no_millis
             "1984-04-12 09:07:42", // basic_date_time
@@ -1323,8 +1323,8 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
             "1984-04-12 09:07:42.000123456", // ordinal_date_time
             "1984-04-12 09:07:42", // strict_date_hour_minute_second
             "1984-04-12 09:07:42", // strict_date_optional_time
-            "1970-01-01 09:07:42", // strict_hour_minute_second
-            "1970-01-01 09:07:42", // hour_minute_second
+            "09:07:42", // strict_hour_minute_second
+            "09:07:42", // hour_minute_second
             "1984-04-12 09:07:42" // strict_basic_week_date_time_no_millis
         ));
   }
