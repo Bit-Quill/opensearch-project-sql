@@ -30,7 +30,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
   private static final String FORMAT_DELIMITER = "\\|\\|";
 
   public static final List<FormatNames> SUPPORTED_NAMED_DATETIME_FORMATS = List.of(
-    // TODO: add list of supported date/time formats
       FormatNames.ISO8601,
       FormatNames.EPOCH_MILLIS,
       FormatNames.EPOCH_SECOND,
@@ -74,7 +73,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   // list of named formats that only support year/month/day
   public static final List<FormatNames> SUPPORTED_NAMED_DATE_FORMATS = List.of(
-    // TODO add list of supported date formats
       FormatNames.BASIC_DATE,
       FormatNames.BASIC_ORDINAL_DATE,
       FormatNames.DATE,
@@ -100,7 +98,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   // list of named formats that only support house/minute/second
   public static final List<FormatNames> SUPPORTED_NAMED_TIME_FORMATS = List.of(
-      // TODO add list of supported time formats
       FormatNames.BASIC_TIME,
       FormatNames.BASIC_TIME_NO_MILLIS,
       FormatNames.BASIC_T_TIME,
@@ -170,6 +167,11 @@ public class OpenSearchDateType extends OpenSearchDataType {
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
 
+  /**
+   * Retrieves a list of named formatters that format for dates.
+   *
+   * @return a list of DateFormatters that can be used to parse a Date.
+   */
   public List<DateFormatter> getDateNamedFormatters() {
     return getFormatList().stream()
         .filter(formatString -> {
@@ -179,6 +181,11 @@ public class OpenSearchDateType extends OpenSearchDataType {
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
 
+  /**
+   * Retrieves a list of named formatters that format for Times.
+   *
+   * @return a list of DateFormatters that can be used to parse a Time.
+   */
   public List<DateFormatter> getTimeNamedFormatters() {
     return getFormatList().stream()
         .filter(formatString -> {

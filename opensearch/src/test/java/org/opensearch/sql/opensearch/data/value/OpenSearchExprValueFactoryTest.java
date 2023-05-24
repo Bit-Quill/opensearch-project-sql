@@ -241,6 +241,9 @@ class OpenSearchExprValueFactoryTest {
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
         constructFromObject("epochMillisV", "1420070400001"));
     assertEquals(
+        new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
+        constructFromObject("epochMillisV", 1420070400001L));
+    assertEquals(
         new ExprTimestampValue("2015-01-01 12:10:30"),
         constructFromObject("timestampV", "2015-01-01 12:10:30"));
     assertEquals(
@@ -265,7 +268,7 @@ class OpenSearchExprValueFactoryTest {
   }
 
   @Test
-  public void constructDateFromUnsupportedFormatThrowException() {
+  public void constructDatetimeFromUnsupportedFormat_ThrowIllegalArgumentException() {
     IllegalArgumentException exception =
         assertThrows(IllegalArgumentException.class,
             () -> constructFromObject("timestampV", "2015-01-01 12:10"));
@@ -274,10 +277,32 @@ class OpenSearchExprValueFactoryTest {
             + "unsupported date format.",
         exception.getMessage());
 
-    exception = assertThrows(
-        IllegalArgumentException.class, () -> tupleValue("{\"badDateFormatV\":\"11,22\"}"));
+    // fail with missing seconds
+    exception =
+        assertThrows(IllegalArgumentException.class,
+            () -> constructFromObject("dateOrEpochMillisV", "2015-01-01 12:10"));
     assertEquals(
-        "Construct ExprTimestampValue from \"11,22\" failed, "
+        "Construct ExprTimestampValue from \"2015-01-01 12:10\" failed, "
+            + "unsupported date format.",
+        exception.getMessage());
+  }
+
+  @Test
+  public void constructDateFromUnsupportedFormat_ThrowIllegalArgumentException() {
+    IllegalArgumentException exception = assertThrows(
+        IllegalArgumentException.class, () -> constructFromObject("timeV", "2015-01-01"));
+    assertEquals(
+        "Construct ExprTimeValue from \"2015-01-01\" failed, "
+            + "unsupported date format.",
+        exception.getMessage());
+  }
+
+  @Test
+  public void constructTimeFromUnsupportedFormat_ThrowIllegalArgumentException() {
+    IllegalArgumentException exception = assertThrows(
+        IllegalArgumentException.class, () -> constructFromObject("dateV", "12:10:10"));
+    assertEquals(
+        "Construct ExprDateValue from \"12:10:10\" failed, "
             + "unsupported date format.",
         exception.getMessage());
   }

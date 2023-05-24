@@ -155,7 +155,8 @@ class AggregationQueryBuilderTest {
   void should_build_type_mapping_for_datetime_type() {
     assertThat(
         buildTypeMapping(Arrays.asList(
-                named("avg(datetime)", new AvgAggregator(Arrays.asList(ref("datetime", DATETIME)), DATETIME))),
+                named("avg(datetime)",
+                    new AvgAggregator(Arrays.asList(ref("datetime", DATETIME)), DATETIME))),
             Arrays.asList(named("datetime", ref("datetime", DATETIME)))),
         containsInAnyOrder(
             map("avg(datetime)", OpenSearchDateType.of()),
@@ -167,7 +168,8 @@ class AggregationQueryBuilderTest {
   void should_build_type_mapping_for_timestamp_type() {
     assertThat(
         buildTypeMapping(Arrays.asList(
-                named("avg(timestamp)", new AvgAggregator(Arrays.asList(ref("timestamp", TIMESTAMP)), TIMESTAMP))),
+                named("avg(timestamp)",
+                    new AvgAggregator(Arrays.asList(ref("timestamp", TIMESTAMP)), TIMESTAMP))),
             Arrays.asList(named("timestamp", ref("timestamp", TIMESTAMP)))),
         containsInAnyOrder(
             map("avg(timestamp)", OpenSearchDateType.of()),

@@ -19,10 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
-import java.time.DateTimeException;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
@@ -52,7 +49,6 @@ import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDateType;
@@ -116,7 +112,7 @@ public class OpenSearchExprValueFactory {
           //Handles the creation of DATE, TIME & DATETIME
           .put(OpenSearchDateType.of(TIME),
               (c, dt) -> createOpenSearchDateType(c, dt))
-          .put(OpenSearchDateType.of(ExprCoreType.DATE),
+          .put(OpenSearchDateType.of(DATE),
               (c, dt) -> createOpenSearchDateType(c, dt))
           .put(OpenSearchDateType.of(TIMESTAMP),
               (c, dt) -> createOpenSearchDateType(c, dt))
@@ -201,142 +197,111 @@ public class OpenSearchExprValueFactory {
   }
 
   /**
-   * Only default strict_date_optional_time||epoch_millis is supported,
-   * strict_date_optional_time_nanos||epoch_millis if field is date_nanos.
-   * <a href="https://opensearch.org/docs/latest/opensearch/supported-field-types/date/#formats">
-   *   docs</a>
-   * The customized date_format is not supported.
-   */
-  private ExprValue constructTimestamp(String value) {
-    try {
-      return new ExprTimestampValue(
-          // Using OpenSearch DateFormatters for now.
-          DateFormatters.from(DATE_TIME_FORMATTER.parse(value)).toInstant());
-    } catch (DateTimeParseException e) {
-      throw new IllegalStateException(
-          String.format(
-              "Construct ExprTimestampValue from \"%s\" failed, unsupported date format.", value),
-          e);
-    }
-  }
-
-  /**
-   * return the first matching formatter as an Instant to UTF
+   * return the first matching formatter as an Instant to UTF.
    *
-   * @param value
-   * @param dateType
+   * @param value - timestamp as string
+   * @param dateType - field type
    * @return Instant without timezone
    */
-  private Instant parseTimestampString(String value, OpenSearchDateType dateType) {
+  private ExprValue parseTimestampString(String value, OpenSearchDateType dateType) {
+    Instant parsed = null;
     for (DateFormatter formatter : dateType.getAllNamedFormatters()) {
       try {
         TemporalAccessor accessor = formatter.parse(value);
         ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
         // remove the Zone
-        return zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toInstant();
-      } catch (IllegalArgumentException  ignored) {
+        parsed = zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toInstant();
+      } catch (IllegalArgumentException ignored) {
         // nothing to do, try another format
       }
     }
 
-    // Using OpenSearch DateFormatters by default
-    try {
-      return DateFormatters.from(DATE_TIME_FORMATTER.parse(value)).toInstant();
-    } catch (DateTimeException dte) {
-      throw new IllegalArgumentException("Construct ExprTimestampValue from \"" + value +
-          "\" failed, unsupported date format.");
+    // TODO: Check custom formatters too
+
+    // if no named formatters are available, use the default
+    if (dateType.getAllNamedFormatters().size() == 0) {
+      try {
+        parsed = DateFormatters.from(DATE_TIME_FORMATTER.parse(value)).toInstant();
+      } catch (DateTimeParseException e) {
+        // ignored
+      }
     }
+
+    if (parsed == null) {
+      // otherwise, throw an error that no formatters worked
+      throw new IllegalArgumentException(
+          String.format(
+              "Construct ExprTimestampValue from \"%s\" failed, unsupported date format.", value)
+      );
+    }
+
+    return new ExprTimestampValue(parsed);
   }
 
   /**
-   * return the first matching formatter as a time without timezone
+   * return the first matching formatter as a time without timezone.
    *
-   * @param value
-   * @param dateType
+   * @param value - time as string
+   * @param dateType - field data type
    * @return time without timezone
    */
-  private LocalTime parseTimeString(String value, OpenSearchDateType dateType) {
+  private ExprValue parseTimeString(String value, OpenSearchDateType dateType) {
     for (DateFormatter formatter : dateType.getAllNamedFormatters()) {
       try {
         TemporalAccessor accessor = formatter.parse(value);
         ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
-        return zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toLocalTime();
+        return new ExprTimeValue(
+            zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toLocalTime());
       } catch (IllegalArgumentException  ignored) {
         // nothing to do, try another format
       }
     }
-    return null;
+    throw new IllegalArgumentException("Construct ExprTimeValue from \"" + value
+        + "\" failed, unsupported date format.");
   }
 
   /**
-   * return the first matching formatter as a date without timezone
+   * return the first matching formatter as a date without timezone.
    *
-   * @param value
-   * @param dateType
+   * @param value - date as string
+   * @param dateType - field data type
    * @return date without timezone
    */
-  private LocalDate parseDateString(String value, OpenSearchDateType dateType) {
+  private ExprValue parseDateString(String value, OpenSearchDateType dateType) {
     for (DateFormatter formatter : dateType.getAllNamedFormatters()) {
       try {
         TemporalAccessor accessor = formatter.parse(value);
         ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
         // return the first matching formatter as a date without timezone
-        return zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toLocalDate();
+        return new ExprDateValue(
+            zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toLocalDate());
       } catch (IllegalArgumentException  ignored) {
         // nothing to do, try another format
       }
     }
-    return null;
-  }
-
-  private ExprValue formatNumberForDateTime(ExprType formatType, ExprTimestampValue unformatted) {
-    if (formatType.equals(ExprCoreType.DATE)) {
-      return new ExprDateValue(unformatted.dateValue());
-    }
-    if (formatType.equals(TIME)) {
-      return new ExprTimeValue(unformatted.timeValue().toString());
-    }
-    return unformatted;
+    throw new IllegalArgumentException("Construct ExprDateValue from \"" + value
+        + "\" failed, unsupported date format.");
   }
 
   private ExprValue createOpenSearchDateType(Content value, ExprType type) {
-    OpenSearchDateType dt;
-    ExprType returnFormat;
-    if (type instanceof OpenSearchDateType) {
-      // Case when an OpenSearchDateType is passed in
-      dt = (OpenSearchDateType) type;
-      returnFormat = dt.getExprType();
-    } else {
-      // Case when an OpenSearchDataType.of(<ExprCoreType>) is passed in
-      dt = OpenSearchDateType.of();
-      returnFormat = ((OpenSearchDataType) type).getExprType();
-    }
+    OpenSearchDateType dt = (OpenSearchDateType) type;
+    ExprType returnFormat = dt.getExprType();
 
     if (value.isNumber()) {
-      return formatNumberForDateTime(
-          returnFormat,
-          new ExprTimestampValue(Instant.ofEpochMilli(value.longValue())));
+      return new ExprTimestampValue(Instant.ofEpochMilli(value.longValue()));
     }
 
     if (value.isString()) {
-      if (returnFormat == TIMESTAMP || returnFormat == DATETIME) {
-        Instant parsed = parseTimestampString(value.stringValue(), dt);
-        if (parsed == null) { // failed to parse or no formats given
-          return constructTimestamp(value.stringValue());
-        }
-        return new ExprTimestampValue(parsed);
-      }
       if (returnFormat == TIME) {
-        LocalTime localTime = parseTimeString(value.stringValue(), dt);
-        return new ExprTimeValue(localTime);
+        return parseTimeString(value.stringValue(), dt);
       }
       if (returnFormat == DATE) {
-        LocalDate localDate = parseDateString(value.stringValue(), dt);
-        return new ExprDateValue(localDate);
+        return parseDateString(value.stringValue(), dt);
       }
-      throw new IllegalStateException(
-          String.format("Unexpected date/time type for %s", value));
+      // else timestamp/datetime
+      return parseTimestampString(value.stringValue(), dt);
     }
+
     return new ExprTimestampValue((Instant) value.objectValue());
   }
 
