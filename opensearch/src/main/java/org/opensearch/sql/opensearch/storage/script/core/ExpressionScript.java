@@ -7,8 +7,10 @@
 package org.opensearch.sql.opensearch.storage.script.core;
 
 import static java.util.stream.Collectors.toMap;
+import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.FLOAT;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
+import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -22,6 +24,7 @@ import java.util.function.Supplier;
 import lombok.EqualsAndHashCode;
 import org.opensearch.index.fielddata.ScriptDocValues;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionNodeVisitor;
@@ -29,6 +32,7 @@ import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.env.Environment;
 import org.opensearch.sql.expression.parse.ParseExpression;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchDateType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 import org.opensearch.sql.opensearch.data.value.OpenSearchExprValueFactory;
 
@@ -107,7 +111,15 @@ public class ExpressionScript {
 
   private OpenSearchExprValueFactory buildValueFactory(Set<ReferenceExpression> fields) {
     Map<String, OpenSearchDataType> typeEnv = fields.stream().collect(toMap(
-        ReferenceExpression::getAttr, e -> OpenSearchDataType.of(e.type())));
+        ReferenceExpression::getAttr, e -> {
+          if (e.type() == TIMESTAMP) {
+            return OpenSearchDateType.of(TIMESTAMP);
+          }
+          if (e.type() == DATETIME) {
+            return OpenSearchDateType.of(DATETIME);
+          }
+          return OpenSearchDataType.of(e.type());
+        }));
     return new OpenSearchExprValueFactory(typeEnv);
   }
 

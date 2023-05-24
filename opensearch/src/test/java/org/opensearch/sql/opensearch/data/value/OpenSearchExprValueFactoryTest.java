@@ -53,6 +53,7 @@ import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchDateType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 import org.opensearch.sql.opensearch.data.utils.OpenSearchJsonContent;
 
@@ -67,10 +68,17 @@ class OpenSearchExprValueFactoryTest {
           .put("floatV", OpenSearchDataType.of(FLOAT))
           .put("doubleV", OpenSearchDataType.of(DOUBLE))
           .put("stringV", OpenSearchDataType.of(STRING))
-          .put("dateV", OpenSearchDataType.of(DATE))
-          .put("datetimeV", OpenSearchDataType.of(DATETIME))
-          .put("timeV", OpenSearchDataType.of(TIME))
-          .put("timestampV", OpenSearchDataType.of(TIMESTAMP))
+          .put("dateV", OpenSearchDateType.create("date"))
+          .put("datetimeV", OpenSearchDateType.of(DATETIME))
+          .put("timeV", OpenSearchDateType.create("hour_minute_second"))
+          .put("timestampV", OpenSearchDateType.of(TIMESTAMP))
+          .put("datetimeDefaultV", OpenSearchDateType.of())
+          .put("dateStringV", OpenSearchDateType.create("date"))
+          .put("epochMillisV", OpenSearchDateType.create("epoch_millis"))
+          .put("dateOrEpochMillisV", OpenSearchDateType.create("date_time_no_millis||epoch_millis"))
+          .put("badDateFormatV", OpenSearchDateType.create("MM,DD"))
+          .put("customFormatV", OpenSearchDateType.create("yyyy-MM-dd-HH-mm-ss"))
+          .put("customAndEpochMillisV", OpenSearchDateType.create("yyyy-MM-dd-HH-mm-ss||epoch_millis"))
           .put("boolV", OpenSearchDataType.of(BOOLEAN))
           .put("structV", OpenSearchDataType.of(STRUCT))
           .put("structV.id", OpenSearchDataType.of(INTEGER))
@@ -192,7 +200,24 @@ class OpenSearchExprValueFactoryTest {
   }
 
   @Test
-  public void constructDate() {
+  public void constructDates() {
+    ExprValue dateV = constructFromObject("dateV","2015-01-01");
+    assertEquals(new ExprDateValue("2015-01-01"), dateV);
+
+    ExprValue dateStringV = constructFromObject("dateStringV", "1984-04-12");
+    assertEquals(new ExprDateValue("1984-04-12"), dateStringV);
+  }
+
+  @Test
+  public void constructTimes() {
+    ExprValue timeV = constructFromObject("timeV","12:10:30");
+    assertTrue(timeV.isDateTime());
+    assertTrue(timeV instanceof ExprTimeValue);
+    assertEquals(new ExprTimeValue("12:10:30"), timeV);
+  }
+
+  @Test
+  public void constructDatetime() {
     assertEquals(
         new ExprTimestampValue("2015-01-01 00:00:00"),
         tupleValue("{\"timestampV\":\"2015-01-01\"}").get("timestampV"));
@@ -209,36 +234,107 @@ class OpenSearchExprValueFactoryTest {
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
         tupleValue("{\"timestampV\":1420070400001}").get("timestampV"));
     assertEquals(
-        new ExprTimeValue("19:36:22"),
-        tupleValue("{\"timestampV\":\"19:36:22\"}").get("timestampV"));
-
-    assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
         constructFromObject("timestampV", 1420070400001L));
     assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
         constructFromObject("timestampV", Instant.ofEpochMilli(1420070400001L)));
     assertEquals(
+        new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
+        constructFromObject("epochMillisV", "1420070400001"));
+    assertEquals(
+        new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
+        constructFromObject("epochMillisV", 1420070400001L));
+    assertEquals(
         new ExprTimestampValue("2015-01-01 12:10:30"),
         constructFromObject("timestampV", "2015-01-01 12:10:30"));
     assertEquals(
-        new ExprDateValue("2015-01-01"),
-        constructFromObject("dateV","2015-01-01"));
-    assertEquals(
-        new ExprTimeValue("12:10:30"),
-        constructFromObject("timeV","12:10:30"));
-    assertEquals(
         new ExprDatetimeValue("2015-01-01 12:10:30"),
         constructFromObject("datetimeV", "2015-01-01 12:10:30"));
+    assertEquals(
+        new ExprDatetimeValue("2015-01-01 12:10:30"),
+        constructFromObject("datetimeDefaultV", "2015-01-01 12:10:30"));
+    assertEquals(
+        new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
+        constructFromObject("dateOrEpochMillisV", "1420070400001"));
+
+    // case: timestamp-formatted field, but it only gets a time: should match a time
+    assertEquals(
+        new ExprTimeValue("19:36:22"),
+        tupleValue("{\"timestampV\":\"19:36:22\"}").get("timestampV"));
+
+    // case: timestamp-formatted field, but it only gets a date: should match a date
+    assertEquals(
+        new ExprDateValue("2011-03-03"),
+        tupleValue("{\"timestampV\":\"2011-03-03\"}").get("timestampV"));
   }
 
   @Test
-  public void constructDateFromUnsupportedFormatThrowException() {
-    IllegalStateException exception =
-        assertThrows(
-            IllegalStateException.class, () -> tupleValue("{\"timestampV\":\"2015-01-01 12:10\"}"));
+  public void constructDatetime_fromCustomFormat() {
+    // this is not the desirable behaviour - instead if accepts the default formatter
+    assertEquals(
+        new ExprDatetimeValue("2015-01-01 12:10:30"),
+        constructFromObject("customFormatV", "2015-01-01 12:10:30"));
+
+    // this should pass when custom formats are supported
+    IllegalArgumentException exception =
+        assertThrows(IllegalArgumentException.class,
+            () -> constructFromObject("customFormatV", "2015-01-01-12-10-30"));
+    assertEquals(
+        "Construct ExprTimestampValue from \"2015-01-01-12-10-30\" failed, "
+            + "unsupported date format.",
+        exception.getMessage());
+
+    assertEquals(
+        new ExprDatetimeValue("2015-01-01 12:10:30"),
+        constructFromObject("customAndEpochMillisV", "2015-01-01 12:10:30"));
+
+    // this should pass when custom formats are supported
+    exception =
+        assertThrows(IllegalArgumentException.class,
+            () -> constructFromObject("customAndEpochMillisV", "2015-01-01-12-10-30"));
+    assertEquals(
+        "Construct ExprTimestampValue from \"2015-01-01-12-10-30\" failed, "
+            + "unsupported date format.",
+        exception.getMessage());
+  }
+
+  @Test
+  public void constructDatetimeFromUnsupportedFormat_ThrowIllegalArgumentException() {
+    IllegalArgumentException exception =
+        assertThrows(IllegalArgumentException.class,
+            () -> constructFromObject("timestampV", "2015-01-01 12:10"));
     assertEquals(
         "Construct ExprTimestampValue from \"2015-01-01 12:10\" failed, "
+            + "unsupported date format.",
+        exception.getMessage());
+
+    // fail with missing seconds
+    exception =
+        assertThrows(IllegalArgumentException.class,
+            () -> constructFromObject("dateOrEpochMillisV", "2015-01-01 12:10"));
+    assertEquals(
+        "Construct ExprTimestampValue from \"2015-01-01 12:10\" failed, "
+            + "unsupported date format.",
+        exception.getMessage());
+  }
+
+  @Test
+  public void constructDateFromUnsupportedFormat_ThrowIllegalArgumentException() {
+    IllegalArgumentException exception = assertThrows(
+        IllegalArgumentException.class, () -> constructFromObject("timeV", "2015-01-01"));
+    assertEquals(
+        "Construct ExprTimeValue from \"2015-01-01\" failed, "
+            + "unsupported date format.",
+        exception.getMessage());
+  }
+
+  @Test
+  public void constructTimeFromUnsupportedFormat_ThrowIllegalArgumentException() {
+    IllegalArgumentException exception = assertThrows(
+        IllegalArgumentException.class, () -> constructFromObject("dateV", "12:10:10"));
+    assertEquals(
+        "Construct ExprDateValue from \"12:10:10\" failed, "
             + "unsupported date format.",
         exception.getMessage());
   }
@@ -431,7 +527,7 @@ class OpenSearchExprValueFactoryTest {
   private static class TestType extends OpenSearchDataType {
 
     public TestType() {
-      mappingType = null;
+      super(MappingType.Invalid);
     }
 
     @Override

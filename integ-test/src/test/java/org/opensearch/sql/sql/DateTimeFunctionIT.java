@@ -8,6 +8,7 @@ package org.opensearch.sql.sql;
 
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_CALCS;
+import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DATE_FORMATS;
 import static org.opensearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 import static org.opensearch.sql.util.MatcherUtils.rows;
 import static org.opensearch.sql.util.MatcherUtils.schema;
@@ -40,7 +41,7 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     loadIndex(Index.BANK);
     loadIndex(Index.CALCS);
     loadIndex(Index.PEOPLE2);
-    loadIndex(Index.CALCS);
+    loadIndex(Index.DATE_FORMATS);
   }
 
   // Integration test framework sets for OpenSearch instance a random timezone.
@@ -1276,6 +1277,65 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     String timestampFormat = "%f %H %h %I %i %p %r %S %s %T";
     String timestampFormatted = "012345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15";
     verifyTimeFormat(timestamp, "timestamp", timestampFormat, timestampFormatted);
+  }
+
+  @Test
+  public void testReadingDateFormats() throws IOException {
+    String query = String.format("SELECT * FROM %s LIMIT 1", TEST_INDEX_DATE_FORMATS);
+    JSONObject result = executeQuery(query);
+    verifyDataRows(result,
+        rows("1970-01-01 09:07:42", // HH:mm:ss
+            "1984-04-12",          // date
+            "1984-04-12 09:07:42", // date_optional_time
+            "1984-04-12 09:07:42", // strict_date_hour_minute_second_fraction
+            "1984-04-12 09:07:00", // date_hour_minute
+            "1984-04-12 09:07:42.000123456", // strict_ordinal_date_time
+            "1984-04-12 09:07:42", // basic_week_date_time
+            "1984-04-12 09:07:42", // week_date_time
+            "1984-04-12 09:07:42", // date_hour_minute_second
+            "1984-04-12 09:07:42", // date_time
+            "1984-04-12 09:07:42", // date_time_no_millis
+            "1984-04-12 09:07:42", // strict_date_hour_minute_second_millis
+            "1984-04-12 00:00:00", // yyyy-MM-dd_OR_epoch_millis
+            "1984-04-12 09:07:42", // strict_basic_week_date_time
+            "1984-04-12",          // strict_date
+            "1984-04-12 09:07:42", // week_date_time_no_millis
+            "1984-04-12 09:07:42", // date_hour_minute_second_millis
+            "1984-04-12 09:07:42", // strict_ordinal_date_time_no_millis
+            "1984-04-12 09:07:42.000123456", // strict_date_optional_time_nanos
+            "1984-04-12",          // strict_year_month_day
+            "1984-04-12 09:07:42", // ordinal_date_time_no_millis
+            "1984-04-12",          // year_month_day
+            "1984-04-12 09:07:00", // strict_date_hour_minute
+            "1984-04-12 09:07:42", // strict_week_date_time_no_millis
+            "1984-04-12 09:07:42", // basic_date_time
+            "1984-04-12 09:07:42", // basic_date_time_no_millis
+            "1984-04-12 09:00:00", // date_hour
+            "1984-04-12 09:07:42", // strict_week_date_time
+            "1984-04-12 09:00:00", // strict_date_hour
+            "1984-04-12 09:07:42.000123456", // epoch_second
+            "1984-04-12 09:07:42", // basic_ordinal_date_time_no_millis
+            "1984-04-12 09:07:42", // date_hour_minute_second_fraction
+            "1984-04-12 09:07:42", // strict_date_time_no_millis
+            "1984-04-12 09:07:42", // basic_week_date_time_no_millis
+            "1984-04-12 00:00:00", // yyyy-MM-dd
+            "1984-04-12 09:07:42.000123456", // strict_date_time
+            "1984-04-12 09:07:42.000123456", // ordinal_date_time
+            "1984-04-12 09:07:42", // strict_date_hour_minute_second
+            "1984-04-12 09:07:42", // strict_date_optional_time
+            "09:07:42", // strict_hour_minute_second
+            "09:07:42", // hour_minute_second
+            "1984-04-12 09:07:42" // strict_basic_week_date_time_no_millis
+        ));
+  }
+
+  @Test
+  public void testDateFormatsWithOr() throws IOException {
+    String query = String.format("SELECT yyyy-MM-dd_OR_epoch_millis FROM %s", TEST_INDEX_DATE_FORMATS);
+    JSONObject result = executeQuery(query);
+    verifyDataRows(result,
+        rows("1984-04-12 00:00:00"),
+        rows("1984-04-12 09:07:42.000123456"));
   }
 
   protected JSONObject executeQuery(String query) throws IOException {
