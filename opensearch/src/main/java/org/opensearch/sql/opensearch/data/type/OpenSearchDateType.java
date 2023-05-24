@@ -5,6 +5,8 @@
 
 package org.opensearch.sql.opensearch.data.type;
 
+import static org.opensearch.common.time.DateFormatter.splitCombinedPatterns;
+import static org.opensearch.common.time.DateFormatter.strip8Prefix;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 
 import java.time.format.DateTimeFormatter;
@@ -147,9 +149,9 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * @return A list of format names and user defined formats.
    */
   private List<String> getFormatList() {
-    return Arrays.stream(formatString.split(FORMAT_DELIMITER))
-        .map(String::trim)
-        .collect(Collectors.toList());
+    String format = strip8Prefix(formatString);
+    List<String> patterns = splitCombinedPatterns(format);
+    return patterns;
   }
 
 
@@ -158,20 +160,12 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * @return a list of DateFormatters that can be used to parse a Date/Time/Timestamp.
    */
   public List<DateFormatter> getAllNamedFormatters() {
-    if (formatString.isEmpty()) {
-      return List.of();
-    }
-
     return getFormatList().stream()
         .filter(formatString -> FormatNames.forName(formatString) != null)
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
 
   public List<DateFormatter> getAllCustomFormatters() {
-    if (formatString.isEmpty()) {
-      return List.of();
-    }
-
     return getFormatList().stream()
         .filter(formatString -> FormatNames.forName(formatString) == null)
         .map(DateFormatter::forPattern).collect(Collectors.toList());
@@ -186,7 +180,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
     return getFormatList().stream()
         .filter(formatString -> {
           FormatNames namedFormat = FormatNames.forName(formatString);
-          return namedFormat != null && SUPPORTED_NAMED_DATE_FORMATS.contains(namedFormat);
+          return SUPPORTED_NAMED_DATE_FORMATS.contains(namedFormat);
         })
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
@@ -200,7 +194,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
     return getFormatList().stream()
         .filter(formatString -> {
           FormatNames namedFormat = FormatNames.forName(formatString);
-          return namedFormat != null && SUPPORTED_NAMED_TIME_FORMATS.contains(namedFormat);
+          return SUPPORTED_NAMED_TIME_FORMATS.contains(namedFormat);
         })
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }

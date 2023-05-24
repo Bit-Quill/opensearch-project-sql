@@ -77,6 +77,8 @@ class OpenSearchExprValueFactoryTest {
           .put("epochMillisV", OpenSearchDateType.create("epoch_millis"))
           .put("dateOrEpochMillisV", OpenSearchDateType.create("date_time_no_millis||epoch_millis"))
           .put("badDateFormatV", OpenSearchDateType.create("MM,DD"))
+          .put("customFormatV", OpenSearchDateType.create("yyyy-MM-dd-HH-mm-ss"))
+          .put("customAndEpochMillisV", OpenSearchDateType.create("yyyy-MM-dd-HH-mm-ss||epoch_millis"))
           .put("boolV", OpenSearchDataType.of(BOOLEAN))
           .put("structV", OpenSearchDataType.of(STRUCT))
           .put("structV.id", OpenSearchDataType.of(INTEGER))
@@ -265,6 +267,36 @@ class OpenSearchExprValueFactoryTest {
     assertEquals(
         new ExprDateValue("2011-03-03"),
         tupleValue("{\"timestampV\":\"2011-03-03\"}").get("timestampV"));
+  }
+
+  @Test
+  public void constructDatetime_fromCustomFormat() {
+    // this is not the desirable behaviour - instead if accepts the default formatter
+    assertEquals(
+        new ExprDatetimeValue("2015-01-01 12:10:30"),
+        constructFromObject("customFormatV", "2015-01-01 12:10:30"));
+
+    // this should pass when custom formats are supported
+    IllegalArgumentException exception =
+        assertThrows(IllegalArgumentException.class,
+            () -> constructFromObject("customFormatV", "2015-01-01-12-10-30"));
+    assertEquals(
+        "Construct ExprTimestampValue from \"2015-01-01-12-10-30\" failed, "
+            + "unsupported date format.",
+        exception.getMessage());
+
+    assertEquals(
+        new ExprDatetimeValue("2015-01-01 12:10:30"),
+        constructFromObject("customAndEpochMillisV", "2015-01-01 12:10:30"));
+
+    // this should pass when custom formats are supported
+    exception =
+        assertThrows(IllegalArgumentException.class,
+            () -> constructFromObject("customAndEpochMillisV", "2015-01-01-12-10-30"));
+    assertEquals(
+        "Construct ExprTimestampValue from \"2015-01-01-12-10-30\" failed, "
+            + "unsupported date format.",
+        exception.getMessage());
   }
 
   @Test
