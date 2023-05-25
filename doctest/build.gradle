@@ -99,7 +99,31 @@ task stopPrometheus() {
         }
     }
 }
+
+task stopPrometheus2() {
+
+    doLast {
+        def pidFile = new File(path, ".prom.pid.lock")
+        if (!pidFile.exists()) {
+            logger.quiet "No Prometheus server running!"
+            return
+        }
+
+        def pid = pidFile.text
+        def process = "kill $pid".execute()
+
+        try {
+            process.waitFor()
+        } finally {
+            pidFile.delete()
+            file("$projectDir/bin/prometheus").deleteDir()
+            file("$projectDir/bin/prometheus.tar.gz").delete()
+        }
+    }
+}
+
 if(getOSFamilyType() != "windows") {
+    startPrometheus.dependsOn stopPrometheus2
     stopPrometheus.mustRunAfter startPrometheus
     startOpenSearch.dependsOn startPrometheus
     stopOpenSearch.finalizedBy stopPrometheus
