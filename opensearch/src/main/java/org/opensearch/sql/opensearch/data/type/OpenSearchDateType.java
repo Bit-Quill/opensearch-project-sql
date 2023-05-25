@@ -165,6 +165,10 @@ public class OpenSearchDateType extends OpenSearchDataType {
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
 
+  /**
+   * Retrieves a list of custom formatters defined by the user.
+   * @return a list of DateFormatters that can be used to parse a Date/Time/Timestamp.
+   */
   public List<DateFormatter> getAllCustomFormatters() {
     return getFormatList().stream()
         .filter(formatString -> FormatNames.forName(formatString) == null)

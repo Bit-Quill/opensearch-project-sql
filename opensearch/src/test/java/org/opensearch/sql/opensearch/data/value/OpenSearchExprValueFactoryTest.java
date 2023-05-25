@@ -78,7 +78,8 @@ class OpenSearchExprValueFactoryTest {
           .put("dateOrEpochMillisV", OpenSearchDateType.create("date_time_no_millis||epoch_millis"))
           .put("badDateFormatV", OpenSearchDateType.create("MM,DD"))
           .put("customFormatV", OpenSearchDateType.create("yyyy-MM-dd-HH-mm-ss"))
-          .put("customAndEpochMillisV", OpenSearchDateType.create("yyyy-MM-dd-HH-mm-ss||epoch_millis"))
+          .put("customAndEpochMillisV",
+              OpenSearchDateType.create("yyyy-MM-dd-HH-mm-ss||epoch_millis"))
           .put("boolV", OpenSearchDataType.of(BOOLEAN))
           .put("structV", OpenSearchDataType.of(STRUCT))
           .put("structV.id", OpenSearchDataType.of(INTEGER))
