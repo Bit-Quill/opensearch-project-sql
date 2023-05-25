@@ -9,7 +9,8 @@ import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLLexer.*;
 
 public class AnonymizerListener implements ParseTreeListener {
   private String anonymizedQueryString = "";
-  private int previousType = -1;
+  private final int NO_TYPE = -1;
+  private int previousType = NO_TYPE;
 
   @Override
   public void enterEveryRule(ParserRuleContext ctx) {
@@ -21,13 +22,14 @@ public class AnonymizerListener implements ParseTreeListener {
 
   @Override
   public void visitTerminal(TerminalNode node) {
-    if (!(node.getSymbol().getType() == RR_BRACKET
-        || (node.getSymbol().getType() == LR_BRACKET && previousType != FROM)
-        || node.getSymbol().getType() == COMMA
-        || node.getSymbol().getType() == DOT
-        || previousType == LR_BRACKET
-        || previousType == DOT
-        || previousType == -1)
+    /*
+    if ((node.getSymbol().getType() != RR_BRACKET
+        && (node.getSymbol().getType() != LR_BRACKET || previousType == FROM || previousType == COMMA)
+        && node.getSymbol().getType() != COMMA
+        && node.getSymbol().getType() != DOT
+        && previousType != LR_BRACKET
+        && previousType != DOT
+        && previousType != -1)
         && !((node.getSymbol().getType() == PLUS
             || node.getSymbol().getType() == MINUS
             || node.getSymbol().getType() == MULTIPLY
@@ -45,21 +47,18 @@ public class AnonymizerListener implements ParseTreeListener {
       anonymizedQueryString += " ";
     }
 
+     */
+
+    anonymizedQueryString += " ";
+
     switch (node.getSymbol().getType()) {
       case ID:
       case TIMESTAMP:
       case BACKTICK_QUOTE_ID:
         if (previousType == FROM) {
           anonymizedQueryString += "table";
-        } else if (previousType == AS || previousType == RR_BRACKET) {
-          anonymizedQueryString += node.getText();
-        } else if (previousType != DOT) {
+        } else {
           anonymizedQueryString += "identifier";
-        }
-        break;
-      case DOT:
-        if (previousType != ID && previousType != BACKTICK_QUOTE_ID) {
-          anonymizedQueryString += ".";
         }
         break;
       case ZERO_DECIMAL:
@@ -77,7 +76,7 @@ public class AnonymizerListener implements ParseTreeListener {
       case FALSE:
         anonymizedQueryString += "boolean_literal";
         break;
-      case -1:
+      case NO_TYPE:
         // end of file
         break;
       default:
@@ -91,6 +90,6 @@ public class AnonymizerListener implements ParseTreeListener {
   }
 
   public String getAnonymizedQueryString() {
-    return "( " + anonymizedQueryString + ")";
+    return "(" + anonymizedQueryString + ")";
   }
 }
