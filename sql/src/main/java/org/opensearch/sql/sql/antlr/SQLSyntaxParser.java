@@ -20,7 +20,7 @@ import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser;
  * SQL syntax parser which encapsulates an ANTLR parser.
  */
 public class SQLSyntaxParser implements Parser {
-
+  AnonymizerListener anonymizer;
   private static final Logger LOG = LogManager.getLogger(SQLSyntaxParser.class);
 
   /**
@@ -30,7 +30,7 @@ public class SQLSyntaxParser implements Parser {
    */
   @Override
   public ParseTree parse(String query) {
-    AnonymizerListener anonymizer = new AnonymizerListener();
+    anonymizer = new AnonymizerListener();
 
     OpenSearchSQLLexer lexer = new OpenSearchSQLLexer(new CaseInsensitiveCharStream(query));
     OpenSearchSQLParser parser = new OpenSearchSQLParser(new CommonTokenStream(lexer));
@@ -40,5 +40,9 @@ public class SQLSyntaxParser implements Parser {
 
     LOG.info("New Engine Request Query: {}", anonymizer.getAnonymizedQueryString());
     return parseTree;
+  }
+
+  public AnonymizerListener getAnonymizer() {
+    return anonymizer;
   }
 }
