@@ -162,6 +162,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
       case Binary: return OpenSearchBinaryType.of();
       case Ip: return OpenSearchIpType.of();
       case Date:
+        // Default date formatter is used when "" is passed as the second parameter
         String format = (String) innerMap.getOrDefault("format", "");
         return OpenSearchDateType.create(format);
       default:
@@ -243,7 +244,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
   /**
    * Flattens mapping tree into a single layer list of objects (pairs of name-types actually),
    * which don't have nested types.
-   * See OpenSearchDataTypeTest#traverseAndFlatten() test for example.
+   * See {@link OpenSearchDataTypeTest#traverseAndFlatten() test} for example.
    * @param tree A list of `OpenSearchDataType`s - map between field name and its type.
    * @return A list of all `OpenSearchDataType`s from given map on the same nesting level (1).
    *         Nested object names are prefixed by names of their host.
