@@ -114,18 +114,20 @@ public class AggregationQueryBuilder extends ExpressionNodeVisitor<AggregationBu
     ImmutableMap.Builder<String, OpenSearchDataType> builder = new ImmutableMap.Builder<>();
     namedAggregatorList.forEach(agg -> {
       if (agg.type() == ExprCoreType.TIMESTAMP
-          || agg.type() == ExprCoreType.DATETIME) {
-        // TODO: check for DATE and TIME when it is supported
-        builder.put(agg.getName(), OpenSearchDateType.of());
+          || agg.type() == ExprCoreType.DATETIME
+          || agg.type() == ExprCoreType.DATE
+          || agg.type() == ExprCoreType.TIME) {
+        builder.put(agg.getName(), OpenSearchDateType.of(agg.type()));
       } else {
         builder.put(agg.getName(), OpenSearchDataType.of(agg.type()));
       }
     });
     groupByList.forEach(group -> {
       if (group.type() == ExprCoreType.TIMESTAMP
-          || group.type() == ExprCoreType.DATETIME) {
-        // TODO: check for DATE and TIME when it is supported
-        builder.put(group.getNameOrAlias(), OpenSearchDateType.of());
+          || group.type() == ExprCoreType.DATETIME
+          || group.type() == ExprCoreType.DATE
+          || group.type() == ExprCoreType.TIME) {
+        builder.put(group.getNameOrAlias(), OpenSearchDateType.of(group.type()));
       } else {
         builder.put(group.getNameOrAlias(), OpenSearchDataType.of(group.type()));
       }

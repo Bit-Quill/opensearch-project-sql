@@ -7,9 +7,11 @@
 package org.opensearch.sql.opensearch.storage.script.core;
 
 import static java.util.stream.Collectors.toMap;
+import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.FLOAT;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
+import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import java.security.AccessController;
@@ -112,11 +114,11 @@ public class ExpressionScript {
   private OpenSearchExprValueFactory buildValueFactory(Set<ReferenceExpression> fields) {
     Map<String, OpenSearchDataType> typeEnv = fields.stream().collect(toMap(
         ReferenceExpression::getAttr, e -> {
-          if (e.type() == TIMESTAMP) {
-            return OpenSearchDateType.of(TIMESTAMP);
-          }
-          if (e.type() == DATETIME) {
-            return OpenSearchDateType.of(DATETIME);
+          if (e.type() == TIMESTAMP
+              || e.type() == DATETIME
+              || e.type() == TIME
+              || e.type() == DATE) {
+            return OpenSearchDateType.of(e.type());
           }
           return OpenSearchDataType.of(e.type());
         }));

@@ -13,6 +13,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER;
+import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -20,6 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
@@ -289,6 +292,13 @@ public class OpenSearchExprValueFactory {
     ExprType returnFormat = dt.getExprType();
 
     if (value.isNumber()) {
+      Instant epochMillis = Instant.ofEpochMilli(value.longValue());
+      if (returnFormat == TIME) {
+        return new ExprTimeValue(LocalTime.from(epochMillis.atZone(UTC_ZONE_ID)));
+      }
+      if (returnFormat == DATE) {
+        return new ExprDateValue(LocalDate.ofInstant(epochMillis, UTC_ZONE_ID));
+      }
       return new ExprTimestampValue(Instant.ofEpochMilli(value.longValue()));
     }
 

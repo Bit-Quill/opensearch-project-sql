@@ -138,6 +138,12 @@ public class OpenSearchDateType extends OpenSearchDataType {
     this.exprCoreType = exprCoreType;
   }
 
+  private OpenSearchDateType(ExprType exprType) {
+    super(MappingType.Date);
+    this.formatString = "";
+    this.exprCoreType = (ExprCoreType) exprType;
+  }
+
   private OpenSearchDateType(String formatStringArg) {
     super(MappingType.Date);
     this.formatString = formatStringArg;
@@ -246,6 +252,10 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   public static OpenSearchDateType of(ExprCoreType exprCoreType) {
     return new OpenSearchDateType(exprCoreType);
+  }
+
+  public static OpenSearchDateType of(ExprType exprType) {
+    return new OpenSearchDateType(exprType);
   }
 
   public static OpenSearchDateType of() {
