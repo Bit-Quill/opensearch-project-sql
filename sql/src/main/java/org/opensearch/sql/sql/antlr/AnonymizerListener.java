@@ -87,8 +87,7 @@ public class AnonymizerListener implements ParseTreeListener {
   }
 
   @Override
-  public void visitErrorNode(ErrorNode node) {
-  }
+  public void visitErrorNode(ErrorNode node) {}
 
   public String getAnonymizedQueryString() {
     return "(" + anonymizedQueryString + ")";
