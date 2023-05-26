@@ -9,7 +9,6 @@ package org.opensearch.sql.sql.parser;
 import static org.opensearch.sql.ast.dsl.AstDSL.between;
 import static org.opensearch.sql.ast.dsl.AstDSL.not;
 import static org.opensearch.sql.ast.dsl.AstDSL.qualifiedName;
-import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.LIKE;
@@ -90,6 +89,7 @@ import org.opensearch.sql.ast.expression.HighlightFunction;
 import org.opensearch.sql.ast.expression.Interval;
 import org.opensearch.sql.ast.expression.IntervalUnit;
 import org.opensearch.sql.ast.expression.Literal;
+import org.opensearch.sql.ast.expression.NestedAllTupleFields;
 import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
@@ -102,6 +102,7 @@ import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
+import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.AlternateMultiMatchQueryContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.AndExpressionContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.ColumnNameContext;
@@ -148,6 +149,14 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitNestedExpressionAtom(NestedExpressionAtomContext ctx) {
     return visit(ctx.expression()); // Discard parenthesis around
+  }
+
+  @Override
+  public UnresolvedExpression visitNestedAllFunctionCall(
+      OpenSearchSQLParser.NestedAllFunctionCallContext ctx) {
+    return new NestedAllTupleFields(
+        visitQualifiedName(ctx.allTupleFields().qualifiedName()).toString()
+    );
   }
 
   @Override

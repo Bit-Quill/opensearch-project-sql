@@ -15,8 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.Function;
+import org.opensearch.sql.ast.expression.NestedAllTupleFields;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
+import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
@@ -44,6 +46,39 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
   }
 
   @Override
+  public LogicalPlan visitNestedAllTupleFields(NestedAllTupleFields node, AnalysisContext context) {
+    List<Map<String, ReferenceExpression>> args = new ArrayList<>();
+    for (NamedExpression namedExpr : namedExpressions) {
+
+      if (namedExpr.getDelegated() instanceof FunctionExpression
+          && ((FunctionExpression) namedExpr.getDelegated()).getFunctionName()
+          .getFunctionName().equalsIgnoreCase(BuiltinFunctionName.NESTED.name())) {
+
+        ReferenceExpression field =
+            (ReferenceExpression) ((FunctionExpression) namedExpr.getDelegated())
+                .getArguments().get(0);
+
+        // If path is same as NestedAllTupleFields path
+        if (field.getAttr().substring(0, field.getAttr().lastIndexOf("."))
+            .equalsIgnoreCase(node.getPath())) {
+          args.add(Map.of(
+              "field", field,
+              "path", new ReferenceExpression(node.getPath(), STRING)));
+        }
+      }
+    }
+
+    if (child instanceof LogicalNested) {
+      for (var arg : args) {
+        ((LogicalNested) child).addFields(arg);
+      }
+      return child;
+    } else {
+      return new LogicalNested(child, args, namedExpressions);
+    }
+  }
+
+  @Override
   public LogicalPlan visitFunction(Function node, AnalysisContext context) {
     if (node.getFuncName().equalsIgnoreCase(BuiltinFunctionName.NESTED.name())) {
 
@@ -52,6 +87,8 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
       ReferenceExpression nestedField =
           (ReferenceExpression)expressionAnalyzer.analyze(expressions.get(0), context);
       Map<String, ReferenceExpression> args;
+
+      // Path parameter is supplied
       if (expressions.size() == 2) {
         args = Map.of(
             "field", nestedField,
