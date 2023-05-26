@@ -33,12 +33,15 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
+import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
@@ -68,15 +71,17 @@ class OpenSearchExprValueFactoryTest {
           .put("floatV", OpenSearchDataType.of(FLOAT))
           .put("doubleV", OpenSearchDataType.of(DOUBLE))
           .put("stringV", OpenSearchDataType.of(STRING))
-          .put("dateV", OpenSearchDateType.create("date"))
+          .put("dateV", OpenSearchDateType.of(DATE))
           .put("datetimeV", OpenSearchDateType.of(DATETIME))
-          .put("timeV", OpenSearchDateType.create("hour_minute_second"))
+          .put("timeV", OpenSearchDateType.of(TIME))
           .put("timestampV", OpenSearchDateType.of(TIMESTAMP))
           .put("datetimeDefaultV", OpenSearchDateType.of())
           .put("dateStringV", OpenSearchDateType.create("date"))
+          .put("timeStringV", OpenSearchDateType.create("time"))
           .put("epochMillisV", OpenSearchDateType.create("epoch_millis"))
           .put("dateOrEpochMillisV", OpenSearchDateType.create("date_time_no_millis||epoch_millis"))
-          .put("badDateFormatV", OpenSearchDateType.create("MM,DD"))
+          .put("timeNoMillisOrTimeV", OpenSearchDateType.create("time_no_millis||time"))
+          .put("dateOrOrdinalDateV", OpenSearchDateType.create("date||ordinal_date"))
           .put("customFormatV", OpenSearchDateType.create("yyyy-MM-dd-HH-mm-ss"))
           .put("customAndEpochMillisV",
               OpenSearchDateType.create("yyyy-MM-dd-HH-mm-ss||epoch_millis"))
@@ -202,19 +207,38 @@ class OpenSearchExprValueFactoryTest {
 
   @Test
   public void constructDates() {
-    ExprValue dateV = constructFromObject("dateV","2015-01-01");
-    assertEquals(new ExprDateValue("2015-01-01"), dateV);
-
     ExprValue dateStringV = constructFromObject("dateStringV", "1984-04-12");
     assertEquals(new ExprDateValue("1984-04-12"), dateStringV);
+
+    assertEquals(
+        new ExprDateValue(LocalDate.ofInstant(Instant.ofEpochMilli(450576000000L),
+            UTC_ZONE_ID)),
+        constructFromObject("dateV", 450576000000L));
+
+    assertEquals(
+        new ExprDateValue("1984-04-12"),
+        constructFromObject("dateOrOrdinalDateV", "1984-103"));
+    assertEquals(
+        new ExprDateValue("2015-01-01"),
+        tupleValue("{\"dateV\":\"2015-01-01\"}").get("dateV"));
   }
 
   @Test
   public void constructTimes() {
-    ExprValue timeV = constructFromObject("timeV","12:10:30");
-    assertTrue(timeV.isDateTime());
-    assertTrue(timeV instanceof ExprTimeValue);
-    assertEquals(new ExprTimeValue("12:10:30"), timeV);
+    ExprValue timeStringV = constructFromObject("timeStringV","12:10:30.000Z");
+    assertTrue(timeStringV.isDateTime());
+    assertTrue(timeStringV instanceof ExprTimeValue);
+    assertEquals(new ExprTimeValue("12:10:30"), timeStringV);
+
+    assertEquals(
+        new ExprTimeValue(LocalTime.from(Instant.ofEpochMilli(1420070400001L).atZone(UTC_ZONE_ID))),
+        constructFromObject("timeV", 1420070400001L));
+    assertEquals(
+        new ExprTimeValue("09:07:42.000"),
+        constructFromObject("timeNoMillisOrTimeV", "09:07:42.000Z"));
+    assertEquals(
+        new ExprTimeValue("09:07:42"),
+        tupleValue("{\"timeV\":\"09:07:42\"}").get("timeV"));
   }
 
   @Test
@@ -321,21 +345,35 @@ class OpenSearchExprValueFactoryTest {
   }
 
   @Test
-  public void constructDateFromUnsupportedFormat_ThrowIllegalArgumentException() {
+  public void constructTimeFromUnsupportedFormat_ThrowIllegalArgumentException() {
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class, () -> constructFromObject("timeV", "2015-01-01"));
     assertEquals(
         "Construct ExprTimeValue from \"2015-01-01\" failed, "
-            + "unsupported date format.",
+            + "unsupported time format.",
+        exception.getMessage());
+
+    exception = assertThrows(
+        IllegalArgumentException.class, () -> constructFromObject("timeStringV", "10:10"));
+    assertEquals(
+        "Construct ExprTimeValue from \"10:10\" failed, "
+            + "unsupported time format.",
         exception.getMessage());
   }
 
   @Test
-  public void constructTimeFromUnsupportedFormat_ThrowIllegalArgumentException() {
+  public void constructDateFromUnsupportedFormat_ThrowIllegalArgumentException() {
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class, () -> constructFromObject("dateV", "12:10:10"));
     assertEquals(
         "Construct ExprDateValue from \"12:10:10\" failed, "
+            + "unsupported date format.",
+        exception.getMessage());
+
+    exception = assertThrows(
+        IllegalArgumentException.class, () -> constructFromObject("dateStringV", "12-10"));
+    assertEquals(
+        "Construct ExprDateValue from \"12-10\" failed, "
             + "unsupported date format.",
         exception.getMessage());
   }

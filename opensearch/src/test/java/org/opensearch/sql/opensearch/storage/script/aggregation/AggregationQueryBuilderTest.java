@@ -18,6 +18,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
+import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.expression.DSL.literal;
 import static org.opensearch.sql.expression.DSL.named;
@@ -159,8 +160,8 @@ class AggregationQueryBuilderTest {
                     new AvgAggregator(Arrays.asList(ref("datetime", DATETIME)), DATETIME))),
             Arrays.asList(named("datetime", ref("datetime", DATETIME)))),
         containsInAnyOrder(
-            map("avg(datetime)", OpenSearchDateType.of()),
-            map("datetime", OpenSearchDateType.of())
+            map("avg(datetime)", OpenSearchDateType.of(DATETIME)),
+            map("datetime", OpenSearchDateType.of(DATETIME))
         ));
   }
 
@@ -174,6 +175,32 @@ class AggregationQueryBuilderTest {
         containsInAnyOrder(
             map("avg(timestamp)", OpenSearchDateType.of()),
             map("timestamp", OpenSearchDateType.of())
+        ));
+  }
+
+  @Test
+  void should_build_type_mapping_for_date_type() {
+    assertThat(
+        buildTypeMapping(Arrays.asList(
+                named("avg(date)",
+                    new AvgAggregator(Arrays.asList(ref("date", DATE)), DATE))),
+            Arrays.asList(named("date", ref("date", DATE)))),
+        containsInAnyOrder(
+            map("avg(date)", OpenSearchDateType.of(DATE)),
+            map("date", OpenSearchDateType.of(DATE))
+        ));
+  }
+
+  @Test
+  void should_build_type_mapping_for_time_type() {
+    assertThat(
+        buildTypeMapping(Arrays.asList(
+                named("avg(time)",
+                    new AvgAggregator(Arrays.asList(ref("time", TIME)), TIME))),
+            Arrays.asList(named("time", ref("time", TIME)))),
+        containsInAnyOrder(
+            map("avg(time)", OpenSearchDateType.of(TIME)),
+            map("time", OpenSearchDateType.of(TIME))
         ));
   }
 

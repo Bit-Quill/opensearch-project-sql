@@ -15,10 +15,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.FLOAT;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
+import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.expression.DSL.literal;
 import static org.opensearch.sql.expression.DSL.ref;
@@ -47,7 +49,6 @@ import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
-import org.opensearch.sql.opensearch.data.type.OpenSearchDateType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -132,21 +133,19 @@ class ExpressionFilterScriptTest {
 
   @Test
   void can_execute_expression_with_date_field() {
-    ExprDateValue ts = new ExprDateValue("2020-08-04");
-    OpenSearchDateType type = OpenSearchDateType.create("date");
+    ExprDateValue date = new ExprDateValue("2020-08-04");
     assertThat()
-        .docValues("birthday", ZonedDateTime.parse("2020-08-04T10:00:00Z").toLocalDate().toString())
-        .filterBy(DSL.equal(ref("birthday", type), new LiteralExpression(ts)))
+        .docValues("birthday", "2020-08-04")
+        .filterBy(DSL.equal(ref("birthday", DATE), new LiteralExpression(date)))
         .shouldMatch();
   }
 
   @Test
   void can_execute_expression_with_time_field() {
-    ExprTimeValue ts = new ExprTimeValue("10:00:01");
-    OpenSearchDateType type = OpenSearchDateType.create("hour_minute_second");
+    ExprTimeValue time = new ExprTimeValue("10:00:01");
     assertThat()
         .docValues("birthday", "10:00:01")
-        .filterBy(DSL.equal(ref("birthday", type), new LiteralExpression(ts)))
+        .filterBy(DSL.equal(ref("birthday", TIME), new LiteralExpression(time)))
         .shouldMatch();
   }
 

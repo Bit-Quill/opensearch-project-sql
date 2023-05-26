@@ -13,6 +13,8 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.utils.DateTimeFormatters.DATE_TIME_FORMATTER;
+import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_HOUR_MINUTE_SECOND_FORMATTER;
+import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_YEAR_MONTH_DAY_FORMATTER;
 import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -260,8 +262,18 @@ public class OpenSearchExprValueFactory {
         // nothing to do, try another format
       }
     }
+
+    // if no named formatters are available, use the default
+    if (dateType.getAllNamedFormatters().size() == 0) {
+      try {
+        return new ExprTimeValue(
+            DateFormatters.from(STRICT_HOUR_MINUTE_SECOND_FORMATTER.parse(value)).toLocalTime());
+      } catch (DateTimeParseException e) {
+        // ignored
+      }
+    }
     throw new IllegalArgumentException("Construct ExprTimeValue from \"" + value
-        + "\" failed, unsupported date format.");
+        + "\" failed, unsupported time format.");
   }
 
   /**
@@ -281,6 +293,16 @@ public class OpenSearchExprValueFactory {
             zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toLocalDate());
       } catch (IllegalArgumentException  ignored) {
         // nothing to do, try another format
+      }
+    }
+
+    // if no named formatters are available, use the default
+    if (dateType.getAllNamedFormatters().size() == 0) {
+      try {
+        return new ExprDateValue(
+            DateFormatters.from(STRICT_YEAR_MONTH_DAY_FORMATTER.parse(value)).toLocalDate());
+      } catch (DateTimeParseException e) {
+        // ignored
       }
     }
     throw new IllegalArgumentException("Construct ExprDateValue from \"" + value
