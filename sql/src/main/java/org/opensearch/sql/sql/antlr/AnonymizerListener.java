@@ -46,10 +46,11 @@ public class AnonymizerListener implements ParseTreeListener {
             || previousType == GREATER_SYMBOL))) {
       anonymizedQueryString += " ";
     }
-
      */
 
-    anonymizedQueryString += " ";
+    if (node.getSymbol().getType() != DOT && previousType != DOT && node.getSymbol().getType() != COMMA) {
+      anonymizedQueryString += " ";
+    }
 
     switch (node.getSymbol().getType()) {
       case ID:

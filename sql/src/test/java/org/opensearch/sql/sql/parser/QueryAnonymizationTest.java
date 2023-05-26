@@ -28,7 +28,7 @@ public class QueryAnonymizationTest extends SQLSyntaxParser {
     @Test
     public void queriesShouldAnonymousNumbers() {
         String query = "SELECT ABS(20), LOG(20.20) FROM accounts";
-        String expectedQuery = "( SELECT ABS ( number ) , LOG ( number ) FROM table )";
+        String expectedQuery = "( SELECT ABS ( number ), LOG ( number ) FROM table )";
         parse(query);
         assertEquals(expectedQuery, getAnonymizer().getAnonymizedQueryString());
     }
@@ -77,9 +77,67 @@ public class QueryAnonymizationTest extends SQLSyntaxParser {
     public void queriesWithSubqueriesShouldAnonymizeSensitiveData() {
         String query = "SELECT a.f, a.l, a.a FROM " +
                 "(SELECT firstname AS f, lastname AS l, age AS a FROM accounts WHERE age > 30) a";
-        String expectedQuery = "( SELECT identifier . identifier , identifier . identifier , identifier . identifier FROM " +
-                "( SELECT identifier AS identifier , identifier AS identifier , identifier AS identifier " +
+        String expectedQuery = "( SELECT identifier.identifier, identifier.identifier, identifier.identifier FROM " +
+                "( SELECT identifier AS identifier, identifier AS identifier, identifier AS identifier " +
                 "FROM table WHERE identifier > number ) identifier )";
+        parse(query);
+        assertEquals(expectedQuery, getAnonymizer().getAnonymizedQueryString());
+    }
+
+    @Test
+    public void queriesWithLimitShouldAnonymizeSensitiveData() {
+        String query = "SELECT balance FROM accounts LIMIT 5";
+        String expectedQuery = "( SELECT identifier FROM table LIMIT number )";
+        parse(query);
+        assertEquals(expectedQuery, getAnonymizer().getAnonymizedQueryString());
+    }
+
+    @Test
+    public void queriesWithOrderByShouldAnonymizeSensitiveData() {
+        String query = "SELECT firstname FROM accounts ORDER BY lastname";
+        String expectedQuery = "( SELECT identifier FROM table ORDER BY identifier )";
+        parse(query);
+        assertEquals(expectedQuery, getAnonymizer().getAnonymizedQueryString());
+    }
+
+    @Test
+    public void queriesWithHavingShouldAnonymizeSensitiveData() {
+        String query = "SELECT SUM(balance) FROM accounts GROUP BY lastname HAVING COUNT(balance) > 2";
+        String expectedQuery = "( SELECT SUM ( identifier ) FROM table GROUP BY identifier HAVING COUNT ( identifier ) > number )";
+        parse(query);
+        assertEquals(expectedQuery, getAnonymizer().getAnonymizedQueryString());
+    }
+
+    @Test
+    public void queriesWithHighlightShouldAnonymizeSensitiveData() {
+        String query = "SELECT HIGHLIGHT(str0) FROM CALCS WHERE QUERY_STRING(['str0'], 'FURNITURE')";
+        String expectedQuery = "( SELECT HIGHLIGHT ( identifier ) FROM table WHERE " +
+                "QUERY_STRING ( [ 'string_literal' ], 'string_literal' ) )";
+        parse(query);
+        assertEquals(expectedQuery, getAnonymizer().getAnonymizedQueryString());
+    }
+
+    @Test
+    public void queriesWithMatchShouldAnonymizeSensitiveData() {
+        String query = "SELECT str0 FROM CALCS WHERE MATCH(str0, 'FURNITURE')";
+        String expectedQuery = "( SELECT identifier FROM table WHERE MATCH ( identifier, 'string_literal' ) )";
+        parse(query);
+        assertEquals(expectedQuery, getAnonymizer().getAnonymizedQueryString());
+    }
+
+    @Test
+    public void queriesWithPositionShouldAnonymizeSensitiveData() {
+        String query = "SELECT POSITION('world' IN 'helloworld')";
+        String expectedQuery = "( SELECT POSITION ( 'string_literal' IN 'string_literal' ) )";
+        parse(query);
+        assertEquals(expectedQuery, getAnonymizer().getAnonymizedQueryString());
+    }
+
+    @Test
+    public void queriesWithMatch_Bool_Prefix_ShouldAnonymizeSensitiveData() {
+        String query = "SELECT firstname, address FROM accounts WHERE match_bool_prefix(address, 'Bristol Street', minimum_should_match=2)";
+        String expectedQuery = "( SELECT identifier, identifier FROM table WHERE MATCH_BOOL_PREFIX " +
+                "( identifier, 'string_literal', MINIMUM_SHOULD_MATCH = number ) )";
         parse(query);
         assertEquals(expectedQuery, getAnonymizer().getAnonymizedQueryString());
     }
