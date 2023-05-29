@@ -164,6 +164,38 @@ public class QueryAnonymizationTest {
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
+  @Test
+  public void queriesWithGreaterOrEqualShouldAnonymizeSensitiveData() {
+    String query = "SELECT int0 FROM accounts WHERE int0 >= 0";
+    String expectedQuery = "( SELECT identifier FROM table WHERE identifier >= number )";
+    parser.parse(query);
+    assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
+  }
+
+  @Test
+  public void queriesWithLessOrEqualShouldAnonymizeSensitiveData() {
+    String query = "SELECT int0 FROM accounts WHERE int0 <= 0";
+    String expectedQuery = "( SELECT identifier FROM table WHERE identifier <= number )";
+    parser.parse(query);
+    assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
+  }
+
+  @Test
+  public void queriesWithNotEqualShouldAnonymizeSensitiveData() {
+    String query = "SELECT int0 FROM accounts WHERE int0 != 0";
+    String expectedQuery = "( SELECT identifier FROM table WHERE identifier != number )";
+    parser.parse(query);
+    assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
+  }
+
+  @Test
+  public void queriesWithNotEqualAlternateShouldAnonymizeSensitiveData() {
+    String query = "SELECT int0 FROM calcs WHERE int0 <> 0";
+    String expectedQuery = "( SELECT identifier FROM table WHERE identifier <> number )";
+    parser.parse(query);
+    assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
+  }
+
 
   /**
    * Test added for coverage, but the errorNode will not be hit normally.

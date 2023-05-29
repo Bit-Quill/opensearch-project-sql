@@ -25,6 +25,9 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+/**
+ * Parse tree listener for anonymizing SQL requests.
+ */
 public class AnonymizerListener implements ParseTreeListener {
   private String anonymizedQueryString = "";
   private static final int NO_TYPE = -1;
@@ -40,7 +43,6 @@ public class AnonymizerListener implements ParseTreeListener {
 
   @Override
   public void visitTerminal(TerminalNode node) {
-
     // In these situations don't add a space prior:
     // 1. a DOT between two identifiers
     // 2. before a comma
@@ -49,10 +51,10 @@ public class AnonymizerListener implements ParseTreeListener {
     int token = node.getSymbol().getType();
     boolean isDotIdentifiers = token == DOT || previousType == DOT;
     boolean isComma = token == COMMA;
-    boolean isEqualComparison = token == EQUAL_SYMBOL && (previousType == LESS_SYMBOL
+    boolean isEqualComparison = ((token == EQUAL_SYMBOL)
+            && (previousType == LESS_SYMBOL
         || previousType == GREATER_SYMBOL
-        || previousType == EXCLAMATION_SYMBOL
-        || previousType == EQUAL_SYMBOL);
+        || previousType == EXCLAMATION_SYMBOL));
     boolean isNotEqualComparisonAlternative =
         previousType == LESS_SYMBOL && token == GREATER_SYMBOL;
     if (!isDotIdentifiers && !isComma && !isEqualComparison && !isNotEqualComparisonAlternative) {
