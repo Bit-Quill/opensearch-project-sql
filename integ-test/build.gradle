@@ -142,7 +142,6 @@ task startPrometheus(type: SpawnProcessTask) {
     mustRunAfter ':doctest:doctest'
 
     doFirst {
-
         download.run {
             src getPrometheusBinaryLocation()
             dest new File("$projectDir/bin", 'prometheus.tar.gz')
