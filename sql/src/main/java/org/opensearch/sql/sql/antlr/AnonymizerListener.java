@@ -102,6 +102,8 @@ public class AnonymizerListener implements ParseTreeListener {
   }
 
   public String getAnonymizedQueryString() {
-    return "(" + anonymizedQueryString + ")";
+    String anonymizedString = "(" + anonymizedQueryString + ")";
+    anonymizedQueryString = "";
+    return anonymizedString;
   }
 }
