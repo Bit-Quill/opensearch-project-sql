@@ -142,10 +142,6 @@ task startPrometheus(type: SpawnProcessTask) {
     mustRunAfter ':doctest:doctest'
 
     doFirst {
-        doLast {
-            file("$projectDir/bin/prometheus").deleteDir()
-            file("$projectDir/bin/prometheus.tar.gz").delete()
-        }
 
         download.run {
             src getPrometheusBinaryLocation()
