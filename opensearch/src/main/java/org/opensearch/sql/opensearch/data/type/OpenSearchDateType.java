@@ -9,11 +9,7 @@ import static org.opensearch.common.time.DateFormatter.splitCombinedPatterns;
 import static org.opensearch.common.time.DateFormatter.strip8Prefix;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import org.opensearch.common.time.DateFormatter;
@@ -266,7 +262,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * Create a Date type which has a LinkedHashMap defining all formats.
    * @return A new type object.
    */
-  public static OpenSearchDateType create(String format) {
+  public static OpenSearchDateType of(String format) {
     return new OpenSearchDateType(format);
   }
 
@@ -297,6 +293,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
     if (this.formatString.isEmpty()) {
       return OpenSearchDateType.of(this.exprCoreType);
     }
-    return OpenSearchDateType.create(this.formatString);
+    return OpenSearchDateType.of(this.formatString);
   }
 }

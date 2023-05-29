@@ -164,7 +164,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
       case Date:
         // Default date formatter is used when "" is passed as the second parameter
         String format = (String) innerMap.getOrDefault("format", "");
-        return OpenSearchDateType.create(format);
+        return OpenSearchDateType.of(format);
       default:
         return res;
     }

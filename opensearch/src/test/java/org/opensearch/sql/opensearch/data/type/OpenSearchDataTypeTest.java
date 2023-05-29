@@ -31,8 +31,6 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.MappingType;
 
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -43,7 +41,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.opensearch.common.time.DateFormatter;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 
@@ -56,7 +53,7 @@ class OpenSearchDataTypeTest {
 
   private static final String emptyFormatString = "";
 
-  private static final OpenSearchDateType dateType = OpenSearchDateType.create(emptyFormatString);
+  private static final OpenSearchDateType dateType = OpenSearchDateType.of(emptyFormatString);
 
   @Test
   public void isCompatible() {

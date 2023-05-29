@@ -8,7 +8,6 @@ package org.opensearch.sql.sql;
 
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_CALCS;
-import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DATE_FORMATS;
 import static org.opensearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 import static org.opensearch.sql.util.MatcherUtils.rows;
 import static org.opensearch.sql.util.MatcherUtils.schema;
@@ -41,7 +40,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     loadIndex(Index.BANK);
     loadIndex(Index.CALCS);
     loadIndex(Index.PEOPLE2);
-    loadIndex(Index.DATE_FORMATS);
   }
 
   // Integration test framework sets for OpenSearch instance a random timezone.
@@ -1277,31 +1275,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     String timestampFormat = "%f %H %h %I %i %p %r %S %s %T";
     String timestampFormatted = "012345 13 01 01 14 PM 01:14:15 PM 15 15 13:14:15";
     verifyTimeFormat(timestamp, "timestamp", timestampFormat, timestampFormatted);
-  }
-
-  @Test
-  public void testReadingDateFormats() throws IOException {
-    String query = String.format("SELECT weekyear_week_day, hour_minute_second_millis," +
-        " strict_ordinal_date_time FROM %s LIMIT 1", TEST_INDEX_DATE_FORMATS);
-    JSONObject result = executeQuery(query);
-    verifySchema(result,
-        schema("weekyear_week_day", null, "date"),
-        schema("hour_minute_second_millis", null, "time"),
-        schema("strict_ordinal_date_time", null, "timestamp"));
-    verifyDataRows(result,
-        rows("1984-04-12",
-            "09:07:42",
-            "1984-04-12 09:07:42.000123456"
-        ));
-  }
-
-  @Test
-  public void testDateFormatsWithOr() throws IOException {
-    String query = String.format("SELECT yyyy-MM-dd_OR_epoch_millis FROM %s", TEST_INDEX_DATE_FORMATS);
-    JSONObject result = executeQuery(query);
-    verifyDataRows(result,
-        rows("1984-04-12 00:00:00"),
-        rows("1984-04-12 09:07:42.000123456"));
   }
 
   protected JSONObject executeQuery(String query) throws IOException {

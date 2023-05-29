@@ -221,7 +221,7 @@ public class OpenSearchExprValueFactory {
       }
     }
 
-    // TODO: Check custom formatters too
+    // FOLLOW-UP PR: Check custom formatters too
 
     // if no named formatters are available, use the default
     if (dateType.getAllNamedFormatters().size() == 0

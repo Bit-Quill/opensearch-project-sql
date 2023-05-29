@@ -16,47 +16,23 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
-import static org.opensearch.common.time.FormatNames.ISO8601;
-import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
-import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
-import static org.opensearch.sql.data.type.ExprCoreType.BYTE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
-import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
-import static org.opensearch.sql.data.type.ExprCoreType.FLOAT;
-import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
-import static org.opensearch.sql.data.type.ExprCoreType.LONG;
-import static org.opensearch.sql.data.type.ExprCoreType.SHORT;
-import static org.opensearch.sql.data.type.ExprCoreType.STRING;
-import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
-import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
-import static org.opensearch.sql.opensearch.data.type.OpenSearchDataType.MappingType;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDateType.SUPPORTED_NAMED_DATETIME_FORMATS;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDateType.SUPPORTED_NAMED_DATE_FORMATS;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDateType.SUPPORTED_NAMED_TIME_FORMATS;
 
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-import org.apache.commons.lang3.reflect.FieldUtils;
+
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.opensearch.common.time.DateFormatter;
 import org.opensearch.common.time.FormatNames;
-import org.opensearch.sql.data.type.ExprCoreType;
-import org.opensearch.sql.data.type.ExprType;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class OpenSearchDateTypeTest {
-  private static final String formatString = "epoch_millis || yyyyMMDD";
   private static final String defaultFormatString = "";
 
   private static final String dateFormatString = "date";
@@ -66,13 +42,13 @@ class OpenSearchDateTypeTest {
   private static final String datetimeFormatString = "basic_date_time";
 
   private static final OpenSearchDateType defaultDateType =
-      OpenSearchDateType.create(defaultFormatString);
+      OpenSearchDateType.of(defaultFormatString);
   private static final OpenSearchDateType dateDateType =
-      OpenSearchDateType.create(dateFormatString);
+      OpenSearchDateType.of(dateFormatString);
   private static final OpenSearchDateType timeDateType =
-      OpenSearchDateType.create(timeFormatString);
+      OpenSearchDateType.of(timeFormatString);
   private static final OpenSearchDateType datetimeDateType =
-      OpenSearchDateType.create(datetimeFormatString);
+      OpenSearchDateType.of(datetimeFormatString);
 
   @Test
   public void isCompatible() {
@@ -149,7 +125,7 @@ class OpenSearchDateTypeTest {
           String camelCaseName = datetimeFormat.getCamelCaseName();
           if (camelCaseName != null && !camelCaseName.isEmpty()) {
             OpenSearchDateType dateType =
-                OpenSearchDateType.create(camelCaseName);
+                OpenSearchDateType.of(camelCaseName);
             assertTrue(dateType.getExprType() == TIMESTAMP, camelCaseName
                     + " does not format to a TIMESTAMP type, instead got "
                     + dateType.getExprType());
@@ -157,7 +133,7 @@ class OpenSearchDateTypeTest {
 
           String snakeCaseName = datetimeFormat.getSnakeCaseName();
           if (snakeCaseName != null && !snakeCaseName.isEmpty()) {
-            OpenSearchDateType dateType = OpenSearchDateType.create(snakeCaseName);
+            OpenSearchDateType dateType = OpenSearchDateType.of(snakeCaseName);
             assertTrue(dateType.getExprType() == TIMESTAMP, snakeCaseName
                 + " does not format to a TIMESTAMP type, instead got "
                 + dateType.getExprType());
@@ -166,7 +142,7 @@ class OpenSearchDateTypeTest {
     );
 
     // check the default format case
-    OpenSearchDateType dateType = OpenSearchDateType.create("");
+    OpenSearchDateType dateType = OpenSearchDateType.of("");
     assertTrue(dateType.getExprType() == TIMESTAMP);
   }
 
@@ -177,7 +153,7 @@ class OpenSearchDateTypeTest {
           String camelCaseName = dateFormat.getCamelCaseName();
           if (camelCaseName != null && !camelCaseName.isEmpty()) {
             OpenSearchDateType dateType =
-                OpenSearchDateType.create(camelCaseName);
+                OpenSearchDateType.of(camelCaseName);
             assertTrue(dateType.getExprType() == DATE, camelCaseName
                 + " does not format to a DATE type, instead got "
                 + dateType.getExprType());
@@ -185,7 +161,7 @@ class OpenSearchDateTypeTest {
 
           String snakeCaseName = dateFormat.getSnakeCaseName();
           if (snakeCaseName != null && !snakeCaseName.isEmpty()) {
-            OpenSearchDateType dateType = OpenSearchDateType.create(snakeCaseName);
+            OpenSearchDateType dateType = OpenSearchDateType.of(snakeCaseName);
             assertTrue(dateType.getExprType() == DATE, snakeCaseName
                 + " does not format to a DATE type, instead got "
                 + dateType.getExprType());
@@ -201,7 +177,7 @@ class OpenSearchDateTypeTest {
           String camelCaseName = timeFormat.getCamelCaseName();
           if (camelCaseName != null && !camelCaseName.isEmpty()) {
             OpenSearchDateType dateType =
-                OpenSearchDateType.create(camelCaseName);
+                OpenSearchDateType.of(camelCaseName);
             assertTrue(dateType.getExprType() == TIME, camelCaseName
                 + " does not format to a TIME type, instead got "
                 + dateType.getExprType());
@@ -209,7 +185,7 @@ class OpenSearchDateTypeTest {
 
           String snakeCaseName = timeFormat.getSnakeCaseName();
           if (snakeCaseName != null && !snakeCaseName.isEmpty()) {
-            OpenSearchDateType dateType = OpenSearchDateType.create(snakeCaseName);
+            OpenSearchDateType dateType = OpenSearchDateType.of(snakeCaseName);
             assertTrue(dateType.getExprType() == TIME, snakeCaseName
                 + " does not format to a TIME type, instead got "
                 + dateType.getExprType());
