@@ -239,9 +239,10 @@ public class OpenSearchDateType extends OpenSearchDataType {
   }
 
   /**
+   * Check if ExprType is compatible for creation of OpenSearchDateType object.
    *
-   * @param exprType
-   * @return
+   * @param exprType type of the field in the SQL query
+   * @return a boolean if type is a date/time/timestamp type
    */
   public static boolean isDateTypeCompatible(ExprType exprType) {
     if (!(exprType instanceof ExprCoreType)) {

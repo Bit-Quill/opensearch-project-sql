@@ -371,9 +371,9 @@ class OpenSearchExprValueFactoryTest {
         exception.getMessage());
 
     exception = assertThrows(
-        IllegalArgumentException.class, () -> constructFromObject("dateStringV", "12-10"));
+        IllegalArgumentException.class, () -> constructFromObject("dateStringV", "abc"));
     assertEquals(
-        "Construct ExprDateValue from \"12-10\" failed, "
+        "Construct ExprDateValue from \"abc\" failed, "
             + "unsupported date format.",
         exception.getMessage());
   }

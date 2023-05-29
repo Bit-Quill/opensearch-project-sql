@@ -25,7 +25,6 @@ import static org.opensearch.sql.opensearch.data.type.OpenSearchDateType.SUPPORT
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDateType.SUPPORTED_NAMED_TIME_FORMATS;
 
 import java.util.EnumSet;
-
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
