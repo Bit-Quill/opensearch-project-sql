@@ -9,29 +9,32 @@ package org.opensearch.sql.sql.parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ErrorNode;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.opensearch.sql.common.antlr.CaseInsensitiveCharStream;
 import org.opensearch.sql.common.antlr.SyntaxAnalysisErrorListener;
 import org.opensearch.sql.sql.antlr.AnonymizerListener;
-import org.opensearch.sql.sql.antlr.SQLSyntaxParser;
+import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLLexer;
+import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser;
 
-public class QueryAnonymizationTest {
+public class AnonymizerListenerTest {
 
-  public AnonymizerListener anonymizerListener;
+  public AnonymizerListener anonymizerListener = new AnonymizerListener();
 
-  public SyntaxAnalysisErrorListener syntaxAnalysisErrorListener;
-
-  private SQLSyntaxParser parser;
+  public SyntaxAnalysisErrorListener errorListener = new SyntaxAnalysisErrorListener();
 
   /**
-   * Initialize tests.
+   * Helper function to parse SQl queries for testing purposes.
+   * @param query SQL query to be anonymized.
    */
-  @BeforeEach
-  public void init() {
-    anonymizerListener = new AnonymizerListener();
-    syntaxAnalysisErrorListener = new SyntaxAnalysisErrorListener();
-    parser = new SQLSyntaxParser(anonymizerListener, syntaxAnalysisErrorListener);
+  public void parse(String query) {
+    OpenSearchSQLLexer lexer = new OpenSearchSQLLexer(new CaseInsensitiveCharStream(query));
+    OpenSearchSQLParser parser = new OpenSearchSQLParser(new CommonTokenStream(lexer));
+    parser.addErrorListener(errorListener);
+    parser.addParseListener(anonymizerListener);
+
+    parser.root();
   }
 
   @Test
@@ -39,7 +42,7 @@ public class QueryAnonymizationTest {
     String query = "SELECT ABS(balance) FROM accounts WHERE age > 30 GROUP BY ABS(balance)";
     String expectedQuery = "( SELECT ABS ( identifier ) FROM table "
         + "WHERE identifier > number GROUP BY ABS ( identifier ) )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -47,7 +50,7 @@ public class QueryAnonymizationTest {
   public void queriesShouldAnonymousNumbers() {
     String query = "SELECT ABS(20), LOG(20.20) FROM accounts";
     String expectedQuery = "( SELECT ABS ( number ), LOG ( number ) FROM table )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -55,7 +58,7 @@ public class QueryAnonymizationTest {
   public void queriesShouldHaveAnonymousBooleanLiterals() {
     String query = "SELECT TRUE FROM accounts";
     String expectedQuery = "( SELECT boolean_literal FROM table )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -63,7 +66,7 @@ public class QueryAnonymizationTest {
   public void queriesShouldHaveAnonymousInputStrings() {
     String query = "SELECT * FROM accounts WHERE name = 'Oliver'";
     String expectedQuery = "( SELECT * FROM table WHERE identifier = 'string_literal' )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -71,7 +74,7 @@ public class QueryAnonymizationTest {
   public void queriesWithAliasesShouldAnonymizeSensitiveData() {
     String query = "SELECT balance AS b FROM accounts AS a";
     String expectedQuery = "( SELECT identifier AS identifier FROM table AS identifier )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -79,7 +82,7 @@ public class QueryAnonymizationTest {
   public void queriesWithFunctionsShouldAnonymizeSensitiveData() {
     String query = "SELECT LTRIM(firstname) FROM accounts";
     String expectedQuery = "( SELECT LTRIM ( identifier ) FROM table )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -87,7 +90,7 @@ public class QueryAnonymizationTest {
   public void queriesWithAggregatesShouldAnonymizeSensitiveData() {
     String query = "SELECT MAX(price) - MIN(price) from tickets";
     String expectedQuery = "( SELECT MAX ( identifier ) - MIN ( identifier ) FROM table )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -99,7 +102,7 @@ public class QueryAnonymizationTest {
         "( SELECT identifier.identifier, identifier.identifier, identifier.identifier FROM "
         + "( SELECT identifier AS identifier, identifier AS identifier, identifier AS identifier "
         + "FROM table WHERE identifier > number ) identifier )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -107,7 +110,7 @@ public class QueryAnonymizationTest {
   public void queriesWithLimitShouldAnonymizeSensitiveData() {
     String query = "SELECT balance FROM accounts LIMIT 5";
     String expectedQuery = "( SELECT identifier FROM table LIMIT number )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -115,7 +118,7 @@ public class QueryAnonymizationTest {
   public void queriesWithOrderByShouldAnonymizeSensitiveData() {
     String query = "SELECT firstname FROM accounts ORDER BY lastname";
     String expectedQuery = "( SELECT identifier FROM table ORDER BY identifier )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -124,7 +127,7 @@ public class QueryAnonymizationTest {
     String query = "SELECT SUM(balance) FROM accounts GROUP BY lastname HAVING COUNT(balance) > 2";
     String expectedQuery = "( SELECT SUM ( identifier ) FROM table "
         + "GROUP BY identifier HAVING COUNT ( identifier ) > number )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -133,7 +136,7 @@ public class QueryAnonymizationTest {
     String query = "SELECT HIGHLIGHT(str0) FROM CALCS WHERE QUERY_STRING(['str0'], 'FURNITURE')";
     String expectedQuery = "( SELECT HIGHLIGHT ( identifier ) FROM table WHERE "
         + "QUERY_STRING ( [ 'string_literal' ], 'string_literal' ) )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -142,7 +145,7 @@ public class QueryAnonymizationTest {
     String query = "SELECT str0 FROM CALCS WHERE MATCH(str0, 'FURNITURE')";
     String expectedQuery = "( SELECT identifier FROM table "
         + "WHERE MATCH ( identifier, 'string_literal' ) )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -150,7 +153,7 @@ public class QueryAnonymizationTest {
   public void queriesWithPositionShouldAnonymizeSensitiveData() {
     String query = "SELECT POSITION('world' IN 'helloworld')";
     String expectedQuery = "( SELECT POSITION ( 'string_literal' IN 'string_literal' ) )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -160,7 +163,7 @@ public class QueryAnonymizationTest {
         + "match_bool_prefix(address, 'Bristol Street', minimum_should_match=2)";
     String expectedQuery = "( SELECT identifier, identifier FROM table WHERE MATCH_BOOL_PREFIX "
         + "( identifier, 'string_literal', MINIMUM_SHOULD_MATCH = number ) )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -168,7 +171,7 @@ public class QueryAnonymizationTest {
   public void queriesWithGreaterOrEqualShouldAnonymizeSensitiveData() {
     String query = "SELECT int0 FROM accounts WHERE int0 >= 0";
     String expectedQuery = "( SELECT identifier FROM table WHERE identifier >= number )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -176,7 +179,7 @@ public class QueryAnonymizationTest {
   public void queriesWithLessOrEqualShouldAnonymizeSensitiveData() {
     String query = "SELECT int0 FROM accounts WHERE int0 <= 0";
     String expectedQuery = "( SELECT identifier FROM table WHERE identifier <= number )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -184,7 +187,7 @@ public class QueryAnonymizationTest {
   public void queriesWithNotEqualShouldAnonymizeSensitiveData() {
     String query = "SELECT int0 FROM accounts WHERE int0 != 0";
     String expectedQuery = "( SELECT identifier FROM table WHERE identifier != number )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
@@ -192,7 +195,7 @@ public class QueryAnonymizationTest {
   public void queriesWithNotEqualAlternateShouldAnonymizeSensitiveData() {
     String query = "SELECT int0 FROM calcs WHERE int0 <> 0";
     String expectedQuery = "( SELECT identifier FROM table WHERE identifier <> number )";
-    parser.parse(query);
+    parse(query);
     assertEquals(expectedQuery, anonymizerListener.getAnonymizedQueryString());
   }
 
