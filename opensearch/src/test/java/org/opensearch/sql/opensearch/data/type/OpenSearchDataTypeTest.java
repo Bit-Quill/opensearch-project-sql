@@ -137,11 +137,13 @@ class OpenSearchDataTypeTest {
   public void of_ExprCoreType(ExprCoreType coreType) {
     assumeFalse(coreType == UNKNOWN);
     var type = OpenSearchDataType.of(coreType);
-    assertAll(
-        () -> assertEquals(coreType.toString(), type.typeName()),
-        () -> assertEquals(coreType.toString(), type.legacyTypeName()),
-        () -> assertEquals(coreType, type.getExprType())
-    );
+    if (type instanceof OpenSearchDateType) {
+      assertEquals(coreType, type.getExprType());
+    } else {
+      assertEquals(coreType.toString(), type.typeName());
+      assertEquals(coreType.toString(), type.legacyTypeName());
+      assertEquals(coreType, type.getExprType());
+    }
   }
 
   @ParameterizedTest(name = "{0}")

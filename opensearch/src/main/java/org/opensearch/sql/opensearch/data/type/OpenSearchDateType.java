@@ -8,6 +8,8 @@ package org.opensearch.sql.opensearch.data.type;
 import static org.opensearch.common.time.DateFormatter.splitCombinedPatterns;
 import static org.opensearch.common.time.DateFormatter.strip8Prefix;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
+import static org.opensearch.sql.data.type.ExprCoreType.TIME;
+import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,8 +26,6 @@ import org.opensearch.sql.data.type.ExprType;
 public class OpenSearchDateType extends OpenSearchDataType {
 
   private static final OpenSearchDateType instance = new OpenSearchDateType();
-
-  private static final String FORMAT_DELIMITER = "\\|\\|";
 
   public static final List<FormatNames> SUPPORTED_NAMED_DATETIME_FORMATS = List.of(
       FormatNames.ISO8601,
@@ -129,14 +129,12 @@ public class OpenSearchDateType extends OpenSearchDataType {
   }
 
   private OpenSearchDateType(ExprCoreType exprCoreType) {
-    super(MappingType.Date);
-    this.formatString = "";
+    this();
     this.exprCoreType = exprCoreType;
   }
 
   private OpenSearchDateType(ExprType exprType) {
-    super(MappingType.Date);
-    this.formatString = "";
+    this();
     this.exprCoreType = (ExprCoreType) exprType;
   }
 
@@ -158,7 +156,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
 
   /**
-   * Retrieves a list of named formatters defined by OpenSearch.
+   * Retrieves a list of named OpenSearch formatters given by user mapping.
    * @return a list of DateFormatters that can be used to parse a Date/Time/Timestamp.
    */
   public List<DateFormatter> getAllNamedFormatters() {
@@ -207,26 +205,26 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   private ExprCoreType getExprTypeFromFormatString(String formatString) {
     if (formatString.isEmpty()) {
-      // TODO: check the default formatter - and set it here instead of assuming that the default
-      // is always a timestamp
-      return ExprCoreType.TIMESTAMP;
+      // FOLLOW-UP: check the default formatter - and set it here instead
+      // of assuming that the default is always a timestamp
+      return TIMESTAMP;
     }
 
     List<DateFormatter> namedFormatters = getAllNamedFormatters();
 
     if (namedFormatters.isEmpty()) {
-      return ExprCoreType.TIMESTAMP;
+      return TIMESTAMP;
     }
 
     if (!getAllCustomFormatters().isEmpty()) {
-      // TODO: support custom format in <issue#>
-      return ExprCoreType.TIMESTAMP;
+      // FOLLOW-UP: support custom format in <issue#>
+      return TIMESTAMP;
     }
 
     // if there is nothing in the dateformatter that accepts a year/month/day, then
     // we can assume the type is strictly a Time object
     if (namedFormatters.size() == getTimeNamedFormatters().size()) {
-      return ExprCoreType.TIME;
+      return TIME;
     }
 
     // if there is nothing in the dateformatter that accepts a hour/minute/second, then
@@ -235,7 +233,8 @@ public class OpenSearchDateType extends OpenSearchDataType {
       return DATE;
     }
 
-    return ExprCoreType.TIMESTAMP;
+    // According to the user mapping, this field may contain a DATE or a TIME
+    return TIMESTAMP;
   }
 
   /**

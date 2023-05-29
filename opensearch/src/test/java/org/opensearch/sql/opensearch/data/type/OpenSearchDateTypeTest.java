@@ -23,12 +23,14 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDateType.SUPPORTED_NAMED_DATETIME_FORMATS;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDateType.SUPPORTED_NAMED_DATE_FORMATS;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDateType.SUPPORTED_NAMED_TIME_FORMATS;
+import static org.opensearch.sql.opensearch.data.type.OpenSearchDateType.isDateTypeCompatible;
 
 import java.util.EnumSet;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.opensearch.common.time.FormatNames;
+import org.opensearch.sql.data.type.ExprType;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class OpenSearchDateTypeTest {
@@ -191,5 +193,12 @@ class OpenSearchDateTypeTest {
           }
         }
     );
+  }
+
+  @Test
+  public void checkIfDateTypeCompatible() {
+    assertTrue(isDateTypeCompatible(DATE));
+    assertFalse(isDateTypeCompatible(OpenSearchDataType.of(
+        OpenSearchDataType.MappingType.Text)));
   }
 }

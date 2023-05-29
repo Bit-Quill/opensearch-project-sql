@@ -193,6 +193,10 @@ public class OpenSearchDataType implements ExprType, Serializable {
     if (res != null) {
       return res;
     }
+    if (OpenSearchDateType.isDateTypeCompatible(type)) {
+      return OpenSearchDateType.of(type);
+    }
+
     return new OpenSearchDataType((ExprCoreType) type);
   }
 

@@ -116,13 +116,13 @@ public class OpenSearchExprValueFactory {
               (c, dt) -> ExprBooleanValue.of(c.booleanValue()))
           //Handles the creation of DATE, TIME & DATETIME
           .put(OpenSearchDateType.of(TIME),
-              (c, dt) -> createOpenSearchDateType(c, dt))
+              this::createOpenSearchDateType)
           .put(OpenSearchDateType.of(DATE),
-              (c, dt) -> createOpenSearchDateType(c, dt))
+              this::createOpenSearchDateType)
           .put(OpenSearchDateType.of(TIMESTAMP),
-              (c, dt) -> createOpenSearchDateType(c, dt))
+              this::createOpenSearchDateType)
           .put(OpenSearchDateType.of(DATETIME),
-              (c, dt) -> createOpenSearchDateType(c, dt))
+              this::createOpenSearchDateType)
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Ip),
               (c, dt) -> new OpenSearchExprIpValue(c.stringValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.GeoPoint),
@@ -202,7 +202,7 @@ public class OpenSearchExprValueFactory {
   }
 
   /**
-   * return the first matching formatter as an Instant to UTF.
+   * Parses value with the first matching formatter as an Instant to UTF.
    *
    * @param value - timestamp as string
    * @param dateType - field type
