@@ -105,7 +105,7 @@ class OpenSearchDateTypeTest {
   // https://github.com/opensearch-project/sql/issues/1296
   @Test
   public void check_typeName() {
-    // always use the type "DATE"
+    // always use the MappingType of "DATE"
     assertEquals("DATE", defaultDateType.typeName());
     assertEquals("DATE", timeDateType.typeName());
     assertEquals("DATE", dateDateType.typeName());
@@ -123,7 +123,7 @@ class OpenSearchDateTypeTest {
 
   @Test
   public void check_exprTypeName() {
-    // always use the legacy "DATE" type
+    // exprType changes based on type (no datetime):
     assertEquals(TIMESTAMP, defaultDateType.getExprType());
     assertEquals(TIME, timeDateType.getExprType());
     assertEquals(DATE, dateDateType.getExprType());

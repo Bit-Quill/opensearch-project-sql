@@ -645,8 +645,6 @@ class AggregationQueryBuilderTest {
         Arrays.asList(named(span(ref("age", INTEGER), literal(1), "invalid_unit")))));
   }
 
-
-
   @SneakyThrows
   private String buildQuery(List<NamedAggregator> namedAggregatorList,
                             List<NamedExpression> groupByList) {

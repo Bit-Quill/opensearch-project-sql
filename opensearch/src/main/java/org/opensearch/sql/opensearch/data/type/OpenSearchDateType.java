@@ -98,7 +98,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
       FormatNames.STRICT_WEEKYEAR
   );
 
-  // list of named formats that only support house/minute/second
+  // list of named formats that only support hour/minute/second
   public static final List<FormatNames> SUPPORTED_NAMED_TIME_FORMATS = List.of(
       FormatNames.BASIC_TIME,
       FormatNames.BASIC_TIME_NO_MILLIS,
@@ -240,6 +240,26 @@ public class OpenSearchDateType extends OpenSearchDataType {
     }
 
     return ExprCoreType.TIMESTAMP;
+  }
+
+  /**
+   *
+   * @param exprType
+   * @return
+   */
+  public static boolean isDateTypeCompatible(ExprType exprType) {
+    if (!(exprType instanceof ExprCoreType)) {
+      return false;
+    }
+    switch ((ExprCoreType) exprType) {
+      case TIMESTAMP:
+      case DATETIME:
+      case DATE:
+      case TIME:
+        return true;
+      default:
+        return false;
+    }
   }
 
   /**
