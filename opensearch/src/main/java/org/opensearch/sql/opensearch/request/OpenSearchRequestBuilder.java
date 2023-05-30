@@ -14,7 +14,6 @@ import static org.opensearch.search.sort.FieldSortBuilder.DOC_FIELD_NAME;
 import static org.opensearch.search.sort.SortOrder.ASC;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -279,6 +278,10 @@ public class OpenSearchRequestBuilder {
           .forEach(q -> result.addAll(extractNestedQueries(q)));
     }
     return result;
+  }
+
+  public int getMaxResponseSize() {
+    return pageSize == null ? requestedTotalSize : pageSize;
   }
 
   /**
