@@ -20,6 +20,18 @@
           },
           "dayOfWeek": {
             "type": "long"
+          },
+          "date": {
+            "type": "date",
+            "format": "date"
+          },
+          "time": {
+            "type": "date",
+            "format": "hour_minute_second"
+          },
+          "blah": {
+            "type": "date",
+            "format": "date_time"
           }
         }
       },
