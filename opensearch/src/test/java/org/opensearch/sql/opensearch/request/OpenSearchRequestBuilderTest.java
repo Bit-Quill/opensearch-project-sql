@@ -384,20 +384,22 @@ class OpenSearchRequestBuilderTest {
         .innerHit(new InnerHitBuilder().setFetchSourceContext(
             new FetchSourceContext(true, new String[]{"message.info"}, null)));
 
-    assertSearchSourceBuilder(new SearchSourceBuilder()
-        .query(
-          QueryBuilders.boolQuery().filter(
-            QueryBuilders.boolQuery()
-              .must(filterQuery)
-        )
-      )
-        .from(DEFAULT_OFFSET)
-        .size(DEFAULT_LIMIT)
-        .timeout(DEFAULT_QUERY_TIMEOUT), requestBuilder);
+    assertEquals(
+        new SearchSourceBuilder()
+            .query(
+                QueryBuilders.boolQuery().filter(
+                    QueryBuilders.boolQuery()
+                        .must(filterQuery)
+                )
+            )
+            .from(DEFAULT_OFFSET)
+            .size(DEFAULT_LIMIT)
+            .timeout(DEFAULT_QUERY_TIMEOUT),
+        requestBuilder.getSourceBuilder());
   }
 
   @Test
-  void test_push_type_mapping() {
+  void testPushTypeMapping() {
     Map<String, OpenSearchDataType> typeMapping = Map.of("intA", OpenSearchDataType.of(INTEGER));
     requestBuilder.pushTypeMapping(typeMapping);
 
