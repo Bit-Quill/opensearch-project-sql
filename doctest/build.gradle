@@ -103,6 +103,10 @@ def stopPrometheusMethod() {
     }
 }
 
+if(getOSFamilyType() != "windows") {
+    startOpenSearch.dependsOn startPrometheus
+}
+
 doctest.dependsOn startOpenSearch
 doctest.finalizedBy stopOpenSearch
 check.dependsOn doctest
