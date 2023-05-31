@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import java.util.concurrent.Callable
 import org.opensearch.gradle.testclusters.RunTask
 
 plugins {
@@ -34,25 +33,12 @@ task bootstrap(type: Exec, dependsOn: ['cloneSqlCli']) {
 
 task startPrometheus(type: SpawnProcessTask) {
     doFirst {
-        def pidFile = new File(path, ".prom.pid.lock")
-        if (!pidFile.exists()) {
-            logger.quiet "No Prometheus server running!"
-        } else {
-            def pid = pidFile.text
-            def process = "kill $pid".execute()
-
-            try {
-                process.waitFor()
-            } finally {
-                pidFile.delete()
-                file("$projectDir/bin/prometheus").deleteDir()
-                file("$projectDir/bin/prometheus.tar.gz").delete()
-            }
-        }
+        stopPrometheusMethod()
 
         download.run {
             src getPrometheusBinaryLocation()
             dest new File("$projectDir/bin", 'prometheus.tar.gz')
+            overwrite false
         }
         copy {
             from tarTree("$projectDir/bin/prometheus.tar.gz")
@@ -89,14 +75,15 @@ task doctest(type: Exec, dependsOn: ['bootstrap']) {
         // remove the cloned sql-cli folder
         file("$projectDir/sql-cli").deleteDir()
         println("Doctest Done")
+        stopPrometheusMethod()
     }
 }
 
 task stopOpenSearch(type: KillProcessTask)
 
-task stopPrometheus() {
 
-    doLast {
+def stopPrometheusMethod() {
+    if(getOSFamilyType() != "windows") {
         def pidFile = new File(path, ".prom.pid.lock")
         if (!pidFile.exists()) {
             logger.quiet "No Prometheus server running!"
@@ -115,11 +102,7 @@ task stopPrometheus() {
         }
     }
 }
-if(getOSFamilyType() != "windows") {
-    stopPrometheus.mustRunAfter startPrometheus
-    startOpenSearch.dependsOn startPrometheus
-    stopOpenSearch.finalizedBy stopPrometheus
-}
+
 doctest.dependsOn startOpenSearch
 doctest.finalizedBy stopOpenSearch
 check.dependsOn doctest
