@@ -33,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
@@ -225,38 +226,48 @@ public class OpenSearchExprValueFactory {
    */
   private ExprValue parseTimestampString(String value, OpenSearchDateType dateType) {
     Instant parsed = null;
-    for (DateFormatter formatter : dateType.getAllNamedFormatters()) {
+    TemporalAccessor accessor = null;
+    ZonedDateTime zonedDateTime = null;
+    List<DateFormatter> formatters = dateType.getAllNamedFormatters();
+    formatters.addAll(dateType.getAllCustomFormatters());
+
+    for (DateFormatter formatter : formatters) {
       try {
-        TemporalAccessor accessor = formatter.parse(value);
-        ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
+        accessor = formatter.parse(value);
+        zonedDateTime = DateFormatters.from(accessor);
         // remove the Zone
         parsed = zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toInstant();
+        return new ExprTimestampValue(parsed);
       } catch (IllegalArgumentException ignored) {
         // nothing to do, try another format
       }
     }
 
-    // FOLLOW-UP PR: Check custom formatters too
+//    for (DateFormatter formatter : dateType.getAllCustomFormatters()) {
+//      try {
+//        accessor = formatter.parse(value);
+//        zonedDateTime = DateFormatters.from(accessor);
+//        // remove the Zone
+//        parsed = zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toInstant();
+//        return new ExprTimestampValue(parsed);
+//      } catch (DateTimeParseException ignored) {
+//        // nothing to do, try another format
+//      }
+//    }
 
-    // if no named formatters are available, use the default
-    if (dateType.getAllNamedFormatters().size() == 0
-        || dateType.getAllCustomFormatters().size() > 0) {
-      try {
-        parsed = DateFormatters.from(DATE_TIME_FORMATTER.parse(value)).toInstant();
-      } catch (DateTimeParseException e) {
-        // ignored
-      }
+    // if no formatters are available, try the default formatter
+    try {
+      parsed = DateFormatters.from(DATE_TIME_FORMATTER.parse(value)).toInstant();
+      return new ExprTimestampValue(parsed);
+    } catch (DateTimeParseException e) {
+      // ignored
     }
 
-    if (parsed == null) {
-      // otherwise, throw an error that no formatters worked
-      throw new IllegalArgumentException(
-          String.format(
-              "Construct ExprTimestampValue from \"%s\" failed, unsupported date format.", value)
-      );
-    }
-
-    return new ExprTimestampValue(parsed);
+    // otherwise, throw an error that no formatters worked
+    throw new IllegalArgumentException(
+        String.format(
+            "Construct ExprTimestampValue from \"%s\" failed, unsupported date format.", value)
+    );
   }
 
   /**
@@ -278,15 +289,25 @@ public class OpenSearchExprValueFactory {
       }
     }
 
-    // if no named formatters are available, use the default
-    if (dateType.getAllNamedFormatters().size() == 0) {
+    for (DateFormatter formatter : dateType.getAllCustomFormatters()) {
       try {
+        TemporalAccessor accessor = formatter.parse(value);
+        ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
         return new ExprTimeValue(
-            DateFormatters.from(STRICT_HOUR_MINUTE_SECOND_FORMATTER.parse(value)).toLocalTime());
-      } catch (DateTimeParseException e) {
-        // ignored
+            zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toLocalTime());
+      } catch (DateTimeParseException  ignored) {
+        // nothing to do, try another format
       }
     }
+
+    // if no formatters are available, try the default formatter
+    try {
+      return new ExprTimeValue(
+          DateFormatters.from(STRICT_HOUR_MINUTE_SECOND_FORMATTER.parse(value)).toLocalTime());
+    } catch (DateTimeParseException e) {
+      // ignored
+    }
+
     throw new IllegalArgumentException("Construct ExprTimeValue from \"" + value
         + "\" failed, unsupported time format.");
   }
@@ -311,15 +332,26 @@ public class OpenSearchExprValueFactory {
       }
     }
 
-    // if no named formatters are available, use the default
-    if (dateType.getAllNamedFormatters().size() == 0) {
+    for (DateFormatter formatter : dateType.getAllCustomFormatters()) {
       try {
+        TemporalAccessor accessor = formatter.parse(value);
+        ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
+        // return the first matching formatter as a date without timezone
         return new ExprDateValue(
-            DateFormatters.from(STRICT_YEAR_MONTH_DAY_FORMATTER.parse(value)).toLocalDate());
-      } catch (DateTimeParseException e) {
-        // ignored
+            zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toLocalDate());
+      } catch (DateTimeParseException  ignored) {
+        // nothing to do, try another format
       }
     }
+
+    // if no formatters are available, use the default formatter
+    try {
+      return new ExprDateValue(
+          DateFormatters.from(STRICT_YEAR_MONTH_DAY_FORMATTER.parse(value)).toLocalDate());
+    } catch (DateTimeParseException e) {
+      // ignored
+    }
+
     throw new IllegalArgumentException("Construct ExprDateValue from \"" + value
         + "\" failed, unsupported date format.");
   }

@@ -12,6 +12,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import org.opensearch.common.time.DateFormatter;
@@ -27,6 +28,10 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   private static final OpenSearchDateType instance = new OpenSearchDateType();
 
+  public static final List<FormatNames> SUPPORTED_NAMED_NUMERIC_FORMATS = List.of(
+      FormatNames.EPOCH_MILLIS,
+      FormatNames.EPOCH_SECOND
+  );
   public static final List<FormatNames> SUPPORTED_NAMED_DATETIME_FORMATS = List.of(
       FormatNames.ISO8601,
       FormatNames.EPOCH_MILLIS,
@@ -166,6 +171,20 @@ public class OpenSearchDateType extends OpenSearchDataType {
   }
 
   /**
+   * Retrieves a list of numeric formatters that format for dates.
+   *
+   * @return a list of DateFormatters that can be used to parse a Date.
+   */
+  public List<DateFormatter> getNumericNamedFormatters() {
+    return getFormatList().stream()
+        .filter(formatString -> {
+          FormatNames namedFormat = FormatNames.forName(formatString);
+          return namedFormat == null ? false : SUPPORTED_NAMED_NUMERIC_FORMATS.contains(namedFormat);
+        })
+        .map(DateFormatter::forPattern).collect(Collectors.toList());
+  }
+
+  /**
    * Retrieves a list of custom formatters defined by the user.
    * @return a list of DateFormatters that can be used to parse a Date/Time/Timestamp.
    */
@@ -184,7 +203,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
     return getFormatList().stream()
         .filter(formatString -> {
           FormatNames namedFormat = FormatNames.forName(formatString);
-          return SUPPORTED_NAMED_DATE_FORMATS.contains(namedFormat);
+          return namedFormat == null ? false : SUPPORTED_NAMED_DATE_FORMATS.contains(namedFormat);
         })
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
@@ -198,38 +217,75 @@ public class OpenSearchDateType extends OpenSearchDataType {
     return getFormatList().stream()
         .filter(formatString -> {
           FormatNames namedFormat = FormatNames.forName(formatString);
-          return SUPPORTED_NAMED_TIME_FORMATS.contains(namedFormat);
+          return namedFormat == null ? false : SUPPORTED_NAMED_TIME_FORMATS.contains(namedFormat);
         })
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
 
+  private ExprCoreType getExprTypeFromCustomFormatString(List<DateFormatter> formatters) {
+    // Characters from
+    // https://opensearch.org/docs/latest/field-types/supported-field-types/date/#built-in-formats
+    Pattern timeFormatChars = Pattern.compile("[HmsSZ]");
+    Pattern dateFormatChars = Pattern.compile("[yYMwdDe]");
+    boolean isTime = false;
+    boolean isDate = false;
+
+    for (DateFormatter formatter: formatters) {
+      if (timeFormatChars.matcher(formatter.pattern()).find()) {
+        isTime = true;
+      }
+      if (dateFormatChars.matcher(formatter.pattern()).find()) {
+        isDate = true;
+      }
+      if ((isDate && isTime)) {
+        return TIMESTAMP;
+      }
+    }
+    if (isTime) {
+      return TIME;
+    }
+    if (isDate) {
+      return DATE;
+    }
+
+    // Default type
+    return TIMESTAMP;
+  }
+
   private ExprCoreType getExprTypeFromFormatString(String formatString) {
-    if (formatString.isEmpty()) {
+    List<DateFormatter> timeFormatters = getTimeNamedFormatters();
+    List<DateFormatter> dateFormatters = getDateNamedFormatters();
+    List<DateFormatter> customFormatters = getAllCustomFormatters();
+    List<DateFormatter> numericFormatters = getNumericNamedFormatters();
+
+    if (formatString.isEmpty()
+        || (!timeFormatters.isEmpty() && !dateFormatters.isEmpty())
+        || !numericFormatters.isEmpty()) {
       // FOLLOW-UP: check the default formatter - and set it here instead
       // of assuming that the default is always a timestamp
       return TIMESTAMP;
     }
 
-    List<DateFormatter> namedFormatters = getAllNamedFormatters();
-
-    if (namedFormatters.isEmpty()) {
-      return TIMESTAMP;
-    }
-
-    if (!getAllCustomFormatters().isEmpty()) {
-      // FOLLOW-UP: support custom format in <issue#>
-      return TIMESTAMP;
+    if (!customFormatters.isEmpty()) {
+      ExprCoreType customFormatType = getExprTypeFromCustomFormatString(customFormatters);
+      if (!timeFormatters.isEmpty() && customFormatType == TIME) {
+        return TIME;
+      }
+      if (!dateFormatters.isEmpty() && customFormatType == DATE) {
+        return DATE;
+      }
+      return customFormatType;
     }
 
     // if there is nothing in the dateformatter that accepts a year/month/day, then
     // we can assume the type is strictly a Time object
-    if (namedFormatters.size() == getTimeNamedFormatters().size()) {
+    if (!timeFormatters.isEmpty() && dateFormatters.isEmpty()) {
       return TIME;
     }
 
     // if there is nothing in the dateformatter that accepts a hour/minute/second, then
     // we can assume the type is strictly a Date object
-    if (namedFormatters.size() == getDateNamedFormatters().size()) {
+    if (!dateFormatters.isEmpty() && timeFormatters.isEmpty() ) {
       return DATE;
     }
 
