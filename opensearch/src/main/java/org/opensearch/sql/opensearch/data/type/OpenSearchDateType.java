@@ -12,8 +12,10 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.opensearch.common.time.DateFormatter;
 import org.opensearch.common.time.FormatNames;
 import org.opensearch.sql.data.type.ExprCoreType;
@@ -122,10 +124,22 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   @EqualsAndHashCode.Exclude
   String formatString;
+  @Getter
+  List<DateFormatter> dateFormatters;
+  @Getter
+  List<DateFormatter> timeFormatters;
+  @Getter
+  List<DateFormatter> dateTimeFormatters;
+  @Getter
+  List<DateFormatter> customFormatters;
 
   private OpenSearchDateType() {
     super(MappingType.Date);
     this.formatString = "";
+    this.dateFormatters = getDateNamedFormatters("");
+    this.timeFormatters = getTimeNamedFormatters("");
+    this.dateTimeFormatters = getDateTimeNamedFormatters("");
+    this.customFormatters = getAllCustomFormatters("");
   }
 
   private OpenSearchDateType(ExprCoreType exprCoreType) {
@@ -141,6 +155,10 @@ public class OpenSearchDateType extends OpenSearchDataType {
   private OpenSearchDateType(String formatStringArg) {
     super(MappingType.Date);
     this.formatString = formatStringArg;
+    this.dateFormatters = getDateNamedFormatters(formatStringArg);
+    this.timeFormatters = getTimeNamedFormatters(formatStringArg);
+    this.dateTimeFormatters = getDateTimeNamedFormatters(formatStringArg);
+    this.customFormatters = getAllCustomFormatters(formatStringArg);
     this.exprCoreType = getExprTypeFromFormatString(formatStringArg);
   }
 
@@ -148,7 +166,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * Retrieves and splits a user defined format string from the mapping into a list of formats.
    * @return A list of format names and user defined formats.
    */
-  private List<String> getFormatList() {
+  private List<String> getFormatList(String formatString) {
     String format = strip8Prefix(formatString);
     List<String> patterns = splitCombinedPatterns(format);
     return patterns;
@@ -159,9 +177,9 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * Retrieves a list of named OpenSearch formatters given by user mapping.
    * @return a list of DateFormatters that can be used to parse a Date/Time/Timestamp.
    */
-  public List<DateFormatter> getAllNamedFormatters() {
-    return getFormatList().stream()
-        .filter(formatString -> FormatNames.forName(formatString) != null)
+  public List<DateFormatter> getAllNamedFormatters(String formatString) {
+    return getFormatList(formatString).stream()
+        .filter(formats -> FormatNames.forName(formats) != null)
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
 
@@ -169,9 +187,9 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * Retrieves a list of custom formatters defined by the user.
    * @return a list of DateFormatters that can be used to parse a Date/Time/Timestamp.
    */
-  public List<DateFormatter> getAllCustomFormatters() {
-    return getFormatList().stream()
-        .filter(formatString -> FormatNames.forName(formatString) == null)
+  public List<DateFormatter> getAllCustomFormatters(String formatString) {
+    return getFormatList(formatString).stream()
+        .filter(formats -> FormatNames.forName(formats) == null)
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
 
@@ -180,11 +198,25 @@ public class OpenSearchDateType extends OpenSearchDataType {
    *
    * @return a list of DateFormatters that can be used to parse a Date.
    */
-  public List<DateFormatter> getDateNamedFormatters() {
-    return getFormatList().stream()
-        .filter(formatString -> {
-          FormatNames namedFormat = FormatNames.forName(formatString);
-          return SUPPORTED_NAMED_DATE_FORMATS.contains(namedFormat);
+  public List<DateFormatter> getDateTimeNamedFormatters(String formatString) {
+    return getFormatList(formatString).stream()
+        .filter(formats -> {
+          FormatNames namedFormat = FormatNames.forName(formats);
+          return namedFormat == null ? false : SUPPORTED_NAMED_DATE_FORMATS.contains(namedFormat);
+        })
+        .map(DateFormatter::forPattern).collect(Collectors.toList());
+  }
+
+  /**
+   * Retrieves a list of named formatters that format for dates.
+   *
+   * @return a list of DateFormatters that can be used to parse a Date.
+   */
+  public List<DateFormatter> getDateNamedFormatters(String formatString) {
+    return getFormatList(formatString).stream()
+        .filter(formats -> {
+          FormatNames namedFormat = FormatNames.forName(formats);
+          return namedFormat == null ? false : SUPPORTED_NAMED_DATE_FORMATS.contains(namedFormat);
         })
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
@@ -194,13 +226,38 @@ public class OpenSearchDateType extends OpenSearchDataType {
    *
    * @return a list of DateFormatters that can be used to parse a Time.
    */
-  public List<DateFormatter> getTimeNamedFormatters() {
-    return getFormatList().stream()
-        .filter(formatString -> {
-          FormatNames namedFormat = FormatNames.forName(formatString);
-          return SUPPORTED_NAMED_TIME_FORMATS.contains(namedFormat);
+  public List<DateFormatter> getTimeNamedFormatters(String formatString) {
+    return getFormatList(formatString).stream()
+        .filter(formats -> {
+          FormatNames namedFormat = FormatNames.forName(formats);
+          return namedFormat == null ? false : SUPPORTED_NAMED_TIME_FORMATS.contains(namedFormat);
         })
         .map(DateFormatter::forPattern).collect(Collectors.toList());
+  }
+
+  private ExprCoreType getExprTypeFromCustomFormatString(List<DateFormatter> formatters) {
+    Pattern timeFormatChars = Pattern.compile("[HmsSZ]");
+    Pattern dateFormatChars = Pattern.compile("[yYMwdDe]");
+    boolean isTime = false;
+    boolean isDate = false;
+
+    for (DateFormatter formatter: formatters) {
+      if (timeFormatChars.matcher(formatter.pattern()).find()) {
+        isTime = true;
+      }
+      if (dateFormatChars.matcher(formatter.pattern()).find()) {
+        isDate = true;
+      }
+    }
+    if (isTime && !isDate) {
+      return TIME;
+    }
+    if (isDate && !isTime) {
+      return DATE;
+    }
+
+    // Default type if pattern doesn't match characters or if is time and is date
+    return TIMESTAMP;
   }
 
   private ExprCoreType getExprTypeFromFormatString(String formatString) {
@@ -210,26 +267,20 @@ public class OpenSearchDateType extends OpenSearchDataType {
       return TIMESTAMP;
     }
 
-    List<DateFormatter> namedFormatters = getAllNamedFormatters();
-
-    if (namedFormatters.isEmpty()) {
-      return TIMESTAMP;
-    }
-
-    if (!getAllCustomFormatters().isEmpty()) {
-      // FOLLOW-UP: support custom format in <issue#>
-      return TIMESTAMP;
+    if (!customFormatters.isEmpty()) {
+      // TODO: Check for namedFormatters as well
+      return getExprTypeFromCustomFormatString(customFormatters);
     }
 
     // if there is nothing in the dateformatter that accepts a year/month/day, then
     // we can assume the type is strictly a Time object
-    if (namedFormatters.size() == getTimeNamedFormatters().size()) {
+    if (!timeFormatters.isEmpty() && customFormatters.isEmpty() && dateTimeFormatters.isEmpty() && dateTimeFormatters.isEmpty()) {
       return TIME;
     }
 
     // if there is nothing in the dateformatter that accepts a hour/minute/second, then
     // we can assume the type is strictly a Date object
-    if (namedFormatters.size() == getDateNamedFormatters().size()) {
+    if (!dateFormatters.isEmpty() && timeFormatters.isEmpty() && customFormatters.isEmpty() && dateTimeFormatters.isEmpty()) {
       return DATE;
     }
 

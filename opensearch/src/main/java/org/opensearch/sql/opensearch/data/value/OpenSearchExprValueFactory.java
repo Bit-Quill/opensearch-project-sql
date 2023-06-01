@@ -27,6 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
@@ -210,7 +211,7 @@ public class OpenSearchExprValueFactory {
    */
   private ExprValue parseTimestampString(String value, OpenSearchDateType dateType) {
     Instant parsed = null;
-    for (DateFormatter formatter : dateType.getAllNamedFormatters()) {
+    for (DateFormatter formatter : dateType.getDateTimeFormatters()) {
       try {
         TemporalAccessor accessor = formatter.parse(value);
         ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
@@ -221,16 +222,19 @@ public class OpenSearchExprValueFactory {
       }
     }
 
-    // FOLLOW-UP PR: Check custom formatters too
+    for (DateFormatter formatter : dateType.getCustomFormatters()) {
+      try {
+        parsed =DateFormatters.from(formatter.parse(value)).withZoneSameLocal(ZoneId.of("Z")).toInstant();
+      } catch (DateTimeParseException  ignored) {
+        // nothing to do, try another format
+      }
+    }
 
     // if no named formatters are available, use the default
-    if (dateType.getAllNamedFormatters().size() == 0
-        || dateType.getAllCustomFormatters().size() > 0) {
-      try {
-        parsed = DateFormatters.from(DATE_TIME_FORMATTER.parse(value)).toInstant();
-      } catch (DateTimeParseException e) {
-        // ignored
-      }
+    try {
+      parsed = DateFormatters.from(DATE_TIME_FORMATTER.parse(value)).toInstant();
+    } catch (DateTimeParseException e) {
+      // ignored
     }
 
     if (parsed == null) {
@@ -252,7 +256,7 @@ public class OpenSearchExprValueFactory {
    * @return time without timezone
    */
   private ExprValue parseTimeString(String value, OpenSearchDateType dateType) {
-    for (DateFormatter formatter : dateType.getAllNamedFormatters()) {
+    for (DateFormatter formatter : dateType.getTimeFormatters()) {
       try {
         TemporalAccessor accessor = formatter.parse(value);
         ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
@@ -263,15 +267,25 @@ public class OpenSearchExprValueFactory {
       }
     }
 
-    // if no named formatters are available, use the default
-    if (dateType.getAllNamedFormatters().size() == 0) {
+    for (DateFormatter formatter : dateType.getCustomFormatters()) {
       try {
+        TemporalAccessor accessor = formatter.parse(value);
+        ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
         return new ExprTimeValue(
-            DateFormatters.from(STRICT_HOUR_MINUTE_SECOND_FORMATTER.parse(value)).toLocalTime());
-      } catch (DateTimeParseException e) {
-        // ignored
+            zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toLocalTime());
+      } catch (DateTimeParseException  ignored) {
+        // nothing to do, try another format
       }
     }
+
+    // if no named formatters are available, use the default
+    try {
+      return new ExprTimeValue(
+          DateFormatters.from(STRICT_HOUR_MINUTE_SECOND_FORMATTER.parse(value)).toLocalTime());
+    } catch (DateTimeParseException e) {
+      // ignored
+    }
+
     throw new IllegalArgumentException("Construct ExprTimeValue from \"" + value
         + "\" failed, unsupported time format.");
   }
@@ -284,7 +298,7 @@ public class OpenSearchExprValueFactory {
    * @return date without timezone
    */
   private ExprValue parseDateString(String value, OpenSearchDateType dateType) {
-    for (DateFormatter formatter : dateType.getAllNamedFormatters()) {
+    for (DateFormatter formatter : dateType.getDateFormatters()) {
       try {
         TemporalAccessor accessor = formatter.parse(value);
         ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
@@ -297,14 +311,13 @@ public class OpenSearchExprValueFactory {
     }
 
     // if no named formatters are available, use the default
-    if (dateType.getAllNamedFormatters().size() == 0) {
-      try {
-        return new ExprDateValue(
-            DateFormatters.from(STRICT_YEAR_MONTH_DAY_FORMATTER.parse(value)).toLocalDate());
-      } catch (DateTimeParseException e) {
-        // ignored
-      }
+    try {
+      return new ExprDateValue(
+          DateFormatters.from(STRICT_YEAR_MONTH_DAY_FORMATTER.parse(value)).toLocalDate());
+    } catch (DateTimeParseException e) {
+      // ignored
     }
+
     throw new IllegalArgumentException("Construct ExprDateValue from \"" + value
         + "\" failed, unsupported date format.");
   }

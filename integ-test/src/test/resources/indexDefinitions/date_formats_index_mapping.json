@@ -300,6 +300,10 @@
       "hour_minute_second_OR_t_time" : {
         "type" : "date",
         "format": "hour_minute_second||t_time"
+      },
+      "custom_time" : {
+        "type" : "date",
+        "format": "HH----mm----ss"
       }
     }
   }
