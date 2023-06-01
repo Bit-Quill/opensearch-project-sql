@@ -226,15 +226,13 @@ public class OpenSearchExprValueFactory {
    */
   private ExprValue parseTimestampString(String value, OpenSearchDateType dateType) {
     Instant parsed = null;
-    TemporalAccessor accessor = null;
-    ZonedDateTime zonedDateTime = null;
     List<DateFormatter> formatters = dateType.getAllNamedFormatters();
     formatters.addAll(dateType.getAllCustomFormatters());
 
     for (DateFormatter formatter : formatters) {
       try {
-        accessor = formatter.parse(value);
-        zonedDateTime = DateFormatters.from(accessor);
+        TemporalAccessor accessor = formatter.parse(value);
+        ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
         // remove the Zone
         parsed = zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toInstant();
         return new ExprTimestampValue(parsed);
@@ -242,18 +240,6 @@ public class OpenSearchExprValueFactory {
         // nothing to do, try another format
       }
     }
-
-//    for (DateFormatter formatter : dateType.getAllCustomFormatters()) {
-//      try {
-//        accessor = formatter.parse(value);
-//        zonedDateTime = DateFormatters.from(accessor);
-//        // remove the Zone
-//        parsed = zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toInstant();
-//        return new ExprTimestampValue(parsed);
-//      } catch (DateTimeParseException ignored) {
-//        // nothing to do, try another format
-//      }
-//    }
 
     // if no formatters are available, try the default formatter
     try {
@@ -278,24 +264,16 @@ public class OpenSearchExprValueFactory {
    * @return time without timezone
    */
   private ExprValue parseTimeString(String value, OpenSearchDateType dateType) {
-    for (DateFormatter formatter : dateType.getAllNamedFormatters()) {
+    List<DateFormatter> formatters = dateType.getAllNamedFormatters();
+    formatters.addAll(dateType.getAllCustomFormatters());
+
+    for (DateFormatter formatter : formatters) {
       try {
         TemporalAccessor accessor = formatter.parse(value);
         ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
         return new ExprTimeValue(
             zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toLocalTime());
       } catch (IllegalArgumentException  ignored) {
-        // nothing to do, try another format
-      }
-    }
-
-    for (DateFormatter formatter : dateType.getAllCustomFormatters()) {
-      try {
-        TemporalAccessor accessor = formatter.parse(value);
-        ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
-        return new ExprTimeValue(
-            zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toLocalTime());
-      } catch (DateTimeParseException  ignored) {
         // nothing to do, try another format
       }
     }
@@ -320,7 +298,10 @@ public class OpenSearchExprValueFactory {
    * @return date without timezone
    */
   private ExprValue parseDateString(String value, OpenSearchDateType dateType) {
-    for (DateFormatter formatter : dateType.getAllNamedFormatters()) {
+    List<DateFormatter> formatters = dateType.getAllNamedFormatters();
+    formatters.addAll(dateType.getAllCustomFormatters());
+
+    for (DateFormatter formatter : formatters) {
       try {
         TemporalAccessor accessor = formatter.parse(value);
         ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
@@ -328,18 +309,6 @@ public class OpenSearchExprValueFactory {
         return new ExprDateValue(
             zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toLocalDate());
       } catch (IllegalArgumentException  ignored) {
-        // nothing to do, try another format
-      }
-    }
-
-    for (DateFormatter formatter : dateType.getAllCustomFormatters()) {
-      try {
-        TemporalAccessor accessor = formatter.parse(value);
-        ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
-        // return the first matching formatter as a date without timezone
-        return new ExprDateValue(
-            zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toLocalDate());
-      } catch (DateTimeParseException  ignored) {
         // nothing to do, try another format
       }
     }
