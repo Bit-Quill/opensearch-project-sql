@@ -141,7 +141,7 @@ public class ArithmeticFunction {
   }
 
   /**
-   * Definition of modulo(x, y) function.
+   * Definition of modulus(x, y) function.
    * Returns the number x modulo by number y
    * The supported signature of modulo function is
    * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE)
