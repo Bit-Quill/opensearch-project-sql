@@ -7,6 +7,7 @@
 package org.opensearch.sql.analysis;
 
 import static java.util.Collections.emptyList;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -75,8 +76,11 @@ import org.opensearch.sql.ast.expression.ParseMethod;
 import org.opensearch.sql.ast.expression.ScoreFunction;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.ast.tree.AD;
+import org.opensearch.sql.ast.tree.CloseCursor;
+import org.opensearch.sql.ast.tree.FetchCursor;
 import org.opensearch.sql.ast.tree.Kmeans;
 import org.opensearch.sql.ast.tree.ML;
+import org.opensearch.sql.ast.tree.Paginate;
 import org.opensearch.sql.ast.tree.RareTopN.CommandType;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
@@ -89,8 +93,11 @@ import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.function.OpenSearchFunctions;
 import org.opensearch.sql.expression.window.WindowDefinition;
 import org.opensearch.sql.planner.logical.LogicalAD;
+import org.opensearch.sql.planner.logical.LogicalCloseCursor;
+import org.opensearch.sql.planner.logical.LogicalFetchCursor;
 import org.opensearch.sql.planner.logical.LogicalFilter;
 import org.opensearch.sql.planner.logical.LogicalMLCommons;
+import org.opensearch.sql.planner.logical.LogicalPaginate;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.logical.LogicalPlanDSL;
 import org.opensearch.sql.planner.logical.LogicalProject;
@@ -1042,29 +1049,6 @@ class AnalyzerTest extends AnalyzerTestBase {
   }
 
   /**
-   * Ensure Nested function falls back to legacy engine when used in WHERE clause.
-   * TODO Remove this test when support is added.
-   */
-  @Test
-  public void nested_where_clause_throws_syntax_exception() {
-    SyntaxCheckException exception = assertThrows(SyntaxCheckException.class,
-        () -> analyze(
-            AstDSL.filter(
-                AstDSL.relation("schema"),
-                AstDSL.equalTo(
-                    AstDSL.function("nested", qualifiedName("message", "info")),
-                    AstDSL.stringLiteral("str")
-                )
-            )
-        )
-    );
-    assertEquals("Falling back to legacy engine. Nested function is not supported in WHERE,"
-            + " GROUP BY, and HAVING clauses.",
-        exception.getMessage());
-  }
-
-
-  /**
    * SELECT name, AVG(age) FROM test GROUP BY name.
    */
   @Test
@@ -1631,5 +1615,30 @@ class AnalyzerTest extends AnalyzerTestBase {
             .contains(DSL.named(RCF_SCORE, DSL.ref(RCF_SCORE, DOUBLE))));
     assertTrue(((LogicalProject) actual).getProjectList()
             .contains(DSL.named(RCF_ANOMALOUS, DSL.ref(RCF_ANOMALOUS, BOOLEAN))));
+  }
+
+  @Test
+  public void visit_paginate() {
+    LogicalPlan actual = analyze(new Paginate(10, AstDSL.relation("dummy")));
+    assertTrue(actual instanceof LogicalPaginate);
+    assertEquals(10, ((LogicalPaginate) actual).getPageSize());
+  }
+
+  @Test
+  void visit_cursor() {
+    LogicalPlan actual = analyze((new FetchCursor("test")));
+    assertTrue(actual instanceof LogicalFetchCursor);
+    assertEquals(new LogicalFetchCursor("test",
+        dataSourceService.getDataSource("@opensearch").getStorageEngine()), actual);
+  }
+
+  @Test
+  public void visit_close_cursor() {
+    var analyzed = analyze(new CloseCursor().attach(new FetchCursor("pewpew")));
+    assertAll(
+        () -> assertTrue(analyzed instanceof LogicalCloseCursor),
+        () -> assertTrue(analyzed.getChild().get(0) instanceof LogicalFetchCursor),
+        () -> assertEquals("pewpew", ((LogicalFetchCursor) analyzed.getChild().get(0)).getCursor())
+    );
   }
 }
