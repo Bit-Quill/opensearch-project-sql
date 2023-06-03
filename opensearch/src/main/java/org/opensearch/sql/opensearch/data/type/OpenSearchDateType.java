@@ -11,8 +11,9 @@ import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import org.opensearch.common.time.DateFormatter;
@@ -222,33 +223,29 @@ public class OpenSearchDateType extends OpenSearchDataType {
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
 
-  private ExprCoreType getExprTypeFromCustomFormatString(List<DateFormatter> formatters) {
-    // Characters from
-    // https://opensearch.org/docs/latest/field-types/supported-field-types/date/#built-in-formats
-    Pattern timeFormatChars = Pattern.compile("[HmsSZ]");
-    Pattern dateFormatChars = Pattern.compile("[yYMwdDe]");
-    boolean isTime = false;
+  private ExprCoreType getExprTypeFromCustomFormatString(String formatString) {
+    List<String> formats = Arrays.asList(formatString.split("\\|\\|"));
     boolean isDate = false;
+    boolean isTime = false;
 
-    for (DateFormatter formatter: formatters) {
-      if (timeFormatChars.matcher(formatter.pattern()).find()) {
-        isTime = true;
-      }
-      if (dateFormatChars.matcher(formatter.pattern()).find()) {
-        isDate = true;
-      }
-      if ((isDate && isTime)) {
-        return TIMESTAMP;
-      }
+    try {
+      isDate = formats.stream()
+          .anyMatch(format -> DateTimeFormatter.ofPattern(format).toString().toLowerCase().contains("year"));
+    } catch (IllegalArgumentException ignore) {
     }
-    if (isTime) {
-      return TIME;
+    try {
+      isTime = formats.stream()
+          .anyMatch(format -> DateTimeFormatter.ofPattern(formatString).toString().toLowerCase().contains("minute"));
+    } catch (IllegalArgumentException ignore) {
     }
-    if (isDate) {
+
+    if (isDate && !isTime) {
       return DATE;
     }
+    if (isTime && !isDate) {
+      return TIME;
+    }
 
-    // Default type
     return TIMESTAMP;
   }
 
@@ -267,7 +264,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
     }
 
     if (!customFormatters.isEmpty()) {
-      ExprCoreType customFormatType = getExprTypeFromCustomFormatString(customFormatters);
+      ExprCoreType customFormatType = getExprTypeFromCustomFormatString(formatString);
       if (!timeFormatters.isEmpty() && customFormatType == TIME) {
         return TIME;
       }

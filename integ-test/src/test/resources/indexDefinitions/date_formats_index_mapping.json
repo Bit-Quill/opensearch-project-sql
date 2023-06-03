@@ -289,9 +289,9 @@
         "type" : "date",
         "format": "yyyy-MM-dd"
       },
-      "HH:mm:ss" : {
+      "custom_time" : {
         "type" : "date",
-        "format": "HH:mm:ss"
+        "format": "hh:mm:ss a"
       },
       "yyyy-MM-dd_OR_epoch_millis" : {
         "type" : "date",
@@ -300,6 +300,14 @@
       "hour_minute_second_OR_t_time" : {
         "type" : "date",
         "format": "hour_minute_second||t_time"
+      },
+      "custom_timestamp" : {
+        "type" : "date",
+        "format": "yyyy-MM-dd hh:mm:ss ---- a"
+      },
+      "custom_date_or_date" : {
+        "type" : "date",
+        "format": "yyyy-MM-dd||date"
       }
     }
   }
