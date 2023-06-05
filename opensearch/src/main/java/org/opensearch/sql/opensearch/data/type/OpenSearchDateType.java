@@ -229,13 +229,15 @@ public class OpenSearchDateType extends OpenSearchDataType {
     boolean isTime = false;
 
     try {
+      // Dates will always have "year" in the formatter string
       isDate = formats.stream()
           .anyMatch(format -> DateTimeFormatter.ofPattern(format).toString().toLowerCase().contains("year"));
     } catch (IllegalArgumentException ignore) {
     }
     try {
+      // Times will always have "hour" in the formatter string
       isTime = formats.stream()
-          .anyMatch(format -> DateTimeFormatter.ofPattern(formatString).toString().toLowerCase().contains("minute"));
+          .anyMatch(format -> DateTimeFormatter.ofPattern(format).toString().toLowerCase().contains("hour"));
     } catch (IllegalArgumentException ignore) {
     }
 
