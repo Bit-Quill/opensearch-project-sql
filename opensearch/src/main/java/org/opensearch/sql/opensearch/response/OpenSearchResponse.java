@@ -15,14 +15,13 @@ import static org.opensearch.sql.opensearch.storage.OpenSearchIndex.METADATA_FIE
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.json.JSONObject;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.SearchHits;
 import org.opensearch.search.aggregations.Aggregations;
@@ -122,15 +121,14 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
           ? null : new ExprFloatValue(hits.getMaxScore());
       return Arrays.stream(hits.getHits())
           .map(hit -> {
-            String source = hit.getSourceAsString();
-            ExprValue docData = exprValueFactory.construct(source);
-
             ImmutableMap.Builder<String, ExprValue> builder = new ImmutableMap.Builder<>();
             if (hit.getInnerHits() == null || hit.getInnerHits().isEmpty()) {
-              builder.putAll(docData.tupleValue());
+              builder.putAll(exprValueFactory.construct(hit.getSourceAsString()).tupleValue());
             } else {
-              Map<String, Object> rowSource = hit.getSourceAsMap();
-              builder.putAll(ExprValueUtils.tupleValue(rowSource).tupleValue());
+              ExprValue innerHits = exprValueFactory.construct(
+                  new JSONObject(hit.getSourceAsMap()).toString()
+              );
+              builder.putAll(innerHits.tupleValue());
             }
 
             metaDataFieldSet.forEach(metaDataField -> {

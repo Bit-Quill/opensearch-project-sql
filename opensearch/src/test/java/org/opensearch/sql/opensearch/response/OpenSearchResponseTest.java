@@ -252,7 +252,6 @@ class OpenSearchResponseTest {
                 new SearchHit[] {searchHit1},
                 new TotalHits(2L, TotalHits.Relation.EQUAL_TO),
                 1.0F));
-    when(searchHit1.getSourceAsString()).thenReturn("{\"id1\", 1}");
     when(searchHit1.getSourceAsMap()).thenReturn(Map.of("id1", 1));
     when(searchHit1.getInnerHits()).thenReturn(
         Map.of(

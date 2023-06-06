@@ -6,8 +6,13 @@
 
 package org.opensearch.sql.opensearch.data.value;
 
+import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
+import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
+import static org.opensearch.sql.data.type.ExprCoreType.FLOAT;
+import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
+import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
@@ -18,10 +23,10 @@ import static org.opensearch.sql.utils.DateTimeFormatters.STRICT_YEAR_MONTH_DAY_
 import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterators;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -55,8 +60,11 @@ import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchBinaryType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDateType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchGeoPointType;
+import org.opensearch.sql.opensearch.data.type.OpenSearchIpType;
 import org.opensearch.sql.opensearch.data.utils.Content;
 import org.opensearch.sql.opensearch.data.utils.ObjectContent;
 import org.opensearch.sql.opensearch.data.utils.OpenSearchJsonContent;
@@ -177,11 +185,13 @@ public class OpenSearchExprValueFactory {
     }
 
     ExprType type = fieldType.get();
-    if (type.equals(OpenSearchDataType.of(OpenSearchDataType.MappingType.Object))
-          || type == STRUCT) {
+    if (type.equals(OpenSearchDataType.of(OpenSearchDataType.MappingType.Nested))
+        || content.objectValue() instanceof ArrayNode
+    ) {
+      return parseArray(content, field, type);
+    } else if (type.equals(OpenSearchDataType.of(OpenSearchDataType.MappingType.Object))
+        || type == STRUCT) {
       return parseStruct(content, field);
-    } else if (type.equals(OpenSearchDataType.of(OpenSearchDataType.MappingType.Nested))) {
-      return parseArray(content, field);
     } else {
       if (typeActionMap.containsKey(type)) {
         return typeActionMap.get(type).apply(content, type);
@@ -338,6 +348,12 @@ public class OpenSearchExprValueFactory {
     return new ExprTimestampValue((Instant) value.objectValue());
   }
 
+  /**
+   * Parse struct content.
+   * @param content Content to parse.
+   * @param prefix Prefix for Level of object depth to parse.
+   * @return Value parsed from content.
+   */
   private ExprValue parseStruct(Content content, String prefix) {
     LinkedHashMap<String, ExprValue> result = new LinkedHashMap<>();
     content.map().forEachRemaining(entry -> result.put(entry.getKey(),
@@ -348,21 +364,37 @@ public class OpenSearchExprValueFactory {
   }
 
   /**
-   * Todo. ARRAY is not completely supported now. In OpenSearch, there is no dedicated array type.
-   * <a href="https://opensearch.org/docs/latest/opensearch/supported-field-types/nested/">docs</a>
-   * The similar data type is nested, but it can only allow a list of objects.
+   * Parse array content. Can also parse nested which isn't necessarily an array.
+   * @param content Content to parse.
+   * @param prefix Prefix for Level of object depth to parse.
+   * @param type Type of content parsing.
+   * @return Value parsed from content.
    */
-  private ExprValue parseArray(Content content, String prefix) {
+  private ExprValue parseArray(Content content, String prefix, ExprType type) {
     List<ExprValue> result = new ArrayList<>();
-    // ExprCoreType.ARRAY does not indicate inner elements type.
-    if (Iterators.size(content.array()) == 1 && content.objectValue() instanceof JsonNode) {
-      result.add(parse(content, prefix, Optional.of(STRUCT)));
+
+    // ARRAY is mapped to nested but can take the json structure of an Object
+    if (content.objectValue() instanceof ObjectNode) {
+      result.add(parseStruct(content, prefix));
     } else {
       content.array().forEachRemaining(v -> {
-        // ExprCoreType.ARRAY does not indicate inner elements type. OpenSearch nested will be an
-        // array of structs, otherwise parseArray currently only supports array of strings.
-        if (v.isString()) {
+        if (type instanceof OpenSearchIpType
+            || type instanceof OpenSearchBinaryType
+            || type instanceof OpenSearchDateType
+            || type instanceof OpenSearchGeoPointType) {
+          result.add(parse(v, prefix, Optional.of(type)));
+        } else if (v.isString()) {
           result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(STRING))));
+        } else if (v.isLong()) {
+          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(LONG))));
+        } else if (v.isFloat()) {
+          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(FLOAT))));
+        } else if (v.isDouble()) {
+          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(DOUBLE))));
+        } else if (v.isNumber()) {
+          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(INTEGER))));
+        } else if (v.isBoolean()) {
+          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(BOOLEAN))));
         } else {
           result.add(parse(v, prefix, Optional.of(STRUCT)));
         }
@@ -371,6 +403,12 @@ public class OpenSearchExprValueFactory {
     return new ExprCollectionValue(result);
   }
 
+  /**
+   * Make field string with at current path depth.
+   * @param path Path of field.
+   * @param field Field to append to path.
+   * @return Field appended to path level.
+   */
   private String makeField(String path, String field) {
     return path.equalsIgnoreCase(TOP_PATH) ? field : String.join(".", path, field);
   }

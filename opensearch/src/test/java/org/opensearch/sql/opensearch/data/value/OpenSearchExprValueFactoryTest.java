@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.sql.data.model.ExprValueUtils.booleanValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.byteValue;
+import static org.opensearch.sql.data.model.ExprValueUtils.collectionValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.doubleValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.floatValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.integerValue;
@@ -43,6 +44,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -50,7 +52,6 @@ import org.junit.jupiter.api.Test;
 import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprDateValue;
 import org.opensearch.sql.data.model.ExprDatetimeValue;
-import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
@@ -92,6 +93,10 @@ class OpenSearchExprValueFactoryTest {
           .put("arrayV", OpenSearchDataType.of(ARRAY))
           .put("arrayV.info", OpenSearchDataType.of(STRING))
           .put("arrayV.author", OpenSearchDataType.of(STRING))
+          .put("nestedV", OpenSearchDataType.of(
+              OpenSearchDataType.of(OpenSearchDataType.MappingType.Nested))
+          )
+          .put("nestedV.year", OpenSearchDataType.of(INTEGER))
           .put("textV", OpenSearchDataType.of(OpenSearchDataType.MappingType.Text))
           .put("textKeywordV", OpenSearchTextType.of(Map.of("words",
               OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword))))
@@ -404,8 +409,172 @@ class OpenSearchExprValueFactoryTest {
   @Test
   public void constructArrayOfStrings() {
     assertEquals(new ExprCollectionValue(
-            ImmutableList.of(new ExprStringValue("zz"), new ExprStringValue("au"))),
+            ImmutableList.of(stringValue("zz"), stringValue("au"))),
         constructFromObject("arrayV", ImmutableList.of("zz", "au")));
+  }
+
+  @Test
+  public void constructArrayOfInts() {
+    assertEquals(new ExprCollectionValue(
+            ImmutableList.of(integerValue(1), integerValue(2))),
+        constructFromObject("arrayV", ImmutableList.of(1, 2)));
+  }
+
+  @Test
+  public void constructArrayOfShorts() {
+    // Shorts are treated same as integer
+    assertEquals(new ExprCollectionValue(
+            ImmutableList.of(shortValue((short)3), shortValue((short)4))),
+        constructFromObject("arrayV", ImmutableList.of(3, 4)));
+  }
+
+  @Test
+  public void constructArrayOfLongs() {
+    assertEquals(new ExprCollectionValue(
+            ImmutableList.of(longValue(123456789L), longValue(987654321L))),
+        constructFromObject("arrayV", ImmutableList.of(123456789L, 987654321L)));
+  }
+
+  @Test
+  public void constructArrayOfFloats() {
+    assertEquals(new ExprCollectionValue(
+            ImmutableList.of(floatValue(3.14f), floatValue(4.13f))),
+        constructFromObject("arrayV", ImmutableList.of(3.14f, 4.13f)));
+  }
+
+  @Test
+  public void constructArrayOfDoubles() {
+    assertEquals(new ExprCollectionValue(
+            ImmutableList.of(doubleValue(9.1928374756D), doubleValue(4.987654321D))),
+        constructFromObject("arrayV", ImmutableList.of(9.1928374756D, 4.987654321D)));
+  }
+
+  @Test
+  public void constructArrayOfBooleans() {
+    assertEquals(new ExprCollectionValue(
+            ImmutableList.of(booleanValue(true), booleanValue(false))),
+        constructFromObject("arrayV", ImmutableList.of(true, false)));
+  }
+
+  @Test
+  public void constructNestedObjectArrayNode() {
+    assertEquals(collectionValue(
+        List.of(
+            Map.of("year", 1969),
+            Map.of("year", 2011)
+        )),
+        tupleValue("{\"nestedV\":[{\"year\":1969},{\"year\":2011}]}")
+            .get("nestedV"));
+  }
+
+  @Test
+  public void constructNestedArrayNode() {
+    assertEquals(collectionValue(
+            List.of(
+                1969,
+                2011
+            )),
+        tupleValue("{\"nestedV\":[1969,2011]}")
+            .get("nestedV"));
+  }
+
+  @Test
+  public void constructNestedObjectNode() {
+    assertEquals(collectionValue(
+            List.of(
+                Map.of("year", 1969)
+            )),
+        tupleValue("{\"nestedV\":{\"year\":1969}}")
+            .get("nestedV"));
+  }
+
+  @Test
+  public void constructArrayOfGeoPoints() {
+    assertEquals(new ExprCollectionValue(
+        ImmutableList.of(
+            new OpenSearchExprGeoPointValue(42.60355556, -97.25263889),
+            new OpenSearchExprGeoPointValue(-33.6123556, 66.287449))
+        ),
+        tupleValue(
+            "{\"geoV\":["
+                + "{\"lat\":42.60355556,\"lon\":-97.25263889},"
+                + "{\"lat\":-33.6123556,\"lon\":66.287449}"
+                + "]}"
+        )
+        .get("geoV")
+    );
+  }
+
+  @Test
+  public void constructArrayOfIPs() {
+    assertEquals(new ExprCollectionValue(
+        ImmutableList.of(
+            new OpenSearchExprIpValue("192.168.0.1"),
+            new OpenSearchExprIpValue("192.168.0.2"))
+        ),
+        tupleValue("{\"ipV\":[\"192.168.0.1\",\"192.168.0.2\"]}")
+            .get("ipV")
+    );
+  }
+
+  @Test
+  public void constructBinaryArray() {
+    assertEquals(new ExprCollectionValue(
+            ImmutableList.of(
+                new OpenSearchExprBinaryValue("U29tZSBiaWsdfsdfgYmxvYg=="),
+                new OpenSearchExprBinaryValue("U987yuhjjiy8jhk9vY+98jjdf"))
+        ),
+        tupleValue("{\"binaryV\":[\"U29tZSBiaWsdfsdfgYmxvYg==\",\"U987yuhjjiy8jhk9vY+98jjdf\"]}")
+            .get("binaryV")
+    );
+  }
+
+  @Test
+  public void constructArrayOfCustomEpochMillis() {
+    assertEquals(new ExprCollectionValue(
+            ImmutableList.of(
+                new ExprDatetimeValue("2015-01-01 12:10:30"),
+                new ExprDatetimeValue("1999-11-09 01:09:44"))
+        ),
+        tupleValue("{\"customAndEpochMillisV\":[\"2015-01-01 12:10:30\",\"1999-11-09 01:09:44\"]}")
+            .get("customAndEpochMillisV")
+    );
+  }
+
+  @Test
+  public void constructArrayOfDateStrings() {
+    assertEquals(new ExprCollectionValue(
+            ImmutableList.of(
+                new ExprDateValue("1984-04-12"),
+                new ExprDateValue("2033-05-03"))
+        ),
+        tupleValue("{\"dateStringV\":[\"1984-04-12\",\"2033-05-03\"]}")
+            .get("dateStringV")
+    );
+  }
+
+  @Test
+  public void constructArrayOfTimeStrings() {
+    assertEquals(new ExprCollectionValue(
+            ImmutableList.of(
+                new ExprTimeValue("12:10:30"),
+                new ExprTimeValue("18:33:55"))
+        ),
+        tupleValue("{\"timeStringV\":[\"12:10:30.000Z\",\"18:33:55.000Z\"]}")
+            .get("timeStringV")
+    );
+  }
+
+  @Test
+  public void constructArrayOfEpochMillis() {
+    assertEquals(new ExprCollectionValue(
+            ImmutableList.of(
+                new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
+                new ExprTimestampValue(Instant.ofEpochMilli(1454251113333L)))
+        ),
+        tupleValue("{\"dateOrEpochMillisV\":[\"1420070400001\",\"1454251113333\"]}")
+            .get("dateOrEpochMillisV")
+    );
   }
 
   @Test
@@ -482,21 +651,36 @@ class OpenSearchExprValueFactoryTest {
     assertEquals(new OpenSearchExprBinaryValue("U29tZSBiaW5hcnkgYmxvYg=="),
         tupleValue("{\"binaryV\":\"U29tZSBiaW5hcnkgYmxvYg==\"}").get("binaryV"));
   }
-
-  /**
-   * Return the first element if is OpenSearch Array.
-   * https://www.elastic.co/guide/en/elasticsearch/reference/current/array.html.
-   */
+  
   @Test
-  public void constructFromOpenSearchArrayReturnFirstElement() {
-    assertEquals(integerValue(1), tupleValue("{\"intV\":[1, 2, 3]}").get("intV"));
-    assertEquals(new ExprTupleValue(
-        new LinkedHashMap<String, ExprValue>() {
-          {
-            put("id", integerValue(1));
-            put("state", stringValue("WA"));
+  public void constructFromOpenSearchArrayReturnWholeArray() {
+    assertEquals(
+        new ExprCollectionValue(
+            List.of(
+                integerValue(1),
+                integerValue(2),
+                integerValue(3))
+            ),
+            tupleValue("{\"intV\":[1, 2, 3]}").get("intV")
+    );
+    assertEquals(new ExprCollectionValue(List.of(
+        new ExprTupleValue(
+          new LinkedHashMap<String, ExprValue>() {
+            {
+              put("id", integerValue(1));
+              put("state", stringValue("WA"));
+            }
           }
-        }), tupleValue("{\"structV\":[{\"id\":1,\"state\":\"WA\"},{\"id\":2,\"state\":\"CA\"}]}}")
+        ),
+        new ExprTupleValue(
+          new LinkedHashMap<String, ExprValue>() {
+            {
+              put("id", integerValue(2));
+              put("state", stringValue("CA"));
+            }
+          }
+        ))),
+        tupleValue("{\"structV\":[{\"id\":1,\"state\":\"WA\"},{\"id\":2,\"state\":\"CA\"}]}}")
         .get("structV"));
   }
 

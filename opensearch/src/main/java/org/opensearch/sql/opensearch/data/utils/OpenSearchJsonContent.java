@@ -89,8 +89,28 @@ public class OpenSearchJsonContent implements Content {
   }
 
   @Override
+  public boolean isLong() {
+    return value().isLong();
+  }
+
+  @Override
+  public boolean isFloat() {
+    return value().isFloat();
+  }
+
+  @Override
+  public boolean isDouble() {
+    return value().isDouble();
+  }
+
+  @Override
   public boolean isString() {
     return value().isTextual();
+  }
+
+  @Override
+  public boolean isBoolean() {
+    return value().isBoolean();
   }
 
   @Override
@@ -126,11 +146,10 @@ public class OpenSearchJsonContent implements Content {
   }
 
   /**
-   * Return the first element if is OpenSearch Array.
-   * https://www.elastic.co/guide/en/elasticsearch/reference/current/array.html.
+   * Getter for value. If value is array the whole array is returned.
    */
   private JsonNode value() {
-    return value.isArray() ? value.get(0) : value;
+    return value;
   }
 
   /**

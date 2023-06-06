@@ -6,6 +6,7 @@
 package org.opensearch.sql.sql;
 
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_MULTI_NESTED_TYPE;
+import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_NESTED_SIMPLE;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_NESTED_TYPE_WITHOUT_ARRAYS;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_NESTED_WITH_NULLS;
@@ -31,6 +32,7 @@ public class NestedIT extends SQLIntegTestCase {
     loadIndex(Index.NESTED_WITHOUT_ARRAYS);
     loadIndex(Index.EMPLOYEE_NESTED);
     loadIndex(Index.NESTED_WITH_NULLS);
+    loadIndex(Index.NESTED_SIMPLE);
   }
 
   @Test
@@ -354,7 +356,7 @@ public class NestedIT extends SQLIntegTestCase {
     verifyDataRows(
         result,
         rows("c", "ab", 4),
-        rows("zz", "aa", 6)
+        rows("zz", new JSONArray(List.of("aa", "bb")), 6)
     );
   }
 
@@ -365,5 +367,26 @@ public class NestedIT extends SQLIntegTestCase {
     JSONObject result = executeJdbcRequest(query);
     assertEquals(1, result.getInt("total"));
     verifyDataRows(result, rows(10, "a"));
+  }
+
+  @Test
+  public void nested_function_with_date_types_test() {
+    String query = "SELECT nested(address.moveInDate) FROM " + TEST_INDEX_NESTED_SIMPLE;
+    JSONObject result = executeJdbcRequest(query);
+
+    assertEquals(11, result.getInt("total"));
+    verifyDataRows(result,
+        rows("1984-04-12 09:07:42"),
+        rows("2023-05-03 08:07:42"),
+        rows("1966-03-19 03:04:55"),
+        rows("2011-06-01 01:01:42"),
+        rows("1901-08-11 04:03:33"),
+        rows("2023-05-03 08:07:42"),
+        rows("2001-11-11 04:07:44"),
+        rows("1977-07-13 09:04:41"),
+        rows("1933-12-12 05:05:45"),
+        rows("1909-06-17 01:04:21"),
+        rows("2001-11-11 04:07:44")
+    );
   }
 }
