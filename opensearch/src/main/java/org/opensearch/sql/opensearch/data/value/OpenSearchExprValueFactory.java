@@ -404,7 +404,7 @@ public class OpenSearchExprValueFactory {
   }
 
   /**
-   * Make field string with at current path depth.
+   * Make complete path string for field.
    * @param path Path of field.
    * @param field Field to append to path.
    * @return Field appended to path level.

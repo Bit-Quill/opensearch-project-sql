@@ -679,8 +679,7 @@ class OpenSearchExprValueFactoryTest {
               put("state", stringValue("CA"));
             }
           }
-        ))),
-        tupleValue("{\"structV\":[{\"id\":1,\"state\":\"WA\"},{\"id\":2,\"state\":\"CA\"}]}}")
+        ))), tupleValue("{\"structV\":[{\"id\":1,\"state\":\"WA\"},{\"id\":2,\"state\":\"CA\"}]}}")
         .get("structV"));
   }
 
