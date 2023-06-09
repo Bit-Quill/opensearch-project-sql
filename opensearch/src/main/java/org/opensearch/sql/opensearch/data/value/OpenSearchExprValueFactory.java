@@ -157,10 +157,10 @@ public class OpenSearchExprValueFactory {
    *     { "employ.id",    "INTEGER" }
    *     { "employ.state", "STRING"  }
    */
-  public ExprValue construct(String jsonString) {
+  public ExprValue construct(String jsonString, boolean supportArrays) {
     try {
       return parse(new OpenSearchJsonContent(OBJECT_MAPPER.readTree(jsonString)), TOP_PATH,
-          Optional.of(STRUCT));
+          Optional.of(STRUCT), supportArrays);
     } catch (JsonProcessingException e) {
       throw new IllegalStateException(String.format("invalid json: %s.", jsonString), e);
     }
@@ -175,23 +175,23 @@ public class OpenSearchExprValueFactory {
    * @param value value object
    * @return ExprValue
    */
-  public ExprValue construct(String field, Object value) {
-    return parse(new ObjectContent(value), field, type(field));
+  public ExprValue construct(String field, Object value, boolean supportArrays) {
+    return parse(new ObjectContent(value), field, type(field), supportArrays);
   }
 
-  private ExprValue parse(Content content, String field, Optional<ExprType> fieldType) {
+  private ExprValue parse(Content content, String field, Optional<ExprType> fieldType, boolean supportArrays) {
     if (content.isNull() || !fieldType.isPresent()) {
       return ExprNullValue.of();
     }
 
     ExprType type = fieldType.get();
     if (type.equals(OpenSearchDataType.of(OpenSearchDataType.MappingType.Nested))
-        || content.objectValue() instanceof ArrayNode
+        || content.objectValue() instanceof ArrayNode // Update to content.isArray()?
     ) {
-      return parseArray(content, field, type);
+      return parseArray(content, field, type, supportArrays);
     } else if (type.equals(OpenSearchDataType.of(OpenSearchDataType.MappingType.Object))
         || type == STRUCT) {
-      return parseStruct(content, field);
+      return parseStruct(content, field, supportArrays);
     } else {
       if (typeActionMap.containsKey(type)) {
         return typeActionMap.get(type).apply(content, type);
@@ -354,12 +354,12 @@ public class OpenSearchExprValueFactory {
    * @param prefix Prefix for Level of object depth to parse.
    * @return Value parsed from content.
    */
-  private ExprValue parseStruct(Content content, String prefix) {
+  private ExprValue parseStruct(Content content, String prefix, boolean supportArrays) {
     LinkedHashMap<String, ExprValue> result = new LinkedHashMap<>();
     content.map().forEachRemaining(entry -> result.put(entry.getKey(),
         parse(entry.getValue(),
             makeField(prefix, entry.getKey()),
-            type(makeField(prefix, entry.getKey())))));
+            type(makeField(prefix, entry.getKey())), supportArrays)));
     return new ExprTupleValue(result);
   }
 
@@ -370,33 +370,33 @@ public class OpenSearchExprValueFactory {
    * @param type Type of content parsing.
    * @return Value parsed from content.
    */
-  private ExprValue parseArray(Content content, String prefix, ExprType type) {
+  private ExprValue parseArray(Content content, String prefix, ExprType type, boolean supportArrays) {
     List<ExprValue> result = new ArrayList<>();
 
     // ARRAY is mapped to nested but can take the json structure of an Object
     if (content.objectValue() instanceof ObjectNode) {
-      result.add(parseStruct(content, prefix));
+      result.add(parseStruct(content, prefix, supportArrays));
     } else {
       content.array().forEachRemaining(v -> {
         if (type instanceof OpenSearchIpType
             || type instanceof OpenSearchBinaryType
             || type instanceof OpenSearchDateType
             || type instanceof OpenSearchGeoPointType) {
-          result.add(parse(v, prefix, Optional.of(type)));
+          result.add(parse(v, prefix, Optional.of(type), supportArrays));
         } else if (v.isString()) {
-          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(STRING))));
+          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(STRING)), supportArrays));
         } else if (v.isLong()) {
-          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(LONG))));
+          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(LONG)), supportArrays));
         } else if (v.isFloat()) {
-          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(FLOAT))));
+          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(FLOAT)), supportArrays));
         } else if (v.isDouble()) {
-          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(DOUBLE))));
+          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(DOUBLE)), supportArrays));
         } else if (v.isNumber()) {
-          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(INTEGER))));
+          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(INTEGER)), supportArrays));
         } else if (v.isBoolean()) {
-          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(BOOLEAN))));
+          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(BOOLEAN)), supportArrays));
         } else {
-          result.add(parse(v, prefix, Optional.of(STRUCT)));
+          result.add(parse(v, prefix, Optional.of(STRUCT), supportArrays));
         }
       });
     }

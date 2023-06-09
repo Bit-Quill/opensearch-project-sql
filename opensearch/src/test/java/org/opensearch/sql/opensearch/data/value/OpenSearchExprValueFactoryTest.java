@@ -93,10 +93,17 @@ class OpenSearchExprValueFactoryTest {
           .put("arrayV", OpenSearchDataType.of(ARRAY))
           .put("arrayV.info", OpenSearchDataType.of(STRING))
           .put("arrayV.author", OpenSearchDataType.of(STRING))
+          .put("deepNestedV", OpenSearchDataType.of(
+              OpenSearchDataType.of(OpenSearchDataType.MappingType.Nested))
+          )
+          .put("deepNestedV.year", OpenSearchDataType.of(
+              OpenSearchDataType.of(OpenSearchDataType.MappingType.Nested))
+          )
+          .put("deepNestedV.year.timeV", OpenSearchDateType.of(TIME))
           .put("nestedV", OpenSearchDataType.of(
               OpenSearchDataType.of(OpenSearchDataType.MappingType.Nested))
           )
-          .put("nestedV.year", OpenSearchDataType.of(INTEGER))
+          .put("nestedV.count", OpenSearchDataType.of(INTEGER))
           .put("textV", OpenSearchDataType.of(OpenSearchDataType.MappingType.Text))
           .put("textKeywordV", OpenSearchTextType.of(Map.of("words",
               OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword))))
@@ -460,11 +467,50 @@ class OpenSearchExprValueFactoryTest {
   public void constructNestedObjectArrayNode() {
     assertEquals(collectionValue(
         List.of(
-            Map.of("year", 1969),
-            Map.of("year", 2011)
+            Map.of("count", 1),
+            Map.of("count", 2)
         )),
-        tupleValue("{\"nestedV\":[{\"year\":1969},{\"year\":2011}]}")
+        tupleValue("{\"nestedV\":[{\"count\":1},{\"count\":2}]}")
             .get("nestedV"));
+  }
+
+  @Test
+  public void constructNestedObjectArrayOfObjectArraysNode() {
+    assertEquals(
+        collectionValue(
+            List.of(
+                Map.of("year",
+                    List.of(
+                        Map.of("timeV", new ExprTimeValue("09:07:42")),
+                        Map.of("timeV", new ExprTimeValue("09:07:42"))
+                    )
+                ),
+                Map.of("year",
+                    List.of(
+                        Map.of("timeV", new ExprTimeValue("09:07:42")),
+                        Map.of("timeV", new ExprTimeValue("09:07:42"))
+                    )
+                )
+            )
+        ),
+        tupleValue(
+            "{\"deepNestedV\":" +
+                        "[" +
+                          "{\"year\":" +
+                            "[" +
+                              "{\"timeV\":\"09:07:42\"}," +
+                              "{\"timeV\":\"09:07:42\"}" +
+                            "]" +
+                          "}," +
+                          "{\"year\":" +
+                            "[" +
+                              "{\"timeV\":\"09:07:42\"}," +
+                              "{\"timeV\":\"09:07:42\"}" +
+                            "]" +
+                          "}" +
+                        "]" +
+                      "}")
+            .get("deepNestedV"));
   }
 
   @Test
@@ -482,9 +528,9 @@ class OpenSearchExprValueFactoryTest {
   public void constructNestedObjectNode() {
     assertEquals(collectionValue(
             List.of(
-                Map.of("year", 1969)
+                Map.of("count", 1969)
             )),
-        tupleValue("{\"nestedV\":{\"year\":1969}}")
+        tupleValue("{\"nestedV\":{\"count\":1969}}")
             .get("nestedV"));
   }
 
@@ -702,11 +748,11 @@ class OpenSearchExprValueFactoryTest {
     OpenSearchExprValueFactory exprValueFactory =
         new OpenSearchExprValueFactory(ImmutableMap.of("type", new TestType()));
     IllegalStateException exception =
-        assertThrows(IllegalStateException.class, () -> exprValueFactory.construct("{\"type\":1}"));
+        assertThrows(IllegalStateException.class, () -> exprValueFactory.construct("{\"type\":1}", false));
     assertEquals("Unsupported type: TEST_TYPE for value: 1.", exception.getMessage());
 
     exception =
-        assertThrows(IllegalStateException.class, () -> exprValueFactory.construct("type", 1));
+        assertThrows(IllegalStateException.class, () -> exprValueFactory.construct("type", 1, false));
     assertEquals(
         "Unsupported type: TEST_TYPE for value: 1.",
         exception.getMessage());
@@ -736,12 +782,12 @@ class OpenSearchExprValueFactoryTest {
   }
 
   public Map<String, ExprValue> tupleValue(String jsonString) {
-    final ExprValue construct = exprValueFactory.construct(jsonString);
+    final ExprValue construct = exprValueFactory.construct(jsonString, false);
     return construct.tupleValue();
   }
 
   private ExprValue constructFromObject(String fieldName, Object value) {
-    return exprValueFactory.construct(fieldName, value);
+    return exprValueFactory.construct(fieldName, value, false);
   }
 
   @EqualsAndHashCode(callSuper = false)

@@ -109,7 +109,7 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
       return exprValueFactory.getParser().parse(aggregations).stream().map(entry -> {
         ImmutableMap.Builder<String, ExprValue> builder = new ImmutableMap.Builder<>();
         for (Map.Entry<String, Object> value : entry.entrySet()) {
-          builder.put(value.getKey(), exprValueFactory.construct(value.getKey(), value.getValue()));
+          builder.put(value.getKey(), exprValueFactory.construct(value.getKey(), value.getValue(), false));
         }
         return (ExprValue) ExprTupleValue.fromExprValueMap(builder.build());
       }).iterator();
@@ -123,10 +123,11 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
           .map(hit -> {
             ImmutableMap.Builder<String, ExprValue> builder = new ImmutableMap.Builder<>();
             if (hit.getInnerHits() == null || hit.getInnerHits().isEmpty()) {
-              builder.putAll(exprValueFactory.construct(hit.getSourceAsString()).tupleValue());
+              builder.putAll(exprValueFactory.construct(hit.getSourceAsString(), false).tupleValue());
             } else {
               ExprValue innerHits = exprValueFactory.construct(
-                  new JSONObject(hit.getSourceAsMap()).toString()
+                  new JSONObject(hit.getSourceAsMap()).toString(),
+                  true
               );
               builder.putAll(innerHits.tupleValue());
             }

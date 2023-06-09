@@ -152,6 +152,13 @@ public class OpenSearchJsonContent implements Content {
     return value;
   }
 
+//  /**
+//   * Getter for value. If value is array the whole array is returned.
+//   */
+//  private JsonNode value2() {
+//    return value.isArray() ? value.get(0) : value;
+//  }
+
   /**
    * Get doubleValue from JsonNode if possible.
    */
