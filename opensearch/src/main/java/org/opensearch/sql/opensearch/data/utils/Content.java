@@ -55,6 +55,11 @@ public interface Content {
   boolean isString();
 
   /**
+   * Is array value.
+   */
+  boolean isArray();
+
+  /**
    * Get integer value.
    */
   Integer intValue();

@@ -377,30 +377,48 @@ public class OpenSearchExprValueFactory {
     if (content.objectValue() instanceof ObjectNode) {
       result.add(parseStruct(content, prefix, supportArrays));
     } else {
-      content.array().forEachRemaining(v -> {
-        if (type instanceof OpenSearchIpType
-            || type instanceof OpenSearchBinaryType
-            || type instanceof OpenSearchDateType
-            || type instanceof OpenSearchGeoPointType) {
-          result.add(parse(v, prefix, Optional.of(type), supportArrays));
-        } else if (v.isString()) {
-          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(STRING)), supportArrays));
-        } else if (v.isLong()) {
-          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(LONG)), supportArrays));
-        } else if (v.isFloat()) {
-          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(FLOAT)), supportArrays));
-        } else if (v.isDouble()) {
-          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(DOUBLE)), supportArrays));
-        } else if (v.isNumber()) {
-          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(INTEGER)), supportArrays));
-        } else if (v.isBoolean()) {
-          result.add(parse(v, prefix, Optional.of(OpenSearchDataType.of(BOOLEAN)), supportArrays));
-        } else {
-          result.add(parse(v, prefix, Optional.of(STRUCT), supportArrays));
-        }
-      });
+//      if (!supportArrays && content.isArray() && content.array().hasNext() && !(content.array().next() instanceof ObjectNode)) {
+//        var next = content.array().next();
+//        if (!(next.objectValue() instanceof ObjectNode)) {
+//          result.add(parseValue(content.array().next(), prefix, type, supportArrays));
+//          return new ExprCollectionValue(result);
+//        } else {
+//          return parseValue(content.array().next(), prefix, type, supportArrays);
+//        }
+//      } else {
+        content.array().forEachRemaining(v -> {
+          result.add(parseValue(v, prefix, type, supportArrays));
+          // return after first instance if
+          if (!supportArrays && !(v instanceof ObjectNode)) {
+            return;
+          }
+        });
+//      }
     }
     return new ExprCollectionValue(result);
+  }
+
+  private ExprValue parseValue(Content content, String prefix, ExprType type, boolean supportArrays) {
+      if (type instanceof OpenSearchIpType
+          || type instanceof OpenSearchBinaryType
+          || type instanceof OpenSearchDateType
+          || type instanceof OpenSearchGeoPointType) {
+        return parse(content, prefix, Optional.of(type), supportArrays);
+      } else if (content.isString()) {
+        return parse(content, prefix, Optional.of(OpenSearchDataType.of(STRING)), supportArrays);
+      } else if (content.isLong()) {
+        return parse(content, prefix, Optional.of(OpenSearchDataType.of(LONG)), supportArrays);
+      } else if (content.isFloat()) {
+        return parse(content, prefix, Optional.of(OpenSearchDataType.of(FLOAT)), supportArrays);
+      } else if (content.isDouble()) {
+        return parse(content, prefix, Optional.of(OpenSearchDataType.of(DOUBLE)), supportArrays);
+      } else if (content.isNumber()) {
+        return parse(content, prefix, Optional.of(OpenSearchDataType.of(INTEGER)), supportArrays);
+      } else if (content.isBoolean()) {
+        return parse(content, prefix, Optional.of(OpenSearchDataType.of(BOOLEAN)), supportArrays);
+      } else {
+        return parse(content, prefix, Optional.of(STRUCT), supportArrays);
+      }
   }
 
   /**

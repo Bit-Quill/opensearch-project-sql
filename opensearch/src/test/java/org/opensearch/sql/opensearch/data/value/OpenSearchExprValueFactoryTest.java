@@ -56,6 +56,7 @@ import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDateType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
@@ -465,33 +466,19 @@ class OpenSearchExprValueFactoryTest {
 
   @Test
   public void constructNestedObjectArrayNode() {
-    assertEquals(collectionValue(
-        List.of(
-            Map.of("count", 1),
-            Map.of("count", 2)
-        )),
-        tupleValue("{\"nestedV\":[{\"count\":1},{\"count\":2}]}")
+    assertEquals(
+        ExprValueUtils.tupleValue(Map.of("count", 1)),
+        tupleValueWithArrays("{\"nestedV\":[{\"count\":1},{\"count\":2}]}")
             .get("nestedV"));
   }
 
   @Test
   public void constructNestedObjectArrayOfObjectArraysNode() {
     assertEquals(
-        collectionValue(
-            List.of(
-                Map.of("year",
-                    List.of(
-                        Map.of("timeV", new ExprTimeValue("09:07:42")),
-                        Map.of("timeV", new ExprTimeValue("09:07:42"))
-                    )
-                ),
-                Map.of("year",
-                    List.of(
-                        Map.of("timeV", new ExprTimeValue("09:07:42")),
-                        Map.of("timeV", new ExprTimeValue("09:07:42"))
-                    )
-                )
-            )
+        ExprValueUtils.tupleValue(
+          Map.of("year",
+            Map.of("timeV", new ExprTimeValue("09:07:42"))
+          )
         ),
         tupleValue(
             "{\"deepNestedV\":" +
@@ -520,7 +507,7 @@ class OpenSearchExprValueFactoryTest {
                 1969,
                 2011
             )),
-        tupleValue("{\"nestedV\":[1969,2011]}")
+        tupleValueWithArrays("{\"nestedV\":[1969,2011]}")
             .get("nestedV"));
   }
 
@@ -536,11 +523,8 @@ class OpenSearchExprValueFactoryTest {
 
   @Test
   public void constructArrayOfGeoPoints() {
-    assertEquals(new ExprCollectionValue(
-        ImmutableList.of(
-            new OpenSearchExprGeoPointValue(42.60355556, -97.25263889),
-            new OpenSearchExprGeoPointValue(-33.6123556, 66.287449))
-        ),
+    assertEquals(
+        new OpenSearchExprGeoPointValue(42.60355556, -97.25263889),
         tupleValue(
             "{\"geoV\":["
                 + "{\"lat\":42.60355556,\"lon\":-97.25263889},"
@@ -553,11 +537,8 @@ class OpenSearchExprValueFactoryTest {
 
   @Test
   public void constructArrayOfIPs() {
-    assertEquals(new ExprCollectionValue(
-        ImmutableList.of(
-            new OpenSearchExprIpValue("192.168.0.1"),
-            new OpenSearchExprIpValue("192.168.0.2"))
-        ),
+    assertEquals(
+        new OpenSearchExprIpValue("192.168.0.1"),
         tupleValue("{\"ipV\":[\"192.168.0.1\",\"192.168.0.2\"]}")
             .get("ipV")
     );
@@ -565,11 +546,8 @@ class OpenSearchExprValueFactoryTest {
 
   @Test
   public void constructBinaryArray() {
-    assertEquals(new ExprCollectionValue(
-            ImmutableList.of(
-                new OpenSearchExprBinaryValue("U29tZSBiaWsdfsdfgYmxvYg=="),
-                new OpenSearchExprBinaryValue("U987yuhjjiy8jhk9vY+98jjdf"))
-        ),
+    assertEquals(
+        new OpenSearchExprBinaryValue("U29tZSBiaWsdfsdfgYmxvYg=="),
         tupleValue("{\"binaryV\":[\"U29tZSBiaWsdfsdfgYmxvYg==\",\"U987yuhjjiy8jhk9vY+98jjdf\"]}")
             .get("binaryV")
     );
@@ -577,11 +555,7 @@ class OpenSearchExprValueFactoryTest {
 
   @Test
   public void constructArrayOfCustomEpochMillis() {
-    assertEquals(new ExprCollectionValue(
-            ImmutableList.of(
-                new ExprDatetimeValue("2015-01-01 12:10:30"),
-                new ExprDatetimeValue("1999-11-09 01:09:44"))
-        ),
+    assertEquals(new ExprDatetimeValue("2015-01-01 12:10:30"),
         tupleValue("{\"customAndEpochMillisV\":[\"2015-01-01 12:10:30\",\"1999-11-09 01:09:44\"]}")
             .get("customAndEpochMillisV")
     );
@@ -589,11 +563,8 @@ class OpenSearchExprValueFactoryTest {
 
   @Test
   public void constructArrayOfDateStrings() {
-    assertEquals(new ExprCollectionValue(
-            ImmutableList.of(
-                new ExprDateValue("1984-04-12"),
-                new ExprDateValue("2033-05-03"))
-        ),
+    assertEquals(
+        new ExprDateValue("1984-04-12"),
         tupleValue("{\"dateStringV\":[\"1984-04-12\",\"2033-05-03\"]}")
             .get("dateStringV")
     );
@@ -601,11 +572,8 @@ class OpenSearchExprValueFactoryTest {
 
   @Test
   public void constructArrayOfTimeStrings() {
-    assertEquals(new ExprCollectionValue(
-            ImmutableList.of(
-                new ExprTimeValue("12:10:30"),
-                new ExprTimeValue("18:33:55"))
-        ),
+    assertEquals(
+        new ExprTimeValue("12:10:30"),
         tupleValue("{\"timeStringV\":[\"12:10:30.000Z\",\"18:33:55.000Z\"]}")
             .get("timeStringV")
     );
@@ -613,11 +581,8 @@ class OpenSearchExprValueFactoryTest {
 
   @Test
   public void constructArrayOfEpochMillis() {
-    assertEquals(new ExprCollectionValue(
-            ImmutableList.of(
-                new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
-                new ExprTimestampValue(Instant.ofEpochMilli(1454251113333L)))
-        ),
+    assertEquals(
+        new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
         tupleValue("{\"dateOrEpochMillisV\":[\"1420070400001\",\"1454251113333\"]}")
             .get("dateOrEpochMillisV")
     );
@@ -697,35 +662,21 @@ class OpenSearchExprValueFactoryTest {
     assertEquals(new OpenSearchExprBinaryValue("U29tZSBiaW5hcnkgYmxvYg=="),
         tupleValue("{\"binaryV\":\"U29tZSBiaW5hcnkgYmxvYg==\"}").get("binaryV"));
   }
-  
+
+  /**
+   * Return the first element if is OpenSearch Array.
+   * https://www.elastic.co/guide/en/elasticsearch/reference/current/array.html.
+   */
   @Test
-  public void constructFromOpenSearchArrayReturnWholeArray() {
-    assertEquals(
-        new ExprCollectionValue(
-            List.of(
-                integerValue(1),
-                integerValue(2),
-                integerValue(3))
-            ),
-            tupleValue("{\"intV\":[1, 2, 3]}").get("intV")
-    );
-    assertEquals(new ExprCollectionValue(List.of(
-        new ExprTupleValue(
-          new LinkedHashMap<String, ExprValue>() {
-            {
-              put("id", integerValue(1));
-              put("state", stringValue("WA"));
-            }
+  public void constructFromOpenSearchArrayReturnFirstElement() {
+    assertEquals(integerValue(1), tupleValue("{\"intV\":[1, 2, 3]}").get("intV"));
+    assertEquals(new ExprTupleValue(
+        new LinkedHashMap<String, ExprValue>() {
+          {
+            put("id", integerValue(1));
+            put("state", stringValue("WA"));
           }
-        ),
-        new ExprTupleValue(
-          new LinkedHashMap<String, ExprValue>() {
-            {
-              put("id", integerValue(2));
-              put("state", stringValue("CA"));
-            }
-          }
-        ))), tupleValue("{\"structV\":[{\"id\":1,\"state\":\"WA\"},{\"id\":2,\"state\":\"CA\"}]}}")
+        }), tupleValue("{\"structV\":[{\"id\":1,\"state\":\"WA\"},{\"id\":2,\"state\":\"CA\"}]}}")
         .get("structV"));
   }
 
@@ -783,6 +734,11 @@ class OpenSearchExprValueFactoryTest {
 
   public Map<String, ExprValue> tupleValue(String jsonString) {
     final ExprValue construct = exprValueFactory.construct(jsonString, false);
+    return construct.tupleValue();
+  }
+
+  public Map<String, ExprValue> tupleValueWithArrays(String jsonString) {
+    final ExprValue construct = exprValueFactory.construct(jsonString, true);
     return construct.tupleValue();
   }
 

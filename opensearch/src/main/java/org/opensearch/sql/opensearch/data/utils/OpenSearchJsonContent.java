@@ -114,6 +114,11 @@ public class OpenSearchJsonContent implements Content {
   }
 
   @Override
+  public boolean isArray() {
+    return value().isArray();
+  }
+
+  @Override
   public Object objectValue() {
     return value();
   }
@@ -151,13 +156,6 @@ public class OpenSearchJsonContent implements Content {
   private JsonNode value() {
     return value;
   }
-
-//  /**
-//   * Getter for value. If value is array the whole array is returned.
-//   */
-//  private JsonNode value2() {
-//    return value.isArray() ? value.get(0) : value;
-//  }
 
   /**
    * Get doubleValue from JsonNode if possible.
