@@ -118,7 +118,8 @@ class OpenSearchResponseTest {
     when(searchHit2.getSourceAsString()).thenReturn("{\"id1\", 2}");
     when(searchHit1.getInnerHits()).thenReturn(null);
     when(searchHit2.getInnerHits()).thenReturn(null);
-    when(factory.construct(any(), anyBoolean())).thenReturn(exprTupleValue1).thenReturn(exprTupleValue2);
+    when(factory.construct(any(), anyBoolean()))
+        .thenReturn(exprTupleValue1).thenReturn(exprTupleValue2);
 
     int i = 0;
     for (ExprValue hit : new OpenSearchResponse(searchResponse, factory, List.of("id1"))) {

@@ -12,7 +12,6 @@ import static org.opensearch.sql.util.MatcherUtils.schema;
 import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
 import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
-import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -89,12 +88,7 @@ public class ObjectFieldSelectIT extends SQLIntegTestCase {
     JSONObject response = new JSONObject(query("SELECT accounts FROM %s"));
 
     // Only the first element of the list of is returned.
-    verifyDataRows(response,
-        rows(new JSONArray(List.of(
-            new JSONObject("{\"id\": 1}"),
-            new JSONObject("{\"id\": 2}")))
-        )
-    );
+    verifyDataRows(response, rows(new JSONObject("{\"id\": 1}")));
   }
 
   @Test

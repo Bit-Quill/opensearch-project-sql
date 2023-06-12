@@ -356,7 +356,7 @@ public class NestedIT extends SQLIntegTestCase {
     verifyDataRows(
         result,
         rows("c", "ab", 4),
-        rows("zz", new JSONArray(List.of("aa", "bb")), 6)
+        rows("zz", "aa", 6)
     );
   }
 

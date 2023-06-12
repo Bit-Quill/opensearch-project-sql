@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.opensearch.data.value;
 
+import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
 import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
@@ -179,15 +180,19 @@ public class OpenSearchExprValueFactory {
     return parse(new ObjectContent(value), field, type(field), supportArrays);
   }
 
-  private ExprValue parse(Content content, String field, Optional<ExprType> fieldType, boolean supportArrays) {
+  private ExprValue parse(
+      Content content,
+      String field,
+      Optional<ExprType> fieldType,
+      boolean supportArrays
+  ) {
     if (content.isNull() || !fieldType.isPresent()) {
       return ExprNullValue.of();
     }
 
     ExprType type = fieldType.get();
     if (type.equals(OpenSearchDataType.of(OpenSearchDataType.MappingType.Nested))
-        || content.objectValue() instanceof ArrayNode // Update to content.isArray()?
-    ) {
+        || content.isArray()) {
       return parseArray(content, field, type, supportArrays);
     } else if (type.equals(OpenSearchDataType.of(OpenSearchDataType.MappingType.Object))
         || type == STRUCT) {
@@ -352,6 +357,7 @@ public class OpenSearchExprValueFactory {
    * Parse struct content.
    * @param content Content to parse.
    * @param prefix Prefix for Level of object depth to parse.
+   * @param supportArrays Are non-object arrays supported.
    * @return Value parsed from content.
    */
   private ExprValue parseStruct(Content content, String prefix, boolean supportArrays) {
@@ -367,58 +373,66 @@ public class OpenSearchExprValueFactory {
    * Parse array content. Can also parse nested which isn't necessarily an array.
    * @param content Content to parse.
    * @param prefix Prefix for Level of object depth to parse.
+   * @param supportArrays Are non-object arrays supported.
    * @param type Type of content parsing.
    * @return Value parsed from content.
    */
-  private ExprValue parseArray(Content content, String prefix, ExprType type, boolean supportArrays) {
+  private ExprValue parseArray(
+      Content content,
+      String prefix,
+      ExprType type,
+      boolean supportArrays
+  ) {
     List<ExprValue> result = new ArrayList<>();
 
-    // ARRAY is mapped to nested but can take the json structure of an Object
+    // ARRAY is mapped to nested but can take the json structure of an Object.
     if (content.objectValue() instanceof ObjectNode) {
       result.add(parseStruct(content, prefix, supportArrays));
+      // non-object type arrays is only supported for inner_hits of OS response.
+    } else if (!((OpenSearchDataType) type).getExprType().equals(ARRAY) && !supportArrays) {
+      return parseInnerArrayValue(content.array().next(), prefix, type, supportArrays);
     } else {
-//      if (!supportArrays && content.isArray() && content.array().hasNext() && !(content.array().next() instanceof ObjectNode)) {
-//        var next = content.array().next();
-//        if (!(next.objectValue() instanceof ObjectNode)) {
-//          result.add(parseValue(content.array().next(), prefix, type, supportArrays));
-//          return new ExprCollectionValue(result);
-//        } else {
-//          return parseValue(content.array().next(), prefix, type, supportArrays);
-//        }
-//      } else {
-        content.array().forEachRemaining(v -> {
-          result.add(parseValue(v, prefix, type, supportArrays));
-          // return after first instance if
-          if (!supportArrays && !(v instanceof ObjectNode)) {
-            return;
-          }
-        });
-//      }
+      content.array().forEachRemaining(v -> {
+        result.add(parseInnerArrayValue(v, prefix, type, supportArrays));
+      });
     }
     return new ExprCollectionValue(result);
   }
 
-  private ExprValue parseValue(Content content, String prefix, ExprType type, boolean supportArrays) {
-      if (type instanceof OpenSearchIpType
-          || type instanceof OpenSearchBinaryType
-          || type instanceof OpenSearchDateType
-          || type instanceof OpenSearchGeoPointType) {
-        return parse(content, prefix, Optional.of(type), supportArrays);
-      } else if (content.isString()) {
-        return parse(content, prefix, Optional.of(OpenSearchDataType.of(STRING)), supportArrays);
-      } else if (content.isLong()) {
-        return parse(content, prefix, Optional.of(OpenSearchDataType.of(LONG)), supportArrays);
-      } else if (content.isFloat()) {
-        return parse(content, prefix, Optional.of(OpenSearchDataType.of(FLOAT)), supportArrays);
-      } else if (content.isDouble()) {
-        return parse(content, prefix, Optional.of(OpenSearchDataType.of(DOUBLE)), supportArrays);
-      } else if (content.isNumber()) {
-        return parse(content, prefix, Optional.of(OpenSearchDataType.of(INTEGER)), supportArrays);
-      } else if (content.isBoolean()) {
-        return parse(content, prefix, Optional.of(OpenSearchDataType.of(BOOLEAN)), supportArrays);
-      } else {
-        return parse(content, prefix, Optional.of(STRUCT), supportArrays);
-      }
+  /**
+   * Parse inner array value. Can be object type and recurse continues.
+   * @param content Array index being parsed.
+   * @param prefix Prefix for value.
+   * @param type Type of inner array value.
+   * @param supportArrays Are non-object arrays supported.
+   * @return Inner array value.
+   */
+  private ExprValue parseInnerArrayValue(
+      Content content,
+      String prefix,
+      ExprType type,
+      boolean supportArrays
+  ) {
+    if (type instanceof OpenSearchIpType
+        || type instanceof OpenSearchBinaryType
+        || type instanceof OpenSearchDateType
+        || type instanceof OpenSearchGeoPointType) {
+      return parse(content, prefix, Optional.of(type), supportArrays);
+    } else if (content.isString()) {
+      return parse(content, prefix, Optional.of(OpenSearchDataType.of(STRING)), supportArrays);
+    } else if (content.isLong()) {
+      return parse(content, prefix, Optional.of(OpenSearchDataType.of(LONG)), supportArrays);
+    } else if (content.isFloat()) {
+      return parse(content, prefix, Optional.of(OpenSearchDataType.of(FLOAT)), supportArrays);
+    } else if (content.isDouble()) {
+      return parse(content, prefix, Optional.of(OpenSearchDataType.of(DOUBLE)), supportArrays);
+    } else if (content.isNumber()) {
+      return parse(content, prefix, Optional.of(OpenSearchDataType.of(INTEGER)), supportArrays);
+    } else if (content.isBoolean()) {
+      return parse(content, prefix, Optional.of(OpenSearchDataType.of(BOOLEAN)), supportArrays);
+    } else {
+      return parse(content, prefix, Optional.of(STRUCT), supportArrays);
+    }
   }
 
   /**
