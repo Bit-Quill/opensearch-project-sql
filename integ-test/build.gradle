@@ -38,7 +38,7 @@ apply plugin: 'java'
 apply plugin: 'io.freefair.lombok'
 apply plugin: 'com.wiredforcode.spawn'
 
-String baseVersion = "2.7.0"
+String baseVersion = "2.8.0"
 String bwcVersion = baseVersion + ".0";
 String baseName = "sqlBwcCluster"
 String bwcFilePath = "src/test/resources/bwc/"
@@ -78,8 +78,6 @@ configurations.all {
     resolutionStrategy.force "com.fasterxml.jackson.dataformat:jackson-dataformat-smile:${versions.jackson}"
     resolutionStrategy.force "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:${versions.jackson}"
     resolutionStrategy.force "com.fasterxml.jackson.core:jackson-databind:${versions.jackson_databind}"
-    resolutionStrategy.force "org.jetbrains.kotlin:kotlin-stdlib:1.6.0"
-    resolutionStrategy.force "org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0"
     resolutionStrategy.force "com.squareup.okhttp3:okhttp:4.9.3"
     resolutionStrategy.force "org.apache.httpcomponents:httpcore:4.4.13"
     resolutionStrategy.force "joda-time:joda-time:2.10.12"
@@ -126,6 +124,11 @@ compileTestJava {
 
 testClusters.all {
     testDistribution = 'archive'
+
+    // debug with command, ./gradlew opensearch-sql:run -DdebugJVM. --debug-jvm does not work with keystore.
+    if (System.getProperty("debugJVM") != null) {
+        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005'
+    }
 }
 
 testClusters.integTest {
@@ -168,7 +171,9 @@ task stopPrometheus(type: KillProcessTask) {
     }
 }
 
-stopPrometheus.mustRunAfter startPrometheus
+//stopPrometheus.mustRunAfter startPrometheus
+stopPrometheus.dependsOn startPrometheus
+startPrometheus.finalizedBy stopPrometheus
 
 task integJdbcTest(type: RestIntegTestTask) {
     testClusters.findAll {c -> c.clusterName == "integJdbcTest"}.first().
@@ -254,10 +259,16 @@ integTest {
 
     // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
     // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
-    doFirst { systemProperty 'cluster.debug', getDebug() }
+    doFirst {
+        if (System.getProperty("debug-jvm") != null) {
+            setDebug(true);
+        }
+        systemProperty 'cluster.debug', getDebug()
+    }
+
 
     if (System.getProperty("test.debug") != null) {
-        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
+        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5006'
     }
 
     if (System.getProperty("tests.rest.bwcsuite") == null) {
