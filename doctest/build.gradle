@@ -72,23 +72,27 @@ task doctest(type: Exec, dependsOn: ['bootstrap']) {
     doLast {
         // remove the cloned sql-cli folder
         file("$projectDir/sql-cli").deleteDir()
+        stopPrometheusMethod()
         println("Doctest Done")
     }
 }
 
-task stopOpenSearch(type: KillProcessTask) {
-    stopPrometheusMethod()
-}
+task stopOpenSearch(type: KillProcessTask)
 
 def stopPrometheusMethod() {
+    println('STOP PROMETHEUS METHOD IS RUNNING==============------------========')
+    def pid;
     if(getOSFamilyType() != "windows") {
         def pidFile = new File(path, ".prom.pid.lock")
+        //def pidFileParent = new File("../.prom.pid.lock")
         if (!pidFile.exists()) {
             logger.quiet "No Prometheus server running!"
             return
         }
-
-        def pid = pidFile.text
+//        if(pidFileParent.exists()) {
+//            pidFile = pidFileParent;
+//        }
+//        pid = pidFile.text
         def process = "kill $pid".execute()
 
         try {
