@@ -38,7 +38,6 @@ import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -393,7 +392,7 @@ class OpenSearchExprValueFactoryTest {
   @Test
   public void constructArray() {
     assertEquals(
-        new ExprCollectionValue(ImmutableList.of(new ExprTupleValue(
+        new ExprCollectionValue(List.of(new ExprTupleValue(
             new LinkedHashMap<String, ExprValue>() {
               {
                 put("info", stringValue("zz"));
@@ -402,65 +401,98 @@ class OpenSearchExprValueFactoryTest {
             }))),
         tupleValue("{\"arrayV\":[{\"info\":\"zz\",\"author\":\"au\"}]}").get("arrayV"));
     assertEquals(
-        new ExprCollectionValue(ImmutableList.of(new ExprTupleValue(
+        new ExprCollectionValue(List.of(new ExprTupleValue(
             new LinkedHashMap<String, ExprValue>() {
               {
                 put("info", stringValue("zz"));
                 put("author", stringValue("au"));
               }
             }))),
-        constructFromObject("arrayV", ImmutableList.of(
+        constructFromObject("arrayV", List.of(
             ImmutableMap.of("info", "zz", "author", "au"))));
   }
 
   @Test
   public void constructArrayOfStrings() {
     assertEquals(new ExprCollectionValue(
-            ImmutableList.of(stringValue("zz"), stringValue("au"))),
-        constructFromObject("arrayV", ImmutableList.of("zz", "au")));
+            List.of(stringValue("zz"), stringValue("au"))),
+        constructFromObject("arrayV", List.of("zz", "au")));
+  }
+
+  @Test
+  public void constructNestedArraysOfStrings() {
+    assertEquals(
+        new ExprCollectionValue(
+            List.of(
+                collectionValue(
+                  List.of("zz", "au")
+                ),
+                collectionValue(
+                    List.of("ss")
+                )
+            )
+        ),
+        tupleValueWithArraySupport(
+            "{\"stringV\":["
+                + "[\"zz\", \"au\"],"
+                + "[\"ss\"]"
+                + "]}"
+        ).get("stringV"));
+  }
+
+  @Test
+  public void constructNestedArraysOfStringsReturnsFirstIndex() {
+    assertEquals(
+        stringValue("zz"),
+        tupleValue(
+            "{\"stringV\":["
+                + "[\"zz\", \"au\"],"
+                + "[\"ss\"]"
+                + "]}"
+        ).get("stringV"));
   }
 
   @Test
   public void constructArrayOfInts() {
     assertEquals(new ExprCollectionValue(
-            ImmutableList.of(integerValue(1), integerValue(2))),
-        constructFromObject("arrayV", ImmutableList.of(1, 2)));
+            List.of(integerValue(1), integerValue(2))),
+        constructFromObject("arrayV", List.of(1, 2)));
   }
 
   @Test
   public void constructArrayOfShorts() {
     // Shorts are treated same as integer
     assertEquals(new ExprCollectionValue(
-            ImmutableList.of(shortValue((short)3), shortValue((short)4))),
-        constructFromObject("arrayV", ImmutableList.of(3, 4)));
+            List.of(shortValue((short)3), shortValue((short)4))),
+        constructFromObject("arrayV", List.of(3, 4)));
   }
 
   @Test
   public void constructArrayOfLongs() {
     assertEquals(new ExprCollectionValue(
-            ImmutableList.of(longValue(123456789L), longValue(987654321L))),
-        constructFromObject("arrayV", ImmutableList.of(123456789L, 987654321L)));
+            List.of(longValue(123456789L), longValue(987654321L))),
+        constructFromObject("arrayV", List.of(123456789L, 987654321L)));
   }
 
   @Test
   public void constructArrayOfFloats() {
     assertEquals(new ExprCollectionValue(
-            ImmutableList.of(floatValue(3.14f), floatValue(4.13f))),
-        constructFromObject("arrayV", ImmutableList.of(3.14f, 4.13f)));
+            List.of(floatValue(3.14f), floatValue(4.13f))),
+        constructFromObject("arrayV", List.of(3.14f, 4.13f)));
   }
 
   @Test
   public void constructArrayOfDoubles() {
     assertEquals(new ExprCollectionValue(
-            ImmutableList.of(doubleValue(9.1928374756D), doubleValue(4.987654321D))),
-        constructFromObject("arrayV", ImmutableList.of(9.1928374756D, 4.987654321D)));
+            List.of(doubleValue(9.1928374756D), doubleValue(4.987654321D))),
+        constructFromObject("arrayV", List.of(9.1928374756D, 4.987654321D)));
   }
 
   @Test
   public void constructArrayOfBooleans() {
     assertEquals(new ExprCollectionValue(
-            ImmutableList.of(booleanValue(true), booleanValue(false))),
-        constructFromObject("arrayV", ImmutableList.of(true, false)));
+            List.of(booleanValue(true), booleanValue(false))),
+        constructFromObject("arrayV", List.of(true, false)));
   }
 
   @Test
@@ -470,7 +502,7 @@ class OpenSearchExprValueFactoryTest {
             Map.of("count", 1),
             Map.of("count", 2)
         )),
-        tupleValue("{\"nestedV\":[{\"count\":1},{\"count\":2}]}")
+        tupleValueWithArraySupport("{\"nestedV\":[{\"count\":1},{\"count\":2}]}")
             .get("nestedV"));
   }
 
@@ -493,7 +525,7 @@ class OpenSearchExprValueFactoryTest {
                 )
             )
         ),
-        tupleValue(
+        tupleValueWithArraySupport(
             "{\"deepNestedV\":"
                         + "["
                           + "{\"year\":"
@@ -520,7 +552,7 @@ class OpenSearchExprValueFactoryTest {
                 1969,
                 2011
             )),
-        tupleValue("{\"nestedV\":[1969,2011]}")
+        tupleValueWithArraySupport("{\"nestedV\":[1969,2011]}")
             .get("nestedV"));
   }
 
@@ -537,7 +569,7 @@ class OpenSearchExprValueFactoryTest {
   @Test
   public void constructArrayOfGeoPoints() {
     assertEquals(new ExprCollectionValue(
-            ImmutableList.of(
+            List.of(
                 new OpenSearchExprGeoPointValue(42.60355556, -97.25263889),
                 new OpenSearchExprGeoPointValue(-33.6123556, 66.287449))
         ),
@@ -546,8 +578,7 @@ class OpenSearchExprValueFactoryTest {
                 + "{\"lat\":42.60355556,\"lon\":-97.25263889},"
                 + "{\"lat\":-33.6123556,\"lon\":66.287449}"
                 + "]}"
-        )
-            .get("geoV")
+        ).get("geoV")
     );
   }
 
@@ -687,15 +718,13 @@ class OpenSearchExprValueFactoryTest {
   @Test
   public void constructFromOpenSearchArrayReturnFirstElement() {
     assertEquals(integerValue(1), tupleValue("{\"intV\":[1, 2, 3]}").get("intV"));
-
     assertEquals(new ExprTupleValue(
-          new LinkedHashMap<String, ExprValue>() {
-            {
-              put("id", integerValue(1));
-              put("state", stringValue("WA"));
-            }
+        new LinkedHashMap<String, ExprValue>() {
+          {
+            put("id", integerValue(1));
+            put("state", stringValue("WA"));
           }
-        ), tupleValue("{\"structV\":[{\"id\":1,\"state\":\"WA\"},{\"id\":2,\"state\":\"CA\"}]}}")
+        }), tupleValue("{\"structV\":[{\"id\":1,\"state\":\"WA\"},{\"id\":2,\"state\":\"CA\"}]}}")
         .get("structV"));
   }
 
@@ -716,7 +745,7 @@ class OpenSearchExprValueFactoryTest {
   @Test
   public void constructUnsupportedTypeThrowException() {
     OpenSearchExprValueFactory exprValueFactory =
-        new OpenSearchExprValueFactory(ImmutableMap.of("type", new TestType()));
+        new OpenSearchExprValueFactory(Map.of("type", new TestType()));
     IllegalStateException exception =
         assertThrows(
             IllegalStateException.class,
@@ -769,6 +798,10 @@ class OpenSearchExprValueFactoryTest {
 
   private ExprValue constructFromObject(String fieldName, Object value) {
     return exprValueFactory.construct(fieldName, value, false);
+  }
+
+  private ExprValue constructFromObjectWithArraySupport(String fieldName, Object value) {
+    return exprValueFactory.construct(fieldName, value, true);
   }
 
   @EqualsAndHashCode(callSuper = false)

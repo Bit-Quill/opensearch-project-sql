@@ -23,8 +23,12 @@
             }
           },
           "moveInDate" : {
-            "type" : "date",
-            "format" : "basic_date_time"
+            "properties": {
+              "dateAndTime": {
+                "type": "date",
+                "format": "basic_date_time"
+              }
+            }
           }
         }
       },

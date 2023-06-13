@@ -388,8 +388,11 @@ public class OpenSearchExprValueFactory {
     // ARRAY is mapped to nested but can take the json structure of an Object.
     if (content.objectValue() instanceof ObjectNode) {
       result.add(parseStruct(content, prefix, supportArrays));
-      // non-object type arrays is only supported for inner_hits of OS response.
-    } else if (!((OpenSearchDataType) type).getExprType().equals(ARRAY) && !supportArrays) {
+      // non-object type arrays are only supported when parsing inner_hits of OS response.
+    } else if (
+        !(type instanceof OpenSearchDataType
+            && ((OpenSearchDataType) type).getExprType().equals(ARRAY))
+        && !supportArrays) {
       return parseInnerArrayValue(content.array().next(), prefix, type, supportArrays);
     } else {
       content.array().forEachRemaining(v -> {
