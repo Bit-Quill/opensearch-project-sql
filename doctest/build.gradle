@@ -76,7 +76,9 @@ task doctest(type: Exec, dependsOn: ['bootstrap']) {
     }
 }
 
-task stopOpenSearch(type: KillProcessTask)
+task stopOpenSearch(type: KillProcessTask) {
+    stopPrometheusMethod()
+}
 
 def stopPrometheusMethod() {
     if(getOSFamilyType() != "windows") {
