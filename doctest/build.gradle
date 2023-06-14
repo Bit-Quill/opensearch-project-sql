@@ -33,10 +33,13 @@ task bootstrap(type: Exec, dependsOn: ['cloneSqlCli']) {
 
 task startPrometheus(type: SpawnProcessTask) {
     doFirst {
+        // Stops any existing Prometheus servers running in project root
         stopPrometheusMethod()
         download.run {
             src getPrometheusBinaryLocation()
-            dest new File("$projectDir/bin", 'prometheus.tar.gz')
+            dest "$projectDir/bin/prometheus.tar.gz"
+            overwrite true
+//            dest new File("$projectDir/../bin/", 'prometheus.tar.gz')
         }
         copy {
             from tarTree("$projectDir/bin/prometheus.tar.gz")
@@ -52,6 +55,27 @@ task startPrometheus(type: SpawnProcessTask) {
     command "$projectDir/bin/prometheus/prometheus --storage.tsdb.path=$projectDir/bin/prometheus/data --config.file=$projectDir/bin/prometheus/prometheus.yml"
     ready 'TSDB started'
     pidLockFileName '.prom.pid.lock'
+
+//    doFirst {
+//        stopPrometheusMethod()
+//        download.run {
+//            src getPrometheusBinaryLocation()
+//            dest new File("$projectDir/../bin", 'prometheus.tar.gz')
+//        }
+//        copy {
+//            from tarTree("$projectDir/../bin/prometheus.tar.gz")
+//            into "$projectDir/../bin"
+//        }
+//        file("$projectDir/../bin").eachDir {
+//            if (it.name.startsWith("prometheus-")) {
+//                println "Renaming folder : " + it.name.toString()
+//                println it.renameTo("$projectDir/../bin/prometheus")
+//            }
+//        }
+//    }
+//    command "$projectDir/../bin/prometheus/prometheus --storage.tsdb.path=$projectDir/../bin/prometheus/data --config.file=$projectDir/..bin/prometheus/prometheus.yml"
+//    ready 'TSDB started'
+//    pidLockFileName '.prom.pid.lock'
 }
 
 //evaluationDependsOn(':')
@@ -72,9 +96,14 @@ task doctest(type: Exec, dependsOn: ['bootstrap']) {
     doLast {
         // remove the cloned sql-cli folder
         file("$projectDir/sql-cli").deleteDir()
-        stopPrometheusMethod()
+        println("STOPPING PROMETHEUS INSIDE DOCTEST =============+-------------------_+=========")
+        //stopPrometheusMethod()
         println("Doctest Done")
     }
+}
+
+task stopPrometheus() {
+    stopPrometheusMethod()
 }
 
 task stopOpenSearch(type: KillProcessTask)
@@ -83,18 +112,36 @@ def stopPrometheusMethod() {
     println('STOP PROMETHEUS METHOD IS RUNNING==============------------========')
     def pid;
     if(getOSFamilyType() != "windows") {
-        def pidFile = new File(path, ".prom.pid.lock")
-        //def pidFileParent = new File("../.prom.pid.lock")
-        if (!pidFile.exists()) {
-            logger.quiet "No Prometheus server running!"
-            return
-        }
-//        if(pidFileParent.exists()) {
-//            pidFile = pidFileParent;
-//        }
-//        pid = pidFile.text
-        def process = "kill $pid".execute()
+        def pidFile = new File(projectDir, ".prom.pid.lock")
+        //if (!pidFile.exists() && !file("../.prom.pid.lock").exists()) {
+        def stdout = new ByteArrayOutputStream()
 
+        def eVPgrep = exec {
+            commandLine 'pgrep', '-f', 'prometheus'
+            standardOutput = stdout
+            ignoreExitValue true
+        }.exitValue
+        println(eVPgrep)
+        println("ABOVE IS EVPGREP OUTPUT")
+        if(eVPgrep == 0) {
+            exec {
+                commandLine 'kill', '-9', stdout.toString().trim()
+            }
+        }
+
+        if (!pidFile.exists()) {
+                logger.quiet "No Prometheus server running!"
+                return
+//            }
+        }
+//        if(file("../.prom.pid.lock").exists()) {
+//            pidFile = file("../.prom.pid.lock");
+//        }
+
+
+
+        pid = pidFile.text
+        def process = "kill $pid".execute()
         try {
             process.waitFor()
         } finally {
