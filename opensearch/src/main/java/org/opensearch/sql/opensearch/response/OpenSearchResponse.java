@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.json.JSONObject;
 import org.opensearch.action.search.SearchResponse;
+import org.opensearch.common.text.Text;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.SearchHits;
 import org.opensearch.search.aggregations.Aggregations;
@@ -130,19 +130,11 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
       ImmutableMap.Builder<String, ExprValue> builder,
       SearchHit hit
   ) {
-    if (hit.getInnerHits() == null || hit.getInnerHits().isEmpty()) {
-      builder.putAll(
-          exprValueFactory.construct(
-              hit.getSourceAsString(),
-              false
-          ).tupleValue());
-    } else {
-      ExprValue innerHits = exprValueFactory.construct(
-          new JSONObject(hit.getSourceAsMap()).toString(),
-          true
-      );
-      builder.putAll(innerHits.tupleValue());
-    }
+    builder.putAll(
+        exprValueFactory.construct(
+            hit.getSourceAsString(),
+            !(hit.getInnerHits() == null || hit.getInnerHits().isEmpty())
+        ).tupleValue());
   }
 
   /**
@@ -159,7 +151,7 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
       for (var es : hit.getHighlightFields().entrySet()) {
         hlBuilder.put(es.getKey(), ExprValueUtils.collectionValue(
             Arrays.stream(es.getValue().fragments()).map(
-                t -> (t.toString())).collect(Collectors.toList())));
+                Text::toString).collect(Collectors.toList())));
       }
       builder.put("_highlight", ExprTupleValue.fromExprValueMap(hlBuilder.build()));
     }
@@ -175,7 +167,7 @@ public class OpenSearchResponse implements Iterable<ExprValue> {
       SearchHit hit
   ) {
     List<String> metaDataFieldSet = includes.stream()
-        .filter(include -> METADATAFIELD_TYPE_MAP.containsKey(include))
+        .filter(METADATAFIELD_TYPE_MAP::containsKey)
         .collect(Collectors.toList());
     ExprFloatValue maxScore = Float.isNaN(hits.getMaxScore())
         ? null : new ExprFloatValue(hits.getMaxScore());

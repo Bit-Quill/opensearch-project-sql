@@ -357,7 +357,7 @@ public class OpenSearchExprValueFactory {
    * Parse struct content.
    * @param content Content to parse.
    * @param prefix Prefix for Level of object depth to parse.
-   * @param supportArrays Are non-object arrays supported.
+   * @param supportArrays Parsing the whole array if array is type nested.
    * @return Value parsed from content.
    */
   private ExprValue parseStruct(Content content, String prefix, boolean supportArrays) {
@@ -373,8 +373,8 @@ public class OpenSearchExprValueFactory {
    * Parse array content. Can also parse nested which isn't necessarily an array.
    * @param content Content to parse.
    * @param prefix Prefix for Level of object depth to parse.
-   * @param supportArrays Are non-object arrays supported.
    * @param type Type of content parsing.
+   * @param supportArrays Parsing the whole array if array is type nested.
    * @return Value parsed from content.
    */
   private ExprValue parseArray(
@@ -407,7 +407,7 @@ public class OpenSearchExprValueFactory {
    * @param content Array index being parsed.
    * @param prefix Prefix for value.
    * @param type Type of inner array value.
-   * @param supportArrays Are non-object arrays supported.
+   * @param supportArrays Parsing the whole array if array is type nested.
    * @return Inner array value.
    */
   private ExprValue parseInnerArrayValue(
