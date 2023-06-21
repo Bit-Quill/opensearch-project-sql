@@ -47,6 +47,10 @@ public abstract class JsonResponseFormatter<R> implements ResponseFormatter<R> {
         (style == PRETTY) ? prettyFormat(t) : compactFormat(t));
   }
 
+  public String getFormat() {
+    return "application/json; charset=UTF-8";
+  }
+
   /**
    * Build JSON object to generate response json string.
    *

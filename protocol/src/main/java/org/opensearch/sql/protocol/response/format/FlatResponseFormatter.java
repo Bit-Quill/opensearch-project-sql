@@ -30,6 +30,10 @@ public abstract class FlatResponseFormatter implements ResponseFormatter<QueryRe
     this.sanitize = sanitize;
   }
 
+  public String getFormat() {
+    return "plain/text; charset=UTF-8";
+  }
+
   @Override
   public String format(QueryResult response) {
     FlatResult result = new FlatResult(response, sanitize);

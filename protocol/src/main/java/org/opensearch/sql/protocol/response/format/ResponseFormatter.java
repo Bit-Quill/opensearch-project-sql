@@ -27,4 +27,6 @@ public interface ResponseFormatter<R> {
    */
   String format(Throwable t);
 
+  String getFormat();
+
 }
