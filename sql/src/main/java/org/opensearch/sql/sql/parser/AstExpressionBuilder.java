@@ -40,6 +40,7 @@ import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.IsNullPred
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.LikePredicateContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.MathExpressionAtomContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.MultiFieldRelevanceFunctionContext;
+import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.NestedAllFunctionCallContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.NoFieldRelevanceFunctionContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.NotExpressionContext;
 import static org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.NullLiteralContext;
@@ -153,9 +154,9 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitNestedAllFunctionCall(
-      OpenSearchSQLParser.NestedAllFunctionCallContext ctx) {
+      NestedAllFunctionCallContext ctx) {
     return new NestedAllTupleFields(
-        visitQualifiedName(ctx.allTupleFields().qualifiedName()).toString()
+        visitQualifiedName(ctx.allTupleFields().path).toString()
     );
   }
 

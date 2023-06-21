@@ -378,8 +378,8 @@ public class AstDSL {
     return new Alias(name, expr, alias);
   }
 
-  public NestedAllTupleFields nestedAllTupleFields(String name) {
-    return new NestedAllTupleFields(name);
+  public NestedAllTupleFields nestedAllTupleFields(String path) {
+    return new NestedAllTupleFields(path);
   }
 
   public static List<UnresolvedExpression> exprList(UnresolvedExpression... exprList) {

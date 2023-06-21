@@ -102,6 +102,41 @@ public class NestedIT extends SQLIntegTestCase {
   }
 
   @Test
+  public void nested_all_function_in_a_function_in_select_test() {
+    String query = "SELECT nested(message.*) FROM " +
+        TEST_INDEX_NESTED_TYPE_WITHOUT_ARRAYS + " WHERE nested(message.info) = 'a'";
+    JSONObject result = executeJdbcRequest(query);
+    verifyDataRows(result, rows("e", 1, "a"));
+  }
+
+  @Test
+  public void invalid_multiple_nested_all_function_in_a_function_in_select_test() {
+    String query = "SELECT nested(message.*), nested(message.info) FROM " +
+        TEST_INDEX_NESTED_TYPE_WITHOUT_ARRAYS;
+    RuntimeException result = assertThrows(
+        RuntimeException.class,
+        () -> executeJdbcRequest(query)
+    );
+    assertTrue(
+        result.getMessage().contains("IllegalArgumentException")
+        && result.getMessage().contains("Multiple entries with same key")
+    );
+  }
+
+  @Test
+  public void nested_all_function_with_limit_test() {
+    String query = "SELECT nested(message.*) FROM " +
+        TEST_INDEX_NESTED_TYPE_WITHOUT_ARRAYS + " LIMIT 3";
+    JSONObject result = executeJdbcRequest(query);
+    verifyDataRows(result,
+        rows("e", 1, "a"),
+        rows("f", 2, "b"),
+        rows("g", 1, "c")
+    );
+  }
+
+
+  @Test
   public void nested_function_with_array_of_multi_nested_field_test() {
     String query = "SELECT nested(message.author.name) FROM " + TEST_INDEX_MULTI_NESTED_TYPE;
     JSONObject result = executeJdbcRequest(query);

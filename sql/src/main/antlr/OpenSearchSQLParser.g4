@@ -815,7 +815,7 @@ columnName
     ;
 
 allTupleFields
-    : qualifiedName DOT STAR
+    : path=qualifiedName DOT STAR
     ;
 
 alias

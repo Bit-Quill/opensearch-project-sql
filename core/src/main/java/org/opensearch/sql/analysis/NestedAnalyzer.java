@@ -68,14 +68,7 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
       }
     }
 
-    if (child instanceof LogicalNested) {
-      for (var arg : args) {
-        ((LogicalNested) child).addFields(arg);
-      }
-      return child;
-    } else {
-      return new LogicalNested(child, args, namedExpressions);
-    }
+    return mergeChildIfLogicalNested(args);
   }
 
   @Override
@@ -100,14 +93,26 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
             "path", generatePath(nestedField.toString())
         );
       }
-      if (child instanceof LogicalNested) {
-        ((LogicalNested)child).addFields(args);
-        return child;
-      } else {
-        return new LogicalNested(child, new ArrayList<>(Arrays.asList(args)), namedExpressions);
-      }
+
+      return mergeChildIfLogicalNested(new ArrayList<>(Arrays.asList(args)));
     }
     return null;
+  }
+
+  /**
+   * NestedAnalyzer visits all functions in SELECT clause, creates logical plans for each and
+   * merges them. This is to avoid another merge rule in LogicalPlanOptimizer:create().
+   * @param args field and path params to add to logical plan.
+   * @return child of logical nested with added args, or new LogicalNested.
+   */
+  private LogicalPlan mergeChildIfLogicalNested(List<Map<String, ReferenceExpression>> args) {
+    if (child instanceof LogicalNested) {
+      for (var arg : args) {
+        ((LogicalNested) child).addFields(arg);
+      }
+      return child;
+    }
+    return new LogicalNested(child, args, namedExpressions);
   }
 
   /**

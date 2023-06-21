@@ -578,6 +578,34 @@ class AnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void sort_with_nested_all_tuple_fields_throws_exception() {
+    assertThrows(UnsupportedOperationException.class, () -> analyze(
+        AstDSL.project(
+          AstDSL.sort(
+                AstDSL.relation("schema"),
+                field(nestedAllTupleFields("message"))
+              ),
+            AstDSL.alias("nested(message.*)",
+                nestedAllTupleFields("message"))
+        )
+    ));
+  }
+
+  @Test
+  public void filter_with_nested_all_tuple_fields_throws_exception() {
+    assertThrows(UnsupportedOperationException.class, () -> analyze(
+        AstDSL.project(
+            AstDSL.filter(
+                AstDSL.relation("schema"),
+                AstDSL.function("=", nestedAllTupleFields("message"), AstDSL.intLiteral(1))),
+            AstDSL.alias("nested(message.*)",
+                nestedAllTupleFields("message"))
+        )
+    ));
+  }
+
+
+  @Test
   public void project_nested_field_star_arg() {
     List<Map<String, ReferenceExpression>> nestedArgs =
         List.of(

@@ -34,4 +34,9 @@ public class NestedAllTupleFields extends UnresolvedExpression {
   public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
     return nodeVisitor.visitNestedAllTupleFields(this, context);
   }
+
+  @Override
+  public String toString() {
+    return String.format("nested(%s.*)", path);
+  }
 }
