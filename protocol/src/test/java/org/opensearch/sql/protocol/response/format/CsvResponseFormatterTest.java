@@ -130,4 +130,9 @@ public class CsvResponseFormatterTest {
     assertEquals(format(expected), formatter.format(response));
   }
 
+  @Test
+  void testContentType() {
+    assertEquals(formatter.contentType(), "plain/text; charset=UTF-8");
+  }
+
 }

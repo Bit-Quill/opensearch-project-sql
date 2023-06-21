@@ -53,6 +53,8 @@ public class RestSQLQueryAction extends BaseRestHandler {
 
   private final Injector injector;
 
+  private final String DEFAULT_FORMAT = "application/json; charset=UTF-8";
+
   /**
    * Constructor of RestSQLQueryAction.
    */
@@ -141,15 +143,16 @@ public class RestSQLQueryAction extends BaseRestHandler {
 
   private ResponseListener<ExplainResponse> createExplainResponseListener(
       RestChannel channel, BiConsumer<RestChannel, Exception> errorHandler) {
-    return new ResponseListener<ExplainResponse>() {
+    return new ResponseListener<>() {
       @Override
       public void onResponse(ExplainResponse response) {
-        sendResponse(channel, OK, new JsonResponseFormatter<ExplainResponse>(PRETTY) {
+        JsonResponseFormatter<ExplainResponse> formatter = new JsonResponseFormatter<>(PRETTY) {
           @Override
           protected Object buildJsonObject(ExplainResponse response) {
             return response;
           }
-        }.format(response), "application/json; charset=UTF-8");
+        };
+        sendResponse(channel, OK, formatter.format(response), formatter.contentType());
       }
 
       @Override
@@ -180,7 +183,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
       public void onResponse(QueryResponse response) {
         sendResponse(channel, OK,
             formatter.format(new QueryResult(response.getSchema(), response.getResults(),
-                response.getCursor())), formatter.getFormat());
+                response.getCursor())), formatter.contentType());
       }
 
       @Override

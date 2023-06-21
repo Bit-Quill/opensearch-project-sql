@@ -23,6 +23,8 @@ public abstract class FlatResponseFormatter implements ResponseFormatter<QueryRe
   private static final String INTERLINE_SEPARATOR = System.lineSeparator();
   private static final Set<String> SENSITIVE_CHAR = ImmutableSet.of("=", "+", "-", "@");
 
+  public static final String CONTENT_TYPE = "plain/text; charset=UTF-8";
+
   private boolean sanitize = false;
 
   public FlatResponseFormatter(String seperator, boolean sanitize) {
@@ -30,8 +32,8 @@ public abstract class FlatResponseFormatter implements ResponseFormatter<QueryRe
     this.sanitize = sanitize;
   }
 
-  public String getFormat() {
-    return "plain/text; charset=UTF-8";
+  public String contentType() {
+    return CONTENT_TYPE;
   }
 
   @Override

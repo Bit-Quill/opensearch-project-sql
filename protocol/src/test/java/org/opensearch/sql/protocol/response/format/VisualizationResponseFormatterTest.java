@@ -187,4 +187,10 @@ public class VisualizationResponseFormatterTest {
         JsonParser.parseString(expected),
         JsonParser.parseString(actual));
   }
+
+  @Test
+  void testContentType() {
+    var formatter = new CommandResponseFormatter();
+    assertEquals(formatter.contentType(), "application/json; charset=UTF-8");
+  }
 }

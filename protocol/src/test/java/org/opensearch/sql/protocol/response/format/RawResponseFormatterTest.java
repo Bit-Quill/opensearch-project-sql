@@ -27,7 +27,7 @@ import org.opensearch.sql.protocol.response.QueryResult;
  * Unit test for {@link FlatResponseFormatter}.
  */
 public class RawResponseFormatterTest {
-  private FlatResponseFormatter rawFormater = new RawResponseFormatter();
+  private FlatResponseFormatter rawFormatter = new RawResponseFormatter();
 
   @Test
   void formatResponse() {
@@ -38,7 +38,7 @@ public class RawResponseFormatterTest {
         tupleValue(ImmutableMap.of("name", "John", "age", 20)),
         tupleValue(ImmutableMap.of("name", "Smith", "age", 30))));
     String expected = "name|age%nJohn|20%nSmith|30";
-    assertEquals(format(expected), rawFormater.format(response));
+    assertEquals(format(expected), rawFormatter.format(response));
   }
 
   @Test
@@ -53,7 +53,7 @@ public class RawResponseFormatterTest {
             "=firstname", "John", "+lastname", "Smith", "-city", "Seattle", "@age", 20))));
     String expected = "=firstname|+lastname|-city|@age%n"
         + "John|Smith|Seattle|20";
-    assertEquals(format(expected), rawFormater.format(response));
+    assertEquals(format(expected), rawFormatter.format(response));
   }
 
   @Test
@@ -74,7 +74,7 @@ public class RawResponseFormatterTest {
         + "-Seattle%n"
         + "@Seattle%n"
         + "Seattle=";
-    assertEquals(format(expected), rawFormater.format(response));
+    assertEquals(format(expected), rawFormatter.format(response));
   }
 
   @Test
@@ -86,7 +86,7 @@ public class RawResponseFormatterTest {
             tupleValue(ImmutableMap.of("na|me", "John|Smith", "||age", "30|||"))));
     String expected = "\"na|me\"|\"||age\"%n"
             + "\"John|Smith\"|\"30|||\"";
-    assertEquals(format(expected), rawFormater.format(response));
+    assertEquals(format(expected), rawFormatter.format(response));
   }
 
   @Test
@@ -94,7 +94,7 @@ public class RawResponseFormatterTest {
     Throwable t = new RuntimeException("This is an exception");
     String expected =
         "{\n  \"type\": \"RuntimeException\",\n  \"reason\": \"This is an exception\"\n}";
-    assertEquals(expected, rawFormater.format(t));
+    assertEquals(expected, rawFormatter.format(t));
   }
 
   @Test
@@ -121,7 +121,7 @@ public class RawResponseFormatterTest {
     String expected = "city%n"
             + "@Seattle%n"
             + "++Seattle";
-    assertEquals(format(expected), rawFormater.format(response));
+    assertEquals(format(expected), rawFormatter.format(response));
   }
 
   @Test
@@ -153,7 +153,12 @@ public class RawResponseFormatterTest {
         + "John|Seattle%n"
         + "|Seattle%n"
         + "John|";
-    assertEquals(format(expected), rawFormater.format(response));
+    assertEquals(format(expected), rawFormatter.format(response));
+  }
+
+  @Test
+  void testContentType() {
+    assertEquals(rawFormatter.contentType(), "plain/text; charset=UTF-8");
   }
 
 }

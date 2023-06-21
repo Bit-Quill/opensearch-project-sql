@@ -56,4 +56,10 @@ public class CommandResponseFormatterTest {
     assertEquals(new JdbcResponseFormatter(PRETTY).format(exception),
         new CommandResponseFormatter().format(exception));
   }
+
+  @Test
+  void testContentType() {
+    var formatter = new CommandResponseFormatter();
+    assertEquals(formatter.contentType(), "application/json; charset=UTF-8");
+  }
 }

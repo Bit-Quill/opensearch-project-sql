@@ -36,6 +36,8 @@ public abstract class JsonResponseFormatter<R> implements ResponseFormatter<R> {
    */
   private final Style style;
 
+  public static final String CONTENT_TYPE = "application/json; charset=UTF-8";
+
   @Override
   public String format(R response) {
     return jsonify(buildJsonObject(response));
@@ -47,8 +49,8 @@ public abstract class JsonResponseFormatter<R> implements ResponseFormatter<R> {
         (style == PRETTY) ? prettyFormat(t) : compactFormat(t));
   }
 
-  public String getFormat() {
-    return "application/json; charset=UTF-8";
+  public String contentType() {
+    return CONTENT_TYPE;
   }
 
   /**
