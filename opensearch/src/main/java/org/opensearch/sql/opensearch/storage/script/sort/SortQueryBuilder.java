@@ -6,6 +6,8 @@
 
 package org.opensearch.sql.opensearch.storage.script.sort;
 
+import static org.opensearch.sql.analysis.NestedAnalyzer.generatePath;
+
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.opensearch.search.sort.FieldSortBuilder;
@@ -16,12 +18,9 @@ import org.opensearch.search.sort.SortOrder;
 import org.opensearch.sql.ast.tree.Sort;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.FunctionExpression;
-import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
-
-import static org.opensearch.sql.analysis.NestedAnalyzer.generatePath;
 
 /**
  * Builder of {@link SortBuilder}.
@@ -62,11 +61,13 @@ public class SortQueryBuilder {
     } else if (expression instanceof FunctionExpression
         && ((FunctionExpression)expression).getFunctionName().getFunctionName().equalsIgnoreCase(
         BuiltinFunctionName.NESTED.name())) {
+
       validateNestedArgs((FunctionExpression) expression);
       String orderByName = ((FunctionExpression)expression).getArguments().get(0).toString();
-      ReferenceExpression path = ((FunctionExpression)expression).getArguments().size() == 2 ?
-          (ReferenceExpression) ((FunctionExpression)expression).getArguments().get(1) :
-          generatePath(orderByName);
+      // Generate path if argument not supplied in function.
+      ReferenceExpression path = ((FunctionExpression)expression).getArguments().size() == 2
+          ? (ReferenceExpression) ((FunctionExpression)expression).getArguments().get(1)
+          : generatePath(orderByName);
       return SortBuilders.fieldSort(orderByName)
               .order(sortOrderMap.get(option.getSortOrder()))
               .setNestedSort(new NestedSortBuilder(path.toString()));

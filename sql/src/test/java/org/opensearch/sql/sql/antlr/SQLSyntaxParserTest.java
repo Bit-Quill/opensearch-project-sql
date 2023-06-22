@@ -646,7 +646,20 @@ class SQLSyntaxParserTest {
     assertNotNull(
         parser.parse("SELECT NESTED(PATH.INNER_FIELD, PATH) FROM TEST"));
     assertNotNull(
-        parser.parse("SELECT NESTED(PATH.INNER_FIELD, PATH) FROM TEST ORDER BY nested(PATH.INNER_FIELD, PATH)"));
+        parser.parse(
+            "SELECT * FROM TEST WHERE NESTED(PATH.INNER_FIELDS) = 'A'"
+        )
+    );
+    assertNotNull(
+        parser.parse(
+            "SELECT * FROM TEST WHERE NESTED(PATH.INNER_FIELDS, PATH) = 'A'"
+        )
+    );
+    assertNotNull(
+        parser.parse(
+        "SELECT FIELD FROM TEST ORDER BY nested(PATH.INNER_FIELD, PATH)"
+        )
+    );
   }
 
   @Test

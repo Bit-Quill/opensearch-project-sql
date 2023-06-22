@@ -124,8 +124,9 @@ public class OpenSearchIndexScanBuilder extends TableScanBuilder {
     return sort.getSortList().stream()
         .map(sortItem -> sortItem.getRight() instanceof ReferenceExpression
         || (sortItem.getRight() instanceof FunctionExpression
-        && ((FunctionExpression)sortItem.getRight()).getFunctionName().getFunctionName().equalsIgnoreCase(
-            BuiltinFunctionName.NESTED.name())))
+        && ((FunctionExpression)sortItem.getRight())
+            .getFunctionName().getFunctionName()
+            .equalsIgnoreCase(BuiltinFunctionName.NESTED.name())))
         .reduce(true, Boolean::logicalAnd);
   }
 }
