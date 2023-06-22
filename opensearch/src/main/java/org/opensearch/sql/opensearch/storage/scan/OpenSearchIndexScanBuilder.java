@@ -7,7 +7,9 @@ package org.opensearch.sql.opensearch.storage.scan;
 
 import java.util.function.Function;
 import lombok.EqualsAndHashCode;
+import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
+import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder;
 import org.opensearch.sql.planner.logical.LogicalAggregation;
 import org.opensearch.sql.planner.logical.LogicalFilter;
@@ -113,9 +115,17 @@ public class OpenSearchIndexScanBuilder extends TableScanBuilder {
     return delegate.pushDownNested(nested);
   }
 
+  /**
+   * Valid if sorting is only by fields.
+   * @param sort Logical sort
+   * @return True if sorting by fields only
+   */
   private boolean sortByFieldsOnly(LogicalSort sort) {
     return sort.getSortList().stream()
-        .map(sortItem -> sortItem.getRight() instanceof ReferenceExpression)
+        .map(sortItem -> sortItem.getRight() instanceof ReferenceExpression
+        || (sortItem.getRight() instanceof FunctionExpression
+        && ((FunctionExpression)sortItem.getRight()).getFunctionName().getFunctionName().equalsIgnoreCase(
+            BuiltinFunctionName.NESTED.name())))
         .reduce(true, Boolean::logicalAnd);
   }
 }

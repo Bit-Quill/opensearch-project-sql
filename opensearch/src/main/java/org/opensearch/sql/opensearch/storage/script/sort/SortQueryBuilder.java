@@ -9,13 +9,19 @@ package org.opensearch.sql.opensearch.storage.script.sort;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.opensearch.search.sort.FieldSortBuilder;
+import org.opensearch.search.sort.NestedSortBuilder;
 import org.opensearch.search.sort.SortBuilder;
 import org.opensearch.search.sort.SortBuilders;
 import org.opensearch.search.sort.SortOrder;
 import org.opensearch.sql.ast.tree.Sort;
 import org.opensearch.sql.expression.Expression;
+import org.opensearch.sql.expression.FunctionExpression;
+import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
+import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
+
+import static org.opensearch.sql.analysis.NestedAnalyzer.generatePath;
 
 /**
  * Builder of {@link SortBuilder}.
@@ -53,8 +59,41 @@ public class SortQueryBuilder {
         return SortBuilders.scoreSort().order(sortOrderMap.get(option.getSortOrder()));
       }
       return fieldBuild((ReferenceExpression) expression, option);
+    } else if (expression instanceof FunctionExpression
+        && ((FunctionExpression)expression).getFunctionName().getFunctionName().equalsIgnoreCase(
+        BuiltinFunctionName.NESTED.name())) {
+      validateNestedArgs((FunctionExpression) expression);
+      String orderByName = ((FunctionExpression)expression).getArguments().get(0).toString();
+      ReferenceExpression path = ((FunctionExpression)expression).getArguments().size() == 2 ?
+          (ReferenceExpression) ((FunctionExpression)expression).getArguments().get(1) :
+          generatePath(orderByName);
+      return SortBuilders.fieldSort(orderByName)
+              .order(sortOrderMap.get(option.getSortOrder()))
+              .setNestedSort(new NestedSortBuilder(path.toString()));
     } else {
       throw new IllegalStateException("unsupported expression " + expression.getClass());
+    }
+  }
+
+  /**
+   * Validate semantics for arguments in nested function.
+   * @param nestedFunc Nested function expression.
+   */
+  private void validateNestedArgs(FunctionExpression nestedFunc) {
+    if (nestedFunc.getArguments().size() > 2) {
+      throw new IllegalArgumentException(
+          "nested function supports 2 parameters (field, path) or 1 parameter (field)"
+      );
+    }
+
+    for (var arg : nestedFunc.getArguments()) {
+      if (!(arg instanceof ReferenceExpression)) {
+        throw new IllegalArgumentException(
+            String.format("Illegal nested field name: %s",
+                arg.toString()
+            )
+        );
+      }
     }
   }
 

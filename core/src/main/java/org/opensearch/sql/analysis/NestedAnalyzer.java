@@ -105,7 +105,7 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
    * @param field : Nested field to generate path of.
    * @return : Path of field derived from last level of nesting.
    */
-  private ReferenceExpression generatePath(String field) {
+  public static ReferenceExpression generatePath(String field) {
     return new ReferenceExpression(field.substring(0, field.lastIndexOf(".")), STRING);
   }
 }
