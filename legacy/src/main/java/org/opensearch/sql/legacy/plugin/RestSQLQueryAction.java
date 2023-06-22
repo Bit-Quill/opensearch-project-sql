@@ -53,8 +53,6 @@ public class RestSQLQueryAction extends BaseRestHandler {
 
   private final Injector injector;
 
-  private final String DEFAULT_FORMAT = "application/json; charset=UTF-8";
-
   /**
    * Constructor of RestSQLQueryAction.
    */
