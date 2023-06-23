@@ -14,6 +14,7 @@ import static org.opensearch.sql.data.model.ExprValueUtils.stringValue;
 import static org.opensearch.sql.data.model.ExprValueUtils.tupleValue;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
+import static org.opensearch.sql.protocol.response.format.FlatResponseFormatter.CONTENT_TYPE;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -132,7 +133,7 @@ public class CsvResponseFormatterTest {
 
   @Test
   void testContentType() {
-    assertEquals(formatter.contentType(), "plain/text; charset=UTF-8");
+    assertEquals(formatter.contentType(), CONTENT_TYPE);
   }
 
 }

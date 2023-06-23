@@ -28,7 +28,7 @@ public interface ResponseFormatter<R> {
   String format(Throwable t);
 
   /**
-   * Getter for the content type of the response.
+   * Getter for the content type header of the response.
    *
    * @return string
    */
