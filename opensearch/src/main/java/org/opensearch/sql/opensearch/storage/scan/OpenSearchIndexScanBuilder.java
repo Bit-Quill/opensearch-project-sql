@@ -5,11 +5,11 @@
 
 package org.opensearch.sql.opensearch.storage.scan;
 
+import static org.opensearch.sql.analysis.NestedAnalyzer.isNestedFunction;
+
 import java.util.function.Function;
 import lombok.EqualsAndHashCode;
-import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
-import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder;
 import org.opensearch.sql.planner.logical.LogicalAggregation;
 import org.opensearch.sql.planner.logical.LogicalFilter;
@@ -123,10 +123,7 @@ public class OpenSearchIndexScanBuilder extends TableScanBuilder {
   private boolean sortByFieldsOnly(LogicalSort sort) {
     return sort.getSortList().stream()
         .map(sortItem -> sortItem.getRight() instanceof ReferenceExpression
-        || (sortItem.getRight() instanceof FunctionExpression
-        && ((FunctionExpression)sortItem.getRight())
-            .getFunctionName().getFunctionName()
-            .equalsIgnoreCase(BuiltinFunctionName.NESTED.name())))
+        || isNestedFunction(sortItem.getRight()))
         .reduce(true, Boolean::logicalAnd);
   }
 }

@@ -7,6 +7,7 @@
 package org.opensearch.sql.opensearch.storage.script.sort;
 
 import static org.opensearch.sql.analysis.NestedAnalyzer.generatePath;
+import static org.opensearch.sql.analysis.NestedAnalyzer.isNestedFunction;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
@@ -58,9 +59,7 @@ public class SortQueryBuilder {
         return SortBuilders.scoreSort().order(sortOrderMap.get(option.getSortOrder()));
       }
       return fieldBuild((ReferenceExpression) expression, option);
-    } else if (expression instanceof FunctionExpression
-        && ((FunctionExpression)expression).getFunctionName().getFunctionName().equalsIgnoreCase(
-        BuiltinFunctionName.NESTED.name())) {
+    } else if (isNestedFunction(expression)) {
 
       validateNestedArgs((FunctionExpression) expression);
       String orderByName = ((FunctionExpression)expression).getArguments().get(0).toString();
@@ -87,7 +86,7 @@ public class SortQueryBuilder {
       );
     }
 
-    for (var arg : nestedFunc.getArguments()) {
+    for (Expression arg : nestedFunc.getArguments()) {
       if (!(arg instanceof ReferenceExpression)) {
         throw new IllegalArgumentException(
             String.format("Illegal nested field name: %s",

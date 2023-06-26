@@ -17,6 +17,8 @@ import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
+import org.opensearch.sql.expression.Expression;
+import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
@@ -107,5 +109,16 @@ public class NestedAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisCon
    */
   public static ReferenceExpression generatePath(String field) {
     return new ReferenceExpression(field.substring(0, field.lastIndexOf(".")), STRING);
+  }
+
+  /**
+   * Check if supplied expression is a nested function.
+   * @param expr Expression checking if is nested function.
+   * @return True if expression is a nested function.
+   */
+  public static Boolean isNestedFunction(Expression expr) {
+    return (expr instanceof FunctionExpression
+        && ((FunctionExpression) expr).getFunctionName().getFunctionName()
+        .equalsIgnoreCase(BuiltinFunctionName.NESTED.name()));
   }
 }
