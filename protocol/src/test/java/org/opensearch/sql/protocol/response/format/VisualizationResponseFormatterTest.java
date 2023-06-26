@@ -11,6 +11,7 @@ import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static org.opensearch.sql.data.model.ExprValueUtils.tupleValue;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
+import static org.opensearch.sql.protocol.response.format.JsonResponseFormatter.CONTENT_TYPE;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -191,6 +192,6 @@ public class VisualizationResponseFormatterTest {
   @Test
   void testContentType() {
     var formatter = new CommandResponseFormatter();
-    assertEquals(formatter.contentType(), "application/json; charset=UTF-8");
+    assertEquals(formatter.contentType(), CONTENT_TYPE);
   }
 }

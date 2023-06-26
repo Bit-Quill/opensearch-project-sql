@@ -7,6 +7,7 @@
 package org.opensearch.sql.sql;
 
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_CSV_SANITIZE;
+import static org.opensearch.sql.protocol.response.format.FlatResponseFormatter.CONTENT_TYPE;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -63,6 +64,6 @@ public class CsvFormatIT extends SQLIntegTestCase {
 
     Response response = client().performRequest(sqlRequest);
 
-    assertEquals(response.getEntity().getContentType(), "plain/text; charset=UTF-8");
+    assertEquals(response.getEntity().getContentType(), CONTENT_TYPE);
   }
 }
