@@ -16,6 +16,7 @@ import static org.opensearch.sql.util.TestUtils.getResponseBody;
 
 import java.io.IOException;
 import java.util.Locale;
+import lombok.SneakyThrows;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.opensearch.client.Request;
@@ -54,6 +55,38 @@ public class DateTimeFormatsIT extends SQLIntegTestCase {
     verifyDataRows(result,
         rows("1984-04-12 00:00:00"),
         rows("1984-04-12 09:07:42.000123456"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testCustomFormats() {
+    String query = String.format("SELECT custom_time, custom_timestamp, custom_date_or_date,"
+        + "custom_date_or_custom_time, custom_time_parser_check FROM %s", TEST_INDEX_DATE_FORMATS);
+    JSONObject result = executeQuery(query);
+    verifySchema(result,
+        schema("custom_time", null, "time"),
+        schema("custom_timestamp", null, "timestamp"),
+        schema("custom_date_or_date", null, "date"),
+        schema("custom_date_or_custom_time", null, "timestamp"),
+        schema("custom_time_parser_check", null, "time"));
+    verifyDataRows(result,
+        rows("09:07:42", "1984-04-12 09:07:42", "1984-04-12", "1961-04-12 00:00:00", "23:44:36.321"),
+        rows("21:07:42", "1984-04-12 22:07:42", "1984-04-12", "1970-01-01 09:07:00", "09:01:16.542"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testIncompleteFormats() {
+    String query = String.format("SELECT incomplete_1, incomplete_2, incorrect"
+        + " FROM %s", TEST_INDEX_DATE_FORMATS);
+    JSONObject result = executeQuery(query);
+    verifySchema(result,
+        schema("incomplete_1", null, "keyword"),
+        schema("incomplete_2", null, "keyword"),
+        schema("incorrect", null, "keyword"));
+    verifyDataRows(result,
+        rows("1984", null, null),
+        rows("2012", null, null));
   }
 
   protected JSONObject executeQuery(String query) throws IOException {

@@ -33,7 +33,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
@@ -125,14 +124,13 @@ public class OpenSearchExprValueFactory {
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Boolean),
               (c, dt) -> ExprBooleanValue.of(c.booleanValue()))
           //Handles the creation of DATE, TIME & DATETIME
-          .put(OpenSearchDateType.of(TIME),
-              this::createOpenSearchDateType)
-          .put(OpenSearchDateType.of(DATE),
-              this::createOpenSearchDateType)
-          .put(OpenSearchDateType.of(TIMESTAMP),
-              this::createOpenSearchDateType)
-          .put(OpenSearchDateType.of(DATETIME),
-              this::createOpenSearchDateType)
+          .put(OpenSearchDateType.of(TIME), this::createOpenSearchDateType)
+          .put(OpenSearchDateType.of(DATE), this::createOpenSearchDateType)
+          .put(OpenSearchDateType.of(TIMESTAMP), this::createOpenSearchDateType)
+          .put(OpenSearchDateType.of(DATETIME), this::createOpenSearchDateType)
+          // if mapping has a format which can't produce a DATE, TIME or DATETIME object,
+          // it returned as a string.
+          .put(OpenSearchDateType.of(STRING), this::createOpenSearchDateType)
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Ip),
               (c, dt) -> new OpenSearchExprIpValue(c.stringValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.GeoPoint),
@@ -329,6 +327,10 @@ public class OpenSearchExprValueFactory {
     OpenSearchDateType dt = (OpenSearchDateType) type;
     ExprType returnFormat = dt.getExprType();
 
+    if (returnFormat == STRING) {
+      // mapping has a format which can't be converted to DATE or TIME or DATETIME
+      return new ExprStringValue(value.stringValue());
+    }
     if (value.isNumber()) {
       Instant epochMillis = Instant.ofEpochMilli(value.longValue());
       if (returnFormat == TIME) {

@@ -8,6 +8,7 @@ package org.opensearch.sql.opensearch.data.value;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.sql.data.model.ExprValueUtils.booleanValue;
@@ -85,6 +86,7 @@ class OpenSearchExprValueFactoryTest {
           .put("customFormatV", OpenSearchDateType.of("yyyy-MM-dd-HH-mm-ss"))
           .put("customAndEpochMillisV",
               OpenSearchDateType.of("yyyy-MM-dd-HH-mm-ss||epoch_millis"))
+          .put("incompleteFormatV", OpenSearchDateType.of("year"))
           .put("boolV", OpenSearchDataType.of(BOOLEAN))
           .put("structV", OpenSearchDataType.of(STRUCT))
           .put("structV.id", OpenSearchDataType.of(INTEGER))
@@ -125,17 +127,17 @@ class OpenSearchExprValueFactoryTest {
   public void iterateArrayValue() throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();
     var arrayIt = new OpenSearchJsonContent(mapper.readTree("[\"zz\",\"bb\"]")).array();
-    assertTrue(arrayIt.next().stringValue().equals("zz"));
-    assertTrue(arrayIt.next().stringValue().equals("bb"));
-    assertTrue(!arrayIt.hasNext());
+    assertEquals("zz", arrayIt.next().stringValue());
+    assertEquals("bb", arrayIt.next().stringValue());
+    assertFalse(arrayIt.hasNext());
   }
 
   @Test
   public void iterateArrayValueWithOneElement() throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();
     var arrayIt = new OpenSearchJsonContent(mapper.readTree("[\"zz\"]")).array();
-    assertTrue(arrayIt.next().stringValue().equals("zz"));
-    assertTrue(!arrayIt.hasNext());
+    assertEquals("zz", arrayIt.next().stringValue());
+    assertFalse(arrayIt.hasNext());
   }
 
   @Test
@@ -307,17 +309,15 @@ class OpenSearchExprValueFactoryTest {
 
   @Test
   public void constructDatetime_fromCustomFormat() {
-    // this is not the desirable behaviour - instead if accepts the default formatter
     assertEquals(
         new ExprDatetimeValue("2015-01-01 12:10:30"),
-        constructFromObject("customFormatV", "2015-01-01 12:10:30"));
+        constructFromObject("customFormatV", "2015-01-01-12-10-30"));
 
-    // this should pass when custom formats are supported
     IllegalArgumentException exception =
         assertThrows(IllegalArgumentException.class,
-            () -> constructFromObject("customFormatV", "2015-01-01-12-10-30"));
+            () -> constructFromObject("customFormatV", "2015-01-01 12-10-30"));
     assertEquals(
-        "Construct ExprTimestampValue from \"2015-01-01-12-10-30\" failed, "
+        "Construct ExprTimestampValue from \"2015-01-01 12-10-30\" failed, "
             + "unsupported date format.",
         exception.getMessage());
 
@@ -325,14 +325,9 @@ class OpenSearchExprValueFactoryTest {
         new ExprDatetimeValue("2015-01-01 12:10:30"),
         constructFromObject("customAndEpochMillisV", "2015-01-01 12:10:30"));
 
-    // this should pass when custom formats are supported
-    exception =
-        assertThrows(IllegalArgumentException.class,
-            () -> constructFromObject("customAndEpochMillisV", "2015-01-01-12-10-30"));
     assertEquals(
-        "Construct ExprTimestampValue from \"2015-01-01-12-10-30\" failed, "
-            + "unsupported date format.",
-        exception.getMessage());
+        new ExprDatetimeValue("2015-01-01 12:10:30"),
+        constructFromObject("customAndEpochMillisV", "2015-01-01-12-10-30"));
   }
 
   @Test
@@ -387,6 +382,13 @@ class OpenSearchExprValueFactoryTest {
         "Construct ExprDateValue from \"abc\" failed, "
             + "unsupported date format.",
         exception.getMessage());
+  }
+
+  @Test
+  public void constructDateFromIncompleteFormat() {
+    assertEquals(
+        new ExprStringValue("1984"),
+        constructFromObject("incompleteFormatV", "1984"));
   }
 
   @Test

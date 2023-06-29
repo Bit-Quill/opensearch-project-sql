@@ -308,6 +308,26 @@
       "custom_date_or_date" : {
         "type" : "date",
         "format": "yyyy-MM-dd||date"
+      },
+      "custom_date_or_custom_time" : {
+        "type" : "date",
+        "format" : "yyyy-MM-dd || HH:mm:ss"
+      },
+      "custom_time_parser_check" : {
+        "type" : "date",
+        "format" : "::: k-A || A    "
+      },
+      "incomplete_1" : {
+          "type" : "date",
+          "format" : "year"
+      },
+      "incomplete_2" : {
+          "type" : "date",
+          "format" : "E-w"
+      },
+      "incorrect" : {
+          "type" : "date",
+          "format" : "___"
       }
     }
   }
