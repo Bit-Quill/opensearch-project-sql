@@ -521,32 +521,41 @@ dateTimeFunctionName
     | DATE
     | DATE_ADD
     | DATE_FORMAT
+    | TIME_FORMAT
     | DATE_SUB
     | DATEDIFF
     | DATETIME
     | DAY
+    | DAY_OF_YEAR
     | DAYNAME
     | DAYOFMONTH
+    | DAY_OF_MONTH
     | DAYOFWEEK
+    | DAY_OF_WEEK
     | DAYOFYEAR
     | CURDATE
     | CURTIME
     | FROM_DAYS
     | FROM_UNIXTIME
     | HOUR
+    | HOUR_OF_DAY
     | LOCALTIME
     | LOCALTIMESTAMP
     | MAKEDATE
     | MAKETIME
     | MICROSECOND
     | MINUTE
+    | MINUTE_OF_HOUR
+    | MINUTE_OF_DAY
     | MONTH
+    | MONTH_OF_YEAR
     | MONTHNAME
     | NOW
     | PERIOD_ADD
     | PERIOD_DIFF
     | QUARTER
     | SECOND
+    | SECOND_OF_MINUTE
     | SUBDATE
     | SUBTIME
     | SYSDATE
@@ -560,6 +569,7 @@ dateTimeFunctionName
     | UTC_TIME
     | UTC_TIMESTAMP
     | WEEK
+    | WEEK_OF_YEAR
     | YEAR
     ;
 
