@@ -775,7 +775,7 @@ Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
 Return type: INTEGER
 
-Synonyms: `DAYOFYEAR`_
+Synonyms: `DAY_OF_YEAR`_
 
 Example::
 
@@ -800,7 +800,7 @@ Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
 Return type: INTEGER
 
-Synonyms: `DAY_OF_YEAR`_
+Synonyms: `DAYOFYEAR`_
 
 Example::
 
