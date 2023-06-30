@@ -689,7 +689,7 @@ Example::
 
 
 DAY_OF_MONTH
-----------
+------------
 
 Description
 >>>>>>>>>>>
@@ -739,7 +739,7 @@ Example::
 
 
 DAY_OF_WEEK
----------
+-----------
 
 Description
 >>>>>>>>>>>
@@ -789,7 +789,7 @@ Example::
 
 
 DAY_OF_YEAR
----------
+-----------
 
 Description
 >>>>>>>>>>>
@@ -898,7 +898,7 @@ Example::
 
 
 HOUR_OF_DAY
-----
+-----------
 
 Description
 >>>>>>>>>>>
@@ -1075,7 +1075,7 @@ Example::
 
 
 MINUTE_OF_HOUR
-------
+--------------
 
 Description
 >>>>>>>>>>>
@@ -1149,7 +1149,7 @@ Example::
 
 
 MONTH_OF_YEAR
------
+-------------
 
 Description
 >>>>>>>>>>>
@@ -1315,7 +1315,7 @@ Example::
 
 
 SECOND_OF_MINUTE
-------
+----------------
 
 Description
 >>>>>>>>>>>
@@ -1822,7 +1822,7 @@ Example::
 
 
 WEEK_OF_YEAR
-----
+------------
 
 Description
 >>>>>>>>>>>

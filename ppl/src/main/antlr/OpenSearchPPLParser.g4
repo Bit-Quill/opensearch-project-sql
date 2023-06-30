@@ -515,26 +515,25 @@ dateTimeFunctionName
     : ADDDATE
     | ADDTIME
     | CONVERT_TZ
+    | CURDATE
     | CURRENT_DATE
     | CURRENT_TIME
     | CURRENT_TIMESTAMP
+    | CURTIME
     | DATE
-    | DATE_ADD
-    | DATE_FORMAT
-    | TIME_FORMAT
-    | DATE_SUB
     | DATEDIFF
     | DATETIME
+    | DATE_ADD
+    | DATE_FORMAT
+    | DATE_SUB
     | DAY
-    | DAY_OF_YEAR
     | DAYNAME
     | DAYOFMONTH
-    | DAY_OF_MONTH
     | DAYOFWEEK
-    | DAY_OF_WEEK
     | DAYOFYEAR
-    | CURDATE
-    | CURTIME
+    | DAY_OF_MONTH
+    | DAY_OF_WEEK
+    | DAY_OF_YEAR
     | FROM_DAYS
     | FROM_UNIXTIME
     | HOUR
@@ -545,11 +544,11 @@ dateTimeFunctionName
     | MAKETIME
     | MICROSECOND
     | MINUTE
-    | MINUTE_OF_HOUR
     | MINUTE_OF_DAY
+    | MINUTE_OF_HOUR
     | MONTH
-    | MONTH_OF_YEAR
     | MONTHNAME
+    | MONTH_OF_YEAR
     | NOW
     | PERIOD_ADD
     | PERIOD_DIFF
@@ -560,9 +559,10 @@ dateTimeFunctionName
     | SUBTIME
     | SYSDATE
     | TIME
-    | TIME_TO_SEC
     | TIMEDIFF
     | TIMESTAMP
+    | TIME_FORMAT
+    | TIME_TO_SEC
     | TO_DAYS
     | UNIX_TIMESTAMP
     | UTC_DATE
