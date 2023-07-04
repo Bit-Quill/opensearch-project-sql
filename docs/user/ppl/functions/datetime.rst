@@ -1136,7 +1136,6 @@ Return type: INTEGER
 
 Synonyms: `MONTH_OF_YEAR`_
 
-
 Example::
 
     os> source=people | eval `MONTH(DATE('2020-08-26'))` =  MONTH(DATE('2020-08-26')) | fields `MONTH(DATE('2020-08-26'))`
