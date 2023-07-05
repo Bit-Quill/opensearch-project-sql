@@ -534,10 +534,13 @@ dateTimeFunctionName
     | DAY_OF_MONTH
     | DAY_OF_WEEK
     | DAY_OF_YEAR
+    | EXTRACT
     | FROM_DAYS
     | FROM_UNIXTIME
+    | GET_FORMAT
     | HOUR
     | HOUR_OF_DAY
+    | LAST_DAY
     | LOCALTIME
     | LOCALTIMESTAMP
     | MAKEDATE
@@ -555,22 +558,29 @@ dateTimeFunctionName
     | QUARTER
     | SECOND
     | SECOND_OF_MINUTE
+    | SEC_TO_TIME
+    | STR_TO_DATE
     | SUBDATE
     | SUBTIME
     | SYSDATE
     | TIME
     | TIMEDIFF
     | TIMESTAMP
+    | TIMESTAMPADD
+    | TIMESTAMPDIFF
     | TIME_FORMAT
     | TIME_TO_SEC
     | TO_DAYS
+    | TO_SECONDS
     | UNIX_TIMESTAMP
     | UTC_DATE
     | UTC_TIME
     | UTC_TIMESTAMP
     | WEEK
+    | WEEKDAY
     | WEEK_OF_YEAR
     | YEAR
+    | YEARWEEK
     ;
 
 /** condition function return boolean value */
