@@ -45,6 +45,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.opensearch.common.time.DateFormatter;
 import org.opensearch.common.time.DateFormatters;
+import org.opensearch.common.time.FormatNames;
 import org.opensearch.sql.data.model.ExprBooleanValue;
 import org.opensearch.sql.data.model.ExprByteValue;
 import org.opensearch.sql.data.model.ExprCollectionValue;
@@ -82,7 +83,7 @@ public class OpenSearchExprValueFactory {
 
   /**
    * Extend existing mapping by new data without overwrite.
-   * Called from aggregation only {@link AggregationQueryBuilder#buildTypeMapping}.
+   * Called from aggregation only {@see AggregationQueryBuilder#buildTypeMapping}.
    * @param typeMapping A data type mapping produced by aggregation.
    */
   public void extendTypeMapping(Map<String, OpenSearchDataType> typeMapping) {
@@ -128,9 +129,6 @@ public class OpenSearchExprValueFactory {
           .put(OpenSearchDateType.of(DATE), this::createOpenSearchDateType)
           .put(OpenSearchDateType.of(TIMESTAMP), this::createOpenSearchDateType)
           .put(OpenSearchDateType.of(DATETIME), this::createOpenSearchDateType)
-          // if mapping has a format which can't produce a DATE, TIME or DATETIME object,
-          // it returned as a string.
-          .put(OpenSearchDateType.of(STRING), this::createOpenSearchDateType)
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.Ip),
               (c, dt) -> new OpenSearchExprIpValue(c.stringValue()))
           .put(OpenSearchDataType.of(OpenSearchDataType.MappingType.GeoPoint),
@@ -232,7 +230,7 @@ public class OpenSearchExprValueFactory {
         TemporalAccessor accessor = formatter.parse(value);
         ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
         // remove the Zone
-        parsed = zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toInstant();
+        parsed = zonedDateTime.withZoneSameLocal(UTC_ZONE_ID).toInstant();
         return new ExprTimestampValue(parsed);
       } catch (IllegalArgumentException ignored) {
         // nothing to do, try another format
@@ -270,7 +268,7 @@ public class OpenSearchExprValueFactory {
         TemporalAccessor accessor = formatter.parse(value);
         ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
         return new ExprTimeValue(
-            zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toLocalTime());
+            zonedDateTime.withZoneSameLocal(UTC_ZONE_ID).toLocalTime());
       } catch (IllegalArgumentException  ignored) {
         // nothing to do, try another format
       }
@@ -305,7 +303,7 @@ public class OpenSearchExprValueFactory {
         ZonedDateTime zonedDateTime = DateFormatters.from(accessor);
         // return the first matching formatter as a date without timezone
         return new ExprDateValue(
-            zonedDateTime.withZoneSameLocal(ZoneId.of("Z")).toLocalDate());
+            zonedDateTime.withZoneSameLocal(UTC_ZONE_ID).toLocalDate());
       } catch (IllegalArgumentException  ignored) {
         // nothing to do, try another format
       }
@@ -327,19 +325,28 @@ public class OpenSearchExprValueFactory {
     OpenSearchDateType dt = (OpenSearchDateType) type;
     ExprType returnFormat = dt.getExprType();
 
-    if (returnFormat == STRING) {
-      // mapping has a format which can't be converted to DATE or TIME or DATETIME
-      return new ExprStringValue(value.stringValue());
-    }
     if (value.isNumber()) {
-      Instant epochMillis = Instant.ofEpochMilli(value.longValue());
-      if (returnFormat == TIME) {
-        return new ExprTimeValue(LocalTime.from(epochMillis.atZone(UTC_ZONE_ID)));
+      var numFormatters = dt.getNumericNamedFormatters();
+      if (numFormatters.size() > 0) {
+        long epochMillis = 0;
+        if (numFormatters.contains(DateFormatter.forPattern(
+            FormatNames.EPOCH_MILLIS.getSnakeCaseName()))) {
+          // no CamelCase for `EPOCH_*` formats
+          epochMillis = value.longValue();
+        } else /* EPOCH_SECOND */ {
+          epochMillis = value.longValue() * 1000;
+        }
+        Instant instant = Instant.ofEpochMilli(epochMillis);
+        if (returnFormat == TIME) {
+          return new ExprTimeValue(LocalTime.from(instant.atZone(UTC_ZONE_ID)));
+        }
+        if (returnFormat == DATE) {
+          return new ExprDateValue(LocalDate.ofInstant(instant, UTC_ZONE_ID));
+        }
+        return new ExprTimestampValue(instant);
+      } else {
+        return parseTimestampString(value.stringValue(), dt);
       }
-      if (returnFormat == DATE) {
-        return new ExprDateValue(LocalDate.ofInstant(epochMillis, UTC_ZONE_ID));
-      }
-      return new ExprTimestampValue(Instant.ofEpochMilli(value.longValue()));
     }
 
     if (value.isString()) {

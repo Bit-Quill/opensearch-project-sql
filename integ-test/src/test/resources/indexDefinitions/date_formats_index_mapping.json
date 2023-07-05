@@ -325,9 +325,37 @@
           "type" : "date",
           "format" : "E-w"
       },
+      "incomplete_custom_date" : {
+          "type" : "date",
+          "format" : "uuuu"
+      },
+      "incomplete_custom_time" : {
+          "type" : "date",
+          "format" : "HH"
+      },
       "incorrect" : {
           "type" : "date",
-          "format" : "___"
+          "format" : "'___'"
+      },
+      "epoch_sec" : {
+          "type" : "date",
+          "format" : "epoch_second"
+      },
+      "epoch_milli" : {
+          "type" : "date",
+          "format" : "epoch_millis"
+      },
+      "custom_no_delimiter_date" : {
+          "type" : "date",
+          "format" : "uuuuMMdd"
+      },
+      "custom_no_delimiter_time" : {
+          "type" : "date",
+          "format" : "HHmmss"
+      },
+      "custom_no_delimiter_ts" : {
+          "type" : "date",
+          "format" : "uuuuMMddHHmmss"
       }
     }
   }

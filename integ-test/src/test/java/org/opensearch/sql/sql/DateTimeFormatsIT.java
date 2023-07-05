@@ -76,17 +76,46 @@ public class DateTimeFormatsIT extends SQLIntegTestCase {
 
   @Test
   @SneakyThrows
+  public void testCustomFormats2() {
+    String query = String.format("SELECT custom_no_delimiter_date, custom_no_delimiter_time,"
+        + "custom_no_delimiter_ts FROM %s", TEST_INDEX_DATE_FORMATS);
+    JSONObject result = executeQuery(query);
+    verifySchema(result,
+        schema("custom_no_delimiter_date", null, "date"),
+        schema("custom_no_delimiter_time", null, "time"),
+        schema("custom_no_delimiter_ts", null, "timestamp"));
+    verifyDataRows(result,
+        rows("1984-10-20", "10:20:30", "1984-10-20 15:35:48"),
+        rows("1961-04-12", "09:07:00", "1961-04-12 09:07:00"));
+  }
+
+  @Test
+  @SneakyThrows
   public void testIncompleteFormats() {
     String query = String.format("SELECT incomplete_1, incomplete_2, incorrect"
         + " FROM %s", TEST_INDEX_DATE_FORMATS);
     JSONObject result = executeQuery(query);
     verifySchema(result,
-        schema("incomplete_1", null, "keyword"),
-        schema("incomplete_2", null, "keyword"),
-        schema("incorrect", null, "keyword"));
+        schema("incomplete_1", null, "timestamp"),
+        schema("incomplete_2", null, "timestamp"),
+        schema("incorrect", null, "timestamp"));
     verifyDataRows(result,
-        rows("1984", null, null),
-        rows("2012", null, null));
+        rows("1984-01-01 00:00:00", null, null),
+        rows("2012-01-01 00:00:00", null, null));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testNumericFormats() {
+    String query = String.format("SELECT epoch_sec, epoch_milli"
+        + " FROM %s", TEST_INDEX_DATE_FORMATS);
+    JSONObject result = executeQuery(query);
+    verifySchema(result,
+        schema("epoch_sec", null, "timestamp"),
+        schema("epoch_milli", null, "timestamp"));
+    verifyDataRows(result,
+        rows("1970-01-01 00:00:42", "1970-01-01 00:00:00.042"),
+        rows("1970-01-02 03:55:00", "1970-01-01 00:01:40.5"));
   }
 
   protected JSONObject executeQuery(String query) throws IOException {

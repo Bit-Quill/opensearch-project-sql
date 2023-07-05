@@ -8,10 +8,8 @@ package org.opensearch.sql.opensearch.data.type;
 import static org.opensearch.common.time.DateFormatter.splitCombinedPatterns;
 import static org.opensearch.common.time.DateFormatter.strip8Prefix;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
-import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
-import static org.opensearch.sql.data.type.ExprCoreType.UNDEFINED;
 
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAccessor;
@@ -301,7 +299,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
     }
 
     // Incomplete formats: can't be converted to DATE nor TIME, for example `year` (year only)
-    return STRING;
+    return TIMESTAMP;
   }
 
   private ExprCoreType getExprTypeFromFormatString(String formatString) {
@@ -344,7 +342,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
     }
 
     // Unknown or incorrect format provided
-    return STRING;
+    return TIMESTAMP;
   }
 
   /**
