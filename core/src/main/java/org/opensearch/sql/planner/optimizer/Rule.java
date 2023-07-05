@@ -25,7 +25,7 @@ public interface Rule<T> {
    * Apply the Rule to the LogicalPlan.
    * @param plan LogicalPlan which match the Pattern.
    * @param captures A list of LogicalPlan which are captured by the Pattern.
-   * @return the transfromed LogicalPlan.
+   * @return the transformed LogicalPlan.
    */
   LogicalPlan apply(T plan, Captures captures);
 }

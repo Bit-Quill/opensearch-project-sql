@@ -13,9 +13,14 @@ import com.facebook.presto.matching.Match;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.optimizer.rule.MergeFilterAndFilter;
 import org.opensearch.sql.planner.optimizer.rule.PushFilterUnderSort;
@@ -30,74 +35,48 @@ import org.opensearch.sql.planner.optimizer.rule.write.CreateTableWriteBuilder;
  * 2> Optimize the all the child nodes with all the rules.
  * 3) In case the child node could change, Optimize the current node again.
  */
+@RequiredArgsConstructor
 public class LogicalPlanOptimizer {
 
-  private final List<Rule<LogicalPlan>> rules;
-
-  /**
-   * Create {@link LogicalPlanOptimizer} with customized rules.
-   */
-  public LogicalPlanOptimizer(List<Rule<LogicalPlan>> rules) {
-    this.rules = rules;
-  }
+  private final List<Pair<Rule<? extends LogicalPlan>, Boolean>> rules;
 
   /**
    * Create {@link LogicalPlanOptimizer} with pre-defined rules.
    */
   public static LogicalPlanOptimizer create() {
-    return new LogicalPlanOptimizer(Stream.of(
-        /*
-         * Phase 1: Transformations that rely on relational algebra equivalence
-         */
-        new MergeFilterAndFilter(),
-        new PushFilterUnderSort(),
-        /*
-         * Phase 2: Transformations that rely on data source push down capability
-         */
-        new CreateTableScanBuilder(),
-        new PushDownPageSize(),
-        TableScanPushDown.PUSH_DOWN_FILTER,
-        TableScanPushDown.PUSH_DOWN_AGGREGATION,
-        TableScanPushDown.PUSH_DOWN_SORT,
-        TableScanPushDown.PUSH_DOWN_LIMIT,
-        TableScanPushDown.PUSH_DOWN_HIGHLIGHT,
-        TableScanPushDown.PUSH_DOWN_NESTED,
-        TableScanPushDown.PUSH_DOWN_PROJECT,
-        new CreateTableWriteBuilder())
-            .map(r -> (Rule<LogicalPlan>)r).collect(Collectors.toList()));
+    // Boolean parameter - whether rule can be applied more than once.
+    // TODO make it ^ a part of `Rule` interface?
+    // Known restrictions:
+    // 1) Highlight before Project
+    // 2) Limit the last
+    return new LogicalPlanOptimizer(
+        new ImmutableList.Builder<Pair<Rule<? extends LogicalPlan>, Boolean>>()
+            /*
+             * Phase 1: Transformations that rely on relational algebra equivalence
+             */
+            .add(Pair.of(new MergeFilterAndFilter(), true))
+            .add(Pair.of(new PushFilterUnderSort(), true))
+            /*
+             * Phase 2: Transformations that rely on data source push down capability
+             */
+            .add(Pair.of(new CreateTableScanBuilder(), false))
+            .add(Pair.of(new PushDownPageSize(), false))
+            .add(Pair.of(TableScanPushDown.PUSH_DOWN_FILTER, true))
+            .add(Pair.of(TableScanPushDown.PUSH_DOWN_AGGREGATION, false))
+            .add(Pair.of(TableScanPushDown.PUSH_DOWN_SORT, false))
+            .add(Pair.of(TableScanPushDown.PUSH_DOWN_HIGHLIGHT, true))
+            .add(Pair.of(TableScanPushDown.PUSH_DOWN_NESTED, false))
+            .add(Pair.of(TableScanPushDown.PUSH_DOWN_PROJECT, false))
+            .add(Pair.of(TableScanPushDown.PUSH_DOWN_LIMIT, false))
+            .add(Pair.of(new CreateTableWriteBuilder(), false))
+            .build()
+    );
   }
 
   /**
    * Optimize {@link LogicalPlan}.
    */
   public LogicalPlan optimize(LogicalPlan plan) {
-    var node = plan;
-    for (Rule<LogicalPlan> rule : rules) {
-      node = traverseAndOptimize(node, rule);
-    }
-    return node;
-  }
-
-  private LogicalPlan traverseAndOptimize(LogicalPlan plan, Rule<LogicalPlan> rule) {
-    LogicalPlan optimized = internalOptimize(plan, rule);
-    optimized.replaceChildPlans(
-            optimized.getChild().stream().map(p -> traverseAndOptimize(p, rule))
-        .collect(Collectors.toList()));
-    return internalOptimize(optimized, rule);
-  }
-
-  private LogicalPlan internalOptimize(LogicalPlan plan, Rule<LogicalPlan> rule) {
-    LogicalPlan node = plan;
-
-    Match<LogicalPlan> match = DEFAULT_MATCHER.match(rule.pattern(), node);
-    if (match.isPresent()) {
-      node = rule.apply(match.value(), match.captures());
-
-      // For new TableScanPushDown impl, pattern match doesn't necessarily cause
-      // push down to happen. So reiterate all rules against the node only if the node
-      // is actually replaced by any rule.
-      // TODO: may need to introduce fixed point or maximum iteration limit in future
-    }
-    return node;
+    return new LogicalPlanOptimizerVisitor(rules).optimize(plan);
   }
 }

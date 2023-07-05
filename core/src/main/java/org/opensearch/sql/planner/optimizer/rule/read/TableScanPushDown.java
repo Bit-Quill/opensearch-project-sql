@@ -36,46 +36,46 @@ import org.opensearch.sql.storage.read.TableScanBuilder;
 public class TableScanPushDown<T extends LogicalPlan> implements Rule<T> {
 
   /** Push down optimize rule for filtering condition. */
-  public static final Rule<?> PUSH_DOWN_FILTER =
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_FILTER =
       match(
           filter(
               scanBuilder()))
       .apply((filter, scanBuilder) -> scanBuilder.pushDownFilter(filter));
 
   /** Push down optimize rule for aggregate operator. */
-  public static final Rule<?> PUSH_DOWN_AGGREGATION =
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_AGGREGATION =
       match(
           aggregate(
               scanBuilder()))
       .apply((agg, scanBuilder) -> scanBuilder.pushDownAggregation(agg));
 
   /** Push down optimize rule for sort operator. */
-  public static final Rule<?> PUSH_DOWN_SORT =
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_SORT =
       match(
           sort(
               scanBuilder()))
       .apply((sort, scanBuilder) -> scanBuilder.pushDownSort(sort));
 
   /** Push down optimize rule for limit operator. */
-  public static final Rule<?> PUSH_DOWN_LIMIT =
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_LIMIT =
       match(
           limit(
               scanBuilder()))
       .apply((limit, scanBuilder) -> scanBuilder.pushDownLimit(limit));
 
-  public static final Rule<?> PUSH_DOWN_PROJECT =
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_PROJECT =
       match(
           project(
               scanBuilder()))
       .apply((project, scanBuilder) -> scanBuilder.pushDownProject(project));
 
-  public static final Rule<?> PUSH_DOWN_HIGHLIGHT =
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_HIGHLIGHT =
       match(
           highlight(
               scanBuilder()))
           .apply((highlight, scanBuilder) -> scanBuilder.pushDownHighlight(highlight));
 
-  public static final Rule<?> PUSH_DOWN_NESTED =
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_NESTED =
       match(
           nested(
               scanBuilder()))
@@ -102,6 +102,11 @@ public class TableScanPushDown<T extends LogicalPlan> implements Rule<T> {
   @Override
   public Pattern<T> pattern() {
     return pattern;
+  }
+
+  @Override
+  public String toString() {
+    return pattern.toString().split("\n")[0];
   }
 
   @Override
