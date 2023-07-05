@@ -87,6 +87,10 @@ public class DSL {
     return new ReferenceExpression(ref, type);
   }
 
+  public static IndexedReferenceExpression indexedRef(String ref, ExprType type, int index) {
+    return new IndexedReferenceExpression(ref, type, index);
+  }
+
   /**
    * Wrap a named expression if not yet. The intent is that different languages may use
    * Alias or not when building AST. This caused either named or unnamed expression

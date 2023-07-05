@@ -303,6 +303,7 @@ expressions
 expressionAtom
     : constant                                                      #constantExpressionAtom
     | columnName                                                    #fullColumnNameExpressionAtom
+    | arrayColumnName                                               #arrayColumnNameExpressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | LR_BRACKET expression RR_BRACKET                              #nestedExpressionAtom
     | left=expressionAtom
@@ -812,6 +813,10 @@ tableName
 
 columnName
     : qualifiedName
+    ;
+
+arrayColumnName
+    : qualifiedName LT_SQR_PRTHS decimalLiteral RT_SQR_PRTHS
     ;
 
 allTupleFields

@@ -82,6 +82,7 @@ import org.opensearch.sql.ast.dsl.AstDSL;
 import org.opensearch.sql.ast.expression.AggregateFunction;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.And;
+import org.opensearch.sql.ast.expression.ArrayQualifiedName;
 import org.opensearch.sql.ast.expression.Case;
 import org.opensearch.sql.ast.expression.Cast;
 import org.opensearch.sql.ast.expression.DataType;
@@ -103,9 +104,9 @@ import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.tree.Sort.SortOption;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
-import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.AlternateMultiMatchQueryContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.AndExpressionContext;
+import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.ArrayColumnNameContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.ColumnNameContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.IdentContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.IntervalLiteralContext;
@@ -127,6 +128,13 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitColumnName(ColumnNameContext ctx) {
     return visit(ctx.qualifiedName());
+  }
+
+  @Override
+  public UnresolvedExpression visitArrayColumnName(ArrayColumnNameContext ctx) {
+    UnresolvedExpression qualifiedName = visit(ctx.qualifiedName());
+    return new ArrayQualifiedName(
+        qualifiedName.toString(), Integer.parseInt(ctx.decimalLiteral().getText()));
   }
 
   @Override

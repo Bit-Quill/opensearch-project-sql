@@ -25,6 +25,7 @@ import org.opensearch.sql.ast.AbstractNodeVisitor;
 import org.opensearch.sql.ast.expression.AggregateFunction;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.And;
+import org.opensearch.sql.ast.expression.ArrayQualifiedName;
 import org.opensearch.sql.ast.expression.Between;
 import org.opensearch.sql.ast.expression.Case;
 import org.opensearch.sql.ast.expression.Cast;
@@ -57,6 +58,7 @@ import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.HighlightExpression;
+import org.opensearch.sql.expression.IndexedReferenceExpression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.NamedArgumentExpression;
 import org.opensearch.sql.expression.NamedExpression;
@@ -368,8 +370,28 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   public Expression visitQualifiedName(QualifiedName node, AnalysisContext context) {
     QualifierAnalyzer qualifierAnalyzer = new QualifierAnalyzer(context);
 
-    // check for reserved words in the identifier
-    for (String part : node.getParts()) {
+    Expression reserved = checkForReservedIdentifier(node.getParts(), context, qualifierAnalyzer, node);
+    if (reserved != null) {
+      return reserved;
+    }
+
+    return visitIdentifier(qualifierAnalyzer.unqualified(node), context);
+  }
+
+  @Override
+  public Expression visitArrayQualifiedName(ArrayQualifiedName node, AnalysisContext context) {
+    QualifierAnalyzer qualifierAnalyzer = new QualifierAnalyzer(context);
+
+    Expression reserved = checkForReservedIdentifier(node.getParts(), context, qualifierAnalyzer, node);
+    if (reserved != null) {
+      return reserved;
+    }
+
+    return visitIndexedIdentifier(qualifierAnalyzer.unqualified(node), context, node.getIndex());
+  }
+
+  private Expression checkForReservedIdentifier(List<String> parts, AnalysisContext context, QualifierAnalyzer qualifierAnalyzer, QualifiedName node) {
+    for (String part : parts) {
       for (TypeEnvironment typeEnv = context.peek();
            typeEnv != null;
            typeEnv = typeEnv.getParent()) {
@@ -384,7 +406,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
         }
       }
     }
-    return visitIdentifier(qualifierAnalyzer.unqualified(node), context);
+    return null;
   }
 
   @Override
@@ -422,8 +444,27 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     }
 
     TypeEnvironment typeEnv = context.peek();
+    var type = typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident));
     ReferenceExpression ref = DSL.ref(ident,
-        typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident)));
+            typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident)));
+
+    if (type.equals(ExprCoreType.ARRAY)) {
+      return new IndexedReferenceExpression(ref);
+    }
+    return ref;
+  }
+
+  private Expression visitIndexedIdentifier(String ident, AnalysisContext context, int index) {
+    // ParseExpression will always override ReferenceExpression when ident conflicts
+    for (NamedExpression expr : context.getNamedParseExpressions()) {
+      if (expr.getNameOrAlias().equals(ident) && expr.getDelegated() instanceof ParseExpression) {
+        return expr.getDelegated();
+      }
+    }
+
+    TypeEnvironment typeEnv = context.peek();
+    IndexedReferenceExpression ref = DSL.indexedRef(ident,
+        typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident)), index);
 
     return ref;
   }
