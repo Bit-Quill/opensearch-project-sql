@@ -816,7 +816,8 @@ columnName
     ;
 
 arrayColumnName
-    : qualifiedName LT_SQR_PRTHS decimalLiteral RT_SQR_PRTHS
+    : qualifiedName LT_SQR_PRTHS COLON_SYMB RT_SQR_PRTHS
+    | qualifiedName LT_SQR_PRTHS decimalLiteral RT_SQR_PRTHS
     ;
 
 allTupleFields

@@ -16,26 +16,34 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.env.Environment;
 
 @EqualsAndHashCode
-public class IndexedReferenceExpression extends ReferenceExpression {
+public class ArrayReferenceExpression extends ReferenceExpression {
   @Getter
   private final OptionalInt index;
   @Getter
   private final ExprType type;
   @Getter
   private final List<String> paths;
-  public IndexedReferenceExpression(String ref, ExprType type, int index) {
+  public ArrayReferenceExpression(String ref, ExprType type, int index) {
     super(ref, type);
     this.index = OptionalInt.of(index);
     this.type = type;
     this.paths = Arrays.asList(ref.split("\\."));
   }
 
-  public IndexedReferenceExpression(ReferenceExpression ref) {
+  public ArrayReferenceExpression(String ref, ExprType type) {
+    super(ref, type);
+    this.index = OptionalInt.empty();
+    this.type = type;
+    this.paths = Arrays.asList(ref.split("\\."));
+  }
+
+  public ArrayReferenceExpression(ReferenceExpression ref) {
     super(ref.toString(), ref.type());
     this.index = OptionalInt.empty();
     this.type = ref.type();
@@ -54,7 +62,7 @@ public class IndexedReferenceExpression extends ReferenceExpression {
 
   @Override
   public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
-    return visitor.visitIndexedReference(this, context);
+    return visitor.visitArrayReference(this, context);
   }
 
   public ExprValue resolve(ExprTupleValue value) {
@@ -63,9 +71,11 @@ public class IndexedReferenceExpression extends ReferenceExpression {
 
   private ExprValue resolve(ExprValue value, List<String> paths) {
     ExprValue wholePathValue = value.keyValue(String.join(PATH_SEP, paths));
-    // For array types only first index currently supported.
-    if (!index.isEmpty() && wholePathValue.type().equals(ExprCoreType.ARRAY)) {
-      wholePathValue = wholePathValue.collectionValue().get(index.getAsInt());
+
+    if (!index.isEmpty()) {
+      wholePathValue = getIndexValueOfCollection(wholePathValue);
+    } else if (paths.size() == 1 && !wholePathValue.type().equals(ExprCoreType.ARRAY)) {
+      wholePathValue = ExprValueUtils.missingValue();
     }
 
     if (!wholePathValue.isMissing() || paths.size() == 1) {
@@ -73,5 +83,17 @@ public class IndexedReferenceExpression extends ReferenceExpression {
     } else {
       return resolve(value.keyValue(paths.get(0)), paths.subList(1, paths.size()));
     }
+  }
+
+  private ExprValue getIndexValueOfCollection(ExprValue value) {
+    ExprValue collectionVal = value;
+    for (OptionalInt blah : List.of(index)) {
+      if (collectionVal.type().equals(ExprCoreType.ARRAY)) {
+        collectionVal = collectionVal.collectionValue().get(blah.getAsInt());
+      } else {
+        return ExprValueUtils.missingValue();
+      }
+    }
+    return collectionVal;
   }
 }

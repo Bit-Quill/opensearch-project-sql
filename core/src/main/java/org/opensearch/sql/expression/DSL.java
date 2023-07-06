@@ -87,8 +87,12 @@ public class DSL {
     return new ReferenceExpression(ref, type);
   }
 
-  public static IndexedReferenceExpression indexedRef(String ref, ExprType type, int index) {
-    return new IndexedReferenceExpression(ref, type, index);
+  public static ArrayReferenceExpression indexedRef(String ref, ExprType type, int index) {
+    return new ArrayReferenceExpression(ref, type, index);
+  }
+
+  public static ArrayReferenceExpression indexedRef(String ref, ExprType type) {
+    return new ArrayReferenceExpression(ref, type);
   }
 
   /**

@@ -27,7 +27,7 @@ import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.IndexedReferenceExpression;
+import org.opensearch.sql.expression.ArrayReferenceExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 
@@ -112,7 +112,7 @@ public class SelectExpressionAnalyzer
           ReferenceExpression ref = new ReferenceExpression(entry.getKey(), entry.getValue());
           if (entry.getValue().equals(ExprCoreType.ARRAY)) {
             return DSL.named(entry.getKey(),
-                new IndexedReferenceExpression(ref));
+                new ArrayReferenceExpression(ref));
           } else {
             return DSL.named(entry.getKey(), ref);
           }

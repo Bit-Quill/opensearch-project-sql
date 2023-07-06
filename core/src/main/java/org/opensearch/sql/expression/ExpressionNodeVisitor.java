@@ -64,7 +64,7 @@ public abstract class ExpressionNodeVisitor<T, C> {
     return visitNode(node, context);
   }
 
-  public T visitIndexedReference(IndexedReferenceExpression node, C context) {
+  public T visitArrayReference(ArrayReferenceExpression node, C context) {
     return visitNode(node, context);
   }
 

@@ -11,15 +11,22 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
 
+import java.util.OptionalInt;
+
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class ArrayQualifiedName extends QualifiedName {
 
-  private int index;
+  private final OptionalInt index;
 
   public ArrayQualifiedName(String name, int index) {
     super(name);
-    this.index = index;
+    this.index = OptionalInt.of(index);
+  }
+
+  public ArrayQualifiedName(String name) {
+    super(name);
+    this.index = OptionalInt.empty();
   }
 
   @Override

@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.opensearch.sql.analysis.symbol.Namespace;
@@ -50,7 +51,6 @@ import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.expression.When;
 import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.expression.Xor;
-import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
@@ -58,7 +58,7 @@ import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.HighlightExpression;
-import org.opensearch.sql.expression.IndexedReferenceExpression;
+import org.opensearch.sql.expression.ArrayReferenceExpression;
 import org.opensearch.sql.expression.LiteralExpression;
 import org.opensearch.sql.expression.NamedArgumentExpression;
 import org.opensearch.sql.expression.NamedExpression;
@@ -387,7 +387,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
       return reserved;
     }
 
-    return visitIndexedIdentifier(qualifierAnalyzer.unqualified(node), context, node.getIndex());
+    return visitArrayIdentifier(qualifierAnalyzer.unqualified(node), context, node.getIndex());
   }
 
   private Expression checkForReservedIdentifier(List<String> parts, AnalysisContext context, QualifierAnalyzer qualifierAnalyzer, QualifiedName node) {
@@ -449,12 +449,12 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
             typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident)));
 
     if (type.equals(ExprCoreType.ARRAY)) {
-      return new IndexedReferenceExpression(ref);
+      return new ArrayReferenceExpression(ref);
     }
     return ref;
   }
 
-  private Expression visitIndexedIdentifier(String ident, AnalysisContext context, int index) {
+  private Expression visitArrayIdentifier(String ident, AnalysisContext context, OptionalInt index) {
     // ParseExpression will always override ReferenceExpression when ident conflicts
     for (NamedExpression expr : context.getNamedParseExpressions()) {
       if (expr.getNameOrAlias().equals(ident) && expr.getDelegated() instanceof ParseExpression) {
@@ -463,8 +463,12 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     }
 
     TypeEnvironment typeEnv = context.peek();
-    IndexedReferenceExpression ref = DSL.indexedRef(ident,
-        typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident)), index);
+    ArrayReferenceExpression ref = index.isEmpty() ?
+        DSL.indexedRef(ident,
+        typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident)))
+        :
+        DSL.indexedRef(ident,
+            typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident)), index.getAsInt());
 
     return ref;
   }

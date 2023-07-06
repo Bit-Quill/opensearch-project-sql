@@ -19,7 +19,7 @@ import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.ExpressionNodeVisitor;
 import org.opensearch.sql.expression.FunctionExpression;
-import org.opensearch.sql.expression.IndexedReferenceExpression;
+import org.opensearch.sql.expression.ArrayReferenceExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.function.OpenSearchFunctions;
@@ -158,7 +158,7 @@ class OpenSearchIndexScanQueryBuilder implements PushDownQueryBuilder {
         return results.add(node);
       }
       @Override
-      public Object visitIndexedReference(IndexedReferenceExpression node, Object context) {
+      public Object visitArrayReference(ArrayReferenceExpression node, Object context) {
         return results.add(node);
       }
     }, null);

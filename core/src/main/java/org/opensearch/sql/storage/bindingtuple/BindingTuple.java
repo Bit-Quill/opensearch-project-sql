@@ -10,7 +10,7 @@ import org.opensearch.sql.data.model.ExprMissingValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.IndexedReferenceExpression;
+import org.opensearch.sql.expression.ArrayReferenceExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.env.Environment;
 
@@ -31,8 +31,8 @@ public abstract class BindingTuple implements Environment<Expression, ExprValue>
    */
   @Override
   public ExprValue resolve(Expression var) {
-    if (var instanceof IndexedReferenceExpression) {
-      return resolve(((IndexedReferenceExpression) var));
+    if (var instanceof ArrayReferenceExpression) {
+      return resolve(((ArrayReferenceExpression) var));
     } else if (var instanceof ReferenceExpression) {
       return resolve(((ReferenceExpression) var));
     } else {

@@ -133,8 +133,12 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitArrayColumnName(ArrayColumnNameContext ctx) {
     UnresolvedExpression qualifiedName = visit(ctx.qualifiedName());
-    return new ArrayQualifiedName(
-        qualifiedName.toString(), Integer.parseInt(ctx.decimalLiteral().getText()));
+    if (ctx.decimalLiteral() == null) {
+      return new ArrayQualifiedName(qualifiedName.toString());
+    } else {
+      return new ArrayQualifiedName(
+          qualifiedName.toString(), Integer.parseInt(ctx.decimalLiteral().getText()));
+    }
   }
 
   @Override
