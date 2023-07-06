@@ -24,7 +24,7 @@ import org.opensearch.sql.expression.env.Environment;
 @EqualsAndHashCode
 public class ArrayReferenceExpression extends ReferenceExpression {
   @Getter
-  private final OptionalInt index;
+  private final OptionalInt index; // Should be a list of indexes to support multiple nesting levels
   @Getter
   private final ExprType type;
   @Getter
@@ -87,9 +87,9 @@ public class ArrayReferenceExpression extends ReferenceExpression {
 
   private ExprValue getIndexValueOfCollection(ExprValue value) {
     ExprValue collectionVal = value;
-    for (OptionalInt blah : List.of(index)) {
+    for (OptionalInt currentIndex : List.of(index)) {
       if (collectionVal.type().equals(ExprCoreType.ARRAY)) {
-        collectionVal = collectionVal.collectionValue().get(blah.getAsInt());
+        collectionVal = collectionVal.collectionValue().get(currentIndex.getAsInt());
       } else {
         return ExprValueUtils.missingValue();
       }
