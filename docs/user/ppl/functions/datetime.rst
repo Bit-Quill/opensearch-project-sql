@@ -876,7 +876,7 @@ Return type: LONG
 
 Example::
 
-    os> source=people | eval `extract(YEAR_MONTH FROM "2023-02-07 10:11:12")` = extract(YEAR_MONTH FROM "2023-02-07 10:11:12") | fields `extract(YEAR_MONTH FROM "2023-02-07 10:11:12")`
+    os> source=people | eval `extract('YEAR_MONTH', "2023-02-07 10:11:12")` = extract('YEAR_MONTH', "2023-02-07 10:11:12") | fields `extract('YEAR_MONTH', "2023-02-07 10:11:12")`
     fetched rows / total rows = 1/1
     +--------------------------------------------------+
     | extract(YEAR_MONTH FROM "2023-02-07 10:11:12")   |
@@ -958,7 +958,7 @@ STRING must be one of the following tokens: ["USA", "JIS", "ISO", "EUR", "INTERN
 
 Examples::
 
-    os> source=people | eval 'GET_FORMAT(DATE, 'USA')' = GET_FORMAT(DATE, 'USA') | fields `GET_FORMAT(DATE, 'USA')`
+    os> source=people | eval `GET_FORMAT('DATE', 'USA')` = GET_FORMAT('DATE', 'USA') | fields `GET_FORMAT('DATE', 'USA')`
     fetched rows / total rows = 1/1
     +---------------------------+
     | GET_FORMAT(DATE, 'USA')   |
@@ -1818,7 +1818,7 @@ INTERVAL must be one of the following tokens: [MICROSECOND, SECOND, MINUTE, HOUR
 
 Examples::
 
-    os> source=people | eval `TIMESTAMPADD(DAY, 17, '2000-01-01 00:00:00')` = TIMESTAMPADD(DAY, 17, '2000-01-01 00:00:00') | eval `TIMESTAMPADD(QUARTER, -1, '2000-01-01 00:00:00')` = TIMESTAMPADD(QUARTER, -1, '2000-01-01 00:00:00') | fields `TIMESTAMPADD(DAY, 17, '2000-01-01 00:00:00')`, `TIMESTAMPADD(QUARTER, -1, '2000-01-01 00:00:00')`
+    os> source=people | eval `TIMESTAMPADD('DAY', 17, '2000-01-01 00:00:00')` = TIMESTAMPADD('DAY', 17, '2000-01-01 00:00:00') | eval `TIMESTAMPADD('QUARTER', -1, '2000-01-01 00:00:00')` = TIMESTAMPADD('QUARTER', -1, '2000-01-01 00:00:00') | fields `TIMESTAMPADD('DAY', 17, '2000-01-01 00:00:00')`, `TIMESTAMPADD('QUARTER', -1, '2000-01-01 00:00:00')`
     fetched rows / total rows = 1/1
     +------------------------------------------------+----------------------------------------------------+
     | TIMESTAMPADD(DAY, 17, '2000-01-01 00:00:00')   | TIMESTAMPADD(QUARTER, -1, '2000-01-01 00:00:00')   |
@@ -1843,7 +1843,7 @@ INTERVAL must be one of the following tokens: [MICROSECOND, SECOND, MINUTE, HOUR
 
 Examples::
 
-    os> source=people | eval `TIMESTAMPDIFF(YEAR, '1997-01-01 00:00:00', '2001-03-06 00:00:00')` = TIMESTAMPDIFF(YEAR, '1997-01-01 00:00:00', '2001-03-06 00:00:00') | eval `TIMESTAMPDIFF(SECOND, time('00:00:23'), time('00:00:00'))` = TIMESTAMPDIFF(SECOND, time('00:00:23'), time('00:00:00')) | fields `TIMESTAMPDIFF(YEAR, '1997-01-01 00:00:00', '2001-03-06 00:00:00')`, `TIMESTAMPDIFF(SECOND, time('00:00:23'), time('00:00:00'))`
+    os> source=people | eval `TIMESTAMPDIFF('YEAR', '1997-01-01 00:00:00', '2001-03-06 00:00:00')` = TIMESTAMPDIFF('YEAR', '1997-01-01 00:00:00', '2001-03-06 00:00:00') | eval `TIMESTAMPDIFF('SECOND', time('00:00:23'), time('00:00:00'))` = TIMESTAMPDIFF('SECOND', time('00:00:23'), time('00:00:00')) | fields `TIMESTAMPDIFF('YEAR', '1997-01-01 00:00:00', '2001-03-06 00:00:00')`, `TIMESTAMPDIFF('SECOND', time('00:00:23'), time('00:00:00'))`
     fetched rows / total rows = 1/1
     +---------------------------------------------------------------------+-------------------------------------------------------------+
     | TIMESTAMPDIFF(YEAR, '1997-01-01 00:00:00', '2001-03-06 00:00:00')   | TIMESTAMPDIFF(SECOND, time('00:00:23'), time('00:00:00'))   |
@@ -1890,7 +1890,7 @@ Return type: LONG
 
 Example::
 
-    os> source=people | eval `TO_SECONDS(DATE '2008-10-07')` = TO_SECONDS(DATE '2008-10-07') | eval `TO_SECONDS(950228)` = TO_SECONDS(950228) | fields `TO_SECONDS(DATE '2008-10-07')`, `TO_SECONDS(950228)`
+    os> source=people | eval `TO_SECONDS(DATE('2008-10-07'))` = TO_SECONDS(DATE('2008-10-07')) | eval `TO_SECONDS(950228)` = TO_SECONDS(950228) | fields `TO_SECONDS(DATE('2008-10-07'))`, `TO_SECONDS(950228)`
     fetched rows / total rows = 1/1
     +---------------------------------+----------------------+
     | TO_SECONDS(DATE '2008-10-07')   | TO_SECONDS(950228)   |
@@ -2076,7 +2076,7 @@ Return type: INTEGER
 
 Example::
 
-    os> source=people | eval `weekday('2020-08-26')` = weekday('2020-08-26') | eval `weekday('2020-08-27')` = weekday('2020-08-27') | fields = `weekday('2020-08-26')`, `weekday('2020-08-27')`
+    os> source=people | eval `weekday(DATE('2020-08-26'))` = weekday(DATE('2020-08-26')) | eval `weekday(DATE('2020-08-27'))` = weekday(DATE('2020-08-27')) | fields `weekday(DATE('2020-08-26'))`, `weekday(DATE('2020-08-27'))`
     fetched rows / total rows = 1/1
     +-------------------------+-------------------------+
     | weekday('2020-08-26')   | weekday('2020-08-27')   |
