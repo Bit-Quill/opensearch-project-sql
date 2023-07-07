@@ -92,16 +92,18 @@ public class DateTimeFormatsIT extends SQLIntegTestCase {
   @Test
   @SneakyThrows
   public void testIncompleteFormats() {
-    String query = String.format("SELECT incomplete_1, incomplete_2, incorrect"
-        + " FROM %s", TEST_INDEX_DATE_FORMATS);
+    String query = String.format("SELECT incomplete_1, incomplete_2, incorrect,"
+        + "incomplete_custom_time, incomplete_custom_date FROM %s", TEST_INDEX_DATE_FORMATS);
     JSONObject result = executeQuery(query);
     verifySchema(result,
         schema("incomplete_1", null, "timestamp"),
-        schema("incomplete_2", null, "timestamp"),
-        schema("incorrect", null, "timestamp"));
+        schema("incomplete_2", null, "date"),
+        schema("incorrect", null, "timestamp"),
+        schema("incomplete_custom_time", null, "time"),
+        schema("incomplete_custom_date", null, "date"));
     verifyDataRows(result,
-        rows("1984-01-01 00:00:00", null, null),
-        rows("2012-01-01 00:00:00", null, null));
+        rows("1984-01-01 00:00:00", null, null, "10:00:00", "1999-01-01"),
+        rows("2012-01-01 00:00:00", null, null, "20:00:00", "3021-01-01"));
   }
 
   @Test

@@ -5,6 +5,7 @@
 
 package org.opensearch.sql.opensearch.data.type;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -12,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
-import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.opensearch.data.type.OpenSearchDateType.SUPPORTED_NAMED_DATETIME_FORMATS;
@@ -56,58 +56,66 @@ class OpenSearchDateTypeTest {
 
   @Test
   public void isCompatible() {
-    // timestamp types is compatible with all date-types
-    assertTrue(TIMESTAMP.isCompatible(defaultDateType));
-    assertTrue(TIMESTAMP.isCompatible(dateDateType));
-    assertTrue(TIMESTAMP.isCompatible(timeDateType));
-    assertTrue(TIMESTAMP.isCompatible(datetimeDateType));
+    assertAll(
+        // timestamp types is compatible with all date-types
+        () -> assertTrue(TIMESTAMP.isCompatible(defaultDateType)),
+        () -> assertTrue(TIMESTAMP.isCompatible(dateDateType)),
+        () -> assertTrue(TIMESTAMP.isCompatible(timeDateType)),
+        () -> assertTrue(TIMESTAMP.isCompatible(datetimeDateType)),
 
-    // datetime
-    assertFalse(DATETIME.isCompatible(defaultDateType));
-    assertTrue(DATETIME.isCompatible(dateDateType));
-    assertTrue(DATETIME.isCompatible(timeDateType));
-    assertFalse(DATETIME.isCompatible(datetimeDateType));
+        // datetime
+        () -> assertFalse(DATETIME.isCompatible(defaultDateType)),
+        () -> assertTrue(DATETIME.isCompatible(dateDateType)),
+        () -> assertTrue(DATETIME.isCompatible(timeDateType)),
+        () -> assertFalse(DATETIME.isCompatible(datetimeDateType)),
 
-    // time type
-    assertFalse(TIME.isCompatible(defaultDateType));
-    assertFalse(TIME.isCompatible(dateDateType));
-    assertTrue(TIME.isCompatible(timeDateType));
-    assertFalse(TIME.isCompatible(datetimeDateType));
+        // time type
+        () -> assertFalse(TIME.isCompatible(defaultDateType)),
+        () -> assertFalse(TIME.isCompatible(dateDateType)),
+        () -> assertTrue(TIME.isCompatible(timeDateType)),
+        () -> assertFalse(TIME.isCompatible(datetimeDateType)),
 
-    // date type
-    assertFalse(DATE.isCompatible(defaultDateType));
-    assertTrue(DATE.isCompatible(dateDateType));
-    assertFalse(DATE.isCompatible(timeDateType));
-    assertFalse(DATE.isCompatible(datetimeDateType));
+        // date type
+        () -> assertFalse(DATE.isCompatible(defaultDateType)),
+        () -> assertTrue(DATE.isCompatible(dateDateType)),
+        () -> assertFalse(DATE.isCompatible(timeDateType)),
+        () -> assertFalse(DATE.isCompatible(datetimeDateType))
+    );
   }
 
   // `typeName` and `legacyTypeName` return the same thing for date objects:
   // https://github.com/opensearch-project/sql/issues/1296
   @Test
   public void check_typeName() {
-    // always use the MappingType of "DATE"
-    assertEquals("DATE", defaultDateType.typeName());
-    assertEquals("DATE", timeDateType.typeName());
-    assertEquals("DATE", dateDateType.typeName());
-    assertEquals("DATE", datetimeDateType.typeName());
+    assertAll(
+        // always use the MappingType of "DATE"
+        () -> assertEquals("DATE", defaultDateType.typeName()),
+        () -> assertEquals("DATE", timeDateType.typeName()),
+        () -> assertEquals("DATE", dateDateType.typeName()),
+        () -> assertEquals("DATE", datetimeDateType.typeName())
+    );
   }
 
   @Test
   public void check_legacyTypeName() {
-    // always use the legacy "DATE" type
-    assertEquals("DATE", defaultDateType.legacyTypeName());
-    assertEquals("DATE", timeDateType.legacyTypeName());
-    assertEquals("DATE", dateDateType.legacyTypeName());
-    assertEquals("DATE", datetimeDateType.legacyTypeName());
+    assertAll(
+        // always use the legacy "DATE" type
+        () -> assertEquals("DATE", defaultDateType.legacyTypeName()),
+        () -> assertEquals("DATE", timeDateType.legacyTypeName()),
+        () -> assertEquals("DATE", dateDateType.legacyTypeName()),
+        () -> assertEquals("DATE", datetimeDateType.legacyTypeName())
+    );
   }
 
   @Test
   public void check_exprTypeName() {
-    // exprType changes based on type (no datetime):
-    assertEquals(TIMESTAMP, defaultDateType.getExprType());
-    assertEquals(TIME, timeDateType.getExprType());
-    assertEquals(DATE, dateDateType.getExprType());
-    assertEquals(TIMESTAMP, datetimeDateType.getExprType());
+    assertAll(
+        // exprType changes based on type (no datetime):
+        () -> assertEquals(TIMESTAMP, defaultDateType.getExprType()),
+        () -> assertEquals(TIME, timeDateType.getExprType()),
+        () -> assertEquals(DATE, dateDateType.getExprType()),
+        () -> assertEquals(TIMESTAMP, datetimeDateType.getExprType())
+    );
   }
 
   private static Stream<Arguments> getAllSupportedFormats() {
@@ -218,11 +226,13 @@ class OpenSearchDateTypeTest {
         Arguments.of(TIME, List.of("time"), "t"),
         Arguments.of(DATE, List.of("date"), "d"),
         Arguments.of(TIMESTAMP, List.of("date_time"), "dt"),
-        Arguments.of(STRING, List.of("unknown"), "unknown/incorrect"),
-        Arguments.of(STRING, List.of("uuuu"), "incomplete"),
-        Arguments.of(STRING, List.of("E-w"), "incomplete"),
+        Arguments.of(TIMESTAMP, List.of("unknown"), "unknown/incorrect"),
+        Arguments.of(DATE, List.of("uuuu"), "incomplete date"),
+        Arguments.of(TIME, List.of("HH"), "incomplete time"),
+        Arguments.of(DATE, List.of("E-w"), "incomplete"),
         // E - day of week, w - week of year
-        Arguments.of(STRING, List.of("uuuu", "E-w"), "incomplete"),
+        Arguments.of(DATE, List.of("uuuu", "E-w"), "incomplete with year"),
+        Arguments.of(TIMESTAMP, List.of("---"), "incorrect"),
         Arguments.of(TIMESTAMP, List.of("dd.MM.yyyy", "HH:mm"), "custom date and time"),
         // D - day of year, N - nano of day
         Arguments.of(TIMESTAMP, List.of("dd.MM.yyyy N", "uuuu:D:HH:mm"), "custom datetime"),
@@ -238,6 +248,11 @@ class OpenSearchDateTypeTest {
     assertEquals(expected, OpenSearchDateType.of(String.join(" || ", formats)).getExprType());
     formats = Lists.reverse(formats);
     assertEquals(expected, OpenSearchDateType.of(String.join(" || ", formats)).getExprType());
+  }
+
+  @Test
+  public void dont_use_incorrect_format_as_custom() {
+    assertEquals(0, OpenSearchDateType.of(" ").getAllCustomFormatters().size());
   }
 
   @Test

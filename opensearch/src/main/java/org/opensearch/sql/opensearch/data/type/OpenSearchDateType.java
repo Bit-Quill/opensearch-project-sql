@@ -11,14 +11,11 @@ import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAccessor;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import org.opensearch.common.time.DateFormatter;
-import org.opensearch.common.time.DateFormatters;
 import org.opensearch.common.time.FormatNames;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
@@ -31,13 +28,13 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   private static final OpenSearchDateType instance = new OpenSearchDateType();
 
-  // numeric formats which support full datetime
+  /** Numeric formats which support full datetime. */
   public static final List<FormatNames> SUPPORTED_NAMED_NUMERIC_FORMATS = List.of(
       FormatNames.EPOCH_MILLIS,
       FormatNames.EPOCH_SECOND
   );
 
-  // list of named formats which support full datetime
+  /** List of named formats which support full datetime. */
   public static final List<FormatNames> SUPPORTED_NAMED_DATETIME_FORMATS = List.of(
       FormatNames.ISO8601,
       FormatNames.BASIC_DATE_TIME,
@@ -78,7 +75,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
       FormatNames.STRICT_WEEK_DATE_TIME_NO_MILLIS
   );
 
-  // list of named formats that only support year/month/day
+  /** List of named formats that only support year/month/day. */
   public static final List<FormatNames> SUPPORTED_NAMED_DATE_FORMATS = List.of(
       FormatNames.BASIC_DATE,
       FormatNames.BASIC_ORDINAL_DATE,
@@ -94,8 +91,8 @@ public class OpenSearchDateType extends OpenSearchDataType {
       FormatNames.STRICT_WEEKYEAR_WEEK_DAY
   );
 
-  // list of named formats which produce incomplete date,
-  // e.g. 1 or 2 are missing from tuple year/month/day
+  /** list of named formats which produce incomplete date,
+   * e.g. 1 or 2 are missing from tuple year/month/day. */
   public static final List<FormatNames> SUPPORTED_NAMED_INCOMPLETE_DATE_FORMATS = List.of(
       FormatNames.YEAR_MONTH,
       FormatNames.STRICT_YEAR_MONTH,
@@ -108,7 +105,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
       FormatNames.STRICT_WEEKYEAR
   );
 
-  // list of named formats that only support hour/minute/second
+  /** List of named formats that only support hour/minute/second. */
   public static final List<FormatNames> SUPPORTED_NAMED_TIME_FORMATS = List.of(
       FormatNames.BASIC_TIME,
       FormatNames.BASIC_TIME_NO_MILLIS,
@@ -133,6 +130,11 @@ public class OpenSearchDateType extends OpenSearchDataType {
       FormatNames.T_TIME_NO_MILLIS,
       FormatNames.STRICT_T_TIME_NO_MILLIS
   );
+
+  /** Formatter symbols which used to format time or date correspondingly.
+   * {@link java.time.format.DateTimeFormatter}. */
+  private static final String CUSTOM_FORMAT_TIME_SYMBOLS = "nNASsmHkKha";
+  private static final String CUSTOM_FORMAT_DATE_SYMBOLS = "FecEWwYqQgdMLDyuG";
 
   @EqualsAndHashCode.Exclude
   String formatString;
@@ -179,7 +181,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   /**
    * Retrieves a list of numeric formatters that format for dates.
-   *
    * @return a list of DateFormatters that can be used to parse a Date.
    */
   public List<DateFormatter> getNumericNamedFormatters() {
@@ -189,6 +190,26 @@ public class OpenSearchDateType extends OpenSearchDataType {
           return namedFormat != null && SUPPORTED_NAMED_NUMERIC_FORMATS.contains(namedFormat);
         })
         .map(DateFormatter::forPattern).collect(Collectors.toList());
+  }
+
+  /**
+   * Retrieves a list of custom formats defined by the user.
+   * @return a list of formats as strings that can be used to parse a Date/Time/Timestamp.
+   */
+  public List<String> getAllCustomFormats() {
+    return getFormatList().stream()
+        .filter(format -> FormatNames.forName(format) == null)
+        .map(format -> {
+          try {
+            DateFormatter.forPattern(format);
+            return format;
+          } catch (Exception ignored) {
+            // parsing failed
+            return null;
+          }
+        })
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -212,7 +233,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   /**
    * Retrieves a list of named formatters that format for dates.
-   *
    * @return a list of DateFormatters that can be used to parse a Date.
    */
   public List<DateFormatter> getDateNamedFormatters() {
@@ -226,7 +246,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   /**
    * Retrieves a list of named formatters that format for Times.
-   *
    * @return a list of DateFormatters that can be used to parse a Time.
    */
   public List<DateFormatter> getTimeNamedFormatters() {
@@ -240,7 +259,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   /**
    * Retrieves a list of named formatters that format for DateTimes.
-   *
    * @return a list of DateFormatters that can be used to parse a DateTime.
    */
   public List<DateFormatter> getDateTimeNamedFormatters() {
@@ -252,39 +270,26 @@ public class OpenSearchDateType extends OpenSearchDataType {
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
 
-  private ExprCoreType getExprTypeFromCustomFormats(List<DateFormatter> formats) {
+  private ExprCoreType getExprTypeFromCustomFormats(List<String> formats) {
     boolean isDate = false;
     boolean isTime = false;
 
-    LocalDateTime sampleDateTime = LocalDateTime.now();
-    // Unfortunately, there is no public API to get info from the formatter object,
-    // whether it parses date or time or datetime. The workaround is:
-    // Converting a sample DateTime object by each formatter to string and back.
-    // Double-converted sample will be also DateTime, but if formatter parses
-    // time part only, date part would be lost. And vice versa.
-    // This trick allows us to get matching data type for every custom formatter.
-    // Unfortunately, this involves parsing a string, once per query, per column, per format.
-    // Overhead performance is equal to parsing extra row of result set (extra doc).
-    // Could be cached in scope of #1783 https://github.com/opensearch-project/sql/issues/1783.
-
     for (var format : formats) {
-      TemporalAccessor ta = format.parse(format.format(sampleDateTime));
-      LocalDateTime parsedSample = sampleDateTime;
-      try {
-        // TODO do we need withZoneSameInstant or withZoneSameLocal?
-        parsedSample = DateFormatters.from(ta).toLocalDateTime();
-      } catch (Exception ignored) {
-        // Can't convert to a DateTime - format does not represent a complete date or time
-        continue;
-      }
-
-      if (!isDate) {
-        isDate = parsedSample.toLocalDate().equals(sampleDateTime.toLocalDate());
-      }
       if (!isTime) {
-        // Second and Second fraction part are optional and may miss in some formats, trim it.
-        isTime = parsedSample.toLocalTime().withSecond(0).withNano(0).equals(
-            sampleDateTime.toLocalTime().withSecond(0).withNano(0));
+        for (var symbol : CUSTOM_FORMAT_TIME_SYMBOLS.toCharArray()) {
+          if (format.contains(String.valueOf(symbol))) {
+            isTime = true;
+            break;
+          }
+        }
+      }
+      if (!isDate) {
+        for (var symbol : CUSTOM_FORMAT_DATE_SYMBOLS.toCharArray()) {
+          if (format.contains(String.valueOf(symbol))) {
+            isDate = true;
+            break;
+          }
+        }
       }
       if (isDate && isTime) {
         return TIMESTAMP;
@@ -298,7 +303,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
       return TIME;
     }
 
-    // Incomplete formats: can't be converted to DATE nor TIME, for example `year` (year only)
+    // Incomplete or incorrect formats: can't be converted to DATE nor TIME, for example `year`
     return TIMESTAMP;
   }
 
@@ -316,7 +321,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
       return TIMESTAMP;
     }
 
-    List<DateFormatter> customFormatters = getAllCustomFormatters();
+    List<String> customFormatters = getAllCustomFormats();
     if (!customFormatters.isEmpty()) {
       ExprCoreType customFormatType = getExprTypeFromCustomFormats(customFormatters);
       ExprCoreType combinedByDefaultFormats = customFormatType;
