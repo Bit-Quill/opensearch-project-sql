@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.analysis.symbol.Namespace;
 import org.opensearch.sql.analysis.symbol.Symbol;
 import org.opensearch.sql.ast.AbstractNodeVisitor;
@@ -51,6 +52,7 @@ import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.expression.When;
 import org.opensearch.sql.ast.expression.WindowFunction;
 import org.opensearch.sql.ast.expression.Xor;
+import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
@@ -387,7 +389,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
       return reserved;
     }
 
-    return visitArrayIdentifier(qualifierAnalyzer.unqualified(node), context, node.getIndex());
+    return visitArrayIdentifier(qualifierAnalyzer.unqualified(node), context, node.getPartsAndIndexes());
   }
 
   private Expression checkForReservedIdentifier(List<String> parts, AnalysisContext context, QualifierAnalyzer qualifierAnalyzer, QualifiedName node) {
@@ -454,7 +456,8 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     return ref;
   }
 
-  private Expression visitArrayIdentifier(String ident, AnalysisContext context, OptionalInt index) {
+  private Expression visitArrayIdentifier(String ident, AnalysisContext context,
+      List<Pair<String, OptionalInt>> partsAndIndexes) {
     // ParseExpression will always override ReferenceExpression when ident conflicts
     for (NamedExpression expr : context.getNamedParseExpressions()) {
       if (expr.getNameOrAlias().equals(ident) && expr.getDelegated() instanceof ParseExpression) {
@@ -463,13 +466,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     }
 
     TypeEnvironment typeEnv = context.peek();
-    ArrayReferenceExpression ref = index.isEmpty() ?
-        DSL.indexedRef(ident,
-        typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident)))
-        :
-        DSL.indexedRef(ident,
-            typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident)), index.getAsInt());
-
-    return ref;
+    return new ArrayReferenceExpression(ident,
+        typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, StringUtils.removeParenthesis(ident))), partsAndIndexes);
   }
 }

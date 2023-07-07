@@ -11,9 +11,12 @@ import static org.opensearch.sql.utils.ExpressionUtils.PATH_SEP;
 import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.apache.commons.lang3.tuple.Pair;
+import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
@@ -24,30 +27,20 @@ import org.opensearch.sql.expression.env.Environment;
 @EqualsAndHashCode
 public class ArrayReferenceExpression extends ReferenceExpression {
   @Getter
-  private final OptionalInt index; // Should be a list of indexes to support multiple nesting levels
+  private final List<Pair<String, OptionalInt>> partsAndIndexes;
   @Getter
   private final ExprType type;
-  @Getter
-  private final List<String> paths;
-  public ArrayReferenceExpression(String ref, ExprType type, int index) {
+  public ArrayReferenceExpression(String ref, ExprType type, List<Pair<String, OptionalInt>> partsAndIndexes) {
     super(ref, type);
-    this.index = OptionalInt.of(index);
+    this.partsAndIndexes = partsAndIndexes;
     this.type = type;
-    this.paths = Arrays.asList(ref.split("\\."));
-  }
-
-  public ArrayReferenceExpression(String ref, ExprType type) {
-    super(ref, type);
-    this.index = OptionalInt.empty();
-    this.type = type;
-    this.paths = Arrays.asList(ref.split("\\."));
   }
 
   public ArrayReferenceExpression(ReferenceExpression ref) {
     super(ref.toString(), ref.type());
-    this.index = OptionalInt.empty();
+    this.partsAndIndexes = Arrays.stream(ref.toString().split("\\.")).map(e -> Pair.of(e, OptionalInt.empty())).collect(
+        Collectors.toList());
     this.type = ref.type();
-    this.paths = Arrays.asList(ref.toString().split("\\."));
   }
 
   @Override
@@ -66,13 +59,15 @@ public class ArrayReferenceExpression extends ReferenceExpression {
   }
 
   public ExprValue resolve(ExprTupleValue value) {
-    return resolve(value, paths);
+    return resolve(value, partsAndIndexes);
   }
 
-  private ExprValue resolve(ExprValue value, List<String> paths) {
-    ExprValue wholePathValue = value.keyValue(String.join(PATH_SEP, paths));
+  private ExprValue resolve(ExprValue value, List<Pair<String, OptionalInt>> paths) {
+    List<String> pathsWithoutParenthesis =
+        paths.stream().map(p -> StringUtils.removeParenthesis(p.getLeft())).collect(Collectors.toList());
+    ExprValue wholePathValue = value.keyValue(String.join(PATH_SEP, pathsWithoutParenthesis));
 
-    if (!index.isEmpty()) {
+    if (!paths.get(0).getRight().isEmpty()) {
       wholePathValue = getIndexValueOfCollection(wholePathValue);
     } else if (paths.size() == 1 && !wholePathValue.type().equals(ExprCoreType.ARRAY)) {
       wholePathValue = ExprValueUtils.missingValue();
@@ -81,19 +76,20 @@ public class ArrayReferenceExpression extends ReferenceExpression {
     if (!wholePathValue.isMissing() || paths.size() == 1) {
       return wholePathValue;
     } else {
-      return resolve(value.keyValue(paths.get(0)), paths.subList(1, paths.size()));
+      return resolve(value.keyValue(pathsWithoutParenthesis.get(0)
+           ), paths.subList(1, paths.size()));
     }
   }
 
   private ExprValue getIndexValueOfCollection(ExprValue value) {
     ExprValue collectionVal = value;
-    for (OptionalInt currentIndex : List.of(index)) {
+//    for (OptionalInt currentIndex : List.of(index)) {
       if (collectionVal.type().equals(ExprCoreType.ARRAY)) {
-        collectionVal = collectionVal.collectionValue().get(currentIndex.getAsInt());
+//        collectionVal = collectionVal.collectionValue().get(currentIndex.getAsInt());
       } else {
         return ExprValueUtils.missingValue();
       }
-    }
+//    }
     return collectionVal;
   }
 }

@@ -105,4 +105,8 @@ public class StringUtils {
   private static boolean isQuoted(String text, String mark) {
     return !Strings.isNullOrEmpty(text) && text.startsWith(mark) && text.endsWith(mark);
   }
+
+  public static String removeParenthesis(String qualifier) {
+    return qualifier.replaceAll("\\[.+\\]", "");
+  }
 }

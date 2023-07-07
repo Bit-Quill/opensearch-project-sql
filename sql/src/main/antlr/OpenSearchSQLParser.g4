@@ -303,7 +303,7 @@ expressions
 expressionAtom
     : constant                                                      #constantExpressionAtom
     | columnName                                                    #fullColumnNameExpressionAtom
-    | arrayColumnName                                               #arrayColumnNameExpressionAtom
+//    | arrayColumnName                                               #arrayColumnNameExpressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | LR_BRACKET expression RR_BRACKET                              #nestedExpressionAtom
     | left=expressionAtom
@@ -815,10 +815,11 @@ columnName
     : qualifiedName
     ;
 
-arrayColumnName
-    : qualifiedName LT_SQR_PRTHS COLON_SYMB RT_SQR_PRTHS
-    | qualifiedName LT_SQR_PRTHS decimalLiteral RT_SQR_PRTHS
-    ;
+//arrayColumnName
+//    : arrayQualifiedName
+//    | qualifiedName LT_SQR_PRTHS COLON_SYMB RT_SQR_PRTHS (arrayColumnName | columnName) *
+//    | qualifiedName LT_SQR_PRTHS decimalLiteral RT_SQR_PRTHS (arrayColumnName | columnName) *
+//    ;
 
 allTupleFields
     : path=qualifiedName DOT STAR
@@ -828,12 +829,21 @@ alias
     : ident
     ;
 
+//arrayQualifiedName
+//    : (ident | indexedIdentifier) (DOT (ident | indexedIdentifier))*
+////    (( LT_SQR_PRTHS decimalLiteral RT_SQR_PRTHS ) | (DOT ident ( LT_SQR_PRTHS decimalLiteral RT_SQR_PRTHS )* ))+
+//    ;
+
+//indexedIdentifier
+//    : ident LT_SQR_PRTHS decimalLiteral RT_SQR_PRTHS
+//    ;
+
 qualifiedName
     : ident (DOT ident)*
     ;
 
 ident
-    : DOT? ID
+    : DOT? ID (LT_SQR_PRTHS decimalLiteral RT_SQR_PRTHS)?
     | BACKTICK_QUOTE_ID
     | keywordsCanBeId
     | scalarFunctionName

@@ -69,11 +69,14 @@ import static org.opensearch.sql.sql.parser.ParserUtils.createSortOption;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.RuleContext;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -106,7 +109,6 @@ import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.AlternateMultiMatchQueryContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.AndExpressionContext;
-import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.ArrayColumnNameContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.ColumnNameContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.IdentContext;
 import org.opensearch.sql.sql.antlr.parser.OpenSearchSQLParser.IntervalLiteralContext;
@@ -130,16 +132,26 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
     return visit(ctx.qualifiedName());
   }
 
-  @Override
-  public UnresolvedExpression visitArrayColumnName(ArrayColumnNameContext ctx) {
-    UnresolvedExpression qualifiedName = visit(ctx.qualifiedName());
-    if (ctx.decimalLiteral() == null) {
-      return new ArrayQualifiedName(qualifiedName.toString());
-    } else {
-      return new ArrayQualifiedName(
-          qualifiedName.toString(), Integer.parseInt(ctx.decimalLiteral().getText()));
-    }
-  }
+//  @Override
+//  public UnresolvedExpression visitArrayColumnName(ArrayColumnNameContext ctx) {
+////    return new QualifiedName(
+////        identifiers.stream()
+////            .map(RuleContext::getText)
+////            .map(StringUtils::unquoteIdentifier)
+////            .collect(Collectors.toList()));
+//
+//    var blah = ctx.arrayQualifiedName().indexedIdentifier();
+//    var hmm = ctx.arrayQualifiedName().ident();
+//
+//
+//    UnresolvedExpression qualifiedName = visit(ctx.arrayQualifiedName());
+////    if (ctx.arrayQualifiedName().decimalLiteral() == null) {
+//      return new ArrayQualifiedName(qualifiedName.toString());
+////    } else {
+//      return new ArrayQualifiedName(
+//          qualifiedName.toString(), Integer.parseInt(ctx.arrayQualifiedName().decimalLiteral().toString()));
+////    }
+//  }
 
   @Override
   public UnresolvedExpression visitIdent(IdentContext ctx) {
@@ -544,6 +556,32 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
 
 
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {
+
+    List<Pair<String, OptionalInt>> parts = new ArrayList<>();
+    boolean supportsArrays = false;
+    for(var blah : identifiers) {
+      if (blah.decimalLiteral() != null) {
+        parts.add(
+            Pair.of(
+                StringUtils.unquoteIdentifier(blah.getText()),
+                OptionalInt.of(Integer.parseInt(blah.decimalLiteral().getText()))
+            )
+        );
+        supportsArrays = true;
+      } else {
+        parts.add(
+            Pair.of(
+                StringUtils.unquoteIdentifier(blah.getText()),
+                OptionalInt.empty()
+            )
+        );
+      }
+    }
+
+    if (supportsArrays) {
+      return new ArrayQualifiedName(parts);
+    }
+
     return new QualifiedName(
         identifiers.stream()
                    .map(RuleContext::getText)
