@@ -7,11 +7,17 @@
 package org.opensearch.sql.ppl.antlr;
 
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.opensearch.sql.common.antlr.SyntaxCheckException;
+
+import java.util.List;
+import java.util.stream.Stream;
 
 public class PPLSyntaxParserTest {
 
@@ -267,6 +273,50 @@ public class PPLSyntaxParserTest {
     exceptionRule.expectMessage("Failed to parse query due to offending symbol");
 
     new PPLSyntaxParser().parse("describe source=t");
+  }
+
+  @Test
+  public void testCan_parse_extract_function() {
+    String[] parts = List.of("MICROSECOND", "SECOND", "MINUTE", "HOUR", "DAY",
+            "WEEK", "MONTH", "QUARTER", "YEAR", "SECOND_MICROSECOND",
+            "MINUTE_MICROSECOND", "MINUTE_SECOND", "HOUR_MICROSECOND",
+            "HOUR_SECOND", "HOUR_MINUTE", "DAY_MICROSECOND",
+            "DAY_SECOND", "DAY_MINUTE", "DAY_HOUR", "YEAR_MONTH").toArray(new String[0]);
+
+    for (String part : parts) {
+      assertNotNull(new PPLSyntaxParser().parse(String.format("SOURCE=test | eval k = extract(%s FROM \"2023-02-06\")", part)));
+    }
+  }
+
+  @Test
+  public void testCan_parse_get_format_function() {
+    String[] types = {"DATE", "DATETIME", "TIME", "TIMESTAMP"};
+    String[] formats = {"'USA'", "'JIS'", "'ISO'", "'EUR'", "'INTERNAL'"};
+
+    for (String type : types) {
+      for (String format : formats) {
+        assertNotNull(new PPLSyntaxParser().parse(String.format("SOURCE=test | eval k = get_format(%s, %s)", type, format)));
+      }
+    }
+  }
+
+  @Test
+  public void testCannot_parse_get_format_function_with_bad_arg() {
+    assertThrows(
+            SyntaxCheckException.class,
+            () -> new PPLSyntaxParser().parse("SOURCE=test | eval k = GET_FORMAT(NONSENSE_ARG,'INTERNAL')"));
+  }
+
+  @Test
+  public void can_parse_timestampadd_function() {
+    assertNotNull(new PPLSyntaxParser().parse("SOURCE=test | eval k = TIMESTAMPADD(MINUTE, 1, '2003-01-02')"));
+    assertNotNull(new PPLSyntaxParser().parse("SOURCE=test | eval k = TIMESTAMPADD(WEEK,1,'2003-01-02')"));
+  }
+
+  @Test
+  public void can_parse_timestampdiff_function() {
+    assertNotNull(new PPLSyntaxParser().parse("SOURCE=test | eval k = TIMESTAMPDIFF(MINUTE, '2003-01-02', '2003-01-02')"));
+    assertNotNull(new PPLSyntaxParser().parse("SOURCE=test | eval k = TIMESTAMPDIFF(WEEK,'2003-01-02','2003-01-02')"));
   }
 }
 

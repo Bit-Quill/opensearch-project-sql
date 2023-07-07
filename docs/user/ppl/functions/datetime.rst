@@ -875,13 +875,13 @@ Return type: LONG
 
 Example::
 
-    os> source=people | eval `extract('YEAR_MONTH', "2023-02-07 10:11:12")` = extract('YEAR_MONTH', "2023-02-07 10:11:12") | fields `extract('YEAR_MONTH', "2023-02-07 10:11:12")`
+    os> source=people | eval `extract(YEAR_MONTH, "2023-02-07 10:11:12")` = extract(YEAR_MONTH, "2023-02-07 10:11:12") | fields `extract(YEAR_MONTH, "2023-02-07 10:11:12")`
     fetched rows / total rows = 1/1
-    +------------------------------------------------+
-    | extract('YEAR_MONTH', "2023-02-07 10:11:12")   |
-    |------------------------------------------------|
-    | 202302                                         |
-    +------------------------------------------------+
+    +----------------------------------------------+
+    | extract(YEAR_MONTH, "2023-02-07 10:11:12")   |
+    |----------------------------------------------|
+    | 202302                                       |
+    +----------------------------------------------+
 
 
 FROM_DAYS
@@ -951,18 +951,18 @@ Description
 
 Usage: Returns a string value containing string format specifiers based on the input arguments.
 
-Argument type: TYPE, STRING, where TYPE must be one of the following tokens: ["DATE", "TIME", "DATETIME", TIMESTAMP"], and
+Argument type: TYPE, STRING, where TYPE must be one of the following tokens: [DATE, TIME, DATETIME, TIMESTAMP], and
 STRING must be one of the following tokens: ["USA", "JIS", "ISO", "EUR", "INTERNAL"] (" can be replaced by ').
 
 Examples::
 
-    os> source=people | eval `GET_FORMAT('DATE', 'USA')` = GET_FORMAT('DATE', 'USA') | fields `GET_FORMAT('DATE', 'USA')`
+    os> source=people | eval `GET_FORMAT(DATE, 'USA')` = GET_FORMAT(DATE, 'USA') | fields `GET_FORMAT(DATE, 'USA')`
     fetched rows / total rows = 1/1
-    +-----------------------------+
-    | GET_FORMAT('DATE', 'USA')   |
-    |-----------------------------|
-    | %m.%d.%Y                    |
-    +-----------------------------+
+    +---------------------------+
+    | GET_FORMAT(DATE, 'USA')   |
+    |---------------------------|
+    | %m.%d.%Y                  |
+    +---------------------------+
 
 
 HOUR
@@ -1816,13 +1816,13 @@ INTERVAL must be one of the following tokens: [MICROSECOND, SECOND, MINUTE, HOUR
 
 Examples::
 
-    os> source=people | eval `TIMESTAMPADD('DAY', 17, '2000-01-01 00:00:00')` = TIMESTAMPADD('DAY', 17, '2000-01-01 00:00:00') | eval `TIMESTAMPADD('QUARTER', -1, '2000-01-01 00:00:00')` = TIMESTAMPADD('QUARTER', -1, '2000-01-01 00:00:00') | fields `TIMESTAMPADD('DAY', 17, '2000-01-01 00:00:00')`, `TIMESTAMPADD('QUARTER', -1, '2000-01-01 00:00:00')`
+    os> source=people | eval `TIMESTAMPADD(DAY, 17, '2000-01-01 00:00:00')` = TIMESTAMPADD(DAY, 17, '2000-01-01 00:00:00') | eval `TIMESTAMPADD(QUARTER, -1, '2000-01-01 00:00:00')` = TIMESTAMPADD(QUARTER, -1, '2000-01-01 00:00:00') | fields `TIMESTAMPADD(DAY, 17, '2000-01-01 00:00:00')`, `TIMESTAMPADD(QUARTER, -1, '2000-01-01 00:00:00')`
     fetched rows / total rows = 1/1
-    +--------------------------------------------------+------------------------------------------------------+
-    | TIMESTAMPADD('DAY', 17, '2000-01-01 00:00:00')   | TIMESTAMPADD('QUARTER', -1, '2000-01-01 00:00:00')   |
-    |--------------------------------------------------+------------------------------------------------------|
-    | 2000-01-18 00:00:00                              | 1999-10-01 00:00:00                                  |
-    +--------------------------------------------------+------------------------------------------------------+
+    +------------------------------------------------+----------------------------------------------------+
+    | TIMESTAMPADD(DAY, 17, '2000-01-01 00:00:00')   | TIMESTAMPADD(QUARTER, -1, '2000-01-01 00:00:00')   |
+    |------------------------------------------------+----------------------------------------------------|
+    | 2000-01-18 00:00:00                            | 1999-10-01 00:00:00                                |
+    +------------------------------------------------+----------------------------------------------------+
 
 
 TIMESTAMPDIFF
@@ -1841,13 +1841,13 @@ INTERVAL must be one of the following tokens: [MICROSECOND, SECOND, MINUTE, HOUR
 
 Examples::
 
-    os> source=people | eval `TIMESTAMPDIFF('YEAR', '1997-01-01 00:00:00', '2001-03-06 00:00:00')` = TIMESTAMPDIFF('YEAR', '1997-01-01 00:00:00', '2001-03-06 00:00:00') | eval `TIMESTAMPDIFF('SECOND', time('00:00:23'), time('00:00:00'))` = TIMESTAMPDIFF('SECOND', time('00:00:23'), time('00:00:00')) | fields `TIMESTAMPDIFF('YEAR', '1997-01-01 00:00:00', '2001-03-06 00:00:00')`, `TIMESTAMPDIFF('SECOND', time('00:00:23'), time('00:00:00'))`
+    os> source=people | eval `TIMESTAMPDIFF(YEAR, '1997-01-01 00:00:00', '2001-03-06 00:00:00')` = TIMESTAMPDIFF(YEAR, '1997-01-01 00:00:00', '2001-03-06 00:00:00') | eval `TIMESTAMPDIFF(SECOND, time('00:00:23'), time('00:00:00'))` = TIMESTAMPDIFF(SECOND, time('00:00:23'), time('00:00:00')) | fields `TIMESTAMPDIFF(YEAR, '1997-01-01 00:00:00', '2001-03-06 00:00:00')`, `TIMESTAMPDIFF(SECOND, time('00:00:23'), time('00:00:00'))`
     fetched rows / total rows = 1/1
-    +-----------------------------------------------------------------------+---------------------------------------------------------------+
-    | TIMESTAMPDIFF('YEAR', '1997-01-01 00:00:00', '2001-03-06 00:00:00')   | TIMESTAMPDIFF('SECOND', time('00:00:23'), time('00:00:00'))   |
-    |-----------------------------------------------------------------------+---------------------------------------------------------------|
-    | 4                                                                     | -23                                                           |
-    +-----------------------------------------------------------------------+---------------------------------------------------------------+
+    +---------------------------------------------------------------------+-------------------------------------------------------------+
+    | TIMESTAMPDIFF(YEAR, '1997-01-01 00:00:00', '2001-03-06 00:00:00')   | TIMESTAMPDIFF(SECOND, time('00:00:23'), time('00:00:00'))   |
+    |---------------------------------------------------------------------+-------------------------------------------------------------|
+    | 4                                                                   | -23                                                         |
+    +---------------------------------------------------------------------+-------------------------------------------------------------+
 
 
 TO_DAYS

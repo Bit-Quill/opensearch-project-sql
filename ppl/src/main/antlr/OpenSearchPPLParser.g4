@@ -287,6 +287,9 @@ valueExpression
             right=valueExpression                                   #binaryArithmetic
     | primaryExpression                                             #valueExpressionDefault
     | positionFunction                                              #positionFunctionCall
+    | extractFunction                                               #extractFunctionCall
+    | getFormatFunction                                             #getFormatFunctionCall
+    | timestampFunction                                             #timestampFunctionCall
     | LT_PRTHS valueExpression RT_PRTHS                             #parentheticValueExpr
     ;
 
@@ -534,10 +537,8 @@ dateTimeFunctionName
     | DAY_OF_MONTH
     | DAY_OF_WEEK
     | DAY_OF_YEAR
-    | EXTRACT
     | FROM_DAYS
     | FROM_UNIXTIME
-    | GET_FORMAT
     | HOUR
     | HOUR_OF_DAY
     | LAST_DAY
@@ -566,8 +567,6 @@ dateTimeFunctionName
     | TIME
     | TIMEDIFF
     | TIMESTAMP
-    | TIMESTAMPADD
-    | TIMESTAMPDIFF
     | TIME_FORMAT
     | TIME_TO_SEC
     | TO_DAYS
@@ -581,6 +580,61 @@ dateTimeFunctionName
     | WEEK_OF_YEAR
     | YEAR
     | YEARWEEK
+    ;
+
+getFormatFunction
+    : GET_FORMAT LT_PRTHS getFormatType COMMA functionArg RT_PRTHS
+    ;
+
+getFormatType
+    : DATE
+    | DATETIME
+    | TIME
+    | TIMESTAMP
+    ;
+
+extractFunction
+    : EXTRACT LT_PRTHS datetimePart FROM functionArg RT_PRTHS
+    ;
+
+simpleDateTimePart
+    : MICROSECOND
+    | SECOND
+    | MINUTE
+    | HOUR
+    | DAY
+    | WEEK
+    | MONTH
+    | QUARTER
+    | YEAR
+    ;
+
+complexDateTimePart
+    : SECOND_MICROSECOND
+    | MINUTE_MICROSECOND
+    | MINUTE_SECOND
+    | HOUR_MICROSECOND
+    | HOUR_SECOND
+    | HOUR_MINUTE
+    | DAY_MICROSECOND
+    | DAY_SECOND
+    | DAY_MINUTE
+    | DAY_HOUR
+    | YEAR_MONTH
+    ;
+
+datetimePart
+    : simpleDateTimePart
+    | complexDateTimePart
+    ;
+
+timestampFunction
+    : timestampFunctionName LT_PRTHS simpleDateTimePart COMMA firstArg=functionArg COMMA secondArg=functionArg RT_PRTHS
+    ;
+
+timestampFunctionName
+    : TIMESTAMPADD
+    | TIMESTAMPDIFF
     ;
 
 /** condition function return boolean value */
