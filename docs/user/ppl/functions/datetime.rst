@@ -822,8 +822,7 @@ Description
 Usage: extract(part FROM date) returns a LONG with digits in order according to the given 'part' arguments.
 The specific format of the returned long is determined by the table below.
 
-Argument type: PART
-PART must be one of the following tokens in the table below.
+Argument type: PART, where PART is one of the following tokens in the table below.
 
 The format specifiers found in this table are the same as those found in the `DATE_FORMAT`_ function.
 
@@ -952,8 +951,7 @@ Description
 
 Usage: Returns a string value containing string format specifiers based on the input arguments.
 
-Argument type: TYPE, STRING
-TYPE must be one of the following tokens: [DATE, TIME, DATETIME, TIMESTAMP].
+Argument type: TYPE, STRING, where TYPE must be one of the following tokens: ["DATE", "TIME", "DATETIME", TIMESTAMP"], and
 STRING must be one of the following tokens: ["USA", "JIS", "ISO", "EUR", "INTERNAL"] (" can be replaced by ').
 
 Examples::
