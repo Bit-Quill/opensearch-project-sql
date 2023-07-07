@@ -35,11 +35,14 @@ import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
+import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -212,7 +215,8 @@ class OpenSearchExprValueFactoryTest {
   @Test
   public void constructString() {
     assertAll(
-        () -> assertEquals(stringValue("text"), tupleValue("{\"stringV\":\"text\"}").get("stringV")),
+        () -> assertEquals(stringValue("text"),
+            tupleValue("{\"stringV\":\"text\"}").get("stringV")),
         () -> assertEquals(stringValue("text"), constructFromObject("stringV", "text"))
     );
   }
@@ -248,6 +252,9 @@ class OpenSearchExprValueFactoryTest {
     ExprValue dateStringV = constructFromObject("dateStringV", "1984-04-12");
     assertAll(
         () -> assertEquals(new ExprDateValue("1984-04-12"), dateStringV),
+        () -> assertEquals(new ExprDateValue(
+            LocalDate.ofInstant(Instant.ofEpochMilli(450576000000L), UTC_ZONE_ID)),
+            constructFromObject("dateV", 450576000000L)),
         () -> assertEquals(new ExprDateValue("1984-04-12"),
             constructFromObject("dateOrOrdinalDateV", "1984-103")),
         () -> assertEquals(new ExprDateValue("2015-01-01"),
@@ -262,6 +269,9 @@ class OpenSearchExprValueFactoryTest {
         () -> assertTrue(timeStringV.isDateTime()),
         () -> assertTrue(timeStringV instanceof ExprTimeValue),
         () -> assertEquals(new ExprTimeValue("12:10:30"), timeStringV),
+        () -> assertEquals(new ExprTimeValue(LocalTime.from(
+            Instant.ofEpochMilli(1420070400001L).atZone(UTC_ZONE_ID))),
+            constructFromObject("timeV", 1420070400001L)),
         () -> assertEquals(new ExprTimeValue("09:07:42.000"),
             constructFromObject("timeNoMillisOrTimeV", "09:07:42.000Z")),
         () -> assertEquals(new ExprTimeValue("09:07:42"),
@@ -284,6 +294,9 @@ class OpenSearchExprValueFactoryTest {
         () -> assertEquals(
             new ExprTimestampValue("2015-01-01 12:10:30"),
             tupleValue("{\"timestampV\":\"2015-01-01 12:10:30\"}").get("timestampV")),
+        () -> assertEquals(
+            new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
+            constructFromObject("timestampV", 1420070400001L)),
         () -> assertEquals(
             new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
             constructFromObject("timestampV", Instant.ofEpochMilli(1420070400001L))),

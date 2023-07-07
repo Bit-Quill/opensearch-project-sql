@@ -137,11 +137,11 @@ public class OpenSearchDateType extends OpenSearchDataType {
   private static final String CUSTOM_FORMAT_DATE_SYMBOLS = "FecEWwYqQgdMLDyuG";
 
   @EqualsAndHashCode.Exclude
-  String formatString;
+  private final List<String> formats;
 
   private OpenSearchDateType() {
     super(MappingType.Date);
-    this.formatString = "";
+    this.formats = List.of();
   }
 
   private OpenSearchDateType(ExprCoreType exprCoreType) {
@@ -156,16 +156,20 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   private OpenSearchDateType(String format) {
     super(MappingType.Date);
-    this.formatString = format;
+    this.formats = getFormatList(format);
     this.exprCoreType = getExprTypeFromFormatString(format);
+  }
+
+  public boolean hasFormats() {
+    return !formats.isEmpty();
   }
 
   /**
    * Retrieves and splits a user defined format string from the mapping into a list of formats.
    * @return A list of format names and user defined formats.
    */
-  private List<String> getFormatList() {
-    String format = strip8Prefix(formatString);
+  private List<String> getFormatList(String format) {
+    format = strip8Prefix(format);
     return splitCombinedPatterns(format).stream().map(String::trim).collect(Collectors.toList());
   }
 
@@ -174,7 +178,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * @return a list of DateFormatters that can be used to parse a Date/Time/Timestamp.
    */
   public List<DateFormatter> getAllNamedFormatters() {
-    return getFormatList().stream()
+    return formats.stream()
         .filter(formatString -> FormatNames.forName(formatString) != null)
         .map(DateFormatter::forPattern).collect(Collectors.toList());
   }
@@ -184,7 +188,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * @return a list of DateFormatters that can be used to parse a Date.
    */
   public List<DateFormatter> getNumericNamedFormatters() {
-    return getFormatList().stream()
+    return formats.stream()
         .filter(formatString -> {
           FormatNames namedFormat = FormatNames.forName(formatString);
           return namedFormat != null && SUPPORTED_NAMED_NUMERIC_FORMATS.contains(namedFormat);
@@ -197,7 +201,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * @return a list of formats as strings that can be used to parse a Date/Time/Timestamp.
    */
   public List<String> getAllCustomFormats() {
-    return getFormatList().stream()
+    return formats.stream()
         .filter(format -> FormatNames.forName(format) == null)
         .map(format -> {
           try {
@@ -217,17 +221,8 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * @return a list of DateFormatters that can be used to parse a Date/Time/Timestamp.
    */
   public List<DateFormatter> getAllCustomFormatters() {
-    return getFormatList().stream()
-        .filter(format -> FormatNames.forName(format) == null)
-        .map(format -> {
-          try {
-            return DateFormatter.forPattern(format);
-          } catch (Exception ignored) {
-            // parsing failed
-            return null;
-          }
-        })
-        .filter(Objects::nonNull)
+    return getAllCustomFormats().stream()
+        .map(DateFormatter::forPattern)
         .collect(Collectors.toList());
   }
 
@@ -236,7 +231,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * @return a list of DateFormatters that can be used to parse a Date.
    */
   public List<DateFormatter> getDateNamedFormatters() {
-    return getFormatList().stream()
+    return formats.stream()
         .filter(formatString -> {
           FormatNames namedFormat = FormatNames.forName(formatString);
           return namedFormat != null && SUPPORTED_NAMED_DATE_FORMATS.contains(namedFormat);
@@ -249,7 +244,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * @return a list of DateFormatters that can be used to parse a Time.
    */
   public List<DateFormatter> getTimeNamedFormatters() {
-    return getFormatList().stream()
+    return formats.stream()
         .filter(formatString -> {
           FormatNames namedFormat = FormatNames.forName(formatString);
           return namedFormat != null && SUPPORTED_NAMED_TIME_FORMATS.contains(namedFormat);
@@ -262,7 +257,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
    * @return a list of DateFormatters that can be used to parse a DateTime.
    */
   public List<DateFormatter> getDateTimeNamedFormatters() {
-    return getFormatList().stream()
+    return formats.stream()
         .filter(formatString -> {
           FormatNames namedFormat = FormatNames.forName(formatString);
           return namedFormat != null && SUPPORTED_NAMED_DATETIME_FORMATS.contains(namedFormat);
@@ -274,9 +269,9 @@ public class OpenSearchDateType extends OpenSearchDataType {
     boolean isDate = false;
     boolean isTime = false;
 
-    for (var format : formats) {
+    for (String format : formats) {
       if (!isTime) {
-        for (var symbol : CUSTOM_FORMAT_TIME_SYMBOLS.toCharArray()) {
+        for (char symbol : CUSTOM_FORMAT_TIME_SYMBOLS.toCharArray()) {
           if (format.contains(String.valueOf(symbol))) {
             isTime = true;
             break;
@@ -284,7 +279,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
         }
       }
       if (!isDate) {
-        for (var symbol : CUSTOM_FORMAT_DATE_SYMBOLS.toCharArray()) {
+        for (char symbol : CUSTOM_FORMAT_DATE_SYMBOLS.toCharArray()) {
           if (format.contains(String.valueOf(symbol))) {
             isDate = true;
             break;
@@ -393,7 +388,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   @Override
   public List<ExprType> getParent() {
-    return List.of(this.exprCoreType);
+    return List.of(exprCoreType);
   }
 
   @Override
@@ -403,9 +398,9 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   @Override
   protected OpenSearchDataType cloneEmpty() {
-    if (this.formatString.isEmpty()) {
-      return OpenSearchDateType.of(this.exprCoreType);
+    if (formats.isEmpty()) {
+      return OpenSearchDateType.of(exprCoreType);
     }
-    return OpenSearchDateType.of(this.formatString);
+    return OpenSearchDateType.of(String.join(" || ", formats));
   }
 }

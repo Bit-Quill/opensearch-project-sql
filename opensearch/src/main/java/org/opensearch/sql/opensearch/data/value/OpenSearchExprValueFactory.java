@@ -243,6 +243,7 @@ public class OpenSearchExprValueFactory {
       parsed = DateFormatters.from(DATE_TIME_FORMATTER.parse(value)).toInstant();
       return new ExprTimestampValue(parsed);
     } catch (DateTimeParseException ignored) {
+      // ignored
     }
 
     // otherwise, throw an error that no formatters worked
@@ -279,6 +280,7 @@ public class OpenSearchExprValueFactory {
       return new ExprTimeValue(
           DateFormatters.from(STRICT_HOUR_MINUTE_SECOND_FORMATTER.parse(value)).toLocalTime());
     } catch (DateTimeParseException ignored) {
+      // ignored
     }
 
     throw new IllegalArgumentException("Construct ExprTimeValue from \"" + value
@@ -313,6 +315,7 @@ public class OpenSearchExprValueFactory {
       return new ExprDateValue(
           DateFormatters.from(STRICT_YEAR_MONTH_DAY_FORMATTER.parse(value)).toLocalDate());
     } catch (DateTimeParseException ignored) {
+      // ignored
     }
 
     throw new IllegalArgumentException("Construct ExprDateValue from \"" + value
@@ -325,19 +328,24 @@ public class OpenSearchExprValueFactory {
 
     if (value.isNumber()) { // isNumber
       var numFormatters = dt.getNumericNamedFormatters();
-      if (numFormatters.size() > 0) {
+      if (numFormatters.size() > 0 || !dt.hasFormats()) {
         long epochMillis = 0;
         if (numFormatters.contains(DateFormatter.forPattern(
-            FormatNames.EPOCH_MILLIS.getSnakeCaseName()))) {
+            FormatNames.EPOCH_SECOND.getSnakeCaseName()))) {
           // no CamelCase for `EPOCH_*` formats
-          epochMillis = value.longValue();
-        } else /* EPOCH_SECOND */ {
           epochMillis = value.longValue() * 1000;
+        } else /* EPOCH_MILLIS */ {
+          epochMillis = value.longValue();
         }
-        return new ExprTimestampValue(Instant.ofEpochMilli(epochMillis));
+        Instant instant = Instant.ofEpochMilli(epochMillis);
+        switch ((ExprCoreType) returnFormat) {
+          case TIME: return new ExprTimeValue(LocalTime.from(instant.atZone(UTC_ZONE_ID)));
+          case DATE: return new ExprDateValue(LocalDate.ofInstant(instant, UTC_ZONE_ID));
+          default: return new ExprTimestampValue(instant);
+        }
       } else {
         // custom format
-        switch ((ExprCoreType) dt.getExprType()) {
+        switch ((ExprCoreType) returnFormat) {
           case TIME: return parseTimeString(value.stringValue(), dt);
           case DATE: return parseDateString(value.stringValue(), dt);
           default: return parseTimestampString(value.stringValue(), dt);
