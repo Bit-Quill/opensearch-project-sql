@@ -319,7 +319,7 @@ Conversion from DATE
 Conversion from TIME
 >>>>>>>>>>>>>>>>>>>>
 
-- When time value is converted to any other datetime types, the date part of the new value is filled up with today's date. For example, (like `CURDATE` function); a time value X converted to a timestamp would produce today's date at time X.
+- When time value is converted to any other datetime types, the date part of the new value is filled up with today's date, like with the `CURDATE` function. For example, a time value X converted to a timestamp would produce today's date at time X.
 
 
 Conversion from DATETIME
