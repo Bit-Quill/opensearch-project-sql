@@ -10,14 +10,12 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
+import java.util.List;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
-
-import java.util.List;
-import java.util.stream.Stream;
 
 public class PPLSyntaxParserTest {
 
@@ -284,7 +282,8 @@ public class PPLSyntaxParserTest {
             "DAY_SECOND", "DAY_MINUTE", "DAY_HOUR", "YEAR_MONTH").toArray(new String[0]);
 
     for (String part : parts) {
-      assertNotNull(new PPLSyntaxParser().parse(String.format("SOURCE=test | eval k = extract(%s FROM \"2023-02-06\")", part)));
+      assertNotNull(new PPLSyntaxParser().parse(
+              String.format("SOURCE=test | eval k = extract(%s FROM \"2023-02-06\")", part)));
     }
   }
 
@@ -295,7 +294,8 @@ public class PPLSyntaxParserTest {
 
     for (String type : types) {
       for (String format : formats) {
-        assertNotNull(new PPLSyntaxParser().parse(String.format("SOURCE=test | eval k = get_format(%s, %s)", type, format)));
+        assertNotNull(new PPLSyntaxParser().parse(
+                String.format("SOURCE=test | eval k = get_format(%s, %s)", type, format)));
       }
     }
   }
@@ -304,19 +304,24 @@ public class PPLSyntaxParserTest {
   public void testCannot_parse_get_format_function_with_bad_arg() {
     assertThrows(
             SyntaxCheckException.class,
-            () -> new PPLSyntaxParser().parse("SOURCE=test | eval k = GET_FORMAT(NONSENSE_ARG,'INTERNAL')"));
+            () -> new PPLSyntaxParser().parse(
+                    "SOURCE=test | eval k = GET_FORMAT(NONSENSE_ARG,'INTERNAL')"));
   }
 
   @Test
   public void can_parse_timestampadd_function() {
-    assertNotNull(new PPLSyntaxParser().parse("SOURCE=test | eval k = TIMESTAMPADD(MINUTE, 1, '2003-01-02')"));
-    assertNotNull(new PPLSyntaxParser().parse("SOURCE=test | eval k = TIMESTAMPADD(WEEK,1,'2003-01-02')"));
+    assertNotNull(new PPLSyntaxParser().parse(
+            "SOURCE=test | eval k = TIMESTAMPADD(MINUTE, 1, '2003-01-02')"));
+    assertNotNull(new PPLSyntaxParser().parse(
+            "SOURCE=test | eval k = TIMESTAMPADD(WEEK,1,'2003-01-02')"));
   }
 
   @Test
   public void can_parse_timestampdiff_function() {
-    assertNotNull(new PPLSyntaxParser().parse("SOURCE=test | eval k = TIMESTAMPDIFF(MINUTE, '2003-01-02', '2003-01-02')"));
-    assertNotNull(new PPLSyntaxParser().parse("SOURCE=test | eval k = TIMESTAMPDIFF(WEEK,'2003-01-02','2003-01-02')"));
+    assertNotNull(new PPLSyntaxParser().parse(
+            "SOURCE=test | eval k = TIMESTAMPDIFF(MINUTE, '2003-01-02', '2003-01-02')"));
+    assertNotNull(new PPLSyntaxParser().parse(
+            "SOURCE=test | eval k = TIMESTAMPDIFF(WEEK,'2003-01-02','2003-01-02')"));
   }
 }
 

@@ -1065,7 +1065,7 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
 
   @Test
   public void testGetFormat() throws IOException{
-    var result = executeQuery(String.format("source=%s | eval f = date_format('2003-10-03', get_format('DATE','USA')) | fields f", TEST_INDEX_DATE));
+    var result = executeQuery(String.format("source=%s | eval f = date_format('2003-10-03', get_format(DATE,'USA')) | fields f", TEST_INDEX_DATE));
     verifySchema(result, schema("f", null, "string"));
     verifySome(result.getJSONArray("datarows"), rows("10.03.2003"));
   }
@@ -1121,21 +1121,21 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
 
   @Test
   public void testTimeStampAdd() throws IOException{
-    var result = executeQuery(String.format("source=%s | eval f = timestampadd('YEAR', 15, '2001-03-06 00:00:00') | fields f", TEST_INDEX_DATE));
+    var result = executeQuery(String.format("source=%s | eval f = timestampadd(YEAR, 15, '2001-03-06 00:00:00') | fields f", TEST_INDEX_DATE));
     verifySchema(result, schema("f", null, "datetime"));
     verifySome(result.getJSONArray("datarows"), rows("2016-03-06 00:00:00"));
   }
 
   @Test
   public void testTimestampDiff() throws IOException{
-    var result = executeQuery(String.format("source=%s | eval f = timestampdiff('YEAR', '1997-01-01 00:00:00', '2001-03-06 00:00:00') | fields f", TEST_INDEX_DATE));
+    var result = executeQuery(String.format("source=%s | eval f = timestampdiff(YEAR, '1997-01-01 00:00:00', '2001-03-06 00:00:00') | fields f", TEST_INDEX_DATE));
     verifySchema(result, schema("f", null, "datetime"));
     verifySome(result.getJSONArray("datarows"), rows(4));
   }
 
   @Test
   public void testExtract() throws IOException{
-    var result = executeQuery(String.format("source=%s | eval f1 = extract('YEAR', '1997-01-01 00:00:00') | eval f2 = extract('MINUTE', time('10:17:36')) | fields f1, f2", TEST_INDEX_DATE));
+    var result = executeQuery(String.format("source=%s | eval f1 = extract(YEAR FROM '1997-01-01 00:00:00') | eval f2 = extract(MINUTE FROM time('10:17:36')) | fields f1, f2", TEST_INDEX_DATE));
     verifySchema(result,
             schema("f1", null, "long"),
             schema("f2", null, "long"));

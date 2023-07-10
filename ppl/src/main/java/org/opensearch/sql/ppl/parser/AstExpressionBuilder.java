@@ -298,7 +298,8 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
   }
 
   @Override
-  public UnresolvedExpression visitExtractFunctionCall(OpenSearchPPLParser.ExtractFunctionCallContext ctx) {
+  public UnresolvedExpression visitExtractFunctionCall(
+          OpenSearchPPLParser.ExtractFunctionCallContext ctx) {
     return new Function(
             ctx.extractFunction().EXTRACT().toString(),
             getExtractFunctionArguments(ctx));
@@ -314,7 +315,8 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
   }
 
   @Override
-  public UnresolvedExpression visitGetFormatFunctionCall(OpenSearchPPLParser.GetFormatFunctionCallContext ctx) {
+  public UnresolvedExpression visitGetFormatFunctionCall(
+          OpenSearchPPLParser.GetFormatFunctionCallContext ctx) {
     return new Function(
             ctx.getFormatFunction().GET_FORMAT().toString(),
             getFormatFunctionArguments(ctx));
@@ -330,7 +332,8 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
   }
 
   @Override
-  public UnresolvedExpression visitTimestampFunctionCall(OpenSearchPPLParser.TimestampFunctionCallContext ctx) {
+  public UnresolvedExpression visitTimestampFunctionCall(
+          OpenSearchPPLParser.TimestampFunctionCallContext ctx) {
     return new Function(
             ctx.timestampFunction().timestampFunctionName().getText(),
             timestampFunctionArguments(ctx));
