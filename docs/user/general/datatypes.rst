@@ -236,7 +236,7 @@ Numeric values ranged from -2147483648 to +2147483647 are recognized as integer 
 Date and Time Data Types
 ========================
 
-The date and time data types represent temporal values and the SQL plugin supports types including ``DATE``, ``TIME``, ``DATETIME``, ``TIMESTAMP`` and ``INTERVAL``. By default, the OpenSearch DSL uses ``date`` type as the only date and time related type as it contains all information about an absolute time point. To integrate with SQL language each of the types other than timestamp hold part of the temporal or timezone information. This information can be used to explicitly clarify the date and time types reflected in the datetime functions (see `Functions <functions.rst>`_ for details), where some functions might have restrictions in the input argument type.
+The datetime types supported by the SQL plugin are ``DATE``, ``TIME``, ``DATETIME``, ``TIMESTAMP``, and ``INTERVAL``, with date and time being used to represent temporal values. By default, the OpenSearch DSL uses ``date`` type as the only date and time related type as it contains all information about an absolute time point. To integrate with SQL language each of the types other than timestamp hold part of the temporal or timezone information. This information can be used to explicitly clarify the date and time types reflected in the datetime functions (see `Functions <functions.rst>`_ for details), where some functions might have restrictions in the input argument type.
 
 Date
 ----
