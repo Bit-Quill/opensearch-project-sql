@@ -236,7 +236,7 @@ Numeric values ranged from -2147483648 to +2147483647 are recognized as integer 
 Date and Time Data Types
 ========================
 
-The date and time data types are the types that represent temporal values and SQL plugin supports types including ``DATE``, ``TIME``, ``DATETIME``, ``TIMESTAMP`` and ``INTERVAL``. By default, the OpenSearch DSL uses ``date`` type as the only date and time related type, which has contained all information about an absolute time point. To integrate with SQL language, each of the types other than timestamp is holding part of temporal or timezone information, and the usage to explicitly clarify the date and time types is reflected in the datetime functions (see `Functions <functions.rst>`_ for details), where some functions might have restrictions in the input argument type.
+The date and time data types represent temporal values and the SQL plugin supports types including ``DATE``, ``TIME``, ``DATETIME``, ``TIMESTAMP`` and ``INTERVAL``. By default, the OpenSearch DSL uses ``date`` type as the only date and time related type as it contains all information about an absolute time point. To integrate with SQL language each of the types other than timestamp hold part of the temporal or timezone information. This information can be used to explicitly clarify the date and time types reflected in the datetime functions (see `Functions <functions.rst>`_ for details), where some functions might have restrictions in the input argument type.
 
 Date
 ----
@@ -319,7 +319,7 @@ Conversion from DATE
 Conversion from TIME
 >>>>>>>>>>>>>>>>>>>>
 
-- When time value converted to any other datetime types, the date part of the new value is filled up with today's date. For example, a time value converted to date would produce today's date (like `CURDATE` function); a time value X converted to a timestamp would produce today's date at time X.
+- When time value is converted to any other datetime types, the date part of the new value is filled up with today's date. For example, (like `CURDATE` function); a time value X converted to a timestamp would produce today's date at time X.
 
 
 Conversion from DATETIME
