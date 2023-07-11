@@ -34,26 +34,23 @@ import org.opensearch.sql.storage.read.TableScanBuilder;
 
 @ExtendWith(MockitoExtension.class)
 public class SparkTableTest {
-  @Mock
-  private SparkClient client;
+  @Mock private SparkClient client;
 
   @Test
   void testUnsupportedOperation() {
     SparkQueryRequest sparkQueryRequest = new SparkQueryRequest();
-    SparkTable sparkTable =
-        new SparkTable(client, sparkQueryRequest);
+    SparkTable sparkTable = new SparkTable(client, sparkQueryRequest);
 
     assertThrows(UnsupportedOperationException.class, sparkTable::exists);
-    assertThrows(UnsupportedOperationException.class,
-        () -> sparkTable.create(Collections.emptyMap()));
+    assertThrows(
+        UnsupportedOperationException.class, () -> sparkTable.create(Collections.emptyMap()));
   }
 
   @Test
   void testCreateScanBuilderWithSqlTableFunction() {
     SparkQueryRequest sparkQueryRequest = new SparkQueryRequest();
     sparkQueryRequest.setSql("select 1");
-    SparkTable sparkTable =
-        new SparkTable(client, sparkQueryRequest);
+    SparkTable sparkTable = new SparkTable(client, sparkQueryRequest);
     TableScanBuilder tableScanBuilder = sparkTable.createScanBuilder();
     Assertions.assertNotNull(tableScanBuilder);
     Assertions.assertTrue(tableScanBuilder instanceof SparkSqlFunctionTableScanBuilder);
@@ -62,8 +59,7 @@ public class SparkTableTest {
   @Test
   @SneakyThrows
   void testGetFieldTypesFromSparkQueryRequest() {
-    SparkTable sparkTable
-        = new SparkTable(client, new SparkQueryRequest());
+    SparkTable sparkTable = new SparkTable(client, new SparkQueryRequest());
     Map<String, ExprType> expectedFieldTypes = new HashMap<>();
     Map<String, ExprType> fieldTypes = sparkTable.getFieldTypes();
 
@@ -76,12 +72,10 @@ public class SparkTableTest {
   void testImplementWithSqlFunction() {
     SparkQueryRequest sparkQueryRequest = new SparkQueryRequest();
     sparkQueryRequest.setSql("select 1");
-    SparkTable sparkTable =
-        new SparkTable(client, sparkQueryRequest);
+    SparkTable sparkTable = new SparkTable(client, sparkQueryRequest);
     List<NamedExpression> finalProjectList = new ArrayList<>();
-    PhysicalPlan plan = sparkTable.implement(
-        project(relation("sql", sparkTable),
-            finalProjectList, null));
+    PhysicalPlan plan =
+        sparkTable.implement(project(relation("sql", sparkTable), finalProjectList, null));
     assertNull(plan);
   }
 }

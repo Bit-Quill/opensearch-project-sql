@@ -46,44 +46,54 @@ public class QueryRangeTableFunctionResolver implements FunctionResolver {
         new FunctionSignature(functionName, List.of(STRING, LONG, LONG, LONG));
     final List<String> argumentNames = List.of(QUERY, STARTTIME, ENDTIME, STEP);
 
-    FunctionBuilder functionBuilder = (functionProperties, arguments) -> {
-      Boolean argumentsPassedByName = arguments.stream()
-          .noneMatch(arg -> StringUtils.isEmpty(((NamedArgumentExpression) arg).getArgName()));
-      Boolean argumentsPassedByPosition = arguments.stream()
-          .allMatch(arg -> StringUtils.isEmpty(((NamedArgumentExpression) arg).getArgName()));
-      if (!(argumentsPassedByName || argumentsPassedByPosition)) {
-        throw new SemanticCheckException("Arguments should be either passed by name or position");
-      }
+    FunctionBuilder functionBuilder =
+        (functionProperties, arguments) -> {
+          Boolean argumentsPassedByName =
+              arguments.stream()
+                  .noneMatch(
+                      arg -> StringUtils.isEmpty(((NamedArgumentExpression) arg).getArgName()));
+          Boolean argumentsPassedByPosition =
+              arguments.stream()
+                  .allMatch(
+                      arg -> StringUtils.isEmpty(((NamedArgumentExpression) arg).getArgName()));
+          if (!(argumentsPassedByName || argumentsPassedByPosition)) {
+            throw new SemanticCheckException(
+                "Arguments should be either passed by name or position");
+          }
 
-      if (arguments.size() != argumentNames.size()) {
-        throw new SemanticCheckException(
-            generateErrorMessageForMissingArguments(argumentsPassedByPosition, arguments,
-                argumentNames));
-      }
+          if (arguments.size() != argumentNames.size()) {
+            throw new SemanticCheckException(
+                generateErrorMessageForMissingArguments(
+                    argumentsPassedByPosition, arguments, argumentNames));
+          }
 
-      if (argumentsPassedByPosition) {
-        List<Expression> namedArguments = new ArrayList<>();
-        for (int i = 0; i < arguments.size(); i++) {
-          namedArguments.add(new NamedArgumentExpression(argumentNames.get(i),
-              ((NamedArgumentExpression) arguments.get(i)).getValue()));
-        }
-        return new QueryRangeFunctionImplementation(functionName, namedArguments, prometheusClient);
-      }
-      return new QueryRangeFunctionImplementation(functionName, arguments, prometheusClient);
-    };
+          if (argumentsPassedByPosition) {
+            List<Expression> namedArguments = new ArrayList<>();
+            for (int i = 0; i < arguments.size(); i++) {
+              namedArguments.add(
+                  new NamedArgumentExpression(
+                      argumentNames.get(i),
+                      ((NamedArgumentExpression) arguments.get(i)).getValue()));
+            }
+            return new QueryRangeFunctionImplementation(
+                functionName, namedArguments, prometheusClient);
+          }
+          return new QueryRangeFunctionImplementation(functionName, arguments, prometheusClient);
+        };
     return Pair.of(functionSignature, functionBuilder);
   }
 
-  private String generateErrorMessageForMissingArguments(Boolean argumentsPassedByPosition,
-                                                         List<Expression> arguments,
-                                                         List<String> argumentNames) {
+  private String generateErrorMessageForMissingArguments(
+      Boolean argumentsPassedByPosition, List<Expression> arguments, List<String> argumentNames) {
     if (argumentsPassedByPosition) {
-      return String.format("Missing arguments:[%s]",
+      return String.format(
+          "Missing arguments:[%s]",
           String.join(",", argumentNames.subList(arguments.size(), argumentNames.size())));
     } else {
       Set<String> requiredArguments = new HashSet<>(argumentNames);
       Set<String> providedArguments =
-          arguments.stream().map(expression -> ((NamedArgumentExpression) expression).getArgName())
+          arguments.stream()
+              .map(expression -> ((NamedArgumentExpression) expression).getArgName())
               .collect(Collectors.toSet());
       requiredArguments.removeAll(providedArguments);
       return String.format("Missing arguments:[%s]", String.join(",", requiredArguments));
@@ -94,5 +104,4 @@ public class QueryRangeTableFunctionResolver implements FunctionResolver {
   public FunctionName getFunctionName() {
     return FunctionName.of(QUERY_RANGE);
   }
-
 }

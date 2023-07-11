@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.legacy;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -15,18 +14,15 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.opensearch.client.ResponseException;
 
-/**
- * Test cases for writing missing join table aliases.
- */
+/** Test cases for writing missing join table aliases. */
 public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
 
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
+  @Rule public ExpectedException exception = ExpectedException.none();
 
   protected void init() throws Exception {
-    loadIndex(Index.ORDER);     // opensearch-sql_test_index_order
-    loadIndex(Index.BANK);      // opensearch-sql_test_index_bank
-    loadIndex(Index.BANK_TWO);  // opensearch-sql_test_index_bank_two
+    loadIndex(Index.ORDER); // opensearch-sql_test_index_order
+    loadIndex(Index.BANK); // opensearch-sql_test_index_bank
+    loadIndex(Index.BANK_TWO); // opensearch-sql_test_index_bank_two
   }
 
   @Test
@@ -42,8 +38,7 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
             "FROM opensearch-sql_test_index_order opensearch-sql_test_index_order_0 ",
             "INNER JOIN opensearch-sql_test_index_bank opensearch-sql_test_index_bank_1 ",
             "ON opensearch-sql_test_index_order_0.name = opensearch-sql_test_index_bank_1.firstname ",
-            "WHERE opensearch-sql_test_index_bank_1.state = 'WA' OR opensearch-sql_test_index_order_0.id < 7")
-    );
+            "WHERE opensearch-sql_test_index_bank_1.state = 'WA' OR opensearch-sql_test_index_order_0.id < 7"));
   }
 
   @Test
@@ -59,8 +54,7 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
             "FROM opensearch-sql_test_index_order a ",
             "INNER JOIN opensearch-sql_test_index_bank opensearch-sql_test_index_bank_0 ",
             "ON a.name = opensearch-sql_test_index_bank_0.firstname ",
-            "WHERE opensearch-sql_test_index_bank_0.state = 'WA' OR a.id < 7")
-    );
+            "WHERE opensearch-sql_test_index_bank_0.state = 'WA' OR a.id < 7"));
   }
 
   @Test
@@ -76,8 +70,7 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
             "FROM opensearch-sql_test_index_order a ",
             "INNER JOIN opensearch-sql_test_index_bank b ",
             "ON a.name = b.firstname ",
-            "WHERE b.state = 'WA' OR a.id < 7 ")
-    );
+            "WHERE b.state = 'WA' OR a.id < 7 "));
   }
 
   @Test
@@ -94,8 +87,7 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
             "FROM opensearch-sql_test_index_order/_doc opensearch-sql_test_index_order_0 ",
             "INNER JOIN opensearch-sql_test_index_bank/_account opensearch-sql_test_index_bank_1 ",
             "ON opensearch-sql_test_index_order_0.name = opensearch-sql_test_index_bank_1.firstname ",
-            "WHERE opensearch-sql_test_index_bank_1.state = 'WA' OR opensearch-sql_test_index_order_0.id < 7")
-    );
+            "WHERE opensearch-sql_test_index_bank_1.state = 'WA' OR opensearch-sql_test_index_order_0.id < 7"));
   }
 
   @Ignore
@@ -112,8 +104,7 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
             "FROM opensearch-sql_test_index_order a ",
             "INNER JOIN opensearch-sql_test_index_bank b ",
             "ON a.name = b.firstname ",
-            "WHERE b.state = 'WA' OR a.id < 7")
-    );
+            "WHERE b.state = 'WA' OR a.id < 7"));
   }
 
   @Test
@@ -129,8 +120,7 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
             "FROM opensearch-sql_test_index_order  opensearch-sql_test_index_order_0 ",
             "INNER JOIN opensearch-sql_test_index_bank b ",
             "ON opensearch-sql_test_index_order_0.name = b.firstname ",
-            "WHERE b.state = 'WA' OR opensearch-sql_test_index_order_0.id < 7")
-    );
+            "WHERE b.state = 'WA' OR opensearch-sql_test_index_order_0.id < 7"));
   }
 
   @Test
@@ -147,8 +137,7 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
             "FROM opensearch-sql_test_index_order  opensearch-sql_test_index_order_0 ",
             "INNER JOIN opensearch-sql_test_index_bank opensearch-sql_test_index_bank_1",
             "ON opensearch-sql_test_index_order_0.name = opensearch-sql_test_index_bank_1.firstname ",
-            "WHERE opensearch-sql_test_index_bank_1.state = 'WA' OR opensearch-sql_test_index_order_0.id < 7")
-    );
+            "WHERE opensearch-sql_test_index_bank_1.state = 'WA' OR opensearch-sql_test_index_order_0.id < 7"));
   }
 
   @Test
@@ -164,44 +153,46 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
             "FROM opensearch-sql_test_index_order a ",
             "INNER JOIN opensearch-sql_test_index_bank b ",
             "ON a.name = b.firstname ",
-            "WHERE b.state = 'WA' OR a.id < 7")
-    );
+            "WHERE b.state = 'WA' OR a.id < 7"));
   }
 
   @Test
   public void commonColumnWithoutTableAliasDifferentTables() throws IOException {
     exception.expect(ResponseException.class);
     exception.expectMessage("Field name [firstname] is ambiguous");
-    String explain = explainQuery(query(
-        "SELECT firstname, lastname ",
-        "FROM opensearch-sql_test_index_bank ",
-        "LEFT JOIN opensearch-sql_test_index_bank_two ",
-        "ON firstname = lastname WHERE state = 'VA' "
-    ));
+    String explain =
+        explainQuery(
+            query(
+                "SELECT firstname, lastname ",
+                "FROM opensearch-sql_test_index_bank ",
+                "LEFT JOIN opensearch-sql_test_index_bank_two ",
+                "ON firstname = lastname WHERE state = 'VA' "));
   }
 
   @Test
   public void sameTablesNoAliasAndNoAliasOnColumns() throws IOException {
     exception.expect(ResponseException.class);
     exception.expectMessage("Not unique table/alias: [opensearch-sql_test_index_bank]");
-    String explain = explainQuery(query(
-        "SELECT firstname, lastname ",
-        "FROM opensearch-sql_test_index_bank ",
-        "LEFT JOIN opensearch-sql_test_index_bank ",
-        "ON firstname = lastname WHERE state = 'VA' "
-    ));
+    String explain =
+        explainQuery(
+            query(
+                "SELECT firstname, lastname ",
+                "FROM opensearch-sql_test_index_bank ",
+                "LEFT JOIN opensearch-sql_test_index_bank ",
+                "ON firstname = lastname WHERE state = 'VA' "));
   }
 
   @Test
   public void sameTablesNoAliasWithTableNameAsAliasOnColumns() throws IOException {
     exception.expect(ResponseException.class);
     exception.expectMessage("Not unique table/alias: [opensearch-sql_test_index_bank]");
-    String explain = explainQuery(query(
-        "SELECT opensearch-sql_test_index_bank.firstname",
-        "FROM opensearch-sql_test_index_bank ",
-        "JOIN opensearch-sql_test_index_bank ",
-        "ON opensearch-sql_test_index_bank.firstname = opensearch-sql_test_index_bank.lastname"
-    ));
+    String explain =
+        explainQuery(
+            query(
+                "SELECT opensearch-sql_test_index_bank.firstname",
+                "FROM opensearch-sql_test_index_bank ",
+                "JOIN opensearch-sql_test_index_bank ",
+                "ON opensearch-sql_test_index_bank.firstname = opensearch-sql_test_index_bank.lastname"));
   }
 
   @Test
@@ -211,16 +202,12 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
             "SELECT opensearch-sql_test_index_bank.firstname, a.lastname ",
             "FROM opensearch-sql_test_index_bank a",
             "JOIN opensearch-sql_test_index_bank ",
-            "ON opensearch-sql_test_index_bank.firstname = a.lastname "
-        ),
+            "ON opensearch-sql_test_index_bank.firstname = a.lastname "),
         query(
             "SELECT opensearch-sql_test_index_bank_0.firstname, a.lastname ",
             "FROM opensearch-sql_test_index_bank a",
             "JOIN  opensearch-sql_test_index_bank opensearch-sql_test_index_bank_0",
-            "ON opensearch-sql_test_index_bank_0.firstname = a.lastname "
-        )
-
-    );
+            "ON opensearch-sql_test_index_bank_0.firstname = a.lastname "));
   }
 
   @Test
@@ -230,16 +217,12 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
             "SELECT opensearch-sql_test_index_bank.firstname, a.lastname ",
             "FROM opensearch-sql_test_index_bank ",
             "JOIN opensearch-sql_test_index_bank a",
-            "ON opensearch-sql_test_index_bank.firstname = a.lastname "
-        ),
+            "ON opensearch-sql_test_index_bank.firstname = a.lastname "),
         query(
             "SELECT opensearch-sql_test_index_bank_0.firstname, a.lastname ",
             "FROM opensearch-sql_test_index_bank opensearch-sql_test_index_bank_0",
             "JOIN  opensearch-sql_test_index_bank a",
-            "ON opensearch-sql_test_index_bank_0.firstname = a.lastname "
-        )
-
-    );
+            "ON opensearch-sql_test_index_bank_0.firstname = a.lastname "));
   }
 
   private void sameExplain(String actualQuery, String expectedQuery) throws IOException {

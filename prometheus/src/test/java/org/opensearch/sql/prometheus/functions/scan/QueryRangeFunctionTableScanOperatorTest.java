@@ -41,8 +41,7 @@ import org.opensearch.sql.prometheus.request.PrometheusQueryRequest;
 
 @ExtendWith(MockitoExtension.class)
 public class QueryRangeFunctionTableScanOperatorTest {
-  @Mock
-  private PrometheusClient prometheusClient;
+  @Mock private PrometheusClient prometheusClient;
 
   @Test
   @SneakyThrows
@@ -54,31 +53,37 @@ public class QueryRangeFunctionTableScanOperatorTest {
     prometheusQueryRequest.setEndTime(ENDTIME);
     prometheusQueryRequest.setStep(STEP);
 
-    QueryRangeFunctionTableScanOperator queryRangeFunctionTableScanOperator
-        = new QueryRangeFunctionTableScanOperator(prometheusClient, prometheusQueryRequest);
+    QueryRangeFunctionTableScanOperator queryRangeFunctionTableScanOperator =
+        new QueryRangeFunctionTableScanOperator(prometheusClient, prometheusQueryRequest);
 
     when(prometheusClient.queryRange(any(), any(), any(), any()))
         .thenReturn(new JSONObject(getJson("query_range_result.json")));
     queryRangeFunctionTableScanOperator.open();
     Assertions.assertTrue(queryRangeFunctionTableScanOperator.hasNext());
-    ExprTupleValue firstRow = new ExprTupleValue(new LinkedHashMap<>() {{
-        put(TIMESTAMP, new ExprTimestampValue(Instant.ofEpochMilli(1435781430781L)));
-        put(VALUE, new ExprDoubleValue(1));
-        put("instance", new ExprStringValue("localhost:9090"));
-        put("__name__", new ExprStringValue("up"));
-        put("job", new ExprStringValue("prometheus"));
-      }
-    });
+    ExprTupleValue firstRow =
+        new ExprTupleValue(
+            new LinkedHashMap<>() {
+              {
+                put(TIMESTAMP, new ExprTimestampValue(Instant.ofEpochMilli(1435781430781L)));
+                put(VALUE, new ExprDoubleValue(1));
+                put("instance", new ExprStringValue("localhost:9090"));
+                put("__name__", new ExprStringValue("up"));
+                put("job", new ExprStringValue("prometheus"));
+              }
+            });
     assertEquals(firstRow, queryRangeFunctionTableScanOperator.next());
     Assertions.assertTrue(queryRangeFunctionTableScanOperator.hasNext());
-    ExprTupleValue secondRow = new ExprTupleValue(new LinkedHashMap<>() {{
-        put("@timestamp", new ExprTimestampValue(Instant.ofEpochMilli(1435781430781L)));
-        put("@value", new ExprDoubleValue(0));
-        put("instance", new ExprStringValue("localhost:9091"));
-        put("__name__", new ExprStringValue("up"));
-        put("job", new ExprStringValue("node"));
-      }
-    });
+    ExprTupleValue secondRow =
+        new ExprTupleValue(
+            new LinkedHashMap<>() {
+              {
+                put("@timestamp", new ExprTimestampValue(Instant.ofEpochMilli(1435781430781L)));
+                put("@value", new ExprDoubleValue(0));
+                put("instance", new ExprStringValue("localhost:9091"));
+                put("__name__", new ExprStringValue("up"));
+                put("job", new ExprStringValue("node"));
+              }
+            });
     assertEquals(secondRow, queryRangeFunctionTableScanOperator.next());
     Assertions.assertFalse(queryRangeFunctionTableScanOperator.hasNext());
   }
@@ -92,16 +97,17 @@ public class QueryRangeFunctionTableScanOperatorTest {
     prometheusQueryRequest.setEndTime(ENDTIME);
     prometheusQueryRequest.setStep(STEP);
 
-    QueryRangeFunctionTableScanOperator queryRangeFunctionTableScanOperator
-        = new QueryRangeFunctionTableScanOperator(prometheusClient, prometheusQueryRequest);
+    QueryRangeFunctionTableScanOperator queryRangeFunctionTableScanOperator =
+        new QueryRangeFunctionTableScanOperator(prometheusClient, prometheusQueryRequest);
 
     when(prometheusClient.queryRange(any(), any(), any(), any()))
         .thenReturn(new JSONObject(getJson("no_matrix_query_range_result.json")));
-    RuntimeException runtimeException
-        = assertThrows(RuntimeException.class, queryRangeFunctionTableScanOperator::open);
+    RuntimeException runtimeException =
+        assertThrows(RuntimeException.class, queryRangeFunctionTableScanOperator::open);
     assertEquals(
         "Unexpected Result Type: vector during Prometheus Response Parsing. "
-            + "'matrix' resultType is expected", runtimeException.getMessage());
+            + "'matrix' resultType is expected",
+        runtimeException.getMessage());
   }
 
   @Test
@@ -113,8 +119,8 @@ public class QueryRangeFunctionTableScanOperatorTest {
     prometheusQueryRequest.setEndTime(ENDTIME);
     prometheusQueryRequest.setStep(STEP);
 
-    QueryRangeFunctionTableScanOperator queryRangeFunctionTableScanOperator
-        = new QueryRangeFunctionTableScanOperator(prometheusClient, prometheusQueryRequest);
+    QueryRangeFunctionTableScanOperator queryRangeFunctionTableScanOperator =
+        new QueryRangeFunctionTableScanOperator(prometheusClient, prometheusQueryRequest);
 
     when(prometheusClient.queryRange(any(), any(), any(), any()))
         .thenReturn(new JSONObject(getJson("query_range_result.json")));
@@ -138,17 +144,16 @@ public class QueryRangeFunctionTableScanOperatorTest {
     prometheusQueryRequest.setEndTime(ENDTIME);
     prometheusQueryRequest.setStep(STEP);
 
-    QueryRangeFunctionTableScanOperator queryRangeFunctionTableScanOperator
-        = new QueryRangeFunctionTableScanOperator(prometheusClient, prometheusQueryRequest);
+    QueryRangeFunctionTableScanOperator queryRangeFunctionTableScanOperator =
+        new QueryRangeFunctionTableScanOperator(prometheusClient, prometheusQueryRequest);
 
     when(prometheusClient.queryRange(any(), any(), any(), any()))
         .thenThrow(new IOException("Error Message"));
-    RuntimeException runtimeException
-        = assertThrows(RuntimeException.class, queryRangeFunctionTableScanOperator::open);
-    assertEquals("Error fetching data from prometheus server: Error Message",
-        runtimeException.getMessage());
+    RuntimeException runtimeException =
+        assertThrows(RuntimeException.class, queryRangeFunctionTableScanOperator::open);
+    assertEquals(
+        "Error fetching data from prometheus server: Error Message", runtimeException.getMessage());
   }
-
 
   @Test
   @SneakyThrows
@@ -159,10 +164,11 @@ public class QueryRangeFunctionTableScanOperatorTest {
     prometheusQueryRequest.setEndTime(ENDTIME);
     prometheusQueryRequest.setStep(STEP);
 
-    QueryRangeFunctionTableScanOperator queryRangeFunctionTableScanOperator
-        = new QueryRangeFunctionTableScanOperator(prometheusClient, prometheusQueryRequest);
+    QueryRangeFunctionTableScanOperator queryRangeFunctionTableScanOperator =
+        new QueryRangeFunctionTableScanOperator(prometheusClient, prometheusQueryRequest);
 
-    Assertions.assertEquals("query_range(test_query, 1664767694133, 1664771294133, 14)",
+    Assertions.assertEquals(
+        "query_range(test_query, 1664767694133, 1664771294133, 14)",
         queryRangeFunctionTableScanOperator.explain());
   }
 
@@ -175,8 +181,8 @@ public class QueryRangeFunctionTableScanOperatorTest {
     prometheusQueryRequest.setEndTime(ENDTIME);
     prometheusQueryRequest.setStep(STEP);
 
-    QueryRangeFunctionTableScanOperator queryRangeFunctionTableScanOperator
-        = new QueryRangeFunctionTableScanOperator(prometheusClient, prometheusQueryRequest);
+    QueryRangeFunctionTableScanOperator queryRangeFunctionTableScanOperator =
+        new QueryRangeFunctionTableScanOperator(prometheusClient, prometheusQueryRequest);
     queryRangeFunctionTableScanOperator.close();
   }
 }

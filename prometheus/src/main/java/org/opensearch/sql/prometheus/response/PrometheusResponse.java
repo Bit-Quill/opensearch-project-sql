@@ -40,14 +40,14 @@ public class PrometheusResponse implements Iterable<ExprValue> {
   /**
    * Constructor.
    *
-   * @param responseObject               Prometheus responseObject.
-   * @param prometheusResponseFieldNames data model which
-   *                                     contains field names for the metric measurement
-   *                                     and timestamp fieldName.
+   * @param responseObject Prometheus responseObject.
+   * @param prometheusResponseFieldNames data model which contains field names for the metric
+   *     measurement and timestamp fieldName.
    */
-  public PrometheusResponse(JSONObject responseObject,
-                            PrometheusResponseFieldNames prometheusResponseFieldNames,
-                            Boolean isQueryRangeFunctionScan) {
+  public PrometheusResponse(
+      JSONObject responseObject,
+      PrometheusResponseFieldNames prometheusResponseFieldNames,
+      Boolean isQueryRangeFunctionScan) {
     this.responseObject = responseObject;
     this.prometheusResponseFieldNames = prometheusResponseFieldNames;
     this.isQueryRangeFunctionScan = isQueryRangeFunctionScan;
@@ -66,10 +66,12 @@ public class PrometheusResponse implements Iterable<ExprValue> {
         for (int j = 0; j < values.length(); j++) {
           LinkedHashMap<String, ExprValue> linkedHashMap = new LinkedHashMap<>();
           JSONArray val = values.getJSONArray(j);
-          linkedHashMap.put(prometheusResponseFieldNames.getTimestampFieldName(),
+          linkedHashMap.put(
+              prometheusResponseFieldNames.getTimestampFieldName(),
               new ExprTimestampValue(Instant.ofEpochMilli((long) (val.getDouble(0) * 1000))));
-          linkedHashMap.put(prometheusResponseFieldNames.getValueFieldName(), getValue(val, 1,
-              prometheusResponseFieldNames.getValueType()));
+          linkedHashMap.put(
+              prometheusResponseFieldNames.getValueFieldName(),
+              getValue(val, 1, prometheusResponseFieldNames.getValueType()));
           // Concept:
           // {\"instance\":\"localhost:9090\",\"__name__\":\"up\",\"job\":\"prometheus\"}"
           // This is the label string in the prometheus response.
@@ -92,9 +94,11 @@ public class PrometheusResponse implements Iterable<ExprValue> {
         }
       }
     } else {
-      throw new RuntimeException(String.format("Unexpected Result Type: %s during Prometheus "
-              + "Response Parsing. 'matrix' resultType is expected",
-          responseObject.getString("resultType")));
+      throw new RuntimeException(
+          String.format(
+              "Unexpected Result Type: %s during Prometheus "
+                  + "Response Parsing. 'matrix' resultType is expected",
+              responseObject.getString("resultType")));
     }
     return result.iterator();
   }
@@ -120,12 +124,11 @@ public class PrometheusResponse implements Iterable<ExprValue> {
     } else {
       return this.prometheusResponseFieldNames.getGroupByList().stream()
           .filter(expression -> expression.getDelegated() instanceof ReferenceExpression)
-          .filter(expression
-              -> ((ReferenceExpression) expression.getDelegated()).getAttr().equals(key))
+          .filter(
+              expression -> ((ReferenceExpression) expression.getDelegated()).getAttr().equals(key))
           .findFirst()
           .map(NamedExpression::getName)
           .orElse(key);
     }
   }
-
 }

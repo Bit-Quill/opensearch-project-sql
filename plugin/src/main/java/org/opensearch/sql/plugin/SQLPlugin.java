@@ -92,10 +92,10 @@ public class SQLPlugin extends Plugin implements ActionPlugin, ScriptPlugin {
 
   private static final Logger LOG = LogManager.getLogger();
   private ClusterService clusterService;
-  /**
-   * Settings should be inited when bootstrap the plugin.
-   */
+
+  /** Settings should be inited when bootstrap the plugin. */
   private org.opensearch.sql.common.setting.Settings pluginSettings;
+
   private NodeClient client;
   private DataSourceServiceImpl dataSourceService;
   private Injector injector;
@@ -132,23 +132,28 @@ public class SQLPlugin extends Plugin implements ActionPlugin, ScriptPlugin {
         new RestDataSourceQueryAction());
   }
 
-  /**
-   * Register action and handler so that transportClient can find proxy for action.
-   */
+  /** Register action and handler so that transportClient can find proxy for action. */
   @Override
   public List<ActionHandler<? extends ActionRequest, ? extends ActionResponse>> getActions() {
     return Arrays.asList(
         new ActionHandler<>(
             new ActionType<>(PPLQueryAction.NAME, TransportPPLQueryResponse::new),
             TransportPPLQueryAction.class),
-        new ActionHandler<>(new ActionType<>(TransportCreateDataSourceAction.NAME,
-            CreateDataSourceActionResponse::new), TransportCreateDataSourceAction.class),
-        new ActionHandler<>(new ActionType<>(TransportGetDataSourceAction.NAME,
-            GetDataSourceActionResponse::new), TransportGetDataSourceAction.class),
-        new ActionHandler<>(new ActionType<>(TransportUpdateDataSourceAction.NAME,
-            UpdateDataSourceActionResponse::new), TransportUpdateDataSourceAction.class),
-        new ActionHandler<>(new ActionType<>(TransportDeleteDataSourceAction.NAME,
-            DeleteDataSourceActionResponse::new), TransportDeleteDataSourceAction.class));
+        new ActionHandler<>(
+            new ActionType<>(
+                TransportCreateDataSourceAction.NAME, CreateDataSourceActionResponse::new),
+            TransportCreateDataSourceAction.class),
+        new ActionHandler<>(
+            new ActionType<>(TransportGetDataSourceAction.NAME, GetDataSourceActionResponse::new),
+            TransportGetDataSourceAction.class),
+        new ActionHandler<>(
+            new ActionType<>(
+                TransportUpdateDataSourceAction.NAME, UpdateDataSourceActionResponse::new),
+            TransportUpdateDataSourceAction.class),
+        new ActionHandler<>(
+            new ActionType<>(
+                TransportDeleteDataSourceAction.NAME, DeleteDataSourceActionResponse::new),
+            TransportDeleteDataSourceAction.class));
   }
 
   @Override
@@ -174,11 +179,12 @@ public class SQLPlugin extends Plugin implements ActionPlugin, ScriptPlugin {
 
     ModulesBuilder modules = new ModulesBuilder();
     modules.add(new OpenSearchPluginModule());
-    modules.add(b -> {
-      b.bind(NodeClient.class).toInstance((NodeClient) client);
-      b.bind(org.opensearch.sql.common.setting.Settings.class).toInstance(pluginSettings);
-      b.bind(DataSourceService.class).toInstance(dataSourceService);
-    });
+    modules.add(
+        b -> {
+          b.bind(NodeClient.class).toInstance((NodeClient) client);
+          b.bind(org.opensearch.sql.common.setting.Settings.class).toInstance(pluginSettings);
+          b.bind(DataSourceService.class).toInstance(dataSourceService);
+        });
 
     injector = modules.createInjector();
     return ImmutableList.of(dataSourceService);
@@ -210,22 +216,22 @@ public class SQLPlugin extends Plugin implements ActionPlugin, ScriptPlugin {
   }
 
   private DataSourceServiceImpl createDataSourceService() {
-    String masterKey = OpenSearchSettings
-        .DATASOURCE_MASTER_SECRET_KEY.get(clusterService.getSettings());
-    DataSourceMetadataStorage dataSourceMetadataStorage
-        = new OpenSearchDataSourceMetadataStorage(client, clusterService,
-            new EncryptorImpl(masterKey));
-    DataSourceUserAuthorizationHelper dataSourceUserAuthorizationHelper
-        = new DataSourceUserAuthorizationHelperImpl(client);
+    String masterKey =
+        OpenSearchSettings.DATASOURCE_MASTER_SECRET_KEY.get(clusterService.getSettings());
+    DataSourceMetadataStorage dataSourceMetadataStorage =
+        new OpenSearchDataSourceMetadataStorage(
+            client, clusterService, new EncryptorImpl(masterKey));
+    DataSourceUserAuthorizationHelper dataSourceUserAuthorizationHelper =
+        new DataSourceUserAuthorizationHelperImpl(client);
     return new DataSourceServiceImpl(
         new ImmutableSet.Builder<DataSourceFactory>()
-            .add(new OpenSearchDataSourceFactory(
-                new OpenSearchNodeClient(this.client), pluginSettings))
+            .add(
+                new OpenSearchDataSourceFactory(
+                    new OpenSearchNodeClient(this.client), pluginSettings))
             .add(new PrometheusStorageFactory(pluginSettings))
             .add(new SparkStorageFactory(this.client, pluginSettings))
             .build(),
         dataSourceMetadataStorage,
         dataSourceUserAuthorizationHelper);
   }
-
 }

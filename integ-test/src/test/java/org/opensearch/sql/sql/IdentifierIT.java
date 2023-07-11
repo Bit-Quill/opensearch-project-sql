@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.sql;
 
 import static org.opensearch.sql.util.MatcherUtils.rows;
@@ -19,9 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.opensearch.client.Request;
 import org.opensearch.sql.legacy.SQLIntegTestCase;
 
-/**
- * Integration tests for identifiers including index and field name symbol.
- */
+/** Integration tests for identifiers including index and field name symbol. */
 public class IdentifierIT extends SQLIntegTestCase {
 
   @Test
@@ -46,12 +43,13 @@ public class IdentifierIT extends SQLIntegTestCase {
 
   @Test
   public void testSpecialFieldName() throws IOException {
-    new Index("test")
-        .addDoc("{\"@timestamp\": 10, \"dimensions:major_version\": 30}");
-    final JSONObject result = new JSONObject(executeQuery("SELECT @timestamp, "
-        + "`dimensions:major_version` FROM test", "jdbc"));
+    new Index("test").addDoc("{\"@timestamp\": 10, \"dimensions:major_version\": 30}");
+    final JSONObject result =
+        new JSONObject(
+            executeQuery("SELECT @timestamp, " + "`dimensions:major_version` FROM test", "jdbc"));
 
-    verifySchema(result,
+    verifySchema(
+        result,
         schema("@timestamp", null, "long"),
         schema("dimensions:major_version", null, "long"));
     verifyDataRows(result, rows(10, 30));
@@ -66,12 +64,11 @@ public class IdentifierIT extends SQLIntegTestCase {
 
   @Test
   public void testDoubleUnderscoreIdentifierTest() throws IOException {
-    new Index("test.twounderscores")
-            .addDoc("{\"__age\": 30}");
-    final JSONObject result = new JSONObject(executeQuery("SELECT __age FROM test.twounderscores", "jdbc"));
+    new Index("test.twounderscores").addDoc("{\"__age\": 30}");
+    final JSONObject result =
+        new JSONObject(executeQuery("SELECT __age FROM test.twounderscores", "jdbc"));
 
-    verifySchema(result,
-            schema("__age", null, "long"));
+    verifySchema(result, schema("__age", null, "long"));
     verifyDataRows(result, rows(30));
   }
 
@@ -83,19 +80,20 @@ public class IdentifierIT extends SQLIntegTestCase {
     new Index(index).addDoc("{\"age\": 30}", id);
 
     // Execute using field metadata values
-    final JSONObject result = new JSONObject(executeQuery(
-            "SELECT *, _id, _index, _score, _maxscore, _sort "
-                + "FROM " + index,
-            "jdbc"));
+    final JSONObject result =
+        new JSONObject(
+            executeQuery(
+                "SELECT *, _id, _index, _score, _maxscore, _sort " + "FROM " + index, "jdbc"));
 
     // Verify that the metadata values are returned when requested
-    verifySchema(result,
-            schema("age", null, "long"),
-            schema("_id", null, "keyword"),
-            schema("_index", null, "keyword"),
-            schema("_score", null, "float"),
-            schema("_maxscore", null, "float"),
-            schema("_sort", null, "long"));
+    verifySchema(
+        result,
+        schema("age", null, "long"),
+        schema("_id", null, "keyword"),
+        schema("_index", null, "keyword"),
+        schema("_score", null, "float"),
+        schema("_maxscore", null, "float"),
+        schema("_sort", null, "long"));
     verifyDataRows(result, rows(30, id, index, 1.0, 1.0, -2));
   }
 
@@ -107,14 +105,21 @@ public class IdentifierIT extends SQLIntegTestCase {
     new Index(index).addDoc("{\"age\": 30}", id);
 
     // Execute using field metadata values
-    final JSONObject result = new JSONObject(executeQuery(
-        "SELECT _id AS A, _index AS B, _score AS C, _maxscore AS D, _sort AS E "
-            + "FROM " + index + " "
-            + "WHERE _id = \\\"" + id + "\\\"",
-        "jdbc"));
+    final JSONObject result =
+        new JSONObject(
+            executeQuery(
+                "SELECT _id AS A, _index AS B, _score AS C, _maxscore AS D, _sort AS E "
+                    + "FROM "
+                    + index
+                    + " "
+                    + "WHERE _id = \\\""
+                    + id
+                    + "\\\"",
+                "jdbc"));
 
     // Verify that the metadata values are returned when requested
-    verifySchema(result,
+    verifySchema(
+        result,
         schema("_id", "A", "keyword"),
         schema("_index", "B", "keyword"),
         schema("_score", "C", "float"),
@@ -135,9 +140,7 @@ public class IdentifierIT extends SQLIntegTestCase {
     verifyDataRows(result, rows(30));
   }
 
-  /**
-   * Index abstraction for test code readability.
-   */
+  /** Index abstraction for test code readability. */
   private static class Index {
 
     private final String indexName;
@@ -159,10 +162,10 @@ public class IdentifierIT extends SQLIntegTestCase {
     }
 
     void addDoc(String doc, String id) {
-      Request indexDoc = new Request("POST", String.format("/%s/_doc/%s?refresh=true", indexName, id));
+      Request indexDoc =
+          new Request("POST", String.format("/%s/_doc/%s?refresh=true", indexName, id));
       indexDoc.setJsonEntity(doc);
       performRequest(client(), indexDoc);
     }
   }
-
 }

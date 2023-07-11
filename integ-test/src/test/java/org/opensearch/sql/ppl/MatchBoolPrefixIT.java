@@ -28,9 +28,7 @@ public class MatchBoolPrefixIT extends PPLIntegTestCase {
                 "source=%s | where match_bool_prefix(phrase, 'qui') | fields phrase",
                 TEST_INDEX_PHRASE));
 
-    verifyDataRows(result,
-        rows("quick fox"),
-        rows("quick fox here"));
+    verifyDataRows(result, rows("quick fox"), rows("quick fox here"));
   }
 
   @Test
@@ -41,9 +39,7 @@ public class MatchBoolPrefixIT extends PPLIntegTestCase {
                 "source=%s | where match_bool_prefix(phrase, '2 tes', minimum_should_match=1, fuzziness=2) | fields phrase",
                 TEST_INDEX_PHRASE));
 
-    verifyDataRows(result,
-        rows("my test"),
-        rows("my test 2"));
+    verifyDataRows(result, rows("my test"), rows("my test 2"));
   }
 
   @Test

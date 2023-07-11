@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-
 @ExtendWith(MockitoExtension.class)
 public class EncryptorImplTest {
 
@@ -38,9 +37,11 @@ public class EncryptorImplTest {
     String input = "This is a test input";
     String masterKey8 = "12345678";
     Encryptor encryptor8 = new EncryptorImpl(masterKey8);
-    assertThrows(AwsCryptoException.class, () -> {
-      encryptor8.encrypt(input);
-    });
+    assertThrows(
+        AwsCryptoException.class,
+        () -> {
+          encryptor8.encrypt(input);
+        });
 
     String masterKey16 = "1234567812345678";
     Encryptor encryptor16 = new EncryptorImpl(masterKey16);
@@ -54,9 +55,11 @@ public class EncryptorImplTest {
 
     String masterKey17 = "12345678123456781";
     Encryptor encryptor17 = new EncryptorImpl(masterKey17);
-    assertThrows(AwsCryptoException.class, () -> {
-      encryptor17.encrypt(input);
-    });
+    assertThrows(
+        AwsCryptoException.class,
+        () -> {
+          encryptor17.encrypt(input);
+        });
   }
 
   @Test
@@ -64,9 +67,11 @@ public class EncryptorImplTest {
     String encrypted = "invalidBase64String";
     Encryptor encryptor = new EncryptorImpl("randomMasterKey");
 
-    assertThrows(BadCiphertextException.class, () -> {
-      encryptor.decrypt(encrypted);
-    });
+    assertThrows(
+        BadCiphertextException.class,
+        () -> {
+          encryptor.decrypt(encrypted);
+        });
   }
 
   @Test
@@ -80,8 +85,10 @@ public class EncryptorImplTest {
 
     String encrypted = encryptor1.encrypt(input);
 
-    assertThrows(Exception.class, () -> {
-      encryptor2.decrypt(encrypted);
-    });
+    assertThrows(
+        Exception.class,
+        () -> {
+          encryptor2.decrypt(encrypted);
+        });
   }
 }

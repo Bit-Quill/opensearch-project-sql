@@ -21,25 +21,21 @@ import org.opensearch.sql.storage.StorageEngine;
 
 @ExtendWith(MockitoExtension.class)
 public class SparkStorageFactoryTest {
-  @Mock
-  private Settings settings;
+  @Mock private Settings settings;
 
-  @Mock
-  private Client client;
+  @Mock private Client client;
 
   @Test
   void testGetConnectorType() {
     SparkStorageFactory sparkStorageFactory = new SparkStorageFactory(client, settings);
-    Assertions.assertEquals(
-        DataSourceType.SPARK, sparkStorageFactory.getDataSourceType());
+    Assertions.assertEquals(DataSourceType.SPARK, sparkStorageFactory.getDataSourceType());
   }
 
   @Test
   @SneakyThrows
   void testGetStorageEngine() {
     SparkStorageFactory sparkStorageFactory = new SparkStorageFactory(client, settings);
-    StorageEngine storageEngine
-        = sparkStorageFactory.getStorageEngine(new HashMap<>());
+    StorageEngine storageEngine = sparkStorageFactory.getStorageEngine(new HashMap<>());
     Assertions.assertTrue(storageEngine instanceof SparkStorageEngine);
   }
 
@@ -53,5 +49,4 @@ public class SparkStorageFactoryTest {
     DataSource dataSource = new SparkStorageFactory(client, settings).createDataSource(metadata);
     Assertions.assertTrue(dataSource.getStorageEngine() instanceof SparkStorageEngine);
   }
-
 }

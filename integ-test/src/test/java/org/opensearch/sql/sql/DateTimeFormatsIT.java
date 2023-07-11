@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.sql;
 
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DATE_FORMATS;
@@ -33,27 +32,26 @@ public class DateTimeFormatsIT extends SQLIntegTestCase {
 
   @Test
   public void testReadingDateFormats() throws IOException {
-    String query = String.format("SELECT weekyear_week_day, hour_minute_second_millis," +
-        " strict_ordinal_date_time FROM %s LIMIT 1", TEST_INDEX_DATE_FORMATS);
+    String query =
+        String.format(
+            "SELECT weekyear_week_day, hour_minute_second_millis,"
+                + " strict_ordinal_date_time FROM %s LIMIT 1",
+            TEST_INDEX_DATE_FORMATS);
     JSONObject result = executeQuery(query);
-    verifySchema(result,
+    verifySchema(
+        result,
         schema("weekyear_week_day", null, "date"),
         schema("hour_minute_second_millis", null, "time"),
         schema("strict_ordinal_date_time", null, "timestamp"));
-    verifyDataRows(result,
-        rows("1984-04-12",
-            "09:07:42",
-            "1984-04-12 09:07:42.000123456"
-        ));
+    verifyDataRows(result, rows("1984-04-12", "09:07:42", "1984-04-12 09:07:42.000123456"));
   }
 
   @Test
   public void testDateFormatsWithOr() throws IOException {
-    String query = String.format("SELECT yyyy-MM-dd_OR_epoch_millis FROM %s", TEST_INDEX_DATE_FORMATS);
+    String query =
+        String.format("SELECT yyyy-MM-dd_OR_epoch_millis FROM %s", TEST_INDEX_DATE_FORMATS);
     JSONObject result = executeQuery(query);
-    verifyDataRows(result,
-        rows("1984-04-12 00:00:00"),
-        rows("1984-04-12 09:07:42.000123456"));
+    verifyDataRows(result, rows("1984-04-12 00:00:00"), rows("1984-04-12 09:07:42.000123456"));
   }
 
   protected JSONObject executeQuery(String query) throws IOException {
