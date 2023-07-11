@@ -139,7 +139,7 @@ public class PPLSyntaxParserTest {
   }
 
   @Test
-  public void can_parse_multi_match_relevance_function() {
+  public void testCanParseMultiMatchRelevanceFunction() {
     assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE multi_match(['address'], 'query')"));
     assertNotEquals(null, new PPLSyntaxParser().parse(
@@ -172,7 +172,7 @@ public class PPLSyntaxParserTest {
   }
 
   @Test
-  public void can_parse_simple_query_string_relevance_function() {
+  public void testCanParseSimpleQueryStringRelevanceFunction() {
     assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE simple_query_string(['address'], 'query')"));
     assertNotEquals(null, new PPLSyntaxParser().parse(
@@ -205,7 +205,7 @@ public class PPLSyntaxParserTest {
   }
 
   @Test
-  public void can_parse_query_string_relevance_function() {
+  public void testCanParseQueryStringRelevanceFunction() {
     assertNotEquals(null, new PPLSyntaxParser().parse(
         "SOURCE=test | WHERE query_string(['address'], 'query')"));
     assertNotEquals(null, new PPLSyntaxParser().parse(
@@ -274,7 +274,7 @@ public class PPLSyntaxParserTest {
   }
 
   @Test
-  public void testCan_parse_extract_function() {
+  public void testCanParseExtractFunction() {
     String[] parts = List.of("MICROSECOND", "SECOND", "MINUTE", "HOUR", "DAY",
             "WEEK", "MONTH", "QUARTER", "YEAR", "SECOND_MICROSECOND",
             "MINUTE_MICROSECOND", "MINUTE_SECOND", "HOUR_MICROSECOND",
@@ -288,7 +288,7 @@ public class PPLSyntaxParserTest {
   }
 
   @Test
-  public void testCan_parse_get_format_function() {
+  public void testCanParseGetFormatFunction() {
     String[] types = {"DATE", "DATETIME", "TIME", "TIMESTAMP"};
     String[] formats = {"'USA'", "'JIS'", "'ISO'", "'EUR'", "'INTERNAL'"};
 
@@ -301,7 +301,7 @@ public class PPLSyntaxParserTest {
   }
 
   @Test
-  public void testCannot_parse_get_format_function_with_bad_arg() {
+  public void testCannotParseGetFormatFunctionWithBadArg() {
     assertThrows(
             SyntaxCheckException.class,
             () -> new PPLSyntaxParser().parse(
@@ -309,7 +309,7 @@ public class PPLSyntaxParserTest {
   }
 
   @Test
-  public void can_parse_timestampadd_function() {
+  public void testCanParseTimestampaddFunction() {
     assertNotNull(new PPLSyntaxParser().parse(
             "SOURCE=test | eval k = TIMESTAMPADD(MINUTE, 1, '2003-01-02')"));
     assertNotNull(new PPLSyntaxParser().parse(
@@ -317,7 +317,7 @@ public class PPLSyntaxParserTest {
   }
 
   @Test
-  public void can_parse_timestampdiff_function() {
+  public void testCanParseTimestampdiffFunction() {
     assertNotNull(new PPLSyntaxParser().parse(
             "SOURCE=test | eval k = TIMESTAMPDIFF(MINUTE, '2003-01-02', '2003-01-02')"));
     assertNotNull(new PPLSyntaxParser().parse(

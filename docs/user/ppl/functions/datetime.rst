@@ -1812,6 +1812,7 @@ If the third argument is a STRING, it must be formatted as a valid DATETIME. If 
 If the third argument is a DATE, it will be automatically converted to a DATETIME.
 
 Argument type: INTERVAL, INTEGER, DATE/DATETIME/TIME/TIMESTAMP/STRING
+
 INTERVAL must be one of the following tokens: [MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR]
 
 Examples::
@@ -1837,6 +1838,7 @@ Arguments will be automatically converted to a DATETIME/TIME/TIMESTAMP when appr
 Any argument that is a STRING must be formatted as a valid DATETIME.
 
 Argument type: INTERVAL, DATE/DATETIME/TIME/TIMESTAMP/STRING, DATE/DATETIME/TIME/TIMESTAMP/STRING
+
 INTERVAL must be one of the following tokens: [MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR]
 
 Examples::
