@@ -7,7 +7,7 @@ package org.opensearch.sql.ppl;
 
   import org.json.JSONObject;
   import org.junit.Test;
-  
+
   import java.io.IOException;
 
   import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DATE;
