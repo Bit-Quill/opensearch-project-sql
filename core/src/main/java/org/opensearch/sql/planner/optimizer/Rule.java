@@ -28,4 +28,7 @@ public interface Rule<T> {
    * @return the transformed LogicalPlan.
    */
   LogicalPlan apply(T plan, Captures captures);
+
+  // TODO
+  // toString
 }

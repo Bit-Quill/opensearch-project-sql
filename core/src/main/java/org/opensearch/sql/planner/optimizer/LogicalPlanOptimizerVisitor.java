@@ -27,7 +27,7 @@ public class LogicalPlanOptimizerVisitor extends LogicalPlanNodeVisitor<LogicalP
   private boolean currentRuleApplied = false;
   private boolean anyRuleApplied = false;
 
-  private final List<Pair<Rule<? extends LogicalPlan>, Integer>> log = new ArrayList<>();
+  private final List<Pair<Rule<? extends LogicalPlan>, LogicalPlan>> log = new ArrayList<>();
 
   public LogicalPlanOptimizerVisitor(List<Pair<Rule<? extends LogicalPlan>, Boolean>> rules) {
     this.rules = rules;//new LinkedList<>(rules);
@@ -63,13 +63,13 @@ public class LogicalPlanOptimizerVisitor extends LogicalPlanNodeVisitor<LogicalP
   public LogicalPlan visitNode(LogicalPlan plan, Void noContext) {
     LogicalPlan node = plan;
     Match<? extends LogicalPlan> match = DEFAULT_MATCHER.match(currentRule.pattern(), node);
-    if (!log.contains(Pair.of(currentRule, System.identityHashCode(plan))) && match.isPresent()) {
+    if (!log.contains(Pair.of(currentRule, plan)) && match.isPresent()) {
       anyRuleApplied = currentRuleApplied = true;
       node = currentRule.apply(match.value(), match.captures());
       if (node != plan) {
         log.clear();
       }
-      log.add(Pair.of(currentRule, System.identityHashCode(plan)));
+      log.add(Pair.of(currentRule, plan));
 
       // For new TableScanPushDown impl, pattern match doesn't necessarily cause
       // push down to happen. So reiterate all rules against the node only if the node

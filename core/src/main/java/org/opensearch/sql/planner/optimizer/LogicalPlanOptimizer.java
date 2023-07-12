@@ -6,25 +6,13 @@
 
 package org.opensearch.sql.planner.optimizer;
 
-import static com.facebook.presto.matching.DefaultMatcher.DEFAULT_MATCHER;
-
-import com.facebook.presto.matching.Match;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
-import org.opensearch.sql.planner.logical.LogicalFilter;
 import org.opensearch.sql.planner.logical.LogicalPlan;
-import org.opensearch.sql.planner.optimizer.rule.MergeFilterAndFilter;
-import org.opensearch.sql.planner.optimizer.rule.PushFilterUnderSort;
+import org.opensearch.sql.planner.optimizer.rule.RemoveDuplicateSorts;
 import org.opensearch.sql.planner.optimizer.rule.read.CreateTableScanBuilder;
 import org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown;
 import org.opensearch.sql.planner.optimizer.rule.write.CreateTableWriteBuilder;
@@ -47,18 +35,12 @@ public class LogicalPlanOptimizer {
   public static LogicalPlanOptimizer create() {
     // Boolean parameter - whether rule can be applied more than once.
     // TODO make it ^ a part of `Rule` interface?
-    // Known restrictions:
-    // 1) Limit the last
     return new LogicalPlanOptimizer(
         new ImmutableList.Builder<Pair<Rule<? extends LogicalPlan>, Boolean>>()
             /*
              * Phase 1: Transformations that rely on relational algebra equivalence
              */
-            // TODO do we need MergeFilterAndFilter?
-            //  OpenSearchRequestBuilder.pushDownFilter knows to merge conditions
-            .add(Pair.of(new MergeFilterAndFilter(), true))
-            // TODO do we need PushFilterUnderSort?
-            .add(Pair.of(new PushFilterUnderSort(), true))
+            .add(Pair.of(new RemoveDuplicateSorts(), true))
             /*
              * Phase 2: Transformations that rely on data source push down capability
              */

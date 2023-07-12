@@ -40,7 +40,8 @@ public class PushDownRule<T extends LogicalPlan> implements Rule<T> {
   private final BiFunction<T, TableScanBuilder, Boolean> pushDownFunction;
   private final List<Function<LogicalPlan, Boolean>> exceptions;
 
-  public PushDownRule(Class<T> clazz, BiFunction<T, TableScanBuilder, Boolean> pushDownFunction,
+  public PushDownRule(Class<T> clazz,
+                      BiFunction<T, TableScanBuilder, Boolean> pushDownFunction,
                       Function<LogicalPlan, Boolean> exception) {
     this.clazz = clazz;
     this.pushDownFunction = pushDownFunction;
@@ -48,7 +49,7 @@ public class PushDownRule<T extends LogicalPlan> implements Rule<T> {
   }
 
   public PushDownRule(Class<T> clazz, BiFunction<T, TableScanBuilder, Boolean> pushDownFunction) {
-    this(clazz, pushDownFunction, (plan) -> false);
+    this(clazz, pushDownFunction, (plan) -> false); // TODO rework that to eliminate that lambda
   }
 
   @Override
