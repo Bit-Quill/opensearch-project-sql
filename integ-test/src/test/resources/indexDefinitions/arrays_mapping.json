@@ -1,0 +1,23 @@
+{
+  "mappings": {
+    "properties": {
+      "objectArray": {
+        "properties": {
+          "innerObject": {
+            "type": "keyword"
+          }
+        }
+      },
+      "multiObjectArray": {
+        "properties": {
+          "id": {
+            "type": "long"
+          },
+          "name": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}

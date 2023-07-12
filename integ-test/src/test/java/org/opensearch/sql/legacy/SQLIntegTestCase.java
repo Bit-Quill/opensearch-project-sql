@@ -38,6 +38,7 @@ import org.opensearch.sql.datasource.model.DataSourceMetadata;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.opensearch.sql.legacy.TestUtils.createIndexByRestClient;
 import static org.opensearch.sql.legacy.TestUtils.getAccountIndexMapping;
+import static org.opensearch.sql.legacy.TestUtils.getArraysIndexMapping;
 import static org.opensearch.sql.legacy.TestUtils.getBankIndexMapping;
 import static org.opensearch.sql.legacy.TestUtils.getBankWithNullValuesIndexMapping;
 import static org.opensearch.sql.legacy.TestUtils.getDataTypeNonnumericIndexMapping;
@@ -681,7 +682,11 @@ public abstract class SQLIntegTestCase extends OpenSearchSQLRestTestCase {
     NESTED_WITH_NULLS(TestsConstants.TEST_INDEX_NESTED_WITH_NULLS,
         "multi_nested",
         getNestedTypeIndexMapping(),
-        "src/test/resources/nested_with_nulls.json");
+        "src/test/resources/nested_with_nulls.json"),
+    ARRAYS(TestsConstants.TEST_INDEX_ARRAYS,
+        "arrays",
+        getArraysIndexMapping(),
+        "src/test/resources/arrays.json");
 
     private final String name;
     private final String type;

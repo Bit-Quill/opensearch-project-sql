@@ -17,6 +17,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.common.utils.StringUtils;
+import org.opensearch.sql.data.model.ExprCollectionValue;
+import org.opensearch.sql.data.model.ExprMissingValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.model.ExprValueUtils;
@@ -31,13 +33,13 @@ public class ArrayReferenceExpression extends ReferenceExpression {
   @Getter
   private final ExprType type;
   public ArrayReferenceExpression(String ref, ExprType type, List<Pair<String, OptionalInt>> partsAndIndexes) {
-    super(ref, type);
+    super(StringUtils.removeParenthesis(ref), type);
     this.partsAndIndexes = partsAndIndexes;
     this.type = type;
   }
 
   public ArrayReferenceExpression(ReferenceExpression ref) {
-    super(ref.toString(), ref.type());
+    super(StringUtils.removeParenthesis(ref.toString()), ref.type());
     this.partsAndIndexes = Arrays.stream(ref.toString().split("\\.")).map(e -> Pair.of(e, OptionalInt.empty())).collect(
         Collectors.toList());
     this.type = ref.type();
@@ -68,28 +70,25 @@ public class ArrayReferenceExpression extends ReferenceExpression {
     ExprValue wholePathValue = value.keyValue(String.join(PATH_SEP, pathsWithoutParenthesis));
 
     if (!paths.get(0).getRight().isEmpty()) {
-      wholePathValue = getIndexValueOfCollection(wholePathValue);
-    } else if (paths.size() == 1 && !wholePathValue.type().equals(ExprCoreType.ARRAY)) {
-      wholePathValue = ExprValueUtils.missingValue();
+      if (value.keyValue(pathsWithoutParenthesis.get(0)) instanceof ExprCollectionValue) { // TODO check array size
+        wholePathValue = value
+            .keyValue(pathsWithoutParenthesis.get(0))
+            .collectionValue()
+            .get(paths.get(0).getRight().getAsInt());
+        if (paths.size() != 1) {
+          return resolve(wholePathValue, paths.subList(1, paths.size()));
+        }
+      } else {
+        return ExprValueUtils.missingValue();
+      }
+    } else if (wholePathValue.isMissing()) {
+      return resolve(value.keyValue(pathsWithoutParenthesis.get(0)), paths.subList(1, paths.size()));
     }
 
     if (!wholePathValue.isMissing() || paths.size() == 1) {
       return wholePathValue;
     } else {
-      return resolve(value.keyValue(pathsWithoutParenthesis.get(0)
-           ), paths.subList(1, paths.size()));
+      return resolve(value.keyValue(pathsWithoutParenthesis.get(0)), paths.subList(1, paths.size()));
     }
-  }
-
-  private ExprValue getIndexValueOfCollection(ExprValue value) {
-    ExprValue collectionVal = value;
-//    for (OptionalInt currentIndex : List.of(index)) {
-      if (collectionVal.type().equals(ExprCoreType.ARRAY)) {
-//        collectionVal = collectionVal.collectionValue().get(currentIndex.getAsInt());
-      } else {
-        return ExprValueUtils.missingValue();
-      }
-//    }
-    return collectionVal;
   }
 }

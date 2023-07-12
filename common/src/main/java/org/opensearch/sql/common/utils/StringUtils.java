@@ -107,6 +107,6 @@ public class StringUtils {
   }
 
   public static String removeParenthesis(String qualifier) {
-    return qualifier.replaceAll("\\[.+\\]", "");
+    return qualifier.replaceAll("\\[\\d+\\]", "");
   }
 }
