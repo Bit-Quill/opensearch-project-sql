@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
+import org.opensearch.sql.planner.logical.LogicalFilter;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.optimizer.rule.MergeFilterAndFilter;
 import org.opensearch.sql.planner.optimizer.rule.PushFilterUnderSort;
@@ -47,23 +48,27 @@ public class LogicalPlanOptimizer {
     // Boolean parameter - whether rule can be applied more than once.
     // TODO make it ^ a part of `Rule` interface?
     // Known restrictions:
-    // 1) Highlight before Project
-    // 2) Limit the last
+    // 1) Limit the last
     return new LogicalPlanOptimizer(
         new ImmutableList.Builder<Pair<Rule<? extends LogicalPlan>, Boolean>>()
             /*
              * Phase 1: Transformations that rely on relational algebra equivalence
              */
+            // TODO do we need MergeFilterAndFilter?
+            //  OpenSearchRequestBuilder.pushDownFilter knows to merge conditions
             .add(Pair.of(new MergeFilterAndFilter(), true))
+            // TODO do we need PushFilterUnderSort?
             .add(Pair.of(new PushFilterUnderSort(), true))
             /*
              * Phase 2: Transformations that rely on data source push down capability
              */
             .add(Pair.of(new CreateTableScanBuilder(), false))
-            .add(Pair.of(new PushDownPageSize(), false))
+            // Create enum for rule status - applied, not applied, etc
+            .add(Pair.of(TableScanPushDown.PUSH_DOWN_PAGE_SIZE, false))
             .add(Pair.of(TableScanPushDown.PUSH_DOWN_FILTER, true))
             .add(Pair.of(TableScanPushDown.PUSH_DOWN_AGGREGATION, false))
-            .add(Pair.of(TableScanPushDown.PUSH_DOWN_SORT, false))
+            .add(Pair.of(TableScanPushDown.PUSH_DOWN_FILTER, true))
+            .add(Pair.of(TableScanPushDown.PUSH_DOWN_SORT, true))
             .add(Pair.of(TableScanPushDown.PUSH_DOWN_HIGHLIGHT, true))
             .add(Pair.of(TableScanPushDown.PUSH_DOWN_NESTED, false))
             .add(Pair.of(TableScanPushDown.PUSH_DOWN_PROJECT, false))

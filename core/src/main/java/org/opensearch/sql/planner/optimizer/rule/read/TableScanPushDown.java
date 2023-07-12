@@ -21,7 +21,19 @@ import com.facebook.presto.matching.Pattern;
 import com.facebook.presto.matching.pattern.CapturePattern;
 import com.facebook.presto.matching.pattern.WithPattern;
 import java.util.function.BiFunction;
+
+import org.opensearch.sql.planner.logical.LogicalAggregation;
+import org.opensearch.sql.planner.logical.LogicalEval;
+import org.opensearch.sql.planner.logical.LogicalFilter;
+import org.opensearch.sql.planner.logical.LogicalHighlight;
+import org.opensearch.sql.planner.logical.LogicalLimit;
+import org.opensearch.sql.planner.logical.LogicalNested;
+import org.opensearch.sql.planner.logical.LogicalPaginate;
 import org.opensearch.sql.planner.logical.LogicalPlan;
+import org.opensearch.sql.planner.logical.LogicalProject;
+import org.opensearch.sql.planner.logical.LogicalSort;
+import org.opensearch.sql.planner.logical.LogicalWindow;
+import org.opensearch.sql.planner.optimizer.PushDownRule;
 import org.opensearch.sql.planner.optimizer.Rule;
 import org.opensearch.sql.storage.read.TableScanBuilder;
 
@@ -37,49 +49,49 @@ public class TableScanPushDown<T extends LogicalPlan> implements Rule<T> {
 
   /** Push down optimize rule for filtering condition. */
   public static final Rule<? extends LogicalPlan> PUSH_DOWN_FILTER =
-      match(
-          filter(
-              scanBuilder()))
-      .apply((filter, scanBuilder) -> scanBuilder.pushDownFilter(filter));
+      new PushDownRule<>(LogicalFilter.class,
+          (filter, scanBuilder) -> scanBuilder.pushDownFilter(filter),
+          (plan) -> plan instanceof LogicalAggregation || plan instanceof LogicalProject);
 
   /** Push down optimize rule for aggregate operator. */
   public static final Rule<? extends LogicalPlan> PUSH_DOWN_AGGREGATION =
-      match(
-          aggregate(
-              scanBuilder()))
-      .apply((agg, scanBuilder) -> scanBuilder.pushDownAggregation(agg));
+      new PushDownRule<>(LogicalAggregation.class,
+          (agg, scanBuilder) -> scanBuilder.pushDownAggregation(agg),
+          (plan) -> plan instanceof LogicalProject);
 
   /** Push down optimize rule for sort operator. */
   public static final Rule<? extends LogicalPlan> PUSH_DOWN_SORT =
-      match(
-          sort(
-              scanBuilder()))
-      .apply((sort, scanBuilder) -> scanBuilder.pushDownSort(sort));
+      new PushDownRule<>(LogicalSort.class,
+          (sort, scanBuilder) -> scanBuilder.pushDownSort(sort),
+          (plan) -> plan instanceof LogicalProject);
 
   /** Push down optimize rule for limit operator. */
   public static final Rule<? extends LogicalPlan> PUSH_DOWN_LIMIT =
-      match(
-          limit(
-              scanBuilder()))
-      .apply((limit, scanBuilder) -> scanBuilder.pushDownLimit(limit));
+      new PushDownRule<>(LogicalLimit.class,
+          (limit, scanBuilder) -> scanBuilder.pushDownLimit(limit),
+          (plan) -> plan instanceof LogicalSort || plan instanceof LogicalFilter
+                  || plan instanceof LogicalProject);
 
+  /** Push down optimize rule for Project operator. */
   public static final Rule<? extends LogicalPlan> PUSH_DOWN_PROJECT =
-      match(
-          project(
-              scanBuilder()))
-      .apply((project, scanBuilder) -> scanBuilder.pushDownProject(project));
+      new PushDownRule<>(LogicalProject.class,
+          (project, scanBuilder) -> scanBuilder.pushDownProject(project),
+          (plan) -> plan instanceof LogicalEval || plan instanceof LogicalWindow);
 
+  /** Push down optimize rule for highlight operator. */
   public static final Rule<? extends LogicalPlan> PUSH_DOWN_HIGHLIGHT =
-      match(
-          highlight(
-              scanBuilder()))
-          .apply((highlight, scanBuilder) -> scanBuilder.pushDownHighlight(highlight));
+      new PushDownRule<>(LogicalHighlight.class,
+          (highlight, scanBuilder) -> scanBuilder.pushDownHighlight(highlight));
 
+  /** Push down optimize rule for nested operator. */
   public static final Rule<? extends LogicalPlan> PUSH_DOWN_NESTED =
-      match(
-          nested(
-              scanBuilder()))
-          .apply((nested, scanBuilder) -> scanBuilder.pushDownNested(nested));
+      new PushDownRule<>(LogicalNested.class,
+          (nested, scanBuilder) -> scanBuilder.pushDownNested(nested));
+
+  /** Push down optimize rule for paginate operator. */
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_PAGE_SIZE =
+      new PushDownRule<>(LogicalPaginate.class,
+          (paginate, scanBuilder) -> scanBuilder.pushDownPageSize(paginate));
 
   /** Pattern that matches a plan node. */
   private final WithPattern<T> pattern;
