@@ -11,7 +11,6 @@ import static org.opensearch.sql.protocol.response.format.JsonResponseFormatter.
 
 import java.io.IOException;
 import java.util.Locale;
-
 import org.json.JSONObject;
 import org.junit.Test;
 import org.opensearch.client.Request;

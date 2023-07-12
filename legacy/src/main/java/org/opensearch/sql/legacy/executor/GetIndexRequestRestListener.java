@@ -8,7 +8,6 @@ package org.opensearch.sql.legacy.executor;
 
 import java.io.IOException;
 import java.util.List;
-
 import org.opensearch.action.admin.indices.get.GetIndexRequest;
 import org.opensearch.action.admin.indices.get.GetIndexResponse;
 import org.opensearch.cluster.metadata.AliasMetadata;
