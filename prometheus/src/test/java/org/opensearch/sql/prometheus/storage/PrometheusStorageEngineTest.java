@@ -27,8 +27,7 @@ import org.opensearch.sql.storage.Table;
 @ExtendWith(MockitoExtension.class)
 class PrometheusStorageEngineTest {
 
-  @Mock
-  private PrometheusClient client;
+  @Mock private PrometheusClient client;
 
   @Test
   public void getTable() {
@@ -41,8 +40,7 @@ class PrometheusStorageEngineTest {
   @Test
   public void getFunctions() {
     PrometheusStorageEngine engine = new PrometheusStorageEngine(client);
-    Collection<FunctionResolver> functionResolverCollection
-        = engine.getFunctions();
+    Collection<FunctionResolver> functionResolverCollection = engine.getFunctions();
     assertNotNull(functionResolverCollection);
     assertEquals(1, functionResolverCollection.size());
     assertTrue(
@@ -60,8 +58,8 @@ class PrometheusStorageEngineTest {
   @Test
   public void getSystemTableForAllTablesInfo() {
     PrometheusStorageEngine engine = new PrometheusStorageEngine(client);
-    Table table
-        = engine.getTable(new DataSourceSchemaName("prometheus", "information_schema"), "tables");
+    Table table =
+        engine.getTable(new DataSourceSchemaName("prometheus", "information_schema"), "tables");
     assertNotNull(table);
     assertTrue(table instanceof PrometheusSystemTable);
   }
@@ -69,10 +67,12 @@ class PrometheusStorageEngineTest {
   @Test
   public void getSystemTableWithWrongInformationSchemaTable() {
     PrometheusStorageEngine engine = new PrometheusStorageEngine(client);
-    SemanticCheckException exception = assertThrows(SemanticCheckException.class,
-        () -> engine.getTable(new DataSourceSchemaName("prometheus", "information_schema"),
-            "test"));
+    SemanticCheckException exception =
+        assertThrows(
+            SemanticCheckException.class,
+            () ->
+                engine.getTable(
+                    new DataSourceSchemaName("prometheus", "information_schema"), "test"));
     assertEquals("Information Schema doesn't contain test table", exception.getMessage());
   }
-
 }

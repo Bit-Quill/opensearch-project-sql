@@ -24,9 +24,7 @@ import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.prometheus.data.constants.PrometheusFieldConstants;
 
-/**
- * Default implementation of QueryRangeFunctionResponseHandle.
- */
+/** Default implementation of QueryRangeFunctionResponseHandle. */
 public class DefaultQueryRangeFunctionResponseHandle implements QueryRangeFunctionResponseHandle {
 
   private final JSONObject responseObject;
@@ -62,37 +60,42 @@ public class DefaultQueryRangeFunctionResponseHandle implements QueryRangeFuncti
         }
       }
     } else {
-      throw new RuntimeException(String.format("Unexpected Result Type: %s during Prometheus "
-              + "Response Parsing. 'matrix' resultType is expected",
-          responseObject.getString("resultType")));
+      throw new RuntimeException(
+          String.format(
+              "Unexpected Result Type: %s during Prometheus "
+                  + "Response Parsing. 'matrix' resultType is expected",
+              responseObject.getString("resultType")));
     }
     this.schema = new ExecutionEngine.Schema(columnList);
     this.responseIterator = result.iterator();
   }
 
   @NotNull
-  private static LinkedHashMap<String, ExprValue> extractRow(JSONObject metric,
-         JSONArray values, List<ExecutionEngine.Schema.Column> columnList) {
+  private static LinkedHashMap<String, ExprValue> extractRow(
+      JSONObject metric, JSONArray values, List<ExecutionEngine.Schema.Column> columnList) {
     LinkedHashMap<String, ExprValue> linkedHashMap = new LinkedHashMap<>();
     for (ExecutionEngine.Schema.Column column : columnList) {
       if (PrometheusFieldConstants.TIMESTAMP.equals(column.getName())) {
-        linkedHashMap.put(PrometheusFieldConstants.TIMESTAMP,
+        linkedHashMap.put(
+            PrometheusFieldConstants.TIMESTAMP,
             new ExprTimestampValue(Instant.ofEpochMilli((long) (values.getDouble(0) * 1000))));
       } else if (column.getName().equals(VALUE)) {
         linkedHashMap.put(VALUE, new ExprDoubleValue(values.getDouble(1)));
       } else {
-        linkedHashMap.put(column.getName(),
-            new ExprStringValue(metric.getString(column.getName())));
+        linkedHashMap.put(
+            column.getName(), new ExprStringValue(metric.getString(column.getName())));
       }
     }
     return linkedHashMap;
   }
 
-
   private List<ExecutionEngine.Schema.Column> getColumnList(JSONObject metric) {
     List<ExecutionEngine.Schema.Column> columnList = new ArrayList<>();
-    columnList.add(new ExecutionEngine.Schema.Column(PrometheusFieldConstants.TIMESTAMP,
-        PrometheusFieldConstants.TIMESTAMP, ExprCoreType.TIMESTAMP));
+    columnList.add(
+        new ExecutionEngine.Schema.Column(
+            PrometheusFieldConstants.TIMESTAMP,
+            PrometheusFieldConstants.TIMESTAMP,
+            ExprCoreType.TIMESTAMP));
     columnList.add(new ExecutionEngine.Schema.Column(VALUE, VALUE, ExprCoreType.DOUBLE));
     for (String key : metric.keySet()) {
       columnList.add(new ExecutionEngine.Schema.Column(key, key, ExprCoreType.STRING));

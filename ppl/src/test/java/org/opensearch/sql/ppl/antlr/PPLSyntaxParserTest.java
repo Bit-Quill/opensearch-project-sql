@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.ppl.antlr;
 
 import static org.junit.Assert.assertNotEquals;
@@ -15,8 +14,7 @@ import org.junit.rules.ExpectedException;
 
 public class PPLSyntaxParserTest {
 
-  @Rule
-  public ExpectedException exceptionRule = ExpectedException.none();
+  @Rule public ExpectedException exceptionRule = ExpectedException.none();
 
   @Test
   public void testSearchCommandShouldPass() {
@@ -136,99 +134,167 @@ public class PPLSyntaxParserTest {
 
   @Test
   public void can_parse_multi_match_relevance_function() {
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE multi_match(['address'], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE multi_match(['address', 'notes'], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE multi_match([\"*\"], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE multi_match([\"address\"], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE multi_match([`address`], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE multi_match([address], 'query')"));
+    assertNotEquals(
+        null, new PPLSyntaxParser().parse("SOURCE=test | WHERE multi_match(['address'], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE multi_match(['address', 'notes'], 'query')"));
+    assertNotEquals(
+        null, new PPLSyntaxParser().parse("SOURCE=test | WHERE multi_match([\"*\"], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser().parse("SOURCE=test | WHERE multi_match([\"address\"], 'query')"));
+    assertNotEquals(
+        null, new PPLSyntaxParser().parse("SOURCE=test | WHERE multi_match([`address`], 'query')"));
+    assertNotEquals(
+        null, new PPLSyntaxParser().parse("SOURCE=test | WHERE multi_match([address], 'query')"));
 
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE multi_match(['address' ^ 1.0, 'notes' ^ 2.2], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE multi_match(['address' ^ 1.1, 'notes'], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE multi_match(['address', 'notes' ^ 1.5], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE multi_match(['address', 'notes' 3], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE multi_match(['address' ^ .3, 'notes' 3], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE multi_match(['address' ^ 1.0, 'notes' ^ 2.2], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE multi_match(['address' ^ 1.1, 'notes'], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE multi_match(['address', 'notes' ^ 1.5], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE multi_match(['address', 'notes' 3], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE multi_match(['address' ^ .3, 'notes' 3], 'query')"));
 
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE multi_match([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE multi_match([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query',"
-            + "analyzer=keyword, quote_field_suffix=\".exact\", fuzzy_prefix_length = 4)"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse(
+                "SOURCE=test | WHERE multi_match([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse(
+                "SOURCE=test | WHERE multi_match([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query',"
+                    + "analyzer=keyword, quote_field_suffix=\".exact\", fuzzy_prefix_length = 4)"));
   }
 
   @Test
   public void can_parse_simple_query_string_relevance_function() {
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE simple_query_string(['address'], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE simple_query_string(['address', 'notes'], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE simple_query_string([\"*\"], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE simple_query_string([\"address\"], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE simple_query_string([`address`], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE simple_query_string([address], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE simple_query_string(['address'], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE simple_query_string(['address', 'notes'], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser().parse("SOURCE=test | WHERE simple_query_string([\"*\"], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE simple_query_string([\"address\"], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE simple_query_string([`address`], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser().parse("SOURCE=test | WHERE simple_query_string([address], 'query')"));
 
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE simple_query_string(['address' ^ 1.0, 'notes' ^ 2.2], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE simple_query_string(['address' ^ 1.1, 'notes'], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE simple_query_string(['address', 'notes' ^ 1.5], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE simple_query_string(['address', 'notes' 3], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE simple_query_string(['address' ^ .3, 'notes' 3], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse(
+                "SOURCE=test | WHERE simple_query_string(['address' ^ 1.0, 'notes' ^ 2.2], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE simple_query_string(['address' ^ 1.1, 'notes'], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE simple_query_string(['address', 'notes' ^ 1.5], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE simple_query_string(['address', 'notes' 3], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse(
+                "SOURCE=test | WHERE simple_query_string(['address' ^ .3, 'notes' 3], 'query')"));
 
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE simple_query_string([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE simple_query_string([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query',"
-            + "analyzer=keyword, quote_field_suffix=\".exact\", fuzzy_prefix_length = 4)"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse(
+                "SOURCE=test | WHERE simple_query_string([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse(
+                "SOURCE=test | WHERE simple_query_string([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query',"
+                    + "analyzer=keyword, quote_field_suffix=\".exact\", fuzzy_prefix_length = 4)"));
   }
 
   @Test
   public void can_parse_query_string_relevance_function() {
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE query_string(['address'], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE query_string(['address', 'notes'], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE query_string([\"*\"], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE query_string([\"address\"], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE query_string([`address`], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE query_string([address], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE query_string(['address' ^ 1.0, 'notes' ^ 2.2], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE query_string(['address' ^ 1.1, 'notes'], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE query_string(['address', 'notes' ^ 1.5], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE query_string(['address', 'notes' 3], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE query_string(['address' ^ .3, 'notes' 3], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE query_string([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query')"));
-    assertNotEquals(null, new PPLSyntaxParser().parse(
-        "SOURCE=test | WHERE query_string([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query',"
-            + "analyzer=keyword, quote_field_suffix=\".exact\", fuzzy_prefix_length = 4)"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser().parse("SOURCE=test | WHERE query_string(['address'], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE query_string(['address', 'notes'], 'query')"));
+    assertNotEquals(
+        null, new PPLSyntaxParser().parse("SOURCE=test | WHERE query_string([\"*\"], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser().parse("SOURCE=test | WHERE query_string([\"address\"], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser().parse("SOURCE=test | WHERE query_string([`address`], 'query')"));
+    assertNotEquals(
+        null, new PPLSyntaxParser().parse("SOURCE=test | WHERE query_string([address], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE query_string(['address' ^ 1.0, 'notes' ^ 2.2], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE query_string(['address' ^ 1.1, 'notes'], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE query_string(['address', 'notes' ^ 1.5], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE query_string(['address', 'notes' 3], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse("SOURCE=test | WHERE query_string(['address' ^ .3, 'notes' 3], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse(
+                "SOURCE=test | WHERE query_string([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query')"));
+    assertNotEquals(
+        null,
+        new PPLSyntaxParser()
+            .parse(
+                "SOURCE=test | WHERE query_string([\"Tags\" ^ 1.5, Title, `Body` 4.2], 'query',"
+                    + "analyzer=keyword, quote_field_suffix=\".exact\", fuzzy_prefix_length = 4)"));
   }
 
   @Test
@@ -269,4 +335,3 @@ public class PPLSyntaxParserTest {
     new PPLSyntaxParser().parse("describe source=t");
   }
 }
-

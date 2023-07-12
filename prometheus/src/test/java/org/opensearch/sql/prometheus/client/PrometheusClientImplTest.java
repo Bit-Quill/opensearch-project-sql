@@ -42,7 +42,6 @@ public class PrometheusClientImplTest {
   private MockWebServer mockWebServer;
   private PrometheusClient prometheusClient;
 
-
   @BeforeEach
   void setUp() throws IOException {
     this.mockWebServer = new MockWebServer();
@@ -51,13 +50,13 @@ public class PrometheusClientImplTest {
         new PrometheusClientImpl(new OkHttpClient(), mockWebServer.url("").uri().normalize());
   }
 
-
   @Test
   @SneakyThrows
   void testQueryRange() {
-    MockResponse mockResponse = new MockResponse()
-        .addHeader("Content-Type", "application/json; charset=utf-8")
-        .setBody(getJson("query_range_response.json"));
+    MockResponse mockResponse =
+        new MockResponse()
+            .addHeader("Content-Type", "application/json; charset=utf-8")
+            .setBody(getJson("query_range_response.json"));
     mockWebServer.enqueue(mockResponse);
     JSONObject jsonObject = prometheusClient.queryRange(QUERY, STARTTIME, ENDTIME, STEP);
     assertTrue(new JSONObject(getJson("query_range_result.json")).similar(jsonObject));
@@ -68,13 +67,15 @@ public class PrometheusClientImplTest {
   @Test
   @SneakyThrows
   void testQueryRangeWith2xxStatusAndError() {
-    MockResponse mockResponse = new MockResponse()
-        .addHeader("Content-Type", "application/json; charset=utf-8")
-        .setBody(getJson("error_response.json"));
+    MockResponse mockResponse =
+        new MockResponse()
+            .addHeader("Content-Type", "application/json; charset=utf-8")
+            .setBody(getJson("error_response.json"));
     mockWebServer.enqueue(mockResponse);
-    RuntimeException runtimeException
-        = assertThrows(RuntimeException.class,
-          () -> prometheusClient.queryRange(QUERY, STARTTIME, ENDTIME, STEP));
+    RuntimeException runtimeException =
+        assertThrows(
+            RuntimeException.class,
+            () -> prometheusClient.queryRange(QUERY, STARTTIME, ENDTIME, STEP));
     assertEquals("Error", runtimeException.getMessage());
     RecordedRequest recordedRequest = mockWebServer.takeRequest();
     verifyQueryRangeCall(recordedRequest);
@@ -83,13 +84,15 @@ public class PrometheusClientImplTest {
   @Test
   @SneakyThrows
   void testQueryRangeWithNon2xxError() {
-    MockResponse mockResponse = new MockResponse()
-        .addHeader("Content-Type", "application/json; charset=utf-8")
-        .setResponseCode(400);
+    MockResponse mockResponse =
+        new MockResponse()
+            .addHeader("Content-Type", "application/json; charset=utf-8")
+            .setResponseCode(400);
     mockWebServer.enqueue(mockResponse);
-    RuntimeException runtimeException
-        = assertThrows(RuntimeException.class,
-          () -> prometheusClient.queryRange(QUERY, STARTTIME, ENDTIME, STEP));
+    RuntimeException runtimeException =
+        assertThrows(
+            RuntimeException.class,
+            () -> prometheusClient.queryRange(QUERY, STARTTIME, ENDTIME, STEP));
     assertTrue(
         runtimeException.getMessage().contains("Request to Prometheus is Unsuccessful with :"));
     RecordedRequest recordedRequest = mockWebServer.takeRequest();
@@ -99,16 +102,20 @@ public class PrometheusClientImplTest {
   @Test
   @SneakyThrows
   void testGetLabel() {
-    MockResponse mockResponse = new MockResponse()
-        .addHeader("Content-Type", "application/json; charset=utf-8")
-        .setBody(getJson("get_labels_response.json"));
+    MockResponse mockResponse =
+        new MockResponse()
+            .addHeader("Content-Type", "application/json; charset=utf-8")
+            .setBody(getJson("get_labels_response.json"));
     mockWebServer.enqueue(mockResponse);
     List<String> response = prometheusClient.getLabels(METRIC_NAME);
-    assertEquals(new ArrayList<String>() {{
-        add("call");
-        add("code");
-      }
-      }, response);
+    assertEquals(
+        new ArrayList<String>() {
+          {
+            add("call");
+            add("code");
+          }
+        },
+        response);
     RecordedRequest recordedRequest = mockWebServer.takeRequest();
     verifyGetLabelsCall(recordedRequest);
   }
@@ -116,18 +123,22 @@ public class PrometheusClientImplTest {
   @Test
   @SneakyThrows
   void testGetAllMetrics() {
-    MockResponse mockResponse = new MockResponse()
-        .addHeader("Content-Type", "application/json; charset=utf-8")
-        .setBody(getJson("all_metrics_response.json"));
+    MockResponse mockResponse =
+        new MockResponse()
+            .addHeader("Content-Type", "application/json; charset=utf-8")
+            .setBody(getJson("all_metrics_response.json"));
     mockWebServer.enqueue(mockResponse);
     Map<String, List<MetricMetadata>> response = prometheusClient.getAllMetrics();
     Map<String, List<MetricMetadata>> expected = new HashMap<>();
-    expected.put("go_gc_duration_seconds",
-        Collections.singletonList(new MetricMetadata("summary",
-            "A summary of the pause duration of garbage collection cycles.", "")));
-    expected.put("go_goroutines",
-        Collections.singletonList(new MetricMetadata("gauge",
-            "Number of goroutines that currently exist.", "")));
+    expected.put(
+        "go_gc_duration_seconds",
+        Collections.singletonList(
+            new MetricMetadata(
+                "summary", "A summary of the pause duration of garbage collection cycles.", "")));
+    expected.put(
+        "go_goroutines",
+        Collections.singletonList(
+            new MetricMetadata("gauge", "Number of goroutines that currently exist.", "")));
     assertEquals(expected, response);
     RecordedRequest recordedRequest = mockWebServer.takeRequest();
     verifyGetAllMetricsCall(recordedRequest);
@@ -163,5 +174,4 @@ public class PrometheusClientImplTest {
     assertNotNull(httpUrl);
     assertEquals("/api/v1/metadata", httpUrl.encodedPath());
   }
-
 }
