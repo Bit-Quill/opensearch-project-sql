@@ -5,10 +5,12 @@
 
 package org.opensearch.sql.sql;
 
+import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_CSV_SANITIZE;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_BEER;
 import static org.opensearch.sql.protocol.response.format.JsonResponseFormatter.CONTENT_TYPE;
 
 import java.io.IOException;
+import java.util.Locale;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.opensearch.client.Request;

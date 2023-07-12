@@ -269,4 +269,3 @@ public class PPLSyntaxParserTest {
     new PPLSyntaxParser().parse("describe source=t");
   }
 }
-
