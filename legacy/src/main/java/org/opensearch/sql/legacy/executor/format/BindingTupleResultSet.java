@@ -58,3 +58,4 @@ public class BindingTupleResultSet extends ResultSet {
         return new DataRows(bindingTuples.size(), bindingTuples.size(), rowList);
     }
 }
+
