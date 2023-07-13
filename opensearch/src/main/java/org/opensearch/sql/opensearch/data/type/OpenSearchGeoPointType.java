@@ -6,7 +6,7 @@
 
 package org.opensearch.sql.opensearch.data.type;
 
-import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
+import static org.opensearch.sql.data.type.ExprCoreType.GEO_POINT;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.EqualsAndHashCode;
@@ -31,7 +31,7 @@ public class OpenSearchGeoPointType extends OpenSearchDataType {
 
   private OpenSearchGeoPointType() {
     super(MappingType.GeoPoint);
-    exprCoreType = STRUCT;
+    exprCoreType = GEO_POINT;
     this.properties = new HashMap<>();
     this.properties.put("lat", new OpenSearchDataType(ExprCoreType.DOUBLE));
     this.properties.put("lon", new OpenSearchDataType(ExprCoreType.DOUBLE));
