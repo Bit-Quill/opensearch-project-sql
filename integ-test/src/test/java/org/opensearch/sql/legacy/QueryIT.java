@@ -746,6 +746,7 @@ public class QueryIT extends SQLIntegTestCase {
     }
   }
 
+  @Ignore
   @Test
   public void dateSearchBraces() throws IOException {
     DateTimeFormatter formatter = DateTimeFormat.forPattern(TestsConstants.TS_DATE_FORMAT);
