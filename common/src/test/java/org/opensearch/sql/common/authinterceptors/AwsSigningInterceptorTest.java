@@ -7,7 +7,6 @@
 
 package org.opensearch.sql.common.authinterceptors;
 
-
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
