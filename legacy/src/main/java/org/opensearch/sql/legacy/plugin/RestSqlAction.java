@@ -142,7 +142,7 @@ public class RestSqlAction extends BaseRestHandler {
                 }
             }
 
-            LOG.info("[{}] Incoming request {} {}", QueryContext.getRequestId(), request.uri(), sqlRequest.getSql());
+            LOG.info("[{}] Incoming request {}", QueryContext.getRequestId(), request.uri());
 
             Format format = SqlRequestParam.getFormat(request.params());
 
