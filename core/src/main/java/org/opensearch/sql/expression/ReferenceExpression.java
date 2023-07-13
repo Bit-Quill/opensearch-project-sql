@@ -106,11 +106,22 @@ public class ReferenceExpression implements Expression {
     if (value.type().equals(ExprCoreType.ARRAY)) {
       wholePathValue = value.collectionValue().get(0).keyValue(paths.get(0));
     }
+    if (wholePathValue.type().equals(ExprCoreType.ARRAY)) {
+      return getFirstValueOfCollection(wholePathValue);
+    }
 
     if (!wholePathValue.isMissing() || paths.size() == 1) {
       return wholePathValue;
     } else {
       return resolve(value.keyValue(paths.get(0)), paths.subList(1, paths.size()));
     }
+  }
+
+  private ExprValue getFirstValueOfCollection(ExprValue value) {
+    ExprValue collectionVal = value;
+    while(collectionVal.type().equals(ExprCoreType.ARRAY)) {
+      collectionVal = collectionVal.collectionValue().get(0);
+    }
+    return collectionVal;
   }
 }

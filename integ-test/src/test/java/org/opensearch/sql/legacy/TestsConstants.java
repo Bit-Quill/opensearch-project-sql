@@ -48,6 +48,7 @@ public class TestsConstants {
   public final static String TEST_INDEX_ORDER = TEST_INDEX + "_order";
   public final static String TEST_INDEX_WEBLOG = TEST_INDEX + "_weblog";
   public final static String TEST_INDEX_DATE = TEST_INDEX + "_date";
+  public final static String TEST_INDEX_ARRAYS = TEST_INDEX + "_arrays";
   public final static String TEST_INDEX_DATE_TIME = TEST_INDEX + "_datetime";
   public final static String TEST_INDEX_DEEP_NESTED = TEST_INDEX + "_deep_nested";
   public final static String TEST_INDEX_STRINGS = TEST_INDEX + "_strings";

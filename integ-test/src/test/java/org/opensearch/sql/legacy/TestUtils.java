@@ -223,6 +223,11 @@ public class TestUtils {
     return getMappingFile(mappingFile);
   }
 
+  public static String getArraysIndexMapping() {
+    String mappingFile = "arrays_mapping.json";
+    return getMappingFile(mappingFile);
+  }
+
   public static String getDateTimeIndexMapping() {
     String mappingFile = "date_time_index_mapping.json";
     return getMappingFile(mappingFile);

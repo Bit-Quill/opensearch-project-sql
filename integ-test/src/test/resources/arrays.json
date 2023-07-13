@@ -1,0 +1,2 @@
+{"index":{"_id":"1"}}
+{"objectArray": [{"innerObject": [1, 2]}, {"innerObject": 3}], "multiObjectArray":[{"id": 1, "name": "blah"}, {"id": 2,"name": "hoo"}]}

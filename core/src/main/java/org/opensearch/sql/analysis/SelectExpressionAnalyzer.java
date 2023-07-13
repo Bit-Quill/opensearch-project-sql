@@ -23,9 +23,11 @@ import org.opensearch.sql.ast.expression.Function;
 import org.opensearch.sql.ast.expression.NestedAllTupleFields;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
+import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
+import org.opensearch.sql.expression.ArrayReferenceExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 
@@ -105,8 +107,17 @@ public class SelectExpressionAnalyzer
                                               AnalysisContext context) {
     TypeEnvironment environment = context.peek();
     Map<String, ExprType> lookupAllFields = environment.lookupAllFields(Namespace.FIELD_NAME);
-    return lookupAllFields.entrySet().stream().map(entry -> DSL.named(entry.getKey(),
-        new ReferenceExpression(entry.getKey(), entry.getValue()))).collect(Collectors.toList());
+    return lookupAllFields.entrySet().stream().map(entry ->
+        {
+          ReferenceExpression ref = new ReferenceExpression(entry.getKey(), entry.getValue());
+          if (entry.getValue().equals(ExprCoreType.ARRAY)) {
+            return DSL.named(entry.getKey(),
+                new ArrayReferenceExpression(ref));
+          } else {
+            return DSL.named(entry.getKey(), ref);
+          }
+        }
+        ).collect(Collectors.toList());
   }
 
   @Override

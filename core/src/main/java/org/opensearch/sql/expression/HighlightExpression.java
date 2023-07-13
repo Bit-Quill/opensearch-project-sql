@@ -51,7 +51,7 @@ public class HighlightExpression extends FunctionExpression {
     if (this.type == ExprCoreType.ARRAY) {
       refName += "." + StringUtils.unquoteText(getHighlightField().toString());
     }
-    ExprValue value = valueEnv.resolve(DSL.ref(refName, ExprCoreType.STRING));
+    ExprValue value = valueEnv.resolve(new ArrayReferenceExpression(DSL.ref(refName, ExprCoreType.STRING)));
 
     // In the event of multiple returned highlights and wildcard being
     // used in conjunction with other highlight calls, we need to ensure

@@ -11,6 +11,7 @@ import org.opensearch.sql.ast.expression.Alias;
 import org.opensearch.sql.ast.expression.AllFields;
 import org.opensearch.sql.ast.expression.And;
 import org.opensearch.sql.ast.expression.Argument;
+import org.opensearch.sql.ast.expression.ArrayQualifiedName;
 import org.opensearch.sql.ast.expression.AttributeList;
 import org.opensearch.sql.ast.expression.Between;
 import org.opensearch.sql.ast.expression.Case;
@@ -192,6 +193,9 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitQualifiedName(QualifiedName node, C context) {
+    return visitChildren(node, context);
+  }
+  public T visitArrayQualifiedName(ArrayQualifiedName node, C context) {
     return visitChildren(node, context);
   }
 

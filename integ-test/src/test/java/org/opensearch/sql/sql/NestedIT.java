@@ -254,7 +254,7 @@ public class NestedIT extends SQLIntegTestCase {
         rows("a", 4),
         rows("b", 2),
         rows("c", 3),
-        rows("zz", new JSONArray(List.of(3, 4))));
+        rows("zz", 3));
   }
 
   // Nested function in GROUP BY clause is not yet implemented for JDBC format. This test ensures
@@ -535,7 +535,7 @@ public class NestedIT extends SQLIntegTestCase {
         rows("g", 1, "c", 3),
         rows("h", 4, "c", 4),
         rows("i", 5, "a", 4),
-        rows("zz", 6, "zz", new JSONArray(List.of(3, 4))));
+        rows("zz", 6, "zz", 3));
   }
 
   @Test

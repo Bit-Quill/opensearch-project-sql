@@ -11,8 +11,10 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.analysis.symbol.Namespace;
 import org.opensearch.sql.analysis.symbol.Symbol;
+import org.opensearch.sql.ast.expression.ArrayQualifiedName;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
+import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.exception.SemanticCheckException;
 
 /**
@@ -38,7 +40,23 @@ public class QualifierAnalyzer {
     return isQualifierIndexOrAlias(fullName) ? fullName.rest().toString() : fullName.toString();
   }
 
+  public String unqualified(ArrayQualifiedName fullName) {
+    return isQualifierIndexOrAlias(fullName) ? fullName.rest().toString() : fullName.toString();
+  }
+
   private boolean isQualifierIndexOrAlias(QualifiedName fullName) {
+    Optional<String> qualifier = fullName.first();
+    if (qualifier.isPresent()) {
+      if (isFieldName(qualifier.get())) {
+        return false;
+      }
+      resolveQualifierSymbol(fullName, qualifier.get());
+      return true;
+    }
+    return false;
+  }
+
+  private boolean isQualifierIndexOrAlias(ArrayQualifiedName fullName) {
     Optional<String> qualifier = fullName.first();
     if (qualifier.isPresent()) {
       if (isFieldName(qualifier.get())) {
@@ -53,7 +71,7 @@ public class QualifierAnalyzer {
   private boolean isFieldName(String qualifier) {
     try {
       // Resolve the qualifier in Namespace.FIELD_NAME
-      context.peek().resolve(new Symbol(Namespace.FIELD_NAME, qualifier));
+      context.peek().resolve(new Symbol(Namespace.FIELD_NAME, StringUtils.removeParenthesis(qualifier)));
       return true;
     } catch (SemanticCheckException e2) {
       return false;
