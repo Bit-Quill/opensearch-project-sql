@@ -25,6 +25,7 @@ import org.opensearch.sql.planner.optimizer.Rule;
  * builder, and action that eliminates the original operator if pushed down, this class helps
  * remove redundant code and improve readability.
  */
+// TODO update comment or move rules and delete class
 public class TableScanPushDown {
 
   /** Push down optimize rule for filtering condition. */

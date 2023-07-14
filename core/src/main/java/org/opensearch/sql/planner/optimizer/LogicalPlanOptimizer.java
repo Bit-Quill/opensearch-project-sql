@@ -6,10 +6,8 @@
 
 package org.opensearch.sql.planner.optimizer;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.optimizer.rule.read.CreateTableScanBuilder;
 import org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown;
@@ -31,24 +29,22 @@ public class LogicalPlanOptimizer {
    * Create {@link LogicalPlanOptimizer} with pre-defined rules.
    */
   public static LogicalPlanOptimizer create() {
-    return new LogicalPlanOptimizer(
-        new ImmutableList.Builder<Rule<? extends LogicalPlan>>()
-            /*
-             * Phase 1: Transformations that rely on data source push down capability
-             */
-            .add(new CreateTableScanBuilder())
-            .add(TableScanPushDown.PUSH_DOWN_PAGE_SIZE)
-            .add(TableScanPushDown.PUSH_DOWN_FILTER)
-            .add(TableScanPushDown.PUSH_DOWN_AGGREGATION)
-            .add(TableScanPushDown.PUSH_DOWN_FILTER)
-            .add(TableScanPushDown.PUSH_DOWN_SORT)
-            .add(TableScanPushDown.PUSH_DOWN_HIGHLIGHT)
-            .add(TableScanPushDown.PUSH_DOWN_NESTED)
-            .add(TableScanPushDown.PUSH_DOWN_PROJECT)
-            .add(TableScanPushDown.PUSH_DOWN_LIMIT)
-            .add(new CreateTableWriteBuilder())
-            .build()
-    );
+    return new LogicalPlanOptimizer(List.of(
+        /*
+         * Phase 1: Transformations that rely on data source push down capability
+         */
+        new CreateTableScanBuilder(),
+        TableScanPushDown.PUSH_DOWN_PAGE_SIZE,
+        TableScanPushDown.PUSH_DOWN_FILTER,
+        TableScanPushDown.PUSH_DOWN_AGGREGATION,
+        TableScanPushDown.PUSH_DOWN_FILTER,
+        TableScanPushDown.PUSH_DOWN_SORT,
+        TableScanPushDown.PUSH_DOWN_HIGHLIGHT,
+        TableScanPushDown.PUSH_DOWN_NESTED,
+        TableScanPushDown.PUSH_DOWN_PROJECT,
+        TableScanPushDown.PUSH_DOWN_LIMIT,
+        new CreateTableWriteBuilder()
+    ));
   }
 
   /**
