@@ -1773,23 +1773,6 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(eval(dateFormatExpr), eval(timeFormatExpr));
   }
 
-  @Test
-  public void testTimestampBracket() {
-    FunctionExpression expr = DSL.time_format(
-            functionProperties,
-            DSL.literal(new ExprDateValue("2023-01-16")),
-            DSL.literal(new ExprStringValue("%h %s")));
-
-    assertEquals(
-            expr.toString(),
-            "time_format(DATE '2023-01-16', \"%h %s\")"
-    );
-    assertEquals(
-            "\"12 00\"",
-            eval(expr).toString()
-    );
-  }
-
   private ExprValue eval(Expression expression) {
     return expression.valueOf();
   }

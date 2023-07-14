@@ -1298,11 +1298,27 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     result = executeQuery("select {ts '2020-09-16 17:30:00'}");
     verifySchema(result, schema("{ts '2020-09-16 17:30:00'}", null, "timestamp"));
     verifyDataRows(result, rows("2020-09-16 17:30:00"));
+
+    result = executeQuery("select {timestamp '2020-09-16 17:30:00.123'}");
+    verifySchema(result, schema("{timestamp '2020-09-16 17:30:00.123'}", null, "timestamp"));
+    verifyDataRows(result, rows("2020-09-16 17:30:00.123"));
+
+    result = executeQuery("select {ts '2020-09-16 17:30:00.123'}");
+    verifySchema(result, schema("{ts '2020-09-16 17:30:00.123'}", null, "timestamp"));
+    verifyDataRows(result, rows("2020-09-16 17:30:00.123"));
   }
 
   @Test
   public void testTimeBracket() throws IOException {
     JSONObject result = executeQuery("select {time '17:30:00'}");
+    verifySchema(result, schema("{time '17:30:00'}", null, "time"));
+    verifyDataRows(result, rows("17:30:00"));
+
+    result = executeQuery("select {t '17:30:00'}");
+    verifySchema(result, schema("{t '17:30:00'}", null, "time"));
+    verifyDataRows(result, rows("17:30:00"));
+
+    result = executeQuery("select {time '17:30:00'}");
     verifySchema(result, schema("{time '17:30:00'}", null, "time"));
     verifyDataRows(result, rows("17:30:00"));
 
