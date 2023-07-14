@@ -6,13 +6,11 @@
 
 package org.opensearch.sql.planner.optimizer;
 
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.planner.logical.LogicalPlan;
-import org.opensearch.sql.planner.optimizer.rule.RemoveDuplicateSorts;
 import org.opensearch.sql.planner.optimizer.rule.read.CreateTableScanBuilder;
 import org.opensearch.sql.planner.optimizer.rule.read.TableScanPushDown;
 import org.opensearch.sql.planner.optimizer.rule.write.CreateTableWriteBuilder;
@@ -27,35 +25,28 @@ import org.opensearch.sql.planner.optimizer.rule.write.CreateTableWriteBuilder;
 @RequiredArgsConstructor
 public class LogicalPlanOptimizer {
 
-  private final List<Pair<Rule<? extends LogicalPlan>, Boolean>> rules;
+  private final List<Rule<? extends LogicalPlan>> rules;
 
   /**
    * Create {@link LogicalPlanOptimizer} with pre-defined rules.
    */
   public static LogicalPlanOptimizer create() {
-    // Boolean parameter - whether rule can be applied more than once.
-    // TODO make it ^ a part of `Rule` interface?
     return new LogicalPlanOptimizer(
-        new ImmutableList.Builder<Pair<Rule<? extends LogicalPlan>, Boolean>>()
+        new ImmutableList.Builder<Rule<? extends LogicalPlan>>()
             /*
-             * Phase 1: Transformations that rely on relational algebra equivalence
+             * Phase 1: Transformations that rely on data source push down capability
              */
-            .add(Pair.of(new RemoveDuplicateSorts(), true))
-            /*
-             * Phase 2: Transformations that rely on data source push down capability
-             */
-            .add(Pair.of(new CreateTableScanBuilder(), false))
-            // Create enum for rule status - applied, not applied, etc
-            .add(Pair.of(TableScanPushDown.PUSH_DOWN_PAGE_SIZE, false))
-            .add(Pair.of(TableScanPushDown.PUSH_DOWN_FILTER, true))
-            .add(Pair.of(TableScanPushDown.PUSH_DOWN_AGGREGATION, false))
-            .add(Pair.of(TableScanPushDown.PUSH_DOWN_FILTER, true))
-            .add(Pair.of(TableScanPushDown.PUSH_DOWN_SORT, true))
-            .add(Pair.of(TableScanPushDown.PUSH_DOWN_HIGHLIGHT, true))
-            .add(Pair.of(TableScanPushDown.PUSH_DOWN_NESTED, false))
-            .add(Pair.of(TableScanPushDown.PUSH_DOWN_PROJECT, false))
-            .add(Pair.of(TableScanPushDown.PUSH_DOWN_LIMIT, false))
-            .add(Pair.of(new CreateTableWriteBuilder(), false))
+            .add(new CreateTableScanBuilder())
+            .add(TableScanPushDown.PUSH_DOWN_PAGE_SIZE)
+            .add(TableScanPushDown.PUSH_DOWN_FILTER)
+            .add(TableScanPushDown.PUSH_DOWN_AGGREGATION)
+            .add(TableScanPushDown.PUSH_DOWN_FILTER)
+            .add(TableScanPushDown.PUSH_DOWN_SORT)
+            .add(TableScanPushDown.PUSH_DOWN_HIGHLIGHT)
+            .add(TableScanPushDown.PUSH_DOWN_NESTED)
+            .add(TableScanPushDown.PUSH_DOWN_PROJECT)
+            .add(TableScanPushDown.PUSH_DOWN_LIMIT)
+            .add(new CreateTableWriteBuilder())
             .build()
     );
   }

@@ -23,7 +23,7 @@ import org.opensearch.sql.prometheus.planner.logical.PrometheusLogicalMetricScan
 /**
  * Merge Aggregation -- Relation to MetricScanAggregation.
  */
-public class MergeAggAndIndexScan implements Rule<LogicalAggregation> {
+public class MergeAggAndIndexScan extends Rule<LogicalAggregation> {
 
   private final Capture<PrometheusLogicalMetricScan> capture;
 

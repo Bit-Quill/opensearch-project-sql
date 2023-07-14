@@ -34,22 +34,37 @@ import org.opensearch.sql.storage.read.TableScanBuilder;
  *
  * @param <T>
  */
-public class PushDownRule<T extends LogicalPlan> implements Rule<T> {
+public class PushDownRule<T extends LogicalPlan> extends Rule<T> {
 
   private final Class<T> clazz;
   private final BiFunction<T, TableScanBuilder, Boolean> pushDownFunction;
   private final List<Function<LogicalPlan, Boolean>> exceptions;
 
   public PushDownRule(Class<T> clazz,
+                      boolean canBeAppliedMultipleTimes,
                       BiFunction<T, TableScanBuilder, Boolean> pushDownFunction,
                       Function<LogicalPlan, Boolean> exception) {
+    super(canBeAppliedMultipleTimes);
     this.clazz = clazz;
     this.pushDownFunction = pushDownFunction;
-    this.exceptions = List.of(exception, (plan) -> plan.getClass().equals(clazz));
+    this.exceptions = List.of(exception, getDefaultException());
   }
 
-  public PushDownRule(Class<T> clazz, BiFunction<T, TableScanBuilder, Boolean> pushDownFunction) {
-    this(clazz, pushDownFunction, (plan) -> false); // TODO rework that to eliminate that lambda
+  public PushDownRule(Class<T> clazz,
+                      boolean canBeAppliedMultipleTimes,
+                      BiFunction<T, TableScanBuilder, Boolean> pushDownFunction) {
+    super(canBeAppliedMultipleTimes);
+    this.clazz = clazz;
+    this.pushDownFunction = pushDownFunction;
+    this.exceptions = List.of(getDefaultException());
+  }
+
+  /**
+   * Default exception applicable for all rules: don't apply the rule if there is another instance
+   * of same {@link #clazz} located down the tree.
+   */
+  private Function<LogicalPlan, Boolean> getDefaultException() {
+    return (plan) -> plan.getClass().equals(clazz);
   }
 
   @Override

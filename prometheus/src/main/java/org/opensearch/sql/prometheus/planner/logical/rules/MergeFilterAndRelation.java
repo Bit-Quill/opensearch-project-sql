@@ -21,7 +21,7 @@ import org.opensearch.sql.prometheus.planner.logical.PrometheusLogicalMetricScan
 /**
  * Merge Filter -- Relation to LogicalMetricScan.
  */
-public class MergeFilterAndRelation implements Rule<LogicalFilter> {
+public class MergeFilterAndRelation extends Rule<LogicalFilter> {
 
   private final Capture<LogicalRelation> relationCapture;
   private final Pattern<LogicalFilter> pattern;

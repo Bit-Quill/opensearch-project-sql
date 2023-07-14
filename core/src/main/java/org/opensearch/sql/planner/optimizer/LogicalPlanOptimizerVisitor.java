@@ -8,63 +8,75 @@ package org.opensearch.sql.planner.optimizer;
 import static com.facebook.presto.matching.DefaultMatcher.DEFAULT_MATCHER;
 
 import com.facebook.presto.matching.Match;
-
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.logical.LogicalPlanNodeVisitor;
 
+// TODO add doc or merge with LogicalPlanOptimizer
 public class LogicalPlanOptimizerVisitor extends LogicalPlanNodeVisitor<LogicalPlan, Void> {
 
-  private final List<Pair<Rule<? extends LogicalPlan>, Boolean>> rules;
-  private final Queue<Pair<Rule<? extends LogicalPlan>, Boolean>> queue;
+  private final List<Rule<? extends LogicalPlan>> rules;
   private Rule<LogicalPlan> currentRule;
   private boolean currentRuleApplied = false;
-  private boolean anyRuleApplied = false;
 
+  // TODO rename var
   private final List<Pair<Rule<? extends LogicalPlan>, LogicalPlan>> log = new ArrayList<>();
 
-  public LogicalPlanOptimizerVisitor(List<Pair<Rule<? extends LogicalPlan>, Boolean>> rules) {
-    this.rules = rules;//new LinkedList<>(rules);
-    queue = new ArrayDeque<>(rules);
+  public LogicalPlanOptimizerVisitor(List<Rule<? extends LogicalPlan>> rules) {
+    this.rules = rules;
   }
 
   public LogicalPlan optimize(LogicalPlan planTree) {
+    log(planTree);
     var node = planTree;
-    //do {
-      anyRuleApplied = false;
-      for (int i = 0; i < rules.size(); i++) {
-        var ruleConfig = rules.get(i);
-        currentRule = (Rule<LogicalPlan>) ruleConfig.getKey();
-        currentRuleApplied = false;
-        node = node.accept(this, null);
-        if (currentRuleApplied && ruleConfig.getValue()) {
-          // To re-try the rule in the i-th position
-          // only for rules which could be applied multiple times
-          i--;
-        }
+    for (int i = 0; i < rules.size(); i++) {
+      // TODO how to avoid unchecked cast
+      currentRule = (Rule<LogicalPlan>) rules.get(i);
+      currentRuleApplied = false;
+      node = node.accept(this, null);
+      if (currentRuleApplied && currentRule.canBeAppliedMultipleTimes()) {
+        // only for rules which could be applied multiple times
+        // retry the rule in the i-th position
+        i--;
       }
-    //} while (anyRuleApplied);
+    }
+    log(node);
     return node;
   }
 
-  public String log(LogicalPlan plan, int depth) {
-    return String.format("%" + depth + "s", plan.getClass().getSimpleName())
-        + (plan.getChild().size() == 0 ? "" : "\n" + log(plan.getChild().get(0), depth + 1));
+  // TODO remove debugging
+  public void log(LogicalPlan plan) {
+    var node = plan;
+    System.out.println("==============");
+    System.out.println(node.getClass().getSimpleName());
+    while (node.getChild().size() > 0) {
+      node = node.getChild().get(0);
+      System.out.println("      |");
+      System.out.println(node.getClass().getSimpleName());
+    }
+    System.out.println("==============");
   }
 
+  private boolean isCurrentRuleAppliedToNode(LogicalPlan node) {
+    for (var logEntry : log) {
+      // A rule could be applied to the exactly equal, but not same tree node
+      // We can't do `log.contains(Pair.of(currentRule, plan))` check
+      if (logEntry.getLeft() == currentRule && logEntry.getRight() == node) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   @Override
   public LogicalPlan visitNode(LogicalPlan plan, Void noContext) {
     LogicalPlan node = plan;
     Match<? extends LogicalPlan> match = DEFAULT_MATCHER.match(currentRule.pattern(), node);
-    if (!log.contains(Pair.of(currentRule, plan)) && match.isPresent()) {
-      anyRuleApplied = currentRuleApplied = true;
+    if (!isCurrentRuleAppliedToNode(plan) && match.isPresent()) {
+      currentRuleApplied = true;
       node = currentRule.apply(match.value(), match.captures());
       if (node != plan) {
         log.clear();

@@ -22,7 +22,7 @@ import org.opensearch.sql.storage.write.TableWriteBuilder;
  * Rule that replaces logical write operator with {@link TableWriteBuilder} for later optimization
  * and transforming to physical operator.
  */
-public class CreateTableWriteBuilder implements Rule<LogicalWrite> {
+public class CreateTableWriteBuilder extends Rule<LogicalWrite> {
 
   /** Capture the table inside matched logical relation operator. */
   private final Capture<Table> capture;

@@ -23,7 +23,7 @@ import org.opensearch.sql.storage.read.TableScanBuilder;
  * push down optimization. All push down optimization rules that depends on table scan
  * builder needs to run after this.
  */
-public class CreateTableScanBuilder implements Rule<LogicalRelation> {
+public class CreateTableScanBuilder extends Rule<LogicalRelation> {
 
   /** Capture the table inside matched logical relation operator. */
   private final Capture<Table> capture;

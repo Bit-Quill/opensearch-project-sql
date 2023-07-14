@@ -5,15 +5,8 @@
 
 package org.opensearch.sql.prometheus.planner.logical;
 
-
-import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.tuple.Pair;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.optimizer.LogicalPlanOptimizer;
 import org.opensearch.sql.planner.optimizer.Rule;
@@ -32,10 +25,10 @@ public class PrometheusLogicalPlanOptimizerFactory {
    */
   public static LogicalPlanOptimizer create() {
     return new LogicalPlanOptimizer(
-        new ImmutableList.Builder<Pair<Rule<? extends LogicalPlan>, Boolean>>()
-            .add(Pair.of(new MergeFilterAndRelation(), true))
-            .add(Pair.of(new MergeAggAndIndexScan(), true))
-            .add(Pair.of(new MergeAggAndRelation(), true))
+        new ImmutableList.Builder<Rule<? extends LogicalPlan>>()
+            .add(new MergeFilterAndRelation())
+            .add(new MergeAggAndIndexScan())
+            .add(new MergeAggAndRelation())
             .build()
     );
   }
