@@ -6,9 +6,15 @@
 
 package org.opensearch.sql.opensearch.data.type;
 
+import static org.opensearch.sql.data.type.ExprCoreType.GEO_POINT;
 import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import org.opensearch.sql.data.type.ExprCoreType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The type of a geo_point value. See
@@ -21,8 +27,15 @@ public class OpenSearchGeoPointType extends OpenSearchDataType {
 
   private OpenSearchGeoPointType() {
     super(MappingType.GeoPoint);
-    exprCoreType = UNKNOWN;
+    exprCoreType = GEO_POINT;
+    this.properties = new HashMap<>();
+    this.properties.put("lat", new OpenSearchDataType(ExprCoreType.DOUBLE));
+    this.properties.put("lon", new OpenSearchDataType(ExprCoreType.DOUBLE));
   }
+
+  @Getter
+  @EqualsAndHashCode.Exclude
+  Map<String, OpenSearchDataType> properties;
 
   public static OpenSearchGeoPointType of() {
     return OpenSearchGeoPointType.instance;
