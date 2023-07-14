@@ -68,7 +68,12 @@ public enum ExprCoreType implements ExprType {
   /**
    * Array.
    */
-  ARRAY(UNDEFINED);
+  ARRAY(UNDEFINED),
+
+  /**
+   * GEO_POINT.
+   */
+  GEO_POINT(UNDEFINED);
 
   /**
    * Parents (wider/compatible types) of current base type.
