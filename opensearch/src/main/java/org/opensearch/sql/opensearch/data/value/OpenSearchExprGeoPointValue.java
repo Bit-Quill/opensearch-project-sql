@@ -6,7 +6,6 @@
 
 package org.opensearch.sql.opensearch.data.value;
 
-import java.util.Map;
 import java.util.Objects;
 import lombok.Data;
 import org.opensearch.sql.data.model.AbstractExprValue;
