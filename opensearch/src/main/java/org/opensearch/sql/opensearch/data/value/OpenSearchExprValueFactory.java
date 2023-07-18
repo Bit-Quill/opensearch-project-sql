@@ -25,13 +25,11 @@ import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
@@ -43,7 +41,6 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import lombok.Getter;
 import lombok.Setter;
-import org.joda.time.IllegalInstantException;
 import org.opensearch.common.time.DateFormatter;
 import org.opensearch.common.time.DateFormatters;
 import org.opensearch.common.time.FormatNames;
@@ -199,7 +196,27 @@ public class OpenSearchExprValueFactory {
         || type == STRUCT) {
       return parseStruct(content, field, supportArrays);
     } else if (type.equals(OpenSearchDataType.of(OpenSearchDataType.MappingType.GeoPoint))) {
-      return parseGeoPointObject(content, field);
+      ExprValue result = null;
+
+      // Allows to parse for double values in geo_point object
+      if (typeActionMap.containsKey(type)) {
+        try {
+          result = typeActionMap.get(type).apply(content, type);
+        } catch (IllegalStateException e) {
+          if (e.getMessage().contains("must be number value")) {
+            throw e;
+          }
+          result = parseStruct(content, field, supportArrays);
+        }
+      }
+
+      // result is empty when an unsupported format is queried
+      if (result instanceof ExprTupleValue && result.tupleValue().isEmpty()) {
+        throw new IllegalStateException("geo point must be in format of {\"lat\": number, \"lon\": "
+            + "number}");
+      }
+
+      return result;
     } else {
       if (typeActionMap.containsKey(type)) {
         return typeActionMap.get(type).apply(content, type);
@@ -313,28 +330,6 @@ public class OpenSearchExprValueFactory {
         parse(entry.getValue(),
             makeField(prefix, entry.getKey()),
             type(makeField(prefix, entry.getKey())), supportArrays)));
-    return new ExprTupleValue(result);
-  }
-
-  /**
-   * Parse geo_point object content.
-   * @param content Content to parse.
-   * @param prefix Prefix for Level of object depth to parse.
-   * @return Value parsed from content.
-   */
-  private ExprValue parseGeoPointObject(Content content, String prefix) {
-    LinkedHashMap<String, ExprValue> result = new LinkedHashMap<>();
-    content.map().forEachRemaining(entry -> result.put(entry.getKey(),
-        parse(entry.getValue(),
-            makeField(prefix, entry.getKey()),
-            type(makeField(prefix, entry.getKey())), false)));
-
-    // result is empty when an unsupported format is queried
-    if (result.isEmpty()) {
-      throw new IllegalInstantException("geo point must in format of {\"lat\": number, \"lon\": "
-          + "number}");
-    }
-
     return new ExprTupleValue(result);
   }
 

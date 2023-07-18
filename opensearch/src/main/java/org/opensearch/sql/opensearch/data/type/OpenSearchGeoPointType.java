@@ -7,14 +7,12 @@
 package org.opensearch.sql.opensearch.data.type;
 
 import static org.opensearch.sql.data.type.ExprCoreType.GEO_POINT;
-import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import org.opensearch.sql.data.type.ExprCoreType;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import org.opensearch.sql.data.type.ExprCoreType;
 
 /**
  * The type of a geo_point value. See
