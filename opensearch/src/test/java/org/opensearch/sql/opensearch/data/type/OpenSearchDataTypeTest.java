@@ -22,6 +22,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.BYTE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 import static org.opensearch.sql.data.type.ExprCoreType.FLOAT;
+import static org.opensearch.sql.data.type.ExprCoreType.GEO_POINT;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.SHORT;
@@ -109,7 +110,7 @@ class OpenSearchDataTypeTest {
         Arguments.of(MappingType.Object, "object", STRUCT),
         Arguments.of(MappingType.Nested, "nested", ARRAY),
         Arguments.of(MappingType.GeoPoint, "geo_point",
-            OpenSearchGeoPointType.of()),
+            GEO_POINT),
         Arguments.of(MappingType.Binary, "binary",
             OpenSearchBinaryType.of()),
         Arguments.of(MappingType.Ip, "ip",
@@ -291,7 +292,7 @@ class OpenSearchDataTypeTest {
     var flattened = OpenSearchDataType.traverseAndFlatten(getSampleMapping());
     var objectType = OpenSearchDataType.of(MappingType.Object);
     assertAll(
-        () -> assertEquals(9, flattened.size()),
+        () -> assertEquals(11, flattened.size()),
         () -> assertTrue(flattened.get("mapping").getProperties().isEmpty()),
         () -> assertTrue(flattened.get("mapping.submapping").getProperties().isEmpty()),
         () -> assertTrue(

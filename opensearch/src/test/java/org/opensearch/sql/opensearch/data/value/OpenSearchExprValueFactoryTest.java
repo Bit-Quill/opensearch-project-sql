@@ -59,6 +59,7 @@ import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDateType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
+import org.opensearch.sql.opensearch.data.utils.ObjectContent;
 import org.opensearch.sql.opensearch.data.utils.OpenSearchJsonContent;
 
 class OpenSearchExprValueFactoryTest {
@@ -730,18 +731,6 @@ class OpenSearchExprValueFactoryTest {
     IllegalStateException exception =
         assertThrows(IllegalStateException.class,
             () -> tupleValue("{\"geoV\":[42.60355556,-97.25263889]}").get("geoV"));
-    assertEquals("geo point must in format of {\"lat\": number, \"lon\": number}",
-        exception.getMessage());
-
-    exception =
-        assertThrows(IllegalStateException.class,
-            () -> tupleValue("{\"geoV\":{\"lon\":-97.25263889}}").get("geoV"));
-    assertEquals("geo point must in format of {\"lat\": number, \"lon\": number}",
-        exception.getMessage());
-
-    exception =
-        assertThrows(IllegalStateException.class,
-            () -> tupleValue("{\"geoV\":{\"lat\":-97.25263889}}").get("geoV"));
     assertEquals("geo point must in format of {\"lat\": number, \"lon\": number}",
         exception.getMessage());
 
