@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.opensearch.data.value;
 
+import java.util.Map;
 import java.util.Objects;
 import lombok.Data;
 import org.opensearch.sql.data.model.AbstractExprValue;
@@ -43,7 +44,10 @@ public class OpenSearchExprGeoPointValue extends AbstractExprValue {
 
   @Override
   public boolean equal(ExprValue other) {
-    return geoPoint.equals(((OpenSearchExprGeoPointValue) other).geoPoint);
+    Map<String, ExprValue> otherTupleValue = other.tupleValue();
+    return geoPoint.equals(new OpenSearchExprGeoPointValue(
+        other.tupleValue().get("lat").doubleValue(),
+        other.tupleValue().get("lon").doubleValue()).geoPoint);
   }
 
   @Override
