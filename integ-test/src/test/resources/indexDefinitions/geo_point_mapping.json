@@ -4,6 +4,14 @@
       "geo_point_object": {
         "type": "geo_point"
       },
+      "object": {
+        "type": "object",
+        "properties": {
+          "geo_point_object": {
+            "type": "geo_point"
+          }
+        }
+      },
       "geo_point_string": {
         "type": "geo_point"
       },

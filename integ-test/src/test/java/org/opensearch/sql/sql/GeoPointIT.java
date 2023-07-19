@@ -10,31 +10,112 @@ import org.junit.Test;
 import org.opensearch.sql.legacy.SQLIntegTestCase;
 
 import java.io.IOException;
+import java.util.Map;
 
-import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_WILDCARD;
+import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_GEOPOINT;
 import static org.opensearch.sql.util.MatcherUtils.rows;
 import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
 
 public class GeoPointIT extends SQLIntegTestCase {
   @Override
   protected void init() throws Exception {
-    loadIndex(Index.WILDCARD);
+    loadIndex(Index.GEOPOINT);
   }
 
   @Test
-  public void test_geo_point_in_select() throws IOException {
-    String query = "SELECT KeywordBody, KeywordBody LIKE 'test wildcard%' FROM " + TEST_INDEX_WILDCARD;
+  public void test_geo_point() throws IOException {
+    String query = "SELECT geo_point_object FROM " + TEST_INDEX_GEOPOINT;
     JSONObject result = executeJdbcRequest(query);
     verifyDataRows(result,
-        rows("test wildcard", true),
-        rows("test wildcard in the end of the text%", true),
-        rows("%test wildcard in the beginning of the text", false),
-        rows("test wildcard in % the middle of the text", true),
-        rows("test wildcard %% beside each other", true),
-        rows("test wildcard in the end of the text_", true),
-        rows("_test wildcard in the beginning of the text", false),
-        rows("test wildcard in _ the middle of the text", true),
-        rows("test wildcard __ beside each other", true),
-        rows("test backslash wildcard \\_", false));
+        rows(new JSONObject(Map.of(
+                "lat", 40.71,
+                "lon", 74))),
+        rows(new JSONObject(Map.of(
+            "lat", -33.85253637358241,
+            "lon", 151.21652352950258))),
+        rows(JSONObject.NULL)
+    );
+  }
+
+  @Test
+  public void test_geo_point_unsupported_format() throws IOException {
+    String query = "SELECT geo_point_geohash FROM " + TEST_INDEX_GEOPOINT;
+    Exception exception = assertThrows(RuntimeException.class,
+        () -> executeJdbcRequest(query));
+
+    assertTrue(exception.getMessage().contains(
+            "  \"error\": {\n" +
+            "    \"reason\": \"There was internal problem at backend\",\n" +
+            "    \"details\": \"geo point must be in format of {\\\"lat\\\": number, \\\"lon\\\": number}\",\n" +
+            "    \"type\": \"IllegalStateException\"\n" +
+            "  }"
+    ));
+  }
+
+  @Test
+  public void test_geo_point_in_objects() throws IOException {
+    String query = "SELECT object.geo_point_object FROM " + TEST_INDEX_GEOPOINT;
+    JSONObject result = executeJdbcRequest(query);
+    verifyDataRows(result,
+        rows(
+            (new JSONObject(Map.of(
+                "lat", 40.71,
+                "lon", 74)))),
+        rows(new JSONObject(Map.of(
+            "lat", -33.85253637358241,
+            "lon", 151.21652352950258))),
+        rows(JSONObject.NULL)
+    );
+  }
+
+  @Test
+  public void test_geo_point_lat_in_objects() throws IOException {
+    String query = "SELECT object.geo_point_object.lat FROM " + TEST_INDEX_GEOPOINT;
+    JSONObject result = executeJdbcRequest(query);
+    verifyDataRows(result,
+        rows(40.71),
+        rows( -33.85253637358241),
+        rows(JSONObject.NULL)
+    );
+  }
+
+  @Test
+  public void test_geo_point_lat_and_lon() throws IOException {
+    String query = "SELECT geo_point_object.lat, geo_point_object.lon FROM " + TEST_INDEX_GEOPOINT;
+    JSONObject result = executeJdbcRequest(query);
+    verifyDataRows(result,
+        rows(40.71, 74),
+        rows(-33.85253637358241, 151.21652352950258),
+        rows(JSONObject.NULL, JSONObject.NULL)
+    );
+  }
+
+  @Test
+  public void test_geo_point_objecte_with_lat_and_lon() throws IOException {
+    String query = "SELECT geo_point_object, geo_point_object.lat," +
+        " geo_point_object.lon FROM " + TEST_INDEX_GEOPOINT;
+    JSONObject result = executeJdbcRequest(query);
+    verifyDataRows(result,
+        rows(new JSONObject(Map.of(
+            "lat", 40.71,
+            "lon", 74)),
+            40.71, 74),
+        rows(new JSONObject(Map.of(
+            "lat", -33.85253637358241,
+            "lon", 151.21652352950258)),
+            -33.85253637358241, 151.21652352950258),
+        rows(JSONObject.NULL, JSONObject.NULL, JSONObject.NULL)
+    );
+  }
+
+  @Test
+  public void test_geo_point_lat_in_functions() throws IOException {
+    String query = "SELECT ABS(geo_point_object.lat) FROM " + TEST_INDEX_GEOPOINT;
+    JSONObject result = executeJdbcRequest(query);
+    verifyDataRows(result,
+        rows(40.71),
+        rows(33.85253637358241),
+        rows(JSONObject.NULL)
+    );
   }
 }
