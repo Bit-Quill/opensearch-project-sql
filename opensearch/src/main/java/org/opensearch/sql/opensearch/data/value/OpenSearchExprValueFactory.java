@@ -211,7 +211,8 @@ public class OpenSearchExprValueFactory {
       }
 
       // result is empty when an unsupported format is queried
-      if (result instanceof ExprTupleValue && result.tupleValue().isEmpty()) {
+      if (result instanceof ExprTupleValue && (result.tupleValue().isEmpty() ||
+          result.tupleValue().get("type") instanceof ExprNullValue)) {
         throw new IllegalStateException("geo point must be in format of {\"lat\": number, \"lon\": "
             + "number}");
       }
