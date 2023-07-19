@@ -17,13 +17,13 @@ import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import org.opensearch.common.time.DateFormatter;
 import org.opensearch.common.time.FormatNames;
+import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 
 /**
  * Date type with support for predefined and custom formats read from the index mapping.
  */
-@EqualsAndHashCode(callSuper = true)
 public class OpenSearchDateType extends OpenSearchDataType {
 
   private static final OpenSearchDateType instance = new OpenSearchDateType();
@@ -402,5 +402,21 @@ public class OpenSearchDateType extends OpenSearchDataType {
       return OpenSearchDateType.of(exprCoreType);
     }
     return OpenSearchDateType.of(String.join(" || ", formats));
+  }
+
+  @Override
+  public String typeName() {
+    return exprCoreType.toString();
+  }
+
+  @Override
+  public String legacyTypeName() {
+    return exprCoreType.toString();
+  }
+
+  @Override
+  public Object convertValueForSearchQuery(ExprValue value) {
+    // TODO fix for https://github.com/opensearch-project/sql/issues/1847
+    return value.timestampValue().toEpochMilli();
   }
 }

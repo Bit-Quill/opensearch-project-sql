@@ -10,9 +10,10 @@ import com.google.common.collect.ImmutableMap;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.commons.lang3.EnumUtils;
 import org.opensearch.sql.data.type.ExprCoreType;
@@ -21,15 +22,51 @@ import org.opensearch.sql.data.type.ExprType;
 /**
  * The extension of ExprType in OpenSearch.
  */
-@EqualsAndHashCode
 public class OpenSearchDataType implements ExprType, Serializable {
+
+  public boolean equals(final Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (o instanceof ExprCoreType) {
+      return exprCoreType.equals(o);
+    }
+    if (!(o instanceof OpenSearchDataType)) {
+      return false;
+    }
+    return exprCoreType.equals(((OpenSearchDataType) o).exprCoreType);
+  }
+
+  public int hashCode() {
+    return 42 + exprCoreType.hashCode();
+  }
+
+  @Override
+  public List<ExprType> getParent() {
+    return exprCoreType == ExprCoreType.UNKNOWN
+        ? List.of(ExprCoreType.UNKNOWN)
+        : exprCoreType.getParent();
+  }
+
+  @Override
+  public boolean shouldCast(ExprType other) {
+    ExprCoreType otherCoreType = other instanceof ExprCoreType ? (ExprCoreType) other
+        : (other instanceof OpenSearchDataType
+            ? ((OpenSearchDataType) other).exprCoreType : ExprCoreType.UNKNOWN);
+    // TODO Copied from BuiltinFunctionRepository.isCastRequired
+    if (ExprCoreType.numberTypes().contains(exprCoreType)
+        && ExprCoreType.numberTypes().contains(otherCoreType)) {
+      return false;
+    }
+    return exprCoreType == ExprCoreType.UNKNOWN || exprCoreType.shouldCast(other);
+  }
 
   /**
    * The mapping (OpenSearch engine) type.
    */
   public enum MappingType {
     Invalid(null, ExprCoreType.UNKNOWN),
-    Text("text", ExprCoreType.UNKNOWN),
+    Text("text", ExprCoreType.TEXT),
     Keyword("keyword", ExprCoreType.STRING),
     Ip("ip", ExprCoreType.UNKNOWN),
     GeoPoint("geo_point", ExprCoreType.UNKNOWN),
@@ -64,7 +101,6 @@ public class OpenSearchDataType implements ExprType, Serializable {
     }
   }
 
-  @EqualsAndHashCode.Exclude
   @Getter
   protected MappingType mappingType;
 
@@ -124,6 +160,9 @@ public class OpenSearchDataType implements ExprType, Serializable {
         return;
       }
       // create OpenSearchDataType
+
+      // TODO parse `fielddata`
+
       result.put(k, OpenSearchDataType.of(
           EnumUtils.getEnumIgnoreCase(OpenSearchDataType.MappingType.class, type),
           innerMap)
@@ -212,7 +251,6 @@ public class OpenSearchDataType implements ExprType, Serializable {
   // For datatypes with properties (example: object and nested types)
   // a read-only collection
   @Getter
-  @EqualsAndHashCode.Exclude
   Map<String, OpenSearchDataType> properties = ImmutableMap.of();
 
   @Override
@@ -220,7 +258,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
   public String typeName() {
     // To avoid breaking changes return `string` for `typeName` call (PPL) and `text` for
     // `legacyTypeName` call (SQL). See more: https://github.com/opensearch-project/sql/issues/1296
-    if (legacyTypeName().equals("TEXT")) {
+    if (legacyTypeName().equals("TEXT") || legacyTypeName().equals("KEYWORD")) {
       return "STRING";
     }
     return legacyTypeName();
@@ -248,7 +286,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
   /**
    * Flattens mapping tree into a single layer list of objects (pairs of name-types actually),
    * which don't have nested types.
-   * See {@link OpenSearchDataTypeTest#traverseAndFlatten() test} for example.
+   * See {@see OpenSearchDataTypeTest#traverseAndFlatten() test} for example.
    * @param tree A list of `OpenSearchDataType`s - map between field name and its type.
    * @return A list of all `OpenSearchDataType`s from given map on the same nesting level (1).
    *         Nested object names are prefixed by names of their host.

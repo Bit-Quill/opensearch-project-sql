@@ -41,9 +41,9 @@ public class WideningTypeRule {
   }
 
   private static int distance(ExprType type1, ExprType type2, int distance) {
-    if (type1 == type2) {
+    if (type1.equals(type2)) {
       return distance;
-    } else if (type1 == UNKNOWN) {
+    } else if (type1.equals(UNKNOWN)) {
       return IMPOSSIBLE_WIDENING;
     } else {
       return type1.getParent().stream()

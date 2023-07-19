@@ -60,8 +60,8 @@ public class ConditionalIT extends SQLIntegTestCase {
                     + " WHERE balance is null limit 2", "jdbc"));
 
     verifySchema(response,
-            schema("IFNULL(null, firstname)", "IFNULL1", "keyword"),
-            schema("IFNULL(firstname, null)", "IFNULL2", "keyword"),
+            schema("IFNULL(null, firstname)", "IFNULL1", "text"),
+            schema("IFNULL(firstname, null)", "IFNULL2", "text"),
             schema("IFNULL(null, null)", "IFNULL3", "byte"));
     verifyDataRows(response,
             rows("Hattie", "Hattie", LITERAL_NULL.value()),

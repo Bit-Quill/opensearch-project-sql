@@ -16,8 +16,9 @@ import org.opensearch.sql.opensearch.storage.script.StringUtils;
 public class LikeQuery extends LuceneQuery {
   @Override
   public QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
-    String field = OpenSearchTextType.convertTextToKeyword(fieldName, fieldType);
-    return createBuilder(field, literal.stringValue());
+    return createBuilder(
+        fieldType.convertFieldForSearchQuery(fieldName),
+        literal.stringValue());
   }
 
   /**

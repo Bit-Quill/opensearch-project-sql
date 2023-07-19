@@ -99,7 +99,7 @@ public class SortQueryBuilder {
 
   private FieldSortBuilder fieldBuild(ReferenceExpression ref, Sort.SortOption option) {
     return SortBuilders.fieldSort(
-        OpenSearchTextType.convertTextToKeyword(ref.getAttr(), ref.type()))
+        ref.type().convertFieldForSearchQuery(ref.getAttr()))
         .order(sortOrderMap.get(option.getSortOrder()))
         .missing(missingMap.get(option.getNullOrder()));
   }

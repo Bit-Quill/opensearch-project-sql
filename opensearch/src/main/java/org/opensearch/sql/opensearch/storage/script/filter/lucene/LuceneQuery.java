@@ -126,6 +126,7 @@ public abstract class LuceneQuery {
           return expr.valueOf();
         }
       })
+      // TODO CAST_TO_TEXT
       .put(BuiltinFunctionName.CAST_TO_BYTE.getName(), expr -> {
         if (ExprCoreType.numberTypes().contains(expr.type())) {
           return new ExprByteValue(expr.valueOf().byteValue());

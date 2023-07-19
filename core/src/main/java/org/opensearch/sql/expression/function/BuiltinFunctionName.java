@@ -235,6 +235,7 @@ public enum BuiltinFunctionName {
    * Data Type Convert Function.
    */
   CAST_TO_STRING(FunctionName.of("cast_to_string")),
+  CAST_TO_TEXT(FunctionName.of("cast_to_text")),
   CAST_TO_BYTE(FunctionName.of("cast_to_byte")),
   CAST_TO_SHORT(FunctionName.of("cast_to_short")),
   CAST_TO_INT(FunctionName.of("cast_to_int")),

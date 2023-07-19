@@ -20,15 +20,8 @@ public class TermQuery extends LuceneQuery {
 
   @Override
   protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
-    fieldName = OpenSearchTextType.convertTextToKeyword(fieldName, fieldType);
-    return QueryBuilders.termQuery(fieldName, value(literal));
-  }
-
-  private Object value(ExprValue literal) {
-    if (literal.type().equals(ExprCoreType.TIMESTAMP)) {
-      return literal.timestampValue().toEpochMilli();
-    } else {
-      return literal.value();
-    }
+    return QueryBuilders.termQuery(
+        fieldType.convertFieldForSearchQuery(fieldName),
+        fieldType.convertValueForSearchQuery(literal));
   }
 }

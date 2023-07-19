@@ -64,4 +64,14 @@ public interface ExprType {
   default String legacyTypeName() {
     return typeName();
   }
+
+  // TODO doc
+  default String convertFieldForSearchQuery(String fieldName) {
+    return fieldName;
+  }
+
+  // TODO doc
+  default Object convertValueForSearchQuery(ExprValue value) {
+    return value.value();
+  }
 }

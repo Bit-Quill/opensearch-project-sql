@@ -131,7 +131,7 @@ public class ExpressionScript {
 
   private Object getDocValue(ReferenceExpression field,
                              Supplier<Map<String, ScriptDocValues<?>>> docProvider) {
-    String fieldName = OpenSearchTextType.convertTextToKeyword(field.getAttr(), field.type());
+    String fieldName = field.type().convertFieldForSearchQuery(field.getAttr());
     ScriptDocValues<?> docValue = docProvider.get().get(fieldName);
     if (docValue == null || docValue.isEmpty()) {
       return null; // No way to differentiate null and missing from doc value

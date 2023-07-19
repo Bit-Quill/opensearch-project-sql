@@ -38,8 +38,7 @@ public class AggregationBuilderHelper {
                  Function<Script, T> scriptBuilder) {
     if (expression instanceof ReferenceExpression) {
       String fieldName = ((ReferenceExpression) expression).getAttr();
-      return fieldBuilder.apply(
-              OpenSearchTextType.convertTextToKeyword(fieldName, expression.type()));
+      return fieldBuilder.apply(expression.type().convertFieldForSearchQuery(fieldName));
     } else if (expression instanceof FunctionExpression
         || expression instanceof LiteralExpression) {
       return scriptBuilder.apply(new Script(

@@ -6,12 +6,13 @@
 package org.opensearch.sql.opensearch.data.type;
 
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
-import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
+import static org.opensearch.sql.data.type.ExprCoreType.TEXT;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
 
 /**
@@ -24,18 +25,18 @@ public class OpenSearchTextType extends OpenSearchDataType {
 
   // text could have fields
   // a read-only collection
-  @EqualsAndHashCode.Exclude
+  @Getter
   Map<String, OpenSearchDataType> fields = ImmutableMap.of();
 
   private OpenSearchTextType() {
     super(MappingType.Text);
-    exprCoreType = UNKNOWN;
+    exprCoreType = TEXT;
   }
 
   /**
    * Constructs a Text Type using the passed in fields argument.
    * @param fields The fields to be used to construct the text type.
-   * @return A new OpenSeachTextTypeObject
+   * @return A new OpenSearchTextType object
    */
   public static OpenSearchTextType of(Map<String, OpenSearchDataType> fields) {
     var res = new OpenSearchTextType();
@@ -57,24 +58,22 @@ public class OpenSearchTextType extends OpenSearchDataType {
     return false;
   }
 
-  public Map<String, OpenSearchDataType> getFields() {
-    return fields;
-  }
-
   @Override
   protected OpenSearchDataType cloneEmpty() {
     return OpenSearchTextType.of(Map.copyOf(this.fields));
   }
 
-  /**
-   * Text field doesn't have doc value (exception thrown even when you call "get")
-   * Limitation: assume inner field name is always "keyword".
-   */
-  public static String convertTextToKeyword(String fieldName, ExprType fieldType) {
-    if (fieldType instanceof OpenSearchTextType
-        && ((OpenSearchTextType) fieldType).getFields().size() > 0) {
-      return fieldName + ".keyword";
+  @Override
+  public String convertFieldForSearchQuery(String fieldName) {
+    if (fields.size() > 1) {
+      // TODO or pick first?
+      throw new RuntimeException("too many text fields");
     }
-    return fieldName;
+    if (fields.size() == 0) {
+      return fieldName;
+    }
+    // TODO what if field is not a keyword
+    // https://github.com/opensearch-project/sql/issues/1112
+    return String.format("%s.%s", fieldName, fields.keySet().toArray()[0]);
   }
 }
