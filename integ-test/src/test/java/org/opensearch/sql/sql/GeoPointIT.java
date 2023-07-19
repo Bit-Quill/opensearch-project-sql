@@ -91,7 +91,7 @@ public class GeoPointIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void test_geo_point_objecte_with_lat_and_lon() throws IOException {
+  public void test_geo_point_object_with_lat_and_lon() throws IOException {
     String query = "SELECT geo_point_object, geo_point_object.lat," +
         " geo_point_object.lon FROM " + TEST_INDEX_GEOPOINT;
     JSONObject result = executeJdbcRequest(query);
