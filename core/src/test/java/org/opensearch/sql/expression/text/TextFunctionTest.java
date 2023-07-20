@@ -148,7 +148,6 @@ public class TextFunctionTest extends ExpressionTestBase {
     assertEquals(strInfo.getRes(), eval(expr).stringValue());
   }
 
-  /** Test `LTRIM` function. */
   @ParameterizedTest
   @MethodSource("getStringsForTrim")
   void ltrim(String str) {
@@ -157,19 +156,17 @@ public class TextFunctionTest extends ExpressionTestBase {
     assertEquals(str.stripLeading(), eval(expression).stringValue());
   }
 
-  /** Test `RTRIM` function. */
   @ParameterizedTest
   @MethodSource("getStringsForTrim")
-  public void rtrim(String str) {
+  void rtrim(String str) {
     FunctionExpression expression = DSL.rtrim(DSL.literal(str));
     assertEquals(STRING, expression.type());
     assertEquals(str.stripTrailing(), eval(expression).stringValue());
   }
 
-  /** Test `TRIM` function. */
   @ParameterizedTest
   @MethodSource("getStringsForTrim")
-  public void trim(String str) {
+  void trim(String str) {
     FunctionExpression expression = DSL.trim(DSL.literal(str));
     assertEquals(STRING, expression.type());
     assertEquals(str.trim(), eval(expression).stringValue());
