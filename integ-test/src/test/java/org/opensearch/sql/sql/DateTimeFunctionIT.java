@@ -1357,4 +1357,34 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     compareBrackets("time", "time", "17:30:00");
     compareBrackets("time", "t", "17:30:00");
   }
+
+  private void queryFails(String query) {
+    Request request = new Request("POST", QUERY_API_ENDPOINT);
+    request.setJsonEntity(String.format(Locale.ROOT, "{\n" + "  \"query\": \"%s\"\n" + "}", query));
+
+    RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
+    restOptionsBuilder.addHeader("Content-Type", "application/json");
+    request.setOptions(restOptionsBuilder);
+
+    boolean fails = false;
+
+    try {
+      client().performRequest(request);
+    } catch(Exception ignored) {
+      fails = true;
+    }
+
+    assertTrue(fails);
+  }
+
+  @Test
+  public void testBracketFails() {
+    queryFails("select {time 'failure'}");
+    queryFails("select {t 'failure'}");
+    queryFails("select {date 'failure'}");
+    queryFails("select {d 'failure'}");
+    queryFails("select {timestamp 'failure'}");
+    queryFails("select {ts 'failure'}");
+
+  }
 }
