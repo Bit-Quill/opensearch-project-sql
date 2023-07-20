@@ -1337,4 +1337,24 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifySchema(result, schema("{d '2020-09-16'}", null, "date"));
     verifyDataRows(result, rows("2020-09-16"));
   }
+
+  private void compareBrackets(String query1, String query2, String datetime) throws IOException {
+    JSONObject result1 = executeQuery("select " + query1 + " '" + datetime + "'");
+    JSONObject result2 = executeQuery("select {" + query2 + " '" + datetime + "'}");
+
+    verifyDataRows(result1, rows(datetime));
+    verifyDataRows(result2, rows(datetime));
+  }
+
+  @Test
+  public void testBracketedEquivalent() throws IOException {
+    compareBrackets("timestamp", "timestamp", "2020-09-16 17:30:00");
+    compareBrackets("timestamp", "ts", "2020-09-16 17:30:00");
+    compareBrackets("timestamp", "timestamp", "2020-09-16 17:30:00.123");
+    compareBrackets("timestamp", "ts", "2020-09-16 17:30:00.123");
+    compareBrackets("date", "date", "2020-09-16");
+    compareBrackets("date", "d", "2020-09-16");
+    compareBrackets("time", "time", "17:30:00");
+    compareBrackets("time", "t", "17:30:00");
+  }
 }
