@@ -13,7 +13,6 @@ import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 import static org.opensearch.sql.util.MatcherUtils.verifySome;
 
 import java.io.IOException;
-
 import org.json.JSONObject;
 import org.junit.Test;
 
