@@ -25,11 +25,13 @@ import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
@@ -196,11 +198,12 @@ public class OpenSearchExprValueFactory {
     } else {
       if (typeActionMap.containsKey(type)) {
         return typeActionMap.get(type).apply(content, type);
+      } else {
+        throw new IllegalStateException(
+            String.format(
+                "Unsupported type: %s for value: %s.", type.typeName(), content.objectValue()));
       }
     }
-    throw new IllegalStateException(
-        String.format(
-            "Unsupported type: %s for value: %s.", type.typeName(), content.objectValue()));
   }
 
   /**
