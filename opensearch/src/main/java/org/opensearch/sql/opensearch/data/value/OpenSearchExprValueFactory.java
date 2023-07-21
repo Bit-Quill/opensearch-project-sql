@@ -196,37 +196,33 @@ public class OpenSearchExprValueFactory {
         || type == STRUCT) {
       return parseStruct(content, field, supportArrays);
     } else if (type.equals(OpenSearchDataType.of(OpenSearchDataType.MappingType.GeoPoint))) {
-      ExprValue result = null;
-
-      // Allows to parse for double values in geo_point object
-      if (typeActionMap.containsKey(type)) {
-        try {
-          result = typeActionMap.get(type).apply(content, type);
-        } catch (IllegalStateException e) {
-          if (e.getMessage().contains("must be number value")) {
-            throw e;
-          }
-          result = parseStruct(content, field, supportArrays);
+      try {
+        if (typeActionMap.containsKey(type)) {
+          return typeActionMap.get(type).apply(content, type);
         }
       }
 
-      // result is empty when an unsupported format is queried
-      if (result instanceof ExprTupleValue && (result.tupleValue().isEmpty() ||
-          result.tupleValue().get("type") instanceof ExprNullValue)) {
-        throw new IllegalStateException("geo point must be in format of {\"lat\": number, \"lon\": "
-            + "number}");
-      }
+      // The try block throws an exception for queries accessing lat or lon of geo_point
+      catch (IllegalStateException e) {
+        ExprValue result = parseStruct(content, field, supportArrays);
 
-      return result;
+        // result is empty when an unsupported format is queried
+        if (result.tupleValue().isEmpty() ||
+            result.tupleValue().get("type") instanceof ExprNullValue) {
+          throw new IllegalStateException("geo point must be in format of {\"lat\": number, \"lon\": "
+              + "number}");
+        }
+
+        return result;
+      }
     } else {
       if (typeActionMap.containsKey(type)) {
         return typeActionMap.get(type).apply(content, type);
-      } else {
-        throw new IllegalStateException(
-            String.format(
-                "Unsupported type: %s for value: %s.", type.typeName(), content.objectValue()));
       }
     }
+    throw new IllegalStateException(
+        String.format(
+            "Unsupported type: %s for value: %s.", type.typeName(), content.objectValue()));
   }
 
   /**
