@@ -195,24 +195,6 @@ public class OpenSearchExprValueFactory {
     } else if (type.equals(OpenSearchDataType.of(OpenSearchDataType.MappingType.Object))
         || type == STRUCT) {
       return parseStruct(content, field, supportArrays);
-    } else if (type.equals(OpenSearchDataType.of(OpenSearchDataType.MappingType.GeoPoint))) {
-      try {
-        if (typeActionMap.containsKey(type)) {
-          return typeActionMap.get(type).apply(content, type);
-        }
-      } catch (IllegalStateException e) {
-        // The try block throws an exception for queries accessing lat or lon of geo_point
-        ExprValue result = parseStruct(content, field, supportArrays);
-
-        // result is empty when an unsupported format is queried
-        if (result.tupleValue().isEmpty()
-            || result.tupleValue().get("type") instanceof ExprNullValue) {
-          throw new IllegalStateException("geo point must be in format of {\"lat\": number,"
-              + " \"lon\": number}");
-        }
-
-        return result;
-      }
     } else {
       if (typeActionMap.containsKey(type)) {
         return typeActionMap.get(type).apply(content, type);
