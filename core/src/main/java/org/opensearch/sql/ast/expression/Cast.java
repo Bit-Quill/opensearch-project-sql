@@ -16,7 +16,6 @@ import static org.opensearch.sql.expression.function.BuiltinFunctionName.CAST_TO
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.CAST_TO_LONG;
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.CAST_TO_SHORT;
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.CAST_TO_STRING;
-import static org.opensearch.sql.expression.function.BuiltinFunctionName.CAST_TO_TEXT;
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.CAST_TO_TIME;
 import static org.opensearch.sql.expression.function.BuiltinFunctionName.CAST_TO_TIMESTAMP;
 
@@ -46,7 +45,6 @@ public class Cast extends UnresolvedExpression {
   private static final Map<String, FunctionName> CONVERTED_TYPE_FUNCTION_NAME_MAP =
       new ImmutableMap.Builder<String, FunctionName>()
           .put("string", CAST_TO_STRING.getName())
-          .put("text", CAST_TO_TEXT.getName()) // TODO do we need this?
           .put("byte", CAST_TO_BYTE.getName())
           .put("short", CAST_TO_SHORT.getName())
           .put("int", CAST_TO_INT.getName())

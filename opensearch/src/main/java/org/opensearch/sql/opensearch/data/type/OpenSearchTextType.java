@@ -6,13 +6,11 @@
 package org.opensearch.sql.opensearch.data.type;
 
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
-import static org.opensearch.sql.data.type.ExprCoreType.TEXT;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
-import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
 
 /**
@@ -30,7 +28,7 @@ public class OpenSearchTextType extends OpenSearchDataType {
 
   private OpenSearchTextType() {
     super(MappingType.Text);
-    exprCoreType = TEXT;
+    exprCoreType = STRING;
   }
 
   /**

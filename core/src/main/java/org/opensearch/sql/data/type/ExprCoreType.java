@@ -44,11 +44,7 @@ public enum ExprCoreType implements ExprType {
   /**
    * String.
    */
-  TEXT(UNDEFINED),
-  STRING(TEXT),
-  // TODO why not
-  //STRING(UNDEFINED),
-  //TEXT(STRING),
+  STRING(UNDEFINED),
 
   /**
    * Boolean.

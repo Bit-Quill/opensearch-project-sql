@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.BiConsumer;
 import lombok.Getter;
 import org.apache.commons.lang3.EnumUtils;
@@ -34,7 +33,11 @@ public class OpenSearchDataType implements ExprType, Serializable {
     if (!(o instanceof OpenSearchDataType)) {
       return false;
     }
-    return exprCoreType.equals(((OpenSearchDataType) o).exprCoreType);
+    OpenSearchDataType other = (OpenSearchDataType) o;
+    if (mappingType != null && other.mappingType != null) {
+      return mappingType.equals(other.mappingType);
+    }
+    return exprCoreType.equals(other.exprCoreType);
   }
 
   public int hashCode() {
@@ -66,7 +69,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
    */
   public enum MappingType {
     Invalid(null, ExprCoreType.UNKNOWN),
-    Text("text", ExprCoreType.TEXT),
+    Text("text", ExprCoreType.STRING),
     Keyword("keyword", ExprCoreType.STRING),
     Ip("ip", ExprCoreType.UNKNOWN),
     GeoPoint("geo_point", ExprCoreType.UNKNOWN),

@@ -16,7 +16,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.SHORT;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
-import static org.opensearch.sql.data.type.ExprCoreType.TEXT;
+//import static org.opensearch.sql.data.type.ExprCoreType.TEXT;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.expression.function.FunctionDSL.impl;
@@ -52,7 +52,6 @@ public class TypeCastOperator {
    */
   public static void register(BuiltinFunctionRepository repository) {
     repository.register(castToString());
-    repository.register(castToText());
     repository.register(castToByte());
     repository.register(castToShort());
     repository.register(castToInt());
@@ -77,12 +76,6 @@ public class TypeCastOperator {
                     STRING, type)),
             Stream.of(impl(nullMissingHandling((v) -> v), STRING, STRING)))
             .collect(Collectors.toList())
-    );
-  }
-
-  private static DefaultFunctionResolver castToText() {
-    return FunctionDSL.define(BuiltinFunctionName.CAST_TO_TEXT.getName(),
-        impl(nullMissingHandling(v -> v), TEXT, STRING)
     );
   }
 
