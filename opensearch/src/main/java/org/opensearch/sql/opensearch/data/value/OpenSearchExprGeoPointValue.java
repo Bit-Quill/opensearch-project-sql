@@ -27,8 +27,8 @@ public class OpenSearchExprGeoPointValue extends ExprTupleValue {
    */
   public OpenSearchExprGeoPointValue(Double lat, Double lon) {
     super(new LinkedHashMap<>(Map.of(
-        "lat", (ExprValue) new ExprDoubleValue(lat),
-        "lon", (ExprValue) new ExprDoubleValue(lon))));
+        "lat", new ExprDoubleValue(lat),
+        "lon", new ExprDoubleValue(lon))));
   }
 
   @Override
