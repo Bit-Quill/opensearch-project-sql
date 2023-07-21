@@ -736,7 +736,8 @@ class OpenSearchExprValueFactoryTest {
 
     exception =
         assertThrows(IllegalStateException.class,
-            () -> tupleValue("{\"geoV\":{\"type\": \"Point\", \"coordinates\": [74.00, 40.71]}}").get("geoV"));
+            () -> tupleValue("{\"geoV\":{\"type\": \"Point\","
+                + " \"coordinates\": [74.00, 40.71]}}").get("geoV"));
     assertEquals("geo point must be in format of {\"lat\": number, \"lon\": number}",
         exception.getMessage());
   }
