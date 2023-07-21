@@ -35,7 +35,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
     }
     OpenSearchDataType other = (OpenSearchDataType) o;
     if (mappingType != null && other.mappingType != null) {
-      return mappingType.equals(other.mappingType);
+      return mappingType.equals(other.mappingType) && exprCoreType.equals(other.exprCoreType);
     }
     return exprCoreType.equals(other.exprCoreType);
   }
