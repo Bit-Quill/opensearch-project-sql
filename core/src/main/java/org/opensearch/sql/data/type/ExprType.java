@@ -50,7 +50,7 @@ public interface ExprType {
    * Get the parent type.
    */
   default List<ExprType> getParent() {
-    return Arrays.asList(UNKNOWN);
+    return List.of(UNKNOWN);
   }
 
   /**
@@ -65,12 +65,16 @@ public interface ExprType {
     return typeName();
   }
 
-  // TODO doc
+  /**
+   * Perform field name conversion if needed before inserting it into a search query.
+   */
   default String convertFieldForSearchQuery(String fieldName) {
     return fieldName;
   }
 
-  // TODO doc
+  /**
+   * Perform value conversion if needed before inserting it into a search query.
+   */
   default Object convertValueForSearchQuery(ExprValue value) {
     return value.value();
   }

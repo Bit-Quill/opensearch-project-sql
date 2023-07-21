@@ -36,3 +36,10 @@ The solution is to provide to `:core` non simplified types, but full types. Thos
 2. Update `OpenSearchDataType` (and inheritors if needed) to be comparable with `ExprCoreType`.
 3. Update `:core` to do proper comparison (use `.equals` instead of `==`).
 5. Update `:opensearch` to use the mapping information received from `:core` and properly build the search query.
+
+## Type Schema
+
+| JDBC type | `ExprCoreType` | `OpenSearchDataType` | OpenSearch type |
+| --- | --- | --- | --- |
+| `VARCHAR`/`CHAR` | `STRING` | -- | `keyword` |
+| `LONGVARCHAR`/`TEXT` | `STRING` | `OpenSearchTextType` | `text` |

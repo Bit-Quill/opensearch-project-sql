@@ -17,12 +17,17 @@ import lombok.Getter;
 import org.apache.commons.lang3.EnumUtils;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
+import org.opensearch.sql.data.type.WideningTypeRule;
 
 /**
  * The extension of ExprType in OpenSearch.
  */
 public class OpenSearchDataType implements ExprType, Serializable {
 
+  /**
+   * Redefine comparison operation: class (or derived) could be compared with ExprCoreType too.
+   * Used in {@link WideningTypeRule#distance(ExprType, ExprType)}.
+   */
   public boolean equals(final Object o) {
     if (o == this) {
       return true;
@@ -46,17 +51,17 @@ public class OpenSearchDataType implements ExprType, Serializable {
 
   @Override
   public List<ExprType> getParent() {
-    return exprCoreType == ExprCoreType.UNKNOWN
-        ? List.of(ExprCoreType.UNKNOWN)
-        : exprCoreType.getParent();
+    return exprCoreType.getParent();
   }
 
   @Override
   public boolean shouldCast(ExprType other) {
-    ExprCoreType otherCoreType = other instanceof ExprCoreType ? (ExprCoreType) other
-        : (other instanceof OpenSearchDataType
-            ? ((OpenSearchDataType) other).exprCoreType : ExprCoreType.UNKNOWN);
-    // TODO Copied from BuiltinFunctionRepository.isCastRequired
+    ExprCoreType otherCoreType = ExprCoreType.UNKNOWN;
+    if (other instanceof ExprCoreType) {
+      otherCoreType = (ExprCoreType) other;
+    } else if (other instanceof OpenSearchDataType) {
+      otherCoreType = ((OpenSearchDataType) other).exprCoreType;
+    }
     if (ExprCoreType.numberTypes().contains(exprCoreType)
         && ExprCoreType.numberTypes().contains(otherCoreType)) {
       return false;
@@ -163,9 +168,6 @@ public class OpenSearchDataType implements ExprType, Serializable {
         return;
       }
       // create OpenSearchDataType
-
-      // TODO parse `fielddata`
-
       result.put(k, OpenSearchDataType.of(
           EnumUtils.getEnumIgnoreCase(OpenSearchDataType.MappingType.class, type),
           innerMap)
@@ -196,7 +198,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
         objectDataType.properties = properties;
         return objectDataType;
       case Text:
-        // TODO update these 2 below #1038 https://github.com/opensearch-project/sql/issues/1038
+        // don't parse `fielddata`, because it does not contain any info which could be used by SQL
         Map<String, OpenSearchDataType> fields =
             parseMapping((Map<String, Object>) innerMap.getOrDefault("fields", Map.of()));
         return (!fields.isEmpty()) ? OpenSearchTextType.of(fields) : OpenSearchTextType.of();

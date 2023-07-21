@@ -63,15 +63,11 @@ public class OpenSearchTextType extends OpenSearchDataType {
 
   @Override
   public String convertFieldForSearchQuery(String fieldName) {
-    if (fields.size() > 1) {
-      // TODO or pick first?
-      throw new RuntimeException("too many text fields");
-    }
     if (fields.size() == 0) {
       return fieldName;
     }
-    // TODO what if field is not a keyword
-    // https://github.com/opensearch-project/sql/issues/1112
+    // Pick first field. What to do if there are multiple fields?
+    // Multi-field text support requested in https://github.com/opensearch-project/sql/issues/1887
     return String.format("%s.%s", fieldName, fields.keySet().toArray()[0]);
   }
 }

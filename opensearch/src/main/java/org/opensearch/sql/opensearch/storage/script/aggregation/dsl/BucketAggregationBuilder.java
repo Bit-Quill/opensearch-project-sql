@@ -13,7 +13,6 @@ import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.apache.commons.lang3.tuple.Triple;
 import org.opensearch.search.aggregations.bucket.composite.CompositeValuesSourceBuilder;
 import org.opensearch.search.aggregations.bucket.composite.DateHistogramValuesSourceBuilder;

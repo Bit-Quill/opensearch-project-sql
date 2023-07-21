@@ -416,7 +416,7 @@ public class OpenSearchDateType extends OpenSearchDataType {
 
   @Override
   public Object convertValueForSearchQuery(ExprValue value) {
-    // TODO fix for https://github.com/opensearch-project/sql/issues/1847
+    // TODO add here fix for https://github.com/opensearch-project/sql/issues/1847
     return value.timestampValue().toEpochMilli();
   }
 }

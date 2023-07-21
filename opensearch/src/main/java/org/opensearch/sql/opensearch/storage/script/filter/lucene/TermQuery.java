@@ -9,9 +9,7 @@ package org.opensearch.sql.opensearch.storage.script.filter.lucene;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.sql.data.model.ExprValue;
-import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
-import org.opensearch.sql.opensearch.data.type.OpenSearchTextType;
 
 /**
  * Lucene query that build term query for equality comparison.
