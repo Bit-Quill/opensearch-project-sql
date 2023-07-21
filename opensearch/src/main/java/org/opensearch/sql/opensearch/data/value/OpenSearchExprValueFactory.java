@@ -200,17 +200,15 @@ public class OpenSearchExprValueFactory {
         if (typeActionMap.containsKey(type)) {
           return typeActionMap.get(type).apply(content, type);
         }
-      }
-
-      // The try block throws an exception for queries accessing lat or lon of geo_point
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
+        // The try block throws an exception for queries accessing lat or lon of geo_point
         ExprValue result = parseStruct(content, field, supportArrays);
 
         // result is empty when an unsupported format is queried
-        if (result.tupleValue().isEmpty() ||
-            result.tupleValue().get("type") instanceof ExprNullValue) {
-          throw new IllegalStateException("geo point must be in format of {\"lat\": number, \"lon\": "
-              + "number}");
+        if (result.tupleValue().isEmpty()
+            || result.tupleValue().get("type") instanceof ExprNullValue) {
+          throw new IllegalStateException("geo point must be in format of {\"lat\": number,"
+              + " \"lon\": number}");
         }
 
         return result;
