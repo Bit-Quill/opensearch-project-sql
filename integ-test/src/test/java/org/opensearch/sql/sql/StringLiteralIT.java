@@ -16,8 +16,6 @@ import org.json.JSONObject;
 import org.junit.Test;
 import org.opensearch.sql.legacy.SQLIntegTestCase;
 
-
-
 public class StringLiteralIT extends SQLIntegTestCase {
   @Test
   public void testStringHelloSingleQuote() throws IOException {
