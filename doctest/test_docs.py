@@ -28,7 +28,7 @@ BOOKS = "books"
 APACHE = "apache"
 WILDCARD = "wildcard"
 NESTED = "nested"
-GEOPOINT = "geo_point"
+GEOPOINT = "geopoint"
 DATASOURCES = ".ql-datasources"
 
 
