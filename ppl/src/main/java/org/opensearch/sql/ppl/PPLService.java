@@ -9,7 +9,6 @@ package org.opensearch.sql.ppl;
 import static org.opensearch.sql.executor.ExecutionEngine.QueryResponse;
 
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,6 +19,7 @@ import org.opensearch.sql.executor.ExecutionEngine.ExplainResponse;
 import org.opensearch.sql.executor.QueryManager;
 import org.opensearch.sql.executor.execution.AbstractPlan;
 import org.opensearch.sql.executor.execution.QueryPlanFactory;
+import org.opensearch.sql.planner.Planner;
 import org.opensearch.sql.ppl.antlr.PPLSyntaxParser;
 import org.opensearch.sql.ppl.domain.PPLQueryRequest;
 import org.opensearch.sql.ppl.parser.AstBuilder;
@@ -30,7 +30,6 @@ import org.opensearch.sql.ppl.utils.PPLQueryDataAnonymizer;
 /**
  * PPLService.
  */
-@RequiredArgsConstructor
 public class PPLService {
   private final PPLSyntaxParser parser;
 
@@ -41,6 +40,16 @@ public class PPLService {
   private final PPLQueryDataAnonymizer anonymizer = new PPLQueryDataAnonymizer();
 
   private static final Logger LOG = LogManager.getLogger();
+
+  public PPLService(PPLSyntaxParser parser,
+                    QueryManager queryManager,
+                    QueryPlanFactory queryExecutionFactory,
+                    Planner planner) {
+    this.parser = parser;
+    this.queryManager = queryManager;
+    this.queryExecutionFactory = queryExecutionFactory;
+    queryExecutionFactory.setPlanner(planner);
+  }
 
   /**
    * Execute the {@link PPLQueryRequest}, using {@link ResponseListener} to get response.

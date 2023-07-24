@@ -27,6 +27,6 @@ public class PrometheusLogicalPlanOptimizerFactory {
         new MergeFilterAndRelation(),
         new MergeAggAndIndexScan(),
         new MergeAggAndRelation()
-    ));
+    ), LogicalPlanOptimizer.OptimizingMode.PRESERVE_TREE_ORDER);
   }
 }

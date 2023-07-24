@@ -218,15 +218,17 @@ public class StandaloneIT extends PPLIntegTestCase {
       return new ExecuteOnCallerThreadQueryManager();
     }
 
-    @Provides
-    public PPLService pplService(QueryManager queryManager, QueryPlanFactory queryPlanFactory) {
-      return new PPLService(new PPLSyntaxParser(), queryManager, queryPlanFactory);
-    }
+  @Provides
+  public PPLService pplService(QueryManager queryManager, QueryPlanFactory queryPlanFactory) {
+    Planner planner = new Planner(LogicalPlanOptimizer.create2());
+    return new PPLService(new PPLSyntaxParser(), queryManager, queryPlanFactory, planner);
+  }
 
-    @Provides
-    public SQLService sqlService(QueryManager queryManager, QueryPlanFactory queryPlanFactory) {
-      return new SQLService(new SQLSyntaxParser(), queryManager, queryPlanFactory);
-    }
+  @Provides
+  public SQLService sqlService(QueryManager queryManager, QueryPlanFactory queryPlanFactory) {
+    Planner planner = new Planner(LogicalPlanOptimizer.create());
+    return new SQLService(new SQLSyntaxParser(), queryManager, queryPlanFactory, planner);
+  }
 
     @Provides
     public PlanSerializer planSerializer(StorageEngine storageEngine) {
@@ -235,11 +237,9 @@ public class StandaloneIT extends PPLIntegTestCase {
 
     @Provides
     public QueryPlanFactory queryPlanFactory(ExecutionEngine executionEngine) {
-      Analyzer analyzer =
-          new Analyzer(
-              new ExpressionAnalyzer(functionRepository), dataSourceService, functionRepository);
-      Planner planner = new Planner(LogicalPlanOptimizer.create());
-      QueryService queryService = new QueryService(analyzer, executionEngine, planner);
+      Analyzer analyzer = new Analyzer(
+          new ExpressionAnalyzer(functionRepository), dataSourceService, functionRepository);
+      QueryService queryService = new QueryService(analyzer, executionEngine);
       return new QueryPlanFactory(queryService);
     }
   }

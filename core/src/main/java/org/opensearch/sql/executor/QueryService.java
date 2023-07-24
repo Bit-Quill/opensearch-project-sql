@@ -9,6 +9,7 @@
 package org.opensearch.sql.executor;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.opensearch.sql.analysis.AnalysisContext;
 import org.opensearch.sql.analysis.Analyzer;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
@@ -28,7 +29,8 @@ public class QueryService {
 
   private final ExecutionEngine executionEngine;
 
-  private final Planner planner;
+  @Setter
+  private Planner planner;
 
   /**
    * Execute the {@link UnresolvedPlan}, using {@link ResponseListener} to get response.

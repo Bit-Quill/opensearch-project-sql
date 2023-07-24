@@ -26,6 +26,7 @@ import org.opensearch.sql.executor.ExecutionEngine;
 import org.opensearch.sql.executor.QueryId;
 import org.opensearch.sql.executor.QueryService;
 import org.opensearch.sql.executor.pagination.CanPaginateVisitor;
+import org.opensearch.sql.planner.Planner;
 
 /**
  * QueryExecution Factory.
@@ -42,6 +43,10 @@ public class QueryPlanFactory
    * Query Service.
    */
   private final QueryService queryService;
+
+  public void setPlanner(Planner planner) {
+    queryService.setPlanner(planner);
+  }
 
   /**
    * NO_CONSUMER_RESPONSE_LISTENER should never be called. It is only used as constructor

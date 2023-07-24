@@ -29,48 +29,65 @@ import org.opensearch.sql.planner.optimizer.Rule;
 public class TableScanPushDown {
 
   /** Push down optimize rule for filtering condition. */
-  public static final Rule<? extends LogicalPlan> PUSH_DOWN_FILTER =
-      new PushDownRule<>(LogicalFilter.class, true,
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_FILTER_DEEP =
+      new PushDownRule<>(LogicalFilter.class).configureDeepTraverseRule(true,
           (filter, scanBuilder) -> scanBuilder.pushDownFilter(filter),
-          (plan) -> plan instanceof LogicalAggregation || plan instanceof LogicalProject);
+          (plan) -> plan instanceof LogicalAggregation,
+          (plan) -> plan instanceof LogicalProject);
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_FILTER =
+      new PushDownRule<>(LogicalFilter.class).configureRegularRule(
+          (filter, scanBuilder) -> scanBuilder.pushDownFilter(filter));
 
   /** Push down optimize rule for aggregate operator. */
-  public static final Rule<? extends LogicalPlan> PUSH_DOWN_AGGREGATION =
-      new PushDownRule<>(LogicalAggregation.class, false,
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_AGGREGATION_DEEP =
+      new PushDownRule<>(LogicalAggregation.class).configureDeepTraverseRule(true,
           (agg, scanBuilder) -> scanBuilder.pushDownAggregation(agg),
           (plan) -> plan instanceof LogicalProject);
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_AGGREGATION =
+      new PushDownRule<>(LogicalAggregation.class).configureRegularRule(
+          (agg, scanBuilder) -> scanBuilder.pushDownAggregation(agg));
 
   /** Push down optimize rule for sort operator. */
-  public static final Rule<? extends LogicalPlan> PUSH_DOWN_SORT =
-      new PushDownRule<>(LogicalSort.class, true,
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_SORT_DEEP =
+      new PushDownRule<>(LogicalSort.class).configureDeepTraverseRule(true,
           (sort, scanBuilder) -> scanBuilder.pushDownSort(sort),
           (plan) -> plan instanceof LogicalProject);
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_SORT =
+      new PushDownRule<>(LogicalSort.class).configureRegularRule(
+          (sort, scanBuilder) -> scanBuilder.pushDownSort(sort));
 
   /** Push down optimize rule for limit operator. */
-  public static final Rule<? extends LogicalPlan> PUSH_DOWN_LIMIT =
-      new PushDownRule<>(LogicalLimit.class, false,
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_LIMIT_DEEP =
+      new PushDownRule<>(LogicalLimit.class).configureDeepTraverseRule(false,
           (limit, scanBuilder) -> scanBuilder.pushDownLimit(limit),
-          (plan) -> plan instanceof LogicalSort || plan instanceof LogicalFilter
-                  || plan instanceof LogicalProject);
+          (plan) -> plan instanceof LogicalSort,
+          (plan) -> plan instanceof LogicalFilter,
+          (plan) -> plan instanceof LogicalProject);
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_LIMIT =
+      new PushDownRule<>(LogicalLimit.class).configureRegularRule(
+          (limit, scanBuilder) -> scanBuilder.pushDownLimit(limit));
 
   /** Push down optimize rule for Project operator. */
-  public static final Rule<? extends LogicalPlan> PUSH_DOWN_PROJECT =
-      new PushDownRule<>(LogicalProject.class, false,
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_PROJECT_DEEP =
+      new PushDownRule<>(LogicalProject.class).configureDeepTraverseRule(false,
           (project, scanBuilder) -> scanBuilder.pushDownProject(project),
-          (plan) -> plan instanceof LogicalEval || plan instanceof LogicalWindow);
+          (plan) -> plan instanceof LogicalWindow);
+  public static final Rule<? extends LogicalPlan> PUSH_DOWN_PROJECT =
+      new PushDownRule<>(LogicalProject.class).configureRegularRule(
+          (project, scanBuilder) -> scanBuilder.pushDownProject(project));
 
   /** Push down optimize rule for highlight operator. */
   public static final Rule<? extends LogicalPlan> PUSH_DOWN_HIGHLIGHT =
-      new PushDownRule<>(LogicalHighlight.class, true,
+      new PushDownRule<>(LogicalHighlight.class).configureDeepTraverseRule(true,
           (highlight, scanBuilder) -> scanBuilder.pushDownHighlight(highlight));
 
   /** Push down optimize rule for nested operator. */
   public static final Rule<? extends LogicalPlan> PUSH_DOWN_NESTED =
-      new PushDownRule<>(LogicalNested.class, false,
+      new PushDownRule<>(LogicalNested.class).configureDeepTraverseRule(false,
           (nested, scanBuilder) -> scanBuilder.pushDownNested(nested));
 
   /** Push down optimize rule for paginate operator. */
   public static final Rule<? extends LogicalPlan> PUSH_DOWN_PAGE_SIZE =
-      new PushDownRule<>(LogicalPaginate.class, false,
+      new PushDownRule<>(LogicalPaginate.class).configureDeepTraverseRule(false,
           (paginate, scanBuilder) -> scanBuilder.pushDownPageSize(paginate));
 }

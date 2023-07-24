@@ -43,10 +43,12 @@ import org.opensearch.sql.executor.pagination.Cursor;
 import org.opensearch.sql.opensearch.storage.OpenSearchDataSourceFactory;
 import org.opensearch.sql.opensearch.storage.OpenSearchIndex;
 import org.opensearch.sql.planner.PlanContext;
+import org.opensearch.sql.planner.Planner;
 import org.opensearch.sql.planner.logical.LogicalPaginate;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 import org.opensearch.sql.planner.logical.LogicalProject;
 import org.opensearch.sql.planner.logical.LogicalRelation;
+import org.opensearch.sql.planner.optimizer.LogicalPlanOptimizer;
 import org.opensearch.sql.planner.physical.PhysicalPlan;
 import org.opensearch.sql.storage.DataSourceFactory;
 import org.opensearch.sql.util.InternalRestHighLevelClient;
@@ -80,6 +82,7 @@ public class StandalonePaginationIT extends SQLIntegTestCase {
     Injector injector = modules.createInjector();
 
     queryService = injector.getInstance(QueryService.class);
+    queryService.setPlanner(new Planner(LogicalPlanOptimizer.create()));
     planSerializer = injector.getInstance(PlanSerializer.class);
   }
 
