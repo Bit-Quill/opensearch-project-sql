@@ -7,7 +7,6 @@
 package org.opensearch.sql.sql;
 
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.opensearch.sql.ast.statement.Statement;
 import org.opensearch.sql.common.response.ResponseListener;
@@ -16,6 +15,7 @@ import org.opensearch.sql.executor.ExecutionEngine.QueryResponse;
 import org.opensearch.sql.executor.QueryManager;
 import org.opensearch.sql.executor.execution.AbstractPlan;
 import org.opensearch.sql.executor.execution.QueryPlanFactory;
+import org.opensearch.sql.planner.Planner;
 import org.opensearch.sql.sql.antlr.SQLSyntaxParser;
 import org.opensearch.sql.sql.domain.SQLQueryRequest;
 import org.opensearch.sql.sql.parser.AstBuilder;
@@ -24,7 +24,6 @@ import org.opensearch.sql.sql.parser.AstStatementBuilder;
 /**
  * SQL service.
  */
-@RequiredArgsConstructor
 public class SQLService {
 
   private final SQLSyntaxParser parser;
@@ -32,6 +31,16 @@ public class SQLService {
   private final QueryManager queryManager;
 
   private final QueryPlanFactory queryExecutionFactory;
+
+  public SQLService(SQLSyntaxParser parser,
+                    QueryManager queryManager,
+                    QueryPlanFactory queryExecutionFactory,
+                    Planner planner) {
+    this.parser = parser;
+    this.queryManager = queryManager;
+    this.queryExecutionFactory = queryExecutionFactory;
+    queryExecutionFactory.setPlanner(planner);
+  }
 
   /**
    * Given {@link SQLQueryRequest}, execute it. Using listener to listen result.

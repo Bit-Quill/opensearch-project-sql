@@ -9,7 +9,6 @@ package org.opensearch.sql.planner.optimizer;
 import com.facebook.presto.matching.Captures;
 import com.facebook.presto.matching.Pattern;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import org.opensearch.sql.planner.logical.LogicalPlan;
 
@@ -17,16 +16,11 @@ import org.opensearch.sql.planner.logical.LogicalPlan;
  * Optimization Rule.
  * @param <T> LogicalPlan.
  */
-@RequiredArgsConstructor
 public abstract class Rule<T> {
 
   @Accessors(fluent = true)
   @Getter
-  protected final boolean canBeAppliedMultipleTimes;
-
-  public Rule() {
-    this.canBeAppliedMultipleTimes = false;
-  }
+  protected boolean canBeAppliedMultipleTimes;
 
   /**
    * Get the {@link Pattern}.

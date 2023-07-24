@@ -8,6 +8,8 @@ package org.opensearch.sql.planner.optimizer;
 import com.facebook.presto.matching.Captures;
 import com.facebook.presto.matching.Pattern;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
@@ -37,26 +39,34 @@ import org.opensearch.sql.storage.read.TableScanBuilder;
 public class PushDownRule<T extends LogicalPlan> extends Rule<T> {
 
   private final Class<T> clazz;
-  private final BiFunction<T, TableScanBuilder, Boolean> pushDownFunction;
-  private final List<Function<LogicalPlan, Boolean>> exceptions;
+  private BiFunction<T, TableScanBuilder, Boolean> pushDownFunction;
+  private List<Function<LogicalPlan, Boolean>> exceptions;
+  private boolean deepTreeTraverse;
 
-  public PushDownRule(Class<T> clazz,
-                      boolean canBeAppliedMultipleTimes,
-                      BiFunction<T, TableScanBuilder, Boolean> pushDownFunction,
-                      Function<LogicalPlan, Boolean> exception) {
-    super(canBeAppliedMultipleTimes);
+  public PushDownRule(Class<T> clazz) {
     this.clazz = clazz;
-    this.pushDownFunction = pushDownFunction;
-    this.exceptions = List.of(exception, getDefaultException());
   }
 
-  public PushDownRule(Class<T> clazz,
-                      boolean canBeAppliedMultipleTimes,
-                      BiFunction<T, TableScanBuilder, Boolean> pushDownFunction) {
-    super(canBeAppliedMultipleTimes);
-    this.clazz = clazz;
+  @SafeVarargs
+  public final PushDownRule<T> configureDeepTraverseRule(
+          boolean canBeAppliedMultipleTimes,
+          BiFunction<T, TableScanBuilder, Boolean> pushDownFunction,
+          Function<LogicalPlan, Boolean>... exceptions) {
+    this.canBeAppliedMultipleTimes = canBeAppliedMultipleTimes;
+    this.deepTreeTraverse = true;
     this.pushDownFunction = pushDownFunction;
-    this.exceptions = List.of(getDefaultException());
+    this.exceptions = new ArrayList<>(Arrays.asList(exceptions));
+    this.exceptions.add(0, getDefaultException());
+    return this;
+  }
+
+  public final PushDownRule<T> configureRegularRule(
+          BiFunction<T, TableScanBuilder, Boolean> pushDownFunction) {
+    this.canBeAppliedMultipleTimes = true;
+    this.deepTreeTraverse = false;
+    this.pushDownFunction = pushDownFunction;
+    this.exceptions = List.of();
+    return this;
   }
 
   /**
@@ -99,7 +109,9 @@ public class PushDownRule<T extends LogicalPlan> extends Rule<T> {
         }
         return Optional.of((TableScanBuilder) children.get(0));
       }
-      plans.addAll(children);
+      if (deepTreeTraverse) {
+        plans.addAll(children);
+      }
     } while (!plans.isEmpty());
     return Optional.empty();
   }

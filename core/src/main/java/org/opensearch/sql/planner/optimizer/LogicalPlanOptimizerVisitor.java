@@ -30,7 +30,6 @@ public class LogicalPlanOptimizerVisitor extends LogicalPlanNodeVisitor<LogicalP
   }
 
   public LogicalPlan optimize(LogicalPlan planTree) {
-    log(planTree);
     var node = planTree;
     for (int i = 0; i < rules.size(); i++) {
       // TODO how to avoid unchecked cast
@@ -43,21 +42,7 @@ public class LogicalPlanOptimizerVisitor extends LogicalPlanNodeVisitor<LogicalP
         i--;
       }
     }
-    log(node);
     return node;
-  }
-
-  // TODO remove debugging
-  public void log(LogicalPlan plan) {
-    var node = plan;
-    System.out.println("==============");
-    System.out.println(node.getClass().getSimpleName());
-    while (node.getChild().size() > 0) {
-      node = node.getChild().get(0);
-      System.out.println("      |");
-      System.out.println(node.getClass().getSimpleName());
-    }
-    System.out.println("==============");
   }
 
   private boolean isCurrentRuleAppliedToNode(LogicalPlan node) {
