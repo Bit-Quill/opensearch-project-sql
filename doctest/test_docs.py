@@ -28,6 +28,7 @@ BOOKS = "books"
 APACHE = "apache"
 WILDCARD = "wildcard"
 NESTED = "nested"
+GEOPOINT = "geopoint"
 DATASOURCES = ".ql-datasources"
 
 
@@ -97,6 +98,7 @@ def set_up_test_indices(test):
     load_file("apache.json", index_name=APACHE)
     load_file("wildcard.json", index_name=WILDCARD)
     load_file("nested_objects.json", index_name=NESTED)
+    load_file("geopoint.json", index_name=GEOPOINT)
     load_file("datasources.json", index_name=DATASOURCES)
 
 
