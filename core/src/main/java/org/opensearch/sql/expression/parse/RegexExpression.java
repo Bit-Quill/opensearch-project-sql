@@ -25,47 +25,47 @@ import org.opensearch.sql.expression.Expression;
 @EqualsAndHashCode(callSuper = true)
 @ToString
 public class RegexExpression extends ParseExpression {
-  private static final Logger log = LogManager.getLogger(RegexExpression.class);
-  private static final Pattern GROUP_PATTERN = Pattern.compile("\\(\\?<([a-zA-Z][a-zA-Z0-9]*)>");
-  @Getter
-  @EqualsAndHashCode.Exclude
-  private final Pattern regexPattern;
+    private static final Logger log = LogManager.getLogger(RegexExpression.class);
+    private static final Pattern GROUP_PATTERN = Pattern.compile("\\(\\?<([a-zA-Z][a-zA-Z0-9]*)>");
+    @Getter
+    @EqualsAndHashCode.Exclude
+    private final Pattern regexPattern;
 
-  /**
-   * RegexExpression.
-   *
-   * @param sourceField source text field
-   * @param pattern     pattern used for parsing
-   * @param identifier  derived field
-   */
-  public RegexExpression(Expression sourceField, Expression pattern, Expression identifier) {
-    super("regex", sourceField, pattern, identifier);
-    this.regexPattern = Pattern.compile(pattern.valueOf().stringValue());
-  }
-
-  @Override
-  ExprValue parseValue(ExprValue value) throws ExpressionEvaluationException {
-    String rawString = value.stringValue();
-    Matcher matcher = regexPattern.matcher(rawString);
-    if (matcher.matches()) {
-      return new ExprStringValue(matcher.group(identifierStr));
+    /**
+     * RegexExpression.
+     *
+     * @param sourceField source text field
+     * @param pattern     pattern used for parsing
+     * @param identifier  derived field
+     */
+    public RegexExpression(Expression sourceField, Expression pattern, Expression identifier) {
+        super("regex", sourceField, pattern, identifier);
+        this.regexPattern = Pattern.compile(pattern.valueOf().stringValue());
     }
-    log.debug("failed to extract pattern {} from input ***", regexPattern.pattern());
-    return new ExprStringValue("");
-  }
 
-  /**
-   * Get list of derived fields based on parse pattern.
-   *
-   * @param pattern pattern used for parsing
-   * @return list of names of the derived fields
-   */
-  public static List<String> getNamedGroupCandidates(String pattern) {
-    ImmutableList.Builder<String> namedGroups = ImmutableList.builder();
-    Matcher m = GROUP_PATTERN.matcher(pattern);
-    while (m.find()) {
-      namedGroups.add(m.group(1));
+    @Override
+    ExprValue parseValue(ExprValue value) throws ExpressionEvaluationException {
+        String rawString = value.stringValue();
+        Matcher matcher = regexPattern.matcher(rawString);
+        if (matcher.matches()) {
+            return new ExprStringValue(matcher.group(identifierStr));
+        }
+        log.debug("failed to extract pattern {} from input ***", regexPattern.pattern());
+        return new ExprStringValue("");
     }
-    return namedGroups.build();
-  }
+
+    /**
+     * Get list of derived fields based on parse pattern.
+     *
+     * @param pattern pattern used for parsing
+     * @return list of names of the derived fields
+     */
+    public static List<String> getNamedGroupCandidates(String pattern) {
+        ImmutableList.Builder<String> namedGroups = ImmutableList.builder();
+        Matcher m = GROUP_PATTERN.matcher(pattern);
+        while (m.find()) {
+            namedGroups.add(m.group(1));
+        }
+        return namedGroups.build();
+    }
 }

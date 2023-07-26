@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.expression.aggregation;
 
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
@@ -21,43 +20,40 @@ import org.opensearch.sql.expression.function.BuiltinFunctionName;
  */
 public class MinAggregator extends Aggregator<MinAggregator.MinState> {
 
-  public MinAggregator(List<Expression> arguments, ExprCoreType returnType) {
-    super(BuiltinFunctionName.MIN.getName(), arguments, returnType);
-  }
-
-
-  @Override
-  public MinState create() {
-    return new MinState();
-  }
-
-  @Override
-  protected MinState iterate(ExprValue value, MinState state) {
-    state.min(value);
-    return state;
-  }
-
-  @Override
-  public String toString() {
-    return String.format("min(%s)", format(getArguments()));
-  }
-
-  protected static class MinState implements AggregationState {
-    private ExprValue minResult;
-
-    MinState() {
-      minResult = LITERAL_NULL;
-    }
-
-    public void min(ExprValue value) {
-      minResult = minResult.isNull() ? value
-          : (minResult.compareTo(value) < 0)
-          ? minResult : value;
+    public MinAggregator(List<Expression> arguments, ExprCoreType returnType) {
+        super(BuiltinFunctionName.MIN.getName(), arguments, returnType);
     }
 
     @Override
-    public ExprValue result() {
-      return minResult;
+    public MinState create() {
+        return new MinState();
     }
-  }
+
+    @Override
+    protected MinState iterate(ExprValue value, MinState state) {
+        state.min(value);
+        return state;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("min(%s)", format(getArguments()));
+    }
+
+    protected static class MinState implements AggregationState {
+        private ExprValue minResult;
+
+        MinState() {
+            minResult = LITERAL_NULL;
+        }
+
+        public void min(ExprValue value) {
+            minResult = minResult.isNull() ? value : (minResult.compareTo(value) < 0) ? minResult : value;
+        }
+
+        @Override
+        public ExprValue result() {
+            return minResult;
+        }
+    }
 }

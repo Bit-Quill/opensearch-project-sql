@@ -20,34 +20,38 @@ import org.opensearch.sql.executor.QueryService;
  */
 public class CommandPlan extends AbstractPlan {
 
-  /**
-   * The query plan ast.
-   */
-  protected final UnresolvedPlan plan;
+    /**
+     * The query plan ast.
+     */
+    protected final UnresolvedPlan plan;
 
-  /**
-   * Query service.
-   */
-  protected final QueryService queryService;
+    /**
+     * Query service.
+     */
+    protected final QueryService queryService;
 
-  protected final ResponseListener<ExecutionEngine.QueryResponse> listener;
+    protected final ResponseListener<ExecutionEngine.QueryResponse> listener;
 
-  /** Constructor. */
-  public CommandPlan(QueryId queryId, UnresolvedPlan plan, QueryService queryService,
-                     ResponseListener<ExecutionEngine.QueryResponse> listener) {
-    super(queryId);
-    this.plan = plan;
-    this.queryService = queryService;
-    this.listener = listener;
-  }
+    /** Constructor. */
+    public CommandPlan(
+        QueryId queryId,
+        UnresolvedPlan plan,
+        QueryService queryService,
+        ResponseListener<ExecutionEngine.QueryResponse> listener
+    ) {
+        super(queryId);
+        this.plan = plan;
+        this.queryService = queryService;
+        this.listener = listener;
+    }
 
-  @Override
-  public void execute() {
-    queryService.execute(plan, listener);
-  }
+    @Override
+    public void execute() {
+        queryService.execute(plan, listener);
+    }
 
-  @Override
-  public void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener) {
-    throw new UnsupportedOperationException("CommandPlan does not support explain");
-  }
+    @Override
+    public void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener) {
+        throw new UnsupportedOperationException("CommandPlan does not support explain");
+    }
 }

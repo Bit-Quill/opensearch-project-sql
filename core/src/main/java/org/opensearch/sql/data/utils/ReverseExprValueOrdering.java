@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.data.utils;
 
 import com.google.common.collect.Ordering;
@@ -17,15 +16,15 @@ import org.opensearch.sql.data.model.ExprValue;
  */
 @RequiredArgsConstructor
 public class ReverseExprValueOrdering extends ExprValueOrdering {
-  private final ExprValueOrdering forwardOrder;
+    private final ExprValueOrdering forwardOrder;
 
-  @Override
-  public int compare(ExprValue left, ExprValue right) {
-    return forwardOrder.compare(right, left);
-  }
+    @Override
+    public int compare(ExprValue left, ExprValue right) {
+        return forwardOrder.compare(right, left);
+    }
 
-  @Override
-  public ExprValueOrdering reverse() {
-    return forwardOrder;
-  }
+    @Override
+    public ExprValueOrdering reverse() {
+        return forwardOrder;
+    }
 }

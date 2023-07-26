@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.expression.window.frame;
 
 import com.google.common.collect.PeekingIterator;
@@ -24,27 +23,27 @@ import org.opensearch.sql.expression.env.Environment;
  */
 public interface WindowFrame extends Environment<Expression, ExprValue>, Iterator<List<ExprValue>> {
 
-  @Override
-  default ExprValue resolve(Expression var) {
-    return var.valueOf(current().bindingTuples());
-  }
+    @Override
+    default ExprValue resolve(Expression var) {
+        return var.valueOf(current().bindingTuples());
+    }
 
-  /**
-   * Check is current row the beginning of a new partition according to window definition.
-   * @return  true if a new partition begins here, otherwise false.
-   */
-  boolean isNewPartition();
+    /**
+     * Check is current row the beginning of a new partition according to window definition.
+     * @return  true if a new partition begins here, otherwise false.
+     */
+    boolean isNewPartition();
 
-  /**
-   * Load one or more rows as window function calculation needed.
-   * @param iterator  peeking iterator that can peek next element without moving iterator
-   */
-  void load(PeekingIterator<ExprValue> iterator);
+    /**
+     * Load one or more rows as window function calculation needed.
+     * @param iterator  peeking iterator that can peek next element without moving iterator
+     */
+    void load(PeekingIterator<ExprValue> iterator);
 
-  /**
-   * Get current data row for giving window operator chance to get rows preloaded into frame.
-   * @return data row
-   */
-  ExprValue current();
+    /**
+     * Get current data row for giving window operator chance to get rows preloaded into frame.
+     * @return data row
+     */
+    ExprValue current();
 
 }

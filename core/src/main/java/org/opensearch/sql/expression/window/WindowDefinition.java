@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.expression.window;
 
 import static org.opensearch.sql.ast.tree.Sort.SortOption;
@@ -22,18 +21,18 @@ import org.opensearch.sql.expression.Expression;
 @Data
 public class WindowDefinition {
 
-  private final List<Expression> partitionByList;
-  private final List<Pair<SortOption, Expression>> sortList;
+    private final List<Expression> partitionByList;
+    private final List<Pair<SortOption, Expression>> sortList;
 
-  /**
-   * Return all items in partition by and sort list.
-   * @return  all sort items
-   */
-  public List<Pair<SortOption, Expression>> getAllSortItems() {
-    List<Pair<SortOption, Expression>> allSorts = new ArrayList<>();
-    partitionByList.forEach(expr -> allSorts.add(ImmutablePair.of(DEFAULT_ASC, expr)));
-    allSorts.addAll(sortList);
-    return allSorts;
-  }
+    /**
+     * Return all items in partition by and sort list.
+     * @return  all sort items
+     */
+    public List<Pair<SortOption, Expression>> getAllSortItems() {
+        List<Pair<SortOption, Expression>> allSorts = new ArrayList<>();
+        partitionByList.forEach(expr -> allSorts.add(ImmutablePair.of(DEFAULT_ASC, expr)));
+        allSorts.addAll(sortList);
+        return allSorts;
+    }
 
 }

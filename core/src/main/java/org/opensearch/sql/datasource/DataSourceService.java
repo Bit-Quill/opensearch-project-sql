@@ -14,62 +14,59 @@ import org.opensearch.sql.datasource.model.DataSourceMetadata;
  */
 public interface DataSourceService {
 
-  /**
-   * Returns {@link DataSource} corresponding to the DataSource name.
-   *
-   * @param dataSourceName Name of the {@link DataSource}.
-   * @return {@link DataSource}.
-   */
-  DataSource getDataSource(String dataSourceName);
+    /**
+     * Returns {@link DataSource} corresponding to the DataSource name.
+     *
+     * @param dataSourceName Name of the {@link DataSource}.
+     * @return {@link DataSource}.
+     */
+    DataSource getDataSource(String dataSourceName);
 
+    /**
+     * Returns all dataSource Metadata objects. The returned objects won't contain
+     * any of the credential info.
+     *
+     * @param isDefaultDataSourceRequired is used to specify
+     *      if default opensearch connector is required in the output list.
+     * @return set of {@link DataSourceMetadata}.
+     */
+    Set<DataSourceMetadata> getDataSourceMetadata(boolean isDefaultDataSourceRequired);
 
-  /**
-   * Returns all dataSource Metadata objects. The returned objects won't contain
-   * any of the credential info.
-   *
-   * @param isDefaultDataSourceRequired is used to specify
-   *      if default opensearch connector is required in the output list.
-   * @return set of {@link DataSourceMetadata}.
-   */
-  Set<DataSourceMetadata> getDataSourceMetadata(boolean isDefaultDataSourceRequired);
+    /**
+     * Returns dataSourceMetadata object with specific name.
+     * The returned objects won't contain any crendetial info.
+     *
+     * @param name name of the {@link DataSource}.
+     * @return set of {@link DataSourceMetadata}.
+     */
+    DataSourceMetadata getDataSourceMetadata(String name);
 
+    /**
+     * Register {@link DataSource} defined by {@link DataSourceMetadata}.
+     *
+     * @param metadata {@link DataSourceMetadata}.
+     */
+    void createDataSource(DataSourceMetadata metadata);
 
-  /**
-   * Returns dataSourceMetadata object with specific name.
-   * The returned objects won't contain any crendetial info.
-   *
-   * @param name name of the {@link DataSource}.
-   * @return set of {@link DataSourceMetadata}.
-   */
-  DataSourceMetadata getDataSourceMetadata(String name);
+    /**
+     * Updates {@link DataSource} corresponding to dataSourceMetadata.
+     *
+     * @param dataSourceMetadata {@link DataSourceMetadata}.
+     */
+    void updateDataSource(DataSourceMetadata dataSourceMetadata);
 
-  /**
-   * Register {@link DataSource} defined by {@link DataSourceMetadata}.
-   *
-   * @param metadata {@link DataSourceMetadata}.
-   */
-  void createDataSource(DataSourceMetadata metadata);
+    /**
+     * Deletes {@link DataSource} corresponding to the DataSource name.
+     *
+     * @param dataSourceName name of the {@link DataSource}.
+     */
+    void deleteDataSource(String dataSourceName);
 
-  /**
-   * Updates {@link DataSource} corresponding to dataSourceMetadata.
-   *
-   * @param dataSourceMetadata {@link DataSourceMetadata}.
-   */
-  void updateDataSource(DataSourceMetadata dataSourceMetadata);
-
-
-  /**
-   * Deletes {@link DataSource} corresponding to the DataSource name.
-   *
-   * @param dataSourceName name of the {@link DataSource}.
-   */
-  void deleteDataSource(String dataSourceName);
-
-  /**
-   * Returns true {@link Boolean} if datasource with dataSourceName exists
-   * or else false {@link Boolean}.
-   *
-   * @param dataSourceName name of the {@link DataSource}.
-   */
-  Boolean dataSourceExists(String dataSourceName);
+    /**
+     * Returns true {@link Boolean} if datasource with dataSourceName exists
+     * or else false {@link Boolean}.
+     *
+     * @param dataSourceName name of the {@link DataSource}.
+     */
+    Boolean dataSourceExists(String dataSourceName);
 }

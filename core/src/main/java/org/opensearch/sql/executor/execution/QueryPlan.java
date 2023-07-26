@@ -22,63 +22,64 @@ import org.opensearch.sql.executor.QueryService;
  */
 public class QueryPlan extends AbstractPlan {
 
-  /**
-   * The query plan ast.
-   */
-  protected final UnresolvedPlan plan;
+    /**
+     * The query plan ast.
+     */
+    protected final UnresolvedPlan plan;
 
-  /**
-   * Query service.
-   */
-  protected final QueryService queryService;
+    /**
+     * Query service.
+     */
+    protected final QueryService queryService;
 
-  protected final ResponseListener<ExecutionEngine.QueryResponse> listener;
+    protected final ResponseListener<ExecutionEngine.QueryResponse> listener;
 
-  protected final Optional<Integer> pageSize;
+    protected final Optional<Integer> pageSize;
 
-  /** Constructor. */
-  public QueryPlan(
-      QueryId queryId,
-      UnresolvedPlan plan,
-      QueryService queryService,
-      ResponseListener<ExecutionEngine.QueryResponse> listener) {
-    super(queryId);
-    this.plan = plan;
-    this.queryService = queryService;
-    this.listener = listener;
-    this.pageSize = Optional.empty();
-  }
-
-  /** Constructor with page size. */
-  public QueryPlan(
-      QueryId queryId,
-      UnresolvedPlan plan,
-      int pageSize,
-      QueryService queryService,
-      ResponseListener<ExecutionEngine.QueryResponse> listener) {
-    super(queryId);
-    this.plan = plan;
-    this.queryService = queryService;
-    this.listener = listener;
-    this.pageSize = Optional.of(pageSize);
-  }
-
-  @Override
-  public void execute() {
-    if (pageSize.isPresent()) {
-      queryService.execute(new Paginate(pageSize.get(), plan), listener);
-    } else {
-      queryService.execute(plan, listener);
+    /** Constructor. */
+    public QueryPlan(
+        QueryId queryId,
+        UnresolvedPlan plan,
+        QueryService queryService,
+        ResponseListener<ExecutionEngine.QueryResponse> listener
+    ) {
+        super(queryId);
+        this.plan = plan;
+        this.queryService = queryService;
+        this.listener = listener;
+        this.pageSize = Optional.empty();
     }
-  }
 
-  @Override
-  public void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener) {
-    if (pageSize.isPresent()) {
-      listener.onFailure(new NotImplementedException(
-          "`explain` feature for paginated requests is not implemented yet."));
-    } else {
-      queryService.explain(plan, listener);
+    /** Constructor with page size. */
+    public QueryPlan(
+        QueryId queryId,
+        UnresolvedPlan plan,
+        int pageSize,
+        QueryService queryService,
+        ResponseListener<ExecutionEngine.QueryResponse> listener
+    ) {
+        super(queryId);
+        this.plan = plan;
+        this.queryService = queryService;
+        this.listener = listener;
+        this.pageSize = Optional.of(pageSize);
     }
-  }
+
+    @Override
+    public void execute() {
+        if (pageSize.isPresent()) {
+            queryService.execute(new Paginate(pageSize.get(), plan), listener);
+        } else {
+            queryService.execute(plan, listener);
+        }
+    }
+
+    @Override
+    public void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener) {
+        if (pageSize.isPresent()) {
+            listener.onFailure(new NotImplementedException("`explain` feature for paginated requests is not implemented yet."));
+        } else {
+            queryService.explain(plan, listener);
+        }
+    }
 }

@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.analysis.symbol;
 
 import lombok.Getter;
@@ -17,6 +16,6 @@ import lombok.ToString;
 @Getter
 @RequiredArgsConstructor
 public class Symbol {
-  private final Namespace namespace;
-  private final String name;
+    private final Namespace namespace;
+    private final String name;
 }

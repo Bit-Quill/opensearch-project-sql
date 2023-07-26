@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.expression.function;
 
 import java.io.Serializable;
@@ -18,14 +17,14 @@ import java.io.Serializable;
  * @param <R> the type of the result of the function
  */
 public interface SerializableQuadFunction<T, U, V, W, R> extends Serializable {
-  /**
-   * Applies this function to the given arguments.
-   *
-   * @param t the first function argument
-   * @param u the second function argument
-   * @param v the third function argument
-   * @param w the fourth function argument
-   * @return the function result
-   */
-  R apply(T t, U u, V v, W w);
+    /**
+     * Applies this function to the given arguments.
+     *
+     * @param t the first function argument
+     * @param u the second function argument
+     * @param v the third function argument
+     * @param w the fourth function argument
+     * @return the function result
+     */
+    R apply(T t, U u, V v, W w);
 }

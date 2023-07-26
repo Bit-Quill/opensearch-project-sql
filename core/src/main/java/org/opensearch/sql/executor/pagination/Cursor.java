@@ -12,12 +12,12 @@ import lombok.RequiredArgsConstructor;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class Cursor {
-  public static final Cursor None = new Cursor(null);
+    public static final Cursor None = new Cursor(null);
 
-  @Getter
-  private final String data;
+    @Getter
+    private final String data;
 
-  public String toString() {
-    return data;
-  }
+    public String toString() {
+        return data;
+    }
 }

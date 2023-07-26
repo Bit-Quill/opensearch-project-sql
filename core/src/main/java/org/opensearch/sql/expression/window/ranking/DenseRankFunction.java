@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.expression.window.ranking;
 
 import org.opensearch.sql.expression.function.BuiltinFunctionName;
@@ -15,20 +14,20 @@ import org.opensearch.sql.expression.window.frame.CurrentRowWindowFrame;
  */
 public class DenseRankFunction extends RankingWindowFunction {
 
-  public DenseRankFunction() {
-    super(BuiltinFunctionName.DENSE_RANK.getName());
-  }
-
-  @Override
-  protected int rank(CurrentRowWindowFrame frame) {
-    if (frame.isNewPartition()) {
-      rank = 1;
-    } else {
-      if (isSortFieldValueDifferent(frame)) {
-        rank++;
-      }
+    public DenseRankFunction() {
+        super(BuiltinFunctionName.DENSE_RANK.getName());
     }
-    return rank;
-  }
+
+    @Override
+    protected int rank(CurrentRowWindowFrame frame) {
+        if (frame.isNewPartition()) {
+            rank = 1;
+        } else {
+            if (isSortFieldValueDifferent(frame)) {
+                rank++;
+            }
+        }
+        return rank;
+    }
 
 }

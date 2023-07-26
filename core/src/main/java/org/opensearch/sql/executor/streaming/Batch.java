@@ -13,5 +13,5 @@ import org.opensearch.sql.storage.split.Split;
  */
 @Data
 public class Batch {
-  private final Split split;
+    private final Split split;
 }

@@ -17,28 +17,26 @@ import org.opensearch.sql.executor.QueryId;
  */
 public class ExplainPlan extends AbstractPlan {
 
-  private final AbstractPlan plan;
+    private final AbstractPlan plan;
 
-  private final ResponseListener<ExecutionEngine.ExplainResponse> explainListener;
+    private final ResponseListener<ExecutionEngine.ExplainResponse> explainListener;
 
-  /**
-   * Constructor.
-   */
-  public ExplainPlan(QueryId queryId,
-                     AbstractPlan plan,
-                     ResponseListener<ExecutionEngine.ExplainResponse> explainListener) {
-    super(queryId);
-    this.plan = plan;
-    this.explainListener = explainListener;
-  }
+    /**
+     * Constructor.
+     */
+    public ExplainPlan(QueryId queryId, AbstractPlan plan, ResponseListener<ExecutionEngine.ExplainResponse> explainListener) {
+        super(queryId);
+        this.plan = plan;
+        this.explainListener = explainListener;
+    }
 
-  @Override
-  public void execute() {
-    plan.explain(explainListener);
-  }
+    @Override
+    public void execute() {
+        plan.explain(explainListener);
+    }
 
-  @Override
-  public void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener) {
-    throw new UnsupportedOperationException("explain query can not been explained.");
-  }
+    @Override
+    public void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener) {
+        throw new UnsupportedOperationException("explain query can not been explained.");
+    }
 }

@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.expression.aggregation;
 
 import static org.opensearch.sql.data.model.ExprValueUtils.doubleValue;
@@ -33,68 +32,67 @@ import org.opensearch.sql.expression.function.BuiltinFunctionName;
  */
 public class SumAggregator extends Aggregator<SumState> {
 
-  public SumAggregator(List<Expression> arguments, ExprCoreType returnType) {
-    super(BuiltinFunctionName.SUM.getName(), arguments, returnType);
-  }
-
-  @Override
-  public SumState create() {
-    return new SumState(returnType);
-  }
-
-  @Override
-  protected SumState iterate(ExprValue value, SumState state) {
-    state.isEmptyCollection = false;
-    state.add(value);
-    return state;
-  }
-
-  @Override
-  public String toString() {
-    return String.format(Locale.ROOT, "sum(%s)", format(getArguments()));
-  }
-
-  /**
-   * Sum State.
-   */
-  protected static class SumState implements AggregationState {
-
-    private final ExprCoreType type;
-    private ExprValue sumResult;
-    private boolean isEmptyCollection;
-
-    SumState(ExprCoreType type) {
-      this.type = type;
-      sumResult = ExprValueUtils.integerValue(0);
-      isEmptyCollection = true;
-    }
-
-    /**
-     * Add value to current sumResult.
-     */
-    public void add(ExprValue value) {
-      switch (type) {
-        case INTEGER:
-          sumResult = integerValue(getIntegerValue(sumResult) + getIntegerValue(value));
-          break;
-        case LONG:
-          sumResult = longValue(getLongValue(sumResult) + getLongValue(value));
-          break;
-        case FLOAT:
-          sumResult = floatValue(getFloatValue(sumResult) + getFloatValue(value));
-          break;
-        case DOUBLE:
-          sumResult = doubleValue(getDoubleValue(sumResult) + getDoubleValue(value));
-          break;
-        default:
-          throw new ExpressionEvaluationException(
-              String.format("unexpected type [%s] in sum aggregation", type));
-      }
+    public SumAggregator(List<Expression> arguments, ExprCoreType returnType) {
+        super(BuiltinFunctionName.SUM.getName(), arguments, returnType);
     }
 
     @Override
-    public ExprValue result() {
-      return isEmptyCollection ? ExprNullValue.of() : sumResult;
+    public SumState create() {
+        return new SumState(returnType);
     }
-  }
+
+    @Override
+    protected SumState iterate(ExprValue value, SumState state) {
+        state.isEmptyCollection = false;
+        state.add(value);
+        return state;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.ROOT, "sum(%s)", format(getArguments()));
+    }
+
+    /**
+     * Sum State.
+     */
+    protected static class SumState implements AggregationState {
+
+        private final ExprCoreType type;
+        private ExprValue sumResult;
+        private boolean isEmptyCollection;
+
+        SumState(ExprCoreType type) {
+            this.type = type;
+            sumResult = ExprValueUtils.integerValue(0);
+            isEmptyCollection = true;
+        }
+
+        /**
+         * Add value to current sumResult.
+         */
+        public void add(ExprValue value) {
+            switch (type) {
+                case INTEGER:
+                    sumResult = integerValue(getIntegerValue(sumResult) + getIntegerValue(value));
+                    break;
+                case LONG:
+                    sumResult = longValue(getLongValue(sumResult) + getLongValue(value));
+                    break;
+                case FLOAT:
+                    sumResult = floatValue(getFloatValue(sumResult) + getFloatValue(value));
+                    break;
+                case DOUBLE:
+                    sumResult = doubleValue(getDoubleValue(sumResult) + getDoubleValue(value));
+                    break;
+                default:
+                    throw new ExpressionEvaluationException(String.format("unexpected type [%s] in sum aggregation", type));
+            }
+        }
+
+        @Override
+        public ExprValue result() {
+            return isEmptyCollection ? ExprNullValue.of() : sumResult;
+        }
+    }
 }

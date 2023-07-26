@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.analysis.symbol;
 
 /**
@@ -11,14 +10,14 @@ package org.opensearch.sql.analysis.symbol;
  */
 public enum Namespace {
 
-  INDEX_NAME("Index"),
-  FIELD_NAME("Field"),
-  FUNCTION_NAME("Function");
+    INDEX_NAME("Index"),
+    FIELD_NAME("Field"),
+    FUNCTION_NAME("Function");
 
-  private final String name;
+    private final String name;
 
-  Namespace(String name) {
-    this.name = name;
-  }
+    Namespace(String name) {
+        this.name = name;
+    }
 
 }

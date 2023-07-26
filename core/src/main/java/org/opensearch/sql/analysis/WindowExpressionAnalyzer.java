@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.analysis;
 
 import static org.opensearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
@@ -35,81 +34,69 @@ import org.opensearch.sql.planner.logical.LogicalWindow;
 @RequiredArgsConstructor
 public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> {
 
-  /**
-   * Expression analyzer.
-   */
-  private final ExpressionAnalyzer expressionAnalyzer;
+    /**
+     * Expression analyzer.
+     */
+    private final ExpressionAnalyzer expressionAnalyzer;
 
-  /**
-   * Child node to be wrapped by a new window operator.
-   */
-  private final LogicalPlan child;
+    /**
+     * Child node to be wrapped by a new window operator.
+     */
+    private final LogicalPlan child;
 
-  /**
-   * Analyze the given project item and return window operator (with child node inside)
-   * if the given project item is a window function.
-   * @param projectItem   project item
-   * @param context       analysis context
-   * @return              window operator or original child if not windowed
-   */
-  public LogicalPlan analyze(UnresolvedExpression projectItem, AnalysisContext context) {
-    LogicalPlan window = projectItem.accept(this, context);
-    return (window == null) ? child : window;
-  }
-
-  @Override
-  public LogicalPlan visitAlias(Alias node, AnalysisContext context) {
-    if (!(node.getDelegated() instanceof WindowFunction)) {
-      return null;
+    /**
+     * Analyze the given project item and return window operator (with child node inside)
+     * if the given project item is a window function.
+     * @param projectItem   project item
+     * @param context       analysis context
+     * @return              window operator or original child if not windowed
+     */
+    public LogicalPlan analyze(UnresolvedExpression projectItem, AnalysisContext context) {
+        LogicalPlan window = projectItem.accept(this, context);
+        return (window == null) ? child : window;
     }
 
-    WindowFunction unresolved = (WindowFunction) node.getDelegated();
-    Expression windowFunction = expressionAnalyzer.analyze(unresolved, context);
-    List<Expression> partitionByList = analyzePartitionList(unresolved, context);
-    List<Pair<SortOption, Expression>> sortList = analyzeSortList(unresolved, context);
+    @Override
+    public LogicalPlan visitAlias(Alias node, AnalysisContext context) {
+        if (!(node.getDelegated() instanceof WindowFunction)) {
+            return null;
+        }
 
-    WindowDefinition windowDefinition = new WindowDefinition(partitionByList, sortList);
-    NamedExpression namedWindowFunction =
-        new NamedExpression(node.getName(), windowFunction, node.getAlias());
-    List<Pair<SortOption, Expression>> allSortItems = windowDefinition.getAllSortItems();
+        WindowFunction unresolved = (WindowFunction) node.getDelegated();
+        Expression windowFunction = expressionAnalyzer.analyze(unresolved, context);
+        List<Expression> partitionByList = analyzePartitionList(unresolved, context);
+        List<Pair<SortOption, Expression>> sortList = analyzeSortList(unresolved, context);
 
-    if (allSortItems.isEmpty()) {
-      return new LogicalWindow(child, namedWindowFunction, windowDefinition);
+        WindowDefinition windowDefinition = new WindowDefinition(partitionByList, sortList);
+        NamedExpression namedWindowFunction = new NamedExpression(node.getName(), windowFunction, node.getAlias());
+        List<Pair<SortOption, Expression>> allSortItems = windowDefinition.getAllSortItems();
+
+        if (allSortItems.isEmpty()) {
+            return new LogicalWindow(child, namedWindowFunction, windowDefinition);
+        }
+        return new LogicalWindow(new LogicalSort(child, allSortItems), namedWindowFunction, windowDefinition);
     }
-    return new LogicalWindow(
-        new LogicalSort(child, allSortItems),
-        namedWindowFunction,
-        windowDefinition);
-  }
 
-  private List<Expression> analyzePartitionList(WindowFunction node, AnalysisContext context) {
-    return node.getPartitionByList()
-               .stream()
-               .map(expr -> expressionAnalyzer.analyze(expr, context))
-               .collect(Collectors.toList());
-  }
-
-  private List<Pair<SortOption, Expression>> analyzeSortList(WindowFunction node,
-                                                             AnalysisContext context) {
-    return node.getSortList()
-               .stream()
-               .map(pair -> ImmutablePair
-                   .of(analyzeSortOption(pair.getLeft()),
-                       expressionAnalyzer.analyze(pair.getRight(), context)))
-               .collect(Collectors.toList());
-  }
-
-  /**
-   * Frontend creates sort option from query directly which means sort or null order may be null.
-   * The final and default value for each is determined here during expression analysis.
-   */
-  private SortOption analyzeSortOption(SortOption option) {
-    if (option.getNullOrder() == null) {
-      return (option.getSortOrder() == DESC) ? DEFAULT_DESC : DEFAULT_ASC;
+    private List<Expression> analyzePartitionList(WindowFunction node, AnalysisContext context) {
+        return node.getPartitionByList().stream().map(expr -> expressionAnalyzer.analyze(expr, context)).collect(Collectors.toList());
     }
-    return new SortOption(
-        (option.getSortOrder() == DESC) ? DESC : ASC,
-        option.getNullOrder());
-  }
+
+    private List<Pair<SortOption, Expression>> analyzeSortList(WindowFunction node, AnalysisContext context) {
+        return node.getSortList()
+            .stream()
+            .map(pair -> ImmutablePair.of(analyzeSortOption(pair.getLeft()), expressionAnalyzer.analyze(pair.getRight(), context)))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Frontend creates sort option from query directly which means sort or null order may be null.
+     * The final and default value for each is determined here during expression analysis.
+     */
+    private SortOption analyzeSortOption(SortOption option) {
+        if (option.getNullOrder() == null) {
+            return (option.getSortOrder() == DESC) ? DEFAULT_DESC : DEFAULT_ASC;
+        }
+        return new SortOption((option.getSortOrder() == DESC) ? DESC : ASC, option.getNullOrder());
+    }
 
 }

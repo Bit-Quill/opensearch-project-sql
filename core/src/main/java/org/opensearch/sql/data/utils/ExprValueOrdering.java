@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.data.utils;
 
 import com.google.common.collect.Ordering;
@@ -19,23 +18,23 @@ import org.opensearch.sql.data.model.ExprValue;
 @RequiredArgsConstructor
 public abstract class ExprValueOrdering implements Comparator<ExprValue> {
 
-  public static ExprValueOrdering natural() {
-    return NaturalExprValueOrdering.INSTANCE;
-  }
+    public static ExprValueOrdering natural() {
+        return NaturalExprValueOrdering.INSTANCE;
+    }
 
-  public ExprValueOrdering reverse() {
-    return new ReverseExprValueOrdering(this);
-  }
+    public ExprValueOrdering reverse() {
+        return new ReverseExprValueOrdering(this);
+    }
 
-  public ExprValueOrdering nullsFirst() {
-    return new NullsFirstExprValueOrdering(this);
-  }
+    public ExprValueOrdering nullsFirst() {
+        return new NullsFirstExprValueOrdering(this);
+    }
 
-  public ExprValueOrdering nullsLast() {
-    return new NullsLastExprValueOrdering(this);
-  }
+    public ExprValueOrdering nullsLast() {
+        return new NullsLastExprValueOrdering(this);
+    }
 
-  // Never make these public
-  static final int LEFT_IS_GREATER = 1;
-  static final int RIGHT_IS_GREATER = -1;
+    // Never make these public
+    static final int LEFT_IS_GREATER = 1;
+    static final int RIGHT_IS_GREATER = -1;
 }

@@ -24,38 +24,38 @@ import org.opensearch.sql.expression.function.FunctionSignature;
 
 @UtilityClass
 public class SystemFunctions {
-  /**
-   * Register TypeOf Operator.
-   */
-  public static void register(BuiltinFunctionRepository repository) {
-    repository.register(typeof());
-  }
+    /**
+     * Register TypeOf Operator.
+     */
+    public static void register(BuiltinFunctionRepository repository) {
+        repository.register(typeof());
+    }
 
-  // Auxiliary function useful for debugging
-  private static FunctionResolver typeof() {
-    return new FunctionResolver() {
-      @Override
-      public Pair<FunctionSignature, FunctionBuilder> resolve(
-          FunctionSignature unresolvedSignature) {
-        return Pair.of(unresolvedSignature,
-            (functionProperties, arguments) ->
-                new FunctionExpression(BuiltinFunctionName.TYPEOF.getName(), arguments) {
-              @Override
-              public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-                return new ExprStringValue(getArguments().get(0).type().legacyTypeName());
-              }
+    // Auxiliary function useful for debugging
+    private static FunctionResolver typeof() {
+        return new FunctionResolver() {
+            @Override
+            public Pair<FunctionSignature, FunctionBuilder> resolve(FunctionSignature unresolvedSignature) {
+                return Pair.of(
+                    unresolvedSignature,
+                    (functionProperties, arguments) -> new FunctionExpression(BuiltinFunctionName.TYPEOF.getName(), arguments) {
+                        @Override
+                        public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
+                            return new ExprStringValue(getArguments().get(0).type().legacyTypeName());
+                        }
 
-              @Override
-              public ExprType type() {
-                return STRING;
-              }
-            });
-      }
+                        @Override
+                        public ExprType type() {
+                            return STRING;
+                        }
+                    }
+                );
+            }
 
-      @Override
-      public FunctionName getFunctionName() {
-        return BuiltinFunctionName.TYPEOF.getName();
-      }
-    };
-  }
+            @Override
+            public FunctionName getFunctionName() {
+                return BuiltinFunctionName.TYPEOF.getName();
+            }
+        };
+    }
 }

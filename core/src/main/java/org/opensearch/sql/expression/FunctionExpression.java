@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.expression;
 
 import java.util.List;
@@ -21,15 +20,15 @@ import org.opensearch.sql.expression.function.FunctionName;
 @RequiredArgsConstructor
 @ToString
 public abstract class FunctionExpression implements Expression, FunctionImplementation {
-  @Getter
-  private final FunctionName functionName;
+    @Getter
+    private final FunctionName functionName;
 
-  @Getter
-  private final List<Expression> arguments;
+    @Getter
+    private final List<Expression> arguments;
 
-  @Override
-  public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
-    return visitor.visitFunction(this, context);
-  }
+    @Override
+    public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
+        return visitor.visitFunction(this, context);
+    }
 
 }

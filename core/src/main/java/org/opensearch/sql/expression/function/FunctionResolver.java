@@ -12,7 +12,7 @@ import org.apache.commons.lang3.tuple.Pair;
  * given a {@ref FunctionSignature}.
  */
 public interface FunctionResolver {
-  Pair<FunctionSignature, FunctionBuilder> resolve(FunctionSignature unresolvedSignature);
+    Pair<FunctionSignature, FunctionBuilder> resolve(FunctionSignature unresolvedSignature);
 
-  FunctionName getFunctionName();
+    FunctionName getFunctionName();
 }

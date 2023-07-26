@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.expression;
 
 import com.google.common.base.Strings;
@@ -26,47 +25,47 @@ import org.opensearch.sql.expression.env.Environment;
 @RequiredArgsConstructor
 public class NamedExpression implements Expression {
 
-  /**
-   * Expression name.
-   */
-  private final String name;
+    /**
+     * Expression name.
+     */
+    private final String name;
 
-  /**
-   * Expression that being named.
-   */
-  private final Expression delegated;
+    /**
+     * Expression that being named.
+     */
+    private final Expression delegated;
 
-  /**
-   * Optional alias.
-   */
-  private String alias;
+    /**
+     * Optional alias.
+     */
+    private String alias;
 
-  @Override
-  public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-    return delegated.valueOf(valueEnv);
-  }
+    @Override
+    public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
+        return delegated.valueOf(valueEnv);
+    }
 
-  @Override
-  public ExprType type() {
-    return delegated.type();
-  }
+    @Override
+    public ExprType type() {
+        return delegated.type();
+    }
 
-  /**
-   * Get expression name using name or its alias (if it's present).
-   * @return  expression name
-   */
-  public String getNameOrAlias() {
-    return Strings.isNullOrEmpty(alias) ? name : alias;
-  }
+    /**
+     * Get expression name using name or its alias (if it's present).
+     * @return  expression name
+     */
+    public String getNameOrAlias() {
+        return Strings.isNullOrEmpty(alias) ? name : alias;
+    }
 
-  @Override
-  public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
-    return visitor.visitNamed(this, context);
-  }
+    @Override
+    public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
+        return visitor.visitNamed(this, context);
+    }
 
-  @Override
-  public String toString() {
-    return getNameOrAlias();
-  }
+    @Override
+    public String toString() {
+        return getNameOrAlias();
+    }
 
 }

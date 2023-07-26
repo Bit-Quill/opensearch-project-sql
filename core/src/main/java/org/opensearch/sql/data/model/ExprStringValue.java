@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.data.model;
 
 import java.time.LocalDate;
@@ -20,74 +19,73 @@ import org.opensearch.sql.exception.SemanticCheckException;
  */
 @RequiredArgsConstructor
 public class ExprStringValue extends AbstractExprValue {
-  private final String value;
+    private final String value;
 
-  @Override
-  public Object value() {
-    return value;
-  }
-
-  @Override
-  public ExprType type() {
-    return ExprCoreType.STRING;
-  }
-
-  @Override
-  public String stringValue() {
-    return value;
-  }
-
-  @Override
-  public LocalDateTime datetimeValue() {
-    try {
-      return new ExprDatetimeValue(value).datetimeValue();
-    } catch (SemanticCheckException e) {
-      try {
-        return new ExprDatetimeValue(
-            LocalDateTime.of(new ExprDateValue(value).dateValue(), LocalTime.of(0, 0, 0)))
-            .datetimeValue();
-      } catch (SemanticCheckException exception) {
-        throw new SemanticCheckException(String.format("datetime:%s in unsupported format, please "
-            + "use yyyy-MM-dd HH:mm:ss[.SSSSSSSSS]", value));
-      }
+    @Override
+    public Object value() {
+        return value;
     }
-  }
 
-  @Override
-  public LocalDate dateValue() {
-    try {
-      return new ExprDatetimeValue(value).dateValue();
-    } catch (SemanticCheckException e) {
-      return new ExprDateValue(value).dateValue();
+    @Override
+    public ExprType type() {
+        return ExprCoreType.STRING;
     }
-  }
 
-  @Override
-  public LocalTime timeValue() {
-    try {
-      return new ExprDatetimeValue(value).timeValue();
-    } catch (SemanticCheckException e) {
-      return new ExprTimeValue(value).timeValue();
+    @Override
+    public String stringValue() {
+        return value;
     }
-  }
 
-  @Override
-  public String toString() {
-    return String.format("\"%s\"", value);
-  }
+    @Override
+    public LocalDateTime datetimeValue() {
+        try {
+            return new ExprDatetimeValue(value).datetimeValue();
+        } catch (SemanticCheckException e) {
+            try {
+                return new ExprDatetimeValue(LocalDateTime.of(new ExprDateValue(value).dateValue(), LocalTime.of(0, 0, 0))).datetimeValue();
+            } catch (SemanticCheckException exception) {
+                throw new SemanticCheckException(
+                    String.format("datetime:%s in unsupported format, please " + "use yyyy-MM-dd HH:mm:ss[.SSSSSSSSS]", value)
+                );
+            }
+        }
+    }
 
-  @Override
-  public int compare(ExprValue other) {
-    return value.compareTo(other.stringValue());
-  }
+    @Override
+    public LocalDate dateValue() {
+        try {
+            return new ExprDatetimeValue(value).dateValue();
+        } catch (SemanticCheckException e) {
+            return new ExprDateValue(value).dateValue();
+        }
+    }
 
-  @Override
-  public boolean equal(ExprValue other) {
-    return value.equals(other.stringValue());
-  }
+    @Override
+    public LocalTime timeValue() {
+        try {
+            return new ExprDatetimeValue(value).timeValue();
+        } catch (SemanticCheckException e) {
+            return new ExprTimeValue(value).timeValue();
+        }
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(value);
-  }
+    @Override
+    public String toString() {
+        return String.format("\"%s\"", value);
+    }
+
+    @Override
+    public int compare(ExprValue other) {
+        return value.compareTo(other.stringValue());
+    }
+
+    @Override
+    public boolean equal(ExprValue other) {
+        return value.equals(other.stringValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(value);
+    }
 }

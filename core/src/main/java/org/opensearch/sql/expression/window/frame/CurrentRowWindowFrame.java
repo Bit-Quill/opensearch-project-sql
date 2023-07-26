@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.expression.window.frame;
 
 import com.google.common.collect.PeekingIterator;
@@ -31,59 +30,57 @@ import org.opensearch.sql.expression.window.WindowDefinition;
 @ToString
 public class CurrentRowWindowFrame implements WindowFrame {
 
-  @Getter
-  private final WindowDefinition windowDefinition;
+    @Getter
+    private final WindowDefinition windowDefinition;
 
-  private ExprValue previous;
-  private ExprValue current;
+    private ExprValue previous;
+    private ExprValue current;
 
-  @Override
-  public boolean isNewPartition() {
-    Objects.requireNonNull(current);
+    @Override
+    public boolean isNewPartition() {
+        Objects.requireNonNull(current);
 
-    if (previous == null) {
-      return true;
+        if (previous == null) {
+            return true;
+        }
+
+        List<ExprValue> preValues = resolve(windowDefinition.getPartitionByList(), previous);
+        List<ExprValue> curValues = resolve(windowDefinition.getPartitionByList(), current);
+        return !preValues.equals(curValues);
     }
 
-    List<ExprValue> preValues = resolve(windowDefinition.getPartitionByList(), previous);
-    List<ExprValue> curValues = resolve(windowDefinition.getPartitionByList(), current);
-    return !preValues.equals(curValues);
-  }
+    @Override
+    public void load(PeekingIterator<ExprValue> it) {
+        previous = current;
+        current = it.next();
+    }
 
-  @Override
-  public void load(PeekingIterator<ExprValue> it) {
-    previous = current;
-    current = it.next();
-  }
+    @Override
+    public ExprValue current() {
+        return current;
+    }
 
-  @Override
-  public ExprValue current() {
-    return current;
-  }
+    public ExprValue previous() {
+        return previous;
+    }
 
-  public ExprValue previous() {
-    return previous;
-  }
+    private List<ExprValue> resolve(List<Expression> expressions, ExprValue row) {
+        Environment<Expression, ExprValue> valueEnv = row.bindingTuples();
+        return expressions.stream().map(expr -> expr.valueOf(valueEnv)).collect(Collectors.toList());
+    }
 
-  private List<ExprValue> resolve(List<Expression> expressions, ExprValue row) {
-    Environment<Expression, ExprValue> valueEnv = row.bindingTuples();
-    return expressions.stream()
-                      .map(expr -> expr.valueOf(valueEnv))
-                      .collect(Collectors.toList());
-  }
+    /**
+     * Current row window frame won't pre-fetch any row ahead.
+     * So always return false as nothing "cached" in frame.
+     */
+    @Override
+    public boolean hasNext() {
+        return false;
+    }
 
-  /**
-   * Current row window frame won't pre-fetch any row ahead.
-   * So always return false as nothing "cached" in frame.
-   */
-  @Override
-  public boolean hasNext() {
-    return false;
-  }
-
-  @Override
-  public List<ExprValue> next() {
-    return Collections.emptyList();
-  }
+    @Override
+    public List<ExprValue> next() {
+        return Collections.emptyList();
+    }
 
 }

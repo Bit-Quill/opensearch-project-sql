@@ -14,6 +14,6 @@ import org.opensearch.sql.storage.Table;
  */
 public interface TableFunctionImplementation extends FunctionImplementation {
 
-  Table applyArguments();
+    Table applyArguments();
 
 }

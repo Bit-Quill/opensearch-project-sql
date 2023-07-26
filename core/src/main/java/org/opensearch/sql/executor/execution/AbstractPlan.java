@@ -8,7 +8,6 @@
 
 package org.opensearch.sql.executor.execution;
 
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.common.response.ResponseListener;
@@ -21,21 +20,21 @@ import org.opensearch.sql.executor.QueryId;
 @RequiredArgsConstructor
 public abstract class AbstractPlan {
 
-  /**
-   * Uniq query id.
-   */
-  @Getter
-  private final QueryId queryId;
+    /**
+     * Uniq query id.
+     */
+    @Getter
+    private final QueryId queryId;
 
-  /**
-   * Start query execution.
-   */
-  public abstract void execute();
+    /**
+     * Start query execution.
+     */
+    public abstract void execute();
 
-  /**
-   * Explain query execution.
-   *
-   * @param listener query explain response listener.
-   */
-  public abstract void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener);
+    /**
+     * Explain query execution.
+     *
+     * @param listener query explain response listener.
+     */
+    public abstract void explain(ResponseListener<ExecutionEngine.ExplainResponse> listener);
 }

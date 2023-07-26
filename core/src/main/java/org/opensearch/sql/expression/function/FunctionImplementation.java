@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.expression.function;
 
 import java.util.List;
@@ -14,13 +13,13 @@ import org.opensearch.sql.expression.Expression;
  */
 public interface FunctionImplementation {
 
-  /**
-   * Get Function Name.
-   */
-  FunctionName getFunctionName();
+    /**
+     * Get Function Name.
+     */
+    FunctionName getFunctionName();
 
-  /**
-   * Get Function Arguments.
-   */
-  List<Expression> getArguments();
+    /**
+     * Get Function Arguments.
+     */
+    List<Expression> getArguments();
 }

@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.analysis;
 
 import java.util.HashMap;
@@ -38,124 +37,122 @@ import org.opensearch.sql.planner.logical.LogicalWindow;
  *  LogicalAgg(agg=[sum(age), avg(age)], group=[abs(age)]]
  *   LogicalRelation
  */
-public class ExpressionReferenceOptimizer
-    extends ExpressionNodeVisitor<Expression, AnalysisContext> {
-  private final BuiltinFunctionRepository repository;
+public class ExpressionReferenceOptimizer extends ExpressionNodeVisitor<Expression, AnalysisContext> {
+    private final BuiltinFunctionRepository repository;
 
-  /**
-   * The map of expression and it's reference.
-   * For example, The NamedAggregator should produce the map of Aggregator to Ref(name)
-   */
-  private final Map<Expression, Expression> expressionMap = new HashMap<>();
+    /**
+     * The map of expression and it's reference.
+     * For example, The NamedAggregator should produce the map of Aggregator to Ref(name)
+     */
+    private final Map<Expression, Expression> expressionMap = new HashMap<>();
 
-  public ExpressionReferenceOptimizer(
-      BuiltinFunctionRepository repository, LogicalPlan logicalPlan) {
-    this.repository = repository;
-    logicalPlan.accept(new ExpressionMapBuilder(), null);
-  }
-
-  public Expression optimize(Expression analyzed, AnalysisContext context) {
-    return analyzed.accept(this, context);
-  }
-
-  @Override
-  public Expression visitNode(Expression node, AnalysisContext context) {
-    return node;
-  }
-
-  @Override
-  public Expression visitFunction(FunctionExpression node, AnalysisContext context) {
-    if (expressionMap.containsKey(node)) {
-      return expressionMap.get(node);
-    } else {
-      final List<Expression> args =
-          node.getArguments().stream().map(expr -> expr.accept(this, context))
-              .collect(Collectors.toList());
-      Expression optimizedFunctionExpression = (Expression) repository.compile(
-              context.getFunctionProperties(),
-              node.getFunctionName(),
-              args
-      );
-      // Propagate scoreTracked for OpenSearch functions
-      if (optimizedFunctionExpression instanceof OpenSearchFunctions.OpenSearchFunction) {
-        ((OpenSearchFunctions.OpenSearchFunction) optimizedFunctionExpression).setScoreTracked(
-                ((OpenSearchFunctions.OpenSearchFunction)node).isScoreTracked());
-      }
-      return optimizedFunctionExpression;
-    }
-  }
-
-  @Override
-  public Expression visitAggregator(Aggregator<?> node, AnalysisContext context) {
-    return expressionMap.getOrDefault(node, node);
-  }
-
-  @Override
-  public Expression visitNamed(NamedExpression node, AnalysisContext context) {
-    if (expressionMap.containsKey(node)) {
-      return expressionMap.get(node);
-    }
-    return node.getDelegated().accept(this, context);
-  }
-
-  /**
-   * Implement this because Case/When is not registered in function repository.
-   */
-  @Override
-  public Expression visitCase(CaseClause node, AnalysisContext context) {
-    if (expressionMap.containsKey(node)) {
-      return expressionMap.get(node);
+    public ExpressionReferenceOptimizer(BuiltinFunctionRepository repository, LogicalPlan logicalPlan) {
+        this.repository = repository;
+        logicalPlan.accept(new ExpressionMapBuilder(), null);
     }
 
-    List<WhenClause> whenClauses = node.getWhenClauses()
-                                       .stream()
-                                       .map(expr -> (WhenClause) expr.accept(this, context))
-                                       .collect(Collectors.toList());
-    Expression defaultResult = null;
-    if (node.getDefaultResult() != null) {
-      defaultResult = node.getDefaultResult().accept(this, context);
-    }
-    return new CaseClause(whenClauses, defaultResult);
-  }
-
-  @Override
-  public Expression visitWhen(WhenClause node, AnalysisContext context) {
-    return new WhenClause(
-        node.getCondition().accept(this, context),
-        node.getResult().accept(this, context));
-  }
-
-
-  /**
-   * Expression Map Builder.
-   */
-  class ExpressionMapBuilder extends LogicalPlanNodeVisitor<Void, Void> {
-
-    @Override
-    public Void visitNode(LogicalPlan plan, Void context) {
-      plan.getChild().forEach(child -> child.accept(this, context));
-      return null;
+    public Expression optimize(Expression analyzed, AnalysisContext context) {
+        return analyzed.accept(this, context);
     }
 
     @Override
-    public Void visitAggregation(LogicalAggregation plan, Void context) {
-      // Create the mapping for all the aggregator.
-      plan.getAggregatorList().forEach(namedAggregator -> expressionMap
-          .put(namedAggregator.getDelegated(),
-              new ReferenceExpression(namedAggregator.getName(), namedAggregator.type())));
-      // Create the mapping for all the group by.
-      plan.getGroupByList().forEach(groupBy -> expressionMap
-          .put(groupBy.getDelegated(),
-              new ReferenceExpression(groupBy.getNameOrAlias(), groupBy.type())));
-      return null;
+    public Expression visitNode(Expression node, AnalysisContext context) {
+        return node;
     }
 
     @Override
-    public Void visitWindow(LogicalWindow plan, Void context) {
-      Expression windowFunc = plan.getWindowFunction();
-      expressionMap.put(windowFunc,
-          new ReferenceExpression(((NamedExpression) windowFunc).getName(), windowFunc.type()));
-      return visitNode(plan, context);
+    public Expression visitFunction(FunctionExpression node, AnalysisContext context) {
+        if (expressionMap.containsKey(node)) {
+            return expressionMap.get(node);
+        } else {
+            final List<Expression> args = node.getArguments().stream().map(expr -> expr.accept(this, context)).collect(Collectors.toList());
+            Expression optimizedFunctionExpression = (Expression) repository.compile(
+                context.getFunctionProperties(),
+                node.getFunctionName(),
+                args
+            );
+            // Propagate scoreTracked for OpenSearch functions
+            if (optimizedFunctionExpression instanceof OpenSearchFunctions.OpenSearchFunction) {
+                ((OpenSearchFunctions.OpenSearchFunction) optimizedFunctionExpression).setScoreTracked(
+                    ((OpenSearchFunctions.OpenSearchFunction) node).isScoreTracked()
+                );
+            }
+            return optimizedFunctionExpression;
+        }
     }
-  }
+
+    @Override
+    public Expression visitAggregator(Aggregator<?> node, AnalysisContext context) {
+        return expressionMap.getOrDefault(node, node);
+    }
+
+    @Override
+    public Expression visitNamed(NamedExpression node, AnalysisContext context) {
+        if (expressionMap.containsKey(node)) {
+            return expressionMap.get(node);
+        }
+        return node.getDelegated().accept(this, context);
+    }
+
+    /**
+     * Implement this because Case/When is not registered in function repository.
+     */
+    @Override
+    public Expression visitCase(CaseClause node, AnalysisContext context) {
+        if (expressionMap.containsKey(node)) {
+            return expressionMap.get(node);
+        }
+
+        List<WhenClause> whenClauses = node.getWhenClauses()
+            .stream()
+            .map(expr -> (WhenClause) expr.accept(this, context))
+            .collect(Collectors.toList());
+        Expression defaultResult = null;
+        if (node.getDefaultResult() != null) {
+            defaultResult = node.getDefaultResult().accept(this, context);
+        }
+        return new CaseClause(whenClauses, defaultResult);
+    }
+
+    @Override
+    public Expression visitWhen(WhenClause node, AnalysisContext context) {
+        return new WhenClause(node.getCondition().accept(this, context), node.getResult().accept(this, context));
+    }
+
+    /**
+     * Expression Map Builder.
+     */
+    class ExpressionMapBuilder extends LogicalPlanNodeVisitor<Void, Void> {
+
+        @Override
+        public Void visitNode(LogicalPlan plan, Void context) {
+            plan.getChild().forEach(child -> child.accept(this, context));
+            return null;
+        }
+
+        @Override
+        public Void visitAggregation(LogicalAggregation plan, Void context) {
+            // Create the mapping for all the aggregator.
+            plan.getAggregatorList()
+                .forEach(
+                    namedAggregator -> expressionMap.put(
+                        namedAggregator.getDelegated(),
+                        new ReferenceExpression(namedAggregator.getName(), namedAggregator.type())
+                    )
+                );
+            // Create the mapping for all the group by.
+            plan.getGroupByList()
+                .forEach(
+                    groupBy -> expressionMap.put(groupBy.getDelegated(), new ReferenceExpression(groupBy.getNameOrAlias(), groupBy.type()))
+                );
+            return null;
+        }
+
+        @Override
+        public Void visitWindow(LogicalWindow plan, Void context) {
+            Expression windowFunc = plan.getWindowFunction();
+            expressionMap.put(windowFunc, new ReferenceExpression(((NamedExpression) windowFunc).getName(), windowFunc.type()));
+            return visitNode(plan, context);
+        }
+    }
 }

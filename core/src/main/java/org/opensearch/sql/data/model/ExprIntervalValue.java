@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.data.model;
 
 import java.time.temporal.TemporalAmount;
@@ -15,48 +14,43 @@ import org.opensearch.sql.exception.ExpressionEvaluationException;
 
 @RequiredArgsConstructor
 public class ExprIntervalValue extends AbstractExprValue {
-  private final TemporalAmount interval;
+    private final TemporalAmount interval;
 
-  @Override
-  public TemporalAmount intervalValue() {
-    return interval;
-  }
-
-  @Override
-  public int compare(ExprValue other) {
-    TemporalAmount otherInterval = other.intervalValue();
-    if (!interval.getClass().equals(other.intervalValue().getClass())) {
-      throw new ExpressionEvaluationException(
-          String.format("invalid to compare intervals with units %s and %s",
-              unit(), ((ExprIntervalValue) other).unit()));
+    @Override
+    public TemporalAmount intervalValue() {
+        return interval;
     }
-    return Long.compare(
-        interval.get(unit()), otherInterval.get(((ExprIntervalValue) other).unit()));
-  }
 
-  @Override
-  public boolean equal(ExprValue other) {
-    return interval.equals(other.intervalValue());
-  }
+    @Override
+    public int compare(ExprValue other) {
+        TemporalAmount otherInterval = other.intervalValue();
+        if (!interval.getClass().equals(other.intervalValue().getClass())) {
+            throw new ExpressionEvaluationException(
+                String.format("invalid to compare intervals with units %s and %s", unit(), ((ExprIntervalValue) other).unit())
+            );
+        }
+        return Long.compare(interval.get(unit()), otherInterval.get(((ExprIntervalValue) other).unit()));
+    }
 
-  @Override
-  public TemporalAmount value() {
-    return interval;
-  }
+    @Override
+    public boolean equal(ExprValue other) {
+        return interval.equals(other.intervalValue());
+    }
 
-  @Override
-  public ExprType type() {
-    return ExprCoreType.INTERVAL;
-  }
+    @Override
+    public TemporalAmount value() {
+        return interval;
+    }
 
-  /**
-   * Util method to get temporal unit stored locally.
-   */
-  public TemporalUnit unit() {
-    return interval.getUnits()
-        .stream()
-        .filter(v -> interval.get(v) != 0)
-        .findAny()
-        .orElse(interval.getUnits().get(0));
-  }
+    @Override
+    public ExprType type() {
+        return ExprCoreType.INTERVAL;
+    }
+
+    /**
+     * Util method to get temporal unit stored locally.
+     */
+    public TemporalUnit unit() {
+        return interval.getUnits().stream().filter(v -> interval.get(v) != 0).findAny().orElse(interval.getUnits().get(0));
+    }
 }

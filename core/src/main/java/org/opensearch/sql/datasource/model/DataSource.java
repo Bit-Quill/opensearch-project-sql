@@ -20,11 +20,11 @@ import org.opensearch.sql.storage.StorageEngine;
 @EqualsAndHashCode
 public class DataSource {
 
-  private final String name;
+    private final String name;
 
-  private final DataSourceType connectorType;
+    private final DataSourceType connectorType;
 
-  @EqualsAndHashCode.Exclude
-  private final StorageEngine storageEngine;
+    @EqualsAndHashCode.Exclude
+    private final StorageEngine storageEngine;
 
 }

@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.expression.aggregation;
 
 import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
@@ -44,174 +43,234 @@ import org.opensearch.sql.expression.function.FunctionSignature;
  */
 @UtilityClass
 public class AggregatorFunction {
-  /**
-   * Register Aggregation Function.
-   *
-   * @param repository {@link BuiltinFunctionRepository}.
-   */
-  public static void register(BuiltinFunctionRepository repository) {
-    repository.register(avg());
-    repository.register(sum());
-    repository.register(count());
-    repository.register(min());
-    repository.register(max());
-    repository.register(varSamp());
-    repository.register(varPop());
-    repository.register(stddevSamp());
-    repository.register(stddevPop());
-    repository.register(take());
-  }
+    /**
+     * Register Aggregation Function.
+     *
+     * @param repository {@link BuiltinFunctionRepository}.
+     */
+    public static void register(BuiltinFunctionRepository repository) {
+        repository.register(avg());
+        repository.register(sum());
+        repository.register(count());
+        repository.register(min());
+        repository.register(max());
+        repository.register(varSamp());
+        repository.register(varPop());
+        repository.register(stddevSamp());
+        repository.register(stddevPop());
+        repository.register(take());
+    }
 
-  private static DefaultFunctionResolver avg() {
-    FunctionName functionName = BuiltinFunctionName.AVG.getName();
-    return new DefaultFunctionResolver(
-        functionName,
-        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
-                (functionProperties, arguments) -> new AvgAggregator(arguments, DOUBLE))
-            .put(new FunctionSignature(functionName, Collections.singletonList(DATE)),
-                (functionProperties, arguments) -> new AvgAggregator(arguments, DATE))
-            .put(new FunctionSignature(functionName, Collections.singletonList(DATETIME)),
-                (functionProperties, arguments) -> new AvgAggregator(arguments, DATETIME))
-            .put(new FunctionSignature(functionName, Collections.singletonList(TIME)),
-                (functionProperties, arguments) -> new AvgAggregator(arguments, TIME))
-            .put(new FunctionSignature(functionName, Collections.singletonList(TIMESTAMP)),
-                (functionProperties, arguments) -> new AvgAggregator(arguments, TIMESTAMP))
-            .build()
-    );
-  }
+    private static DefaultFunctionResolver avg() {
+        FunctionName functionName = BuiltinFunctionName.AVG.getName();
+        return new DefaultFunctionResolver(
+            functionName,
+            new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>().put(
+                new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
+                (functionProperties, arguments) -> new AvgAggregator(arguments, DOUBLE)
+            )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(DATE)),
+                    (functionProperties, arguments) -> new AvgAggregator(arguments, DATE)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(DATETIME)),
+                    (functionProperties, arguments) -> new AvgAggregator(arguments, DATETIME)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(TIME)),
+                    (functionProperties, arguments) -> new AvgAggregator(arguments, TIME)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(TIMESTAMP)),
+                    (functionProperties, arguments) -> new AvgAggregator(arguments, TIMESTAMP)
+                )
+                .build()
+        );
+    }
 
-  private static DefaultFunctionResolver count() {
-    FunctionName functionName = BuiltinFunctionName.COUNT.getName();
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionName,
-        ExprCoreType.coreTypes().stream().collect(Collectors.toMap(
-          type -> new FunctionSignature(functionName, Collections.singletonList(type)),
-          type -> (functionProperties, arguments) -> new CountAggregator(arguments, INTEGER))));
-    return functionResolver;
-  }
+    private static DefaultFunctionResolver count() {
+        FunctionName functionName = BuiltinFunctionName.COUNT.getName();
+        DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(
+            functionName,
+            ExprCoreType.coreTypes()
+                .stream()
+                .collect(
+                    Collectors.toMap(
+                        type -> new FunctionSignature(functionName, Collections.singletonList(type)),
+                        type -> (functionProperties, arguments) -> new CountAggregator(arguments, INTEGER)
+                    )
+                )
+        );
+        return functionResolver;
+    }
 
-  private static DefaultFunctionResolver sum() {
-    FunctionName functionName = BuiltinFunctionName.SUM.getName();
-    return new DefaultFunctionResolver(
-        functionName,
-        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(new FunctionSignature(functionName, Collections.singletonList(INTEGER)),
-                (functionProperties, arguments) -> new SumAggregator(arguments, INTEGER))
-            .put(new FunctionSignature(functionName, Collections.singletonList(LONG)),
-                (functionProperties, arguments) -> new SumAggregator(arguments, LONG))
-            .put(new FunctionSignature(functionName, Collections.singletonList(FLOAT)),
-                (functionProperties, arguments) -> new SumAggregator(arguments, FLOAT))
-            .put(new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
-                (functionProperties, arguments) -> new SumAggregator(arguments, DOUBLE))
-            .build()
-    );
-  }
+    private static DefaultFunctionResolver sum() {
+        FunctionName functionName = BuiltinFunctionName.SUM.getName();
+        return new DefaultFunctionResolver(
+            functionName,
+            new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>().put(
+                new FunctionSignature(functionName, Collections.singletonList(INTEGER)),
+                (functionProperties, arguments) -> new SumAggregator(arguments, INTEGER)
+            )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(LONG)),
+                    (functionProperties, arguments) -> new SumAggregator(arguments, LONG)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(FLOAT)),
+                    (functionProperties, arguments) -> new SumAggregator(arguments, FLOAT)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
+                    (functionProperties, arguments) -> new SumAggregator(arguments, DOUBLE)
+                )
+                .build()
+        );
+    }
 
-  private static DefaultFunctionResolver min() {
-    FunctionName functionName = BuiltinFunctionName.MIN.getName();
-    return new DefaultFunctionResolver(
-        functionName,
-        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(new FunctionSignature(functionName, Collections.singletonList(INTEGER)),
-                (functionProperties, arguments) -> new MinAggregator(arguments, INTEGER))
-            .put(new FunctionSignature(functionName, Collections.singletonList(LONG)),
-                (functionProperties, arguments) -> new MinAggregator(arguments, LONG))
-            .put(new FunctionSignature(functionName, Collections.singletonList(FLOAT)),
-                (functionProperties, arguments) -> new MinAggregator(arguments, FLOAT))
-            .put(new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
-                (functionProperties, arguments) -> new MinAggregator(arguments, DOUBLE))
-            .put(new FunctionSignature(functionName, Collections.singletonList(STRING)),
-                (functionProperties, arguments) -> new MinAggregator(arguments, STRING))
-            .put(new FunctionSignature(functionName, Collections.singletonList(DATE)),
-                (functionProperties, arguments) -> new MinAggregator(arguments, DATE))
-            .put(new FunctionSignature(functionName, Collections.singletonList(DATETIME)),
-                (functionProperties, arguments) -> new MinAggregator(arguments, DATETIME))
-            .put(new FunctionSignature(functionName, Collections.singletonList(TIME)),
-                (functionProperties, arguments) -> new MinAggregator(arguments, TIME))
-            .put(new FunctionSignature(functionName, Collections.singletonList(TIMESTAMP)),
-                (functionProperties, arguments) -> new MinAggregator(arguments, TIMESTAMP))
-            .build());
-  }
+    private static DefaultFunctionResolver min() {
+        FunctionName functionName = BuiltinFunctionName.MIN.getName();
+        return new DefaultFunctionResolver(
+            functionName,
+            new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>().put(
+                new FunctionSignature(functionName, Collections.singletonList(INTEGER)),
+                (functionProperties, arguments) -> new MinAggregator(arguments, INTEGER)
+            )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(LONG)),
+                    (functionProperties, arguments) -> new MinAggregator(arguments, LONG)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(FLOAT)),
+                    (functionProperties, arguments) -> new MinAggregator(arguments, FLOAT)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
+                    (functionProperties, arguments) -> new MinAggregator(arguments, DOUBLE)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(STRING)),
+                    (functionProperties, arguments) -> new MinAggregator(arguments, STRING)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(DATE)),
+                    (functionProperties, arguments) -> new MinAggregator(arguments, DATE)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(DATETIME)),
+                    (functionProperties, arguments) -> new MinAggregator(arguments, DATETIME)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(TIME)),
+                    (functionProperties, arguments) -> new MinAggregator(arguments, TIME)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(TIMESTAMP)),
+                    (functionProperties, arguments) -> new MinAggregator(arguments, TIMESTAMP)
+                )
+                .build()
+        );
+    }
 
-  private static DefaultFunctionResolver max() {
-    FunctionName functionName = BuiltinFunctionName.MAX.getName();
-    return new DefaultFunctionResolver(
-        functionName,
-        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(new FunctionSignature(functionName, Collections.singletonList(INTEGER)),
-                (functionProperties, arguments) -> new MaxAggregator(arguments, INTEGER))
-            .put(new FunctionSignature(functionName, Collections.singletonList(LONG)),
-                (functionProperties, arguments) -> new MaxAggregator(arguments, LONG))
-            .put(new FunctionSignature(functionName, Collections.singletonList(FLOAT)),
-                (functionProperties, arguments) -> new MaxAggregator(arguments, FLOAT))
-            .put(new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
-                (functionProperties, arguments) -> new MaxAggregator(arguments, DOUBLE))
-            .put(new FunctionSignature(functionName, Collections.singletonList(STRING)),
-                (functionProperties, arguments) -> new MaxAggregator(arguments, STRING))
-            .put(new FunctionSignature(functionName, Collections.singletonList(DATE)),
-                (functionProperties, arguments) -> new MaxAggregator(arguments, DATE))
-            .put(new FunctionSignature(functionName, Collections.singletonList(DATETIME)),
-                (functionProperties, arguments) -> new MaxAggregator(arguments, DATETIME))
-            .put(new FunctionSignature(functionName, Collections.singletonList(TIME)),
-                (functionProperties, arguments) -> new MaxAggregator(arguments, TIME))
-            .put(new FunctionSignature(functionName, Collections.singletonList(TIMESTAMP)),
-                (functionProperties, arguments) -> new MaxAggregator(arguments, TIMESTAMP))
-            .build()
-    );
-  }
+    private static DefaultFunctionResolver max() {
+        FunctionName functionName = BuiltinFunctionName.MAX.getName();
+        return new DefaultFunctionResolver(
+            functionName,
+            new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>().put(
+                new FunctionSignature(functionName, Collections.singletonList(INTEGER)),
+                (functionProperties, arguments) -> new MaxAggregator(arguments, INTEGER)
+            )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(LONG)),
+                    (functionProperties, arguments) -> new MaxAggregator(arguments, LONG)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(FLOAT)),
+                    (functionProperties, arguments) -> new MaxAggregator(arguments, FLOAT)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
+                    (functionProperties, arguments) -> new MaxAggregator(arguments, DOUBLE)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(STRING)),
+                    (functionProperties, arguments) -> new MaxAggregator(arguments, STRING)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(DATE)),
+                    (functionProperties, arguments) -> new MaxAggregator(arguments, DATE)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(DATETIME)),
+                    (functionProperties, arguments) -> new MaxAggregator(arguments, DATETIME)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(TIME)),
+                    (functionProperties, arguments) -> new MaxAggregator(arguments, TIME)
+                )
+                .put(
+                    new FunctionSignature(functionName, Collections.singletonList(TIMESTAMP)),
+                    (functionProperties, arguments) -> new MaxAggregator(arguments, TIMESTAMP)
+                )
+                .build()
+        );
+    }
 
-  private static DefaultFunctionResolver varSamp() {
-    FunctionName functionName = BuiltinFunctionName.VARSAMP.getName();
-    return new DefaultFunctionResolver(
-        functionName,
-        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
-                (functionProperties, arguments) -> varianceSample(arguments, DOUBLE))
-            .build()
-    );
-  }
+    private static DefaultFunctionResolver varSamp() {
+        FunctionName functionName = BuiltinFunctionName.VARSAMP.getName();
+        return new DefaultFunctionResolver(
+            functionName,
+            new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>().put(
+                new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
+                (functionProperties, arguments) -> varianceSample(arguments, DOUBLE)
+            ).build()
+        );
+    }
 
-  private static DefaultFunctionResolver varPop() {
-    FunctionName functionName = BuiltinFunctionName.VARPOP.getName();
-    return new DefaultFunctionResolver(
-        functionName,
-        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
-                (functionProperties, arguments) -> variancePopulation(arguments, DOUBLE))
-            .build()
-    );
-  }
+    private static DefaultFunctionResolver varPop() {
+        FunctionName functionName = BuiltinFunctionName.VARPOP.getName();
+        return new DefaultFunctionResolver(
+            functionName,
+            new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>().put(
+                new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
+                (functionProperties, arguments) -> variancePopulation(arguments, DOUBLE)
+            ).build()
+        );
+    }
 
-  private static DefaultFunctionResolver stddevSamp() {
-    FunctionName functionName = BuiltinFunctionName.STDDEV_SAMP.getName();
-    return new DefaultFunctionResolver(
-        functionName,
-        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
-                (functionProperties, arguments) -> stddevSample(arguments, DOUBLE))
-            .build()
-    );
-  }
+    private static DefaultFunctionResolver stddevSamp() {
+        FunctionName functionName = BuiltinFunctionName.STDDEV_SAMP.getName();
+        return new DefaultFunctionResolver(
+            functionName,
+            new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>().put(
+                new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
+                (functionProperties, arguments) -> stddevSample(arguments, DOUBLE)
+            ).build()
+        );
+    }
 
-  private static DefaultFunctionResolver stddevPop() {
-    FunctionName functionName = BuiltinFunctionName.STDDEV_POP.getName();
-    return new DefaultFunctionResolver(
-        functionName,
-        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
-                (functionProperties, arguments) -> stddevPopulation(arguments, DOUBLE))
-            .build()
-    );
-  }
+    private static DefaultFunctionResolver stddevPop() {
+        FunctionName functionName = BuiltinFunctionName.STDDEV_POP.getName();
+        return new DefaultFunctionResolver(
+            functionName,
+            new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>().put(
+                new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
+                (functionProperties, arguments) -> stddevPopulation(arguments, DOUBLE)
+            ).build()
+        );
+    }
 
-  private static DefaultFunctionResolver take() {
-    FunctionName functionName = BuiltinFunctionName.TAKE.getName();
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionName,
-        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(new FunctionSignature(functionName, ImmutableList.of(STRING, INTEGER)),
-                (functionProperties, arguments) -> new TakeAggregator(arguments, ARRAY))
-            .build());
-    return functionResolver;
-  }
+    private static DefaultFunctionResolver take() {
+        FunctionName functionName = BuiltinFunctionName.TAKE.getName();
+        DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(
+            functionName,
+            new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>().put(
+                new FunctionSignature(functionName, ImmutableList.of(STRING, INTEGER)),
+                (functionProperties, arguments) -> new TakeAggregator(arguments, ARRAY)
+            ).build()
+        );
+        return functionResolver;
+    }
 
 }
