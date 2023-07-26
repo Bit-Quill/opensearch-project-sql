@@ -1,1 +1,3 @@
-{"geo_point_object": {"lat": 40.71, "lon": 74.00}, "object": {"geo_point_object": {"lat": 40.71, "lon": 74.00}}, "geo_point_string": "40.71, 74.00", "geo_point_geohash": "txhxegj0uyp3", "geo_point_array": [74.00, 40.71], "geo_point_string_point": "POINT (74.00 40.71)", "geo_point_geojson": {"type": "Point", "coordinates": [74.00, 40.71]}}
+{"geo_point_object": {"lat": 40.71, "lon": 74.00}}
+{"geo_point_object": {"lat": -33.852, "lon": 151.216}}
+{"geo_point_object": null}

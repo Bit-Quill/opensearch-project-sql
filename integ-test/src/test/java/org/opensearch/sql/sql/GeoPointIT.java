@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import org.junit.Test;
 import org.opensearch.sql.legacy.SQLIntegTestCase;
 
-import java.io.IOException;
 import java.util.Map;
 
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_GEOPOINT;
@@ -23,7 +22,7 @@ public class GeoPointIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void test_geo_point() throws IOException {
+  public void test_geo_point() {
     String query = "SELECT geo_point_object FROM " + TEST_INDEX_GEOPOINT;
     JSONObject result = executeJdbcRequest(query);
     verifyDataRows(result,
@@ -38,7 +37,7 @@ public class GeoPointIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void test_geo_point_unsupported_format() throws IOException {
+  public void test_geo_point_unsupported_format() {
     String query = "SELECT geo_point_geohash FROM " + TEST_INDEX_GEOPOINT;
     Exception exception = assertThrows(RuntimeException.class,
         () -> executeJdbcRequest(query));
@@ -53,7 +52,7 @@ public class GeoPointIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void test_geo_point_in_objects() throws IOException {
+  public void test_geo_point_in_objects() {
     String query = "SELECT object.geo_point_object FROM " + TEST_INDEX_GEOPOINT;
     JSONObject result = executeJdbcRequest(query);
     verifyDataRows(result,
@@ -69,7 +68,7 @@ public class GeoPointIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void test_geo_point_lat_in_objects() throws IOException {
+  public void test_geo_point_lat_in_objects() {
     String query = "SELECT object.geo_point_object.lat FROM " + TEST_INDEX_GEOPOINT;
     JSONObject result = executeJdbcRequest(query);
     verifyDataRows(result,
@@ -80,7 +79,7 @@ public class GeoPointIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void test_geo_point_lat_and_lon() throws IOException {
+  public void test_geo_point_lat_and_lon() {
     String query = "SELECT geo_point_object.lat, geo_point_object.lon FROM " + TEST_INDEX_GEOPOINT;
     JSONObject result = executeJdbcRequest(query);
     verifyDataRows(result,
@@ -91,7 +90,7 @@ public class GeoPointIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void test_geo_point_object_with_lat_and_lon() throws IOException {
+  public void test_geo_point_object_with_lat_and_lon() {
     String query = "SELECT geo_point_object, geo_point_object.lat," +
         " geo_point_object.lon FROM " + TEST_INDEX_GEOPOINT;
     JSONObject result = executeJdbcRequest(query);
@@ -109,7 +108,7 @@ public class GeoPointIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void test_geo_point_lat_in_functions() throws IOException {
+  public void test_geo_point_lat_in_functions() {
     String query = "SELECT ABS(geo_point_object.lat) FROM " + TEST_INDEX_GEOPOINT;
     JSONObject result = executeJdbcRequest(query);
     verifyDataRows(result,
