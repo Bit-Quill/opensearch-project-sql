@@ -44,6 +44,7 @@ SQL query::
     | docTestCluster | null          | accounts        | BASE TABLE   | null      | null       | null         | null        | null                        | null             |
     | docTestCluster | null          | apache          | BASE TABLE   | null      | null       | null         | null        | null                        | null             |
     | docTestCluster | null          | books           | BASE TABLE   | null      | null       | null         | null        | null                        | null             |
+    | docTestCluster | null          | geopoint        | BASE TABLE   | null      | null       | null         | null        | null                        | null             |
     | docTestCluster | null          | nested          | BASE TABLE   | null      | null       | null         | null        | null                        | null             |
     | docTestCluster | null          | nyc_taxi        | BASE TABLE   | null      | null       | null         | null        | null                        | null             |
     | docTestCluster | null          | people          | BASE TABLE   | null      | null       | null         | null        | null                        | null             |
