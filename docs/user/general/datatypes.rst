@@ -470,6 +470,6 @@ A geopoint has a latitude and a longitude property. Although OpenSearch `support
     | geo_point_object                 | geo_point_object.lat   | geo_point_object.lon   |
     |----------------------------------+------------------------+------------------------|
     | {'lat': 40.71, 'lon': 74.0}      | 40.71                  | 74.0                   |
-    | {"lat": -33.852, "lon": 151.216} | -33.852                | 151.216                |
+    | {'lat': -33.852, 'lon': 151.216} | -33.852                | 151.216                |
     | null                             | null                   | null                   |
     +----------------------------------+------------------------+------------------------+
