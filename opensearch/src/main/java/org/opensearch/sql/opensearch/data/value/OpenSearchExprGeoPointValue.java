@@ -6,11 +6,10 @@
 
 package org.opensearch.sql.opensearch.data.value;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import org.opensearch.sql.data.model.ExprDoubleValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
-import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.opensearch.data.type.OpenSearchGeoPointType;
 
@@ -26,7 +25,7 @@ public class OpenSearchExprGeoPointValue extends ExprTupleValue {
    * @param lon double value of longitude property of geo_point
    */
   public OpenSearchExprGeoPointValue(Double lat, Double lon) {
-    super(new LinkedHashMap<>(Map.of(
+    super(new LinkedHashMap<>(ImmutableMap.of(
         "lat", new ExprDoubleValue(lat),
         "lon", new ExprDoubleValue(lon))));
   }
