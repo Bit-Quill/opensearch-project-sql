@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -290,7 +289,6 @@ public class SQLQueryRequestTest {
     private String format;
     private String cursor;
     private Map<String, String> params = new HashMap<>();
-    private List<String> routingIds = List.of();
 
     static SQLQueryRequestBuilder request(String query) {
       SQLQueryRequestBuilder builder = new SQLQueryRequestBuilder();
@@ -328,7 +326,7 @@ public class SQLQueryRequestTest {
         params.put("format", format);
       }
       return new SQLQueryRequest(jsonContent == null ? null : new JSONObject(jsonContent),
-          query, path, params, cursor, routingIds);
+          query, path, params, cursor);
     }
   }
 

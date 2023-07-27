@@ -29,9 +29,8 @@ import org.opensearch.sql.protocol.response.format.Format;
 @RequiredArgsConstructor
 public class SQLQueryRequest {
   private static final String QUERY_FIELD_CURSOR = "cursor";
-  private static final String QUERY_FIELD_ROUTING = "routing";
   private static final Set<String> SUPPORTED_FIELDS = Set.of(
-      "query", "fetch_size", "parameters", QUERY_FIELD_CURSOR, QUERY_FIELD_ROUTING);
+      "query", "fetch_size", "parameters", QUERY_FIELD_CURSOR);
   private static final String QUERY_PARAMS_FORMAT = "format";
   private static final String QUERY_PARAMS_SANITIZE = "sanitize";
 
@@ -67,13 +66,12 @@ public class SQLQueryRequest {
 
   private String cursor;
 
-  private List<String> routingIds;
 
   /**
    * Constructor of SQLQueryRequest that passes request params.
    */
   public SQLQueryRequest(JSONObject jsonContent, String query, String path,
-                         Map<String, String> params, String cursor, List<String> routingIds) {
+                         Map<String, String> params, String cursor) {
     this.jsonContent = jsonContent;
     this.query = query;
     this.path = path;
@@ -81,7 +79,6 @@ public class SQLQueryRequest {
     this.format = getFormat(params);
     this.sanitize = shouldSanitize(params);
     this.cursor = cursor;
-    this.routingIds = routingIds;
   }
 
   /**

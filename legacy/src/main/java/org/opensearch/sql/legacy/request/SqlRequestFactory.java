@@ -24,7 +24,6 @@ public class SqlRequestFactory {
 
     public static final String SQL_CURSOR_FIELD_NAME = "cursor";
     public static final String SQL_FETCH_FIELD_NAME = "fetch_size";
-    public static final String ROUTING_FIELD_NAME = "routing";
 
     public static SqlRequest getSqlRequest(RestRequest request) {
         switch (request.method()) {
@@ -65,21 +64,7 @@ public class SqlRequestFactory {
             return new PreparedStatementRequest(sql, validateAndGetFetchSize(jsonContent), jsonContent, parameters);
         }
 
-        List<String> routingIds = List.of();
-        if (jsonContent.has(ROUTING_FIELD_NAME)) {
-            try {
-                routingIds = List.of(jsonContent.getString(ROUTING_FIELD_NAME));
-            } catch (JSONException ignored) {
-                try {
-                    JSONArray routingIdArray = jsonContent.getJSONArray(ROUTING_FIELD_NAME);
-                    routingIds = parseRoutingIds(routingIdArray);
-                } catch (JSONException jsonException) {
-                    throw new IllegalArgumentException(ROUTING_FIELD_NAME + " parameter must be defined as a string or array value", jsonException);
-                }
-            }
-        }
-
-        return new SqlRequest(sql, validateAndGetFetchSize(jsonContent), jsonContent, routingIds);
+        return new SqlRequest(sql, validateAndGetFetchSize(jsonContent), jsonContent);
     }
 
 

@@ -101,7 +101,7 @@ public class RestSQLQueryActionCursorFallbackTest extends BaseRestHandler {
 
     // TODO pass through
     return  new SQLQueryRequest(jsonContent, query, QUERY_API_ENDPOINT,
-        Map.of("format", "jdbc"), cursorId.orElse(""), List.of());
+        Map.of("format", "jdbc"), cursorId.orElse(""));
   }
 
   boolean doesQueryFallback(SQLQueryRequest request) throws Exception {

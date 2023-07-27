@@ -8,7 +8,6 @@ package org.opensearch.sql.legacy.request;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensearch.common.settings.Settings;
@@ -29,7 +28,6 @@ public class SqlRequest {
     JSONObject jsonContent;
     String cursor;
     Integer fetchSize;
-    private List<String> routingIds;
 
     public SqlRequest(final String sql, final JSONObject jsonContent) {
         this.sql = sql;
@@ -40,12 +38,10 @@ public class SqlRequest {
         this.cursor = cursor;
     }
 
-    public SqlRequest(final String sql, final Integer fetchSize, final JSONObject jsonContent,
-                      final List<String> routingIds) {
+    public SqlRequest(final String sql, final Integer fetchSize, final JSONObject jsonContent) {
         this.sql = sql;
         this.fetchSize = fetchSize;
         this.jsonContent = jsonContent;
-        this.routingIds = routingIds;
     }
 
     private static boolean isValidJson(String json) {
@@ -68,8 +64,6 @@ public class SqlRequest {
     public Integer fetchSize() {
         return this.fetchSize;
     }
-
-    public List<String> routingIds() { return this.routingIds; }
 
     public JSONObject getJsonContent() {
         return this.jsonContent;

@@ -81,7 +81,7 @@ class SQLServiceTest {
   @Test
   public void can_execute_cursor_query() {
     sqlService.execute(
-        new SQLQueryRequest(new JSONObject(), null, QUERY, Map.of("format", "jdbc"), "n:cursor", List.of()),
+        new SQLQueryRequest(new JSONObject(), null, QUERY, Map.of("format", "jdbc"), "n:cursor"),
         new ResponseListener<>() {
           @Override
           public void onResponse(QueryResponse response) {
@@ -99,7 +99,7 @@ class SQLServiceTest {
   public void can_execute_close_cursor_query() {
     sqlService.execute(
         new SQLQueryRequest(new JSONObject(), null, QUERY + "/close",
-            Map.of("format", "jdbc"), "n:cursor", List.of()),
+            Map.of("format", "jdbc"), "n:cursor"),
         new ResponseListener<>() {
           @Override
           public void onResponse(QueryResponse response) {
@@ -155,7 +155,7 @@ class SQLServiceTest {
   @Test
   public void cannot_explain_cursor_query() {
     sqlService.explain(new SQLQueryRequest(new JSONObject(), null, EXPLAIN,
-            Map.of("format", "jdbc"), "n:cursor", List.of()),
+            Map.of("format", "jdbc"), "n:cursor"),
         new ResponseListener<ExplainResponse>() {
           @Override
           public void onResponse(ExplainResponse response) {
