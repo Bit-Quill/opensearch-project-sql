@@ -8,10 +8,8 @@ package org.opensearch.sql.opensearch.data.type;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.List;
 import java.util.Map;
 import lombok.Getter;
-import org.opensearch.sql.data.type.ExprType;
 
 /**
  * The type of a text value. See
@@ -47,18 +45,8 @@ public class OpenSearchTextType extends OpenSearchDataType {
   }
 
   @Override
-  public List<ExprType> getParent() {
-    return List.of(STRING);
-  }
-
-  @Override
-  public boolean shouldCast(ExprType other) {
-    return false;
-  }
-
-  @Override
   protected OpenSearchDataType cloneEmpty() {
-    return OpenSearchTextType.of(Map.copyOf(this.fields));
+    return OpenSearchTextType.of(Map.copyOf(fields));
   }
 
   @Override

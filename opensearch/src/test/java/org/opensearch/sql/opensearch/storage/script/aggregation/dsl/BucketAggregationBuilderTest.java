@@ -9,17 +9,12 @@ package org.opensearch.sql.opensearch.storage.script.aggregation.dsl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.opensearch.core.xcontent.ToXContent.EMPTY_PARAMS;
-import static org.opensearch.sql.data.type.ExprCoreType.DATE;
-import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
-import static org.opensearch.sql.data.type.ExprCoreType.TIME;
-import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.opensearch.sql.expression.DSL.literal;
 import static org.opensearch.sql.expression.DSL.named;
 import static org.opensearch.sql.expression.DSL.ref;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import lombok.SneakyThrows;
@@ -31,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.common.xcontent.XContentFactory;
@@ -76,7 +70,7 @@ class BucketAggregationBuilderTest {
             + "  }\n"
             + "}",
         buildQuery(
-            Arrays.asList(
+            List.of(
                 asc(named("age", ref("age", INTEGER))))));
   }
 
@@ -97,7 +91,7 @@ class BucketAggregationBuilderTest {
             + "  }\n"
             + "}",
         buildQuery(
-            Arrays.asList(
+            List.of(
                 asc(named(literal)))));
   }
 
@@ -106,14 +100,14 @@ class BucketAggregationBuilderTest {
     assertEquals(
         "{\n"
             + "  \"terms\" : {\n"
-            + "    \"field\" : \"name.keyword\",\n"
+            + "    \"field\" : \"name.words\",\n"
             + "    \"missing_bucket\" : true,\n"
             + "    \"missing_order\" : \"first\",\n"
             + "    \"order\" : \"asc\"\n"
             + "  }\n"
             + "}",
         buildQuery(
-            Arrays.asList(
+            List.of(
                 asc(named("name", ref("name", OpenSearchTextType.of(Map.of("words",
                     OpenSearchDataType.of(OpenSearchDataType.MappingType.Keyword)))))))));
   }
@@ -136,7 +130,7 @@ class BucketAggregationBuilderTest {
             + "  }\n"
             + "}",
         buildQuery(
-            Arrays.asList(
+            List.of(
                 asc(named("name", parseExpression)))));
   }
 
@@ -154,7 +148,7 @@ class BucketAggregationBuilderTest {
             + "  }\n"
             + "}",
         buildQuery(
-            Arrays.asList(
+            List.of(
                 asc(named("date", ref("date", dataType))))));
   }
 

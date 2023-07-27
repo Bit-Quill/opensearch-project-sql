@@ -66,7 +66,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
         && ExprCoreType.numberTypes().contains(otherCoreType)) {
       return false;
     }
-    return exprCoreType == ExprCoreType.UNKNOWN || exprCoreType.shouldCast(other);
+    return exprCoreType == ExprCoreType.UNKNOWN || exprCoreType.shouldCast(otherCoreType);
   }
 
   /**
@@ -181,6 +181,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
    * @param mappingType A mapping type.
    * @return An instance or inheritor of `OpenSearchDataType`.
    */
+  @SuppressWarnings("unchecked")
   public static OpenSearchDataType of(MappingType mappingType, Map<String, Object> innerMap) {
     OpenSearchDataType res = instances.getOrDefault(mappingType.toString(),
         new OpenSearchDataType(mappingType)
@@ -207,8 +208,8 @@ public class OpenSearchDataType implements ExprType, Serializable {
       case Ip: return OpenSearchIpType.of();
       case Date:
         // Default date formatter is used when "" is passed as the second parameter
-        String format = (String) innerMap.getOrDefault("format", "");
-        return OpenSearchDateType.of(format);
+        return innerMap.isEmpty() ? OpenSearchDateType.of()
+            : OpenSearchDateType.of((String) innerMap.getOrDefault("format", ""));
       default:
         return res;
     }

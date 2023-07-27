@@ -149,11 +149,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
     this.exprCoreType = exprCoreType;
   }
 
-  private OpenSearchDateType(ExprType exprType) {
-    this();
-    this.exprCoreType = (ExprCoreType) exprType;
-  }
-
   private OpenSearchDateType(String format) {
     super(MappingType.Date);
     this.formats = getFormatList(format);
@@ -374,12 +369,20 @@ public class OpenSearchDateType extends OpenSearchDataType {
     return new OpenSearchDateType(format);
   }
 
+  /** A public constructor replacement. */
   public static OpenSearchDateType of(ExprCoreType exprCoreType) {
+    if (!isDateTypeCompatible(exprCoreType)) {
+      throw new IllegalArgumentException(String.format("Not a date/time type: %s", exprCoreType));
+    }
     return new OpenSearchDateType(exprCoreType);
   }
 
+  /** A public constructor replacement. */
   public static OpenSearchDateType of(ExprType exprType) {
-    return new OpenSearchDateType(exprType);
+    if (!isDateTypeCompatible(exprType)) {
+      throw new IllegalArgumentException(String.format("Not a date/time type: %s", exprType));
+    }
+    return new OpenSearchDateType((ExprCoreType) exprType);
   }
 
   public static OpenSearchDateType of() {
@@ -387,12 +390,8 @@ public class OpenSearchDateType extends OpenSearchDataType {
   }
 
   @Override
-  public List<ExprType> getParent() {
-    return List.of(exprCoreType);
-  }
-
-  @Override
   public boolean shouldCast(ExprType other) {
+    // TODO override to fix for https://github.com/opensearch-project/sql/issues/1847
     return false;
   }
 
