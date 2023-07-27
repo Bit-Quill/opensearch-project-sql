@@ -28,6 +28,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
+import org.opensearch.sql.data.model.ExprDoubleValue;
 
 class ExprTypeTest {
   @Test
@@ -47,6 +48,22 @@ class ExprTypeTest {
     assertTrue(DATE.isCompatible(STRING));
     assertTrue(TIME.isCompatible(STRING));
     assertTrue(DATETIME.isCompatible(STRING));
+  }
+
+  @Test
+  public void isCompatibleTwoDirectionCheck() {
+    ExprType other = new ExprType() {
+      @Override
+      public String typeName() {
+        return null;
+      }
+
+      @Override
+      public boolean equals(Object obj) {
+        return true;
+      }
+    };
+    assertTrue(UNDEFINED.isCompatible(other));
   }
 
   @Test
@@ -87,5 +104,12 @@ class ExprTypeTest {
   void defaultLegacyTypeName() {
     final ExprType exprType = () -> "dummy";
     assertEquals("dummy", exprType.legacyTypeName());
+  }
+
+  @Test
+  void defaultConvert() {
+    ExprType exprType = () -> null;
+    assertEquals("field", exprType.convertFieldForSearchQuery("field"));
+    assertEquals(3.14, exprType.convertValueForSearchQuery(new ExprDoubleValue(3.14)));
   }
 }

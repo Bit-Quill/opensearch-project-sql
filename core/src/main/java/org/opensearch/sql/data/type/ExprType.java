@@ -8,7 +8,6 @@ package org.opensearch.sql.data.type;
 
 import static org.opensearch.sql.data.type.ExprCoreType.UNKNOWN;
 
-import java.util.Arrays;
 import java.util.List;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.expression.Expression;
@@ -21,7 +20,8 @@ public interface ExprType {
    * Is compatible with other types.
    */
   default boolean isCompatible(ExprType other) {
-    if (this.equals(other)) {
+    // Do double direction check with `equals`, because a derived class may override it
+    if (this.equals(other) || other.equals(this)) {
       return true;
     } else {
       if (other.equals(UNKNOWN)) {
