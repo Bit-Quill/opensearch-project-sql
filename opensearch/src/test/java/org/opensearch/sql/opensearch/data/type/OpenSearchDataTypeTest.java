@@ -22,7 +22,6 @@ import static org.opensearch.sql.data.type.ExprCoreType.BYTE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 import static org.opensearch.sql.data.type.ExprCoreType.FLOAT;
-import static org.opensearch.sql.data.type.ExprCoreType.GEO_POINT;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.SHORT;
@@ -110,7 +109,7 @@ class OpenSearchDataTypeTest {
         Arguments.of(MappingType.Object, "object", STRUCT),
         Arguments.of(MappingType.Nested, "nested", ARRAY),
         Arguments.of(MappingType.GeoPoint, "geo_point",
-            GEO_POINT),
+            OpenSearchGeoPointType.of()),
         Arguments.of(MappingType.Binary, "binary",
             OpenSearchBinaryType.of()),
         Arguments.of(MappingType.Ip, "ip",

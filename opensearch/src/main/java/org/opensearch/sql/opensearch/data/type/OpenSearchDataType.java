@@ -32,7 +32,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
     Text("text", ExprCoreType.UNKNOWN),
     Keyword("keyword", ExprCoreType.STRING),
     Ip("ip", ExprCoreType.UNKNOWN),
-    GeoPoint("geo_point", ExprCoreType.GEO_POINT),
+    GeoPoint("geo_point", ExprCoreType.UNKNOWN),
     Binary("binary", ExprCoreType.UNKNOWN),
     Date("date", ExprCoreType.TIMESTAMP),
     Object("object", ExprCoreType.STRUCT),
