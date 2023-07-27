@@ -29,7 +29,9 @@ public class OpenSearchStorageEngine implements StorageEngine {
   private final Settings settings;
 
   @Override
-  public Table getTable(DataSourceSchemaName dataSourceSchemaName, String name, @Nullable String routingId) {
+  public Table getTable(DataSourceSchemaName dataSourceSchemaName,
+                        String name,
+                        @Nullable String routingId) {
     if (isSystemIndex(name)) {
       // TODO: handle routingId on system tables too?
       return new OpenSearchSystemIndex(client, name);

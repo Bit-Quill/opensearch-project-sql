@@ -20,7 +20,10 @@ public interface StorageEngine {
   /**
    * Get {@link Table} from storage engine.
    */
-  Table getTable(DataSourceSchemaName dataSourceSchemaName, String tableName, @Nullable String partition);
+  Table getTable(
+      DataSourceSchemaName dataSourceSchemaName,
+      String tableName,
+      @Nullable String partition);
 
   /**
    * Get list of datasource related functions.

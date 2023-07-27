@@ -57,7 +57,10 @@ class PrometheusStorageEngineTest {
   @Test
   public void getSystemTable() {
     PrometheusStorageEngine engine = new PrometheusStorageEngine(client);
-    Table table = engine.getTable(new DataSourceSchemaName("prometheus", "default"), TABLE_INFO, "ignored");
+    Table table = engine.getTable(
+        new DataSourceSchemaName("prometheus", "default"),
+        TABLE_INFO,
+        "ignored");
     assertNotNull(table);
     assertTrue(table instanceof PrometheusSystemTable);
   }
@@ -66,7 +69,10 @@ class PrometheusStorageEngineTest {
   public void getSystemTableForAllTablesInfo() {
     PrometheusStorageEngine engine = new PrometheusStorageEngine(client);
     Table table
-        = engine.getTable(new DataSourceSchemaName("prometheus", "information_schema"), "tables", "ignored");
+        = engine.getTable(
+            new DataSourceSchemaName("prometheus", "information_schema"),
+        "tables",
+        "ignored");
     assertNotNull(table);
     assertTrue(table instanceof PrometheusSystemTable);
   }

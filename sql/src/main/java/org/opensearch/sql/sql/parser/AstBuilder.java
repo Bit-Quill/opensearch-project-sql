@@ -191,7 +191,7 @@ public class AstBuilder extends OpenSearchSQLParserBaseVisitor<UnresolvedPlan> {
   public UnresolvedPlan visitTableAsRelation(TableAsRelationContext ctx) {
     String tableAlias = (ctx.alias() == null) ? null
         : StringUtils.unquoteIdentifier(ctx.alias().getText());
-    if(ctx.partitionRelationClause() == null) {
+    if (ctx.partitionRelationClause() == null) {
       return new Relation(visitAstExpression(ctx.tableName()), tableAlias);
     }
     return new Relation(

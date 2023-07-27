@@ -100,7 +100,7 @@ public class OpenSearchQueryRequestTest {
   void search_withoutContext() {
     OpenSearchQueryRequest request = new OpenSearchQueryRequest(
         new OpenSearchRequest.IndexName("test"),
-        new OpenSearchRequest.IndexName("key"),
+        null,
         sourceBuilder,
         factory
     );
@@ -124,7 +124,7 @@ public class OpenSearchQueryRequestTest {
         factory
     );
 
-    String[] includes = {"_id", "_index"};
+    String[] includes = {"_id", "_index", "_routing"};
     when(sourceBuilder.fetchSource()).thenReturn(fetchSourceContext);
     when(fetchSourceContext.includes()).thenReturn(includes);
     when(searchAction.apply(any())).thenReturn(searchResponse);

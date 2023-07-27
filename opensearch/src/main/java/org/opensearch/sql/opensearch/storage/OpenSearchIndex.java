@@ -90,7 +90,10 @@ public class OpenSearchIndex implements Table {
   /**
    * Constructor.
    */
-  public OpenSearchIndex(OpenSearchClient client, Settings settings, String indexName, String routingId) {
+  public OpenSearchIndex(OpenSearchClient client,
+                         Settings settings,
+                         String indexName,
+                         String routingId) {
     this.client = client;
     this.settings = settings;
     this.indexName = new OpenSearchRequest.IndexName(indexName);

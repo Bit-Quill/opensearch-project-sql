@@ -58,7 +58,7 @@ public class OpenSearchQueryRequest implements OpenSearchRequest {
   private boolean searchDone = false;
 
   /**
-   *
+   * Sharding or Routing ID for the OpenSearch request.
    */
   private final IndexName routingId;
 

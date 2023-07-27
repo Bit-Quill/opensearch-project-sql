@@ -67,7 +67,9 @@ public class TestConfig {
   protected StorageEngine storageEngine() {
     return new StorageEngine() {
       @Override
-      public Table getTable(DataSourceSchemaName dataSourceSchemaName, String name, @Nullable String partition) {
+      public Table getTable(DataSourceSchemaName dataSourceSchemaName,
+                            String name,
+                            @Nullable String partition) {
         return new Table() {
           @Override
           public boolean exists() {

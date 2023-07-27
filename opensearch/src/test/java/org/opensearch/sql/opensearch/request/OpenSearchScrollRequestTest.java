@@ -89,7 +89,7 @@ class OpenSearchScrollRequestTest {
   @Test
   void constructor2() {
     searchSourceBuilder.fetchSource(new String[]{"test"}, null);
-    var request = new OpenSearchScrollRequest(INDEX_NAME, ROUTING_ID, SCROLL_TIMEOUT, searchSourceBuilder,
+    var request = new OpenSearchScrollRequest(INDEX_NAME, null, SCROLL_TIMEOUT, searchSourceBuilder,
         factory);
     assertNotEquals(List.of(), request.getIncludes());
   }

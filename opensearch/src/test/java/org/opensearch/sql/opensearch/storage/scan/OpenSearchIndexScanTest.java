@@ -280,8 +280,9 @@ class OpenSearchIndexScanTest {
 
     final int defaultQuerySize = 2;
     final var requestBuilder = new OpenSearchRequestBuilder(defaultQuerySize, exprValueFactory);
-    try (OpenSearchIndexScan indexScan = new OpenSearchIndexScan(client,
-        defaultQuerySize, requestBuilder.build(INDEX_NAME, ROUTING_ID, QUERY_SIZE, CURSOR_KEEP_ALIVE))) {
+    try (OpenSearchIndexScan indexScan =
+             new OpenSearchIndexScan(client, defaultQuerySize,
+                 requestBuilder.build(INDEX_NAME, ROUTING_ID, QUERY_SIZE, CURSOR_KEEP_ALIVE))) {
       indexScan.open();
 
       assertAll(
@@ -383,8 +384,8 @@ class OpenSearchIndexScanTest {
           new OpenSearchQueryRequest(INDEX_NAME, ROUTING_ID, sourceBuilder, factory);
 
       when(client.search(request)).thenReturn(response);
-      var indexScan = new OpenSearchIndexScan(client,
-          QUERY_SIZE, requestBuilder.build(INDEX_NAME, ROUTING_ID, 10000, CURSOR_KEEP_ALIVE));
+      var indexScan = new OpenSearchIndexScan(client, QUERY_SIZE,
+          requestBuilder.build(INDEX_NAME, ROUTING_ID, 10000, CURSOR_KEEP_ALIVE));
       indexScan.open();
       return this;
     }
@@ -396,10 +397,12 @@ class OpenSearchIndexScanTest {
           .size(QUERY_SIZE)
           .timeout(CURSOR_KEEP_ALIVE)
           .sort(DOC_FIELD_NAME, ASC);
-      OpenSearchRequest request = new OpenSearchQueryRequest(INDEX_NAME, ROUTING_ID, builder, factory);
+      OpenSearchRequest request = new OpenSearchQueryRequest(
+          INDEX_NAME, ROUTING_ID, builder, factory);
       when(client.search(request)).thenReturn(response);
       var indexScan = new OpenSearchIndexScan(client,
-          10000, requestBuilder.build(INDEX_NAME, ROUTING_ID, 10000, CURSOR_KEEP_ALIVE));
+          10000,
+          requestBuilder.build(INDEX_NAME, ROUTING_ID, 10000, CURSOR_KEEP_ALIVE));
       indexScan.open();
       return this;
     }

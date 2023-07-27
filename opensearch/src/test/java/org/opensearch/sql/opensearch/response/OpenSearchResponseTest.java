@@ -38,6 +38,7 @@ import org.opensearch.search.fetch.subphase.highlight.HighlightField;
 import org.opensearch.sql.data.model.ExprFloatValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
 import org.opensearch.sql.data.model.ExprLongValue;
+import org.opensearch.sql.data.model.ExprNullValue;
 import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.data.model.ExprValue;
@@ -213,7 +214,7 @@ class OpenSearchResponseTest {
   }
 
   @Test
-  void iterator_metafields_scoreNaN() {
+  void iterator_metafields_nullNaN() {
 
     ExprTupleValue exprTupleHit = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
         "id1", new ExprIntegerValue(1)
@@ -234,7 +235,7 @@ class OpenSearchResponseTest {
 
     when(factory.construct(any(), anyBoolean())).thenReturn(exprTupleHit);
 
-    List includes = List.of("id1", "_index", "_id", "_sort", "_score", "_maxscore");
+    List includes = List.of("id1", "_index", "_id", "_routing", "_sort", "_score", "_maxscore");
     ExprTupleValue exprTupleResponse = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
         "id1", new ExprIntegerValue(1),
         "_index", new ExprStringValue("testIndex"),

@@ -167,7 +167,7 @@ class OpenSearchIndexTest {
     when(client.getIndexMappings("test")).thenReturn(
         ImmutableMap.of("test", mapping));
 
-    OpenSearchIndex index = new OpenSearchIndex(client, settings, "test", "routing");
+    OpenSearchIndex index = new OpenSearchIndex(client, settings, "test", null);
     assertThat(index.getFieldTypes(), allOf(
         aMapWithSize(1),
         hasEntry("name", STRING)));

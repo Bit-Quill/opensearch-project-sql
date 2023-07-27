@@ -86,7 +86,9 @@ public class AnalyzerTestBase {
       }
 
       @Override
-      public Table getTable(DataSourceSchemaName dataSourceSchemaName, String tableName, @Nullable String partition) {
+      public Table getTable(DataSourceSchemaName dataSourceSchemaName,
+                            String tableName,
+                            @Nullable String partition) {
         return table;
       }
     };

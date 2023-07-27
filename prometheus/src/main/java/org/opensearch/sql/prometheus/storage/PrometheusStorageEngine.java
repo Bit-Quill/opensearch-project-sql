@@ -44,7 +44,9 @@ public class PrometheusStorageEngine implements StorageEngine {
   }
 
   @Override
-  public Table getTable(DataSourceSchemaName dataSourceSchemaName, String tableName, @Nullable String ignored) {
+  public Table getTable(DataSourceSchemaName dataSourceSchemaName,
+                        String tableName,
+                        @Nullable String ignored) {
     if (isSystemIndex(tableName)) {
       return new PrometheusSystemTable(prometheusClient, dataSourceSchemaName, tableName);
     } else if (INFORMATION_SCHEMA_NAME.equals(dataSourceSchemaName.getSchemaName())) {
