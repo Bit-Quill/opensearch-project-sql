@@ -179,7 +179,9 @@ public class OpenSearchScrollRequest implements OpenSearchRequest {
     out.writeString(scrollId);
     out.writeStringCollection(includes);
     indexName.writeTo(out);
-    routingId.writeTo(out);
+    if (routingId != null) {
+      routingId.writeTo(out);
+    }
   }
 
   /**
