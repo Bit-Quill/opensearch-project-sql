@@ -85,7 +85,9 @@ class OpenSearchIndexTest {
 
   @BeforeEach
   void setUp() {
-    this.index = new OpenSearchIndex(client, settings, "test", "routing");
+    this.index = new OpenSearchIndex(client, settings,
+        INDEX_NAME.getIndexNames()[0],
+        PARTITION_KEY.getIndexNames()[0]);
   }
 
   @Test

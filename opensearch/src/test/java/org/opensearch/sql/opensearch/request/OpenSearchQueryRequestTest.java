@@ -169,7 +169,7 @@ public class OpenSearchQueryRequestTest {
     assertSearchRequest(
         new SearchRequest()
             .indices("ccs:test")
-            .routing("key")
+            .routing("ccs:key")
             .source(new SearchSourceBuilder()
                 .timeout(DEFAULT_QUERY_TIMEOUT)
                 .from(0)

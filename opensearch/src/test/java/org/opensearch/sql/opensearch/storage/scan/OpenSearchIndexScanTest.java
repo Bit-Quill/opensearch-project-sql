@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -183,12 +182,6 @@ class OpenSearchIndexScanTest {
     }
     verify(client).cleanup(any());
   }
-
-  static final OpenSearchRequest.IndexName EMPLOYEES_INDEX
-      = new OpenSearchRequest.IndexName("employees");
-
-  static final OpenSearchRequest.IndexName EMPLOYEES_PARTITION_KEY
-      = new OpenSearchRequest.IndexName("employkeys");
 
   @Test
   void query_all_results_with_scroll() {
@@ -387,11 +380,11 @@ class OpenSearchIndexScanTest {
           .highlighter(highlight)
           .sort(DOC_FIELD_NAME, ASC);
       OpenSearchRequest request =
-          new OpenSearchQueryRequest(EMPLOYEES_INDEX, EMPLOYEES_PARTITION_KEY, sourceBuilder, factory);
+          new OpenSearchQueryRequest(INDEX_NAME, ROUTING_ID, sourceBuilder, factory);
 
       when(client.search(request)).thenReturn(response);
       var indexScan = new OpenSearchIndexScan(client,
-          QUERY_SIZE, requestBuilder.build(EMPLOYEES_INDEX, ROUTING_ID, 10000, CURSOR_KEEP_ALIVE));
+          QUERY_SIZE, requestBuilder.build(INDEX_NAME, ROUTING_ID, 10000, CURSOR_KEEP_ALIVE));
       indexScan.open();
       return this;
     }
@@ -403,10 +396,10 @@ class OpenSearchIndexScanTest {
           .size(QUERY_SIZE)
           .timeout(CURSOR_KEEP_ALIVE)
           .sort(DOC_FIELD_NAME, ASC);
-      OpenSearchRequest request = new OpenSearchQueryRequest(EMPLOYEES_INDEX, EMPLOYEES_PARTITION_KEY, builder, factory);
+      OpenSearchRequest request = new OpenSearchQueryRequest(INDEX_NAME, ROUTING_ID, builder, factory);
       when(client.search(request)).thenReturn(response);
       var indexScan = new OpenSearchIndexScan(client,
-          10000, requestBuilder.build(EMPLOYEES_INDEX, ROUTING_ID, 10000, CURSOR_KEEP_ALIVE));
+          10000, requestBuilder.build(INDEX_NAME, ROUTING_ID, 10000, CURSOR_KEEP_ALIVE));
       indexScan.open();
       return this;
     }
