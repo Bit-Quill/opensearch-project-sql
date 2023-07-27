@@ -31,7 +31,7 @@ However, more general conversions for non-numeric types are missing, such as con
 The common use case and motivation include:
 
 1. *User-friendly*: Although it doesn't matter for application or BI tool which can always follow the strict grammar rule, it's more friendly and accessible to human by implicit type conversion, ex. `date > DATE('2020-06-01') => date > '2020-06-01'`
-2. *Schema-on-read*: More importantly, implicit conversion from string is required for schema on read (stored as raw string on write and extract field(s) on read), ex. `regex ‘...' | abs(a)`
+2. *Schema-on-read*: More importantly, implicit conversion from string is required for schema on read (stored as raw string on write and extract field(s) on read), ex. `regex '...' | abs(a)`
 
 ### 2.2 Functionalities
 
