@@ -46,13 +46,13 @@ class QueryRangeFunctionImplementationTest {
             DSL.namedArgument("endtime", DSL.literal(12345)),
             DSL.namedArgument("step", DSL.literal(14)));
     QueryRangeFunctionImplementation queryRangeFunctionImplementation
-            = new QueryRangeFunctionImplementation(functionName, namedArgumentExpressionList, client);
+        = new QueryRangeFunctionImplementation(functionName, namedArgumentExpressionList, client);
     UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
-            () -> queryRangeFunctionImplementation.valueOf());
+        () -> queryRangeFunctionImplementation.valueOf());
     assertEquals("Prometheus defined function [query_range] is only "
-            + "supported in SOURCE clause with prometheus connector catalog", exception.getMessage());
+        + "supported in SOURCE clause with prometheus connector catalog", exception.getMessage());
     assertEquals("query_range(query=\"http_latency\", starttime=12345, endtime=12345, step=14)",
-            queryRangeFunctionImplementation.toString());
+        queryRangeFunctionImplementation.toString());
     assertEquals(ExprCoreType.STRUCT, queryRangeFunctionImplementation.type());
   }
 
@@ -60,14 +60,14 @@ class QueryRangeFunctionImplementationTest {
   void testApplyArguments() {
     FunctionName functionName = new FunctionName("query_range");
     List<Expression> namedArgumentExpressionList
-            = List.of(DSL.namedArgument("query", DSL.literal("http_latency")),
-            DSL.namedArgument("starttime", DSL.literal(12345)),
-            DSL.namedArgument("endtime", DSL.literal(1234)),
-            DSL.namedArgument("step", DSL.literal(14)));
+        = List.of(DSL.namedArgument("query", DSL.literal("http_latency")),
+        DSL.namedArgument("starttime", DSL.literal(12345)),
+        DSL.namedArgument("endtime", DSL.literal(1234)),
+        DSL.namedArgument("step", DSL.literal(14)));
     QueryRangeFunctionImplementation queryRangeFunctionImplementation
-            = new QueryRangeFunctionImplementation(functionName, namedArgumentExpressionList, client);
+        = new QueryRangeFunctionImplementation(functionName, namedArgumentExpressionList, client);
     PrometheusMetricTable prometheusMetricTable
-            = (PrometheusMetricTable) queryRangeFunctionImplementation.applyArguments();
+        = (PrometheusMetricTable) queryRangeFunctionImplementation.applyArguments();
     assertNull(prometheusMetricTable.getMetricName());
     assertNotNull(prometheusMetricTable.getPrometheusQueryRequest());
     PrometheusQueryRequest prometheusQueryRequest
@@ -87,9 +87,9 @@ class QueryRangeFunctionImplementationTest {
             DSL.namedArgument("end_time", DSL.literal(1234)),
             DSL.namedArgument("step", DSL.literal(14)));
     QueryRangeFunctionImplementation queryRangeFunctionImplementation
-            = new QueryRangeFunctionImplementation(functionName, namedArgumentExpressionList, client);
+        = new QueryRangeFunctionImplementation(functionName, namedArgumentExpressionList, client);
     ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-            () -> queryRangeFunctionImplementation.applyArguments());
+        () -> queryRangeFunctionImplementation.applyArguments());
     assertEquals("Invalid Function Argument:end_time", exception.getMessage());
   }
 
