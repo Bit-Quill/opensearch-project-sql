@@ -11,18 +11,18 @@ import lombok.experimental.UtilityClass;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 
 /**
- * <pre>
  * The definition of widening type rule for expression value.
- * ExprType     Widens to data types
- * INTEGER      LONG, FLOAT, DOUBLE
- * LONG         FLOAT, DOUBLE
- * FLOAT        DOUBLE
- * DOUBLE       DOUBLE
- * STRING       STRING
- * BOOLEAN      BOOLEAN
- * ARRAY        ARRAY
- * STRUCT       STRUCT
- * </pre>
+ * <table border="3">
+ * <tr><th>ExprType</th><th>Widens to data types</th></tr>
+ * <tr><td>INTEGER</td><td>LONG, FLOAT, DOUBLE</td></tr>
+ * <tr><td>LONG</td><td>FLOAT, DOUBLE</td></tr>
+ * <tr><td>FLOAT</td><td>DOUBLE</td></tr>
+ * <tr><td>DOUBLE</td><td>DOUBLE</td></tr>
+ * <tr><td>STRING</td><td>STRING</td></tr>
+ * <tr><td>BOOLEAN</td><td>BOOLEAN</td></tr>
+ * <tr><td>ARRAY</td><td>ARRAY</td></tr>
+ * <tr><td>STRUCT</td><td>STRUCT</td></tr>
+ * </table>
  */
 @UtilityClass
 public class WideningTypeRule {
