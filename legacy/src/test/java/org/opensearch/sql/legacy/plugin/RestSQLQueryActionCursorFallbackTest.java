@@ -99,7 +99,6 @@ public class RestSQLQueryActionCursorFallbackTest extends BaseRestHandler {
     builder.endObject();
     JSONObject jsonContent = new JSONObject(Strings.toString(builder));
 
-    // TODO pass through
     return  new SQLQueryRequest(jsonContent, query, QUERY_API_ENDPOINT,
         Map.of("format", "jdbc"), cursorId.orElse(""));
   }

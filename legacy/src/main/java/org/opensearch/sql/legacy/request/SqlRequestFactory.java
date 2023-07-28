@@ -63,7 +63,6 @@ public class SqlRequestFactory {
             List<PreparedStatementRequest.PreparedStatementParameter> parameters = parseParameters(paramArray);
             return new PreparedStatementRequest(sql, validateAndGetFetchSize(jsonContent), jsonContent, parameters);
         }
-
         return new SqlRequest(sql, validateAndGetFetchSize(jsonContent), jsonContent);
     }
 
@@ -81,14 +80,6 @@ public class SqlRequestFactory {
             throw new IllegalArgumentException("Failed to parse field [" + SQL_FETCH_FIELD_NAME +"]", e);
         }
         return fetchSize.orElse(0);
-    }
-
-    private static List<String> parseRoutingIds(JSONArray array) {
-        List<String> routingIds = List.of();
-        for (int i = 0; i < array.length(); i++) {
-            routingIds.add(array.getString(i));
-        }
-        return routingIds;
     }
 
     private static List<PreparedStatementRequest.PreparedStatementParameter> parseParameters(
