@@ -70,6 +70,8 @@ public class SelectExpressionAnalyzer
   }
 
   /**
+   *
+   *
    * <pre>
    * The Alias could be
    * 1. SELECT name, AVG(age) FROM s BY name ->

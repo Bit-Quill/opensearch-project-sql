@@ -25,6 +25,8 @@ import org.opensearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import org.opensearch.sql.planner.logical.LogicalWindow;
 
 /**
+ *
+ *
  * <pre>
  * The optimizer used to replace the expression referred in the SelectClause
  * e.g. The query SELECT abs(name), sum(age)-avg(age) FROM test GROUP BY abs(name).
