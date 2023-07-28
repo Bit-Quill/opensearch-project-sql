@@ -24,9 +24,7 @@ public class SpanExpression implements Expression {
   private final Expression value;
   private final SpanUnit unit;
 
-  /**
-   * Construct a span expression by field and span interval expression.
-   */
+  /** Construct a span expression by field and span interval expression. */
   public SpanExpression(Expression field, Expression value, SpanUnit unit) {
     this.field = field;
     this.value = value;
@@ -35,11 +33,13 @@ public class SpanExpression implements Expression {
 
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-    Rounding<?> rounding = Rounding.createRounding(this); //TODO: will integrate with WindowAssigner
+    Rounding<?> rounding =
+        Rounding.createRounding(this); // TODO: will integrate with WindowAssigner
     return rounding.round(field.valueOf(valueEnv));
   }
 
   /**
+   * <pre>
    * Return type follows the following table.
    *  FIELD         VALUE     RETURN_TYPE
    *  int/long      integer   int/long (field type)
@@ -47,6 +47,7 @@ public class SpanExpression implements Expression {
    *  float/double  integer   float/double (field type)
    *  float/double  double    float/double (field type)
    *  other         any       field type
+   * </pre>
    */
   @Override
   public ExprType type() {

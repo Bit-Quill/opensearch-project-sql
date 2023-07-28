@@ -5,212 +5,93 @@
  *
  */
 
-package org.opensearch.sql.prometheus.functions.resolver;
+package org.opensearch.sql.prometheus.functions.implementation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.opensearch.sql.data.type.ExprCoreType.LONG;
-import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opensearch.sql.exception.SemanticCheckException;
+import org.opensearch.sql.data.type.ExprCoreType;
+import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
-import org.opensearch.sql.expression.function.FunctionBuilder;
 import org.opensearch.sql.expression.function.FunctionName;
-import org.opensearch.sql.expression.function.FunctionProperties;
-import org.opensearch.sql.expression.function.FunctionSignature;
-import org.opensearch.sql.expression.function.TableFunctionImplementation;
 import org.opensearch.sql.prometheus.client.PrometheusClient;
 import org.opensearch.sql.prometheus.functions.implementation.QueryRangeFunctionImplementation;
-import org.opensearch.sql.prometheus.functions.resolver.QueryRangeTableFunctionResolver;
 import org.opensearch.sql.prometheus.request.PrometheusQueryRequest;
 import org.opensearch.sql.prometheus.storage.PrometheusMetricTable;
 
+
 @ExtendWith(MockitoExtension.class)
-class QueryRangeTableFunctionResolverTest {
+class QueryRangeFunctionImplementationTest {
 
   @Mock
   private PrometheusClient client;
 
-  @Mock
-  private FunctionProperties functionProperties;
 
   @Test
-  void testResolve() {
-    QueryRangeTableFunctionResolver queryRangeTableFunctionResolver
-        = new QueryRangeTableFunctionResolver(client);
-    FunctionName functionName = FunctionName.of("query_range");
-    List<Expression> expressions
-        = List.of(DSL.namedArgument("query", DSL.literal("http_latency")),
-        DSL.namedArgument("starttime", DSL.literal(12345)),
-        DSL.namedArgument("endtime", DSL.literal(12345)),
-        DSL.namedArgument("step", DSL.literal(14)));
-    FunctionSignature functionSignature = new FunctionSignature(functionName, expressions
-        .stream().map(Expression::type).collect(Collectors.toList()));
-    Pair<FunctionSignature, FunctionBuilder> resolution
-        = queryRangeTableFunctionResolver.resolve(functionSignature);
-    assertEquals(functionName, resolution.getKey().getFunctionName());
-    assertEquals(functionName, queryRangeTableFunctionResolver.getFunctionName());
-    assertEquals(List.of(STRING, LONG, LONG, STRING), resolution.getKey().getParamTypeList());
-    FunctionBuilder functionBuilder = resolution.getValue();
-    TableFunctionImplementation functionImplementation
-        = (TableFunctionImplementation) functionBuilder.apply(functionProperties, expressions);
-    assertTrue(functionImplementation instanceof QueryRangeFunctionImplementation);
+  void testValueOfAndTypeAndToString() {
+    FunctionName functionName = new FunctionName("query_range");
+    List<Expression> namedArgumentExpressionList
+            = List.of(DSL.namedArgument("query", DSL.literal("http_latency")),
+            DSL.namedArgument("starttime", DSL.literal(12345)),
+            DSL.namedArgument("endtime", DSL.literal(12345)),
+            DSL.namedArgument("step", DSL.literal(14)));
+    QueryRangeFunctionImplementation queryRangeFunctionImplementation
+            = new QueryRangeFunctionImplementation(functionName, namedArgumentExpressionList, client);
+    UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+            () -> queryRangeFunctionImplementation.valueOf());
+    assertEquals("Prometheus defined function [query_range] is only "
+            + "supported in SOURCE clause with prometheus connector catalog", exception.getMessage());
+    assertEquals("query_range(query=\"http_latency\", starttime=12345, endtime=12345, step=14)",
+            queryRangeFunctionImplementation.toString());
+    assertEquals(ExprCoreType.STRUCT, queryRangeFunctionImplementation.type());
+  }
+
+  @Test
+  void testApplyArguments() {
+    FunctionName functionName = new FunctionName("query_range");
+    List<Expression> namedArgumentExpressionList
+            = List.of(DSL.namedArgument("query", DSL.literal("http_latency")),
+            DSL.namedArgument("starttime", DSL.literal(12345)),
+            DSL.namedArgument("endtime", DSL.literal(1234)),
+            DSL.namedArgument("step", DSL.literal(14)));
+    QueryRangeFunctionImplementation queryRangeFunctionImplementation
+            = new QueryRangeFunctionImplementation(functionName, namedArgumentExpressionList, client);
     PrometheusMetricTable prometheusMetricTable
-        = (PrometheusMetricTable) functionImplementation.applyArguments();
+            = (PrometheusMetricTable) queryRangeFunctionImplementation.applyArguments();
+    assertNull(prometheusMetricTable.getMetricName());
     assertNotNull(prometheusMetricTable.getPrometheusQueryRequest());
-    PrometheusQueryRequest prometheusQueryRequest =
-        prometheusMetricTable.getPrometheusQueryRequest();
-    assertEquals("http_latency", prometheusQueryRequest.getPromQl());
-    assertEquals(12345L, prometheusQueryRequest.getStartTime());
-    assertEquals(12345L, prometheusQueryRequest.getEndTime());
+    PrometheusQueryRequest prometheusQueryRequest
+            = prometheusMetricTable.getPrometheusQueryRequest();
+    assertEquals("http_latency", prometheusQueryRequest.getPromQl().toString());
+    assertEquals(12345, prometheusQueryRequest.getStartTime());
+    assertEquals(1234, prometheusQueryRequest.getEndTime());
     assertEquals("14", prometheusQueryRequest.getStep());
   }
 
   @Test
-  void testArgumentsPassedByPosition() {
-    QueryRangeTableFunctionResolver queryRangeTableFunctionResolver
-        = new QueryRangeTableFunctionResolver(client);
-    FunctionName functionName = FunctionName.of("query_range");
-    List<Expression> expressions
-        = List.of(DSL.namedArgument(null, DSL.literal("http_latency")),
-        DSL.namedArgument(null, DSL.literal(12345)),
-        DSL.namedArgument(null, DSL.literal(12345)),
-        DSL.namedArgument(null, DSL.literal(14)));
-    FunctionSignature functionSignature = new FunctionSignature(functionName, expressions
-        .stream().map(Expression::type).collect(Collectors.toList()));
-
-    Pair<FunctionSignature, FunctionBuilder> resolution
-        = queryRangeTableFunctionResolver.resolve(functionSignature);
-
-    assertEquals(functionName, resolution.getKey().getFunctionName());
-    assertEquals(functionName, queryRangeTableFunctionResolver.getFunctionName());
-    assertEquals(List.of(STRING, LONG, LONG, STRING), resolution.getKey().getParamTypeList());
-    FunctionBuilder functionBuilder = resolution.getValue();
-    TableFunctionImplementation functionImplementation
-        = (TableFunctionImplementation) functionBuilder.apply(functionProperties, expressions);
-    assertTrue(functionImplementation instanceof QueryRangeFunctionImplementation);
-    PrometheusMetricTable prometheusMetricTable
-        = (PrometheusMetricTable) functionImplementation.applyArguments();
-    assertNotNull(prometheusMetricTable.getPrometheusQueryRequest());
-    PrometheusQueryRequest prometheusQueryRequest =
-        prometheusMetricTable.getPrometheusQueryRequest();
-    assertEquals("http_latency", prometheusQueryRequest.getPromQl());
-    assertEquals(12345L, prometheusQueryRequest.getStartTime());
-    assertEquals(12345L, prometheusQueryRequest.getEndTime());
-    assertEquals("14", prometheusQueryRequest.getStep());
+  void testApplyArgumentsException() {
+    FunctionName functionName = new FunctionName("query_range");
+    List<Expression> namedArgumentExpressionList
+            = List.of(DSL.namedArgument("query", DSL.literal("http_latency")),
+            DSL.namedArgument("starttime", DSL.literal(12345)),
+            DSL.namedArgument("end_time", DSL.literal(1234)),
+            DSL.namedArgument("step", DSL.literal(14)));
+    QueryRangeFunctionImplementation queryRangeFunctionImplementation
+            = new QueryRangeFunctionImplementation(functionName, namedArgumentExpressionList, client);
+    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
+            () -> queryRangeFunctionImplementation.applyArguments());
+    assertEquals("Invalid Function Argument:end_time", exception.getMessage());
   }
 
-
-  @Test
-  void testArgumentsPassedByNameWithDifferentOrder() {
-    QueryRangeTableFunctionResolver queryRangeTableFunctionResolver
-        = new QueryRangeTableFunctionResolver(client);
-    FunctionName functionName = FunctionName.of("query_range");
-    List<Expression> expressions
-        = List.of(DSL.namedArgument("query", DSL.literal("http_latency")),
-        DSL.namedArgument("endtime", DSL.literal(12345)),
-        DSL.namedArgument("step", DSL.literal(14)),
-        DSL.namedArgument("starttime", DSL.literal(12345)));
-    FunctionSignature functionSignature = new FunctionSignature(functionName, expressions
-        .stream().map(Expression::type).collect(Collectors.toList()));
-
-    Pair<FunctionSignature, FunctionBuilder> resolution
-        = queryRangeTableFunctionResolver.resolve(functionSignature);
-
-    assertEquals(functionName, resolution.getKey().getFunctionName());
-    assertEquals(functionName, queryRangeTableFunctionResolver.getFunctionName());
-    assertEquals(List.of(STRING, LONG, LONG, STRING), resolution.getKey().getParamTypeList());
-    FunctionBuilder functionBuilder = resolution.getValue();
-    TableFunctionImplementation functionImplementation
-        = (TableFunctionImplementation) functionBuilder.apply(functionProperties, expressions);
-    assertTrue(functionImplementation instanceof QueryRangeFunctionImplementation);
-    PrometheusMetricTable prometheusMetricTable
-        = (PrometheusMetricTable) functionImplementation.applyArguments();
-    assertNotNull(prometheusMetricTable.getPrometheusQueryRequest());
-    PrometheusQueryRequest prometheusQueryRequest =
-        prometheusMetricTable.getPrometheusQueryRequest();
-    assertEquals("http_latency", prometheusQueryRequest.getPromQl());
-    assertEquals(12345L, prometheusQueryRequest.getStartTime());
-    assertEquals(12345L, prometheusQueryRequest.getEndTime());
-    assertEquals("14", prometheusQueryRequest.getStep());
-  }
-
-  @Test
-  void testMixedArgumentTypes() {
-    QueryRangeTableFunctionResolver queryRangeTableFunctionResolver
-        = new QueryRangeTableFunctionResolver(client);
-    FunctionName functionName = FunctionName.of("query_range");
-    List<Expression> expressions
-        = List.of(DSL.namedArgument("query", DSL.literal("http_latency")),
-        DSL.namedArgument(null, DSL.literal(12345)),
-        DSL.namedArgument(null, DSL.literal(12345)),
-        DSL.namedArgument(null, DSL.literal(14)));
-    FunctionSignature functionSignature = new FunctionSignature(functionName, expressions
-        .stream().map(Expression::type).collect(Collectors.toList()));
-    Pair<FunctionSignature, FunctionBuilder> resolution
-        = queryRangeTableFunctionResolver.resolve(functionSignature);
-
-    assertEquals(functionName, resolution.getKey().getFunctionName());
-    assertEquals(functionName, queryRangeTableFunctionResolver.getFunctionName());
-    assertEquals(List.of(STRING, LONG, LONG, STRING), resolution.getKey().getParamTypeList());
-    SemanticCheckException exception = assertThrows(SemanticCheckException.class,
-        () -> resolution.getValue().apply(functionProperties, expressions));
-
-    assertEquals("Arguments should be either passed by name or position", exception.getMessage());
-  }
-
-  @Test
-  void testWrongArgumentsSizeWhenPassedByName() {
-    QueryRangeTableFunctionResolver queryRangeTableFunctionResolver
-        = new QueryRangeTableFunctionResolver(client);
-    FunctionName functionName = FunctionName.of("query_range");
-    List<Expression> expressions
-        = List.of(DSL.namedArgument("query", DSL.literal("http_latency")),
-        DSL.namedArgument("step", DSL.literal(12345)));
-    FunctionSignature functionSignature = new FunctionSignature(functionName, expressions
-        .stream().map(Expression::type).collect(Collectors.toList()));
-    Pair<FunctionSignature, FunctionBuilder> resolution
-        = queryRangeTableFunctionResolver.resolve(functionSignature);
-
-    assertEquals(functionName, resolution.getKey().getFunctionName());
-    assertEquals(functionName, queryRangeTableFunctionResolver.getFunctionName());
-    assertEquals(List.of(STRING, LONG, LONG, STRING), resolution.getKey().getParamTypeList());
-    SemanticCheckException exception = assertThrows(SemanticCheckException.class,
-        () -> resolution.getValue().apply(functionProperties, expressions));
-
-    assertEquals("Missing arguments:[endtime,starttime]", exception.getMessage());
-  }
-
-  @Test
-  void testWrongArgumentsSizeWhenPassedByPosition() {
-    QueryRangeTableFunctionResolver queryRangeTableFunctionResolver
-        = new QueryRangeTableFunctionResolver(client);
-    FunctionName functionName = FunctionName.of("query_range");
-    List<Expression> expressions
-        = List.of(DSL.namedArgument(null, DSL.literal("http_latency")),
-        DSL.namedArgument(null, DSL.literal(12345)));
-    FunctionSignature functionSignature = new FunctionSignature(functionName, expressions
-        .stream().map(Expression::type).collect(Collectors.toList()));
-    Pair<FunctionSignature, FunctionBuilder> resolution
-        = queryRangeTableFunctionResolver.resolve(functionSignature);
-
-    assertEquals(functionName, resolution.getKey().getFunctionName());
-    assertEquals(functionName, queryRangeTableFunctionResolver.getFunctionName());
-    assertEquals(List.of(STRING, LONG, LONG, STRING), resolution.getKey().getParamTypeList());
-    SemanticCheckException exception = assertThrows(SemanticCheckException.class,
-        () -> resolution.getValue().apply(functionProperties, expressions));
-
-    assertEquals("Missing arguments:[endtime,step]", exception.getMessage());
-  }
 
 }
