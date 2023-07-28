@@ -54,8 +54,13 @@ public class OpenSearchTextType extends OpenSearchDataType {
     if (fields.size() == 0) {
       return fieldName;
     }
-    // Pick first field. What to do if there are multiple fields?
+    // Pick first string subfield (if present) otherwise pick first subfield.
     // Multi-field text support requested in https://github.com/opensearch-project/sql/issues/1887
-    return String.format("%s.%s", fieldName, fields.keySet().toArray()[0]);
+    String subField = fields.entrySet().stream()
+        .filter(e -> e.getValue().getExprType().equals(STRING))
+        .map(Map.Entry::getKey)
+        .findFirst()
+        .orElseGet(() -> fields.keySet().toArray(String[]::new)[0]);
+    return String.format("%s.%s", fieldName, subField);
   }
 }

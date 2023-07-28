@@ -100,7 +100,7 @@ public class OpenSearchTextTypeTest {
             OpenSearchTextType.of(fieldsWithKeyword).convertFieldForSearchQuery("field")),
         () -> assertEquals("field.numbers",
             OpenSearchTextType.of(fieldsWithNumber).convertFieldForSearchQuery("field")),
-        () -> assertEquals("field.numbers",
+        () -> assertEquals("field.words",
             OpenSearchTextType.of(fieldsWithMixed).convertFieldForSearchQuery("field"))
     );
   }
