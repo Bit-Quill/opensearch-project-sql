@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import lombok.Getter;
 import org.apache.commons.lang3.EnumUtils;
+import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.data.type.WideningTypeRule;
@@ -28,6 +29,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
    * Redefine comparison operation: class (or derived) could be compared with ExprCoreType too.
    * Used in {@link WideningTypeRule#distance(ExprType, ExprType)}.
    */
+  @Override
   public boolean equals(final Object o) {
     if (o == this) {
       return true;
@@ -45,6 +47,10 @@ public class OpenSearchDataType implements ExprType, Serializable {
     return exprCoreType.equals(other.exprCoreType);
   }
 
+  /**
+   * Redefine hash calculation to enforce comparing using {@link #equals(Object)}.
+   */
+  @Override
   public int hashCode() {
     return 42 + exprCoreType.hashCode();
   }
@@ -120,6 +126,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
    * To avoid returning `UNKNOWN` for `OpenSearch*Type`s, e.g. for IP, returns itself.
    * @return An {@link ExprType}.
    */
+  @Override
   public ExprType getExprType() {
     if (exprCoreType != ExprCoreType.UNKNOWN) {
       return exprCoreType;
@@ -292,7 +299,7 @@ public class OpenSearchDataType implements ExprType, Serializable {
   /**
    * Flattens mapping tree into a single layer list of objects (pairs of name-types actually),
    * which don't have nested types.
-   * See {@see OpenSearchDataTypeTest#traverseAndFlatten() test} for example.
+   * See <em>OpenSearchDataTypeTest::traverseAndFlatten()</em> test for example.
    * @param tree A list of `OpenSearchDataType`s - map between field name and its type.
    * @return A list of all `OpenSearchDataType`s from given map on the same nesting level (1).
    *         Nested object names are prefixed by names of their host.

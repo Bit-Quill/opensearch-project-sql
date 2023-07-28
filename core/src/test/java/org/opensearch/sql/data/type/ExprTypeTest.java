@@ -51,22 +51,6 @@ class ExprTypeTest {
   }
 
   @Test
-  public void isCompatibleTwoDirectionCheck() {
-    ExprType other = new ExprType() {
-      @Override
-      public String typeName() {
-        return null;
-      }
-
-      @Override
-      public boolean equals(Object obj) {
-        return true;
-      }
-    };
-    assertTrue(UNDEFINED.isCompatible(other));
-  }
-
-  @Test
   public void isNotCompatible() {
     assertFalse(INTEGER.isCompatible(DOUBLE));
     assertFalse(STRING.isCompatible(DOUBLE));

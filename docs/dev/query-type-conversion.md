@@ -85,7 +85,7 @@ Compiling time:
  Unresolved signature: equal(BOOL, STRING)
  Resovled signature: equal(BOOL, BOOL)
  Function builder: 1) returns equal(BOOL, cast_to_bool(STRING)) impl
-                   1) returns equal(BOOL, BOOL) impl
+                   2) returns equal(BOOL, BOOL) impl
 Runtime:
  equal impl: false.equals(cast_to_bool('FALSE'))
  cast_to_bool impl: Boolean.valueOf('FALSE')

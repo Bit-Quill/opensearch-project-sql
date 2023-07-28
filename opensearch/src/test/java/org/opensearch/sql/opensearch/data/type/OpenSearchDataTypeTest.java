@@ -42,6 +42,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.opensearch.sql.data.model.ExprDoubleValue;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 
@@ -450,12 +451,14 @@ class OpenSearchDataTypeTest {
 
   @Test
   public void getExprType() {
-    assertEquals(OpenSearchTextType.of(),
-            OpenSearchDataType.of(MappingType.Text).getExprType());
-    assertEquals(FLOAT, OpenSearchDataType.of(MappingType.Float).getExprType());
-    assertEquals(FLOAT, OpenSearchDataType.of(MappingType.HalfFloat).getExprType());
-    assertEquals(DOUBLE, OpenSearchDataType.of(MappingType.Double).getExprType());
-    assertEquals(DOUBLE, OpenSearchDataType.of(MappingType.ScaledFloat).getExprType());
-    assertEquals(TIMESTAMP, OpenSearchDataType.of(MappingType.Date).getExprType());
+    assertAll(
+        () -> assertEquals(OpenSearchTextType.of(),
+            OpenSearchDataType.of(MappingType.Text).getExprType()),
+        () -> assertEquals(FLOAT, OpenSearchDataType.of(MappingType.Float).getExprType()),
+        () -> assertEquals(FLOAT, OpenSearchDataType.of(MappingType.HalfFloat).getExprType()),
+        () -> assertEquals(DOUBLE, OpenSearchDataType.of(MappingType.Double).getExprType()),
+        () -> assertEquals(DOUBLE, OpenSearchDataType.of(MappingType.ScaledFloat).getExprType()),
+        () -> assertEquals(TIMESTAMP, OpenSearchDataType.of(MappingType.Date).getExprType())
+    );
   }
 }

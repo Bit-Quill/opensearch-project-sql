@@ -20,8 +20,8 @@ public interface ExprType {
    * Is compatible with other types.
    */
   default boolean isCompatible(ExprType other) {
-    // Do double direction check with `equals`, because a derived class may override it
-    if (this.equals(other) || other.equals(this)) {
+    other = other.getExprType();
+    if (getExprType().equals(other)) {
       return true;
     } else {
       if (other.equals(UNKNOWN)) {
@@ -77,5 +77,12 @@ public interface ExprType {
    */
   default Object convertValueForSearchQuery(ExprValue value) {
     return value.value();
+  }
+
+  /**
+   * Get a simplified type {@link ExprCoreType} if possible. Used in {@link #isCompatible}.
+   */
+  default ExprType getExprType() {
+    return this;
   }
 }
