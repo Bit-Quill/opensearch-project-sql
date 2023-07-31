@@ -29,7 +29,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.common.xcontent.XContentFactory;
-import org.opensearch.common.xcontent.XContentType;
 import org.opensearch.core.common.bytes.BytesReference;
 import org.opensearch.core.xcontent.XContentBuilder;
 import org.opensearch.search.aggregations.bucket.composite.CompositeValuesSourceBuilder;
@@ -155,7 +154,7 @@ class BucketAggregationBuilderTest {
   @SneakyThrows
   private String buildQuery(
       List<Triple<NamedExpression, SortOrder, MissingOrder>> groupByExpressions) {
-    XContentBuilder builder = XContentFactory.contentBuilder(XContentType.JSON).prettyPrint();
+    XContentBuilder builder = XContentFactory.jsonBuilder().prettyPrint();
     builder.startObject();
     CompositeValuesSourceBuilder<?> sourceBuilder =
         aggregationBuilder.build(groupByExpressions).get(0);
