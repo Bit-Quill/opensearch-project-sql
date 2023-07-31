@@ -29,14 +29,12 @@ import org.opensearch.sql.expression.function.DefaultFunctionResolver;
 import org.opensearch.sql.expression.function.FunctionName;
 
 /**
- * <pre>
- * The definition of arithmetic function
- * add, Accepts two numbers and produces a number.
- * subtract, Accepts two numbers and produces a number.
- * multiply, Accepts two numbers and produces a number.
- * divide, Accepts two numbers and produces a number.
- * module, Accepts two numbers and produces a number.
- * </pre>
+ * The definition of arithmetic function<br>
+ * add, Accepts two numbers and produces a number.<br>
+ * subtract, Accepts two numbers and produces a number.<br>
+ * multiply, Accepts two numbers and produces a number.<br>
+ * divide, Accepts two numbers and produces a number.<br>
+ * module, Accepts two numbers and produces a number.<br>
  */
 @UtilityClass
 public class ArithmeticFunction {
@@ -60,8 +58,10 @@ public class ArithmeticFunction {
   }
 
   /**
-   * Definition of add(x, y) function. Returns the number x plus number y The supported signature of
-   * add function is (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y:
+   * Definition of add(x, y) function.<br>
+   * Returns the number x plus number y The supported signature of
+   * add function is
+   * <br>(x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y:
    * BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE) -> wider type between types of x and y
    */
   private static DefaultFunctionResolver addBase(FunctionName functionName) {
@@ -184,8 +184,10 @@ public class ArithmeticFunction {
   }
 
   /**
-   * Definition of modulus(x, y) function. Returns the number x modulo by number y The supported
-   * signature of modulo function is (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y:
+   * Definition of modulus(x, y) function.<br>
+   * Returns the number x modulo by number y The supported<br>
+   * signature of modulo function is:<br>
+   * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y:
    * BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE) -> wider type between types of x and y
    */
   private static DefaultFunctionResolver modulusBase(FunctionName functionName) {
@@ -260,8 +262,10 @@ public class ArithmeticFunction {
   }
 
   /**
-   * Definition of multiply(x, y) function. Returns the number x multiplied by number y The
-   * supported signature of multiply function is (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y:
+   * Definition of multiply(x, y) function.<br>
+   * Returns the number x multiplied by number y<br>
+   * The supported signature of multiply function is:<br>
+   * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y:
    * BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE) -> wider type between types of x and y
    */
   private static DefaultFunctionResolver multiplyBase(FunctionName functionName) {
@@ -312,8 +316,10 @@ public class ArithmeticFunction {
   }
 
   /**
-   * Definition of subtract(x, y) function. Returns the number x minus number y The supported
-   * signature of subtract function is (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y:
+   * Definition of subtract(x, y) function.<br>
+   * Returns the number x minus number y
+   * <br>The supported signature of subtract function is:<br>
+   * (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y:
    * BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE) -> wider type between types of x and y
    */
   private static DefaultFunctionResolver subtractBase(FunctionName functionName) {

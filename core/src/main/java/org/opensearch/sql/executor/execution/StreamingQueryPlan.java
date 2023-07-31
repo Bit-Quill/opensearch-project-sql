@@ -72,11 +72,9 @@ public class StreamingQueryPlan extends QueryPlan {
   }
 
   /**
-   * <pre>
-   * execute task with fixed interval.
-   * if task run time < interval, trigger next task on next interval.
-   * if task run time >= interval, trigger next task immediately.
-   * </pre>
+   * execute task with fixed interval.<br>
+   * if task run time < interval, trigger next task on next interval.<br>
+   * if task run time >= interval, trigger next task immediately.<br>
    */
   @RequiredArgsConstructor
   public static class IntervalTriggerExecution implements ExecutionStrategy {
