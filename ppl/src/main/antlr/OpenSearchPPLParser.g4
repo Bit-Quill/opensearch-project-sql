@@ -271,6 +271,7 @@ logicalExpression
     | left=logicalExpression XOR right=logicalExpression            #logicalXor
     | booleanExpression                                             #booleanExpr
     | relevanceExpression                                           #relevanceExpr
+    | scoreRelevanceExpression                                      #scoreRelevanceExpr
     ;
 
 comparisonExpression
@@ -310,6 +311,14 @@ booleanExpression
 
 relevanceExpression
     : singleFieldRelevanceFunction | multiFieldRelevanceFunction
+    ;
+
+scoreRelevanceExpression
+    : scoreRelevanceFunctionName LT_PRTHS relevanceExpression (COMMA weight=relevanceFieldWeight)? RT_PRTHS
+    ;
+
+scoreRelevanceFunctionName
+    : SCORE | SCOREQUERY | SCORE_QUERY
     ;
 
 // Field is a single column

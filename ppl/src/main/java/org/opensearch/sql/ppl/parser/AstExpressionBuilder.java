@@ -35,6 +35,7 @@ import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.LogicalXor
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.MultiFieldRelevanceFunctionContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.ParentheticValueExprContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.PercentileAggFunctionContext;
+import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.ScoreRelevanceExpressionContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.SingleFieldRelevanceFunctionContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.SortFieldContext;
 import static org.opensearch.sql.ppl.antlr.parser.OpenSearchPPLParser.SpanClauseContext;
@@ -73,6 +74,7 @@ import org.opensearch.sql.ast.expression.Not;
 import org.opensearch.sql.ast.expression.Or;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.RelevanceFieldList;
+import org.opensearch.sql.ast.expression.ScoreFunction;
 import org.opensearch.sql.ast.expression.Span;
 import org.opensearch.sql.ast.expression.SpanUnit;
 import org.opensearch.sql.ast.expression.UnresolvedArgument;
@@ -458,6 +460,20 @@ public class AstExpressionBuilder extends OpenSearchPPLParserBaseVisitor<Unresol
         v.relevanceArgName().getText().toLowerCase(), new Literal(StringUtils.unquoteText(
         v.relevanceArgValue().getText()), DataType.STRING))));
     return builder.build();
+  }
+
+  /**
+   * Visit score-relevance function and collect children.
+   *
+   * @param ctx the parse tree
+   * @return children
+   */
+  public UnresolvedExpression visitScoreRelevanceExpression(ScoreRelevanceExpressionContext ctx) {
+    Literal weight =
+            ctx.weight == null
+                    ? new Literal(Double.valueOf(1.0), DataType.DOUBLE)
+                    : new Literal(Double.parseDouble(ctx.weight.getText()), DataType.DOUBLE);
+    return new ScoreFunction(visit(ctx.relevanceExpression()), weight);
   }
 
 }
