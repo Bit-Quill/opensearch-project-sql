@@ -41,10 +41,10 @@ class QueryRangeFunctionImplementationTest {
   void testValueOfAndTypeAndToString() {
     FunctionName functionName = new FunctionName("query_range");
     List<Expression> namedArgumentExpressionList
-            = List.of(DSL.namedArgument("query", DSL.literal("http_latency")),
-            DSL.namedArgument("starttime", DSL.literal(12345)),
-            DSL.namedArgument("endtime", DSL.literal(12345)),
-            DSL.namedArgument("step", DSL.literal(14)));
+        = List.of(DSL.namedArgument("query", DSL.literal("http_latency")),
+        DSL.namedArgument("starttime", DSL.literal(12345)),
+        DSL.namedArgument("endtime", DSL.literal(12345)),
+        DSL.namedArgument("step", DSL.literal(14)));
     QueryRangeFunctionImplementation queryRangeFunctionImplementation
         = new QueryRangeFunctionImplementation(functionName, namedArgumentExpressionList, client);
     UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
@@ -71,7 +71,7 @@ class QueryRangeFunctionImplementationTest {
     assertNull(prometheusMetricTable.getMetricName());
     assertNotNull(prometheusMetricTable.getPrometheusQueryRequest());
     PrometheusQueryRequest prometheusQueryRequest
-            = prometheusMetricTable.getPrometheusQueryRequest();
+        = prometheusMetricTable.getPrometheusQueryRequest();
     assertEquals("http_latency", prometheusQueryRequest.getPromQl().toString());
     assertEquals(12345, prometheusQueryRequest.getStartTime());
     assertEquals(1234, prometheusQueryRequest.getEndTime());
@@ -82,10 +82,10 @@ class QueryRangeFunctionImplementationTest {
   void testApplyArgumentsException() {
     FunctionName functionName = new FunctionName("query_range");
     List<Expression> namedArgumentExpressionList
-            = List.of(DSL.namedArgument("query", DSL.literal("http_latency")),
-            DSL.namedArgument("starttime", DSL.literal(12345)),
-            DSL.namedArgument("end_time", DSL.literal(1234)),
-            DSL.namedArgument("step", DSL.literal(14)));
+        = List.of(DSL.namedArgument("query", DSL.literal("http_latency")),
+        DSL.namedArgument("starttime", DSL.literal(12345)),
+        DSL.namedArgument("end_time", DSL.literal(1234)),
+        DSL.namedArgument("step", DSL.literal(14)));
     QueryRangeFunctionImplementation queryRangeFunctionImplementation
         = new QueryRangeFunctionImplementation(functionName, namedArgumentExpressionList, client);
     ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
