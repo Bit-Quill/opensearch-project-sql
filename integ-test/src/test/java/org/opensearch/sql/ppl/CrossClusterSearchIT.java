@@ -33,7 +33,7 @@ public class CrossClusterSearchIT extends PPLIntegTestCase {
 
   @Override
   public void init() throws IOException {
-    configureMultiClusters();
+    configureMultiClusters(REMOTE_CLUSTER);
     loadIndex(Index.BANK);
     loadIndex(Index.BANK, remoteClient());
     loadIndex(Index.DOG);
