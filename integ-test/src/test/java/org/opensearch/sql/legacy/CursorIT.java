@@ -39,6 +39,8 @@ public class CursorIT extends SQLIntegTestCase {
   @Override
   protected void init() throws Exception {
     loadIndex(Index.ACCOUNT);
+    updateClusterSettings(
+        new ClusterSetting(PERSISTENT, Settings.Key.IGNORE_UNSUPPORTED_PAGINATION.getKeyValue(), "false"));
   }
 
   /**
