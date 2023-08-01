@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 package org.opensearch.sql.expression;
 
 import static org.opensearch.sql.utils.ExpressionUtils.PATH_SEP;
@@ -22,16 +21,15 @@ import org.opensearch.sql.expression.env.Environment;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class ReferenceExpression implements Expression {
-  @Getter
-  private final String attr;
+  @Getter private final String attr;
 
-  @Getter
-  private final List<String> paths;
+  @Getter private final List<String> paths;
 
   private final ExprType type;
 
   /**
    * Constructor of ReferenceExpression.
+   *
    * @param ref the field name. e.g. addr.state/addr.
    * @param type type.
    */
@@ -63,6 +61,7 @@ public class ReferenceExpression implements Expression {
   }
 
   /**
+   * <pre>
    * Resolve the ExprValue from {@link ExprTupleValue} using paths.
    * Considering the following sample data.
    * {
@@ -89,12 +88,12 @@ public class ReferenceExpression implements Expression {
    * e.g. "address.local.state" been resolved to Missing. but "address.project.year" could been
    * resolved as 1990.
    *
-   * <p>Resolve Rule
-   * 1. Resolve the full name by combine the paths("x"."y"."z") as whole ("x.y.z").
+   * <p>Resolve Rule 1. Resolve the full name by combine the paths("x"."y"."z") as whole ("x.y.z").
    * 2. Resolve the path recursively through ExprValue.
    *
    * @param value {@link ExprTupleValue}.
    * @return {@link ExprTupleValue}.
+   * </pre>
    */
   public ExprValue resolve(ExprTupleValue value) {
     return resolve(value, paths);

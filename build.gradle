@@ -79,6 +79,28 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 
+// Spotless checks will be added as PRs are applied to resolve each style issue is approved.
+spotless {
+    java {
+        target fileTree('.') {
+            include 'core/src/main/java/org/opensearch/sql/monitor/*.java',
+                    'core/src/main/java/org/opensearch/sql/expression/*.java',
+                    'core/src/main/java/org/opensearch/sql/executor/*.java'
+                    'core/src/main/java/org/opensearch/sql/exception/*.java'
+            exclude '**/build/**', '**/build-*/**'
+        }
+//        importOrder()
+//        licenseHeader("/*\n" +
+//                " * Copyright OpenSearch Contributors\n" +
+//                " * SPDX-License-Identifier: Apache-2.0\n" +
+//                " */\n\n\n")
+//        removeUnusedImports()
+//        trimTrailingWhitespace()
+//        endWithNewline()
+        googleJavaFormat('1.17.0').reflowLongStrings().groupArtifact('com.google.googlejavaformat:google-java-format')
+    }
+}
+
 allprojects {
     version = opensearch_version.tokenize('-')[0] + '.0'
     if (buildVersionQualifier) {
