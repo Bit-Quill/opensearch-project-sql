@@ -151,13 +151,11 @@ public class MathematicalFunction {
   }
 
   /**
-   * <pre>
-   * Definition of conv(x, a, b) function.
-   * Convert number x from base a to base b
-   * The supported signature of floor function is
-   * (STRING, INTEGER, INTEGER) -> STRING
-   * (INTEGER, INTEGER, INTEGER) -> STRING
-   * </pre>
+   * Definition of conv(x, a, b) function.<br>
+   * Convert number x from base a to base b<br>
+   * The supported signature of floor function is<br>
+   * (STRING, INTEGER, INTEGER) -> STRING<br>
+   * (INTEGER, INTEGER, INTEGER) -> STRING<br>
    */
   private static DefaultFunctionResolver conv() {
     return define(
@@ -329,8 +327,9 @@ public class MathematicalFunction {
   }
 
   /**
-   * Definition of mod(x, y) function. Calculate the remainder of x divided by y The supported
-   * signature of mod function is (x: INTEGER/LONG/FLOAT/DOUBLE, y: INTEGER/LONG/FLOAT/DOUBLE) ->
+   * Definition of mod(x, y) function.<br>
+   * Calculate the remainder of x divided by y<br>
+   * The supported signature of mod function is (x: INTEGER/LONG/FLOAT/DOUBLE, y: INTEGER/LONG/FLOAT/DOUBLE) ->
    * wider type between types of x and y
    */
   private static DefaultFunctionResolver mod() {
@@ -400,15 +399,13 @@ public class MathematicalFunction {
   }
 
   /**
-   * <pre>
-   * Definition of pow(x, y)/power(x, y) function.
-   * Calculate the value of x raised to the power of y
-   * The supported signature of pow/power function is
-   * (INTEGER, INTEGER) -> DOUBLE
-   * (LONG, LONG) -> DOUBLE
-   * (FLOAT, FLOAT) -> DOUBLE
-   * (DOUBLE, DOUBLE) -> DOUBLE
-   * </pre>
+   * Definition of pow(x, y)/power(x, y) function.<br>
+   * Calculate the value of x raised to the power of y<br>
+   * The supported signature of pow/power function is<br>
+   * (INTEGER, INTEGER) -> DOUBLE<br>
+   * (LONG, LONG) -> DOUBLE<br>
+   * (FLOAT, FLOAT) -> DOUBLE<br>
+   * (DOUBLE, DOUBLE) -> DOUBLE<br>
    */
   private static DefaultFunctionResolver pow() {
     return define(BuiltinFunctionName.POW.getName(), powerFunctionImpl());
@@ -728,11 +725,12 @@ public class MathematicalFunction {
   }
 
   /**
-   * Definition of atan(x) and atan(y, x) function. atan(x) calculates the arc tangent of x, that
-   * is, the value whose tangent is x. atan(y, x) calculates the arc tangent of y / x, except that
-   * the signs of both arguments are used to determine the quadrant of the result. The supported
-   * signature of atan function is (x: INTEGER/LONG/FLOAT/DOUBLE, y: INTEGER/LONG/FLOAT/DOUBLE) ->
-   * DOUBLE
+   * Definition of atan(x) and atan(y, x) function.<br>
+   * atan(x) calculates the arc tangent of x, that is, the value whose tangent is x.<br>
+   * atan(y, x) calculates the arc tangent of y / x, except that the signs of both arguments<br>
+   * are used to determine the quadrant of the result.<br>
+   * The supported signature of atan function is<br>
+   * (x: INTEGER/LONG/FLOAT/DOUBLE, y: INTEGER/LONG/FLOAT/DOUBLE) -> DOUBLE
    */
   private static DefaultFunctionResolver atan() {
     ImmutableList.Builder<
@@ -758,9 +756,11 @@ public class MathematicalFunction {
   }
 
   /**
-   * Definition of atan2(y, x) function. Calculates the arc tangent of y / x, except that the signs
-   * of both arguments are used to determine the quadrant of the result. The supported signature of
-   * atan2 function is (x: INTEGER/LONG/FLOAT/DOUBLE, y: INTEGER/LONG/FLOAT/DOUBLE) -> DOUBLE
+   * Definition of atan2(y, x) function.<br>
+   * Calculates the arc tangent of y / x, except that the signs of both arguments<br>
+   * are used to determine the quadrant of the result.<br>
+   * The supported signature of atan2 function is<br>
+   * (x: INTEGER/LONG/FLOAT/DOUBLE, y: INTEGER/LONG/FLOAT/DOUBLE) -> DOUBLE
    */
   private static DefaultFunctionResolver atan2() {
     ImmutableList.Builder<
