@@ -112,9 +112,9 @@ public class ArithmeticFunction {
   }
 
   /**
-   * Definition of divide(x, y) function. Returns the number x divided by number y The supported
-   * signature of divide function is (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y:
-   * BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE) -> wider type between types of x and y
+   * Definition of divide(x, y) function. Returns the number x divided by number y The supported<br>
+   * signature of divide function is (x: BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE, y:<br>
+   * BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE) -> wider type between types of x and y<br>
    */
   private static DefaultFunctionResolver divideBase(FunctionName functionName) {
     return define(
