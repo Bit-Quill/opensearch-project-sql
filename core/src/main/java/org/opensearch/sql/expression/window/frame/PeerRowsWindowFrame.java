@@ -18,8 +18,8 @@ import org.opensearch.sql.expression.env.Environment;
 import org.opensearch.sql.expression.window.WindowDefinition;
 
 /**
- * Window frame that only keep peers (tuples with same value of fields specified in sort list in
- * window definition). See PeerWindowFrameTest for details about how this window frame interacts
+ * Window frame that only keep peers (tuples with same value of fields specified in sort list in<br>
+ * window definition). See PeerWindowFrameTest for details about how this window frame interacts<br>
  * with window operator and window function.
  */
 @RequiredArgsConstructor
@@ -48,7 +48,7 @@ public class PeerRowsWindowFrame implements WindowFrame {
   /**
    * Move position and clear new partition flag. Note that because all peer rows have same result
    * from window function, this is only returned at first time to change window function state.
-   * Afterwards, empty list is returned to avoid changes until next peer loaded.
+   * Afterward, empty list is returned to avoid changes until next peer loaded.
    *
    * @return all rows for the peer
    */
@@ -80,8 +80,8 @@ public class PeerRowsWindowFrame implements WindowFrame {
  *   <li>Different peer found (row with different sort key)</li>
  *   <li>Or new partition (row with different partition key)</li>
  *   <li>Or no more rows</li>
- * </ol> 
- * @param TYPE_EQUAL  rows iterator
+ * </ol>
+ * @param it rows iterator
  */
   @Override
   public void load(PeekingIterator<ExprValue> it) {
