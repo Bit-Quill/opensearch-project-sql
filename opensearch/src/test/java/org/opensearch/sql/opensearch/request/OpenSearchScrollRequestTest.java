@@ -314,22 +314,4 @@ class OpenSearchScrollRequestTest {
     request.setScrollId("test");
     assertEquals("test", request.getScrollId());
   }
-
-//  @Test
-//  void includes() {
-//
-//    assertIncludes(List.of(), searchSourceBuilder);
-//
-//    searchSourceBuilder.fetchSource((String[])null, (String[])null);
-//    assertIncludes(List.of(), searchSourceBuilder);
-//
-//    searchSourceBuilder.fetchSource(new String[] {"test"}, null);
-//    assertIncludes(List.of("test"), searchSourceBuilder);
-//
-//  }
-//
-//  void assertIncludes(List<String> expected, SearchSourceBuilder sourceBuilder) {
-//    assertEquals(expected, new OpenSearchScrollRequest(
-//        INDEX_NAME, SCROLL_TIMEOUT, sourceBuilder, factory, List.of()).getIncludes());
-//  }
 }
