@@ -374,8 +374,6 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
            typeEnv = typeEnv.getParent()) {
         Optional<ExprType> exprType = Optional.ofNullable(
             typeEnv.lookupAllFields(Namespace.HIDDEN_FIELD_NAME).get(part));
-//        Optional<ExprType> exprType = typeEnv.getReservedSymbolTable().lookup(
-//            new Symbol(Namespace.HIDDEN_FIELD_NAME, part));
         if (exprType.isPresent()) {
           return visitMetadata(
               qualifierAnalyzer.unqualified(node),
