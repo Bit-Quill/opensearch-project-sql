@@ -54,7 +54,7 @@ public class OpenSearchQueryRequest implements OpenSearchRequest {
 
 
   /**
-   * List of includes expected in the response
+   * List of includes expected in the response.
    */
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
