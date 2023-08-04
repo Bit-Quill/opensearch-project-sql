@@ -401,6 +401,8 @@ class AstBuilderTest extends AstBuilderTestBase {
   }
 
   /**
+   *
+   *
    * <pre>
    * Ensure Nested function falls back to legacy engine when used in an HAVING clause.
    * TODO Remove this test when support is added.

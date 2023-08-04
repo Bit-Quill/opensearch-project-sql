@@ -73,6 +73,8 @@ public class QuerySpecification {
   private final Set<UnresolvedExpression> aggregators = new LinkedHashSet<>();
 
   /**
+   *
+   *
    * <pre>
    * Items in GROUP BY clause that may be:
    *  1) Simple field name

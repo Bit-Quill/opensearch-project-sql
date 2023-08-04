@@ -592,6 +592,8 @@ public class AstExpressionBuilder extends OpenSearchSQLParserBaseVisitor<Unresol
   }
 
   /**
+   *
+   *
    * <pre>
    * Adds support for multi_match alternate syntax like
    * MULTI_MATCH('query'='Dale', 'fields'='*name').

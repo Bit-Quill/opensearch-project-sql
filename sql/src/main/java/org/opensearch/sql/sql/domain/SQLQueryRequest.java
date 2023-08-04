@@ -68,11 +68,14 @@ public class SQLQueryRequest {
   }
 
   /**
+   *
+   *
    * <pre>
    * Pre-check if the request can be supported by meeting ALL the following criteria:
    *  1.Only supported fields present in request body, ex. "filter" and "cursor" are not supported
    *  2.Response format is default or can be supported.
    * </pre>
+   *
    * @return true if supported.
    */
   public boolean isSupported() {
