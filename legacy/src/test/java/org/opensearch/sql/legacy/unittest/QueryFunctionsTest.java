@@ -298,6 +298,10 @@ public class QueryFunctionsTest {
         return explain(SELECT_ALL + " " + from + " " + String.join(" ", statements));
     }
 
+    private String query(String sql) {
+        return explain(sql);
+    }
+
     private Matcher<String> contains(AbstractQueryBuilder queryBuilder) {
         return containsString(Strings.toString(XContentType.JSON, queryBuilder, false, false));
     }
