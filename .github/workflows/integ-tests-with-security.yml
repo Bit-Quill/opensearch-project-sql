@@ -17,7 +17,7 @@ jobs:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
         java: [ 11, 17 ]
 
-    runs-on: ${{ matrix.entry.os }}
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v3
@@ -26,7 +26,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
-        java-version: ${{ matrix.entry.java }}
+        java-version: ${{ matrix.java }}
 
     - name: Build with Gradle
       run: ./gradlew integTestWithSecurity
@@ -36,7 +36,7 @@ jobs:
       uses: actions/upload-artifact@v2
       continue-on-error: true
       with:
-        name: test-reports-${{ matrix.entry.os }}-${{ matrix.entry.java }}
+        name: test-reports-${{ matrix.os }}-${{ matrix.java }}
         path: |
           integ-test/build/reports/**
           integ-test/build/testclusters/*/logs/*
