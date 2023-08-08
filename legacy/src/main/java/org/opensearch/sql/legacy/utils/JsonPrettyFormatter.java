@@ -8,7 +8,6 @@ package org.opensearch.sql.legacy.utils;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import java.io.IOException;
-import org.opensearch.common.Strings;
 import org.opensearch.common.xcontent.LoggingDeprecationHandler;
 import org.opensearch.common.xcontent.XContentFactory;
 import org.opensearch.common.xcontent.json.JsonXContentParser;
