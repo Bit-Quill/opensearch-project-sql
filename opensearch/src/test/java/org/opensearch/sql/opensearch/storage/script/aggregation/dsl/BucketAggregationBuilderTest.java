@@ -135,7 +135,7 @@ class BucketAggregationBuilderTest {
   }
 
   @ParameterizedTest(name = "{0}")
-  @EnumSource(value = ExprCoreType.class, names = {"TIMESTAMP", "TIME", "DATE", "DATETIME"})
+  @EnumSource(value = ExprCoreType.class, names = {"TIMESTAMP", "TIME", "DATE"})
   void terms_bucket_for_datetime_types_uses_long(ExprType dataType) {
     assertEquals(
         "{\n"

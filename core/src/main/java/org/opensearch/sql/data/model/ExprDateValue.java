@@ -58,11 +58,6 @@ public class ExprDateValue extends AbstractExprValue {
   }
 
   @Override
-  public LocalDateTime datetimeValue() {
-    return LocalDateTime.of(date, timeValue());
-  }
-
-  @Override
   public Instant timestampValue() {
     return ZonedDateTime.of(date, timeValue(), UTC_ZONE_ID).toInstant();
   }

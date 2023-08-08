@@ -25,7 +25,6 @@ import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
 import static org.opensearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static org.opensearch.sql.data.type.ExprCoreType.BYTE;
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
-import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 import static org.opensearch.sql.data.type.ExprCoreType.FLOAT;
 import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
@@ -51,7 +50,6 @@ import lombok.ToString;
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprDateValue;
-import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprTupleValue;
@@ -73,7 +71,6 @@ class OpenSearchExprValueFactoryTest {
           .put("doubleV", OpenSearchDataType.of(DOUBLE))
           .put("stringV", OpenSearchDataType.of(STRING))
           .put("dateV", OpenSearchDateType.of(DATE))
-          .put("datetimeV", OpenSearchDateType.of(DATETIME))
           .put("timeV", OpenSearchDateType.of(TIME))
           .put("timestampV", OpenSearchDateType.of(TIMESTAMP))
           .put("datetimeDefaultV", OpenSearchDateType.of())
@@ -322,12 +319,6 @@ class OpenSearchExprValueFactoryTest {
             new ExprTimestampValue("2015-01-01 12:10:30"),
             constructFromObject("timestampV", "2015-01-01 12:10:30")),
         () -> assertEquals(
-            new ExprDatetimeValue("2015-01-01 12:10:30"),
-            constructFromObject("datetimeV", "2015-01-01 12:10:30")),
-        () -> assertEquals(
-            new ExprDatetimeValue("2015-01-01 12:10:30"),
-            constructFromObject("datetimeDefaultV", "2015-01-01 12:10:30")),
-        () -> assertEquals(
             new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
             constructFromObject("dateOrEpochMillisV", "1420070400001")),
 
@@ -346,7 +337,7 @@ class OpenSearchExprValueFactoryTest {
   @Test
   public void constructDatetime_fromCustomFormat() {
     assertEquals(
-        new ExprDatetimeValue("2015-01-01 12:10:30"),
+        new ExprTimestampValue("2015-01-01 12:10:30"),
         constructFromObject("customFormatV", "2015-01-01-12-10-30"));
 
     IllegalArgumentException exception =
@@ -358,11 +349,11 @@ class OpenSearchExprValueFactoryTest {
         exception.getMessage());
 
     assertEquals(
-        new ExprDatetimeValue("2015-01-01 12:10:30"),
+        new ExprTimestampValue("2015-01-01 12:10:30"),
         constructFromObject("customAndEpochMillisV", "2015-01-01 12:10:30"));
 
     assertEquals(
-        new ExprDatetimeValue("2015-01-01 12:10:30"),
+        new ExprTimestampValue("2015-01-01 12:10:30"),
         constructFromObject("customAndEpochMillisV", "2015-01-01-12-10-30"));
   }
 
@@ -654,7 +645,7 @@ class OpenSearchExprValueFactoryTest {
   @Test
   public void constructArrayOfCustomEpochMillisReturnsFirstIndex() {
     assertEquals(
-        new ExprDatetimeValue("2015-01-01 12:10:30"),
+        new ExprTimestampValue("2015-01-01 12:10:30"),
         tupleValue("{\"customAndEpochMillisV\":[\"2015-01-01 12:10:30\",\"1999-11-09 01:09:44\"]}")
             .get("customAndEpochMillisV")
     );

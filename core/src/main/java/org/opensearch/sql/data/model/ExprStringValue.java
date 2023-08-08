@@ -35,27 +35,9 @@ public class ExprStringValue extends AbstractExprValue {
   }
 
   @Override
-  public LocalDateTime datetimeValue() {
-    try {
-      return new ExprDatetimeValue(value).datetimeValue();
-    } catch (SemanticCheckException e) {
-      try {
-        return new ExprDatetimeValue(
-                LocalDateTime.of(new ExprDateValue(value).dateValue(), LocalTime.of(0, 0, 0)))
-            .datetimeValue();
-      } catch (SemanticCheckException exception) {
-        throw new SemanticCheckException(
-            String.format(
-                "datetime:%s in unsupported format, please use 'yyyy-MM-dd HH:mm:ss[.SSSSSSSSS]'",
-                value));
-      }
-    }
-  }
-
-  @Override
   public LocalDate dateValue() {
     try {
-      return new ExprDatetimeValue(value).dateValue();
+      return new ExprTimestampValue(value).dateValue();
     } catch (SemanticCheckException e) {
       return new ExprDateValue(value).dateValue();
     }
@@ -64,7 +46,7 @@ public class ExprStringValue extends AbstractExprValue {
   @Override
   public LocalTime timeValue() {
     try {
-      return new ExprDatetimeValue(value).timeValue();
+      return new ExprTimestampValue(value).timeValue();
     } catch (SemanticCheckException e) {
       return new ExprTimeValue(value).timeValue();
     }

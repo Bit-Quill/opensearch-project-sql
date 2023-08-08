@@ -35,7 +35,6 @@ import org.opensearch.search.lookup.LeafDocLookup;
 import org.opensearch.search.lookup.LeafSearchLookup;
 import org.opensearch.search.lookup.SearchLookup;
 import org.opensearch.sql.data.model.ExprDateValue;
-import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.Expression;
@@ -116,16 +115,6 @@ class ExpressionAggregationScriptTest {
         .evaluate(
             DSL.date(ref("date", STRING)))
         .shouldMatch(new ExprDateValue(LocalDate.of(1961, 4, 12))
-            .timestampValue().toEpochMilli());
-  }
-
-  @Test
-  void can_execute_expression_interpret_datetimes_for_aggregation() {
-    assertThat()
-        .docValues("datetime", "1984-03-17 22:16:42")
-        .evaluate(
-            DSL.datetime(ref("datetime", STRING)))
-        .shouldMatch(new ExprDatetimeValue("1984-03-17 22:16:42")
             .timestampValue().toEpochMilli());
   }
 

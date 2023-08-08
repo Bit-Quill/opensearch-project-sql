@@ -6,7 +6,6 @@
 package org.opensearch.sql.planner.physical.collector;
 
 import static org.opensearch.sql.data.type.ExprCoreType.DATE;
-import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
 import static org.opensearch.sql.data.type.ExprCoreType.DOUBLE;
 import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.TIME;
@@ -24,7 +23,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.sql.data.model.ExprDateValue;
-import org.opensearch.sql.data.model.ExprDatetimeValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprValue;
@@ -48,9 +46,6 @@ public abstract class Rounding<T> {
     }
     if (DOUBLE.isCompatible(type)) {
       return new DoubleRounding(interval);
-    }
-    if (type.equals(DATETIME)) {
-      return new DatetimeRounding(interval, span.getUnit().getName());
     }
     if (type.equals(TIMESTAMP)) {
       return new TimestampRounding(interval, span.getUnit().getName());
@@ -98,9 +93,9 @@ public abstract class Rounding<T> {
       Instant instant =
           Instant.ofEpochMilli(
               dateTimeUnit.round(
-                  var.datetimeValue().atZone(UTC_ZONE_ID).toInstant().toEpochMilli(),
+                  var.timestampValue().atZone(UTC_ZONE_ID).toInstant().toEpochMilli(),
                   interval.integerValue()));
-      return new ExprDatetimeValue(instant.atZone(UTC_ZONE_ID).toLocalDateTime());
+      return new ExprTimestampValue(instant.atZone(UTC_ZONE_ID).toLocalDateTime());
     }
   }
 

@@ -7,10 +7,10 @@ package org.opensearch.sql.expression.datetime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.opensearch.sql.data.model.ExprValueUtils.nullValue;
-import static org.opensearch.sql.data.type.ExprCoreType.DATETIME;
+import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import org.junit.jupiter.api.Test;
-import org.opensearch.sql.data.model.ExprDatetimeValue;
+import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
@@ -24,7 +24,7 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.datetime(DSL.literal("2021-04-31 10:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("+00:00"));
-    assertEquals(DATETIME, expr.type());
+    assertEquals(TIMESTAMP, expr.type());
     assertEquals(nullValue(), expr.valueOf());
   }
 
@@ -35,8 +35,8 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("+10:00"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(new ExprDatetimeValue("2008-05-16 08:00:00"), expr.valueOf());
+    assertEquals(TIMESTAMP, expr.type());
+    assertEquals(new ExprTimestampValue("2008-05-16 08:00:00"), expr.valueOf());
   }
 
   @Test
@@ -46,7 +46,7 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("+16:00"));
-    assertEquals(DATETIME, expr.type());
+    assertEquals(TIMESTAMP, expr.type());
     assertEquals(nullValue(), expr.valueOf());
   }
 
@@ -57,7 +57,7 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("-16:00"));
-    assertEquals(DATETIME, expr.type());
+    assertEquals(TIMESTAMP, expr.type());
     assertEquals(nullValue(), expr.valueOf());
   }
 
@@ -68,7 +68,7 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+15:00"),
             DSL.literal("+01:00"));
-    assertEquals(DATETIME, expr.type());
+    assertEquals(TIMESTAMP, expr.type());
     assertEquals(nullValue(), expr.valueOf());
   }
 
@@ -79,7 +79,7 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("-15:00"),
             DSL.literal("+01:00"));
-    assertEquals(DATETIME, expr.type());
+    assertEquals(TIMESTAMP, expr.type());
     assertEquals(nullValue(), expr.valueOf());
   }
 
@@ -90,7 +90,7 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("-12:00"),
             DSL.literal("+15:00"));
-    assertEquals(DATETIME, expr.type());
+    assertEquals(TIMESTAMP, expr.type());
     assertEquals(nullValue(), expr.valueOf());
   }
 
@@ -101,8 +101,8 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("+14:00"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(new ExprDatetimeValue("2008-05-16 12:00:00"), expr.valueOf());
+    assertEquals(TIMESTAMP, expr.type());
+    assertEquals(new ExprTimestampValue("2008-05-16 12:00:00"), expr.valueOf());
   }
 
   @Test
@@ -112,8 +112,8 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+00:01"),
             DSL.literal("-13:59"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(new ExprDatetimeValue("2008-05-15 08:00:00"), expr.valueOf());
+    assertEquals(TIMESTAMP, expr.type());
+    assertEquals(new ExprTimestampValue("2008-05-15 08:00:00"), expr.valueOf());
   }
 
   @Test
@@ -123,7 +123,7 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+)()"),
             DSL.literal("+12:00"));
-    assertEquals(DATETIME, expr.type());
+    assertEquals(TIMESTAMP, expr.type());
     assertEquals(nullValue(), expr.valueOf());
   }
 
@@ -134,7 +134,7 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("test"));
-    assertEquals(DATETIME, expr.type());
+    assertEquals(TIMESTAMP, expr.type());
     assertEquals(nullValue(), expr.valueOf());
   }
 
@@ -142,7 +142,7 @@ class ConvertTZTest extends ExpressionTestBase {
   public void invalidInput1() {
     FunctionExpression expr =
         DSL.convert_tz(DSL.literal("test"), DSL.literal("+00:00"), DSL.literal("+00:00"));
-    assertEquals(DATETIME, expr.type());
+    assertEquals(TIMESTAMP, expr.type());
     assertEquals(nullValue(), expr.valueOf());
   }
 
@@ -153,7 +153,7 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.datetime(DSL.literal("2021-02-30 10:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("+00:00"));
-    assertEquals(DATETIME, expr.type());
+    assertEquals(TIMESTAMP, expr.type());
     assertEquals(nullValue(), expr.valueOf());
   }
 
@@ -164,7 +164,7 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.datetime(DSL.literal("2021-04-31 10:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("+00:00"));
-    assertEquals(DATETIME, expr.type());
+    assertEquals(TIMESTAMP, expr.type());
     assertEquals(nullValue(), expr.valueOf());
   }
 
@@ -175,7 +175,7 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.datetime(DSL.literal("2021-13-03 10:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("+00:00"));
-    assertEquals(DATETIME, expr.type());
+    assertEquals(TIMESTAMP, expr.type());
     assertEquals(nullValue(), expr.valueOf());
   }
 }

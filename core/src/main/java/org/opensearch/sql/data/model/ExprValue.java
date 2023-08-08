@@ -133,13 +133,9 @@ public interface ExprValue extends Serializable, Comparable<ExprValue> {
         "invalid to get dateValue from value of type " + type());
   }
 
-  /** Get datetime value. */
-  default LocalDateTime datetimeValue() {
-    throw new ExpressionEvaluationException(
-        "invalid to get datetimeValue from value of type " + type());
-  }
-
-  /** Get interval value. */
+  /**
+   * Get interval value.
+   */
   default TemporalAmount intervalValue() {
     throw new ExpressionEvaluationException(
         "invalid to get intervalValue from value of type " + type());

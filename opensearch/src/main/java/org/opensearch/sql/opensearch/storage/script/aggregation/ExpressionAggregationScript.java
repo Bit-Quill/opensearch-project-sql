@@ -56,7 +56,6 @@ public class ExpressionAggregationScript extends AggregationScript {
         // Can't get timestamp from `ExprTimeValue`
         return MILLIS.between(LocalTime.MIN, expr.timeValue());
       case DATE:
-      case DATETIME:
       case TIMESTAMP:
         return expr.timestampValue().toEpochMilli();
       default:

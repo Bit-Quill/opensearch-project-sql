@@ -357,7 +357,6 @@ public class OpenSearchDateType extends OpenSearchDataType {
     }
     switch ((ExprCoreType) exprType) {
       case TIMESTAMP:
-      case DATETIME:
       case DATE:
       case TIME:
         return true;
