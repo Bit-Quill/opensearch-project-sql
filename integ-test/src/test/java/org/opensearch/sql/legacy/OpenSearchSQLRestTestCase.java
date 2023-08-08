@@ -97,7 +97,7 @@ public abstract class OpenSearchSQLRestTestCase extends OpenSearchRestTestCase {
     if (isHttps()) {
       configureHttpsClient(builder, settings, hosts[0]);
     } else {
-      configureClient(builder, settings, hosts[0]);
+      configureClient(builder, settings);
     }
 
     builder.setStrictDeprecationMode(false);
@@ -201,7 +201,8 @@ public abstract class OpenSearchSQLRestTestCase extends OpenSearchRestTestCase {
     }
   }
 
-  protected static void configureClient(RestClientBuilder builder, Settings settings, HttpHost httpHost) throws IOException {
+  protected static void configureClient(RestClientBuilder builder, Settings settings)
+      throws IOException {
     String userName = System.getProperty("user");
     String password = System.getProperty("password");
     if (userName != null && password != null) {
@@ -213,7 +214,7 @@ public abstract class OpenSearchSQLRestTestCase extends OpenSearchRestTestCase {
         return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
       });
     }
-    configureClient(builder, settings);
+    OpenSearchRestTestCase.configureClient(builder, settings);
   }
 
   protected static void configureHttpsClient(RestClientBuilder builder, Settings settings,
