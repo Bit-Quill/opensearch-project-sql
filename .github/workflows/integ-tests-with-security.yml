@@ -6,7 +6,7 @@ on:
     branches-ignore:
       - 'dependabot/**'
     paths:
-      - 'integ-test/**
+      - 'integ-test/**'
       - '.github/workflows/integ-tests-with-security.yml'
 
 jobs:
