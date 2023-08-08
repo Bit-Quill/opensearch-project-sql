@@ -109,7 +109,7 @@ public class RestQuerySettingsAction extends BaseRestHandler {
       XContentBuilder builder = XContentFactory.jsonBuilder();
       builder.map(source);
       Settings.Builder settingsBuilder = Settings.builder()
-          .loadFromSource(Strings.toString(builder), builder.contentType());
+          .loadFromSource(builder.toString(), builder.contentType());
       settingsBuilder.keys().removeIf(key -> {
         for (String prefix : SETTINGS_PREFIX) {
           if (key.startsWith(prefix)) {
