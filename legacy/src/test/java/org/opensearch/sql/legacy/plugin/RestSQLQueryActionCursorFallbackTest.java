@@ -24,7 +24,6 @@ import org.opensearch.common.inject.Injector;
 import org.opensearch.common.inject.ModulesBuilder;
 import org.opensearch.common.util.concurrent.ThreadContext;
 import org.opensearch.common.xcontent.XContentFactory;
-import org.opensearch.core.common.Strings;
 import org.opensearch.rest.BaseRestHandler;
 import org.opensearch.rest.RestChannel;
 import org.opensearch.rest.RestRequest;
@@ -93,7 +92,7 @@ public class RestSQLQueryActionCursorFallbackTest extends BaseRestHandler {
       builder.field("fetch_size").value(fetchSize.get());
     }
     builder.endObject();
-    JSONObject jsonContent = new JSONObject(Strings.toString(builder));
+    JSONObject jsonContent = new JSONObject(builder.toString());
 
     return  new SQLQueryRequest(jsonContent, query, QUERY_API_ENDPOINT,
         Map.of("format", "jdbc"), cursorId.orElse(""));
