@@ -15,8 +15,10 @@ import static org.opensearch.sql.util.MatcherUtils.verifyColumn;
 import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
 
 import java.io.IOException;
+import lombok.SneakyThrows;
 import org.json.JSONObject;
 import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 import org.opensearch.client.ResponseException;
@@ -31,8 +33,19 @@ public class CrossClusterSearchIT extends PPLIntegTestCase {
   private final static String TEST_INDEX_DOG_MATCH_ALL_REMOTE = MATCH_ALL_REMOTE_CLUSTER + ":" + TEST_INDEX_DOG;
   private final static String TEST_INDEX_ACCOUNT_REMOTE = REMOTE_CLUSTER + ":" + TEST_INDEX_ACCOUNT;
 
+  private static boolean initialized = false;
+
+  @SneakyThrows
+  @BeforeEach
+  public void initialize() {
+    if (!initialized) {
+      setUpIndices();
+      initialized = true;
+    }
+  }
+
   @Override
-  public void init() throws IOException {
+  protected void init() throws Exception {
     configureMultiClusters();
     loadIndex(Index.BANK);
     loadIndex(Index.BANK, remoteClient());

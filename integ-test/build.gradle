@@ -25,8 +25,11 @@
 import org.opensearch.gradle.test.RestIntegTestTask
 import org.opensearch.gradle.testclusters.StandaloneRestIntegTestTask
 
+import java.nio.file.Paths
+import java.time.LocalDateTime
 import java.util.concurrent.Callable
 import java.util.stream.Collectors
+import groovy.xml.XmlParser
 
 plugins {
     id "de.undercouch.download" version "5.3.0"
@@ -57,6 +60,21 @@ ext {
     projectSubstitutions = [:]
     licenseFile = rootProject.file('LICENSE.TXT')
     noticeFile = rootProject.file('NOTICE')
+
+    getSecurityPluginDownloadLink = { ->
+        var repo = "https://aws.oss.sonatype.org/content/repositories/snapshots/org/opensearch/plugin/" +
+                   "opensearch-security/$opensearch_build/"
+        var metadataFile = Paths.get(projectDir.toString(), "build", "maven-metadata.xml").toAbsolutePath().toFile()
+        download.run {
+            src repo + "maven-metadata.xml"
+            dest metadataFile
+        }
+        def metadata = new XmlParser().parse(metadataFile)
+        def snapshotVersion = metadata.versioning.snapshotVersions[0].snapshotVersion[0].value[0].text()
+
+        return repo + "opensearch-security-${snapshotVersion}.zip"
+        //return "https://aws.oss.sonatype.org/content/repositories/snapshots/org/opensearch/plugin/opensearch-security/3.0.0.0-SNAPSHOT/opensearch-security-3.0.0.0-20230801.181212-166.zip"
+    }
 }
 
 tasks.withType(licenseHeaders.class) {
@@ -94,6 +112,7 @@ dependencies {
     testImplementation group: 'org.opensearch.client', name: 'opensearch-rest-client', version: "${opensearch_version}"
     testImplementation group: 'org.opensearch.driver', name: 'opensearch-sql-jdbc', version: System.getProperty("jdbcDriverVersion", '1.2.0.0')
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.1'
+    //testImplementation group: 'org.hamcrest', name: 'hamcrest-core', version: '2.1'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.20.0'
     testImplementation project(':opensearch-sql-plugin')
     testImplementation project(':legacy')
@@ -103,6 +122,7 @@ dependencies {
     testImplementation group: 'com.h2database', name: 'h2', version: '2.2.220'
     testImplementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.41.2.2'
     testImplementation group: 'com.google.code.gson', name: 'gson', version: '2.8.9'
+    testCompileOnly 'org.apiguardian:apiguardian-api:1.1.2'
 
     // Needed for BWC tests
     zipArchive group: 'org.opensearch.plugin', name:'opensearch-sql-plugin', version: "${bwcVersion}-SNAPSHOT"
@@ -136,9 +156,66 @@ testClusters.integTest {
     setting "plugins.query.datasources.encryption.masterkey", "1234567812345678"
 }
 
+boolean securityPluginDownloaded = false
+
 testClusters {
     remoteCluster {
         plugin ":opensearch-sql-plugin"
+    }
+    integTestWithSecurity { // OpenSearchCluster
+
+        getNodes().forEach { node ->
+            node.getCredentials().add(Map.of('useradd', 'admin', '-p', 'admin'))
+        }
+
+        var projectAbsPath = projectDir.getAbsolutePath()
+        // Config below including files are copied from security demo configuration
+        ['esnode.pem', 'esnode-key.pem', 'root-ca.pem'].forEach { file ->
+            extraConfigFile file, Paths.get(projectAbsPath, 'rc', file).toFile()
+        }
+        setting 'plugins.security.ssl.transport.pemcert_filepath', 'esnode.pem'
+        setting 'plugins.security.ssl.transport.pemkey_filepath', 'esnode-key.pem'
+        setting 'plugins.security.ssl.transport.pemtrustedcas_filepath', 'root-ca.pem'
+        setting 'plugins.security.ssl.transport.enforce_hostname_verification', 'false'
+        // https is disabled, because `OpenSearchCluster` is hardcoded to validate cluster health by http
+        // refer how IT framework implemented in security plugin and reuse/copy to activate https
+        setting 'plugins.security.ssl.http.enabled', 'false'
+        setting 'plugins.security.ssl.http.pemcert_filepath', 'esnode.pem'
+        setting 'plugins.security.ssl.http.pemkey_filepath', 'esnode-key.pem'
+        setting 'plugins.security.ssl.http.pemtrustedcas_filepath', 'root-ca.pem'
+        setting 'plugins.security.allow_unsafe_democertificates', 'true'
+
+        setting 'plugins.security.allow_default_init_securityindex', 'true'
+        setting 'plugins.security.authcz.admin_dn', 'CN=admin,OU=SSL,O=Test,L=Test,C=DE'//'CN=kirk,OU=client,O=client,L=test, C=de'
+        setting 'plugins.security.audit.type', 'internal_opensearch'
+        setting 'plugins.security.enable_snapshot_restore_privilege', 'true'
+        setting 'plugins.security.check_snapshot_restore_write_privileges', 'true'
+        setting 'plugins.security.restapi.roles_enabled', '["all_access", "security_rest_api_access"]'
+        setting 'plugins.security.system_indices.enabled', 'true'
+
+        plugin ":opensearch-sql-plugin"
+        plugin provider(new Callable<RegularFile>(){
+
+            @Override
+            RegularFile call() throws Exception {
+                return new RegularFile() {
+
+                    @Override
+                    File getAsFile() {
+                        var target = Paths.get(projectAbsPath, 'bin', 'opensearch-security-snapshot.zip').toFile()
+                        // add a check to avoid re-downloading multiple times during single test run
+                        if (!securityPluginDownloaded) {
+                            download.run {
+                                src getSecurityPluginDownloadLink()
+                                dest target
+                            }
+                            securityPluginDownloaded = true
+                        }
+                        return target
+                    }
+                }
+            }
+        })
     }
 }
 
@@ -215,6 +292,57 @@ task integJdbcTest(type: RestIntegTestTask) {
 
     filter {
         includeTestsMatching 'org.opensearch.sql.jdbc.*'
+    }
+}
+
+task integTestWithSecurity(type: RestIntegTestTask) {
+    useCluster testClusters.integTestWithSecurity
+
+    useJUnitPlatform()
+    dependsOn ':opensearch-sql-plugin:bundlePlugin'
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+    afterTest { desc, result ->
+        logger.quiet "${desc.className}.${desc.name}: ${result.resultType} ${(result.getEndTime() - result.getStartTime())/1000}s"
+    }
+
+    systemProperty 'tests.security.manager', 'false'
+    systemProperty 'project.root', project.projectDir.absolutePath
+
+    // Set default query size limit
+    systemProperty 'defaultQuerySizeLimit', '10000'
+
+    // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
+    // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
+    doFirst {
+        systemProperty 'cluster.debug', getDebug()
+        getClusters().forEach { cluster ->
+            String allTransportSocketURI = cluster.nodes.stream().flatMap { node ->
+                node.getAllTransportPortURI().stream()
+            }.collect(Collectors.joining(","))
+            String allHttpSocketURI = cluster.nodes.stream().flatMap { node ->
+                node.getAllHttpSocketURI().stream()
+            }.collect(Collectors.joining(","))
+
+            systemProperty "tests.rest.${cluster.name}.http_hosts", "${-> allHttpSocketURI}"
+            systemProperty "tests.rest.${cluster.name}.transport_hosts", "${-> allTransportSocketURI}"
+            systemProperty "tests.rest.remoteCluster.http_hosts", "${-> allHttpSocketURI}"
+            systemProperty "tests.rest.remoteCluster.transport_hosts", "${-> allTransportSocketURI}"
+
+            systemProperty "https", "false"
+            systemProperty "user", "admin"
+            systemProperty "password", "admin"
+        }
+    }
+
+    if (System.getProperty("test.debug") != null) {
+        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
+    }
+
+    // NOTE: this IT config discovers only junit5 (jupiter) tests.
+    filter {
+        includeTestsMatching 'org.opensearch.sql.ppl.CrossClusterSearchIT'
     }
 }
 
