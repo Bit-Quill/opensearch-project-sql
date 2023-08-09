@@ -177,6 +177,7 @@ public class DateTimeFunction {
     repository.register(current_timestamp());
     repository.register(date());
     repository.register(datediff());
+    repository.register(datetime());
     repository.register(date_add());
     repository.register(date_format());
     repository.register(date_sub());
@@ -497,6 +498,21 @@ public class DateTimeFunction {
         BuiltinFunctionName.DATETIME.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprDateTime), TIMESTAMP, STRING, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprDateTimeNoTimezone), TIMESTAMP, STRING));
+  }
+
+  /**
+   * Specify a datetime with time zone field and a time zone to convert to.
+   * Returns a local date time.
+   * (STRING, STRING) -> TIMESTAMP
+   * (STRING) -> TIMESTAMP
+   */
+  private FunctionResolver datetime() {
+    return define(BuiltinFunctionName.DATETIME.getName(),
+            impl(nullMissingHandling(DateTimeFunction::exprDateTime),
+                    TIMESTAMP, STRING, STRING),
+            impl(nullMissingHandling(DateTimeFunction::exprDateTimeNoTimezone),
+                    TIMESTAMP, STRING)
+    );
   }
 
   private DefaultFunctionResolver date_add() {

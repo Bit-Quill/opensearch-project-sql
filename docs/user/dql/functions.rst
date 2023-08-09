@@ -4400,9 +4400,9 @@ Example::
 
     os> select typeof(DATE('2008-04-14')) as `typeof(date)`, typeof(1) as `typeof(int)`, typeof(now()) as `typeof(now())`, typeof(accounts) as `typeof(column)` from people
     fetched rows / total rows = 1/1
-    +----------------+---------------+------------------+------------------+
-    | typeof(date)   | typeof(int)   | typeof(now())    | typeof(column)   |
-    |----------------+---------------+------------------+------------------|
-    | DATE           | INTEGER       | TIMESTAMP        | OBJECT           |
-    +----------------+---------------+------------------+------------------+
+    +----------------+---------------+-----------------+------------------+
+    | typeof(date)   | typeof(int)   | typeof(now())   | typeof(column)   |
+    |----------------+---------------+-----------------+------------------|
+    | DATE           | INTEGER       | TIMESTAMP       | OBJECT           |
+    +----------------+---------------+-----------------+------------------+
 
