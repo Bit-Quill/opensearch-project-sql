@@ -136,7 +136,7 @@ public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
           new ExprTimestampValue(
                   Instant.ofEpochMilli(
                       DSL.divide(DSL.literal(total), DSL.literal(count)).valueOf().longValue()))
-              .datetimeValue());
+              .timestampValue());
     }
 
     @Override

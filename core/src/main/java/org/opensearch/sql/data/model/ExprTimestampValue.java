@@ -80,10 +80,6 @@ public class ExprTimestampValue extends AbstractExprValue {
     return timestamp.atZone(UTC_ZONE_ID).toLocalTime();
   }
 
-  public LocalDateTime datetimeValue() {
-    return timestamp.atZone(UTC_ZONE_ID).toLocalDateTime();
-  }
-
   @Override
   public boolean isDateTime() {
     return true;

@@ -57,10 +57,6 @@ public class ExprTimeValue extends AbstractExprValue {
     return LocalDate.now(functionProperties.getQueryStartClock());
   }
 
-  public LocalDateTime datetimeValue(FunctionProperties functionProperties) {
-    return LocalDateTime.of(dateValue(functionProperties), timeValue());
-  }
-
   public Instant timestampValue(FunctionProperties functionProperties) {
     return ZonedDateTime.of(dateValue(functionProperties), timeValue(), UTC_ZONE_ID).toInstant();
   }

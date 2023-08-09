@@ -342,10 +342,6 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.DATE, expressions);
   }
 
-  public static FunctionExpression datetime(Expression... expressions) {
-    return compile(FunctionProperties.None, BuiltinFunctionName.DATETIME, expressions);
-  }
-
   public static FunctionExpression date_add(Expression... expressions) {
     return compile(FunctionProperties.None, BuiltinFunctionName.DATE_ADD, expressions);
   }
@@ -817,10 +813,6 @@ public class DSL {
 
   public static FunctionExpression castTimestamp(Expression value) {
     return compile(FunctionProperties.None, BuiltinFunctionName.CAST_TO_TIMESTAMP, value);
-  }
-
-  public static FunctionExpression castDatetime(Expression value) {
-    return compile(FunctionProperties.None, BuiltinFunctionName.CAST_TO_DATETIME, value);
   }
 
   public static FunctionExpression typeof(Expression value) {

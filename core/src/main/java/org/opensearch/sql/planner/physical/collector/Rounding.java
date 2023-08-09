@@ -79,25 +79,6 @@ public abstract class Rounding<T> {
     }
   }
 
-  static class DatetimeRounding extends Rounding<LocalDateTime> {
-    private final ExprValue interval;
-    private final DateTimeUnit dateTimeUnit;
-
-    public DatetimeRounding(ExprValue interval, String unit) {
-      this.interval = interval;
-      this.dateTimeUnit = DateTimeUnit.resolve(unit);
-    }
-
-    @Override
-    public ExprValue round(ExprValue var) {
-      Instant instant =
-          Instant.ofEpochMilli(
-              dateTimeUnit.round(
-                  var.timestampValue().atZone(UTC_ZONE_ID).toInstant().toEpochMilli(),
-                  interval.integerValue()));
-      return new ExprTimestampValue(instant.atZone(UTC_ZONE_ID).toLocalDateTime());
-    }
-  }
 
   static class DateRounding extends Rounding<LocalDate> {
     private final ExprValue interval;
