@@ -70,7 +70,7 @@ ext {
             dest metadataFile
         }
         def metadata = new XmlParser().parse(metadataFile)
-        def snapshotVersion = metadata.versioning.snapshotVersions[0].snapshotVersion[0].value[0].text()
+        def securitySnapshotVersion = metadata.versioning.snapshotVersions[0].snapshotVersion[0].value[0].text()
 
         return repo + "opensearch-security-${snapshotVersion}.zip"
     }
