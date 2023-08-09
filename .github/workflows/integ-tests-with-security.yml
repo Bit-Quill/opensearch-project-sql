@@ -1,4 +1,4 @@
-name: Extra IT with security
+name: Security Plugin IT
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ on:
       - '.github/workflows/integ-tests-with-security.yml'
 
 jobs:
-  extra-it:
+  security-it:
     strategy:
       fail-fast: false
       matrix:
