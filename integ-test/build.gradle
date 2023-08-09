@@ -154,7 +154,7 @@ testClusters.integTest {
     setting "plugins.query.datasources.encryption.masterkey", "1234567812345678"
 }
 
-boolean securityPluginDownloaded = false
+File downloadedSecurityPlugin = null
 
 testClusters {
     remoteCluster {
@@ -167,9 +167,25 @@ testClusters {
         }
 
         var projectAbsPath = projectDir.getAbsolutePath()
+
+        // add a check to avoid re-downloading multiple times during single test run
+        if (downloadedSecurityPlugin == null) {
+            downloadedSecurityPlugin = Paths.get(projectAbsPath, 'bin', 'opensearch-security-snapshot.zip').toFile()
+            download.run {
+                src getSecurityPluginDownloadLink()
+                dest downloadedSecurityPlugin
+            }
+        }
+
         // Config below including files are copied from security demo configuration
         ['esnode.pem', 'esnode-key.pem', 'root-ca.pem'].forEach { file ->
-            extraConfigFile file, Paths.get(projectAbsPath, 'rc', file).toFile()
+            File local = Paths.get(projectAbsPath, 'bin', file).toFile()
+            download.run {
+                src "https://raw.githubusercontent.com/opensearch-project/security/main/bwc-test/src/test/resources/security/" + file
+                dest local
+                overwrite false
+            }
+            extraConfigFile file, local
         }
         setting 'plugins.security.ssl.transport.pemcert_filepath', 'esnode.pem'
         setting 'plugins.security.ssl.transport.pemkey_filepath', 'esnode-key.pem'
@@ -192,28 +208,7 @@ testClusters {
         setting 'plugins.security.system_indices.enabled', 'true'
 
         plugin ":opensearch-sql-plugin"
-        plugin provider(new Callable<RegularFile>(){
-
-            @Override
-            RegularFile call() throws Exception {
-                return new RegularFile() {
-
-                    @Override
-                    File getAsFile() {
-                        var target = Paths.get(projectAbsPath, 'bin', 'opensearch-security-snapshot.zip').toFile()
-                        // add a check to avoid re-downloading multiple times during single test run
-                        if (!securityPluginDownloaded) {
-                            download.run {
-                                src getSecurityPluginDownloadLink()
-                                dest target
-                            }
-                            securityPluginDownloaded = true
-                        }
-                        return target
-                    }
-                }
-            }
-        })
+        plugin provider((Callable<RegularFile>) (() -> (RegularFile) (() -> downloadedSecurityPlugin)))
     }
 }
 
