@@ -1457,6 +1457,101 @@ Example::
     +----------------------+------------------------------------------+-------------------------------+----------------------------+
 
 
+DATETIME
+--------
+
+Description
+>>>>>>>>>>>
+
+Usage: datetime(timestamp)/ datetime(timestamp, to_timezone) Converts the timestamp to a new timezone
+
+Argument type: TIMESTAMP/STRING
+
+Return type map:
+
+(TIMESTAMP, STRING) -> TIMESTAMP
+
+(TIMESTAMP) -> TIMESTAMP
+
+Example::
+
+    os> SELECT DATETIME('2008-12-25 05:30:00+00:00', 'America/Los_Angeles')
+    fetched rows / total rows = 1/1
+    +----------------------------------------------------------------+
+    | DATETIME('2008-12-25 05:30:00+00:00', 'America/Los_Angeles')   |
+    |----------------------------------------------------------------|
+    | 2008-12-24 21:30:00                                            |
+    +----------------------------------------------------------------+
+
+This example converts from -10:00 timezone to +10:00 timezone.
+Example::
+
+    os> SELECT DATETIME('2004-02-28 23:00:00-10:00', '+10:00')
+    fetched rows / total rows = 1/1
+    +---------------------------------------------------+
+    | DATETIME('2004-02-28 23:00:00-10:00', '+10:00')   |
+    |---------------------------------------------------|
+    | 2004-02-29 19:00:00                               |
+    +---------------------------------------------------+
+
+This example uses the timezone -14:00, which is outside of the range -13:59 and +14:00. This results in a null value.
+Example::
+
+    os> SELECT DATETIME('2008-01-01 02:00:00', '-14:00')
+    fetched rows / total rows = 1/1
+    +---------------------------------------------+
+    | DATETIME('2008-01-01 02:00:00', '-14:00')   |
+    |---------------------------------------------|
+    | null                                        |
+    +---------------------------------------------+
+
+February 30th is not a day, so it returns null.
+Example::
+
+    os> SELECT DATETIME('2008-02-30 02:00:00', '-00:00')
+    fetched rows / total rows = 1/1
+    +---------------------------------------------+
+    | DATETIME('2008-02-30 02:00:00', '-00:00')   |
+    |---------------------------------------------|
+    | null                                        |
+    +---------------------------------------------+
+
+DATETIME(datetime) examples
+
+DATETIME with no timezone specified does no conversion.
+Example::
+
+    os> SELECT DATETIME('2008-02-10 02:00:00')
+    fetched rows / total rows = 1/1
+    +-----------------------------------+
+    | DATETIME('2008-02-10 02:00:00')   |
+    |-----------------------------------|
+    | 2008-02-10 02:00:00               |
+    +-----------------------------------+
+
+February 30th is not a day, so it returns null.
+Example::
+
+    os> SELECT DATETIME('2008-02-30 02:00:00')
+    fetched rows / total rows = 1/1
+    +-----------------------------------+
+    | DATETIME('2008-02-30 02:00:00')   |
+    |-----------------------------------|
+    | null                              |
+    +-----------------------------------+
+
+DATETIME with a datetime and no seperate timezone to convert to returns the datetime object without a timezone.
+Example::
+
+    os> SELECT DATETIME('2008-02-10 02:00:00+04:00')
+    fetched rows / total rows = 1/1
+    +-----------------------------------------+
+    | DATETIME('2008-02-10 02:00:00+04:00')   |
+    |-----------------------------------------|
+    | 2008-02-10 02:00:00                     |
+    +-----------------------------------------+
+
+
 DATE_ADD
 --------
 

@@ -516,6 +516,47 @@ Example::
     +------------------------------------------------------+-----------------------------------------------------------------------+
 
 
+DATETIME
+--------
+
+Description
+>>>>>>>>>>>
+
+Usage: DATETIME(timestamp)/ DATETIME(date, to_timezone) Converts the datetime to a new timezone
+
+Argument type: timestamp/STRING
+
+Return type map:
+
+(TIMESTAMP, STRING) -> TIMESTAMP
+
+(TIMESTAMP) -> TIMESTAMP
+
+
+Converting timestamp with timezone to the second argument timezone.
+Example::
+
+    os> source=people | eval `DATETIME('2004-02-28 23:00:00-10:00', '+10:00')` = DATETIME('2004-02-28 23:00:00-10:00', '+10:00') | fields `DATETIME('2004-02-28 23:00:00-10:00', '+10:00')`
+    fetched rows / total rows = 1/1
+    +---------------------------------------------------+
+    | DATETIME('2004-02-28 23:00:00-10:00', '+10:00')   |
+    |---------------------------------------------------|
+    | 2004-02-29 19:00:00                               |
+    +---------------------------------------------------+
+
+
+The valid timezone range for convert_tz is (-13:59, +14:00) inclusive. Timezones outside of the range will result in null.
+Example::
+
+    os> source=people | eval  `DATETIME('2008-01-01 02:00:00', '-14:00')` = DATETIME('2008-01-01 02:00:00', '-14:00') | fields `DATETIME('2008-01-01 02:00:00', '-14:00')`
+    fetched rows / total rows = 1/1
+    +---------------------------------------------+
+    | DATETIME('2008-01-01 02:00:00', '-14:00')   |
+    |---------------------------------------------|
+    | null                                        |
+    +---------------------------------------------+
+
+
 DATE_SUB
 --------
 
@@ -899,7 +940,7 @@ Description
 
 Usage: Returns a string value containing string format specifiers based on the input arguments.
 
-Argument type: TYPE, STRING, where TYPE must be one of the following tokens: [DATE, TIME, TIMESTAMP, TIMESTAMP], and
+Argument type: TYPE, STRING, where TYPE must be one of the following tokens: [DATE, TIME, TIMESTAMP], and
 STRING must be one of the following tokens: ["USA", "JIS", "ISO", "EUR", "INTERNAL"] (" can be replaced by ').
 
 Examples::
@@ -1854,7 +1895,7 @@ Description
 >>>>>>>>>>>
 
 Usage: Converts given argument to Unix time (seconds since Epoch - very beginning of year 1970). If no argument given, it returns the current Unix time.
-The date argument may be a DATE, TIMESTAMP, or TIMESTAMP string, or a number in YYMMDD, YYMMDDhhmmss, YYYYMMDD, or YYYYMMDDhhmmss format. If the argument includes a time part, it may optionally include a fractional seconds part.
+The date argument may be a DATE, or TIMESTAMP string, or a number in YYMMDD, YYMMDDhhmmss, YYYYMMDD, or YYYYMMDDhhmmss format. If the argument includes a time part, it may optionally include a fractional seconds part.
 If argument is in invalid format or outside of range 1970-01-01 00:00:00 - 3001-01-18 23:59:59.999999 (0 to 32536771199.999999 epoch time), function returns NULL.
 You can use `FROM_UNIXTIME`_ to do reverse conversion.
 

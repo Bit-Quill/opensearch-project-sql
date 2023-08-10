@@ -111,11 +111,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         schema("adddate(timestamp('2020-09-16 17:30:00'), interval 1 day)", null, "timestamp"));
     verifyDataRows(result, rows("2020-09-17 17:30:00"));
 
-    result = executeQuery("select adddate(TIMESTAMP('2020-09-16 17:30:00'), interval 1 day)");
-    verifySchema(result,
-        schema("adddate(TIMESTAMP('2020-09-16 17:30:00'), interval 1 day)", null, "timestamp"));
-    verifyDataRows(result, rows("2020-09-17 17:30:00"));
-
     result = executeQuery("select adddate(date('2020-09-16'), interval 1 day)");
     verifySchema(result,
         schema("adddate(date('2020-09-16'), interval 1 day)", null, "timestamp"));
@@ -450,11 +445,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Test
   public void testHourOfDayWithUnderscores() throws IOException {
     JSONObject result = executeQuery("select hour_of_day(timestamp('2020-09-16 17:30:00'))");
-    verifySchema(result, schema(
-        "hour_of_day(timestamp('2020-09-16 17:30:00'))", null, "integer"));
-    verifyDataRows(result, rows(17));
-
-    result = executeQuery("select hour_of_day(timestamp('2020-09-16 17:30:00'))");
     verifySchema(result, schema(
         "hour_of_day(timestamp('2020-09-16 17:30:00'))", null, "integer"));
     verifyDataRows(result, rows(17));
