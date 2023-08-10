@@ -125,28 +125,6 @@ public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
     }
   }
 
-  protected static class DateTimeAvgState extends AvgState {
-    @Override
-    public ExprValue result() {
-      if (0 == count.integerValue()) {
-        return ExprNullValue.of();
-      }
-
-      return new ExprTimestampValue(
-          new ExprTimestampValue(
-                  Instant.ofEpochMilli(
-                      DSL.divide(DSL.literal(total), DSL.literal(count)).valueOf().longValue()))
-              .timestampValue());
-    }
-
-    @Override
-    protected AvgState iterate(ExprValue value) {
-      total =
-          DSL.add(DSL.literal(total), DSL.literal(value.timestampValue().toEpochMilli())).valueOf();
-      return super.iterate(value);
-    }
-  }
-
   protected static class TimestampAvgState extends AvgState {
     @Override
     public ExprValue result() {

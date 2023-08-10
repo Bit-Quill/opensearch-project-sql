@@ -5,6 +5,8 @@
 
 package org.opensearch.sql.expression.datetime;
 
+import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
+
 import com.google.common.collect.ImmutableMap;
 import java.text.ParsePosition;
 import java.time.Clock;
@@ -26,8 +28,6 @@ import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.expression.function.FunctionProperties;
-
-import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
 
 /**
  * This class converts a SQL style DATE_FORMAT format specifier and converts it to a Java

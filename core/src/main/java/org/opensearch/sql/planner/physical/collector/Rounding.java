@@ -14,7 +14,6 @@ import static org.opensearch.sql.utils.DateTimeUtils.UTC_ZONE_ID;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoField;
 import java.util.Arrays;
@@ -78,7 +77,6 @@ public abstract class Rounding<T> {
       return new ExprTimestampValue(instant);
     }
   }
-
 
   static class DateRounding extends Rounding<LocalDate> {
     private final ExprValue interval;

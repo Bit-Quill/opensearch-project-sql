@@ -346,7 +346,6 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.DATETIME, expressions);
   }
 
-
   public static FunctionExpression date_add(Expression... expressions) {
     return compile(FunctionProperties.None, BuiltinFunctionName.DATE_ADD, expressions);
   }

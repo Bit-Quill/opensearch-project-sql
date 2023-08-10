@@ -129,7 +129,6 @@ public class ExprValueUtilsTest {
             ImmutableMap.of("1", integerValue(1)),
             LocalDate.parse("2012-08-07"),
             LocalTime.parse("18:00:00"),
-            LocalDateTime.parse("2012-08-07T18:00:00"),
             ZonedDateTime.of(LocalDateTime.parse("2012-08-07T18:00:00"), UTC_ZONE_ID).toInstant(),
             Duration.ofSeconds(100));
     Stream.Builder<Arguments> builder = Stream.builder();

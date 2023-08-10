@@ -352,8 +352,7 @@ public class DateTimeFunction {
     return Stream.of(
         implWithProperties(nullMissingHandlingWithProperties(function), DATE, DATE, LONG),
         implWithProperties(nullMissingHandlingWithProperties(function), TIMESTAMP, TIMESTAMP, LONG),
-        implWithProperties(nullMissingHandlingWithProperties(function), TIMESTAMP, TIME, LONG)
-    );
+        implWithProperties(nullMissingHandlingWithProperties(function), TIMESTAMP, TIME, LONG));
   }
 
   private DefaultFunctionResolver adddate() {
@@ -383,11 +382,20 @@ public class DateTimeFunction {
         implWithProperties(
             nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime), TIME, TIME, DATE),
         implWithProperties(
-            nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime), TIME, TIME, TIMESTAMP),
+            nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            TIME,
+            TIME,
+            TIMESTAMP),
         implWithProperties(
-            nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime), TIMESTAMP, DATE, TIME),
+            nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            TIMESTAMP,
+            DATE,
+            TIME),
         implWithProperties(
-            nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime), TIMESTAMP, DATE, DATE),
+            nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
+            TIMESTAMP,
+            DATE,
+            DATE),
         implWithProperties(
             nullMissingHandlingWithProperties(DateTimeFunction::exprAddTime),
             TIMESTAMP,
@@ -446,8 +454,8 @@ public class DateTimeFunction {
   }
 
   /**
-   * Calculates the difference of date part of given values.
-   * (DATE/TIMESTAMP/TIME, DATE/TIMESTAMP/TIME) -> LONG
+   * Calculates the difference of date part of given values. (DATE/TIMESTAMP/TIME,
+   * DATE/TIMESTAMP/TIME) -> LONG
    */
   private DefaultFunctionResolver datediff() {
     return define(
@@ -488,31 +496,14 @@ public class DateTimeFunction {
   }
 
   /**
-   * Specify a datetime with time zone field and a time zone to convert to.<br>
-   * Returns a local date time.<br>
-   * (STRING, STRING) -> DATETIME<br>
-   * (STRING) -> DATETIME
+   * Specify a datetime with time zone field and a time zone to convert to. Returns a local date
+   * time. (STRING, STRING) -> TIMESTAMP (STRING) -> TIMESTAMP
    */
   private FunctionResolver datetime() {
     return define(
         BuiltinFunctionName.DATETIME.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprDateTime), TIMESTAMP, STRING, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprDateTimeNoTimezone), TIMESTAMP, STRING));
-  }
-
-  /**
-   * Specify a datetime with time zone field and a time zone to convert to.
-   * Returns a local date time.
-   * (STRING, STRING) -> TIMESTAMP
-   * (STRING) -> TIMESTAMP
-   */
-  private FunctionResolver datetime() {
-    return define(BuiltinFunctionName.DATETIME.getName(),
-            impl(nullMissingHandling(DateTimeFunction::exprDateTime),
-                    TIMESTAMP, STRING, STRING),
-            impl(nullMissingHandling(DateTimeFunction::exprDateTimeNoTimezone),
-                    TIMESTAMP, STRING)
-    );
   }
 
   private DefaultFunctionResolver date_add() {
@@ -541,8 +532,8 @@ public class DateTimeFunction {
   }
 
   /**
-   * DAYNAME(STRING/DATE/TIMESTAMP). return the name of the weekday for date, including
-   * Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday.
+   * DAYNAME(STRING/DATE/TIMESTAMP). return the name of the weekday for date, including Monday,
+   * Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday.
    */
   private DefaultFunctionResolver dayName() {
     return define(
@@ -568,8 +559,8 @@ public class DateTimeFunction {
   }
 
   /**
-   * DAYOFWEEK(STRING/DATE/TIME/TIMESTAMP). return the weekday index for date (1 = Sunday,
-   * 2 = Monday, ..., 7 = Saturday).
+   * DAYOFWEEK(STRING/DATE/TIME/TIMESTAMP). return the weekday index for date (1 = Sunday, 2 =
+   * Monday, ..., 7 = Saturday).
    */
   private DefaultFunctionResolver dayOfWeek(FunctionName name) {
     return define(
@@ -814,9 +805,15 @@ public class DateTimeFunction {
             TIMESTAMP,
             DATE),
         implWithProperties(
-            nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime), TIMESTAMP, DATE, TIME),
+            nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            TIMESTAMP,
+            DATE,
+            TIME),
         implWithProperties(
-            nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime), TIMESTAMP, DATE, DATE),
+            nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
+            TIMESTAMP,
+            DATE,
+            DATE),
         implWithProperties(
             nullMissingHandlingWithProperties(DateTimeFunction::exprSubTime),
             TIMESTAMP,
@@ -874,9 +871,7 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprTimeDiff), TIME, TIME, TIME));
   }
 
-  /**
-   * TIME_TO_SEC(STRING/TIME/TIMESTAMP). return the time argument, converted to seconds.
-   */
+  /** TIME_TO_SEC(STRING/TIME/TIMESTAMP). return the time argument, converted to seconds. */
   private DefaultFunctionResolver time_to_sec() {
     return define(
         BuiltinFunctionName.TIME_TO_SEC.getName(),
@@ -908,12 +903,11 @@ public class DateTimeFunction {
   }
 
   /**
-   * Adds an interval of time to the provided DATE/TIME/TIMESTAMP/STRING argument. The
-   * interval of time added is determined by the given first and second arguments. The first
-   * argument is an interval type, and must be one of the tokens below... [MICROSECOND, SECOND,
-   * MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR] The second argument is the amount of the
-   * interval type to be added. The third argument is the DATE/TIME/TIMESTAMP/STRING to add
-   * to.
+   * Adds an interval of time to the provided DATE/TIME/TIMESTAMP/STRING argument. The interval of
+   * time added is determined by the given first and second arguments. The first argument is an
+   * interval type, and must be one of the tokens below... [MICROSECOND, SECOND, MINUTE, HOUR, DAY,
+   * WEEK, MONTH, QUARTER, YEAR] The second argument is the amount of the interval type to be added.
+   * The third argument is the DATE/TIME/TIMESTAMP/STRING to add to.
    *
    * @return The TIMESTAMP representing the summed DATE/TIME/TIMESTAMP and interval.
    */
@@ -938,11 +932,11 @@ public class DateTimeFunction {
   }
 
   /**
-   * Finds the difference between provided DATE/TIME/TIMESTAMP/STRING arguments. The first
-   * argument is an interval type, and must be one of the tokens below... [MICROSECOND, SECOND,
-   * MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR] The second argument the
-   * DATE/TIME/TIMESTAMP/STRING representing the start time. The third argument is the
-   * DATE/TIME/TIMESTAMP/STRING representing the end time.
+   * Finds the difference between provided DATE/TIME/TIMESTAMP/STRING arguments. The first argument
+   * is an interval type, and must be one of the tokens below... [MICROSECOND, SECOND, MINUTE, HOUR,
+   * DAY, WEEK, MONTH, QUARTER, YEAR] The second argument the DATE/TIME/TIMESTAMP/STRING
+   * representing the start time. The third argument is the DATE/TIME/TIMESTAMP/STRING representing
+   * the end time.
    *
    * @return A LONG representing the difference between arguments, using the given interval type.
    */
@@ -1175,7 +1169,7 @@ public class DateTimeFunction {
       ExprValue datetime,
       TemporalAmount interval,
       Boolean isAdd) {
-    var dt = extractTimestamp(datetime, functionProperties);
+    var dt = extractTimestamp(datetime, functionProperties).atZone(UTC_ZONE_ID).toLocalDateTime();
     return new ExprTimestampValue(isAdd ? dt.plus(interval) : dt.minus(interval));
   }
 
@@ -1292,7 +1286,9 @@ public class DateTimeFunction {
           || !DateTimeUtils.isValidMySqlTimeZoneId(convertedToTz)) {
         return ExprNullValue.of();
       }
-      ZonedDateTime zonedDateTime = startingDateTime.timestampValue().atZone(convertedFromTz);
+      ZonedDateTime zonedDateTime =
+          (startingDateTime.timestampValue().atZone(UTC_ZONE_ID).toLocalDateTime())
+              .atZone(convertedFromTz);
       return new ExprTimestampValue(
           zonedDateTime.withZoneSameInstant(convertedToTz).toLocalDateTime());
 
@@ -1862,7 +1858,8 @@ public class DateTimeFunction {
       ExprValue partExpr, ExprValue amountExpr, ExprValue datetimeExpr) {
     String part = partExpr.stringValue();
     int amount = amountExpr.integerValue();
-    LocalDateTime timestamp = LocalDateTime.ofInstant(datetimeExpr.timestampValue(), ZoneOffset.UTC);
+    LocalDateTime timestamp =
+        LocalDateTime.ofInstant(datetimeExpr.timestampValue(), ZoneOffset.UTC);
     ChronoUnit temporalUnit;
 
     switch (part) {
@@ -1946,8 +1943,8 @@ public class DateTimeFunction {
       ExprValue partExpr, ExprValue startTimeExpr, ExprValue endTimeExpr) {
     return getTimeDifference(
         partExpr.stringValue(),
-            LocalDateTime.ofInstant(startTimeExpr.timestampValue(), ZoneOffset.UTC),
-            LocalDateTime.ofInstant(endTimeExpr.timestampValue(), ZoneOffset.UTC));
+        LocalDateTime.ofInstant(startTimeExpr.timestampValue(), ZoneOffset.UTC),
+        LocalDateTime.ofInstant(endTimeExpr.timestampValue(), ZoneOffset.UTC));
   }
 
   private ExprValue exprTimestampDiffForTimeType(
@@ -2008,7 +2005,8 @@ public class DateTimeFunction {
    */
   private ExprValue exprToSeconds(ExprValue date) {
     return new ExprLongValue(
-        date.timestampValue().atOffset(ZoneOffset.UTC).toEpochSecond() + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
+        date.timestampValue().atOffset(ZoneOffset.UTC).toEpochSecond()
+            + DAYS_0000_TO_1970 * SECONDS_PER_DAY);
   }
 
   /**
