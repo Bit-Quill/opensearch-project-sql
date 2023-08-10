@@ -6,11 +6,13 @@
 package org.opensearch.sql.expression.datetime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opensearch.sql.data.model.ExprValueUtils.nullValue;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import org.junit.jupiter.api.Test;
 import org.opensearch.sql.data.model.ExprTimestampValue;
+import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.ExpressionTestBase;
 import org.opensearch.sql.expression.FunctionExpression;
@@ -25,7 +27,9 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.literal("+00:00"),
             DSL.literal("+00:00"));
     assertEquals(TIMESTAMP, expr.type());
-    assertEquals(nullValue(), expr.valueOf());
+    assertThrows(SemanticCheckException.class,
+            expr::valueOf
+    );
   }
 
   @Test
@@ -154,7 +158,8 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.literal("+00:00"),
             DSL.literal("+00:00"));
     assertEquals(TIMESTAMP, expr.type());
-    assertEquals(nullValue(), expr.valueOf());
+    assertThrows(SemanticCheckException.class,
+            expr::valueOf);
   }
 
   @Test
@@ -165,7 +170,8 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.literal("+00:00"),
             DSL.literal("+00:00"));
     assertEquals(TIMESTAMP, expr.type());
-    assertEquals(nullValue(), expr.valueOf());
+    assertThrows(SemanticCheckException.class,
+            expr::valueOf);
   }
 
   @Test
@@ -176,6 +182,7 @@ class ConvertTZTest extends ExpressionTestBase {
             DSL.literal("+00:00"),
             DSL.literal("+00:00"));
     assertEquals(TIMESTAMP, expr.type());
-    assertEquals(nullValue(), expr.valueOf());
+    assertThrows(SemanticCheckException.class,
+            expr::valueOf);
   }
 }

@@ -42,9 +42,7 @@ public class ExprTimestampValue extends AbstractExprValue {
     }
   }
 
-  /**
-   * Constructor.
-   */
+  /** localDateTime Constructor. */
   public ExprTimestampValue(LocalDateTime localDateTime ) {
       this.timestamp = localDateTime
               .atZone(UTC_ZONE_ID)

@@ -323,7 +323,7 @@ public class DateTimeFunction {
    * Specify a start date and add/subtract a temporal amount to/from the date.<br>
    * The return type depends on the date type and the interval unit. Detailed supported signatures:
    * <br>
-   * (DATE/DATETIME/TIMESTAMP/TIME, INTERVAL) -> TIMESTAMP<br>
+   * (DATE/TIMESTAMP/TIME, INTERVAL) -> TIMESTAMP<br>
    * MySQL has these signatures too<br>
    * (DATE, INTERVAL) -> DATE // when interval has no time part<br>
    * (TIME, INTERVAL) -> TIME // when interval has no date part<br>
@@ -334,8 +334,6 @@ public class DateTimeFunction {
       SerializableTriFunction<FunctionProperties, ExprValue, ExprValue, ExprValue> function) {
     return Stream.of(
         implWithProperties(nullMissingHandlingWithProperties(function), TIMESTAMP, DATE, INTERVAL),
-        implWithProperties(
-            nullMissingHandlingWithProperties(function), TIMESTAMP, TIMESTAMP, INTERVAL),
         implWithProperties(
             nullMissingHandlingWithProperties(function), TIMESTAMP, TIMESTAMP, INTERVAL),
         implWithProperties(nullMissingHandlingWithProperties(function), TIMESTAMP, TIME, INTERVAL));
@@ -454,8 +452,8 @@ public class DateTimeFunction {
   }
 
   /**
-   * Calculates the difference of date part of given values. (DATE/TIMESTAMP/TIME,
-   * DATE/TIMESTAMP/TIME) -> LONG
+   * Calculates the difference of date part of given values.<br>
+   * (DATE/TIMESTAMP/TIME, DATE/TIMESTAMP/TIME) -> LONG
    */
   private DefaultFunctionResolver datediff() {
     return define(
@@ -496,8 +494,10 @@ public class DateTimeFunction {
   }
 
   /**
-   * Specify a datetime with time zone field and a time zone to convert to. Returns a local date
-   * time. (STRING, STRING) -> TIMESTAMP (STRING) -> TIMESTAMP
+   * Specify a datetime with time zone field and a time zone to convert to.<br>
+   * Returns a local datetime.<br>
+   * (STRING, STRING) -> TIMESTAMP<br>
+   * (STRING) -> TIMESTAMP
    */
   private FunctionResolver datetime() {
     return define(
@@ -1352,7 +1352,7 @@ public class DateTimeFunction {
     }
 
     ExprValue convertTZResult;
-    ExprTimestampValue ldt;
+    ExprTimestampValue tz;
     String toTz;
 
     try {
@@ -1360,13 +1360,13 @@ public class DateTimeFunction {
           ZonedDateTime.parse(timestamp.stringValue(), DATE_TIME_FORMATTER_STRICT_WITH_TZ);
       ZoneId fromTZ = zdtWithZoneOffset.getZone();
 
-      ldt = new ExprTimestampValue(zdtWithZoneOffset.toLocalDateTime());
+      tz = new ExprTimestampValue(zdtWithZoneOffset.toLocalDateTime());
       toTz = String.valueOf(fromTZ);
     } catch (DateTimeParseException e) {
-      ldt = new ExprTimestampValue(timestamp.stringValue());
+      tz = new ExprTimestampValue(timestamp.stringValue());
       toTz = defaultTimeZone;
     }
-    convertTZResult = exprConvertTZ(ldt, new ExprStringValue(toTz), timeZone);
+    convertTZResult = exprConvertTZ(tz, new ExprStringValue(toTz), timeZone);
 
     return convertTZResult;
   }
@@ -1858,8 +1858,7 @@ public class DateTimeFunction {
       ExprValue partExpr, ExprValue amountExpr, ExprValue datetimeExpr) {
     String part = partExpr.stringValue();
     int amount = amountExpr.integerValue();
-    LocalDateTime timestamp =
-        LocalDateTime.ofInstant(datetimeExpr.timestampValue(), ZoneOffset.UTC);
+    LocalDateTime timestamp = datetimeExpr.timestampValue().atZone(UTC_ZONE_ID).toLocalDateTime();
     ChronoUnit temporalUnit;
 
     switch (part) {
@@ -1943,16 +1942,16 @@ public class DateTimeFunction {
       ExprValue partExpr, ExprValue startTimeExpr, ExprValue endTimeExpr) {
     return getTimeDifference(
         partExpr.stringValue(),
-        LocalDateTime.ofInstant(startTimeExpr.timestampValue(), ZoneOffset.UTC),
-        LocalDateTime.ofInstant(endTimeExpr.timestampValue(), ZoneOffset.UTC));
+        startTimeExpr.timestampValue().atZone(UTC_ZONE_ID).toLocalDateTime(),
+        endTimeExpr.timestampValue().atZone(UTC_ZONE_ID).toLocalDateTime());
   }
 
   private ExprValue exprTimestampDiffForTimeType(
       FunctionProperties fp, ExprValue partExpr, ExprValue startTimeExpr, ExprValue endTimeExpr) {
     return getTimeDifference(
         partExpr.stringValue(),
-        LocalDateTime.ofInstant(extractTimestamp(startTimeExpr, fp), ZoneOffset.UTC),
-        LocalDateTime.ofInstant(extractTimestamp(endTimeExpr, fp), ZoneOffset.UTC));
+        extractTimestamp(startTimeExpr, fp).atZone(UTC_ZONE_ID).toLocalDateTime(),
+        extractTimestamp(endTimeExpr, fp).atZone(UTC_ZONE_ID).toLocalDateTime());
   }
 
   /**

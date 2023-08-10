@@ -126,8 +126,8 @@ Type Conversion Matrix
 
 The following matrix illustrates the conversions allowed by our query engine for all the built-in data types as well as types provided by OpenSearch storage engine.
 
-+--------------+------------------------------------------------+---------+------------------------------+-----------------------------------------------+--------------------------+---------------------+
-|  Data Types  |               Numeric Type Family              | BOOLEAN |      String Type Family      |              Datetime Type Family             |  OpenSearch Type Family  | Complex Type Family |
++--------------+------------------------------------------------+---------+------------------------------+------------------------------------+--------------------------+---------------------+
+|  Data Types  |               Numeric Type Family              | BOOLEAN |      String Type Family      |        Datetime Type Family        |  OpenSearch Type Family  | Complex Type Family |
 |              +------+-------+---------+------+-------+--------+---------+--------------+------+--------+-----------+------+------+----------+-----------+-----+--------+-----------+---------+
 |              | BYTE | SHORT | INTEGER | LONG | FLOAT | DOUBLE | BOOLEAN | TEXT_KEYWORD | TEXT | STRING | TIMESTAMP | DATE | TIME | INTERVAL | GEO_POINT |  IP | BINARY |   STRUCT  |  ARRAY  |
 +==============+======+=======+=========+======+=======+========+=========+==============+======+========+===========+======+======+==========+===========+=====+========+===========+=========+
