@@ -6,6 +6,7 @@
 
 package org.opensearch.sql.sql;
 
+import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DATATYPE_NONNUMERIC;
 import static org.opensearch.sql.legacy.TestsConstants.TEST_INDEX_DATE_FORMATS;
 import static org.opensearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 import static org.opensearch.sql.util.MatcherUtils.rows;
@@ -30,6 +31,7 @@ public class DateTimeFormatsIT extends SQLIntegTestCase {
   public void init() throws Exception {
     super.init();
     loadIndex(Index.DATE_FORMATS);
+    loadIndex(Index.DATA_TYPE_NONNUMERIC);
   }
 
   @Test
@@ -118,6 +120,31 @@ public class DateTimeFormatsIT extends SQLIntegTestCase {
     verifyDataRows(result,
         rows("1970-01-01 00:00:42", "1970-01-01 00:00:00.042"),
         rows("1970-01-02 03:55:00", "1970-01-01 00:01:40.5"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testDateNanosWithFormats() {
+    String query = String.format("SELECT hour_minute_second_OR_t_time"
+        + " FROM %s", TEST_INDEX_DATE_FORMATS);
+    JSONObject result = executeQuery(query);
+    verifySchema(result,
+        schema("hour_minute_second_OR_t_time", null, "time"));
+    verifyDataRows(result,
+        rows("09:07:42"),
+        rows("09:07:42"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testDateNanosWithNanos() {
+    String query = String.format("SELECT date_nanos_value"
+        + " FROM %s", TEST_INDEX_DATATYPE_NONNUMERIC);
+    JSONObject result = executeQuery(query);
+    verifySchema(result,
+        schema("date_nanos_value", null, "timestamp"));
+    verifyDataRows(result,
+        rows("2019-03-24 01:34:46.123456789"));
   }
 
   protected JSONObject executeQuery(String query) throws IOException {
