@@ -84,10 +84,12 @@ repositories {
 spotless {
     java {
         target fileTree('.') {
-            include 'sql/**/*.java'
+            include 'datasources/**/*.java',
+                    'core/**/*.java',
+                    'sql/**/*.java'
             exclude '**/build/**', '**/build-*/**'
         }
-//        importOrder()
+        importOrder()
 //        licenseHeader("/*\n" +
 //                " * Copyright OpenSearch Contributors\n" +
 //                " * SPDX-License-Identifier: Apache-2.0\n" +
