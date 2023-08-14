@@ -49,9 +49,9 @@ import org.opensearch.sql.expression.LiteralExpression;
 
 class DateTimeFunctionTest extends ExpressionTestBase {
 
-  final List<FormatTester> FormatTesters =
+  final List<DateFormatTester> dateFormatTesters =
       ImmutableList.of(
-          new TimestampFormatTester(
+          new DateFormatTester(
               "1998-01-31 13:14:15.012345",
               ImmutableList.of(
                   "%H",
@@ -112,21 +112,21 @@ class DateTimeFunctionTest extends ExpressionTestBase {
               "2008-12-31",
               ImmutableList.of("%v", "%V", "%u", "%U"),
               ImmutableList.of("53", "52", "53", "52")),
-          new TimestampFormatTester(
+          new DateFormatTester(
               "1998-01-31 13:14:15.012345",
               ImmutableList.of("%Y-%m-%dT%TZ"),
               ImmutableList.of("1998-01-31T13:14:15Z")),
-          new TimestampFormatTester(
+          new DateFormatTester(
               "1998-01-31 13:14:15.012345",
               ImmutableList.of("%Y-%m-%da %T a"),
               ImmutableList.of("1998-01-31PM 13:14:15 PM")),
-          new TimestampFormatTester(
+          new DateFormatTester(
               "1998-01-31 13:14:15.012345",
               ImmutableList.of("%Y-%m-%db %T b"),
               ImmutableList.of("1998-01-31b 13:14:15 b")));
 
   @AllArgsConstructor
-  private class FormatTester {
+  private class DateFormatTester {
     private final String date;
     private final List<String> formatterList;
     private final List<String> formattedList;
@@ -140,33 +140,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
       return String.join(DELIMITER, formattedList);
     }
 
-    FunctionExpression getFormatExpression() {
-      return null;
-    }
-  }
-
-  private class DateFormatTester extends FormatTester {
-    public DateFormatTester(String date, List<String> formatterList, List<String> formattedList) {
-      super(date, formatterList, formattedList);
-    }
-
-    FunctionExpression getFormatExpression() {
-      return DSL.date_format(
-          functionProperties,
-          DSL.timestamp(DSL.date(DSL.literal(super.date))),
-          DSL.literal(getFormatter()));
-    }
-  }
-
-  private class TimestampFormatTester extends FormatTester {
-    public TimestampFormatTester(
-        String date, List<String> formatterList, List<String> formattedList) {
-      super(date, formatterList, formattedList);
-    }
-
-    FunctionExpression getFormatExpression() {
-      return DSL.date_format(
-          functionProperties, DSL.literal(super.date), DSL.literal(getFormatter()));
+    FunctionExpression getDateFormatExpression() {
+      return DSL.date_format(functionProperties, DSL.literal(date), DSL.literal(getFormatter()));
     }
   }
 
@@ -1377,7 +1352,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   @Test
   public void date_format() {
-    FormatTesters.forEach(this::testFormat);
+    dateFormatTesters.forEach(this::testDateFormat);
     String timestamp = "1998-01-31 13:14:15.012345";
     String timestampFormat =
         "%a %b %c %D %d %e %f %H %h %I %i %j %k %l %M " + "%m %p %r %S %s %T %% %P";
@@ -1391,8 +1366,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(timestampFormatted, eval(expr).stringValue());
   }
 
-  void testFormat(FormatTester dft) {
-    FunctionExpression expr = dft.getFormatExpression();
+  void testDateFormat(DateFormatTester dft) {
+    FunctionExpression expr = dft.getDateFormatExpression();
     assertEquals(STRING, expr.type());
     assertEquals(dft.getFormatted(), eval(expr).stringValue());
   }

@@ -7,6 +7,7 @@ package org.opensearch.sql.data.model;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,20 @@ public class ExprStringValue extends AbstractExprValue {
 
   @Override
   public Instant timestampValue() {
-    return new ExprTimestampValue(value).timestampValue();
+    try {
+      return new ExprTimestampValue(value).timestampValue();
+    } catch (SemanticCheckException e) {
+      try {
+        return new ExprTimestampValue(
+                LocalDateTime.of(new ExprDateValue(value).dateValue(), LocalTime.of(0, 0, 0)))
+            .timestampValue();
+      } catch (SemanticCheckException exception) {
+        throw new SemanticCheckException(
+            String.format(
+                "timestamp:%s in unsupported format, please use 'yyyy-MM-dd HH:mm:ss[.SSSSSSSSS]'",
+                value));
+      }
+    }
   }
 
   @Override

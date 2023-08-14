@@ -532,8 +532,8 @@ public class DateTimeFunction {
   }
 
   /**
-   * DAYNAME(STRING/DATE/TIMESTAMP). return the name of the weekday for date, including Monday,
-   * Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday.
+   * DAYNAME(STRING/DATE/TIMESTAMP). return the name of the weekday for date, including <br>
+   * Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday.
    */
   private DefaultFunctionResolver dayName() {
     return define(
