@@ -29,9 +29,12 @@ public class SystemFunctionIT extends PPLIntegTestCase {
     JSONObject response =
         executeQuery(
             String.format(
-                "source=%s | eval `str` = typeof('pewpew'), `double` = typeof(1.0),`int` ="
-                    + " typeof(12345), `long` = typeof(1234567891011), `interval` = typeof(INTERVAL"
-                    + " 2 DAY) | fields `str`, `double`, `int`, `long`, `interval`",
+                "source=%s | eval `str` = typeof('pewpew'),"
+                    + " `double` = typeof(1.0),"
+                    + "`int` = typeof(12345),"
+                    + " `long` = typeof(1234567891011),"
+                    + " `interval` = typeof(INTERVAL 2 DAY)"
+                    + "  | fields `str`, `double`, `int`, `long`, `interval`",
                 TEST_INDEX_DATATYPE_NUMERIC));
     // TODO: test null in PPL
     verifyDataRows(response, rows("KEYWORD", "DOUBLE", "INTEGER", "LONG", "INTERVAL"));
