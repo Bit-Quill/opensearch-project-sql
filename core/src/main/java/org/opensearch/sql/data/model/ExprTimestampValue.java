@@ -43,10 +43,8 @@ public class ExprTimestampValue extends AbstractExprValue {
   }
 
   /** localDateTime Constructor. */
-  public ExprTimestampValue(LocalDateTime localDateTime ) {
-      this.timestamp = localDateTime
-              .atZone(UTC_ZONE_ID)
-              .toInstant();
+  public ExprTimestampValue(LocalDateTime localDateTime) {
+    this.timestamp = localDateTime.atZone(UTC_ZONE_ID).toInstant();
   }
 
   @Override

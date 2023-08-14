@@ -23,20 +23,18 @@ class ConvertTZTest extends ExpressionTestBase {
   public void invalidDate() {
     FunctionExpression expr =
         DSL.convert_tz(
-            DSL.datetime(DSL.literal("2021-04-31 10:00:00")),
+            DSL.timestamp(DSL.literal("2021-04-31 10:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("+00:00"));
     assertEquals(TIMESTAMP, expr.type());
-    assertThrows(SemanticCheckException.class,
-            expr::valueOf
-    );
+    assertThrows(SemanticCheckException.class, expr::valueOf);
   }
 
   @Test
   public void conversionFromNoOffset() {
     FunctionExpression expr =
         DSL.convert_tz(
-            DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
+            DSL.timestamp(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("+10:00"));
     assertEquals(TIMESTAMP, expr.type());
@@ -47,7 +45,7 @@ class ConvertTZTest extends ExpressionTestBase {
   public void conversionToInvalidInput3Over() {
     FunctionExpression expr =
         DSL.convert_tz(
-            DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
+            DSL.timestamp(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("+16:00"));
     assertEquals(TIMESTAMP, expr.type());
@@ -58,7 +56,7 @@ class ConvertTZTest extends ExpressionTestBase {
   public void conversionToInvalidInput3Under() {
     FunctionExpression expr =
         DSL.convert_tz(
-            DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
+            DSL.timestamp(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("-16:00"));
     assertEquals(TIMESTAMP, expr.type());
@@ -69,7 +67,7 @@ class ConvertTZTest extends ExpressionTestBase {
   public void conversionFromPositiveToPositive() {
     FunctionExpression expr =
         DSL.convert_tz(
-            DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
+            DSL.timestamp(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+15:00"),
             DSL.literal("+01:00"));
     assertEquals(TIMESTAMP, expr.type());
@@ -80,7 +78,7 @@ class ConvertTZTest extends ExpressionTestBase {
   public void invalidInput2Under() {
     FunctionExpression expr =
         DSL.convert_tz(
-            DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
+            DSL.timestamp(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("-15:00"),
             DSL.literal("+01:00"));
     assertEquals(TIMESTAMP, expr.type());
@@ -91,7 +89,7 @@ class ConvertTZTest extends ExpressionTestBase {
   public void invalidInput3Over() {
     FunctionExpression expr =
         DSL.convert_tz(
-            DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
+            DSL.timestamp(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("-12:00"),
             DSL.literal("+15:00"));
     assertEquals(TIMESTAMP, expr.type());
@@ -102,7 +100,7 @@ class ConvertTZTest extends ExpressionTestBase {
   public void conversionToPositiveEdge() {
     FunctionExpression expr =
         DSL.convert_tz(
-            DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
+            DSL.timestamp(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("+14:00"));
     assertEquals(TIMESTAMP, expr.type());
@@ -113,7 +111,7 @@ class ConvertTZTest extends ExpressionTestBase {
   public void conversionToNegativeEdge() {
     FunctionExpression expr =
         DSL.convert_tz(
-            DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
+            DSL.timestamp(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+00:01"),
             DSL.literal("-13:59"));
     assertEquals(TIMESTAMP, expr.type());
@@ -124,7 +122,7 @@ class ConvertTZTest extends ExpressionTestBase {
   public void invalidInput2() {
     FunctionExpression expr =
         DSL.convert_tz(
-            DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
+            DSL.timestamp(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+)()"),
             DSL.literal("+12:00"));
     assertEquals(TIMESTAMP, expr.type());
@@ -135,7 +133,7 @@ class ConvertTZTest extends ExpressionTestBase {
   public void invalidInput3() {
     FunctionExpression expr =
         DSL.convert_tz(
-            DSL.datetime(DSL.literal("2008-05-15 22:00:00")),
+            DSL.timestamp(DSL.literal("2008-05-15 22:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("test"));
     assertEquals(TIMESTAMP, expr.type());
@@ -154,35 +152,32 @@ class ConvertTZTest extends ExpressionTestBase {
   public void invalidDateFeb30() {
     FunctionExpression expr =
         DSL.convert_tz(
-            DSL.datetime(DSL.literal("2021-02-30 10:00:00")),
+            DSL.timestamp(DSL.literal("2021-02-30 10:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("+00:00"));
     assertEquals(TIMESTAMP, expr.type());
-    assertThrows(SemanticCheckException.class,
-            expr::valueOf);
+    assertThrows(SemanticCheckException.class, expr::valueOf);
   }
 
   @Test
   public void invalidDateApril31() {
     FunctionExpression expr =
         DSL.convert_tz(
-            DSL.datetime(DSL.literal("2021-04-31 10:00:00")),
+            DSL.timestamp(DSL.literal("2021-04-31 10:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("+00:00"));
     assertEquals(TIMESTAMP, expr.type());
-    assertThrows(SemanticCheckException.class,
-            expr::valueOf);
+    assertThrows(SemanticCheckException.class, expr::valueOf);
   }
 
   @Test
   public void invalidMonth13() {
     FunctionExpression expr =
         DSL.convert_tz(
-            DSL.datetime(DSL.literal("2021-13-03 10:00:00")),
+            DSL.timestamp(DSL.literal("2021-13-03 10:00:00")),
             DSL.literal("+00:00"),
             DSL.literal("+00:00"));
     assertEquals(TIMESTAMP, expr.type());
-    assertThrows(SemanticCheckException.class,
-            expr::valueOf);
+    assertThrows(SemanticCheckException.class, expr::valueOf);
   }
 }

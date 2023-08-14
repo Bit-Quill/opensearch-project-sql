@@ -194,8 +194,7 @@ class TimeStampAddTest extends ExpressionTestBase {
 
     assertAll(
         () -> assertEquals(eval(dateExpr), eval(stringExpr)),
-        () -> assertEquals(eval(dateExpr), eval(timestampExpr))
-    );
+        () -> assertEquals(eval(dateExpr), eval(timestampExpr)));
   }
 
   private static Stream<Arguments> getInvalidTestDataForTimestampAdd() {

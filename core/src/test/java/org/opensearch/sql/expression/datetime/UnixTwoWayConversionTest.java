@@ -15,9 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprDoubleValue;
 import org.opensearch.sql.data.model.ExprLongValue;
+import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.expression.DSL;
 
 public class UnixTwoWayConversionTest extends DateTimeTestBase {
@@ -29,7 +29,10 @@ public class UnixTwoWayConversionTest extends DateTimeTestBase {
 
   @Test
   public void checkConvertNow_with_eval() {
-    assertEquals(getExpectedNow(), LocalDateTime.ofInstant(eval(fromUnixTime(unixTimeStampExpr())).timestampValue(), ZoneOffset.UTC));
+    assertEquals(
+        getExpectedNow(),
+        LocalDateTime.ofInstant(
+            eval(fromUnixTime(unixTimeStampExpr())).timestampValue(), ZoneOffset.UTC));
   }
 
   private LocalDateTime getExpectedNow() {
@@ -86,8 +89,10 @@ public class UnixTwoWayConversionTest extends DateTimeTestBase {
   public void convertDateTime2Epoch2DateTime(LocalDateTime value) {
     assertEquals(value, fromUnixTime(unixTimeStampOf(value)));
     assertEquals(
-        value, LocalDateTime.ofInstant(
-        eval(fromUnixTime(unixTimeStampOf(DSL.literal(new ExprTimestampValue(value)))))
-            .timestampValue(), ZoneOffset.UTC));
+        value,
+        LocalDateTime.ofInstant(
+            eval(fromUnixTime(unixTimeStampOf(DSL.literal(new ExprTimestampValue(value)))))
+                .timestampValue(),
+            ZoneOffset.UTC));
   }
 }

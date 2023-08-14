@@ -117,7 +117,9 @@ class AvgAggregatorTest extends AggregationTest {
   public void avg_timestamp() {
     var result = aggregation(DSL.avg(DSL.timestamp(DSL.ref("timestamp_value", STRING))), tuples);
     assertEquals(TIMESTAMP, result.type());
-    assertEquals(LocalDateTime.of(2012, 7, 2, 3, 30), result.timestampValue().atZone(UTC_ZONE_ID).toLocalDateTime());
+    assertEquals(
+        LocalDateTime.of(2012, 7, 2, 3, 30),
+        result.timestampValue().atZone(UTC_ZONE_ID).toLocalDateTime());
   }
 
   @Test

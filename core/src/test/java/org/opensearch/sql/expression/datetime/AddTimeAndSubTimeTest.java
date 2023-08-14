@@ -78,35 +78,43 @@ public class AddTimeAndSubTimeTest extends DateTimeTestBase {
         Arguments.of(
             LocalDate.of(1961, 4, 12),
             LocalTime.of(9, 7),
+            LocalDateTime.of(1961, 4, 12, 9, 7),
             LocalDateTime.of(1961, 4, 11, 14, 53)),
         Arguments.of(
             LocalDate.of(1961, 4, 12),
             LocalDate.of(2000, 1, 1),
+            LocalDateTime.of(1961, 4, 12, 0, 0),
             LocalDateTime.of(1961, 4, 12, 0, 0)),
         Arguments.of(
             LocalDate.of(1961, 4, 12),
             LocalDateTime.of(1235, 5, 6, 1, 48),
+            LocalDateTime.of(1961, 4, 12, 1, 48),
             LocalDateTime.of(1961, 4, 11, 22, 12)),
         Arguments.of(
             LocalDate.of(1961, 4, 12),
             Instant.ofEpochSecond(42),
+            LocalDateTime.of(1961, 4, 12, 0, 0, 42),
             LocalDateTime.of(1961, 4, 11, 23, 59, 18)),
         // TIMESTAMP and TIME/DATE/TIMESTAMP
         Arguments.of(
             Instant.ofEpochSecond(42),
             LocalTime.of(9, 7),
+            LocalDateTime.of(1970, 1, 1, 9, 7, 42),
             LocalDateTime.of(1969, 12, 31, 14, 53, 42)),
         Arguments.of(
             Instant.ofEpochSecond(42),
             LocalDate.of(1961, 4, 12),
+            LocalDateTime.of(1970, 1, 1, 0, 0, 42),
             LocalDateTime.of(1970, 1, 1, 0, 0, 42)),
         Arguments.of(
             Instant.ofEpochSecond(42),
             LocalDateTime.of(1961, 4, 12, 9, 7),
+            LocalDateTime.of(1970, 1, 1, 9, 7, 42),
             LocalDateTime.of(1969, 12, 31, 14, 53, 42)),
         Arguments.of(
             Instant.ofEpochSecond(42),
             Instant.ofEpochMilli(42),
+            LocalDateTime.of(1970, 1, 1, 0, 0, 42, 42000000),
             LocalDateTime.of(1970, 1, 1, 0, 0, 41, 958000000)));
   }
 

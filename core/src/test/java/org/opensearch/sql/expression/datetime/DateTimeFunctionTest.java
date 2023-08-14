@@ -125,12 +125,12 @@ class DateTimeFunctionTest extends ExpressionTestBase {
               ImmutableList.of("%Y-%m-%db %T b"),
               ImmutableList.of("1998-01-31b 13:14:15 b")));
 
-    @AllArgsConstructor
-    private class FormatTester {
-        private final String date;
-        private final List<String> formatterList;
-        private final List<String> formattedList;
-        private static final String DELIMITER = "|";
+  @AllArgsConstructor
+  private class FormatTester {
+    private final String date;
+    private final List<String> formatterList;
+    private final List<String> formattedList;
+    private static final String DELIMITER = "|";
 
     String getFormatter() {
       return String.join(DELIMITER, formatterList);
@@ -140,30 +140,35 @@ class DateTimeFunctionTest extends ExpressionTestBase {
       return String.join(DELIMITER, formattedList);
     }
 
-        FunctionExpression getFormatExpression() {
-            return null;
-        }
+    FunctionExpression getFormatExpression() {
+      return null;
+    }
+  }
+
+  private class DateFormatTester extends FormatTester {
+    public DateFormatTester(String date, List<String> formatterList, List<String> formattedList) {
+      super(date, formatterList, formattedList);
     }
 
-    private class DateFormatTester extends FormatTester {
-        public DateFormatTester(String date, List<String> formatterList, List<String> formattedList) {
-            super(date, formatterList, formattedList);
-        }
+    FunctionExpression getFormatExpression() {
+      return DSL.date_format(
+          functionProperties,
+          DSL.timestamp(DSL.date(DSL.literal(super.date))),
+          DSL.literal(getFormatter()));
+    }
+  }
 
-        FunctionExpression getFormatExpression() {
-            return DSL.date_format(functionProperties, DSL.timestamp(DSL.date(DSL.literal(super.date))), DSL.literal(getFormatter()));
-        }
+  private class TimestampFormatTester extends FormatTester {
+    public TimestampFormatTester(
+        String date, List<String> formatterList, List<String> formattedList) {
+      super(date, formatterList, formattedList);
     }
 
-    private class TimestampFormatTester extends FormatTester {
-        public TimestampFormatTester(String date, List<String> formatterList, List<String> formattedList) {
-            super(date, formatterList, formattedList);
-        }
-
-        FunctionExpression getFormatExpression() {
-            return DSL.date_format(functionProperties, DSL.literal(super.date), DSL.literal(getFormatter()));
-        }
+    FunctionExpression getFormatExpression() {
+      return DSL.date_format(
+          functionProperties, DSL.literal(super.date), DSL.literal(getFormatter()));
     }
+  }
 
   @Test
   public void date() {
@@ -534,11 +539,6 @@ class DateTimeFunctionTest extends ExpressionTestBase {
         Arguments.of("DATE", "ISO", "%Y-%m-%d"),
         Arguments.of("DATE", "EUR", "%d.%m.%Y"),
         Arguments.of("DATE", "INTERNAL", "%Y%m%d"),
-        Arguments.of("DATETIME", "USA", "%Y-%m-%d %H.%i.%s"),
-        Arguments.of("DATETIME", "JIS", "%Y-%m-%d %H:%i:%s"),
-        Arguments.of("DATETIME", "ISO", "%Y-%m-%d %H:%i:%s"),
-        Arguments.of("DATETIME", "EUR", "%Y-%m-%d %H.%i.%s"),
-        Arguments.of("DATETIME", "INTERNAL", "%Y%m%d%H%i%s"),
         Arguments.of("TIME", "USA", "%h:%i:%s %p"),
         Arguments.of("TIME", "JIS", "%H:%i:%s"),
         Arguments.of("TIME", "ISO", "%H:%i:%s"),
@@ -1375,14 +1375,15 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(2020), eval(expression));
   }
 
-    @Test
-    public void date_format() {
-        FormatTesters.forEach(this::testFormat);
-        String timestamp = "1998-01-31 13:14:15.012345";
-        String timestampFormat = "%a %b %c %D %d %e %f %H %h %I %i %j %k %l %M "
-                + "%m %p %r %S %s %T %% %P";
-        String timestampFormatted = "Sat Jan 01 31st 31 31 012345 13 01 01 14 031 13 1 "
-                + "January 01 PM 01:14:15 PM 15 15 13:14:15 % P";
+  @Test
+  public void date_format() {
+    FormatTesters.forEach(this::testFormat);
+    String timestamp = "1998-01-31 13:14:15.012345";
+    String timestampFormat =
+        "%a %b %c %D %d %e %f %H %h %I %i %j %k %l %M " + "%m %p %r %S %s %T %% %P";
+    String timestampFormatted =
+        "Sat Jan 01 31st 31 31 012345 13 01 01 14 031 13 1 "
+            + "January 01 PM 01:14:15 PM 15 15 13:14:15 % P";
 
     FunctionExpression expr =
         DSL.date_format(functionProperties, DSL.literal(timestamp), DSL.literal(timestampFormat));
@@ -1390,11 +1391,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(timestampFormatted, eval(expr).stringValue());
   }
 
-    void testFormat(FormatTester dft) {
-        FunctionExpression expr = dft.getFormatExpression();
-        assertEquals(STRING, expr.type());
-        assertEquals(dft.getFormatted(), eval(expr).stringValue());
-    }
+  void testFormat(FormatTester dft) {
+    FunctionExpression expr = dft.getFormatExpression();
+    assertEquals(STRING, expr.type());
+    assertEquals(dft.getFormatted(), eval(expr).stringValue());
+  }
 
   @Test
   public void testDateFormatWithTimeType() {

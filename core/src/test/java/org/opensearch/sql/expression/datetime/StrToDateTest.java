@@ -111,8 +111,9 @@ class StrToDateTest extends ExpressionTestBase {
     ExprValue result = eval(expression);
 
     assertEquals(TIMESTAMP, result.type());
-    assertEquals(getExpectedTimeResult(9, 23, 11),
-            LocalDateTime.ofInstant(result.timestampValue(), ZoneOffset.UTC));
+    assertEquals(
+        getExpectedTimeResult(9, 23, 11),
+        LocalDateTime.ofInstant(result.timestampValue(), ZoneOffset.UTC));
   }
 
   @Test
@@ -159,8 +160,8 @@ class StrToDateTest extends ExpressionTestBase {
             functionProperties,
             DSL.literal(new ExprStringValue(timeFormatResult)),
             DSL.literal(new ExprStringValue(format)));
-    LocalDateTime strToDateResult = LocalDateTime.ofInstant(
-            eval(strToDateExpr).timestampValue(), ZoneOffset.UTC);
+    LocalDateTime strToDateResult =
+        LocalDateTime.ofInstant(eval(strToDateExpr).timestampValue(), ZoneOffset.UTC);
 
     assertEquals(getExpectedTimeResult(HOURS, MINUTES, SECONDS), strToDateResult);
   }

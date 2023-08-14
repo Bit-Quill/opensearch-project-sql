@@ -26,7 +26,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.sql.data.model.ExprBooleanValue;
 import org.opensearch.sql.data.model.ExprByteValue;
 import org.opensearch.sql.data.model.ExprDateValue;
-import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprDoubleValue;
 import org.opensearch.sql.data.model.ExprFloatValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
@@ -34,6 +33,7 @@ import org.opensearch.sql.data.model.ExprLongValue;
 import org.opensearch.sql.data.model.ExprShortValue;
 import org.opensearch.sql.data.model.ExprStringValue;
 import org.opensearch.sql.data.model.ExprTimeValue;
+import org.opensearch.sql.data.model.ExprTimestampValue;
 import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.FunctionExpression;
@@ -338,20 +338,5 @@ class TypeCastOperatorTest {
     expression = DSL.castTimestamp(DSL.literal(new ExprTimestampValue("2012-08-07 01:01:01")));
     assertEquals(TIMESTAMP, expression.type());
     assertEquals(new ExprTimestampValue("2012-08-07 01:01:01"), expression.valueOf());
-  }
-
-  @Test
-  void castToDatetime() {
-    FunctionExpression expression = DSL.castDatetime(DSL.literal("2012-08-07 01:01:01"));
-    assertEquals(TIMESTAMP, expression.type());
-    assertEquals(new ExprTimestampValue("2012-08-07 01:01:01"), expression.valueOf());
-
-    expression = DSL.castDatetime(DSL.literal(new ExprTimestampValue("2012-08-07 01:01:01")));
-    assertEquals(TIMESTAMP, expression.type());
-    assertEquals(new ExprTimestampValue("2012-08-07 01:01:01"), expression.valueOf());
-
-    expression = DSL.castDatetime(DSL.literal(new ExprDateValue("2012-08-07")));
-    assertEquals(TIMESTAMP, expression.type());
-    assertEquals(new ExprTimestampValue("2012-08-07 00:00:00"), expression.valueOf());
   }
 }

@@ -39,7 +39,9 @@ public class TimestampTest extends ExpressionTestBase {
 
     expr = DSL.timestamp(functionProperties, DSL.literal("1961-04-12 09:07:00.123456"));
     assertEquals(TIMESTAMP, expr.type());
-    assertEquals(LocalDateTime.of(1961, 4, 12, 9, 7, 0, 123456000), expr.valueOf().timestampValue().atZone(UTC_ZONE_ID).toLocalDateTime());
+    assertEquals(
+        LocalDateTime.of(1961, 4, 12, 9, 7, 0, 123456000),
+        expr.valueOf().timestampValue().atZone(UTC_ZONE_ID).toLocalDateTime());
   }
 
   /**
