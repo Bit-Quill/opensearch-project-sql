@@ -24,12 +24,12 @@
 
 import org.opensearch.gradle.test.RestIntegTestTask
 import org.opensearch.gradle.testclusters.StandaloneRestIntegTestTask
+import org.opensearch.gradle.testclusters.OpenSearchCluster
 
+import groovy.xml.XmlParser
 import java.nio.file.Paths
-import java.time.LocalDateTime
 import java.util.concurrent.Callable
 import java.util.stream.Collectors
-import groovy.xml.XmlParser
 
 plugins {
     id "de.undercouch.download" version "5.3.0"
@@ -73,6 +73,63 @@ ext {
         def securitySnapshotVersion = metadata.versioning.snapshotVersions[0].snapshotVersion[0].value[0].text()
 
         return repo + "opensearch-security-${securitySnapshotVersion}.zip"
+    }
+
+    File downloadedSecurityPlugin = null
+
+    configureSecurityPlugin = { OpenSearchCluster cluster ->
+
+        cluster.getNodes().forEach { node ->
+            node.getCredentials().add(Map.of('useradd', 'admin', '-p', 'admin'))
+        }
+
+        var projectAbsPath = projectDir.getAbsolutePath()
+
+        // add a check to avoid re-downloading multiple times during single test run
+        if (downloadedSecurityPlugin == null) {
+            downloadedSecurityPlugin = Paths.get(projectAbsPath, 'bin', 'opensearch-security-snapshot.zip').toFile()
+            download.run {
+                src getSecurityPluginDownloadLink()
+                dest downloadedSecurityPlugin
+            }
+        }
+
+        // Config below including files are copied from security demo configuration
+        ['esnode.pem', 'esnode-key.pem', 'root-ca.pem'].forEach { file ->
+            File local = Paths.get(projectAbsPath, 'bin', file).toFile()
+            download.run {
+                src "https://raw.githubusercontent.com/opensearch-project/security/main/bwc-test/src/test/resources/security/" + file
+                dest local
+                overwrite false
+            }
+            cluster.extraConfigFile file, local
+        }
+        [
+            'plugins.security.ssl.transport.pemcert_filepath' : 'esnode.pem',
+            'plugins.security.ssl.transport.pemkey_filepath' : 'esnode-key.pem',
+            'plugins.security.ssl.transport.pemtrustedcas_filepath' : 'root-ca.pem',
+            'plugins.security.ssl.transport.enforce_hostname_verification' : 'false',
+            // https is disabled : because `OpenSearchCluster` is hardcoded to validate cluster health by http
+            // refer how IT framework implemented in security plugin and reuse/copy to activate https
+            'plugins.security.ssl.http.enabled' : 'false',
+            'plugins.security.ssl.http.pemcert_filepath' : 'esnode.pem',
+            'plugins.security.ssl.http.pemkey_filepath' : 'esnode-key.pem',
+            'plugins.security.ssl.http.pemtrustedcas_filepath' : 'root-ca.pem',
+            'plugins.security.allow_unsafe_democertificates' : 'true',
+
+            'plugins.security.allow_default_init_securityindex' : 'true',
+            //'plugins.security.authcz.admin_dn' : 'CN=kirk,OU=client,O=client,L=test,C=de',
+            'plugins.security.authcz.admin_dn' : 'CN=admin,OU=SSL,O=Test,L=Test,C=DE',
+            'plugins.security.audit.type' : 'internal_opensearch',
+            'plugins.security.enable_snapshot_restore_privilege' : 'true',
+            'plugins.security.check_snapshot_restore_write_privileges' : 'true',
+            'plugins.security.restapi.roles_enabled' : '["all_access", "security_rest_api_access"]',
+            'plugins.security.system_indices.enabled' : 'true'
+        ].forEach { name, value ->
+            cluster.setting name, value
+        }
+
+        cluster.plugin provider((Callable<RegularFile>) (() -> (RegularFile) (() -> downloadedSecurityPlugin)))
     }
 }
 
@@ -142,6 +199,7 @@ compileTestJava {
 
 testClusters.all {
     testDistribution = 'archive'
+    plugin ":opensearch-sql-plugin"
 
     // debug with command, ./gradlew opensearch-sql:run -DdebugJVM. --debug-jvm does not work with keystore.
     if (System.getProperty("debugJVM") != null) {
@@ -149,66 +207,15 @@ testClusters.all {
     }
 }
 
-testClusters.integTest {
-    plugin ":opensearch-sql-plugin"
-    setting "plugins.query.datasources.encryption.masterkey", "1234567812345678"
-}
-
-File downloadedSecurityPlugin = null
-
 testClusters {
-    remoteCluster {
-        plugin ":opensearch-sql-plugin"
+    integTest {
+        setting "plugins.query.datasources.encryption.masterkey", "1234567812345678"
     }
-    integTestWithSecurity { // OpenSearchCluster
-
-        getNodes().forEach { node ->
-            node.getCredentials().add(Map.of('useradd', 'admin', '-p', 'admin'))
-        }
-
-        var projectAbsPath = projectDir.getAbsolutePath()
-
-        // add a check to avoid re-downloading multiple times during single test run
-        if (downloadedSecurityPlugin == null) {
-            downloadedSecurityPlugin = Paths.get(projectAbsPath, 'bin', 'opensearch-security-snapshot.zip').toFile()
-            download.run {
-                src getSecurityPluginDownloadLink()
-                dest downloadedSecurityPlugin
-            }
-        }
-
-        // Config below including files are copied from security demo configuration
-        ['esnode.pem', 'esnode-key.pem', 'root-ca.pem'].forEach { file ->
-            File local = Paths.get(projectAbsPath, 'bin', file).toFile()
-            download.run {
-                src "https://raw.githubusercontent.com/opensearch-project/security/main/bwc-test/src/test/resources/security/" + file
-                dest local
-                overwrite false
-            }
-            extraConfigFile file, local
-        }
-        setting 'plugins.security.ssl.transport.pemcert_filepath', 'esnode.pem'
-        setting 'plugins.security.ssl.transport.pemkey_filepath', 'esnode-key.pem'
-        setting 'plugins.security.ssl.transport.pemtrustedcas_filepath', 'root-ca.pem'
-        setting 'plugins.security.ssl.transport.enforce_hostname_verification', 'false'
-        // https is disabled, because `OpenSearchCluster` is hardcoded to validate cluster health by http
-        // refer how IT framework implemented in security plugin and reuse/copy to activate https
-        setting 'plugins.security.ssl.http.enabled', 'false'
-        setting 'plugins.security.ssl.http.pemcert_filepath', 'esnode.pem'
-        setting 'plugins.security.ssl.http.pemkey_filepath', 'esnode-key.pem'
-        setting 'plugins.security.ssl.http.pemtrustedcas_filepath', 'root-ca.pem'
-        setting 'plugins.security.allow_unsafe_democertificates', 'true'
-
-        setting 'plugins.security.allow_default_init_securityindex', 'true'
-        setting 'plugins.security.authcz.admin_dn', 'CN=admin,OU=SSL,O=Test,L=Test,C=DE'//'CN=kirk,OU=client,O=client,L=test, C=de'
-        setting 'plugins.security.audit.type', 'internal_opensearch'
-        setting 'plugins.security.enable_snapshot_restore_privilege', 'true'
-        setting 'plugins.security.check_snapshot_restore_write_privileges', 'true'
-        setting 'plugins.security.restapi.roles_enabled', '["all_access", "security_rest_api_access"]'
-        setting 'plugins.security.system_indices.enabled', 'true'
-
-        plugin ":opensearch-sql-plugin"
-        plugin provider((Callable<RegularFile>) (() -> (RegularFile) (() -> downloadedSecurityPlugin)))
+    remoteCluster {
+    }
+    integTestWithSecurity {
+    }
+    anotherintegTestWithSecurity {
     }
 }
 
@@ -290,6 +297,15 @@ task integJdbcTest(type: RestIntegTestTask) {
 
 task integTestWithSecurity(type: RestIntegTestTask) {
     useCluster testClusters.integTestWithSecurity
+    useCluster testClusters.anotherintegTestWithSecurity
+
+    // Don't use `getClusters`: cluster order is important. IT framework adds/uses a cluster
+    // named as the task as default and uses it to init default REST client
+    systemProperty "cluster.names", "integTestWithSecurity,anotherintegTestWithSecurity"
+
+    getClusters().forEach { cluster ->
+        configureSecurityPlugin(cluster)
+    }
 
     useJUnitPlatform()
     dependsOn ':opensearch-sql-plugin:bundlePlugin'
@@ -311,6 +327,7 @@ task integTestWithSecurity(type: RestIntegTestTask) {
     doFirst {
         systemProperty 'cluster.debug', getDebug()
         getClusters().forEach { cluster ->
+
             String allTransportSocketURI = cluster.nodes.stream().flatMap { node ->
                 node.getAllTransportPortURI().stream()
             }.collect(Collectors.joining(","))
@@ -320,13 +337,11 @@ task integTestWithSecurity(type: RestIntegTestTask) {
 
             systemProperty "tests.rest.${cluster.name}.http_hosts", "${-> allHttpSocketURI}"
             systemProperty "tests.rest.${cluster.name}.transport_hosts", "${-> allTransportSocketURI}"
-            systemProperty "tests.rest.remoteCluster.http_hosts", "${-> allHttpSocketURI}"
-            systemProperty "tests.rest.remoteCluster.transport_hosts", "${-> allTransportSocketURI}"
-
-            systemProperty "https", "false"
-            systemProperty "user", "admin"
-            systemProperty "password", "admin"
         }
+
+        systemProperty "https", "false"
+        systemProperty "user", "admin"
+        systemProperty "password", "admin"
     }
 
     if (System.getProperty("test.debug") != null) {
