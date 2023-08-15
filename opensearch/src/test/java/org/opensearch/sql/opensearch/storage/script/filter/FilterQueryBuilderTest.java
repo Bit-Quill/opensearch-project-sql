@@ -1628,8 +1628,9 @@ class FilterQueryBuilderTest {
         ref("date_value", DATE), DSL.castDate(literal("2021-11-08")))));
     assertJsonEquals(json, buildQuery(DSL.equal(
         ref("date_value", DATE), DSL.castDate(literal(new ExprDateValue("2021-11-08"))))));
-    assertJsonEquals(json, buildQuery(DSL.equal(ref(
-        "date_value", DATE), DSL.castDate(literal(new ExprTimestampValue("2021-11-08 17:00:00"))))));
+    assertJsonEquals(json, buildQuery(DSL.equal(
+        ref("date_value", DATE), DSL.castDate(
+            literal(new ExprTimestampValue("2021-11-08 17:00:00"))))));
   }
 
   @Test

@@ -40,16 +40,9 @@ public class ExprStringValue extends AbstractExprValue {
     try {
       return new ExprTimestampValue(value).timestampValue();
     } catch (SemanticCheckException e) {
-      try {
-        return new ExprTimestampValue(
-                LocalDateTime.of(new ExprDateValue(value).dateValue(), LocalTime.of(0, 0, 0)))
-            .timestampValue();
-      } catch (SemanticCheckException exception) {
-        throw new SemanticCheckException(
-            String.format(
-                "timestamp:%s in unsupported format, please use 'yyyy-MM-dd HH:mm:ss[.SSSSSSSSS]'",
-                value));
-      }
+      return new ExprTimestampValue(
+              LocalDateTime.of(new ExprDateValue(value).dateValue(), LocalTime.of(0, 0, 0)))
+          .timestampValue();
     }
   }
 
