@@ -215,7 +215,7 @@ testClusters {
     }
     integTestWithSecurity {
     }
-    anotherintegTestWithSecurity {
+    remoteIntegTestWithSecurity {
     }
 }
 
@@ -297,7 +297,7 @@ task integJdbcTest(type: RestIntegTestTask) {
 
 task integTestWithSecurity(type: RestIntegTestTask) {
     useCluster testClusters.integTestWithSecurity
-    useCluster testClusters.anotherintegTestWithSecurity
+    useCluster testClusters.remoteIntegTestWithSecurity
 
     // Don't use `getClusters`: cluster order is important. IT framework adds/uses a cluster
     // named as the task as default and uses it to init default REST client
@@ -349,6 +349,7 @@ task integTestWithSecurity(type: RestIntegTestTask) {
     }
 
     // NOTE: this IT config discovers only junit5 (jupiter) tests.
+    // https://github.com/opensearch-project/sql/issues/1974
     filter {
         includeTestsMatching 'org.opensearch.sql.ppl.CrossClusterSearchIT'
     }
