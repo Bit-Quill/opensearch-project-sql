@@ -23,10 +23,16 @@ import org.opensearch.client.ResponseException;
 
 public class CrossClusterSearchIT extends PPLIntegTestCase {
 
-  // Set second cluster as a remote
   static {
-    String[] clusterNames = System.getProperty("cluster.names", ",remoteCluster").split(",");
-    REMOTE_CLUSTER = clusterNames[1];
+    // find a remote cluster
+    String[] clusterNames = System.getProperty("cluster.names").split(",");
+    var remote = "remoteCluster";
+    for (var cluster : clusterNames) {
+      if (cluster.startsWith("remote")) {
+         remote = cluster;
+      }
+    }
+    REMOTE_CLUSTER = remote;
   }
 
   public static final String REMOTE_CLUSTER;

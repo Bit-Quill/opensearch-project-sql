@@ -80,7 +80,12 @@ ext {
     configureSecurityPlugin = { OpenSearchCluster cluster ->
 
         cluster.getNodes().forEach { node ->
-            node.getCredentials().add(Map.of('useradd', 'admin', '-p', 'admin'))
+            var creds = node.getCredentials()
+            if (creds.isEmpty()) {
+                creds.add(Map.of('useradd', 'admin', '-p', 'admin'))
+            } else {
+                creds.get(0).putAll(Map.of('useradd', 'admin', '-p', 'admin'))
+            }
         }
 
         var projectAbsPath = projectDir.getAbsolutePath()
@@ -198,9 +203,6 @@ compileTestJava {
 }
 
 testClusters.all {
-    testDistribution = 'archive'
-    plugin ":opensearch-sql-plugin"
-
     // debug with command, ./gradlew opensearch-sql:run -DdebugJVM. --debug-jvm does not work with keystore.
     if (System.getProperty("debugJVM") != null) {
         jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005'
@@ -209,13 +211,21 @@ testClusters.all {
 
 testClusters {
     integTest {
+        testDistribution = 'archive'
+        plugin ":opensearch-sql-plugin"
         setting "plugins.query.datasources.encryption.masterkey", "1234567812345678"
     }
     remoteCluster {
+        testDistribution = 'archive'
+        plugin ":opensearch-sql-plugin"
     }
     integTestWithSecurity {
+        testDistribution = 'archive'
+        plugin ":opensearch-sql-plugin"
     }
     remoteIntegTestWithSecurity {
+        testDistribution = 'archive'
+        plugin ":opensearch-sql-plugin"
     }
 }
 
@@ -299,9 +309,8 @@ task integTestWithSecurity(type: RestIntegTestTask) {
     useCluster testClusters.integTestWithSecurity
     useCluster testClusters.remoteIntegTestWithSecurity
 
-    // Don't use `getClusters`: cluster order is important. IT framework adds/uses a cluster
-    // named as the task as default and uses it to init default REST client
-    systemProperty "cluster.names", "integTestWithSecurity,anotherintegTestWithSecurity"
+    systemProperty "cluster.names",
+        getClusters().stream().map(cluster -> cluster.getName()).collect(Collectors.joining(","))
 
     getClusters().forEach { cluster ->
         configureSecurityPlugin(cluster)

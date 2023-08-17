@@ -49,8 +49,22 @@ import org.opensearch.test.rest.OpenSearchRestTestCase;
 public abstract class OpenSearchSQLRestTestCase extends OpenSearchRestTestCase {
 
   private static final Logger LOG = LogManager.getLogger();
-  public static final String REMOTE_CLUSTER = "remoteCluster";
   public static final String MATCH_ALL_REMOTE_CLUSTER = "*";
+  // Requires to insert cluster name and cluster transport address (host:port)
+  public static final String REMOTE_CLUSTER_SETTING =
+      "{"
+          + "\"persistent\": {"
+          + "  \"cluster\": {"
+          + "    \"remote\": {"
+          + "      \"%s\": {"
+          + "        \"seeds\": ["
+          + "          \"%s\""
+          + "        ]"
+          + "      }"
+          + "    }"
+          + "  }"
+          + "}"
+          + "}";
 
   private static RestClient remoteClient;
   /**
@@ -109,9 +123,9 @@ public abstract class OpenSearchSQLRestTestCase extends OpenSearchRestTestCase {
     remoteClient = remoteAdminClient = initClient(clusterName);
   }
 
+  /** Configure http client for the given <b>cluster</b>. */
   public RestClient initClient(String clusterName) throws IOException {
-    String cluster = getTestRestCluster(clusterName);
-    String[] stringUrls = cluster.split(",");
+    String[] stringUrls = getTestRestCluster(clusterName).split(",");
     List<HttpHost> hosts = new ArrayList<>(stringUrls.length);
     for (String stringUrl : stringUrls) {
       int portSeparator = stringUrl.lastIndexOf(':');
@@ -119,11 +133,10 @@ public abstract class OpenSearchSQLRestTestCase extends OpenSearchRestTestCase {
         throw new IllegalArgumentException("Illegal cluster url [" + stringUrl + "]");
       }
       String host = stringUrl.substring(0, portSeparator);
-      int port = Integer.valueOf(stringUrl.substring(portSeparator + 1));
+      int port = Integer.parseInt(stringUrl.substring(portSeparator + 1));
       hosts.add(buildHttpHost(host, port));
     }
-    final List<HttpHost> clusterHosts = unmodifiableList(hosts);
-    return buildClient(restClientSettings(), clusterHosts.toArray(new HttpHost[0]));
+    return buildClient(restClientSettings(), hosts.toArray(new HttpHost[0]));
   }
 
   /**
@@ -199,6 +212,10 @@ public abstract class OpenSearchSQLRestTestCase extends OpenSearchRestTestCase {
     }
   }
 
+  /**
+   * Configure authentication and pass <b>builder</b> to superclass to configure other stuff.<br>
+   * By default, auth is configure when <b>https</b> is set only.
+   */
   protected static void configureClient(RestClientBuilder builder, Settings settings)
       throws IOException {
     String userName = System.getProperty("user");
@@ -272,20 +289,9 @@ public abstract class OpenSearchSQLRestTestCase extends OpenSearchRestTestCase {
 
     Request connectionRequest = new Request("PUT", "_cluster/settings");
     String connectionSetting = String.format(
-        "{"
-            + "\"persistent\": {"
-            + "  \"cluster\": {"
-            + "    \"remote\": {"
-            + "      \"%s\": {"
-            + "        \"seeds\": ["
-            + "          \"%s\""
-            + "        ]"
-            + "      }"
-            + "    }"
-            + "  }"
-            + "}"
-            + "}",
-        remote, getTestTransportCluster(remote).split(",")[0]);
+        REMOTE_CLUSTER_SETTING,
+        remote,
+        getTestTransportCluster(remote).split(",")[0]);
     connectionRequest.setJsonEntity(connectionSetting);
     adminClient().performRequest(connectionRequest);
   }
