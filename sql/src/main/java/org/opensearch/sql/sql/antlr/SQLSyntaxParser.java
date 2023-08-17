@@ -36,8 +36,10 @@ public class SQLSyntaxParser implements Parser {
     parser.addParseListener(anonymizer);
 
     ParseTree parseTree = parser.root();
-    LOG.info("[{}] New Engine Request Query: {}",
-        QueryContext.getRequestId(), anonymizer.getAnonymizedQueryString());
+    LOG.info(
+        "[{}] New Engine Request Query: {}",
+        QueryContext.getRequestId(),
+        anonymizer.getAnonymizedQueryString());
 
     return parseTree;
   }

@@ -30,9 +30,7 @@ public class SQLCorrectnessIT extends CorrectnessTestBase {
     super.init();
     updateClusterSettings(
         new SQLIntegTestCase.ClusterSetting(
-            PERSISTENT,
-            Settings.Key.IGNORE_UNSUPPORTED_PAGINATION.getKeyValue(),
-            "true"));
+            PERSISTENT, Settings.Key.IGNORE_UNSUPPORTED_PAGINATION.getKeyValue(), "true"));
   }
 
   @Test

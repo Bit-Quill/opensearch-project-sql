@@ -14,11 +14,11 @@ import static org.opensearch.sql.util.TestUtils.verifyIsV2Cursor;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import lombok.SneakyThrows;
 import org.junit.Test;
 import org.opensearch.sql.common.setting.Settings;
 import org.opensearch.sql.legacy.SQLIntegTestCase;
 import org.opensearch.sql.util.TestUtils;
-import lombok.SneakyThrows;
 
 public class PaginationFallbackIT extends SQLIntegTestCase {
   @Override
@@ -27,7 +27,8 @@ public class PaginationFallbackIT extends SQLIntegTestCase {
     loadIndex(Index.ONLINE);
     loadIndex(Index.BANK);
     updateClusterSettings(
-        new ClusterSetting(PERSISTENT, Settings.Key.IGNORE_UNSUPPORTED_PAGINATION.getKeyValue(), "false"));
+        new ClusterSetting(
+            PERSISTENT, Settings.Key.IGNORE_UNSUPPORTED_PAGINATION.getKeyValue(), "false"));
   }
 
   @Test
@@ -132,43 +133,68 @@ public class PaginationFallbackIT extends SQLIntegTestCase {
   @Test
   @SneakyThrows
   public void testFallbackSwitch() {
-    var log = Paths.get(System.getProperty("project.root"),
-        "build", "testclusters", "integTest-0", "logs", "integTest.log");
+    var log =
+        Paths.get(
+            System.getProperty("project.root"),
+            "build",
+            "testclusters",
+            "integTest-0",
+            "logs",
+            "integTest.log");
     // By default, the switch set to true - don't paginate if unsupported
     // Unset custom setting and check the default value
-    updateClusterSettings(new ClusterSetting(PERSISTENT,
-        Settings.Key.IGNORE_UNSUPPORTED_PAGINATION.getKeyValue(), null));
+    updateClusterSettings(
+        new ClusterSetting(
+            PERSISTENT, Settings.Key.IGNORE_UNSUPPORTED_PAGINATION.getKeyValue(), null));
     var clusterSettings = getAllClusterSettings();
-    assertEquals("true", clusterSettings.getJSONObject("defaults")
-        .getString(Settings.Key.IGNORE_UNSUPPORTED_PAGINATION.getKeyValue()));
+    assertEquals(
+        "true",
+        clusterSettings
+            .getJSONObject("defaults")
+            .getString(Settings.Key.IGNORE_UNSUPPORTED_PAGINATION.getKeyValue()));
 
     var logSize = Files.readAllLines(log).size();
-    // Query should be executed on V2 (aggregation is not supported with paging there) without cursor
-    var response = executeQueryTemplate("SELECT state, count(*) as `count` FROM %s GROUP BY state",
-        TEST_INDEX_BANK);
+    // Query should be executed on V2 (aggregation is not supported with paging there) without
+    // cursor
+    var response =
+        executeQueryTemplate(
+            "SELECT state, count(*) as `count` FROM %s GROUP BY state", TEST_INDEX_BANK);
     assertFalse(response.has("cursor"));
     assertEquals(7, response.getInt("total"));
     // Check logs
     var lines = Files.readAllLines(log);
-    assertTrue(lines.stream().skip(logSize)
-        .anyMatch(l -> l.endsWith("Query executed without pagination.")));
-    assertFalse(lines.stream().skip(logSize)
-        .anyMatch(l -> l.endsWith("Request is not supported and falling back to old SQL engine")));
+    assertTrue(
+        lines.stream()
+            .skip(logSize)
+            .anyMatch(l -> l.endsWith("Query executed without pagination.")));
+    assertFalse(
+        lines.stream()
+            .skip(logSize)
+            .anyMatch(
+                l -> l.endsWith("Request is not supported and falling back to old SQL engine")));
     logSize = lines.size();
 
-    updateClusterSettings(new ClusterSetting(PERSISTENT,
-        Settings.Key.IGNORE_UNSUPPORTED_PAGINATION.getKeyValue(), "false"));
+    updateClusterSettings(
+        new ClusterSetting(
+            PERSISTENT, Settings.Key.IGNORE_UNSUPPORTED_PAGINATION.getKeyValue(), "false"));
 
     // V1 fails to execute such query
-    response = executeQueryTemplate("SELECT state, count(*) as `count` FROM %s GROUP BY state",
-        TEST_INDEX_BANK);
-    assertEquals(response.getJSONObject("error").getString("reason"),
+    response =
+        executeQueryTemplate(
+            "SELECT state, count(*) as `count` FROM %s GROUP BY state", TEST_INDEX_BANK);
+    assertEquals(
+        response.getJSONObject("error").getString("reason"),
         "There was internal problem at backend");
     // Check logs
     lines = Files.readAllLines(log);
-    assertFalse(lines.stream().skip(logSize)
-        .anyMatch(l -> l.endsWith("Query executed without pagination.")));
-    assertTrue(lines.stream().skip(logSize)
-        .anyMatch(l -> l.endsWith("Request is not supported and falling back to old SQL engine")));
+    assertFalse(
+        lines.stream()
+            .skip(logSize)
+            .anyMatch(l -> l.endsWith("Query executed without pagination.")));
+    assertTrue(
+        lines.stream()
+            .skip(logSize)
+            .anyMatch(
+                l -> l.endsWith("Request is not supported and falling back to old SQL engine")));
   }
 }

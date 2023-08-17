@@ -53,8 +53,7 @@ class QueryPlanFactoryTest {
 
   @Mock private ExecutionEngine.QueryResponse queryResponse;
 
-  @Mock
-  private Settings settings;
+  @Mock private Settings settings;
 
   private QueryPlanFactory factory;
 

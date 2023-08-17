@@ -122,10 +122,7 @@ public class QueryPlanFactory
       } else if (settings.getSettingValue(Settings.Key.IGNORE_UNSUPPORTED_PAGINATION)) {
         LOG.warn("[{}] Query executed without pagination.", QueryContext.getRequestId());
         return new QueryPlan(
-            QueryId.queryId(),
-            node.getPlan(),
-            queryService,
-            context.getLeft().get());
+            QueryId.queryId(), node.getPlan(), queryService, context.getLeft().get());
       } else {
         // This should be picked up by the legacy engine.
         throw new UnsupportedCursorRequestException();
