@@ -66,6 +66,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Disabled;
@@ -87,13 +89,18 @@ import org.opensearch.sql.ast.tree.Paginate;
 import org.opensearch.sql.ast.tree.RareTopN.CommandType;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
+import org.opensearch.sql.datasource.DataSourceService;
+import org.opensearch.sql.datasource.model.DataSource;
+import org.opensearch.sql.datasource.model.DataSourceMetadata;
+import org.opensearch.sql.datasource.model.DataSourceType;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
 import org.opensearch.sql.expression.HighlightExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
-import org.opensearch.sql.expression.function.OpenSearchFunctions;
+import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
+import org.opensearch.sql.expression.function.OpenSearchFunction;
 import org.opensearch.sql.expression.window.WindowDefinition;
 import org.opensearch.sql.planner.logical.LogicalAD;
 import org.opensearch.sql.planner.logical.LogicalCloseCursor;
@@ -1112,19 +1119,73 @@ class AnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void table_function_with_no_datasource() {
+  public void table_function_with_datasource_with_no_functions() {
+    DataSourceService dataSourceService = new DataSourceService() {
+      @Override
+      public DataSource getDataSource(String dataSourceName) {
+        return new DataSource(DEFAULT_DATASOURCE_NAME, DataSourceType.OPENSEARCH, storageEngine());
+      }
+
+      @Override
+      public Set<DataSourceMetadata> getDataSourceMetadata(boolean isDefaultDataSourceRequired) {
+        return Set.of();
+      }
+
+      @Override
+      public DataSourceMetadata getDataSourceMetadata(String name) {
+        return null;
+      }
+
+      @Override
+      public void createDataSource(DataSourceMetadata metadata) {
+
+      }
+
+      @Override
+      public void updateDataSource(DataSourceMetadata dataSourceMetadata) {
+
+      }
+
+      @Override
+      public void deleteDataSource(String dataSourceName) {
+
+      }
+
+      @Override
+      public Boolean dataSourceExists(String dataSourceName) {
+        return null;
+      }
+    };
+
+    Analyzer analyzer = new Analyzer(super.expressionAnalyzer, dataSourceService, BuiltinFunctionRepository.getInstance(dataSourceService));
+    ExpressionEvaluationException exception =
+        assertThrows(
+            ExpressionEvaluationException.class,
+            () ->
+                analyzer.analyze(
+                    AstDSL.tableFunction(
+                        List.of("query_range"),
+                        unresolvedArg("query", stringLiteral("http_latency")),
+                        unresolvedArg("", intLiteral(12345)),
+                        unresolvedArg("", intLiteral(12345)),
+                        unresolvedArg(null, intLiteral(14))), new AnalysisContext()));
+    assertEquals("unsupported function name: query_range", exception.getMessage());
+  }
+
+  @Test
+  public void unsupported_table_function() {
     ExpressionEvaluationException exception =
         assertThrows(
             ExpressionEvaluationException.class,
             () ->
                 analyze(
                     AstDSL.tableFunction(
-                        List.of("query_range"),
+                        List.of("unsupported"),
                         unresolvedArg("query", stringLiteral("http_latency")),
                         unresolvedArg("", intLiteral(12345)),
                         unresolvedArg("", intLiteral(12345)),
                         unresolvedArg(null, intLiteral(14)))));
-    assertEquals("unsupported function name: query_range", exception.getMessage());
+    assertEquals("unsupported function name: unsupported", exception.getMessage());
   }
 
   @Test

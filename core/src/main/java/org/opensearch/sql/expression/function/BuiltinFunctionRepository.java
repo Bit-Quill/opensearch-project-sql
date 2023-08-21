@@ -23,6 +23,7 @@ import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.datasource.DataSourceService;
+import org.opensearch.sql.datasource.model.DataSourceMetadata;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.aggregation.AggregatorFunction;
@@ -47,7 +48,7 @@ public class BuiltinFunctionRepository {
   private final Map<FunctionName, FunctionResolver> functionResolverMap;
 
   /** The singleton instance. */
-  private static BuiltinFunctionRepository instance;
+  private final static Map<Integer, BuiltinFunctionRepository> instance = new HashMap<>();
 
   /**
    * Construct a function repository with the given function registered. This is only used in test.
@@ -66,37 +67,37 @@ public class BuiltinFunctionRepository {
    * @return singleton instance
    */
   public static synchronized BuiltinFunctionRepository getInstance(DataSourceService dataSourceService) {
-    if (instance == null) {
-      instance = new BuiltinFunctionRepository(new HashMap<>());
+    // Create hash code for tests with dataSourceService as null
+    int dataSourceServiceHash = dataSourceService == null ? 0 : dataSourceService.hashCode();
+
+    // Creates new Repository for every dataSourceService
+    if (!instance.containsKey(dataSourceServiceHash)) {
+      BuiltinFunctionRepository repository = new BuiltinFunctionRepository(new HashMap<>());
 
       // Register all built-in functions
-      ArithmeticFunction.register(instance);
-      BinaryPredicateOperator.register(instance);
-      MathematicalFunction.register(instance);
-      UnaryPredicateOperator.register(instance);
-      AggregatorFunction.register(instance);
-      DateTimeFunction.register(instance);
-      IntervalClause.register(instance);
-      WindowFunctions.register(instance);
-      TextFunction.register(instance);
-      TypeCastOperator.register(instance);
-      SystemFunctions.register(instance);
-
-//      dataSourceService
-//          .getDataSourceMetadata(true)
-//          .stream()
-//          .forEach(dataSourceMetadata ->  dataSourceService.getDataSource(
-//              dataSourceMetadata.getName()).getStorageEngine().getFunctions().stream().
-//              forEach(function -> instance.register(function)));
+      ArithmeticFunction.register(repository);
+      BinaryPredicateOperator.register(repository);
+      MathematicalFunction.register(repository);
+      UnaryPredicateOperator.register(repository);
+      AggregatorFunction.register(repository);
+      DateTimeFunction.register(repository);
+      IntervalClause.register(repository);
+      WindowFunctions.register(repository);
+      TextFunction.register(repository);
+      TypeCastOperator.register(repository);
+      SystemFunctions.register(repository);
 
       if (dataSourceService != null) {
-        dataSourceService
-            .getDataSource("@opensearch").getStorageEngine().getFunctions().stream().
-            forEach(function -> instance.register(function));
+        for (DataSourceMetadata metadata : dataSourceService.getDataSourceMetadata(true)) {
+          dataSourceService
+              .getDataSource(metadata.getName())
+              .getStorageEngine().getFunctions().
+              forEach(repository::register);
+        }
       }
-
+      instance.put(dataSourceServiceHash, repository);
     }
-    return instance;
+    return instance.get(dataSourceServiceHash);
   }
 
   /**
