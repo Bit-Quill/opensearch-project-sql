@@ -73,7 +73,7 @@ import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.HighlightExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
-import org.opensearch.sql.opensearch.functions.OpenSearchFunctions;
+import org.opensearch.sql.expression.function.OpenSearchFunction;
 import org.opensearch.sql.opensearch.data.type.OpenSearchDataType;
 import org.opensearch.sql.opensearch.request.OpenSearchRequestBuilder;
 import org.opensearch.sql.opensearch.response.agg.CompositeAggregationParser;
@@ -171,7 +171,7 @@ class OpenSearchIndexScanOptimizationTest {
           DSL.namedArgument("query", "QUERY"),
           DSL.namedArgument("boost", "12.5"));
 
-    ((OpenSearchFunctions.OpenSearchFunction) queryString).setScoreTracked(true);
+    ((OpenSearchFunction) queryString).setScoreTracked(true);
 
     LogicalPlan logicalPlan = project(
         filter(
@@ -210,14 +210,14 @@ class OpenSearchIndexScanOptimizationTest {
                 "intV", ExprValueUtils.floatValue(1.5F)))))),
         DSL.namedArgument("query", "QUERY"),
         DSL.namedArgument("boost", "12.5"));
-    ((OpenSearchFunctions.OpenSearchFunction) firstQueryString).setScoreTracked(false);
+    ((OpenSearchFunction) firstQueryString).setScoreTracked(false);
     FunctionExpression secondQueryString = DSL.query_string(
         DSL.namedArgument("fields", DSL.literal(
             new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
                 "intV", ExprValueUtils.floatValue(1.5F)))))),
         DSL.namedArgument("query", "QUERY"),
         DSL.namedArgument("boost", "12.5"));
-    ((OpenSearchFunctions.OpenSearchFunction) secondQueryString).setScoreTracked(true);
+    ((OpenSearchFunction) secondQueryString).setScoreTracked(true);
 
     LogicalPlan logicalPlan = project(
         filter(

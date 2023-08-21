@@ -15,7 +15,7 @@ import org.opensearch.sql.expression.function.FunctionBuilder;
 import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.function.FunctionResolver;
 import org.opensearch.sql.expression.function.FunctionSignature;
-import org.opensearch.sql.expression.function.OpenSearchFunctions;
+import org.opensearch.sql.expression.function.OpenSearchFunction;
 
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class RelevanceFunctionResolver
     }
 
     FunctionBuilder buildFunction = (functionProperties, args)
-        -> new OpenSearchFunctions.OpenSearchFunction(functionName, args);
+        -> new OpenSearchFunction(functionName, args);
     return Pair.of(unresolvedSignature, buildFunction);
   }
 
