@@ -7,20 +7,37 @@ package org.opensearch.sql.analysis;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.opensearch.sql.ast.dsl.AstDSL.alias;
+import static org.opensearch.sql.ast.dsl.AstDSL.and;
+import static org.opensearch.sql.ast.dsl.AstDSL.filter;
+import static org.opensearch.sql.ast.dsl.AstDSL.function;
+import static org.opensearch.sql.ast.dsl.AstDSL.highlight;
+import static org.opensearch.sql.ast.dsl.AstDSL.project;
+import static org.opensearch.sql.ast.dsl.AstDSL.qualifiedName;
+import static org.opensearch.sql.ast.dsl.AstDSL.relation;
 import static org.opensearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static org.opensearch.sql.ast.dsl.AstDSL.unresolvedArg;
+import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.ast.dsl.AstDSL;
+import org.opensearch.sql.ast.expression.RelevanceFieldList;
 import org.opensearch.sql.ast.expression.ScoreFunction;
+import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
+import org.opensearch.sql.data.model.ExprTupleValue;
 import org.opensearch.sql.exception.SemanticCheckException;
+import org.opensearch.sql.expression.Expression;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.FunctionName;
 import org.opensearch.sql.expression.function.OpenSearchFunction;
@@ -124,28 +141,14 @@ class OpenSearchAnalyzerTest extends AnalyzerTestBase {
 
   @Test
   public void analyze_relevance_field_list() {
-    // setup
-    // setup
-    OpenSearchFunction scoreFunction = new OpenSearchFunction(
-        new FunctionName("match_phrase_prefix"), List.of());
-    when(builtinFunctionRepository.compile(any(), any(), any())).thenReturn(scoreFunction);
+    LinkedHashMap tuple = new LinkedHashMap(Map.of("Title", 1.0F, "Body", 4.2F, "Tags", 1.5F));
 
-    UnresolvedPlan unresolvedPlan =
-        AstDSL.filter(
-            AstDSL.relation("schema"),
-            new ScoreFunction(
-                AstDSL.function(
-                    "match_phrase_prefix",
-                    AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
-                    AstDSL.unresolvedArg("query", stringLiteral("search query"))),
-                AstDSL.doubleLiteral(1.0)));
-
-    // test
-    LogicalPlan logicalPlan = analyze(unresolvedPlan);
-    OpenSearchFunction relevanceQuery =
-        (OpenSearchFunction) ((LogicalFilter) logicalPlan).getCondition();
-
-    // verify
-    assertEquals(true, relevanceQuery.isScoreTracked());
+    UnresolvedExpression unresolvedPlan = new RelevanceFieldList(tuple);
+    Expression relevanceFieldList = unresolvedPlan.accept(expressionAnalyzer, analysisContext);
+    assertEquals(STRUCT, relevanceFieldList.type());
+    assertTrue(relevanceFieldList.valueOf() instanceof ExprTupleValue);
+    assertEquals(tuple.get("Tags"), relevanceFieldList.valueOf().tupleValue().get("Tags").floatValue());
+    assertEquals(tuple.get("Body"), relevanceFieldList.valueOf().tupleValue().get("Body").floatValue());
+    assertEquals(tuple.get("Title"), relevanceFieldList.valueOf().tupleValue().get("Title").floatValue());
   }
 }

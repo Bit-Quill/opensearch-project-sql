@@ -292,6 +292,16 @@ public class OpenSearchDataSourceMetadataStorageTest {
   }
 
   @Test
+  public void testCreateDataSourceMetadataUninitialized() {
+    Mockito.when(clusterService.getClusterApplierService().isInitialClusterStateSet()).thenReturn(false);
+
+    List<DataSourceMetadata> dataSourceMetadataList =
+        openSearchDataSourceMetadataStorage.getDataSourceMetadata();
+
+    Assertions.assertEquals(0, dataSourceMetadataList.size());
+  }
+
+  @Test
   public void testCreateDataSourceMetadataWithOutCreatingIndex() {
     Mockito.when(clusterService.state().routingTable().hasIndex(DATASOURCE_INDEX_NAME))
         .thenReturn(Boolean.TRUE);
