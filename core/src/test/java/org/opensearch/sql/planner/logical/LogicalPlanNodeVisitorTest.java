@@ -126,6 +126,17 @@ class LogicalPlanNodeVisitorTest {
     LogicalPlan ml = new LogicalML(relation, Map.of());
     LogicalPlan paginate = new LogicalPaginate(42, List.of(relation));
 
+    List<Map<String, ReferenceExpression>> nestedArgs =
+        List.of(
+            Map.of(
+                "field", new ReferenceExpression("message.info", STRING),
+                "path", new ReferenceExpression("message", STRING)));
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression("message.info", DSL.nested(DSL.ref("message.info", STRING)), null));
+
+    LogicalNested nested = new LogicalNested(null, nestedArgs, projectList);
+
     LogicalFetchCursor cursor = new LogicalFetchCursor("n:test", mock(StorageEngine.class));
 
     LogicalCloseCursor closeCursor = new LogicalCloseCursor(cursor);
@@ -150,6 +161,7 @@ class LogicalPlanNodeVisitorTest {
             ad,
             ml,
             paginate,
+            nested,
             cursor,
             closeCursor)
         .map(Arguments::of);

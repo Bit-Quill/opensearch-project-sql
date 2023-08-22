@@ -45,6 +45,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.sql.ast.tree.Sort;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.expression.DSL;
+import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.planner.logical.LogicalPaginate;
 import org.opensearch.sql.planner.logical.LogicalPlan;
@@ -217,7 +218,9 @@ class LogicalPlanOptimizerTest {
             nested(
                 relation("schema", table),
                 List.of(Map.of("field", new ReferenceExpression("message.info", STRING))),
-                List.of())));
+                List.of(
+                    new NamedExpression(
+                        "message.info", DSL.nested(DSL.ref("message.info", STRING)), null)))));
   }
 
   @Test
