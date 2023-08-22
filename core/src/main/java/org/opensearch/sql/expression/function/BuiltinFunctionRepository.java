@@ -91,8 +91,9 @@ public class BuiltinFunctionRepository {
         for (DataSourceMetadata metadata : dataSourceService.getDataSourceMetadata(true)) {
           dataSourceService
               .getDataSource(metadata.getName())
-              .getStorageEngine().getFunctions().
-              forEach(repository::register);
+              .getStorageEngine()
+              .getFunctions()
+              .forEach(repository::register);
         }
       }
       instance.put(dataSourceServiceHash, repository);
