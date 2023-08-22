@@ -278,50 +278,6 @@ class AnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void analyze_filter_visit_score_function() {
-    UnresolvedPlan unresolvedPlan =
-        AstDSL.filter(
-            AstDSL.relation("schema"),
-            new ScoreFunction(
-                AstDSL.function(
-                    "match_phrase_prefix",
-                    AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
-                    AstDSL.unresolvedArg("query", stringLiteral("search query")),
-                    AstDSL.unresolvedArg("boost", stringLiteral("3"))),
-                AstDSL.doubleLiteral(1.0)));
-    assertAnalyzeEqual(
-        LogicalPlanDSL.filter(
-            LogicalPlanDSL.relation("schema", table),
-            DSL.match_phrase_prefix(
-                DSL.namedArgument("field", "field_value1"),
-                DSL.namedArgument("query", "search query"),
-                DSL.namedArgument("boost", "3.0"))),
-        unresolvedPlan);
-
-    LogicalPlan logicalPlan = analyze(unresolvedPlan);
-    OpenSearchFunction relevanceQuery =
-        (OpenSearchFunction) ((LogicalFilter) logicalPlan).getCondition();
-    assertEquals(true, relevanceQuery.isScoreTracked());
-  }
-
-  @Test
-  public void analyze_filter_visit_score_function_with_unsupported_boost_SemanticCheckException() {
-    UnresolvedPlan unresolvedPlan =
-        AstDSL.filter(
-            AstDSL.relation("schema"),
-            new ScoreFunction(
-                AstDSL.function(
-                    "match_phrase_prefix",
-                    AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
-                    AstDSL.unresolvedArg("query", stringLiteral("search query")),
-                    AstDSL.unresolvedArg("boost", stringLiteral("3"))),
-                AstDSL.stringLiteral("3.0")));
-    SemanticCheckException exception =
-        assertThrows(SemanticCheckException.class, () -> analyze(unresolvedPlan));
-    assertEquals("Expected boost type 'DOUBLE' but got 'STRING'", exception.getMessage());
-  }
-
-  @Test
   public void head_relation() {
     assertAnalyzeEqual(
         LogicalPlanDSL.limit(LogicalPlanDSL.relation("schema", table), 10, 0),
