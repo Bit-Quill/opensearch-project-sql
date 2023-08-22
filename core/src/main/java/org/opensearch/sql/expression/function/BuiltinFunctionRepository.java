@@ -67,8 +67,8 @@ public class BuiltinFunctionRepository {
    * @return singleton instance
    */
   public static synchronized BuiltinFunctionRepository getInstance(DataSourceService dataSourceService) {
-    // Create hash code for tests with dataSourceService as null
-    int dataSourceServiceHash = dataSourceService == null ? 0 : dataSourceService.hashCode();
+    // TODO: get hashCode of dataSourceMetadata
+    int dataSourceServiceHash = dataSourceService.hashCode();
 
     // Creates new Repository for every dataSourceService
     if (!instance.containsKey(dataSourceServiceHash)) {
@@ -86,15 +86,15 @@ public class BuiltinFunctionRepository {
       TextFunction.register(repository);
       TypeCastOperator.register(repository);
       SystemFunctions.register(repository);
+      // Temporary as part of https://github.com/opensearch-project/sql/issues/811
+      // TODO: remove this resolver when Analyzers are moved to opensearch module
+      repository.register(new NestedFunctionResolver());
 
-      if (dataSourceService != null) {
-        for (DataSourceMetadata metadata : dataSourceService.getDataSourceMetadata(true)) {
-          dataSourceService
-              .getDataSource(metadata.getName())
-              .getStorageEngine()
-              .getFunctions()
-              .forEach(repository::register);
-        }
+      for (DataSourceMetadata metadata : dataSourceService.getDataSourceMetadata(true)) {
+        dataSourceService
+            .getDataSource(metadata.getName())
+            .getStorageEngine().getFunctions().
+            forEach(function -> repository.register(function));
       }
       instance.put(dataSourceServiceHash, repository);
     }

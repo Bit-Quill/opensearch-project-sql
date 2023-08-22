@@ -25,6 +25,7 @@ import org.opensearch.sql.expression.parse.PatternsExpression;
 import org.opensearch.sql.expression.parse.RegexExpression;
 import org.opensearch.sql.expression.span.SpanExpression;
 import org.opensearch.sql.expression.window.ranking.RankingWindowFunction;
+import static org.opensearch.sql.datasource.model.EmptyDataSourceService.getEmptyDataSourceService;
 
 public class DSL {
 
@@ -615,6 +616,10 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.XOR, expressions);
   }
 
+  public static FunctionExpression nested(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.NESTED, expressions);
+  }
+
   public static FunctionExpression not(Expression... expressions) {
     return compile(FunctionProperties.None, BuiltinFunctionName.NOT, expressions);
   }
@@ -823,6 +828,10 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.TYPEOF, value);
   }
 
+  public static FunctionExpression match_phrase_prefix(Expression... args) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.MATCH_PHRASE_PREFIX, args);
+  }
+
   public static FunctionExpression now(FunctionProperties functionProperties, Expression... args) {
     return compile(functionProperties, BuiltinFunctionName.NOW, args);
   }
@@ -905,7 +914,7 @@ public class DSL {
   private static <T extends FunctionImplementation> T compile(
       FunctionProperties functionProperties, BuiltinFunctionName bfn, Expression... args) {
     return (T)
-        BuiltinFunctionRepository.getInstance(null)
+        BuiltinFunctionRepository.getInstance(getEmptyDataSourceService())
             .compile(functionProperties, bfn.getName(), Arrays.asList(args));
   }
 }

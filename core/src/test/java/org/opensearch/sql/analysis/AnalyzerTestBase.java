@@ -26,6 +26,7 @@ import org.opensearch.sql.analysis.symbol.Symbol;
 import org.opensearch.sql.analysis.symbol.SymbolTable;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.config.TestConfig;
+import org.opensearch.sql.data.model.ExprValue;
 import org.opensearch.sql.data.type.ExprType;
 import org.opensearch.sql.datasource.DataSourceService;
 import org.opensearch.sql.datasource.model.DataSource;
@@ -33,8 +34,10 @@ import org.opensearch.sql.datasource.model.DataSourceMetadata;
 import org.opensearch.sql.datasource.model.DataSourceType;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.expression.Expression;
+import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
 import org.opensearch.sql.expression.env.Environment;
+import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
 import org.opensearch.sql.expression.function.FunctionBuilder;
 import org.opensearch.sql.expression.function.FunctionName;
@@ -53,7 +56,41 @@ public class AnalyzerTestBase {
   }
 
   protected StorageEngine storageEngine() {
-    return (dataSourceSchemaName, tableName) -> table;
+    return new StorageEngine() {
+      @Override
+      public Collection<FunctionResolver> getFunctions() {
+        return Collections.singletonList(
+            new FunctionResolver() {
+              @Override
+              public Pair<FunctionSignature, FunctionBuilder> resolve(
+                  FunctionSignature unresolvedSignature) {
+                return Pair.of(unresolvedSignature,
+                    (functionProperties, arguments) ->
+                        new FunctionExpression(BuiltinFunctionName.NESTED.getName(), arguments) {
+                          @Override
+                          public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
+                            return valueEnv.resolve(getArguments().get(0));
+                          }
+
+                          @Override
+                          public ExprType type() {
+                            return getArguments().get(0).type();
+                          }
+                        });
+              }
+
+              @Override
+              public FunctionName getFunctionName() {
+                return BuiltinFunctionName.NESTED.getName();
+              }
+            });
+      }
+
+      @Override
+      public Table getTable(DataSourceSchemaName dataSourceSchemaName, String tableName) {
+        return table;
+      }
+    };
   }
 
   protected StorageEngine prometheusStorageEngine() {

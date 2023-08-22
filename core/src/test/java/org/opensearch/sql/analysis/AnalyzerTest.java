@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.sql.analysis.DataSourceSchemaIdentifierNameResolver.DEFAULT_DATASOURCE_NAME;
-import static org.opensearch.sql.analysis.NestedAnalyzer.isNestedFunction;
 import static org.opensearch.sql.ast.dsl.AstDSL.aggregate;
 import static org.opensearch.sql.ast.dsl.AstDSL.alias;
 import static org.opensearch.sql.ast.dsl.AstDSL.argument;
@@ -41,6 +40,7 @@ import static org.opensearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.opensearch.sql.data.type.ExprCoreType.LONG;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.TIMESTAMP;
+import static org.opensearch.sql.datasource.model.EmptyDataSourceService.getEmptyDataSourceService;
 import static org.opensearch.sql.expression.DSL.literal;
 import static org.opensearch.sql.utils.MLCommonsConstants.ACTION;
 import static org.opensearch.sql.utils.MLCommonsConstants.ALGO;
@@ -66,7 +66,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -90,9 +89,6 @@ import org.opensearch.sql.ast.tree.RareTopN.CommandType;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.datasource.DataSourceService;
-import org.opensearch.sql.datasource.model.DataSource;
-import org.opensearch.sql.datasource.model.DataSourceMetadata;
-import org.opensearch.sql.datasource.model.DataSourceType;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
@@ -282,6 +278,33 @@ class AnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void analyze_filter_visit_score_function() {
+    UnresolvedPlan unresolvedPlan =
+        AstDSL.filter(
+            AstDSL.relation("schema"),
+            new ScoreFunction(
+                AstDSL.function(
+                    "match_phrase_prefix",
+                    AstDSL.unresolvedArg("field", stringLiteral("field_value1")),
+                    AstDSL.unresolvedArg("query", stringLiteral("search query")),
+                    AstDSL.unresolvedArg("boost", stringLiteral("3"))),
+                AstDSL.doubleLiteral(1.0)));
+    assertAnalyzeEqual(
+        LogicalPlanDSL.filter(
+            LogicalPlanDSL.relation("schema", table),
+            DSL.match_phrase_prefix(
+                DSL.namedArgument("field", "field_value1"),
+                DSL.namedArgument("query", "search query"),
+                DSL.namedArgument("boost", "3.0"))),
+        unresolvedPlan);
+
+    LogicalPlan logicalPlan = analyze(unresolvedPlan);
+    OpenSearchFunction relevanceQuery =
+        (OpenSearchFunction) ((LogicalFilter) logicalPlan).getCondition();
+    assertEquals(true, relevanceQuery.isScoreTracked());
+  }
+
+  @Test
   public void analyze_filter_visit_score_function_with_unsupported_boost_SemanticCheckException() {
     UnresolvedPlan unresolvedPlan =
         AstDSL.filter(
@@ -463,6 +486,284 @@ class AnalyzerTest extends AnalyzerTestBase {
                         AstDSL.function(
                             "=", nestedAllTupleFields("message"), AstDSL.intLiteral(1))),
                     AstDSL.alias("nested(message.*)", nestedAllTupleFields("message")))));
+  }
+
+  @Test
+  public void project_nested_field_star_arg() {
+    List<Map<String, ReferenceExpression>> nestedArgs =
+        List.of(
+            Map.of(
+                "field", new ReferenceExpression("message.info", STRING),
+                "path", new ReferenceExpression("message", STRING)));
+
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression(
+                "nested(message.info)", DSL.nested(DSL.ref("message.info", STRING))));
+
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.nested(
+                LogicalPlanDSL.relation("schema", table), nestedArgs, projectList),
+            DSL.named("nested(message.info)", DSL.nested(DSL.ref("message.info", STRING)))),
+        AstDSL.projectWithArg(
+            AstDSL.relation("schema"),
+            AstDSL.defaultFieldsArgs(),
+            AstDSL.alias("nested(message.*)", nestedAllTupleFields("message"))));
+  }
+
+  @Test
+  public void project_nested_field_star_arg_with_another_nested_function() {
+    List<Map<String, ReferenceExpression>> nestedArgs =
+        List.of(
+            Map.of(
+                "field", new ReferenceExpression("message.info", STRING),
+                "path", new ReferenceExpression("message", STRING)),
+            Map.of(
+                "field", new ReferenceExpression("comment.data", STRING),
+                "path", new ReferenceExpression("comment", STRING)));
+
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression(
+                "nested(message.info)", DSL.nested(DSL.ref("message.info", STRING))),
+            new NamedExpression(
+                "nested(comment.data)", DSL.nested(DSL.ref("comment.data", STRING))));
+
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.nested(
+                LogicalPlanDSL.relation("schema", table), nestedArgs, projectList),
+            DSL.named("nested(message.info)", DSL.nested(DSL.ref("message.info", STRING))),
+            DSL.named("nested(comment.data)", DSL.nested(DSL.ref("comment.data", STRING)))),
+        AstDSL.projectWithArg(
+            AstDSL.relation("schema"),
+            AstDSL.defaultFieldsArgs(),
+            AstDSL.alias("nested(message.*)", nestedAllTupleFields("message")),
+            AstDSL.alias("nested(comment.*)", nestedAllTupleFields("comment"))));
+  }
+
+  @Test
+  public void project_nested_field_star_arg_with_another_field() {
+    List<Map<String, ReferenceExpression>> nestedArgs =
+        List.of(
+            Map.of(
+                "field", new ReferenceExpression("message.info", STRING),
+                "path", new ReferenceExpression("message", STRING)));
+
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression(
+                "nested(message.info)", DSL.nested(DSL.ref("message.info", STRING))),
+            new NamedExpression("comment.data", DSL.ref("comment.data", STRING)));
+
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.nested(
+                LogicalPlanDSL.relation("schema", table), nestedArgs, projectList),
+            DSL.named("nested(message.info)", DSL.nested(DSL.ref("message.info", STRING))),
+            DSL.named("comment.data", DSL.ref("comment.data", STRING))),
+        AstDSL.projectWithArg(
+            AstDSL.relation("schema"),
+            AstDSL.defaultFieldsArgs(),
+            AstDSL.alias("nested(message.*)", nestedAllTupleFields("message")),
+            AstDSL.alias("comment.data", field("comment.data"))));
+  }
+
+  @Test
+  public void project_nested_field_star_arg_with_highlight() {
+    List<Map<String, ReferenceExpression>> nestedArgs =
+        List.of(
+            Map.of(
+                "field", new ReferenceExpression("message.info", STRING),
+                "path", new ReferenceExpression("message", STRING)));
+
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression(
+                "nested(message.info)", DSL.nested(DSL.ref("message.info", STRING))),
+            DSL.named("highlight(fieldA)", new HighlightExpression(DSL.literal("fieldA"))));
+
+    Map<String, Literal> highlightArgs = new HashMap<>();
+
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.nested(
+                LogicalPlanDSL.highlight(
+                    LogicalPlanDSL.relation("schema", table), DSL.literal("fieldA"), highlightArgs),
+                nestedArgs,
+                projectList),
+            DSL.named("nested(message.info)", DSL.nested(DSL.ref("message.info", STRING))),
+            DSL.named("highlight(fieldA)", new HighlightExpression(DSL.literal("fieldA")))),
+        AstDSL.projectWithArg(
+            AstDSL.relation("schema"),
+            AstDSL.defaultFieldsArgs(),
+            AstDSL.alias("nested(message.*)", nestedAllTupleFields("message")),
+            AstDSL.alias(
+                "highlight(fieldA)",
+                new HighlightFunction(AstDSL.stringLiteral("fieldA"), highlightArgs))));
+  }
+
+  @Test
+  public void project_nested_field_and_path_args() {
+    List<Map<String, ReferenceExpression>> nestedArgs =
+        List.of(
+            Map.of(
+                "field", new ReferenceExpression("message.info", STRING),
+                "path", new ReferenceExpression("message", STRING)));
+
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression(
+                "nested(message.info)",
+                DSL.nested(DSL.ref("message.info", STRING), DSL.ref("message", STRING)),
+                null));
+
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.nested(
+                LogicalPlanDSL.relation("schema", table), nestedArgs, projectList),
+            DSL.named(
+                "nested(message.info)",
+                DSL.nested(DSL.ref("message.info", STRING), DSL.ref("message", STRING)))),
+        AstDSL.projectWithArg(
+            AstDSL.relation("schema"),
+            AstDSL.defaultFieldsArgs(),
+            AstDSL.alias(
+                "nested(message.info)",
+                function("nested", qualifiedName("message", "info"), qualifiedName("message")),
+                null)));
+  }
+
+  @Test
+  public void project_nested_deep_field_arg() {
+    List<Map<String, ReferenceExpression>> nestedArgs =
+        List.of(
+            Map.of(
+                "field", new ReferenceExpression("message.info.id", STRING),
+                "path", new ReferenceExpression("message.info", STRING)));
+
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression(
+                "nested(message.info.id)", DSL.nested(DSL.ref("message.info.id", STRING)), null));
+
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.nested(
+                LogicalPlanDSL.relation("schema", table), nestedArgs, projectList),
+            DSL.named("nested(message.info.id)", DSL.nested(DSL.ref("message.info.id", STRING)))),
+        AstDSL.projectWithArg(
+            AstDSL.relation("schema"),
+            AstDSL.defaultFieldsArgs(),
+            AstDSL.alias(
+                "nested(message.info.id)",
+                function("nested", qualifiedName("message", "info", "id")),
+                null)));
+  }
+
+  @Test
+  public void project_multiple_nested() {
+    List<Map<String, ReferenceExpression>> nestedArgs =
+        List.of(
+            Map.of(
+                "field", new ReferenceExpression("message.info", STRING),
+                "path", new ReferenceExpression("message", STRING)),
+            Map.of(
+                "field", new ReferenceExpression("comment.data", STRING),
+                "path", new ReferenceExpression("comment", STRING)));
+
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression(
+                "nested(message.info)", DSL.nested(DSL.ref("message.info", STRING)), null),
+            new NamedExpression(
+                "nested(comment.data)", DSL.nested(DSL.ref("comment.data", STRING)), null));
+
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.nested(
+                LogicalPlanDSL.relation("schema", table), nestedArgs, projectList),
+            DSL.named("nested(message.info)", DSL.nested(DSL.ref("message.info", STRING))),
+            DSL.named("nested(comment.data)", DSL.nested(DSL.ref("comment.data", STRING)))),
+        AstDSL.projectWithArg(
+            AstDSL.relation("schema"),
+            AstDSL.defaultFieldsArgs(),
+            AstDSL.alias(
+                "nested(message.info)", function("nested", qualifiedName("message", "info")), null),
+            AstDSL.alias(
+                "nested(comment.data)",
+                function("nested", qualifiedName("comment", "data")),
+                null)));
+  }
+
+  @Test
+  public void project_nested_invalid_field_throws_exception() {
+    var exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                analyze(
+                    AstDSL.projectWithArg(
+                        AstDSL.relation("schema"),
+                        AstDSL.defaultFieldsArgs(),
+                        AstDSL.alias(
+                            "message", function("nested", qualifiedName("message")), null))));
+    assertEquals(exception.getMessage(), "Illegal nested field name: message");
+  }
+
+  @Test
+  public void project_nested_invalid_arg_type_throws_exception() {
+    var exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                analyze(
+                    AstDSL.projectWithArg(
+                        AstDSL.relation("schema"),
+                        AstDSL.defaultFieldsArgs(),
+                        AstDSL.alias(
+                            "message", function("nested", stringLiteral("message")), null))));
+    assertEquals(exception.getMessage(), "Illegal nested field name: message");
+  }
+
+  @Test
+  public void project_nested_no_args_throws_exception() {
+    var exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                analyze(
+                    AstDSL.projectWithArg(
+                        AstDSL.relation("schema"),
+                        AstDSL.defaultFieldsArgs(),
+                        AstDSL.alias("message", function("nested"), null))));
+    assertEquals(
+        exception.getMessage(),
+        "on nested object only allowed 2 parameters (field,path) or 1 parameter (field)");
+  }
+
+  @Test
+  public void project_nested_too_many_args_throws_exception() {
+    var exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                analyze(
+                    AstDSL.projectWithArg(
+                        AstDSL.relation("schema"),
+                        AstDSL.defaultFieldsArgs(),
+                        AstDSL.alias(
+                            "message",
+                            function(
+                                "nested",
+                                stringLiteral("message.info"),
+                                stringLiteral("message"),
+                                stringLiteral("message")),
+                            null))));
+    assertEquals(
+        exception.getMessage(),
+        "on nested object only allowed 2 parameters (field,path) or 1 parameter (field)");
   }
 
   @Test
@@ -697,6 +998,33 @@ class AnalyzerTest extends AnalyzerTestBase {
                     AstDSL.alias("string_value", AstDSL.qualifiedName("string_value"))),
                 "schema"),
             AstDSL.allFields()));
+  }
+
+  /**
+   * Ensure  function falls back to legacy engine when used in GROUP BY clause. TODO Remove
+   * this test when support is added.
+   */
+  @Test
+  public void nested_group_by_clause_throws_syntax_exception() {
+    SyntaxCheckException exception =
+        assertThrows(
+            SyntaxCheckException.class,
+            () ->
+                analyze(
+                    AstDSL.project(
+                        AstDSL.agg(
+                            AstDSL.relation("schema"),
+                            emptyList(),
+                            emptyList(),
+                            ImmutableList.of(
+                                alias(
+                                    "nested(message.info)",
+                                    function("nested", qualifiedName("message", "info")))),
+                            emptyList()))));
+    assertEquals(
+        "Falling back to legacy engine. Nested function is not supported in WHERE,"
+            + " GROUP BY, and HAVING clauses.",
+        exception.getMessage());
   }
 
   /** SELECT name, AVG(age) FROM test GROUP BY name. */
@@ -1120,43 +1448,7 @@ class AnalyzerTest extends AnalyzerTestBase {
 
   @Test
   public void table_function_with_datasource_with_no_functions() {
-    DataSourceService dataSourceService = new DataSourceService() {
-      @Override
-      public DataSource getDataSource(String dataSourceName) {
-        return new DataSource(DEFAULT_DATASOURCE_NAME, DataSourceType.OPENSEARCH, storageEngine());
-      }
-
-      @Override
-      public Set<DataSourceMetadata> getDataSourceMetadata(boolean isDefaultDataSourceRequired) {
-        return Set.of();
-      }
-
-      @Override
-      public DataSourceMetadata getDataSourceMetadata(String name) {
-        return null;
-      }
-
-      @Override
-      public void createDataSource(DataSourceMetadata metadata) {
-
-      }
-
-      @Override
-      public void updateDataSource(DataSourceMetadata dataSourceMetadata) {
-
-      }
-
-      @Override
-      public void deleteDataSource(String dataSourceName) {
-
-      }
-
-      @Override
-      public Boolean dataSourceExists(String dataSourceName) {
-        return null;
-      }
-    };
-
+    DataSourceService dataSourceService = getEmptyDataSourceService();
     Analyzer analyzer = new Analyzer(super.expressionAnalyzer, dataSourceService, BuiltinFunctionRepository.getInstance(dataSourceService));
     ExpressionEvaluationException exception =
         assertThrows(
