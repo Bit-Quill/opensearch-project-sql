@@ -78,26 +78,4 @@ public class ExpressionTestBase {
       }
     };
   }
-
-  protected Environment<Expression, ExprType> typeEnv() {
-    return typeEnv;
-  }
-
-  protected Function<List<Expression>, FunctionExpression> functionMapping(
-      BuiltinFunctionName builtinFunctionName) {
-    switch (builtinFunctionName) {
-      case ADD:
-        return (expressions) -> DSL.add(expressions.get(0), expressions.get(1));
-      case SUBTRACT:
-        return (expressions) -> DSL.subtract(expressions.get(0), expressions.get(1));
-      case MULTIPLY:
-        return (expressions) -> DSL.multiply(expressions.get(0), expressions.get(1));
-      case DIVIDE:
-        return (expressions) -> DSL.divide(expressions.get(0), expressions.get(1));
-      case MODULUS:
-        return (expressions) -> DSL.modulus(expressions.get(0), expressions.get(1));
-      default:
-        throw new RuntimeException();
-    }
-  }
 }

@@ -38,13 +38,12 @@ public class OpenSearchFunctionTest extends ExpressionTestBase {
 
   @Test
   void test_opensearch_function() {
-//    OpenSearchFunction function = mock(OpenSearchFunction.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
-    OpenSearchFunction function = new OpenSearchFunction(new FunctionName("match"), List.of(new NamedArgumentExpression("a", new LiteralExpression(new ExprStringValue("a")))));
-    FunctionExpression expr = function;
-//    assertEquals("match(field=\"message\", query=\"search query\")", expr.toString());
+    OpenSearchFunction function = new OpenSearchFunction(
+        new FunctionName("match"),
+        List.of(new NamedArgumentExpression("test", new LiteralExpression(new ExprStringValue("test")))));
     assertEquals(BOOLEAN, function.type());
     assertThrows(UnsupportedOperationException.class,() -> function.valueOf(null));
-    assertEquals("match(a=\"a\")", function.toString());
+    assertEquals("match(test=\"test\")", function.toString());
   }
 
 //  @Test

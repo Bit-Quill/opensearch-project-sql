@@ -1016,7 +1016,7 @@ class AnalyzerTest extends AnalyzerTestBase {
   }
 
   /**
-   * Ensure  function falls back to legacy engine when used in GROUP BY clause. TODO Remove
+   * Ensure  Nested function falls back to legacy engine when used in GROUP BY clause. TODO Remove
    * this test when support is added.
    */
   @Test
