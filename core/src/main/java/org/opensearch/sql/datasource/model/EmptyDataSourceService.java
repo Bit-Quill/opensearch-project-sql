@@ -82,7 +82,6 @@ public class EmptyDataSourceService {
     return (dataSourceSchemaName, tableName) -> table;
   }
 
-
   public static DataSourceService getEmptyDataSourceService() {
     return emptyDataSourceService;
   }

@@ -22,7 +22,6 @@ public class NestedFunctionResolver implements FunctionResolver{
               public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
                 return valueEnv.resolve(getArguments().get(0));
               }
-
               @Override
               public ExprType type() {
                 return getArguments().get(0).type();

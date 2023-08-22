@@ -36,7 +36,6 @@ public class OpenSearchFunctionTest extends ExpressionTestBase {
       new NamedArgumentExpression("query", DSL.literal("search query"));
   private final DataSourceMetadata defaultDataSourceMetadata = DataSourceMetadata.defaultOpenSearchDataSourceMetadata();
 
-
   @Test
   void test_opensearch_function() {
 //    OpenSearchFunction function = mock(OpenSearchFunction.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
@@ -47,4 +46,15 @@ public class OpenSearchFunctionTest extends ExpressionTestBase {
     assertThrows(UnsupportedOperationException.class,() -> function.valueOf(null));
     assertEquals("match(a=\"a\")", function.toString());
   }
+
+//  @Test
+//  void test_nested_function() {
+////    OpenSearchFunction function = mock(OpenSearchFunction.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
+//    OpenSearchFunction function = new OpenSearchFunction(new FunctionName("match"), List.of(new NamedArgumentExpression("a", new LiteralExpression(new ExprStringValue("a")))));
+//    FunctionExpression expr = function;
+////    assertEquals("match(field=\"message\", query=\"search query\")", expr.toString());
+//    assertEquals(BOOLEAN, function.type());
+//    assertThrows(UnsupportedOperationException.class,() -> function.valueOf(null));
+//    assertEquals("match(a=\"a\")", function.toString());
+//  }
 }

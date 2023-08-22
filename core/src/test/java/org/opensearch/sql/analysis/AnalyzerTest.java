@@ -89,14 +89,23 @@ import org.opensearch.sql.ast.tree.Paginate;
 import org.opensearch.sql.ast.tree.RareTopN.CommandType;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
+import org.opensearch.sql.data.model.ExprValue;
+import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.datasource.DataSourceService;
 import org.opensearch.sql.exception.ExpressionEvaluationException;
 import org.opensearch.sql.exception.SemanticCheckException;
 import org.opensearch.sql.expression.DSL;
+import org.opensearch.sql.expression.Expression;
+import org.opensearch.sql.expression.FunctionExpression;
 import org.opensearch.sql.expression.HighlightExpression;
 import org.opensearch.sql.expression.NamedExpression;
 import org.opensearch.sql.expression.ReferenceExpression;
+import org.opensearch.sql.expression.env.Environment;
+import org.opensearch.sql.expression.function.BuiltinFunctionName;
 import org.opensearch.sql.expression.function.BuiltinFunctionRepository;
+import org.opensearch.sql.expression.function.FunctionImplementation;
+import org.opensearch.sql.expression.function.FunctionName;
+import org.opensearch.sql.expression.function.FunctionProperties;
 import org.opensearch.sql.expression.function.OpenSearchFunction;
 import org.opensearch.sql.expression.window.WindowDefinition;
 import org.opensearch.sql.planner.logical.LogicalAD;
@@ -433,21 +442,40 @@ class AnalyzerTest extends AnalyzerTestBase {
             new NamedExpression(
                 "nested(message.info)", DSL.nested(DSL.ref("message.info", STRING)), null));
 
+    UnresolvedPlan unresolvedPlan = AstDSL.projectWithArg(
+        AstDSL.relation("schema"),
+        AstDSL.defaultFieldsArgs(),
+        AstDSL.alias(
+            "nested(message.info)",
+            function("nested", qualifiedName("message", "info")),
+            null));
+
     assertAnalyzeEqual(
         LogicalPlanDSL.project(
             LogicalPlanDSL.nested(
                 LogicalPlanDSL.relation("schema", table), nestedArgs, projectList),
             DSL.named("nested(message.info)", DSL.nested(DSL.ref("message.info", STRING)))),
-        AstDSL.projectWithArg(
-            AstDSL.relation("schema"),
-            AstDSL.defaultFieldsArgs(),
-            AstDSL.alias(
-                "nested(message.info)",
-                function("nested", qualifiedName("message", "info")),
-                null)));
+        unresolvedPlan);
 
     assertTrue(isNestedFunction(DSL.nested(DSL.ref("message.info", STRING))));
     assertFalse(isNestedFunction(DSL.literal("fieldA")));
+  }
+
+  @Test
+  void nested_query() {
+    FunctionImplementation result =
+        BuiltinFunctionRepository.getInstance(dataSourceService)
+            .compile(new FunctionProperties(), FunctionName.of("nested"), List.of(DSL.ref("message.info", STRING)));
+    FunctionExpression expr = (FunctionExpression) result;
+    assertEquals(
+        String.format(
+            "FunctionExpression(functionName=%s, arguments=[message.info])",
+            BuiltinFunctionName.NESTED.getName()),
+        expr.toString());
+    Environment<Expression, ExprValue> nestedTuple =
+        ExprValueUtils.tupleValue(Map.of("message", Map.of("info", "result"))).bindingTuples();
+    assertEquals(expr.valueOf(nestedTuple), ExprValueUtils.stringValue("result"));
+    assertEquals(expr.type(), STRING);
   }
 
   @Test

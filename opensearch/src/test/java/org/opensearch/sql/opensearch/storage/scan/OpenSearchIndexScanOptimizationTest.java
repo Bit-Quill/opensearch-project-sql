@@ -169,8 +169,8 @@ class OpenSearchIndexScanOptimizationTest {
           DSL.namedArgument("fields", DSL.literal(
               new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
                   "intV", ExprValueUtils.floatValue(1.5F)))))),
-          DSL.namedArgument("query", "QUERY"),
-          DSL.namedArgument("boost", "12.5"));
+          OpenSearchDSL.namedArgument("query", "QUERY"),
+        OpenSearchDSL.namedArgument("boost", "12.5"));
 
     ((OpenSearchFunction) queryString).setScoreTracked(true);
 
@@ -209,15 +209,15 @@ class OpenSearchIndexScanOptimizationTest {
         DSL.namedArgument("fields", DSL.literal(
             new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
                 "intV", ExprValueUtils.floatValue(1.5F)))))),
-        DSL.namedArgument("query", "QUERY"),
-        DSL.namedArgument("boost", "12.5"));
+        OpenSearchDSL.namedArgument("query", "QUERY"),
+        OpenSearchDSL.namedArgument("boost", "12.5"));
     ((OpenSearchFunction) firstQueryString).setScoreTracked(false);
     FunctionExpression secondQueryString = OpenSearchDSL.query_string(
         DSL.namedArgument("fields", DSL.literal(
             new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
                 "intV", ExprValueUtils.floatValue(1.5F)))))),
-        DSL.namedArgument("query", "QUERY"),
-        DSL.namedArgument("boost", "12.5"));
+        OpenSearchDSL.namedArgument("query", "QUERY"),
+        OpenSearchDSL.namedArgument("boost", "12.5"));
     ((OpenSearchFunction) secondQueryString).setScoreTracked(true);
 
     LogicalPlan logicalPlan = project(
@@ -248,8 +248,8 @@ class OpenSearchIndexScanOptimizationTest {
         DSL.namedArgument("fields", DSL.literal(
             new ExprTupleValue(new LinkedHashMap<>(ImmutableMap.of(
                 "intV", ExprValueUtils.floatValue(1.5F)))))),
-        DSL.namedArgument("query", "QUERY"),
-        DSL.namedArgument("boost", "12.5"));
+        OpenSearchDSL.namedArgument("query", "QUERY"),
+        OpenSearchDSL.namedArgument("boost", "12.5"));
 
     LogicalPlan logicalPlan = project(
         filter(

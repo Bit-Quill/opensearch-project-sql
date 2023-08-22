@@ -29,7 +29,7 @@ import static org.opensearch.sql.datasource.model.EmptyDataSourceService.getEmpt
 
 public class DSL {
 
-  public DSL() {}
+  private DSL() {}
 
   public static LiteralExpression literal(Byte value) {
     return new LiteralExpression(ExprValueUtils.byteValue(value));
@@ -118,10 +118,6 @@ public class DSL {
 
   public static NamedArgumentExpression namedArgument(String argName, Expression value) {
     return new NamedArgumentExpression(argName, value);
-  }
-
-  public static NamedArgumentExpression namedArgument(String name, String value) {
-    return namedArgument(name, literal(value));
   }
 
   public static GrokExpression grok(
@@ -826,10 +822,6 @@ public class DSL {
 
   public static FunctionExpression typeof(Expression value) {
     return compile(FunctionProperties.None, BuiltinFunctionName.TYPEOF, value);
-  }
-
-  public static FunctionExpression match_phrase_prefix(Expression... args) {
-    return compile(FunctionProperties.None, BuiltinFunctionName.MATCH_PHRASE_PREFIX, args);
   }
 
   public static FunctionExpression now(FunctionProperties functionProperties, Expression... args) {
