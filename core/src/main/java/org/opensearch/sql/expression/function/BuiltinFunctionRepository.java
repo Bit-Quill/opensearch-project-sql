@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -67,11 +68,13 @@ public class BuiltinFunctionRepository {
    * @return singleton instance
    */
   public static synchronized BuiltinFunctionRepository getInstance(DataSourceService dataSourceService) {
-    // TODO: get hashCode of dataSourceMetadata
-    int dataSourceServiceHash = dataSourceService.hashCode();
+    Set<DataSourceMetadata> dataSourceMetadataSet =
+        dataSourceService.getDataSourceMetadata(true);
+    Set<Integer> dataSourceServiceHashSet =
+        dataSourceMetadataSet.stream().map(metadata -> metadata.hashCode()).collect(Collectors.toSet());
 
     // Creates new Repository for every dataSourceService
-    if (!instance.containsKey(dataSourceServiceHash)) {
+    if (!dataSourceServiceHashSet.stream().anyMatch(hash -> instance.containsKey(hash))) {
       BuiltinFunctionRepository repository = new BuiltinFunctionRepository(new HashMap<>());
 
       // Register all built-in functions
@@ -90,15 +93,16 @@ public class BuiltinFunctionRepository {
       // TODO: remove this resolver when Analyzers are moved to opensearch module
       repository.register(new NestedFunctionResolver());
 
-      for (DataSourceMetadata metadata : dataSourceService.getDataSourceMetadata(true)) {
+      for (DataSourceMetadata metadata : dataSourceMetadataSet) {
         dataSourceService
             .getDataSource(metadata.getName())
             .getStorageEngine().getFunctions().
             forEach(function -> repository.register(function));
+        instance.put(metadata.hashCode(), repository);
       }
-      instance.put(dataSourceServiceHash, repository);
+      return repository;
     }
-    return instance.get(dataSourceServiceHash);
+    return instance.get(dataSourceServiceHashSet.iterator().next());
   }
 
   /**
