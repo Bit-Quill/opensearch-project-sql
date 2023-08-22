@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.sql.analysis.DataSourceSchemaIdentifierNameResolver.DEFAULT_DATASOURCE_NAME;
+import static org.opensearch.sql.analysis.NestedAnalyzer.isNestedFunction;
 import static org.opensearch.sql.ast.dsl.AstDSL.aggregate;
 import static org.opensearch.sql.ast.dsl.AstDSL.alias;
 import static org.opensearch.sql.ast.dsl.AstDSL.argument;
@@ -417,6 +418,36 @@ class AnalyzerTest extends AnalyzerTestBase {
             AstDSL.defaultFieldsArgs(),
             AstDSL.field("integer_value"), // Field not wrapped by Alias
             AstDSL.alias("double_value", AstDSL.field("double_value"))));
+  }
+
+  @Test
+  public void project_nested_field_arg() {
+    List<Map<String, ReferenceExpression>> nestedArgs =
+        List.of(
+            Map.of(
+                "field", new ReferenceExpression("message.info", STRING),
+                "path", new ReferenceExpression("message", STRING)));
+
+    List<NamedExpression> projectList =
+        List.of(
+            new NamedExpression(
+                "nested(message.info)", DSL.nested(DSL.ref("message.info", STRING)), null));
+
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.nested(
+                LogicalPlanDSL.relation("schema", table), nestedArgs, projectList),
+            DSL.named("nested(message.info)", DSL.nested(DSL.ref("message.info", STRING)))),
+        AstDSL.projectWithArg(
+            AstDSL.relation("schema"),
+            AstDSL.defaultFieldsArgs(),
+            AstDSL.alias(
+                "nested(message.info)",
+                function("nested", qualifiedName("message", "info")),
+                null)));
+
+    assertTrue(isNestedFunction(DSL.nested(DSL.ref("message.info", STRING))));
+    assertFalse(isNestedFunction(DSL.literal("fieldA")));
   }
 
   @Test
