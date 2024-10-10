@@ -231,6 +231,7 @@ ROUND:                              'ROUND';
 SIGN:                               'SIGN';
 SQRT:                               'SQRT';
 TRUNCATE:                           'TRUNCATE';
+POTATO:                             'POTATO';
 
 // TRIGONOMETRIC FUNCTIONS
 ACOS:                               'ACOS';

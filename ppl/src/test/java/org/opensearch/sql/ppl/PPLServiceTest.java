@@ -107,6 +107,30 @@ public class PPLServiceTest {
   }
 
   @Test
+  public void testPotatoShouldPass() {
+    doAnswer(
+            invocation -> {
+              ResponseListener<QueryResponse> listener = invocation.getArgument(1);
+              listener.onResponse(new QueryResponse(schema, Collections.emptyList(), Cursor.None));
+              return null;
+            })
+        .when(queryService)
+        .execute(any(), any());
+
+    pplService.execute(
+        new PPLQueryRequest("search source=t a=potato(10)", null, QUERY, "csv"),
+        new ResponseListener<QueryResponse>() {
+          @Override
+          public void onResponse(QueryResponse pplQueryResponse) {}
+
+          @Override
+          public void onFailure(Exception e) {
+            Assert.fail();
+          }
+        });
+  }
+
+  @Test
   public void testExplainShouldPass() {
     doAnswer(
             invocation -> {

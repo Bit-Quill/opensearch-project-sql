@@ -446,6 +446,10 @@ public class DSL {
     return compile(FunctionProperties.None, BuiltinFunctionName.MONTHNAME, expressions);
   }
 
+  public static FunctionExpression potato(Expression... expressions) {
+    return compile(FunctionProperties.None, BuiltinFunctionName.POTATO, expressions);
+  }
+
   public static FunctionExpression quarter(Expression... expressions) {
     return compile(FunctionProperties.None, BuiltinFunctionName.QUARTER, expressions);
   }

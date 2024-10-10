@@ -438,6 +438,13 @@ public class AstBuilderTest {
   }
 
   @Test
+  public void testEvalPotatoFunction() {
+    assertEqual(
+        "source=t | eval r=potato(a)",
+        eval(relation("t"), let(field("r"), function("potato", field("a")))));
+  }
+
+  @Test
   public void testIndexName() {
     assertEqual(
         "source=`log.2020.04.20.` a=1",

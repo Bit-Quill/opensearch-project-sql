@@ -507,6 +507,28 @@ Example::
     +-------------------+
 
 
+POTATO
+______
+
+Description
+>>>>>>>>>>>
+
+Usage: POTATO(x) calculates the potato of x.
+
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    os> source=people | eval `Test1` = POTATO(3), `Test2` = POTATO(-3), `Test3` = POTATO(2) | fields `Test1`, `Test2`, `Test3`
+    fetched rows / total rows = 1/1
+    +-------------+--------------+--------------+
+    | Test1       | Test2        | Test3        |
+    |-------------+--------------+--------------|
+    | 3.0         | -3.0         | 2            |
+    +-------------+--------------+--------------+
+
 POW
 ---
 

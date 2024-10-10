@@ -90,6 +90,7 @@ public class MathematicalFunction {
     repository.register(sqrt());
     repository.register(tan());
     repository.register(truncate());
+    repository.register(potato());
   }
 
   /**
@@ -911,6 +912,18 @@ public class MathematicalFunction {
     return baseMathFunction(
         BuiltinFunctionName.TAN.getName(),
         v -> new ExprDoubleValue(Math.tan(v.doubleValue())),
+        DOUBLE);
+  }
+
+  /**
+   * <b>Definition of potato(x) function.</b><br>
+   * Calculates the potato of x, where x is some number<br>
+   * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+   */
+  private static DefaultFunctionResolver potato() {
+    return baseMathFunction(
+        BuiltinFunctionName.POTATO.getName(),
+        v -> new ExprDoubleValue(v.doubleValue()),
         DOUBLE);
   }
 }

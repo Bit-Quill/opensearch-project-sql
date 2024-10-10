@@ -42,6 +42,7 @@ public enum BuiltinFunctionName {
   SQRT(FunctionName.of("sqrt")),
   CBRT(FunctionName.of("cbrt")),
   TRUNCATE(FunctionName.of("truncate")),
+  POTATO(FunctionName.of("potato")),
 
   ACOS(FunctionName.of("acos")),
   ASIN(FunctionName.of("asin")),

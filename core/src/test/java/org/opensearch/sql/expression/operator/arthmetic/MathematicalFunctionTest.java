@@ -1624,4 +1624,13 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(cbrt.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.cbrt(value))));
     assertEquals(String.format("cbrt(%s)", value), cbrt.toString());
   }
+
+  /** Test potato with potato value. */
+  @ParameterizedTest(name = "potato({}")
+  @ValueSource(doubles = {1D, 30D})
+  public void potato_potato_value(Double value) {
+    FunctionExpression potato = DSL.potato(DSL.literal(value));
+    assertThat(potato.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(value)));
+    assertEquals(String.format("potato(%s)", value), potato.toString());
+  }
 }

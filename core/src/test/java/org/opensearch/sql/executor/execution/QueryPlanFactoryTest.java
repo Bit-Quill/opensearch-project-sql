@@ -67,6 +67,14 @@ class QueryPlanFactoryTest {
   }
 
   @Test
+  public void potato_should_success() {
+    Statement query = new Explain(new Query(plan, 0));
+    AbstractPlan queryExecution =
+        factory.create(query, Optional.empty(), Optional.of(explainListener));
+    assertTrue(queryExecution instanceof ExplainPlan);
+  }
+
+  @Test
   public void create_from_explain_should_success() {
     Statement query = new Explain(new Query(plan, 0));
     AbstractPlan queryExecution =

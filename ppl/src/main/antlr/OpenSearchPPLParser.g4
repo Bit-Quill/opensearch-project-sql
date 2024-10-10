@@ -485,6 +485,7 @@ mathematicalFunctionName
    | SIGN
    | SQRT
    | TRUNCATE
+   | POTATO
    | trigonometricFunctionName
    ;
 
