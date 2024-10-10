@@ -7,6 +7,7 @@ package org.opensearch.sql.ppl.parser;
 
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
+import static org.opensearch.sql.ast.dsl.AstDSL.addField;
 import static org.opensearch.sql.ast.dsl.AstDSL.agg;
 import static org.opensearch.sql.ast.dsl.AstDSL.aggregate;
 import static org.opensearch.sql.ast.dsl.AstDSL.alias;
@@ -435,6 +436,13 @@ public class AstBuilderTest {
     assertEqual(
         "source=t | eval r=abs(f)",
         eval(relation("t"), let(field("r"), function("abs", field("f")))));
+  }
+
+  @Test
+  public void testAddfieldCommand() {
+    assertEqual(
+        "source=t | addfield 'x' 'foo'",
+        addField(relation("t"), stringLiteral("x"), stringLiteral("foo")));
   }
 
   @Test

@@ -41,6 +41,7 @@ import org.opensearch.sql.ast.expression.ParseMethod;
 import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.tree.AD;
+import org.opensearch.sql.ast.tree.AddField;
 import org.opensearch.sql.ast.tree.Aggregation;
 import org.opensearch.sql.ast.tree.CloseCursor;
 import org.opensearch.sql.ast.tree.Dedupe;
@@ -65,6 +66,7 @@ import org.opensearch.sql.ast.tree.UnresolvedPlan;
 import org.opensearch.sql.ast.tree.Values;
 import org.opensearch.sql.common.antlr.SyntaxCheckException;
 import org.opensearch.sql.data.model.ExprMissingValue;
+import org.opensearch.sql.data.model.ExprValueUtils;
 import org.opensearch.sql.data.type.ExprCoreType;
 import org.opensearch.sql.datasource.DataSourceService;
 import org.opensearch.sql.exception.SemanticCheckException;
@@ -462,6 +464,22 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
               context.getNamedParseExpressions().add(new NamedExpression(group, expr));
             });
     return child;
+  }
+
+  @Override
+  public LogicalPlan visitAddField(final AddField node, final AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+    ImmutableList.Builder<Pair<ReferenceExpression, Expression>> expressionsBuilder =
+        new Builder<>();
+    Expression valueExpression =
+        new LiteralExpression(ExprValueUtils.stringValue((String) node.getFieldValue().getValue()));
+    ReferenceExpression ref =
+        DSL.ref((String) node.getFieldName().getValue(), valueExpression.type());
+    expressionsBuilder.add(ImmutablePair.of(ref, valueExpression));
+    TypeEnvironment typeEnvironment = context.peek();
+    // define the new reference in type env.
+    typeEnvironment.define(ref);
+    return new LogicalEval(child, expressionsBuilder.build());
   }
 
   /** Build {@link LogicalSort}. */

@@ -48,6 +48,7 @@ import org.opensearch.sql.ast.expression.QualifiedName;
 import org.opensearch.sql.ast.expression.UnresolvedArgument;
 import org.opensearch.sql.ast.expression.UnresolvedExpression;
 import org.opensearch.sql.ast.tree.AD;
+import org.opensearch.sql.ast.tree.AddField;
 import org.opensearch.sql.ast.tree.Aggregation;
 import org.opensearch.sql.ast.tree.Dedupe;
 import org.opensearch.sql.ast.tree.Eval;
@@ -268,6 +269,14 @@ public class AstBuilder extends OpenSearchPPLParserBaseVisitor<UnresolvedPlan> {
     Literal pattern = (Literal) internalVisitExpression(ctx.pattern);
 
     return new Parse(ParseMethod.GROK, sourceField, pattern, ImmutableMap.of());
+  }
+
+  @Override
+  public UnresolvedPlan visitAddfieldCommand(final OpenSearchPPLParser.AddfieldCommandContext ctx) {
+    Literal fieldName = (Literal) internalVisitExpression(ctx.field_name);
+    Literal fieldValue = (Literal) internalVisitExpression(ctx.field_value);
+
+    return new AddField(fieldName, fieldValue);
   }
 
   @Override

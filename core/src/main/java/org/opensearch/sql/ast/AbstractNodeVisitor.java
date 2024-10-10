@@ -40,6 +40,7 @@ import org.opensearch.sql.ast.statement.Explain;
 import org.opensearch.sql.ast.statement.Query;
 import org.opensearch.sql.ast.statement.Statement;
 import org.opensearch.sql.ast.tree.AD;
+import org.opensearch.sql.ast.tree.AddField;
 import org.opensearch.sql.ast.tree.Aggregation;
 import org.opensearch.sql.ast.tree.CloseCursor;
 import org.opensearch.sql.ast.tree.Dedupe;
@@ -198,6 +199,10 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitEval(Eval node, C context) {
+    return visitChildren(node, context);
+  }
+
+  public T visitAddField(AddField node, C context) {
     return visitChildren(node, context);
   }
 

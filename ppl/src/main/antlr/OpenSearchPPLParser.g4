@@ -49,6 +49,7 @@ commands
    | kmeansCommand
    | adCommand
    | mlCommand
+   | addfieldCommand
    ;
 
 searchCommand
@@ -111,6 +112,10 @@ grokCommand
 
 parseCommand
    : PARSE (source_field = expression) (pattern = stringLiteral)
+   ;
+
+addfieldCommand
+   : ADDFIELD (field_name = stringLiteral) (field_value = stringLiteral)
    ;
 
 patternsCommand

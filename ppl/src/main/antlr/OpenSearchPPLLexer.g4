@@ -35,6 +35,7 @@ NEW_FIELD:                          'NEW_FIELD';
 KMEANS:                             'KMEANS';
 AD:                                 'AD';
 ML:                                 'ML';
+ADDFIELD:                           'ADDFIELD';
 
 // COMMAND ASSIST KEYWORDS
 AS:                                 'AS';

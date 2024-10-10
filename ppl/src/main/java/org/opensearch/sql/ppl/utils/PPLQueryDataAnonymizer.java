@@ -31,6 +31,7 @@ import org.opensearch.sql.ast.expression.Xor;
 import org.opensearch.sql.ast.statement.Explain;
 import org.opensearch.sql.ast.statement.Query;
 import org.opensearch.sql.ast.statement.Statement;
+import org.opensearch.sql.ast.tree.AddField;
 import org.opensearch.sql.ast.tree.Aggregation;
 import org.opensearch.sql.ast.tree.Dedupe;
 import org.opensearch.sql.ast.tree.Eval;
@@ -187,6 +188,13 @@ public class PPLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
             .map(pair -> StringUtils.format("%s" + "=%s", pair.getLeft(), pair.getRight()))
             .collect(Collectors.joining(" "));
     return StringUtils.format("%s | eval %s", child, expressions);
+  }
+
+  @Override
+  public String visitAddField(final AddField node, final String context) {
+    String child = node.getChild().get(0).accept(this, context);
+    return StringUtils.format(
+        "%s | addfield %s %s", child, node.getFieldName(), node.getFieldValue());
   }
 
   /** Build {@link LogicalSort}. */
