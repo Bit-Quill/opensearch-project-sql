@@ -12,6 +12,8 @@ import static org.opensearch.sql.util.MatcherUtils.verifyDataRows;
 import static org.opensearch.sql.util.MatcherUtils.verifySchema;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
@@ -50,5 +52,25 @@ public class JsonFunctionIT extends PPLIntegTestCase {
                 TEST_INDEX_JSON_TEST));
     verifySchema(result, schema("test_name", null, "string"));
     verifyDataRows(result, rows("json invalid object"));
+  }
+
+  @Test
+  public void test_json_object() throws IOException {
+    JSONObject result;
+
+    result =
+        executeQuery(
+            String.format(
+                "source=%s | eval obj=json_object(\"key\", json(json_string)) | fields test_name, obj"
+                    + " test_name, casted",
+                TEST_INDEX_JSON_TEST));
+    verifySchema(result, schema("test_name", null, "string"), schema("casted", null, "undefined"));
+    verifyDataRows(
+        result,
+        rows("json object", Map.of("key", Map.of("a", "1", "b", "2"))),
+        rows("json array", Map.of("key", List.of(1, 2, 3, 4))),
+        rows("json scalar string", Map.of("key", "abc")),
+        rows("json empty string", Map.of("key", null))
+    );
   }
 }

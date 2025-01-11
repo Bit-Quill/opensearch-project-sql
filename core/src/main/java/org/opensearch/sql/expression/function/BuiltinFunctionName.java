@@ -206,6 +206,7 @@ public enum BuiltinFunctionName {
 
   /** Json Functions. */
   JSON_VALID(FunctionName.of("json_valid")),
+  JSON_OBJECT(FunctionName.of("json_object")),
 
   /** NULL Test. */
   IS_NULL(FunctionName.of("is null")),
