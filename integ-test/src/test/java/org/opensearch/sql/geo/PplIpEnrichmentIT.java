@@ -7,6 +7,9 @@
 
 package org.opensearch.sql.geo;
 
+import static org.opensearch.sql.legacy.TestUtils.getResponseBody;
+
+import java.io.IOException;
 import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,10 +18,6 @@ import org.opensearch.client.Request;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.Response;
 import org.opensearch.sql.ppl.PPLIntegTestCase;
-
-import java.io.IOException;
-
-import static org.opensearch.sql.legacy.TestUtils.getResponseBody;
 
 /** IP enrichment PPL request with OpenSearch Geo-sptial plugin */
 public class PplIpEnrichmentIT extends PPLIntegTestCase {
