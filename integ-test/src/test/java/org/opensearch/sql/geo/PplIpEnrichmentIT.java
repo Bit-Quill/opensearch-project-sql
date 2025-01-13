@@ -40,9 +40,9 @@ public class PplIpEnrichmentIT extends PPLIntegTestCase {
   private static boolean initialized = false;
 
   private static Map<String, Object> MANIFEST_LOCATION =
-          Map.of(
-                  "endpoint",
-                  "https://raw.githubusercontent.com/opensearch-project/geospatial/main/src/test/resources/ip2geo/server/city/manifest.json");
+      Map.of(
+          "endpoint",
+          "https://raw.githubusercontent.com/opensearch-project/geospatial/main/src/test/resources/ip2geo/server/city/manifest.json");
 
   private static String DATASOURCE_NAME = "dummycityindex";
 
@@ -83,16 +83,16 @@ public class PplIpEnrichmentIT extends PPLIntegTestCase {
   @Test
   public void testGeoIpEnrichment() {
     JSONObject resultGeoIp =
-            executeQuery(
-                    String.format(
-                            "search source=%s | eval enrichmentResult = geoip(\\\"%s\\\",%s)",
-                            TEST_INDEX_GEOIP, "dummycityindex", "ip"));
+        executeQuery(
+            String.format(
+                "search source=%s | eval enrichmentResult = geoip(\\\"%s\\\",%s)",
+                TEST_INDEX_GEOIP, "dummycityindex", "ip"));
 
     verifyColumn(resultGeoIp, columnName("name"), columnName("ip"), columnName("enrichmentResult"));
     verifyDataRows(
-            resultGeoIp,
-            rows("Test user - USA", "10.1.1.1", Map.of("country", "USA", "city", "Seattle")),
-            rows("Test user - Canada", "127.1.1.1", Map.of("country", "Canada", "city", "Vancouver")));
+        resultGeoIp,
+        rows("Test user - USA", "10.1.1.1", Map.of("country", "USA", "city", "Seattle")),
+        rows("Test user - Canada", "127.1.1.1", Map.of("country", "Canada", "city", "Vancouver")));
   }
 
   /**
@@ -105,7 +105,7 @@ public class PplIpEnrichmentIT extends PPLIntegTestCase {
    * @throws IOException In case of network failure
    */
   private Response createDatasource(final String name, Map<String, Object> properties)
-          throws IOException {
+      throws IOException {
     XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
     for (Map.Entry<String, Object> config : properties.entrySet()) {
       builder.field(config.getKey(), config.getValue());
@@ -124,16 +124,16 @@ public class PplIpEnrichmentIT extends PPLIntegTestCase {
    * @throws Exception Exception
    */
   private void waitForDatasourceToBeAvailable(final String name, final Duration timeout)
-          throws Exception {
+      throws Exception {
     Instant start = Instant.now();
     while (!"AVAILABLE".equals(getDatasourceState(name))) {
       if (Duration.between(start, Instant.now()).compareTo(timeout) > 0) {
         throw new RuntimeException(
-                String.format(
-                        Locale.ROOT,
-                        "Datasource state didn't change to %s after %d seconds",
-                        "AVAILABLE",
-                        timeout.toSeconds()));
+            String.format(
+                Locale.ROOT,
+                "Datasource state didn't change to %s after %d seconds",
+                "AVAILABLE",
+                timeout.toSeconds()));
       }
       Thread.sleep(1000);
     }
@@ -150,8 +150,8 @@ public class PplIpEnrichmentIT extends PPLIntegTestCase {
     Request request = new Request("GET", GEO_SPATIAL_DATASOURCE_PATH + name);
     Response response = client().performRequest(request);
     var responseInMap =
-            createParser(XContentType.JSON.xContent(), EntityUtils.toString(response.getEntity()))
-                    .map();
+        createParser(XContentType.JSON.xContent(), EntityUtils.toString(response.getEntity()))
+            .map();
     var datasources = (List<Map<String, Object>>) responseInMap.get("datasources");
     return (String) datasources.get(0).get("state");
   }
