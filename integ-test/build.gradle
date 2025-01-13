@@ -49,6 +49,12 @@ String bwcVersion = baseVersion + ".0";
 String baseName = "sqlBwcCluster"
 String bwcFilePath = "src/test/resources/bwc/"
 
+Map dummyLoginConfig = [
+        https: "false",
+        user: "admin",
+        password: "admin"
+]
+
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
@@ -77,10 +83,23 @@ ext {
 
         return repo + "opensearch-security-${securitySnapshotVersion}.zip"
     }
-
     var projectAbsPath = projectDir.getAbsolutePath()
-    File downloadedSecurityPlugin = Paths.get(projectAbsPath, 'bin', 'opensearch-security-snapshot.zip').toFile()
+    configureGeoPlugin = { OpenSearchCluster cluster ->
+        File downloadedGeoPlugin = Paths.get(projectAbsPath, 'bin', 'opensearch-geospatial-snapshot.zip').toFile()
+        if (!downloadedGeoPlugin.exists()) {
+            download.run {
+                src getPluginDownloadLink("geospatial")
+                dest downloadedGeoPlugin
+            }
+        } else {
+            println "Geo-spatial Plugin File Already Exists"
+        }
+        cluster.plugin provider {(RegularFile) (() -> downloadedGeoPlugin)}
+    }
+
     configureSecurityPlugin = { OpenSearchCluster cluster ->
+
+        File downloadedSecurityPlugin = Paths.get(projectAbsPath, 'bin', 'opensearch-security-snapshot.zip').toFile()
 
         cluster.getNodes().forEach { node ->
             var creds = node.getCredentials()
@@ -94,7 +113,7 @@ ext {
         // add a check to avoid re-downloading multiple times during single test run
         if (!downloadedSecurityPlugin.exists()) {
             download.run {
-                src getSecurityPluginDownloadLink()
+                src getPluginDownloadLink("opensearch-security")
                 dest downloadedSecurityPlugin
             }
         } else {
@@ -239,6 +258,32 @@ def getJobSchedulerPlugin() {
     })
 }
 
+static def getAllHttpSocketURI(cluster) {
+    return cluster.nodes.stream()
+            .flatMap { node -> node.getAllHttpSocketURI().stream() }
+            .collect(Collectors.joining(","))
+}
+
+static def getAllTransportSocketURI(cluster) {
+    return cluster.nodes.stream()
+            .flatMap { node -> node.getAllTransportPortURI().stream() }
+            .collect(Collectors.joining(","))
+}
+
+def getPluginDownloadLink(pluginName) {
+    var repo = "https://aws.oss.sonatype.org/content/repositories/snapshots/org/opensearch/plugin/" +
+            pluginName + "/$opensearch_build_snapshot/"
+    var metadataFile = Paths.get(projectDir.toString(), "build", "maven-metadata.xml").toAbsolutePath().toFile()
+    download.run {
+        src repo + "maven-metadata.xml"
+        dest metadataFile
+    }
+    def metadata = new XmlParser().parse(metadataFile)
+    def PluginSnapshotVersion = metadata.versioning.snapshotVersions[0].snapshotVersion[0].value[0].text()
+    return repo + pluginName +"-${PluginSnapshotVersion}.zip"
+}
+
+
 testClusters {
     integTest {
         testDistribution = 'archive'
@@ -257,6 +302,11 @@ testClusters {
         plugin ":opensearch-sql-plugin"
     }
     remoteIntegTestWithSecurity {
+        testDistribution = 'archive'
+        plugin(getJobSchedulerPlugin())
+        plugin ":opensearch-sql-plugin"
+    }
+    integTestWithGeo {
         testDistribution = 'archive'
         plugin(getJobSchedulerPlugin())
         plugin ":opensearch-sql-plugin"
@@ -370,21 +420,10 @@ task integTestWithSecurity(type: RestIntegTestTask) {
     doFirst {
         systemProperty 'cluster.debug', getDebug()
         getClusters().forEach { cluster ->
-
-            String allTransportSocketURI = cluster.nodes.stream().flatMap { node ->
-                node.getAllTransportPortURI().stream()
-            }.collect(Collectors.joining(","))
-            String allHttpSocketURI = cluster.nodes.stream().flatMap { node ->
-                node.getAllHttpSocketURI().stream()
-            }.collect(Collectors.joining(","))
-
-            systemProperty "tests.rest.${cluster.name}.http_hosts", "${-> allHttpSocketURI}"
-            systemProperty "tests.rest.${cluster.name}.transport_hosts", "${-> allTransportSocketURI}"
+            systemProperty "tests.rest.${cluster.name}.http_hosts", "${-> getAllHttpSocketURI(cluster)}"
+            systemProperty "tests.rest.${cluster.name}.transport_hosts", "${-> getAllTransportSocketURI(cluster)}"
         }
-
-        systemProperty "https", "false"
-        systemProperty "user", "admin"
-        systemProperty "password", "admin"
+        systemProperties dummyLoginConfig
     }
 
     if (System.getProperty("test.debug") != null) {
@@ -397,6 +436,48 @@ task integTestWithSecurity(type: RestIntegTestTask) {
         includeTestsMatching 'org.opensearch.sql.security.CrossClusterSearchIT'
     }
 }
+
+
+task integTestWithGeo(type: RestIntegTestTask) {
+    useCluster testClusters.remoteCluster
+
+    getClusters().forEach { cluster ->
+        configureGeoPlugin(cluster)
+    }
+
+    useJUnitPlatform()
+    dependsOn ':opensearch-sql-plugin:bundlePlugin'
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+
+    systemProperty 'tests.security.manager', 'false'
+    systemProperty 'project.root', project.projectDir.absolutePath
+    // Set default query size limit
+    systemProperty 'defaultQuerySizeLimit', '10000'
+
+    // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
+    // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
+    doFirst {
+        systemProperty 'cluster.debug', getDebug()
+        getClusters().forEach { cluster ->
+            systemProperty "tests.rest.${cluster.name}.http_hosts", "${-> getAllHttpSocketURI(cluster)}"
+            systemProperty "tests.rest.${cluster.name}.transport_hosts", "${-> getAllTransportSocketURI(cluster)}"
+        }
+        systemProperties dummyLoginConfig
+    }
+
+    if (System.getProperty("test.debug") != null) {
+        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
+    }
+
+    // NOTE: this IT config discovers only junit5 (jupiter) tests.
+    // https://github.com/opensearch-project/sql/issues/1974
+    filter {
+        includeTestsMatching 'org.opensearch.sql.geo.PplIpEnrichmentIT'
+    }
+}
+
 
 // Run PPL ITs and new, legacy and comparison SQL ITs with new SQL engine enabled
 integTest {
