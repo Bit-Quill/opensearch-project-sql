@@ -55,6 +55,12 @@ Map dummyLoginConfig = [
         password: "admin"
 ]
 
+Map dynamicLoginConfig = [
+        https: System.getProperty("https"),
+        user: System.getProperty("user"),
+        password: System.getProperty("password")
+]
+
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
@@ -261,6 +267,10 @@ static def getAllTransportSocketURI(cluster) {
             .collect(Collectors.joining(","))
 }
 
+static def getConcatClusterName(clusters) {
+    return clusters.stream().map(cluster -> cluster.getName()).collect(Collectors.joining(","))
+}
+
 def getPluginDownloadLink(pluginName) {
     var repo = "https://aws.oss.sonatype.org/content/repositories/snapshots/org/opensearch/plugin/" +
             pluginName + "/$opensearch_build_snapshot/"
@@ -337,6 +347,7 @@ task stopPrometheus(type: KillProcessTask) {
 stopPrometheus.mustRunAfter startPrometheus
 
 task integJdbcTest(type: RestIntegTestTask) {
+
     testClusters.findAll {c -> c.clusterName == "integJdbcTest"}.first().
         plugin ":opensearch-sql-plugin"
 
@@ -360,9 +371,7 @@ task integJdbcTest(type: RestIntegTestTask) {
     systemProperty 'tests.security.manager', 'false'
     systemProperty('project.root', project.projectDir.absolutePath)
 
-    systemProperty "https", System.getProperty("https")
-    systemProperty "user", System.getProperty("user")
-    systemProperty "password", System.getProperty("password")
+    systemProperties dynamicLoginConfig
 
     // Set default query size limit
     systemProperty 'defaultQuerySizeLimit', '10000'
@@ -381,11 +390,11 @@ task integJdbcTest(type: RestIntegTestTask) {
 }
 
 task integTestWithSecurity(type: RestIntegTestTask) {
+
     useCluster testClusters.integTestWithSecurity
     useCluster testClusters.remoteIntegTestWithSecurity
 
-    systemProperty "cluster.names",
-        getClusters().stream().map(cluster -> cluster.getName()).collect(Collectors.joining(","))
+    systemProperty "cluster.names", getConcatClusterName(getClusters())
 
     getClusters().forEach { cluster ->
         configureSecurityPlugin(cluster)
@@ -424,7 +433,7 @@ task integTestWithSecurity(type: RestIntegTestTask) {
     // NOTE: this IT config discovers only junit5 (jupiter) tests.
     // https://github.com/opensearch-project/sql/issues/1974
     filter {
-        includeTestsMatching 'org.opensearch.sql.security.CrossClusterSearchIT'
+        includeTestsMatching 'org.opensearch.sql.geo.PplIpEnrichmentIT'
     }
 }
 
@@ -477,15 +486,8 @@ integTest {
     // Set properties for connection to clusters and between clusters
     doFirst {
         getClusters().forEach { cluster ->
-            String allTransportSocketURI = cluster.nodes.stream().flatMap { node ->
-                node.getAllTransportPortURI().stream()
-            }.collect(Collectors.joining(","))
-            String allHttpSocketURI = cluster.nodes.stream().flatMap { node ->
-                node.getAllHttpSocketURI().stream()
-            }.collect(Collectors.joining(","))
-
-            systemProperty "tests.rest.${cluster.name}.http_hosts", "${-> allHttpSocketURI}"
-            systemProperty "tests.rest.${cluster.name}.transport_hosts", "${-> allTransportSocketURI}"
+            systemProperty "tests.rest.${cluster.name}.http_hosts", "${-> getAllHttpSocketURI(cluster)}"
+            systemProperty "tests.rest.${cluster.name}.transport_hosts", "${-> getAllTransportSocketURI(cluster)}"
         }
     }
 
@@ -501,9 +503,7 @@ integTest {
     systemProperty 'tests.security.manager', 'false'
     systemProperty('project.root', project.projectDir.absolutePath)
 
-    systemProperty "https", System.getProperty("https")
-    systemProperty "user", System.getProperty("user")
-    systemProperty "password", System.getProperty("password")
+    systemProperties dynamicLoginConfig
 
     // Set default query size limit
     systemProperty 'defaultQuerySizeLimit', '10000'
@@ -516,7 +516,6 @@ integTest {
         }
         systemProperty 'cluster.debug', getDebug()
     }
-
 
     if (System.getProperty("test.debug") != null) {
         jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5006'
@@ -554,6 +553,9 @@ integTest {
 
     // Exclude this IT, because they executed in another task (:integTestWithSecurity)
     exclude 'org/opensearch/sql/security/**'
+
+    // Exclude this IT, because they executed in another task (:integTestWithGeo)
+    exclude 'org/opensearch/sql/geo/**'
 }
 
 
@@ -759,10 +761,7 @@ task integTestRemote(type: RestIntegTestTask) {
     systemProperty 'tests.security.manager', 'false'
     systemProperty('project.root', project.projectDir.absolutePath)
     systemProperty 'java.io.tmpdir', opensearch_tmp_dir.absolutePath
-
-    systemProperty "https", System.getProperty("https")
-    systemProperty "user", System.getProperty("user")
-    systemProperty "password", System.getProperty("password")
+    systemProperties dynamicLoginConfig
 
     // Set default query size limit
     systemProperty 'defaultQuerySizeLimit', '10000'
@@ -783,3 +782,9 @@ task integTestRemote(type: RestIntegTestTask) {
     exclude 'org/opensearch/sql/legacy/OrderIT.class'
     exclude 'org/opensearch/sql/jdbc/**'
 }
+
+
+
+
+
+
