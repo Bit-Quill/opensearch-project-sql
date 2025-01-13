@@ -477,15 +477,8 @@ integTest {
     // Set properties for connection to clusters and between clusters
     doFirst {
         getClusters().forEach { cluster ->
-            String allTransportSocketURI = cluster.nodes.stream().flatMap { node ->
-                node.getAllTransportPortURI().stream()
-            }.collect(Collectors.joining(","))
-            String allHttpSocketURI = cluster.nodes.stream().flatMap { node ->
-                node.getAllHttpSocketURI().stream()
-            }.collect(Collectors.joining(","))
-
-            systemProperty "tests.rest.${cluster.name}.http_hosts", "${-> allHttpSocketURI}"
-            systemProperty "tests.rest.${cluster.name}.transport_hosts", "${-> allTransportSocketURI}"
+            systemProperty "tests.rest.${cluster.name}.http_hosts", "${-> getAllHttpSocketURI(cluster)}"
+            systemProperty "tests.rest.${cluster.name}.transport_hosts", "${-> getAllTransportSocketURI(cluster)}"
         }
     }
 
