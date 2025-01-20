@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.InvalidJsonException;
+import com.jayway.jsonpath.InvalidModificationException;
 import com.jayway.jsonpath.JsonPath;
 
 import java.io.ObjectInputFilter;
@@ -146,4 +147,26 @@ public class JsonUtils {
     // in all other cases, return null
     return LITERAL_NULL;
   }
+
+  /** Converts a JSON encoded string to an Expression object. */
+  public static ExprValue setJson(ExprValue json, ExprValue path, ExprValue valueToInsert) {
+
+
+    try {
+      String updatedJson = JsonPath.parse(json).set(path.stringValue(), valueToInsert.stringValue()).jsonString();
+      // Convert incoming jsonString to Jackson
+
+      // Update the value with path and value.
+
+      // Handle the exception
+
+      return new ExprStringValue(updatedJson);
+    } catch (InvalidModificationException | PathNotFoundException ex) {
+      System.err.println("Invalid path!");
+      return LITERAL_NULL;
+    }
+
+
+  }
+
 }

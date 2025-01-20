@@ -163,4 +163,13 @@ public class JsonFunctionsTest {
     assertThrows(
         SemanticCheckException.class, () -> DSL.castJson(DSL.literal("\"missing quote")).valueOf());
   }
+
+  @Test
+  void json_set_validPath() {
+//    FunctionExpression functionExpression = DSL.jsonSet(DSL.literal("{{[}}"), DSL.literal("$"), DSL.literal("test_value"));
+    FunctionExpression functionExpression = DSL.jsonSet(DSL.literal("[{\"name\" : \"john\",\"gender\" : \"male\"},{\"name\" : \"ben\"}]"), DSL.literal("$"), DSL.literal("test_value"));
+    assertEquals(new ExprStringValue("xxx"), functionExpression.valueOf());
+
+  }
+
 }
