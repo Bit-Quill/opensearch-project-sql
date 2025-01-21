@@ -1,5 +1,7 @@
 package org.opensearch.sql.utils;
 
+import static com.jayway.jsonpath.Criteria.where;
+import static com.jayway.jsonpath.Filter.filter;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
@@ -9,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.Filter;
 import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.InvalidModificationException;
 import com.jayway.jsonpath.JsonPath;
@@ -20,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
@@ -152,28 +156,38 @@ public class JsonUtils {
   /** Converts a JSON encoded string to an Expression object. */
   public static ExprValue setJson(ExprValue json, ExprValue path, ExprValue valueToInsert) {
 
+    String jsonUnquoted = StringUtils.unquoteText(json.stringValue());
+    String pathUnquoted = StringUtils.unquoteText(path.stringValue());
+    Object valueUnquoted = valueToInsert.value();
+
+    JsonPath jsonPath = JsonPath.compile(pathUnquoted);
+
+    DocumentContext docContext = JsonPath.parse(jsonUnquoted);
+    Object read = docContext.read(jsonPath);
+    // If can't read, then throw exception
+
+
+    // If readable, then determin it's array (add) or attribute (upsert)
+
+
+    // Check object pointing
+      // if array, then
+      // if attribute then override.
+
+
     try {
-      String jsonUnquoted = StringUtils.unquoteText(json.stringValue());
-      String pathUnquoted = StringUtils.unquoteText(path.stringValue());
-      Object valueUnquoted = valueToInsert.value();
-
-      DocumentContext docContext = JsonPath.parse(jsonUnquoted);
-//      String[] split = pathUnquoted.split("\\.");
-//      if (split.length > 1) {
-//        JsonPath jsonPath = JsonPath.compile(split[0]);
-//        String updatedJson = docContext.add(jsonPath, valueUnquoted).jsonString();
-//        return new ExprStringValue(updatedJson);
-
       String updatedJson = docContext.add(pathUnquoted, valueUnquoted).jsonString();
       return new ExprStringValue(updatedJson);
 
+    } catch (InvalidJsonException | PathNotFoundException ex) {
 
-    } catch (InvalidJsonException | InvalidModificationException | PathNotFoundException ex) {
       System.err.println("Invalid path!");
       return LITERAL_NULL;
+    } catch (InvalidModificationException ex) {
+
+//      docContext.set(JsonPath.compile(pathUnquoted, pathUnquoted, valueUnquoted));
+      throw new RuntimeException(ex);
     }
-
-
   }
 
 }

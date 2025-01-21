@@ -206,17 +206,6 @@ public class JsonFunctionsTest {
     assertEquals("[true]", functionExpression.valueOf().stringValue());
   }
 
-
-  @Test
-  void json_set_InsertMap() {
-    FunctionExpression functionExpression = DSL.jsonSet(
-            DSL.literal("[{\"name\" : \"ben\"}]"),
-            DSL.literal("$"),
-            DSL.literal(ExprTupleValue.fromExprValueMap(Map.of("name", new ExprStringValue("alice")))));
-    assertEquals("[{\"name\":\"ben\"},{\"name\":\"alice\"}]",
-            functionExpression.valueOf().stringValue());
-  }
-
   @Test
   void json_set_InsertList() {
     FunctionExpression functionExpression = DSL.jsonSet(
@@ -228,14 +217,44 @@ public class JsonFunctionsTest {
   }
 
   @Test
-  void json_set_WithSpecifiedKey() {
+  void json_set_InsertMap() {
     FunctionExpression functionExpression = DSL.jsonSet(
             DSL.literal("[{\"name\" : \"ben\"}]"),
             DSL.literal("$"),
-            DSL.literal(new ExprCollectionValue(List.of(new ExprStringValue("123"), new ExprStringValue("456")))));
-    assertEquals("[{\"name\":\"ben\"},[\"123\",\"456\"]]",
+            DSL.literal(ExprTupleValue.fromExprValueMap(Map.of("name", new ExprStringValue("alice")))));
+    assertEquals("[{\"name\":\"ben\"},{\"name\":\"alice\"}]",
             functionExpression.valueOf().stringValue());
   }
+
+
+  @Test
+  void json_set_WithSpecifiedKey() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("{\"members\": []}"),
+            DSL.literal("$.members"),
+            DSL.literal(ExprTupleValue.fromExprValueMap(Map.of("name", new ExprStringValue("alice")))));
+    assertEquals("{\"members\":[{\"name\":\"alice\"}]}",
+            functionExpression.valueOf().stringValue());
+  }
+
+  @Test
+  void json_set_WithInvalidKey() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("{\"members\": []}"),
+            DSL.literal("$.NON_EXIST_ELEMENT"),
+            DSL.literal(ExprTupleValue.fromExprValueMap(Map.of("name", new ExprStringValue("alice")))));
+    assertEquals(LITERAL_NULL, functionExpression.valueOf());
+  }
+
+  @Test
+  void json_set_Upsert() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("{\"members\":[{\"name\":\"alice\"}]}"),
+            DSL.literal("$.members[0].name"),
+            DSL.literal("Andy"));
+    assertEquals(LITERAL_NULL, functionExpression.valueOf());
+  }
+
 
 
 
