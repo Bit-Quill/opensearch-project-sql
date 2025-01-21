@@ -165,11 +165,95 @@ public class JsonFunctionsTest {
   }
 
   @Test
-  void json_set_validPath() {
-//    FunctionExpression functionExpression = DSL.jsonSet(DSL.literal("{{[}}"), DSL.literal("$"), DSL.literal("test_value"));
-    FunctionExpression functionExpression = DSL.jsonSet(DSL.literal("[{\"name\" : \"john\",\"gender\" : \"male\"},{\"name\" : \"ben\"}]"), DSL.literal("$"), DSL.literal("test_value"));
-    assertEquals(new ExprStringValue("xxx"), functionExpression.valueOf());
-
+  void json_set_InsertString() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("[]"), DSL.literal("$"), DSL.literal("test_value"));
+    assertEquals("[\"test_value\"]", functionExpression.valueOf().stringValue());
   }
+
+  @Test
+  void json_set_InsertInt() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("[]"), DSL.literal("$"), DSL.literal(123));
+    assertEquals("[123]", functionExpression.valueOf().stringValue());
+  }
+
+  @Test
+  void json_set_InsertShort() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("[]"), DSL.literal("$"), DSL.literal(Short.valueOf("123")));
+    assertEquals("[123]", functionExpression.valueOf().stringValue());
+  }
+
+  @Test
+  void json_set_InsertLong() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("[]"), DSL.literal("$"), DSL.literal(123L));
+    assertEquals("[123]", functionExpression.valueOf().stringValue());
+  }
+
+  @Test
+  void json_set_InsertDouble() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("[]"), DSL.literal("$"), DSL.literal(123.123));
+    assertEquals("[123.123]", functionExpression.valueOf().stringValue());
+  }
+
+  @Test
+  void json_set_InsertBoolean() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("[]"), DSL.literal("$"), DSL.literal(Boolean.TRUE));
+    assertEquals("[true]", functionExpression.valueOf().stringValue());
+  }
+
+
+  @Test
+  void json_set_InsertMap() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("[{\"name\" : \"ben\"}]"),
+            DSL.literal("$"),
+            DSL.literal(ExprTupleValue.fromExprValueMap(Map.of("name", new ExprStringValue("alice")))));
+    assertEquals("[{\"name\":\"ben\"},{\"name\":\"alice\"}]",
+            functionExpression.valueOf().stringValue());
+  }
+
+  @Test
+  void json_set_InsertList() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("[{\"name\" : \"ben\"}]"),
+            DSL.literal("$"),
+            DSL.literal(new ExprCollectionValue(List.of(new ExprStringValue("123"), new ExprStringValue("456")))));
+    assertEquals("[{\"name\":\"ben\"},[\"123\",\"456\"]]",
+            functionExpression.valueOf().stringValue());
+  }
+
+  @Test
+  void json_set_WithSpecifiedKey() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("[{\"name\" : \"ben\"}]"),
+            DSL.literal("$"),
+            DSL.literal(new ExprCollectionValue(List.of(new ExprStringValue("123"), new ExprStringValue("456")))));
+    assertEquals("[{\"name\":\"ben\"},[\"123\",\"456\"]]",
+            functionExpression.valueOf().stringValue());
+  }
+
+
+
+//  @Test
+//  void json_set_withValidKey() {
+//    FunctionExpression functionExpression = DSL.jsonSet(
+//            DSL.literal("[]"), DSL.literal("$.key"), DSL.literal("value"));
+//    assertEquals("[123.123]", functionExpression.valueOf());
+//  }
+//
+//  @Test
+//  void json_set_InsertKeyValuePair() {
+////    FunctionExpression functionExpression = DSL.jsonSet(DSL.literal("[]"), DSL.literal("$.test_key"), DSL.literal("test_value"));
+//    FunctionExpression functionExpression = DSL.jsonSet(
+//            DSL.literal("[{\"name\" : \"john\",\"gender\" : \"male\"},{\"name\" : \"ben\"}]"),
+//            DSL.literal("$"),
+//            DSL.literal("test_value"));
+//    assertEquals("[\"test_value\"]", functionExpression.valueOf().stringValue());
+//  }
 
 }

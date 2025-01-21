@@ -25,6 +25,7 @@ import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import lombok.experimental.UtilityClass;
+import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprDoubleValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
@@ -151,17 +152,23 @@ public class JsonUtils {
   /** Converts a JSON encoded string to an Expression object. */
   public static ExprValue setJson(ExprValue json, ExprValue path, ExprValue valueToInsert) {
 
-
     try {
-      String updatedJson = JsonPath.parse(json).set(path.stringValue(), valueToInsert.stringValue()).jsonString();
-      // Convert incoming jsonString to Jackson
+      String jsonUnquoted = StringUtils.unquoteText(json.stringValue());
+      String pathUnquoted = StringUtils.unquoteText(path.stringValue());
+      Object valueUnquoted = valueToInsert.value();
 
-      // Update the value with path and value.
+      DocumentContext docContext = JsonPath.parse(jsonUnquoted);
+//      String[] split = pathUnquoted.split("\\.");
+//      if (split.length > 1) {
+//        JsonPath jsonPath = JsonPath.compile(split[0]);
+//        String updatedJson = docContext.add(jsonPath, valueUnquoted).jsonString();
+//        return new ExprStringValue(updatedJson);
 
-      // Handle the exception
-
+      String updatedJson = docContext.add(pathUnquoted, valueUnquoted).jsonString();
       return new ExprStringValue(updatedJson);
-    } catch (InvalidModificationException | PathNotFoundException ex) {
+
+
+    } catch (InvalidJsonException | InvalidModificationException | PathNotFoundException ex) {
       System.err.println("Invalid path!");
       return LITERAL_NULL;
     }
