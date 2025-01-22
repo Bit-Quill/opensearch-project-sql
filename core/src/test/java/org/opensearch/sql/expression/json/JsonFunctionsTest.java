@@ -251,8 +251,9 @@ public class JsonFunctionsTest {
     FunctionExpression functionExpression = DSL.jsonSet(
             DSL.literal("{\"members\":[{\"name\":\"alice\"}]}"),
             DSL.literal("$.members[0].name"),
-            DSL.literal("Andy"));
-    assertEquals(LITERAL_NULL, functionExpression.valueOf());
+            DSL.literal("andy"));
+    assertEquals("{\"members\":[{\"name\":\"andy\"}]}",
+            functionExpression.valueOf().stringValue());
   }
 
 

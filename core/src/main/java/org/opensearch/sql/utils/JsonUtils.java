@@ -1,7 +1,5 @@
 package org.opensearch.sql.utils;
 
-import static com.jayway.jsonpath.Criteria.where;
-import static com.jayway.jsonpath.Filter.filter;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static org.opensearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
@@ -11,24 +9,20 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.Filter;
 import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.InvalidModificationException;
 import com.jayway.jsonpath.JsonPath;
 
-import java.io.ObjectInputFilter;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.PathNotFoundException;
-import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
-import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import lombok.experimental.UtilityClass;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprDoubleValue;
@@ -161,33 +155,24 @@ public class JsonUtils {
     Object valueUnquoted = valueToInsert.value();
 
     JsonPath jsonPath = JsonPath.compile(pathUnquoted);
-
     DocumentContext docContext = JsonPath.parse(jsonUnquoted);
-    Object read = docContext.read(jsonPath);
-    // If can't read, then throw exception
-
-
-    // If readable, then determin it's array (add) or attribute (upsert)
-
-
-    // Check object pointing
-      // if array, then
-      // if attribute then override.
-
 
     try {
-      String updatedJson = docContext.add(pathUnquoted, valueUnquoted).jsonString();
-      return new ExprStringValue(updatedJson);
+      Object targetObj = docContext.read(jsonPath);
 
-    } catch (InvalidJsonException | PathNotFoundException ex) {
-
-      System.err.println("Invalid path!");
+      if (targetObj instanceof String) {
+        String updatedJson = docContext.set(jsonPath, valueUnquoted).jsonString();
+        return new ExprStringValue(updatedJson);
+      } else if (targetObj instanceof Iterable<?>) {
+        String updatedJson = docContext.add(jsonPath, valueUnquoted).jsonString();
+        return new ExprStringValue(updatedJson);
+      } else {
+        return null;
+      }
+    } catch (PathNotFoundException ex) {
       return LITERAL_NULL;
-    } catch (InvalidModificationException ex) {
-
-//      docContext.set(JsonPath.compile(pathUnquoted, pathUnquoted, valueUnquoted));
-      throw new RuntimeException(ex);
     }
+
   }
 
 }
