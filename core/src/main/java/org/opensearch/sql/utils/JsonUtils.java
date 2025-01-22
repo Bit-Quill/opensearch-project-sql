@@ -167,12 +167,11 @@ public class JsonUtils {
         String updatedJson = docContext.add(jsonPath, valueUnquoted).jsonString();
         return new ExprStringValue(updatedJson);
       } else {
-        return null;
+        return LITERAL_NULL;
       }
     } catch (PathNotFoundException ex) {
       return LITERAL_NULL;
     }
-
   }
 
 }
