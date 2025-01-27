@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.InvalidJsonException;
+import com.jayway.jsonpath.InvalidModificationException;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 
@@ -178,7 +179,7 @@ public class JsonUtils {
                 return LITERAL_NULL;
             }
         }
-    } catch (InvalidPathException ex) {
+    } catch (InvalidModificationException | InvalidJsonException | InvalidPathException | IllegalArgumentException | UnsupportedOperationException ex) {
       return LITERAL_NULL;
     }
 
