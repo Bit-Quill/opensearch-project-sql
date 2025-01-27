@@ -156,8 +156,7 @@ public class JsonUtils {
     try {
       JsonPath jsonPath = JsonPath.compile(pathUnquoted);
       DocumentContext docContext = JsonPath.using(conf).parse(jsonUnquoted);
-      Object targetObj = docContext.read(jsonPath);
-        switch (targetObj) {
+        switch (docContext.read(jsonPath)) {
             case null -> {
                 // Insert a new property
                 recursiveCreate(docContext, pathUnquoted, valueUnquoted);
