@@ -195,7 +195,7 @@ public class JsonUtils {
       final int pos = path.lastIndexOf('.');
       final String parent = path.substring(0, pos);
       final String current = path.substring(pos + 1);
-      // Attempt to read the current path as it is (the sunny path), trigger the recursive if case of deep insert.
+      // Attempt to read the current path as it is, trigger the recursive in case of deep insert.
       if (docContext.read(parent) == null) {
         recursiveCreate(docContext, parent, new LinkedHashMap<>());
       }
