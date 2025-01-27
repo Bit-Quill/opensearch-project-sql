@@ -257,6 +257,15 @@ public class JsonFunctionsTest {
             functionExpression.valueOf().stringValue());
   }
 
+  @Test
+  void json_set_insert_new_property_nested() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("{\"members\":[{\"name\":\"alice\"}]}"),
+            DSL.literal("$.members[0].age.innerAge"),
+            DSL.literal("18"));
+    assertEquals("{\"members\":[{\"name\":\"alice\",\"age\":{\"innerAge\":\"18\"}}]}",
+            functionExpression.valueOf().stringValue());
+  }
 
   @Test
   void json_set_insert_invalid_path() {

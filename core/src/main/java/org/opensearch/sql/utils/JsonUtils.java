@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.InvalidJsonException;
-import com.jayway.jsonpath.InvalidModificationException;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 
@@ -22,8 +21,6 @@ import java.util.Map;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.PathNotFoundException;
 import lombok.experimental.UtilityClass;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprDoubleValue;
@@ -154,60 +151,55 @@ public class JsonUtils {
     String jsonUnquoted = StringUtils.unquoteText(json.stringValue());
     String pathUnquoted = StringUtils.unquoteText(path.stringValue());
     Object valueUnquoted = valueToInsert.value();
-
-
-
+    Configuration conf = Configuration.defaultConfiguration()
+            .addOptions(Option.SUPPRESS_EXCEPTIONS);
     try {
-
       JsonPath jsonPath = JsonPath.compile(pathUnquoted);
-      DocumentContext docContext = JsonPath.parse(jsonUnquoted);
+      DocumentContext docContext = JsonPath.using(conf).parse(jsonUnquoted);
+      Object targetObj = docContext.read(jsonPath);
+        switch (targetObj) {
+            case null -> {
+                // Insert a new property
+                recursiveCreate(docContext, pathUnquoted, valueUnquoted);
+                return new ExprStringValue(docContext.jsonString());
+            }
+            case String ignored -> {
+                //Override an existing property
+                String updatedJson = docContext.set(pathUnquoted, valueUnquoted).jsonString();
+                return new ExprStringValue(updatedJson);
 
+            }
+            case Iterable<?> ignored -> {
+                // New element in the array.
+                String updatedJson = docContext.add(pathUnquoted, valueUnquoted).jsonString();
+                return new ExprStringValue(updatedJson);
 
-      try {
-
-        Object targetObj = docContext.read(jsonPath);
-
-        if (targetObj instanceof String) {
-          //Override value
-          String updatedJson = docContext.set(jsonPath, valueUnquoted).jsonString();
-          return new ExprStringValue(updatedJson);
-        } else if (targetObj instanceof Iterable<?>) {
-          // New element in the array.
-          String updatedJson = docContext.add(jsonPath, valueUnquoted).jsonString();
-          return new ExprStringValue(updatedJson);
-        } else {
-          return LITERAL_NULL;
+            }
+            default -> {
+                return LITERAL_NULL;
+            }
         }
-      } catch (PathNotFoundException ex) {
-
-        // Should also try to insert.
-        create(docContext, pathUnquoted, valueUnquoted);
-        return new ExprStringValue(docContext.jsonString());
-//      return LITERAL_NULL;
-      }
     } catch (InvalidPathException ex) {
-
       return LITERAL_NULL;
     }
+
   }
 
   /**
-   * Todo: Rewrite this.
-   * Sets a value, creating any missing parents
-   * @param context
-   * @param path supports only "definite" paths in the simple format {@code $.a.b.c}.
-   * @param value value to set
+   * Helper method to handle recursive scenario.
+   * @param docContext incoming Json in Java object form.
+   * @param path path in String to perform insertion.
+   * @param value value to be inserted with given path.
    */
-  private void create(DocumentContext context, String path, Object value) {
-    int pos = path.lastIndexOf('.');
-    String parent = path.substring(0, pos);
-    String child = path.substring(pos + 1);
-    try {
-      context.read(parent); // EX if parent missing
-    } catch (PathNotFoundException e) {
-      create(context, parent, new LinkedHashMap<>()); // (recursively) Create missing parent
-    }
-    context.put(parent, child, value);
+  private static void recursiveCreate(DocumentContext docContext, String path, Object value) {
+      final int pos = path.lastIndexOf('.');
+      final String parent = path.substring(0, pos);
+      final String current = path.substring(pos + 1);
+      // Attempt to read the current path as it is (the sunny path), trigger the recursive if case of deep insert.
+      if (docContext.read(parent) == null) {
+        recursiveCreate(docContext, parent, new LinkedHashMap<>());
+      }
+      docContext.put(parent, current, value);
   }
-
 }
+
