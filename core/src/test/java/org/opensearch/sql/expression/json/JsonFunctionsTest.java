@@ -256,16 +256,16 @@ public class JsonFunctionsTest {
             functionExpression.valueOf().stringValue());
   }
 
+  @Test
+  void json_set_new_property() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("{\"members\":[{\"name\":\"alice\"}]}"),
+            DSL.literal("$.members[0].age"),
+            DSL.literal("18"));
+    assertEquals("{\"members\":[{\"name\":\"alice\",\"age\":\"18\"}]}",
+            functionExpression.valueOf().stringValue());
+  }
 
-
-
-//  @Test
-//  void json_set_withValidKey() {
-//    FunctionExpression functionExpression = DSL.jsonSet(
-//            DSL.literal("[]"), DSL.literal("$.key"), DSL.literal("value"));
-//    assertEquals("[123.123]", functionExpression.valueOf());
-//  }
-//
 //  @Test
 //  void json_set_InsertKeyValuePair() {
 ////    FunctionExpression functionExpression = DSL.jsonSet(DSL.literal("[]"), DSL.literal("$.test_key"), DSL.literal("test_value"));

@@ -161,17 +161,42 @@ public class JsonUtils {
       Object targetObj = docContext.read(jsonPath);
 
       if (targetObj instanceof String) {
+        //Override value
         String updatedJson = docContext.set(jsonPath, valueUnquoted).jsonString();
         return new ExprStringValue(updatedJson);
       } else if (targetObj instanceof Iterable<?>) {
+        // New element in the array.
         String updatedJson = docContext.add(jsonPath, valueUnquoted).jsonString();
         return new ExprStringValue(updatedJson);
       } else {
         return LITERAL_NULL;
       }
     } catch (PathNotFoundException ex) {
-      return LITERAL_NULL;
+
+      // Should also try to insert.
+      create(docContext, pathUnquoted, valueUnquoted);
+      return new ExprStringValue(docContext.jsonString());
+//      return LITERAL_NULL;
     }
+  }
+
+  /**
+   * Todo: Rewrite this.
+   * Sets a value, creating any missing parents
+   * @param context
+   * @param path supports only "definite" paths in the simple format {@code $.a.b.c}.
+   * @param value value to set
+   */
+  private void create(DocumentContext context, String path, Object value) {
+    int pos = path.lastIndexOf('.');
+    String parent = path.substring(0, pos);
+    String child = path.substring(pos + 1);
+    try {
+      context.read(parent); // EX if parent missing
+    } catch (PathNotFoundException e) {
+      create(context, parent, new LinkedHashMap<>()); // (recursively) Create missing parent
+    }
+    context.put(parent, child, value);
   }
 
 }
