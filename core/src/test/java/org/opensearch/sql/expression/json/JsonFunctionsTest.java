@@ -228,7 +228,7 @@ public class JsonFunctionsTest {
 
 
   @Test
-  void json_set_WithSpecifiedKey() {
+  void json_set_insert_new_arr_element() {
     FunctionExpression functionExpression = DSL.jsonSet(
             DSL.literal("{\"members\": []}"),
             DSL.literal("$.members"),
@@ -238,16 +238,7 @@ public class JsonFunctionsTest {
   }
 
   @Test
-  void json_set_WithInvalidKey() {
-    FunctionExpression functionExpression = DSL.jsonSet(
-            DSL.literal("{\"members\": []}"),
-            DSL.literal("$.NON_EXIST_ELEMENT"),
-            DSL.literal(ExprTupleValue.fromExprValueMap(Map.of("name", new ExprStringValue("alice")))));
-    assertEquals(LITERAL_NULL, functionExpression.valueOf());
-  }
-
-  @Test
-  void json_set_Upsert() {
+  void json_set_update() {
     FunctionExpression functionExpression = DSL.jsonSet(
             DSL.literal("{\"members\":[{\"name\":\"alice\"}]}"),
             DSL.literal("$.members[0].name"),
@@ -257,7 +248,7 @@ public class JsonFunctionsTest {
   }
 
   @Test
-  void json_set_new_property() {
+  void json_set_insert_new_property() {
     FunctionExpression functionExpression = DSL.jsonSet(
             DSL.literal("{\"members\":[{\"name\":\"alice\"}]}"),
             DSL.literal("$.members[0].age"),
@@ -266,14 +257,16 @@ public class JsonFunctionsTest {
             functionExpression.valueOf().stringValue());
   }
 
-//  @Test
-//  void json_set_InsertKeyValuePair() {
-////    FunctionExpression functionExpression = DSL.jsonSet(DSL.literal("[]"), DSL.literal("$.test_key"), DSL.literal("test_value"));
-//    FunctionExpression functionExpression = DSL.jsonSet(
-//            DSL.literal("[{\"name\" : \"john\",\"gender\" : \"male\"},{\"name\" : \"ben\"}]"),
-//            DSL.literal("$"),
-//            DSL.literal("test_value"));
-//    assertEquals("[\"test_value\"]", functionExpression.valueOf().stringValue());
-//  }
+
+  @Test
+  void json_set_insert_invalid_path() {
+    FunctionExpression functionExpression = DSL.jsonSet(
+            DSL.literal("{\"members\":[{\"name\":\"alice\"}]}"),
+            DSL.literal("$$$$$$$$$"),
+            DSL.literal("18"));
+
+    assertEquals(LITERAL_NULL, functionExpression.valueOf());
+  }
+
 
 }

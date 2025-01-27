@@ -11,6 +11,7 @@ import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.InvalidModificationException;
+import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 
 import java.util.LinkedHashMap;
@@ -154,29 +155,39 @@ public class JsonUtils {
     String pathUnquoted = StringUtils.unquoteText(path.stringValue());
     Object valueUnquoted = valueToInsert.value();
 
-    JsonPath jsonPath = JsonPath.compile(pathUnquoted);
-    DocumentContext docContext = JsonPath.parse(jsonUnquoted);
+
 
     try {
-      Object targetObj = docContext.read(jsonPath);
 
-      if (targetObj instanceof String) {
-        //Override value
-        String updatedJson = docContext.set(jsonPath, valueUnquoted).jsonString();
-        return new ExprStringValue(updatedJson);
-      } else if (targetObj instanceof Iterable<?>) {
-        // New element in the array.
-        String updatedJson = docContext.add(jsonPath, valueUnquoted).jsonString();
-        return new ExprStringValue(updatedJson);
-      } else {
-        return LITERAL_NULL;
-      }
-    } catch (PathNotFoundException ex) {
+      JsonPath jsonPath = JsonPath.compile(pathUnquoted);
+      DocumentContext docContext = JsonPath.parse(jsonUnquoted);
 
-      // Should also try to insert.
-      create(docContext, pathUnquoted, valueUnquoted);
-      return new ExprStringValue(docContext.jsonString());
+
+      try {
+
+        Object targetObj = docContext.read(jsonPath);
+
+        if (targetObj instanceof String) {
+          //Override value
+          String updatedJson = docContext.set(jsonPath, valueUnquoted).jsonString();
+          return new ExprStringValue(updatedJson);
+        } else if (targetObj instanceof Iterable<?>) {
+          // New element in the array.
+          String updatedJson = docContext.add(jsonPath, valueUnquoted).jsonString();
+          return new ExprStringValue(updatedJson);
+        } else {
+          return LITERAL_NULL;
+        }
+      } catch (PathNotFoundException ex) {
+
+        // Should also try to insert.
+        create(docContext, pathUnquoted, valueUnquoted);
+        return new ExprStringValue(docContext.jsonString());
 //      return LITERAL_NULL;
+      }
+    } catch (InvalidPathException ex) {
+
+      return LITERAL_NULL;
     }
   }
 
