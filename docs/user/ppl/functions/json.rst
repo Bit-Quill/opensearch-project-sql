@@ -59,3 +59,32 @@ Example::
     | json scalar string  | "abc"                        | "abc"         |
     | json empty string   |                              | null          |
     +---------------------+------------------------------+---------------+
+
+
+JSON_SET
+----------
+
+Description
+>>>>>>>>>>>
+
+Usage: `json_set(json_string, json_path, value)` Perform value insertion or override with provided Json path and value. Returns the updated JSON object if valid, null otherwise.
+
+Argument type: JSON_STRING, STRING, STRING/BOOLEAN/DOUBLE/INTEGER/NULL/STRUCT/ARRAY
+
+Return type: JSON_STRING
+
+Example::
+
+    > source=json_test eval updated=json_set(json_string, "$.c.innerProperty", "test_value") | fields test_name, updated
+    fetched rows / total rows = 7/7
+    +---------------------+------------------------------------------------------------------------+
+    | test_name           | updated                                                                |
+    |---------------------+------------------------------------------------------------------------|
+    | json nested object  | {"a":"1","b":{"c":"3"},"d":[1,2,3],"c":{"innerProperty":"test_value"}} |
+    | json object         | {"a":"1","b":"2","c":{"innerProperty":"test_value"}}                   |
+    | json array          | null                                                                   |
+    | json scalar string  | null                                                                   |
+    | json empty string   | null                                                                   |
+    | json invalid object | null                                                                   |
+    +---------------------+------------------------------------------------------------------------+
+
