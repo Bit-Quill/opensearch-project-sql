@@ -76,15 +76,14 @@ Return type: JSON_STRING
 Example::
 
     os> source=json_test | eval updated=json_set(json_string, "$.c.innerProperty", "test_value") | fields test_name, updated
-    fetched rows / total rows = 7/7
-    +---------------------+------------------------------------------------------------------------+
-    | test_name           | updated                                                                |
-    |---------------------+------------------------------------------------------------------------|
-    | json nested object  | {"a":"1","b":{"c":"3"},"d":[1,2,3],"c":{"innerProperty":"test_value"}} |
-    | json object         | {"a":"1","b":"2","c":{"innerProperty":"test_value"}}                   |
-    | json array          | null                                                                   |
-    | json scalar string  | null                                                                   |
-    | json empty string   | null                                                                   |
-    | json invalid object | null                                                                   |
-    +---------------------+------------------------------------------------------------------------+
-
+    fetched rows / total rows = 6/6
+    +---------------------+--------------------------------------------------------------------+
+    | test_name           | updated                                                            |
+    |---------------------+--------------------------------------------------------------------|
+    | json nested object  | {"a":"1","b":{"c":"2","d":"3"},"c":{"innerProperty":"test_value"}} |
+    | json object         | {"a":"1","b":"2","c":{"innerProperty":"test_value"}}               |
+    | json array          | null                                                               |
+    | json scalar string  | null                                                               |
+    | json empty string   | null                                                               |
+    | json invalid object | null                                                               |
+    +---------------------+--------------------------------------------------------------------+
