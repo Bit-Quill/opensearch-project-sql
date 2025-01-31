@@ -13,14 +13,12 @@ import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.InvalidModificationException;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
-
+import com.jayway.jsonpath.Option;
+import com.jayway.jsonpath.PathNotFoundException;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import com.jayway.jsonpath.Option;
-import com.jayway.jsonpath.PathNotFoundException;
 import lombok.experimental.UtilityClass;
 import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprCollectionValue;
@@ -66,9 +64,7 @@ public class JsonUtils {
     String jsonPath = path.stringValue();
 
     try {
-      Configuration config = Configuration.builder()
-              .options(Option.AS_PATH_LIST)
-              .build();
+      Configuration config = Configuration.builder().options(Option.AS_PATH_LIST).build();
       List<String> resultPaths = JsonPath.using(config).parse(jsonString).read(jsonPath);
 
       List<ExprValue> elements = new LinkedList<>();
@@ -152,54 +148,55 @@ public class JsonUtils {
     String jsonUnquoted = StringUtils.unquoteText(json.stringValue());
     String pathUnquoted = StringUtils.unquoteText(path.stringValue());
     Object valueUnquoted = valueToInsert.value();
-    Configuration conf = Configuration.defaultConfiguration()
-            .addOptions(Option.SUPPRESS_EXCEPTIONS);
+    Configuration conf =
+        Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS);
     try {
       JsonPath jsonPath = JsonPath.compile(pathUnquoted);
       DocumentContext docContext = JsonPath.using(conf).parse(jsonUnquoted);
-        switch (docContext.read(jsonPath)) {
-            case null -> {
-                // Insert a new property
-                recursiveCreate(docContext, pathUnquoted, valueUnquoted);
-                return new ExprStringValue(docContext.jsonString());
-            }
-            case String ignored -> {
-                //Override an existing property
-                String updatedJson = docContext.set(pathUnquoted, valueUnquoted).jsonString();
-                return new ExprStringValue(updatedJson);
-
-            }
-            case Iterable<?> ignored -> {
-                // New element in the array.
-                String updatedJson = docContext.add(pathUnquoted, valueUnquoted).jsonString();
-                return new ExprStringValue(updatedJson);
-
-            }
-            default -> {
-                return LITERAL_NULL;
-            }
+      switch (docContext.read(jsonPath)) {
+        case null -> {
+          // Insert a new property
+          recursiveCreate(docContext, pathUnquoted, valueUnquoted);
+          return new ExprStringValue(docContext.jsonString());
         }
-    } catch (InvalidModificationException | InvalidJsonException | InvalidPathException | IllegalArgumentException | UnsupportedOperationException ex) {
+        case String ignored -> {
+          // Override an existing property
+          String updatedJson = docContext.set(pathUnquoted, valueUnquoted).jsonString();
+          return new ExprStringValue(updatedJson);
+        }
+        case Iterable<?> ignored -> {
+          // New element in the array.
+          String updatedJson = docContext.add(pathUnquoted, valueUnquoted).jsonString();
+          return new ExprStringValue(updatedJson);
+        }
+        default -> {
+          return LITERAL_NULL;
+        }
+      }
+    } catch (InvalidModificationException
+        | InvalidJsonException
+        | InvalidPathException
+        | IllegalArgumentException
+        | UnsupportedOperationException ex) {
       return LITERAL_NULL;
     }
-
   }
 
   /**
    * Helper method to handle recursive scenario.
+   *
    * @param docContext incoming Json in Java object form.
    * @param path path in String to perform insertion.
    * @param value value to be inserted with given path.
    */
   private static void recursiveCreate(DocumentContext docContext, String path, Object value) {
-      final int pos = path.lastIndexOf('.');
-      final String parent = path.substring(0, pos);
-      final String current = path.substring(pos + 1);
-      // Attempt to read the current path as it is, trigger the recursive in case of deep insert.
-      if (docContext.read(parent) == null) {
-        recursiveCreate(docContext, parent, new LinkedHashMap<>());
-      }
-      docContext.put(parent, current, value);
+    final int pos = path.lastIndexOf('.');
+    final String parent = path.substring(0, pos);
+    final String current = path.substring(pos + 1);
+    // Attempt to read the current path as it is, trigger the recursive in case of deep insert.
+    if (docContext.read(parent) == null) {
+      recursiveCreate(docContext, parent, new LinkedHashMap<>());
+    }
+    docContext.put(parent, current, value);
   }
 }
-

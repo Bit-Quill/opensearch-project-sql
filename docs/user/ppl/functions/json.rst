@@ -75,7 +75,7 @@ Return type: JSON_STRING
 
 Example::
 
-    > source=json_test eval updated=json_set(json_string, "$.c.innerProperty", "test_value") | fields test_name, updated
+    os> source=json_test | eval updated=json_set(json_string, "$.c.innerProperty", "test_value") | fields test_name, updated
     fetched rows / total rows = 7/7
     +---------------------+------------------------------------------------------------------------+
     | test_name           | updated                                                                |
