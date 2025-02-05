@@ -323,8 +323,14 @@ public class JsonFunctionsTest {
             DSL.literal("{\"members\":[{\"name\":\"alice\"}]}"),
             DSL.literal("$$$$$$$$$"),
             DSL.literal("18"));
+    assertThrows(SemanticCheckException.class, () -> functionExpression.valueOf());
+  }
 
-    assertEquals(LITERAL_NULL, functionExpression.valueOf());
+  @Test
+  void json_set_insert_invalid_jsonObject() {
+    FunctionExpression functionExpression =
+        DSL.jsonSet(DSL.literal("[xxxx}}}}}"), DSL.literal("$"), DSL.literal("18"));
+    assertThrows(SemanticCheckException.class, () -> functionExpression.valueOf());
   }
 
   @Test

@@ -161,15 +161,20 @@ public class JsonUtils {
         if (((List<?>) readResult).isEmpty()) {
           docContext.add(pathUnquoted, valueUnquoted).jsonString();
         } else {
-          // New element in the array.
           docContext.set(pathUnquoted, valueUnquoted).jsonString();
         }
       }
       return new ExprStringValue(docContext.jsonString());
 
+    } catch (InvalidPathException e) {
+      final String errorFormat = "JSON path '%s' is not valid. Error details: %s";
+      throw new SemanticCheckException(String.format(errorFormat, path, e.getMessage()), e);
+
+    } catch (InvalidJsonException e) {
+      final String errorFormat = "JSON object '%s' is not valid. Error details: %s";
+      throw new SemanticCheckException(String.format(errorFormat, json, e.getMessage()), e);
+
     } catch (InvalidModificationException
-        | InvalidJsonException
-        | InvalidPathException
         | IllegalArgumentException
         | UnsupportedOperationException ex) {
       return LITERAL_NULL;
