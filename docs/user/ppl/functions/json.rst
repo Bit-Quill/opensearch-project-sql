@@ -69,9 +69,9 @@ Description
 
 Usage: `json_set(json_string, json_path, value)` Perform value insertion or override with provided Json path and value. Returns the updated JSON object if valid, null otherwise.
 
-Argument type: JSON_STRING, STRING, STRING/BOOLEAN/DOUBLE/INTEGER/NULL/STRUCT/ARRAY
+Argument type: STRING, STRING, BYTE/SHORT/INTEGER/LONG/FLOAT/DOUBLE/STRING/BOOLEAN/DATE/TIME/TIMESTAMP/INTERVAL/IP/STRUCT/ARRAY
 
-Return type: JSON_STRING
+Return type: STRING
 
 Example::
 

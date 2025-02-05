@@ -315,13 +315,24 @@ public class JsonFunctionsTest {
   }
 
   @Test
-  void json_set_update() {
+  void json_set_update_singleProperty() {
     FunctionExpression functionExpression =
         DSL.jsonSet(
             DSL.literal("{\"members\":[{\"name\":\"alice\"}]}"),
             DSL.literal("$.members[0].name"),
             DSL.literal("andy"));
     assertEquals("{\"members\":[{\"name\":\"andy\"}]}", functionExpression.valueOf().stringValue());
+  }
+
+  @Test
+  void json_set_update_multipleProperties() {
+    FunctionExpression functionExpression =
+            DSL.jsonSet(
+                    DSL.literal("{\"members\":[{\"name\":\"alice\"}, {\"name\":\"ben\"}]}"),
+                    DSL.literal("$.members..name"),
+                    DSL.literal("andy"));
+    assertEquals("{\"members\":[{\"name\":\"andy\"},{\"name\":\"andy\"}]}",
+            functionExpression.valueOf().stringValue());
   }
 
   @Test
@@ -334,6 +345,18 @@ public class JsonFunctionsTest {
     assertEquals(
         "{\"members\":[{\"name\":\"alice\",\"age\":\"18\"}]}",
         functionExpression.valueOf().stringValue());
+  }
+
+  @Test
+  void json_set_insert_multiple_new_properties() {
+    FunctionExpression functionExpression =
+            DSL.jsonSet(
+                    DSL.literal("{\"members\":[{\"name\":\"alice\"},{\"name\":\"ben\"}]}"),
+                    DSL.literal("$.members..age"),
+                    DSL.literal("18"));
+    assertEquals(
+            "{\"members\":[{\"name\":\"alice\",\"age\":\"18\"}]}",
+            functionExpression.valueOf().stringValue());
   }
 
   @Test
@@ -358,4 +381,57 @@ public class JsonFunctionsTest {
 
     assertEquals(LITERAL_NULL, functionExpression.valueOf());
   }
+
+
+  @Test
+  void json_set_noMatch_property() {
+    FunctionExpression functionExpression =
+            DSL.jsonSet(
+                    DSL.literal("{\"members\":[{\"name\":\"alice\"}]}"),
+                    DSL.literal("$.members[0].age.innerAge"),
+                    DSL.literal("18"));
+    assertEquals(
+            "{\"members\":[{\"name\":\"alice\",\"age\":{\"innerAge\":\"18\"}}]}",
+            functionExpression.valueOf().stringValue());
+  }
+
+  @Test
+  void json_set_noMatch_array() {
+    FunctionExpression functionExpression =
+            DSL.jsonSet(
+                    DSL.literal("{\"members\":[{\"name\":\"alice\"}]}"),
+                    DSL.literal("$.members[0].age.innerArray"),
+                    DSL.literal(
+                            new ExprCollectionValue(List.of(
+                                    new ExprStringValue("18"),
+                                    new ExprStringValue("20")
+                            ))));
+    assertEquals(
+            "{\"members\":[{\"name\":\"alice\",\"age\":{\"innerArray\":[\"18\",\"20\"]}}]}",
+            functionExpression.valueOf().stringValue());
+  }
+
+
+  @Test
+  void json_set_singleMatch_property() {
+
+  }
+
+  @Test
+  void json_set_singleMatch_array() {
+
+  }
+
+  @Test
+  void json_set_multiMatches_property() {
+
+  }
+
+  @Test
+  void json_set_multiMatches_array() {
+
+  }
+
+
+
 }

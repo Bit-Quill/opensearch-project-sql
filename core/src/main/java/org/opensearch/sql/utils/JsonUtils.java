@@ -15,6 +15,8 @@ import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.PathNotFoundException;
+
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -160,14 +162,25 @@ public class JsonUtils {
           return new ExprStringValue(docContext.jsonString());
         }
         case String ignored -> {
+          // Single match property
+
           // Override an existing property
           String updatedJson = docContext.set(pathUnquoted, valueUnquoted).jsonString();
           return new ExprStringValue(updatedJson);
         }
-        case Iterable<?> ignored -> {
-          // New element in the array.
-          String updatedJson = docContext.add(pathUnquoted, valueUnquoted).jsonString();
-          return new ExprStringValue(updatedJson);
+        case List<?> matches -> {
+          // Multi matches property, array, single match array
+          if (matches.isEmpty()) {
+            String updatedJson = docContext.add(pathUnquoted, valueUnquoted).jsonString();
+            return new ExprStringValue(updatedJson);
+          } else if (matches.getFirst() instanceof Collection<?>) {
+            String updatedJson = docContext.add(pathUnquoted, valueUnquoted).jsonString();
+            return new ExprStringValue(updatedJson);
+          } else {
+            // New element in the array.
+            String updatedJson = docContext.set(pathUnquoted, valueUnquoted).jsonString();
+            return new ExprStringValue(updatedJson);
+          }
         }
         default -> {
           return LITERAL_NULL;
