@@ -15,14 +15,11 @@ import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.PathNotFoundException;
-
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import lombok.experimental.UtilityClass;
-import org.opensearch.sql.common.utils.StringUtils;
 import org.opensearch.sql.data.model.ExprCollectionValue;
 import org.opensearch.sql.data.model.ExprDoubleValue;
 import org.opensearch.sql.data.model.ExprIntegerValue;
@@ -147,45 +144,29 @@ public class JsonUtils {
   /** Converts a JSON encoded string to an Expression object. */
   public static ExprValue setJson(ExprValue json, ExprValue path, ExprValue valueToInsert) {
 
-    String jsonUnquoted = StringUtils.unquoteText(json.stringValue());
-    String pathUnquoted = StringUtils.unquoteText(path.stringValue());
+    String jsonUnquoted = json.stringValue();
+    String pathUnquoted = path.stringValue();
     Object valueUnquoted = valueToInsert.value();
     Configuration conf =
         Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS);
     try {
       JsonPath jsonPath = JsonPath.compile(pathUnquoted);
       DocumentContext docContext = JsonPath.using(conf).parse(jsonUnquoted);
-      switch (docContext.read(jsonPath)) {
-        case null -> {
-          // Insert a new property
-          recursiveCreate(docContext, pathUnquoted, valueUnquoted);
-          return new ExprStringValue(docContext.jsonString());
-        }
-        case String ignored -> {
-          // Single match property
-
-          // Override an existing property
-          String updatedJson = docContext.set(pathUnquoted, valueUnquoted).jsonString();
-          return new ExprStringValue(updatedJson);
-        }
-        case List<?> matches -> {
-          // Multi matches property, array, single match array
-          if (matches.isEmpty()) {
-            String updatedJson = docContext.add(pathUnquoted, valueUnquoted).jsonString();
-            return new ExprStringValue(updatedJson);
-          } else if (matches.getFirst() instanceof Collection<?>) {
-            String updatedJson = docContext.add(pathUnquoted, valueUnquoted).jsonString();
-            return new ExprStringValue(updatedJson);
-          } else {
-            // New element in the array.
-            String updatedJson = docContext.set(pathUnquoted, valueUnquoted).jsonString();
-            return new ExprStringValue(updatedJson);
-          }
-        }
-        default -> {
-          return LITERAL_NULL;
+      Object readResult = docContext.read(jsonPath);
+      if (readResult == null) {
+        recursiveCreate(docContext, pathUnquoted, valueUnquoted).jsonString();
+      } else if (readResult instanceof String) {
+        docContext.set(pathUnquoted, valueUnquoted).jsonString();
+      } else {
+        if (((List<?>) readResult).isEmpty()) {
+          docContext.add(pathUnquoted, valueUnquoted).jsonString();
+        } else {
+          // New element in the array.
+          docContext.set(pathUnquoted, valueUnquoted).jsonString();
         }
       }
+      return new ExprStringValue(docContext.jsonString());
+
     } catch (InvalidModificationException
         | InvalidJsonException
         | InvalidPathException
@@ -202,7 +183,8 @@ public class JsonUtils {
    * @param path path in String to perform insertion.
    * @param value value to be inserted with given path.
    */
-  private static void recursiveCreate(DocumentContext docContext, String path, Object value) {
+  private static DocumentContext recursiveCreate(
+      DocumentContext docContext, String path, Object value) {
     final int pos = path.lastIndexOf('.');
     final String parent = path.substring(0, pos);
     final String current = path.substring(pos + 1);
@@ -210,6 +192,6 @@ public class JsonUtils {
     if (docContext.read(parent) == null) {
       recursiveCreate(docContext, parent, new LinkedHashMap<>());
     }
-    docContext.put(parent, current, value);
+    return docContext.put(parent, current, value);
   }
 }
