@@ -260,13 +260,13 @@ public class TestUtils {
     return getMappingFile(mappingFile);
   }
 
-  public static String getAliasIndexMapping() {
-    String mappingFile = "alias_index_mapping.json";
+  public static String getExpandFlattenIndexMapping() {
+    String mappingFile = "expand_flatten_mapping.json";
     return getMappingFile(mappingFile);
   }
 
-  public static String getFlattenIndexMapping() {
-    String mappingFile = "flatten_mapping.json";
+  public static String getAliasIndexMapping() {
+    String mappingFile = "alias_index_mapping.json";
     return getMappingFile(mappingFile);
   }
 

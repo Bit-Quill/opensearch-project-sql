@@ -13,6 +13,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +33,10 @@ public class ExprValueUtils {
   public static final ExprValue LITERAL_MISSING = ExprMissingValue.of();
 
   /** Qualified name separator string */
-  public final String QUALIFIED_NAME_SEPARATOR = ".";
+  private final String QUALIFIED_NAME_SEPARATOR = ".";
 
   /** Pattern that matches the qualified name separator string */
-  public final Pattern QUALIFIED_NAME_SEPARATOR_PATTERN =
+  private final Pattern QUALIFIED_NAME_SEPARATOR_PATTERN =
       Pattern.compile(QUALIFIED_NAME_SEPARATOR, Pattern.LITERAL);
 
   public static ExprValue booleanValue(Boolean value) {
@@ -209,5 +210,15 @@ public class ExprValueUtils {
 
   public static Boolean getBooleanValue(ExprValue exprValue) {
     return exprValue.booleanValue();
+  }
+
+  /** Splits the given qualified name into components and returns the result. */
+  public List<String> splitQualifiedName(String qualifiedName) {
+    return Arrays.asList(QUALIFIED_NAME_SEPARATOR_PATTERN.split(qualifiedName, -1));
+  }
+
+  /** Joins the given components into a qualified name and returns the result. */
+  public String joinQualifiedName(List<String> components) {
+    return String.join(QUALIFIED_NAME_SEPARATOR, components);
   }
 }

@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -52,6 +53,7 @@ import org.opensearch.sql.ast.tree.Aggregation;
 import org.opensearch.sql.ast.tree.CloseCursor;
 import org.opensearch.sql.ast.tree.Dedupe;
 import org.opensearch.sql.ast.tree.Eval;
+import org.opensearch.sql.ast.tree.Expand;
 import org.opensearch.sql.ast.tree.FetchCursor;
 import org.opensearch.sql.ast.tree.FillNull;
 import org.opensearch.sql.ast.tree.Filter;
@@ -99,6 +101,7 @@ import org.opensearch.sql.planner.logical.LogicalAggregation;
 import org.opensearch.sql.planner.logical.LogicalCloseCursor;
 import org.opensearch.sql.planner.logical.LogicalDedupe;
 import org.opensearch.sql.planner.logical.LogicalEval;
+import org.opensearch.sql.planner.logical.LogicalExpand;
 import org.opensearch.sql.planner.logical.LogicalFetchCursor;
 import org.opensearch.sql.planner.logical.LogicalFilter;
 import org.opensearch.sql.planner.logical.LogicalFlatten;
@@ -450,6 +453,45 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   }
 
   /**
+   * Builds and returns a {@link LogicalExpand} corresponding to the given expand node.
+   *
+   * <p><b>Example</b>
+   *
+   * <p>Input Data:
+   *
+   * <pre>
+   * [
+   *    {
+   *       collection: [ "value_1", "value_2" ],
+   *       integer: 0
+   *      }
+   * ]
+   * </pre>
+   *
+   * Query: <code>expand collection</code>
+   *
+   * <pre>
+   * [
+   *    {
+   *       collection: "value_1",
+   *       integer: 0
+   *    },
+   *    {
+   *       collection: "value_2",
+   *       integer: 0
+   *    }
+   * ]
+   * </pre>
+   */
+  @Override
+  public LogicalPlan visitExpand(Expand node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().getFirst().accept(this, context);
+    ReferenceExpression fieldExpr =
+        (ReferenceExpression) expressionAnalyzer.analyze(node.getField(), context);
+    return new LogicalExpand(child, fieldExpr);
+  }
+
+  /**
    * Builds and returns a {@link org.opensearch.sql.planner.logical.LogicalFlatten} corresponding to
    * the given flatten node, and adds the new fields to the current type environment.
    *
@@ -458,37 +500,43 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
    * <p>Input Data:
    *
    * <pre>
-   * {
-   *   struct: {
-   *     integer: 0,
-   *     nested_struct: { string: "value" }
-   *   }
-   * }
+   * [
+   *    {
+   *       struct: {
+   *         integer: 0,
+   *         nested_struct: { string: "value" }
+   *       }
+   *    }
+   * ]
    * </pre>
    *
    * Query 1: <code>flatten struct</code>
    *
    * <pre>
-   * {
-   *   struct: {
-   *     integer: 0,
-   *     nested_struct: { string: "value" }
-   *   },
-   *   integer: 0,
-   *   nested_struct: { string: "value" }
-   * }
+   * [
+   *    {
+   *       struct: {
+   *         integer: 0,
+   *         nested_struct: { string: "value" }
+   *       },
+   *       integer: 0,
+   *       nested_struct: { string: "value" }
+   *    }
+   * ]
    * </pre>
    *
    * Query 2: <code>flatten struct.nested_struct</code>
    *
    * <pre>
-   * {
-   *   struct: {
-   *     integer: 0,
-   *     nested_struct: { string: "value" },
-   *     string: "value"
-   *   }
-   * }
+   * [
+   *    {
+   *       struct: {
+   *         integer: 0,
+   *         nested_struct: { string: "value" },
+   *         string: "value"
+   *       }
+   *    }
+   * ]
    * </pre>
    */
   @Override
@@ -497,7 +545,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
 
     ReferenceExpression fieldExpr =
         (ReferenceExpression) expressionAnalyzer.analyze(node.getField(), context);
-    String fieldName = fieldExpr.getAttr();
+    String qualifiedName = fieldExpr.getAttr();
 
     // [A] Determine fields to add
     // ---------------------------
@@ -510,25 +558,21 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     TypeEnvironment env = context.peek();
     Map<String, ExprType> fieldsMap = env.lookupAllTupleFields(FIELD_NAME);
 
-    final String fieldParentPathPrefix =
-        fieldName.contains(ExprValueUtils.QUALIFIED_NAME_SEPARATOR)
-            ? fieldName.substring(0, fieldName.lastIndexOf(ExprValueUtils.QUALIFIED_NAME_SEPARATOR))
-                + ExprValueUtils.QUALIFIED_NAME_SEPARATOR
-            : "";
-
-    // Get entries for paths that are descended from the flattened field.
-    final String fieldDescendantPathPrefix = fieldName + ExprValueUtils.QUALIFIED_NAME_SEPARATOR;
-    List<Map.Entry<String, ExprType>> fieldDescendantEntries =
-        fieldsMap.entrySet().stream()
-            .filter(e -> e.getKey().startsWith(fieldDescendantPathPrefix))
+    List<String> descendantQualifiedNames =
+        fieldsMap.keySet().stream()
+            .filter(name -> name.startsWith(qualifiedName) && !name.equals(qualifiedName))
             .toList();
 
     // Get fields to add from descendant entries.
+    int numQualifiedNameComponents = ExprValueUtils.splitQualifiedName(qualifiedName).size();
+
     Map<String, ExprType> addFieldsMap = new HashMap<>();
-    for (Map.Entry<String, ExprType> entry : fieldDescendantEntries) {
-      String newPath =
-          fieldParentPathPrefix + entry.getKey().substring(fieldDescendantPathPrefix.length());
-      addFieldsMap.put(newPath, entry.getValue());
+    for (String name : descendantQualifiedNames) {
+      List<String> components = new LinkedList<>(ExprValueUtils.splitQualifiedName(name));
+      components.remove(numQualifiedNameComponents - 1);
+
+      String newName = ExprValueUtils.joinQualifiedName(components);
+      addFieldsMap.put(newName, fieldsMap.get(name));
     }
 
     // [B] Add new fields to type environment

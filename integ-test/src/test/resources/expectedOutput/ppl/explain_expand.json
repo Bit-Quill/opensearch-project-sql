@@ -2,17 +2,17 @@
   "root": {
     "name": "ProjectOperator",
     "description": {
-      "fields": "[teams, city, location, country, province, coordinates, state]"
+      "fields": "[teams, city, location]"
     },
     "children": [
       {
-        "name": "FlattenOperator",
+        "name": "ExpandOperator",
         "description": {
-          "flattenField": {
-            "attr": "location",
-            "rawPath": "location",
+          "expandField": {
+            "attr": "teams",
+            "rawPath": "teams",
             "paths": [
-              "location"
+              "teams"
             ],
             "type": "STRUCT"
           }

@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.opensearch.sql.ast.tree.Trendline.TrendlineType.SMA;
+import static org.opensearch.sql.data.type.ExprCoreType.ARRAY;
 import static org.opensearch.sql.data.type.ExprCoreType.STRING;
 import static org.opensearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.opensearch.sql.expression.DSL.named;
@@ -154,32 +155,34 @@ class LogicalPlanNodeVisitorTest {
                     ExprCoreType.DOUBLE)));
 
     LogicalFlatten flatten = new LogicalFlatten(relation, ref("testField", STRUCT));
+    LogicalExpand expand = new LogicalExpand(relation, ref("testField", ARRAY));
 
     return Stream.of(
-            relation,
-            tableScanBuilder,
-            write,
-            tableWriteBuilder,
-            filter,
-            aggregation,
-            rename,
-            project,
-            remove,
-            eval,
-            sort,
-            dedup,
-            window,
-            rareTopN,
-            highlight,
-            mlCommons,
             ad,
-            ml,
-            paginate,
-            nested,
-            cursor,
+            aggregation,
             closeCursor,
+            cursor,
+            dedup,
+            eval,
+            filter,
+            flatten,
+            expand,
+            highlight,
+            ml,
+            mlCommons,
+            nested,
+            paginate,
+            project,
+            rareTopN,
+            relation,
+            remove,
+            rename,
+            sort,
+            tableScanBuilder,
+            tableWriteBuilder,
             trendline,
-            flatten)
+            window,
+            write)
         .map(Arguments::of);
   }
 
